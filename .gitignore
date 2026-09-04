@@ -1,0 +1,64 @@
+# Local AI workspaces. Never add exceptions inside these directories.
+/.codex/
+/.opencode/
+/.tools
+
+# Generated reports and policy deliveries (legacy paths are local aliases).
+/report/
+/reports
+/models
+/_cleanup_*/
+/.dsh_tmp/
+
+# Training output, simulator caches and local environment state.
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+runs/
+logs/
+/.ssh-4090/
+/.npm-cache/
+
+# Checkpoints, exports, traces, logs and delivery archives.
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.log
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bundle
+*.patch
+events.out.tfevents.*
+
+# Markdown belongs in docs/, apart from repository entry points and notices.
+*.md
+*.mdx
+*.markdown
+!**/README.md
+!/AGENTS.md
+!/assets/urdf_v40/evidence/V40_TRAINING_DESIGN.md
+!/docs/**/*.md
+!/docs/**/*.mdx
+!/docs/**/*.markdown
+!**/LICENSE.md
+!**/NOTICE.md
+!**/THIRD_PARTY_NOTICES.md
+
+# docs/ contains maintained documentation, not generated run evidence.
+/docs/evidence/
+/docs/report/
+/docs/reports/
+/docs/runC_curves.png
+/docs/training_curves.png
+
+# Compatibility aliases for older local exported-policy packages.
+/model/*_u[0-9]*
