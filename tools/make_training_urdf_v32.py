@@ -107,21 +107,20 @@ for name in ("base_link","L_link1","L_link2","L_link3","R_link1","R_link2","R_li
         n_removed = len(faces) - len(kept)
         faces = kept
         print(f"{name}: removed {n_removed}/{len(kept)+n_removed} stray faces")
-    # voxel-decimate very large meshes to 2mm for MuJoCo hull speed
+    # voxel-decimate very large meshes to 2mm for MuJoCo hull speed:
+    # keep faces that have at least one vertex on the 2mm voxel grid.
     verts = np.array([v for f in faces for v in f])
     if len(verts) > 50000:
         grid = np.floor(verts / 0.002).astype(np.int64)
-        keys, idx = np.unique(grid, axis=0, return_index=True)
-        sel = set(idx.tolist())
-        faces = [f for f in faces if any(
-            tuple(np.floor(np.asarray(v)/0.002).astype(np.int64)) in {} for v in f)]
-        # simpler: keep faces where at least one vertex survives voxel downsampling
+        occupied = {tuple(k) for k in grid}
         keep_faces = []
         for f in faces:
             for v in f:
-                if tuple(np.floor(np.asarray(v)/0.002).astype(np.int64)) in set(map(tuple, grid[idx])):
-                    keep_faces.append(f); break
-        print(f"{name}: decimated {len(verts)} verts -> {len(keys)} unique voxels")
+                if tuple(np.floor(np.asarray(v)/0.002).astype(np.int64)) in occupied:
+                    keep_faces.append(f)
+                    break
+        print(f"{name}: decimated {len(verts)} verts -> {len(occupied)} unique voxels, "
+              f"{len(faces)} -> {len(keep_faces)} faces")
         faces = keep_faces
     write_stl(os.path.join(OUT_DIR, "meshes", name + ".STL"), faces)
 print("meshes written")
