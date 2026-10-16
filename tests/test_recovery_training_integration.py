@@ -82,6 +82,20 @@ def test_whole_mixed_policy_interval_is_excluded(rig):
     assert recovery.learning_mask.all()
 
 
+@pytest.mark.parametrize("policy_dt", [.02, .005])
+def test_200hz_physics_keeps_a_200hz_recovery_reference_at_both_policy_rates(rig, tmp_path, policy_dt):
+    env, old = rig
+    env.dt, env.policy_dt = .005, policy_dt
+    recovery = RecoveryTraining(env, tmp_path, old.settings)
+    recovery.reset(torch.arange(2))
+    recovery.begin_policy()
+    assert recovery.reference_stride == 1
+    assert recovery.reference_dt == .005
+    q, dq = env.nominal[:, env.ids], torch.zeros(2, 6)
+    env.v5.motor_efforts(q, dq, q[:, [0, 1, 3, 4]], dq[:, [2, 5]])
+    assert recovery.torque(q, dq, torch.ones(2, 6))[0].eq(0.).all()
+
+
 def test_initial_profile_only_replaces_selected_lanes(rig):
     env, recovery = rig
     root, joint, velocity = torch.ones(2, 7), torch.ones_like(env.nominal), torch.ones(2, 6)

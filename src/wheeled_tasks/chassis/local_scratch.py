@@ -1,8 +1,8 @@
 """An independent local experiment using the frozen native V6 speed recipe.
 
-The native worker and independent design are authenticated separately. Only
-initialization, population, curriculum origins and the independent local budget
-change; the latest speed reward, mechanics and physical safeguards are retained.
+The native worker and independent design are authenticated separately. The local
+200 Hz policy plan explicitly converts rollout, discount and action differences
+in physical time; the latest speed objectives and physical safeguards remain.
 """
 from copy import deepcopy
 import hashlib
@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 
 
-PLAN_FILE = "contracts/v6_local_scratch_v1.json"
+PLAN_FILE = "contracts/v6_local_scratch_200hz_v1.json"
+LEGACY_PLAN_FILE = "contracts/v6_local_scratch_v1.json"
 SCHEMA = "v6-local-scratch-worker-v1"
 
 
@@ -18,14 +19,18 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def read_plan(root):
+def read_plan(root, plan_file=PLAN_FILE):
     root = Path(root)
-    plan = json.loads((root / PLAN_FILE).read_text())
+    if plan_file not in (PLAN_FILE, LEGACY_PLAN_FILE):
+        raise ValueError("Unsupported local scratch plan file")
+    plan = json.loads((root / plan_file).read_text())
     if plan.get("schema") != "v6-local-scratch-plan-v1":
         raise ValueError("Unsupported local scratch plan")
     for name in ("source_worker", "source_design", "reward_reference"):
         if digest(root / plan[name + "_file"]) != plan[name + "_sha256"]:
             raise ValueError(f"Local scratch {name} source changed")
+    if plan_file == PLAN_FILE and digest(root / plan["control_file"]) != plan["control_sha256"]:
+        raise ValueError("Local scratch 200 Hz control source changed")
     return plan
 
 
@@ -44,9 +49,9 @@ def _encode(value):
     return (json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode()
 
 
-def build_bundle(root, directory, num_envs):
+def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
     root = Path(root)
-    plan = read_plan(root)
+    plan = read_plan(root, plan_file)
     if type(num_envs) is not int or num_envs not in plan["allowed_num_envs"]:
         raise ValueError("Local scratch environment count must be one of the frozen populations")
     paths = bundle_paths(root, directory)
@@ -59,24 +64,37 @@ def build_bundle(root, directory, num_envs):
             k: v for k, v in latest.items() if k not in bindings}:
         raise ValueError("Latest speed recipe no longer matches the authenticated native reward source")
     worker.pop("task_campaign")
+    timing_changes = ()
+    if plan_file == PLAN_FILE:
+        temporal = plan["ppo_timing"]
+        worker.update(physics_dt=plan["timing"]["physics_dt"], policy_dt=plan["timing"]["policy_dt"],
+            control_math_source=plan["control_file"], control_math_sha256=plan["control_sha256"],
+            num_steps_per_env=temporal["num_steps_per_env"], gamma=temporal["gamma"], lam=temporal["lam"],
+            action_difference_reference_dt=plan["action_difference_reference_dt"])
+        timing_changes = ("physics_dt", "policy_dt", "control_math_source", "control_math_sha256",
+            "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt")
     worker.update(target_num_envs=num_envs,
         ppo_minibatch_samples=num_envs * worker["num_steps_per_env"] // worker["num_mini_batches"],
         checkpoint_first_update=plan["checkpoint_first_update"])
     for field, origin in plan["curriculum_origins"].items():
         worker[field]["origin_actor_update"] = origin
-    marker = dict(schema=SCHEMA, plan_file=PLAN_FILE, plan_sha256=digest(root / PLAN_FILE),
+    marker = dict(schema=SCHEMA, plan_file=plan_file, plan_sha256=digest(root / plan_file),
         initialization=plan["initialization"], num_envs=num_envs, seed=plan["seed"])
     worker["local_scratch"] = marker
     budget = dict(schema="v6-local-scratch-budget-v1", initialization=plan["initialization"],
         inherited_consumption=0, update_ceiling=plan["update_ceiling"], num_envs=num_envs,
         num_steps_per_env=worker["num_steps_per_env"],
         transition_ceiling=plan["update_ceiling"] * num_envs * worker["num_steps_per_env"])
+    if plan_file == PLAN_FILE:
+        budget.update(policy_dt=worker["policy_dt"],
+            rollout_seconds=worker["num_steps_per_env"] * worker["policy_dt"],
+            simulated_seconds_per_env_ceiling=plan["update_ceiling"] * worker["num_steps_per_env"] * worker["policy_dt"])
     worker.update(budget_spec_file=paths["budget"], budget_spec_sha256=hashlib.sha256(_encode(budget)).hexdigest())
     source_design = json.loads((root / plan["source_design_file"]).read_text())
     row = deepcopy(source_design["stages"][plan["stage"]]["roles"]["train"])
     row["contract"].pop("task_campaign")
     changes = ("target_num_envs", "ppo_minibatch_samples", "checkpoint_first_update",
-        "budget_spec_file", "budget_spec_sha256", *plan["curriculum_origins"])
+        "budget_spec_file", "budget_spec_sha256", *plan["curriculum_origins"], *timing_changes)
     for key in changes:
         row["contract"][key] = deepcopy(worker[key])
     row["contract"]["local_scratch"] = deepcopy(marker)
@@ -86,10 +104,18 @@ def build_bundle(root, directory, num_envs):
         if "origin_actor_update" in expected:
             expected["origin_actor_update"] = origin
         expected["settings"]["origin_actor_update"] = origin
+    if plan_file == PLAN_FILE:
+        control = json.loads((root / plan["control_file"]).read_text())
+        row["control"]["timing"] = deepcopy(plan["timing"])
+        row["control"]["simulation_timing_approximation"] = deepcopy(control["simulation_timing_approximation"])
+        row["runtime"].update(plan["timing"])
+        row["runtime"]["action_difference_reference_dt"] = plan["action_difference_reference_dt"]
+        for field in ("finite_passive_landing", "start_stop_timing", "nonstandard_start", "release_stop"):
+            row["runtime"][field]["policy_dt"] = plan["timing"]["policy_dt"]
     design = dict(schema=source_design["schema"], status="frozen", scope=source_design["scope"],
         training_release=False, hardware_deployment_ready=False,
         review_basis=dict(source_design_file=plan["source_design_file"],
-            source_design_sha256=plan["source_design_sha256"], plan_file=PLAN_FILE,
+            source_design_sha256=plan["source_design_sha256"], plan_file=plan_file,
             plan_sha256=marker["plan_sha256"], changed_contract_paths=list(changes) + ["task_campaign", "local_scratch"]),
         stages={plan["stage"]: {"roles": {"train": row}}})
     worker["design_preflight"] = dict(file=paths["design"],
@@ -97,8 +123,8 @@ def build_bundle(root, directory, num_envs):
     return paths, {"worker": worker, "design": design, "budget": budget}
 
 
-def write_bundle(root, directory, num_envs):
-    paths, bundle = build_bundle(root, directory, num_envs)
+def write_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
+    paths, bundle = build_bundle(root, directory, num_envs, plan_file=plan_file)
     directory = Path(root) / Path(paths["worker"]).parent
     directory.mkdir(parents=True, exist_ok=False)
     for name, value in bundle.items():
@@ -111,7 +137,7 @@ def validate_config(config, root):
     if marker.get("schema") != SCHEMA:
         raise ValueError("Unsupported local scratch worker")
     directory = Path(config["design_preflight"]["file"]).parent
-    _, bundle = build_bundle(root, directory, marker.get("num_envs"))
+    _, bundle = build_bundle(root, directory, marker.get("num_envs"), plan_file=marker.get("plan_file"))
     if config != bundle["worker"]:
         raise ValueError("Local scratch worker differs from its frozen native derivation")
     for name in ("design", "budget"):
@@ -123,7 +149,7 @@ def validate_config(config, root):
 
 def validate_invocation(config, args, root):
     validate_config(config, root)
-    plan = read_plan(root)
+    plan = read_plan(root, config["local_scratch"]["plan_file"])
     # This entry cannot impersonate a continuation or import someone else's
     # optimizer, consumption or curriculum clock.
     if (args.resume or args.transfer or args.consumed_updates is not None
@@ -136,9 +162,9 @@ def validate_invocation(config, args, root):
         raise ValueError("Local scratch requires fresh learning state, zero clocks and its frozen invocation")
 
 
-def source_files(root):
-    plan = read_plan(root)
-    return [PLAN_FILE, "src/wheeled_tasks/chassis/local_scratch.py", "scripts/train_local_chassis.py",
+def source_files(root, plan_file=PLAN_FILE):
+    plan = read_plan(root, plan_file)
+    return [plan_file, "src/wheeled_tasks/chassis/local_scratch.py", "scripts/train_local_chassis.py",
         plan["source_worker_file"], plan["source_design_file"], plan["reward_reference_file"],
         "src/wheeled_tasks/chassis/nonstandard_start.py", "src/wheeled_tasks/chassis/nonstandard_start_revision.py",
         "src/wheeled_tasks/chassis/release_stop.py", "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",

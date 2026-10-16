@@ -442,11 +442,11 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         errors.append(str(error))
         decimation = None
     # Coarse training is explicitly declared; it is never relabeled as 1 kHz feedback.
-    from .control_contract import COARSE_SCOPE, validate_chassis_control
-    coarse = control.get("simulation_timing_approximation") == COARSE_SCOPE
-    if coarse:
+    from .control_contract import declared_control_timing, validate_chassis_control
+    if "simulation_timing_approximation" in control:
         validate_chassis_control(control)
-    for path, value in (("physics_dt", .005 if coarse else .001), ("policy_dt", .02),
+    timing = declared_control_timing(control)
+    for path, value in (("physics_dt", timing["physics_dt"]), ("policy_dt", timing["policy_dt"]),
                         ("v5_control.leg_kp", 160.), ("v5_control.leg_kd", 2.5)):
         _compare(value, _at(config, path), f"reference.{path}", errors)
     _compare(.6, _at(control, "actuators.wheel.kd"), "reference.wheel_velocity_p", errors)
