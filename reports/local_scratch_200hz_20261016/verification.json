@@ -1,0 +1,132 @@
+{
+  "status": "passed",
+  "recorded_at_utc": "2026-10-16T15:34:36.734078+00:00",
+  "scope": "local_200hz_policy_fresh_learning_engineering_check_not_behavior_acceptance",
+  "environment": "isaacsim6",
+  "torch": "2.11.0+cu128",
+  "source": {
+    "commit": "71d399888fddc5c599d420dd8e84c9a73bcc8d4a",
+    "source_archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_sources/20261016T153136Z-f8152a31/source.tar.gz",
+    "source_archive_sha256": "70c06654b9b1c7934f8e9e393b23acfa412df7a63b8ed62a5b2047ad0add336a",
+    "frozen_source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_sources/20261016T153136Z-f8152a31/source"
+  },
+  "cpu_checks": [
+    {
+      "files": [
+        "tests/test_local_scratch.py",
+        "tests/test_chassis_preflight.py",
+        "tests/test_new_asset_preflight.py",
+        "tests/test_recovery_training_integration.py",
+        "tests/test_recovery_takeover_rewards.py",
+        "tests/test_new_asset_rewards.py",
+        "tests/test_training_timing.py"
+      ],
+      "passed": 281,
+      "note": "Before adding the two new recovery-rate cases; overlaps with later run"
+    },
+    {
+      "files": [
+        "tests/test_local_scratch.py",
+        "tests/test_recovery_training_integration.py",
+        "tests/test_task_campaign_200hz.py",
+        "tests/test_physical_signal_delay.py",
+        "tests/test_transport_contract.py",
+        "tests/test_locomotion_reward_payment_capture.py",
+        "tests/test_native_reward_extras.py"
+      ],
+      "passed": 148,
+      "note": "Final rate/reward/recovery/transport checks; includes both new recovery-rate cases"
+    }
+  ],
+  "native_scene": {
+    "run_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_200hz_validation_20261016_001",
+    "completion_sha256": "5996f7cf68ecaf58f5f89dab1e2a7f202c21ffd3d48d93fec93a46a09c42762e",
+    "status": "scene_validated",
+    "num_envs": 512,
+    "scene_capacity": {
+      "scope": "physics_only_no_ppo_allocation",
+      "policy_steps": 96,
+      "physics_steps_per_env": 96,
+      "wall_seconds": 19.406000805000076,
+      "environment_transitions_per_second": 2532.8247944489253
+    },
+    "control_timing": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.005,
+      "decimation": 1,
+      "pc_control_dt": 0.005,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": {
+        "policy_steps": 96,
+        "physics_steps": 96,
+        "target_decodes": 1,
+        "pd_updates": 1,
+        "feedback_refreshes": 1,
+        "physics_dt": 0.005,
+        "policy_dt": 0.005
+      }
+    },
+    "runtime_configuration_status": "runtime_configuration_passed",
+    "ppo_updates": 0
+  },
+  "ppo_smoke": {
+    "run_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_200hz_ppo_smoke_20261016_001",
+    "completion_sha256": "ab513494dca7d6364bc1ce0652c11c5bfcba734cfc9fab001e99f8c8a5ae2d79",
+    "status": "completed",
+    "parent_updates": 0,
+    "successful_updates": 2,
+    "actor_updates": 2,
+    "ppo_timing": {
+      "gamma": 0.9974905699336811,
+      "lam": 0.9872585449014338,
+      "num_steps_per_env": 96,
+      "policy_dt": 0.005,
+      "rollout_seconds": 0.48
+    },
+    "batch_transitions": 49152,
+    "training_transitions": 98304,
+    "policy_learning_transitions": 90820,
+    "script_or_blend_transitions": 7484,
+    "changed_tensors_between_updates": {
+      "actor_state_dict": 9,
+      "critic_state_dict": 8
+    },
+    "optimizer_parameter_states": 17,
+    "checkpoint_sha256": "cacc14de9384155e7dcf6aa580876779630a41ef140385b3e18fbf90c0d46771",
+    "scalar_tag_count": 157,
+    "nonfinite_scalar_tags": [],
+    "losses": {
+      "Loss/value": [
+        17148.083984375,
+        18049.216796875
+      ],
+      "Loss/surrogate": [
+        -0.0014983398141339421,
+        -0.0013896157033741474
+      ],
+      "Loss/entropy": [
+        8.51294994354248,
+        8.509071350097656
+      ],
+      "Loss/learning_rate": [
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ]
+    }
+  },
+  "reward": {
+    "profile": "scut_v14_flat_v5",
+    "dense_version": "v6-dense-visible35-v1",
+    "source_reference": "contracts/v6_task_campaign_speed_worker_v27.json",
+    "action_difference_reference_dt": 0.02,
+    "action_rate_squared_multiplier": 16,
+    "second_difference_squared_multiplier": 256,
+    "density_integration_seconds": 0.005,
+    "event_payment": "once_per_event",
+    "signal_delay_jitter_clock": "policy_steps_at_200hz"
+  },
+  "long_training_started": false,
+  "local_tensorboard_service_started": false,
+  "behavior_acceptance": "not_evaluated"
+}
