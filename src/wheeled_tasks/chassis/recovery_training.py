@@ -37,8 +37,9 @@ class RecoveryTraining:
         relative_limits = torch.stack([side["delta_rad"][[0, -1]] for side in self.geometry.sides])
         self.encoders = ContinuousEncoderAngles(env.num_envs, env.device, relative_limits)
         self.reference_dt = settings.get("reference_dt", .005)
-        if env.dt not in (.001, .005) or env.policy_dt != .02 or self.reference_dt != .005:
-            raise ValueError("Recovery requires declared 1 kHz or 200 Hz PD, 200 Hz references and 50 Hz policy")
+        if ((env.dt, env.policy_dt) not in ((.001, .02), (.005, .02), (.005, .005))
+                or self.reference_dt != .005):
+            raise ValueError("Recovery requires declared PD/policy timing and 200 Hz references")
         self.reference_stride = round(self.reference_dt / env.dt)
         self.reference_tick = 0
         cfg = {key: settings[key] for key in RecoveryFSM.DEFAULTS if key in settings}

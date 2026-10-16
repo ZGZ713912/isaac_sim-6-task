@@ -13,7 +13,7 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from wheeled_tasks.chassis.local_scratch import read_plan, write_bundle
+from wheeled_tasks.chassis.local_scratch import PLAN_FILE, read_plan, write_bundle
 
 
 def freeze_source(root, directory):
@@ -55,7 +55,7 @@ def main():
         if pending:
             parser.error("Commit verified training changes before starting PPO")
         for file in ("scripts/train_local_chassis.py", "src/wheeled_tasks/chassis/local_scratch.py",
-                     "contracts/v6_local_scratch_v1.json"):
+                     PLAN_FILE, plan["control_file"]):
             if subprocess.run(["git", "ls-files", "--error-unmatch", file], cwd=ROOT,
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
                 parser.error("The local training entry and plan must be committed before PPO")
@@ -74,6 +74,7 @@ def main():
     if args.validate_scene:
         command.extend(["--validate-scene", str(args.validate_scene)])
     print("Local V6 scratch contract:", config, flush=True)
+    print("Timing: 200 Hz policy / 200 Hz physics / decimation 1; 96 steps = 0.48 s per rollout", flush=True)
     print("Training output:", run_dir, flush=True)
     os.execv(sys.executable, command)
 

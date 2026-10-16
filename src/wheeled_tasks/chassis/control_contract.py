@@ -14,6 +14,20 @@ COARSE_TIMING = {"physics_dt": .005, "policy_dt": .02, "pc_control_dt": .005, "d
 COARSE_SCOPE = {"model": "200hz_feedback_pd_with_1ms_transport_impulse",
                 "hardware_pd_dt": .001, "raw_bag_dt": .001,
                 "fresh_feedback_per_policy_step": 4, "hardware_equivalence_verified": False}
+POLICY_200_TIMING = {"physics_dt": .005, "policy_dt": .005, "pc_control_dt": .005, "decimation": 1}
+POLICY_200_SCOPE = {**COARSE_SCOPE, "model": "200hz_policy_and_feedback_pd_with_1ms_transport_impulse",
+                    "fresh_feedback_per_policy_step": 1}
+
+
+def declared_control_timing(control):
+    if "simulation_timing_approximation" not in control:
+        return {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
+    scope = control["simulation_timing_approximation"]
+    if scope == COARSE_SCOPE:
+        return dict(COARSE_TIMING)
+    if scope == POLICY_200_SCOPE:
+        return dict(POLICY_200_TIMING)
+    raise ValueError("Unknown simulation motor-control timing approximation")
 
 
 def load_chassis_control(path):
@@ -36,12 +50,11 @@ def validate_chassis_control(control):
     if control.get("control_frame") != "Xforward_Yleft_Zup" or control.get("active_order") != ACTIVE_ORDER:
         raise ValueError("Explicit motor prior requires canonical six active-output axes")
     timing = control["timing"]
-    coarse = control.get("simulation_timing_approximation") == COARSE_SCOPE
-    expected = COARSE_TIMING if coarse else {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
+    coarse = "simulation_timing_approximation" in control
+    expected = declared_control_timing(control)
     if (control_decimation(timing["physics_dt"], timing["policy_dt"]) != expected["decimation"]
-            or timing != expected or (coarse and not research)
-            or ("simulation_timing_approximation" in control and not coarse)):
-        raise ValueError("Motor prior requires authenticated 1 kHz or explicit 200 Hz research PD with 50 Hz targets")
+            or timing != expected or (coarse and not research)):
+        raise ValueError("Motor prior requires its declared 1 kHz/50 Hz, 200 Hz/50 Hz or 200 Hz/200 Hz research timing")
     leg, wheel = control["actuators"]["leg"], control["actuators"]["wheel"]
     for key, expected in (("kp", 160.), ("kd", 2.5), ("effort_limit", 40.)):
         if leg.get(key) != expected:

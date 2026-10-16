@@ -597,7 +597,8 @@ def main():
     source_files = list(dict.fromkeys(source_files))
     if c.get("local_scratch"):
         from wheeled_tasks.chassis.local_scratch import source_files as local_source_files
-        source_files = list(dict.fromkeys(source_files + local_source_files(ROOT) + [c["budget_spec_file"]]))
+        source_files = list(dict.fromkeys(source_files + local_source_files(ROOT,
+            c["local_scratch"]["plan_file"]) + [c["budget_spec_file"]]))
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
         target = args.run_dir / "source" / name
@@ -689,6 +690,9 @@ def main():
                     cfg.algorithm.schedule = c["learning_rate_schedule"]
                 if "entropy_coef" in c:
                     cfg.algorithm.entropy_coef = validate_entropy_coef(c["entropy_coef"])
+                for parameter in ("gamma", "lam"):
+                    if parameter in c:
+                        setattr(cfg.algorithm, parameter, c[parameter])
                 if args.stage in ("terrain", "mixed"):
                     cfg.algorithm.value_loss_coef = 2.
                 runner_config = cfg.to_dict()
@@ -697,6 +701,14 @@ def main():
                     runner_config["actor"]["distribution_cfg"]["init_std"] = c["initial_noise_std"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(runner_config, indent=2))
                 runner = OnPolicyRunner(env, deepcopy(runner_config), log_dir=str(args.run_dir), device=args.device)
+                if c.get("local_scratch"):
+                    report["ppo_timing"] = dict(gamma=runner.alg.gamma, lam=runner.alg.lam,
+                        num_steps_per_env=runner.alg.storage.num_transitions_per_env,
+                        policy_dt=env.policy_dt,
+                        rollout_seconds=runner.alg.storage.num_transitions_per_env * env.policy_dt)
+                    for parameter in ("gamma", "lam"):
+                        if parameter in c and report["ppo_timing"][parameter] != c[parameter]:
+                            raise ValueError(f"PPO {parameter} differs from the local timing contract")
                 report["entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
                 report["entropy_coef_source"] = "contract" if "entropy_coef" in c else "runner_default"
                 if args.transfer:
