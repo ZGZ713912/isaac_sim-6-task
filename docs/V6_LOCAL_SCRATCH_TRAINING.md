@@ -1,7 +1,7 @@
 # 本机 V6 从零训练
 
 使用 Conda `isaacsim6`。入口为 `scripts/train_local_chassis.py`，计划为
-`contracts/v6_local_scratch_v1.json`。
+`contracts/v6_local_scratch_200hz_v1.json`，默认 **200 Hz 策略、200 Hz 物理**。
 
 ```bash
 source /home/noir/miniconda3/etc/profile.d/conda.sh
@@ -20,14 +20,28 @@ speed 配方的 135 个场景组。最大课程目标为 5 m/s、3 圈/s；目�
 独立设计表以及 v27 reward 参照的 SHA-256。原生 v18 与 v27 静态 worker 的
 有效配置逐项一致，仅设计／续训绑定不同；准备器再次核对这一事实。
 
-保留 35D actor、81D critic、6D 动作、200 Hz 物理／反馈 PD、50 Hz 策略、
-64/32 求解器迭代、3 mm 闭链保护、轮响应模型和原生 reward 支付。当前分支的
+保留 35D actor、81D critic、6D 动作；物理、反馈 PD 和策略现在均为 200 Hz，
+每 5 ms 推理一次，decimation=1。闭链约束每个物理步求解，闭链间隙诊断
+也随策略升到 200 Hz。保留 64/32 求解器迭代、3 mm 闭链保护和轮响应模型。当前分支的
 通信模型和已有训练问题仍适用，见 `TRAINING_PAUSE_REVIEW_20261011.md`。
 
-本地差异是：512 并行，24 步 rollout，4 个 minibatch（各 3072 样本）；
+本地差异是：512 并行，96 步 rollout，4 个 minibatch（各 12288 样本）；
 独立 20000 更新上限与零历史消费；三个课程 origin 从 0 开始；首更新即保存
 checkpoint，其后沿用 500 更新快照间隔。允许的并行数为 256、512、1024，
 各自生成并绑定完整独立设计表。原作者的合同、学习状态和预算均保留原样。
+
+升频时每次 PPO 仍采集 0.48 s 仿真时间（原先 24×20 ms，现在 96×5 ms），
+PPO 参数更新发生在采样结束后；200 Hz 指动作推理频率。保持相同的折扣／GAE
+时间尺度：gamma=0.99^(1/4)=0.9974905699336811，
+lambda=0.95^(1/4)=0.9872585449014338。reward 密度仍只乘一次实际 policy_dt，
+成功／失败事件成本仍按事件支付。动作一阶／二阶差分以原 20 ms 为参考，
+对应平方惩罚分别乘 16／256；相同平滑轨迹的时间导数惩罚尺度保持一致。
+新策略的动作序列和采样粒度改变，不能把它视为旧策略轨迹逐点相同。
+
+动作／传感器延迟仍按 5 ms 物理时钟和毫秒范围计算，USB/CAN 仍用独立 1 ms
+传输时钟及力矩脉冲近似。原信号延迟配置明确按 policy_steps 刷新 jitter，
+因此 jitter 抽样随策略变为每 5 ms；这不是实测的硬件时延保证。
+恢复参考仍每 5 ms 更新；落地窗口、启停、非标准初始姿态和驻停时长均保留秒单位。
 
 每次运行使用新的输出目录 `runs/v6_local_scratch/<UTC时间>-<随机后缀>/`，
 包含 TensorBoard event、startup、progress、completion 和 checkpoint。
@@ -48,14 +62,14 @@ python scripts/train_local_chassis.py --preflight-only
 原生场景／reward 工程检查（零 PPO 更新）：
 
 ```bash
-python scripts/train_local_chassis.py --num-envs 512 --updates 1 --validate-scene 24
+python scripts/train_local_chassis.py --num-envs 512 --updates 1 --validate-scene 96
 ```
 
 此入口专用于新实验，不接受作者 checkpoint、旧消费或旧课程时钟。当前命令
 以全新初始化开始；同一实验的后续恢复需要使用其本地封存合同、checkpoint
 和预算记录，不能通过再次运行上述从零命令冒充续训。
 
-## 2026-10-16 本机验证
+## 2026-10-16 原 50 Hz 入口验证（历史记录）
 
 CPU 验证覆盖原生合同／时序回归，以及本地独立预算、来源拒绝和源码归档。
 512 环境真实执行 24 策略步／每环境 96 物理步，runtime preflight 与 4 次
@@ -68,3 +82,12 @@ TensorBoard event 含 157 个 scalar tag，loss 有限。
 迭代总时间约 28 秒，第二次约 14.90 秒；短窗不作为长期吞吐承诺。命令中的
 20000 是更新上限，604800 是 7 天墙钟上限，先达到者结束。当前只完成短测，
 没有启动 20000 次长训，也不由短测推断策略能力。
+
+## 200 Hz 变更验证计划
+
+CPU 合同与时序回归、独立设计校验、旧 50 Hz 兼容和动作差分解析轨迹检查已通过。
+512 环境已真实执行 96 次策略／物理步，实际读回每步一次解码、PD 与反馈刷新，
+runtime_configuration_passed；场景步进耗时 19.41 s，不作为长期吞吐保证。
+提交验证后的训练代码、200 Hz 控制合同和本计划，从该 commit 冻结源码后，
+执行两次真实 PPO 更新，检查实际 rollout／gamma／lambda、actor／critic／Adam
+及 TensorBoard 有限 loss。验证回执另行提交；不自动启动 20000 次长训。

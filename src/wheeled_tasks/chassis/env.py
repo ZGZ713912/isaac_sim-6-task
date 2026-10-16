@@ -84,6 +84,9 @@ class ChassisEnv:
                 from .rewards import CommandedHeightMargin
                 self.height_margin = CommandedHeightMargin(reference, device)
         self.dt, self.policy_dt = config["physics_dt"], config["policy_dt"]
+        self.action_difference_reference_dt = config.get("action_difference_reference_dt", self.policy_dt)
+        if (not math.isfinite(self.action_difference_reference_dt) or self.action_difference_reference_dt <= 0):
+            raise ValueError("Action-difference reference interval must be finite positive seconds")
         self.passive_landing = None
         if config.get("landing_tracking"):
             from .rewards import PassiveLandingWindow, validate_landing_tracking
@@ -820,6 +823,8 @@ class ChassisEnv:
                     "contact_domain": self.contact_domain is not None,
                     "step_assist": self.step_assist is not None},
                 "precision_tracking": self.references is not None and bool(config["precision_tracking"])}
+            if "action_difference_reference_dt" in config:
+                actual["action_difference_reference_dt"] = self.action_difference_reference_dt
             if config.get("new_asset_curriculum", {}).get("enabled"):
                 actual["modules"].update(jump_assist=self.jump_assist is not None,
                     training_schedule=self.skills is not None and self.skills.schedule is not None)
@@ -1692,7 +1697,8 @@ class ChassisEnv:
                 (dq - self.previous_motor_velocity) / self.policy_dt,
                 self.robot.data.applied_torque.torch[:, self.ids], self.actions, self.previous_actions,
                 self.before_previous_actions, wheel_b, reward_support_tracking, ordinary, nonwheel,
-                self.performance_curriculum.env_height_width if self.performance_curriculum is not None else None)
+                self.performance_curriculum.env_height_width if self.performance_curriculum is not None else None,
+                action_difference_scale=self.action_difference_reference_dt / self.policy_dt)
             if self.performance_curriculum is not None:
                 scales = self.performance_curriculum.env_height_scale
                 components["track_height"] *= scales

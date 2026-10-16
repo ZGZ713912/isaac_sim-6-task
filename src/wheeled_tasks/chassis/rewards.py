@@ -511,7 +511,8 @@ def height_tracking_terms(height_error, velocity_error, support, moving, setting
 
 def reward_terms(velocity, omega, gravity, height, commands, motor_velocity, motor_acceleration,
                   motor_torque, actions, previous_actions, before_previous_actions,
-                  wheel_positions_b, support, ordinary_motion, undesired_contact, height_kernel_width_m=None):
+                  wheel_positions_b, support, ordinary_motion, undesired_contact, height_kernel_width_m=None,
+                  *, action_difference_scale=1.):
     leg, wheel = list(V5Control.LEGS), list(V5Control.WHEELS)
     # Project body-forward velocity onto the horizontal plane as in V14.
     cos_pitch = torch.sqrt((1. - gravity[:, 0].square()).clamp_min(0.))
@@ -520,8 +521,10 @@ def reward_terms(velocity, omega, gravity, height, commands, motor_velocity, mot
     eh = height - commands[:, 2]
     gx, gy = gravity[:, 0], gravity[:, 1]
     orientation_scale = 2. * torch.exp(-commands[:, 0].square() / 3.) + 2.
-    delta = actions - previous_actions
-    second = actions - 2 * previous_actions + before_previous_actions
+    # Express finite differences in the reference policy interval. The caller
+    # still integrates the resulting reward density once with policy_dt.
+    delta = (actions - previous_actions) * action_difference_scale
+    second = (actions - 2 * previous_actions + before_previous_actions) * action_difference_scale**2
     fork = wheel_positions_b[:, 0, 0] - wheel_positions_b[:, 1, 0]
     stationary = (commands[:, 0].abs() < .1) * ordinary_motion * support
     height_denominator = .001 if height_kernel_width_m is None else height_kernel_width_m.square()
