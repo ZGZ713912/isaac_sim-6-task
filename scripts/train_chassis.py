@@ -415,6 +415,9 @@ def main():
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
+    if c.get("local_scratch"):
+        from wheeled_tasks.chassis.local_scratch import validate_invocation
+        validate_invocation(c, args, ROOT)
     contract_config = c
     integrated_receipt = None
     integrated_design = None
@@ -592,6 +595,9 @@ def main():
             ("integrated_training", "ordinary_posture_curriculum", "nonstandard_start",
              "step_assist", "terrain_runout", "training_schedule"))
     source_files = list(dict.fromkeys(source_files))
+    if c.get("local_scratch"):
+        from wheeled_tasks.chassis.local_scratch import source_files as local_source_files
+        source_files = list(dict.fromkeys(source_files + local_source_files(ROOT) + [c["budget_spec_file"]]))
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
         target = args.run_dir / "source" / name
