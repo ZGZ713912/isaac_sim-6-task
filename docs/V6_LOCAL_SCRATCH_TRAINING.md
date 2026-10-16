@@ -7,7 +7,7 @@
 source /home/noir/miniconda3/etc/profile.d/conda.sh
 conda activate isaacsim6
 cd /home/noir/Documents/workspace/isaac_wheeled_rl_train
-python scripts/train_local_chassis.py --num-envs 512 --updates 20000
+python scripts/train_local_chassis.py --num-envs 512 --updates 20000 --max-runtime-seconds 604800
 ```
 
 该命令建立独立本地实验，随机初始化 actor、critic 和 optimizer。训练范围是
@@ -54,3 +54,17 @@ python scripts/train_local_chassis.py --num-envs 512 --updates 1 --validate-scen
 此入口专用于新实验，不接受作者 checkpoint、旧消费或旧课程时钟。当前命令
 以全新初始化开始；同一实验的后续恢复需要使用其本地封存合同、checkpoint
 和预算记录，不能通过再次运行上述从零命令冒充续训。
+
+## 2026-10-16 本机验证
+
+CPU 验证覆盖原生合同／时序回归，以及本地独立预算、来源拒绝和源码归档。
+512 环境真实执行 24 策略步／每环境 96 物理步，runtime preflight 与 4 次
+新反馈 PD 读回通过。随后从提交 `e90fc0a5ab7216251b9ab81c0f5bc5415818b1af`
+冻结源码，在本机完成 2 次 PPO 更新，parent_updates=0；actor 的 9 个、critic
+的 8 个张量在两次更新间均改变，17 组 Adam 状态已写入 checkpoint。
+TensorBoard event 含 157 个 scalar tag，loss 有限。
+
+验证回执见 `reports/local_scratch_20261016/verification.json`。两次 PPO 更新的
+迭代总时间约 28 秒，第二次约 14.90 秒；短窗不作为长期吞吐承诺。命令中的
+20000 是更新上限，604800 是 7 天墙钟上限，先达到者结束。当前只完成短测，
+没有启动 20000 次长训，也不由短测推断策略能力。

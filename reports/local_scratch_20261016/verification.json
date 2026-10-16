@@ -1,0 +1,105 @@
+{
+  "status": "passed",
+  "recorded_at_utc": "2026-10-16T15:12:01.658502+00:00",
+  "scope": "local_fresh_learning_engineering_check_not_behavior_acceptance",
+  "environment": "isaacsim6",
+  "torch": "2.11.0+cu128",
+  "source": {
+    "commit": "e90fc0a5ab7216251b9ab81c0f5bc5415818b1af",
+    "source_archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_sources/20261016T150856Z-4d3e1af4/source.tar.gz",
+    "source_archive_sha256": "0945577f37d047b65ee147cf1456bbdcd1aa636713ff3abc5ded4cf0079e3c5b",
+    "frozen_source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_sources/20261016T150856Z-4d3e1af4/source"
+  },
+  "cpu_checks": [
+    {
+      "files": [
+        "tests/test_local_scratch.py",
+        "tests/test_task_campaign_200hz.py",
+        "tests/test_native_reward_extras.py"
+      ],
+      "passed": 28,
+      "overlaps_with_later_run": true
+    },
+    {
+      "files": [
+        "tests/test_local_scratch.py"
+      ],
+      "passed": 21
+    }
+  ],
+  "native_scene": {
+    "run_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_validation_20261016_001",
+    "completion_sha256": "13c7246699cfd5f9ca0908c6b25255f9fef6ec47d9fe5aafcaa404d3ec574f67",
+    "status": "scene_validated",
+    "num_envs": 512,
+    "scene_capacity": {
+      "scope": "physics_only_no_ppo_allocation",
+      "policy_steps": 24,
+      "physics_steps_per_env": 96,
+      "wall_seconds": 9.824933919000614,
+      "environment_transitions_per_second": 1250.6954348299503
+    },
+    "control_timing": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": {
+        "policy_steps": 24,
+        "physics_steps": 96,
+        "target_decodes": 1,
+        "pd_updates": 4,
+        "feedback_refreshes": 4,
+        "physics_dt": 0.005,
+        "policy_dt": 0.02
+      }
+    },
+    "ppo_updates": 0
+  },
+  "ppo_smoke": {
+    "run_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_scratch_ppo_smoke_20261016_001",
+    "completion_sha256": "4527acf6ef0971edbf9a28388398326723564c0136214b7c7fe6998bf3a248f7",
+    "status": "completed",
+    "parent_updates": 0,
+    "successful_updates": 2,
+    "actor_updates": 2,
+    "batch_transitions": 12288,
+    "training_transitions": 24576,
+    "changed_tensors_between_updates": {
+      "actor_state_dict": 9,
+      "critic_state_dict": 8
+    },
+    "optimizer_parameter_states": 17,
+    "checkpoint_sha256": "f5b38123fccfd1eaeeb698abc817748c4b553a950c519e7cfc8c9c3088b36962",
+    "scalar_tag_count": 157,
+    "losses": {
+      "Loss/value": [
+        11268.74609375,
+        13113.9892578125
+      ],
+      "Loss/surrogate": [
+        -0.003187847323715687,
+        -0.002761175623163581
+      ],
+      "Loss/entropy": [
+        8.513785362243652,
+        8.513012886047363
+      ],
+      "Loss/learning_rate": [
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ]
+    }
+  },
+  "reward": {
+    "profile": "scut_v14_flat_v5",
+    "dense_version": "v6-dense-visible35-v1",
+    "source_reference": "contracts/v6_task_campaign_speed_worker_v27.json",
+    "effective_reward_and_plant_preserved": true
+  },
+  "long_training_started": false,
+  "local_tensorboard_service_started": false,
+  "behavior_acceptance": "not_evaluated"
+}
