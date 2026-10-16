@@ -501,7 +501,10 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
         receipt["actuator_response_evidence"] = validate_response_evidence(config, root)
     if config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"):
         from .response_migration import validate_step_budget, validate_step_task_configuration
-        if config.get("task_campaign"):
+        if config.get("local_scratch"):
+            from .local_scratch import validate_config
+            receipt["budget"] = validate_config(config, root)
+        elif config.get("task_campaign"):
             from .task_campaign import validate_task_budget
             receipt["budget"] = validate_task_budget(config, root)
         else:
