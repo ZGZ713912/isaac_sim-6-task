@@ -83,11 +83,19 @@ TensorBoard event 含 157 个 scalar tag，loss 有限。
 20000 是更新上限，604800 是 7 天墙钟上限，先达到者结束。当前只完成短测，
 没有启动 20000 次长训，也不由短测推断策略能力。
 
-## 200 Hz 变更验证计划
+## 200 Hz 变更与验证
 
 CPU 合同与时序回归、独立设计校验、旧 50 Hz 兼容和动作差分解析轨迹检查已通过。
 512 环境已真实执行 96 次策略／物理步，实际读回每步一次解码、PD 与反馈刷新，
 runtime_configuration_passed；场景步进耗时 19.41 s，不作为长期吞吐保证。
-提交验证后的训练代码、200 Hz 控制合同和本计划，从该 commit 冻结源码后，
-执行两次真实 PPO 更新，检查实际 rollout／gamma／lambda、actor／critic／Adam
-及 TensorBoard 有限 loss。验证回执另行提交；不自动启动 20000 次长训。
+验证后的训练代码、200 Hz 控制合同和计划已提交为
+`71d399888fddc5c599d420dd8e84c9a73bcc8d4a`。从该 commit 的冻结归档
+（SHA-256 `70c06654b9b1c7934f8e9e393b23acfa412df7a63b8ed62a5b2047ad0add336a`）
+已完成两次真实 PPO 更新。实际 runner 读回 96 步、policy_dt=0.005 s、
+rollout=0.48 s，gamma／lambda 与合同一致。两次更新间 actor 的 9 个、critic
+的 8 个张量均改变，checkpoint 含 17 组 Adam 状态；TensorBoard 的 157 个
+scalar tag 全部有限。两次迭代分别 25.59／36.44 s，短窗且与其他 GPU 负载并行，
+不作为长期吞吐或策略能力结论。
+
+新回执为 `reports/local_scratch_200hz_20261016/verification.json`。
+历史 50 Hz 回执与原作者合同字节保持不变；未启动 20000 次长训。
