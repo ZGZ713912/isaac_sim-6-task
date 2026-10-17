@@ -859,6 +859,20 @@ def main():
                         env.generator.set_state(infos["env_rng_state"])
                         if infos.get("cuda_rng_states"):
                             torch.cuda.set_rng_state_all(infos["cuda_rng_states"])
+                    if c.get("local_scratch"):
+                        saved_cuda = infos.get("cuda_rng_states", [])
+                        actual_cuda = torch.cuda.get_rng_state_all()
+                        rng_checks = dict(
+                            torch_rng_restored="rng_state" in infos and torch.equal(torch.get_rng_state(), infos["rng_state"]),
+                            environment_rng_restored="env_rng_state" in infos and torch.equal(env.generator.get_state(), infos["env_rng_state"]),
+                            cuda_rng_restored=bool(saved_cuda) and len(saved_cuda) == len(actual_cuda)
+                                and all(torch.equal(a, b) for a, b in zip(saved_cuda, actual_cuda)))
+                        if not all(rng_checks.values()):
+                            raise ValueError("Local continuation did not restore every saved RNG")
+                        receipt_path = args.run_dir / "resume_verification.json"
+                        receipt = json.loads(receipt_path.read_text())
+                        receipt.update(rng_checks, environment_state="new_episodes_after_rng_restore")
+                        receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
                     if env.performance_curriculum is not None:
                         if infos.get("curriculum_state") is None:
                             raise ValueError("Performance curriculum resume requires its saved state")
