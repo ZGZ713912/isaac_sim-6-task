@@ -1,0 +1,453 @@
+{
+  "schema": "v6-local-pilot-result-v1",
+  "recorded_at": "2026-10-17T17:51:38.341733+00:00",
+  "status": "learning_improved_but_behavior_rejected",
+  "experiment": "local_200hz_v2_pilot002",
+  "training_status": "completed",
+  "consumption": 128,
+  "prior_consumption": 64,
+  "total_consumption": 192,
+  "source_commit": "11cbacf",
+  "evaluation_source_commit": "d0dae8f",
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002",
+  "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval002",
+  "num_envs": 512,
+  "ppo_timing": {
+    "gamma": 0.9974905699336811,
+    "lam": 0.9872585449014338,
+    "num_steps_per_env": 96,
+    "policy_dt": 0.005,
+    "rollout_seconds": 0.48
+  },
+  "initial_noise_std": [
+    0.20000000298023224,
+    0.20000000298023224,
+    0.20000000298023224,
+    0.20000000298023224,
+    0.20000000298023224,
+    0.20000000298023224
+  ],
+  "same_initial_actor_mean_and_critic_as_pilot001": true,
+  "learning_state_finite": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "optimizer_parameter_states": 17,
+  "optimizer_steps": [
+    2560
+  ],
+  "next_phase": {
+    "action": "continue_same_learning_state_pilot",
+    "additional_updates": 384,
+    "target_local_updates": 512,
+    "target_total_consumption": 576,
+    "full_training_admitted": false
+  },
+  "candidates": [
+    {
+      "checkpoint_updates": 0,
+      "checkpoint_sha256": "f7e1d30a5800e4dd79c8f7a5741af6a957ce7b527176e1b40645bd166a98753e",
+      "passed_cases": 0,
+      "cases": {
+        "stand_230mm": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.6625,
+          "closure_gap_max_m": 0.0002516956883482635,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        },
+        "stand_305mm": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.6900000000000001,
+          "closure_gap_max_m": 0.00022034974244888872,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        },
+        "stand_430mm": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.78125,
+          "closure_gap_max_m": 0.0002516570675652474,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        },
+        "forward_05": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.72,
+          "closure_gap_max_m": 0.0002516557869967073,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        },
+        "backward_05": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.7425,
+          "closure_gap_max_m": 0.0002201189927291125,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        },
+        "start_stop_05": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.6950000000000001,
+          "closure_gap_max_m": 0.0003051773237530142,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        },
+        "rotate_1": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.74125,
+          "closure_gap_max_m": 0.00027297346969135106,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        },
+        "rotate_1_reverse": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.69625,
+          "closure_gap_max_m": 0.00022016347793396562,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 0,
+          "height_mae_m": 0.0,
+          "vx_mae_m_s": 0.0,
+          "warmup_seconds": 1.0
+        }
+      }
+    },
+    {
+      "checkpoint_updates": 128,
+      "checkpoint_sha256": "52f479c9dfd9ff15ff952b799019fb8406eef96680d158d1fec5b8a3b7ff9554",
+      "passed_cases": 0,
+      "cases": {
+        "stand_230mm": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.9087500000000001,
+          "closure_gap_max_m": 0.00025190942687913775,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 32,
+          "height_mae_m": 0.06342364102602005,
+          "vx_mae_m_s": 0.6245975131168962,
+          "warmup_seconds": 1.0
+        },
+        "stand_305mm": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 1.02125,
+          "closure_gap_max_m": 0.00022006539802532643,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 75,
+          "height_mae_m": 0.018520790735880536,
+          "vx_mae_m_s": 0.5300010557969411,
+          "warmup_seconds": 1.0
+        },
+        "stand_430mm": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 1.1425,
+          "closure_gap_max_m": 0.00025165750412270427,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 156,
+          "height_mae_m": 0.12114045004814099,
+          "vx_mae_m_s": 0.3981352058501962,
+          "warmup_seconds": 1.0
+        },
+        "forward_05": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.9575,
+          "closure_gap_max_m": 0.00025165523402392864,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 8,
+          "height_mae_m": 0.029236819595098495,
+          "vx_mae_m_s": 0.6435137167572975,
+          "warmup_seconds": 1.0
+        },
+        "backward_05": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 1.055,
+          "closure_gap_max_m": 0.0002516557869967073,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 61,
+          "height_mae_m": 0.011358502458353513,
+          "vx_mae_m_s": 0.31894603322763915,
+          "warmup_seconds": 1.0
+        },
+        "start_stop_05": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.99875,
+          "closure_gap_max_m": 0.00030527336639352143,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 62,
+          "height_mae_m": 0.01703947926721265,
+          "vx_mae_m_s": 1.088525862463059,
+          "warmup_seconds": 1.0
+        },
+        "rotate_1": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.97375,
+          "closure_gap_max_m": 0.0002523795410525054,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 2,
+          "height_mae_m": 0.02468113601207733,
+          "vx_mae_m_s": 0.8220346868038177,
+          "warmup_seconds": 1.0
+        },
+        "rotate_1_reverse": {
+          "full_horizon_episodes": 0,
+          "survival_rate": 0.0,
+          "terminal_episode_time_mean_s": 0.95875,
+          "closure_gap_max_m": 0.00019365048501640558,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "frames": 61,
+          "height_mae_m": 0.018909655144957245,
+          "vx_mae_m_s": 0.5974307133526099,
+          "warmup_seconds": 1.0
+        }
+      }
+    }
+  ],
+  "zero_mae_before_warmup_is_not_success": true,
+  "sha256": {
+    "model_final.pt": "52f479c9dfd9ff15ff952b799019fb8406eef96680d158d1fec5b8a3b7ff9554",
+    "completion.json": "7b447f6782721d5d86337612ef05adf3309dfc677e944ff2602a72661dee3f46",
+    "contract.json": "722abe3166faee6e7d757f899baf9e15b9169fe864293fa02d1c45c2710fc742"
+  }
+}
