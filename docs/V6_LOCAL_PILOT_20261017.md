@@ -183,3 +183,10 @@ RSL-RL 5.5.1 的构造参数 init_std 为标量；向量在 runner 构造后、�
 137 项本机合同、续训、评测、恢复时钟、Gaussian/Adam、日志、熵系数、
 reward 与 rollout 测试通过；512 环境静态前置通过。初始测试中一处旧
 消费常量仍为 576，已改为本轮真实 1088 后重新完成全组；没有改实现回避。
+
+pilot006 已于 20:04 UTC 从冻结 `f581e1c` 启动，tmux `v6-local-pilot006`。
+实际初始 actor 均值网络、critic、空 Adam、CPU/CUDA/环境 RNG 与 v2 起点
+逐位一致，仅 std 为上述向量。首个真实 PPO 改变全部 9 个 actor 和 8 个
+critic 张量，17 组 Adam 均到 20 步，状态有限；6 个分轴 std tag 已在原
+event 中读回。实际身份和检查见 `reports/local_training_20261017/pilot006_launch.json`。
+这证明初始化与学习接线工作，行为结果仍待本段完成后实测。
