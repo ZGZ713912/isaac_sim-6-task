@@ -1,7 +1,7 @@
 # 本机 200 Hz 短训与长训
 
 2026-10-17 用户授权在本机完成短训，检查效果；正常后长训，有问题先诊断并迭代。
-本实验继承 `contracts/v6_local_scratch_200hz_v1.json`，独立于已停止的 Kaiser 课程。
+本实验继承 `contracts/v6_local_scratch_200hz_v2.json`，独立于已停止的 Kaiser 课程。
 不启动本机 TensorBoard 服务，曲线写入现有 RSL-RL TensorBoard event。
 
 ## 执行顺序
@@ -14,7 +14,7 @@
 4. 若数值或控制链有缺陷，先保留证据并修复；若只是初学能力不足，完整恢复同一
    actor、critic、Adam、RNG 和课程时钟，再累计短训至 128/256 更新观察，不能重置消费。
 5. 训练链稳定、基础行为出现可复核的学习进展且无系统性机械保护异常后，接续同一
-   实验至累计上限 20000 更新。短训消费包含在总额内，墙钟最长 7 天。
+   实验至其冻结累计上限。总预算 20000 更新包含所有失败短训消费，墙钟最长 7 天。
 
 ## 验证边界
 
@@ -39,9 +39,21 @@ reward 改善代替行为通过。继续学习的准入不授予最终技能、�
 conda activate isaacsim6
 python scripts/train_local_chassis.py --num-envs 512 --updates 64 --run-dir runs/my_pilot
 python scripts/evaluate_local_chassis.py --checkpoint runs/my_pilot/initial_state/model_final.pt --checkpoint runs/my_pilot/model_final.pt --output runs/my_pilot_eval
-# 评测和工程读回通过后，追加到累计 20000：
-python scripts/train_local_chassis.py --num-envs 512 --resume runs/my_pilot/model_final.pt --updates 19936 --max-runtime-seconds 604800 --run-dir runs/my_long
+# 评测和工程读回通过后，v2 的 64 次短训通过后，追加到本轮 19936（加旧失败 64，总计 20000）：
+python scripts/train_local_chassis.py --num-envs 512 --resume runs/my_pilot/model_final.pt --updates 19872 --max-runtime-seconds 604800 --run-dir runs/my_long
 ```
 
 评测 `LocalEvaluation/<case>/<metric>` 写入各候选训练目录原有 TensorBoard
 event；step 是该 checkpoint 的累计更新数。JSON 保留完整机器判定及 SHA。
+
+## 第一次短训与修订
+
+v1 实际完成 64 PPO 更新。actor/critic/Adam 全部有限且参数改变，但确定性
+8 场景共 32 回合全部在约 0.7 秒因非轮接触终止，0/8 通过；不准入长训。
+随机训练累计有 1953 次闭链终止，峰值 6.823 mm；确定性考试峰值均不足
+0.35 mm，两者不能混作同一种证据。详见 `reports/local_training_20261017/pilot001.json`。
+
+v2 单独从相同种子重新初始化，将 Gaussian 初始 std 从 1.0 改为 0.2，先做
+128 更新的对照。该修改是待验证的探索幅度假设；不宣称已定位唯一根因。
+保持原始 reward、5 ms 时序、折扣、GAE、课程、闭链和力矩门。v1 的 64 更新
+不退款，v2 剩余上限 19936；两条学习谱系分开记录，不把重置称为恢复。
