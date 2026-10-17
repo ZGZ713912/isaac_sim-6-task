@@ -504,6 +504,9 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
         if config.get("local_scratch"):
             from .local_scratch import validate_config
             receipt["budget"] = validate_config(config, root)
+        elif config.get("local_evaluation"):
+            from .local_evaluation import validate_config
+            receipt["budget"] = validate_config(config, root)
         elif config.get("task_campaign"):
             from .task_campaign import validate_task_budget
             receipt["budget"] = validate_task_budget(config, root)

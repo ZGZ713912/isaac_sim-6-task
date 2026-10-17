@@ -95,6 +95,10 @@ def main():
         sources.extend(["src/wheeled_tasks/chassis/references.py", "src/wheeled_tasks/chassis/policy_transfer.py"])
     if contract.get("response_migration"):
         sources.append("src/wheeled_tasks/chassis/response_migration.py")
+    if contract.get("local_evaluation"):
+        from wheeled_tasks.chassis.local_scratch import source_files as local_sources
+        sources += local_sources(ROOT) + ["src/wheeled_tasks/chassis/local_evaluation.py"]
+        sources.append("scripts/evaluate_local_chassis.py")
     if contract.get("recovery_training", {}).get("enabled"):
         sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
                        ("recovery", "recovery_training", "continuous_encoders", "recovery_observer", "mechanism_observer"))
@@ -255,6 +259,9 @@ def main():
                            source_contract_sha256=source_contract_sha)
             result["coverage"] = report["coverage"]
             result["observation_migration"] = observation_migration
+            if contract.get("local_evaluation"):
+                from wheeled_tasks.chassis.local_evaluation import log_result
+                log_result(result, checkpoint_path)
             name = f"candidate_{candidate_index:02d}"
             if args.export_policy:
                 from wheeled_algo.chassis_export import export_actor

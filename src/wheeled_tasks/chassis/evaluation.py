@@ -338,6 +338,10 @@ def summarize_evaluation_tiers(candidate, settings, baseline=None):
 
 
 def fixed_suite_contract(contract):
+    if contract.get("local_evaluation"):
+        # The independently derived local diagnostic is already an effective
+        # fixed config; shared environment preflight authenticates it again.
+        return deepcopy(contract)
     if contract.get("integrated_production"):
         from .integrated_production import fixed_evaluation_config
         return fixed_evaluation_config(contract, root=Path(__file__).resolve().parents[3])

@@ -150,9 +150,9 @@ def validate_config(config, root):
 def validate_invocation(config, args, root):
     validate_config(config, root)
     plan = read_plan(root, config["local_scratch"]["plan_file"])
-    # This entry cannot impersonate a continuation or import someone else's
-    # optimizer, consumption or curriculum clock.
-    if (args.resume or args.transfer or args.consumed_updates is not None
+    # A continuation keeps this exact local contract and sealed consumption.
+    # Foreign state and caller-supplied clocks remain forbidden.
+    if (args.transfer or args.consumed_updates is not None
             or args.learning_rate_scale is not None or args.task_actor_update is not None
             or args.stage_actor_update is not None or args.actor_updates_consumed != 0
             or args.global_actor_update_offset != 0 or args.block_index != 0
@@ -160,6 +160,62 @@ def validate_invocation(config, args, root):
             or args.seed != plan["seed"] or args.num_envs != config["target_num_envs"]
             or args.stage != plan["stage"] or not 1 <= args.updates <= plan["update_ceiling"]):
         raise ValueError("Local scratch requires fresh learning state, zero clocks and its frozen invocation")
+    if args.resume:
+        try:
+            parent = validate_parent(args.resume, config)
+        except (OSError, KeyError, TypeError, ValueError) as error:
+            raise ValueError("Local scratch requires fresh learning state or its own finalized checkpoint") from error
+        if parent + args.updates > plan["update_ceiling"]:
+            raise ValueError("Local continuation exceeds the cumulative local update ceiling")
+        return parent
+    return 0
+
+
+def validate_parent(checkpoint, config):
+    """Accept only a finalized same-experiment block with no discarded work."""
+    from .full_curriculum import checkpoint_contract_path, checkpoint_update_count
+    checkpoint = Path(checkpoint).resolve()
+    if checkpoint.name != "model_final.pt":
+        raise ValueError("Local continuation requires the finalized block checkpoint")
+    source = checkpoint_contract_path(checkpoint)
+    if json.loads(source.read_text()) != config:
+        raise ValueError("Local continuation changes the exact experiment contract")
+    seal = json.loads(checkpoint.with_suffix(".checkpoint.json").read_text())
+    count = checkpoint_update_count(checkpoint)
+    completion = json.loads((checkpoint.parent / "completion.json").read_text())
+    if (completion["status"] not in ("completed", "stopped")
+            or count != completion.get("parent_updates", 0) + completion["successful_updates"]
+            or seal.get("learning_lineage_updates") != count
+            or seal.get("stage_actor_update") != count
+            or seal.get("actor_updates_consumed") != count
+            or seal.get("global_actor_update_offset") != 0
+            or seal.get("role") != "learning_state"):
+        raise ValueError("Local parent has incomplete or inconsistent learning/consumption clocks")
+    return count
+
+
+def restore_bundle(root, checkpoint):
+    """Copy the authenticated generated bindings without changing their paths/hash."""
+    from .full_curriculum import checkpoint_contract_path
+    root, checkpoint = Path(root), Path(checkpoint).resolve()
+    config = json.loads(checkpoint_contract_path(checkpoint).read_text())
+    validate_parent(checkpoint, config)
+    directory = Path(config["design_preflight"]["file"]).parent
+    # Rebuild from the independent plan before accepting checkpoint-controlled paths.
+    paths, bundle = build_bundle(root, directory, config["local_scratch"]["num_envs"],
+        plan_file=config["local_scratch"]["plan_file"])
+    if bundle["worker"] != config:
+        raise ValueError("Parent is not the frozen local experiment derivation")
+    target = root / directory
+    target.mkdir(parents=True, exist_ok=False)
+    for name in ("design", "budget"):
+        original = checkpoint.parent / "source" / paths[name]
+        if original.read_bytes() != _encode(bundle[name]):
+            raise ValueError("Parent's independent local source binding changed")
+        (root / paths[name]).write_bytes(original.read_bytes())
+    (root / paths["worker"]).write_bytes(checkpoint_contract_path(checkpoint).read_bytes())
+    validate_config(config, root)
+    return root / paths["worker"]
 
 
 def source_files(root, plan_file=PLAN_FILE):
