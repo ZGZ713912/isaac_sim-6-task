@@ -1,0 +1,1351 @@
+{
+  "schema": "v6-local-command-diagnosis-result-v1",
+  "recorded_at": "2026-10-17T23:54:43.859524+00:00",
+  "status": "completed_zero_ppo_no_acceptance",
+  "total_ppo_consumption": 2752,
+  "remaining": 17248,
+  "ppo_updates": 0,
+  "attempts": [
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe001",
+      "status": "failed",
+      "ppo_updates": 0,
+      "report": {
+        "schema": "v6-local-command-path-diagnosis-v1",
+        "status": "failed",
+        "started_at": "2026-10-17T23:46:35.068827+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "counterfactual_commands_applied_to_simulator": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source",
+        "script_sha256": "c1e84acef308cc54762b2624eb6ea4ab2e3acdd83b091a73538be256840079d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval010",
+        "evaluation_sha256": "d6be2991895f34cdfccd234caa5198588e5f9fe73626a3d6637491593878f9f0",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010/model_final.pt",
+        "checkpoint_sha256": "83dce02ed0e7346ceb43522f51f0a133d7e6171c74f5789d5f5f34dca6483ea3",
+        "comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot009/model_final.pt",
+        "comparison_checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+        "ticks": 1000,
+        "scope": "Original nominal fixed cases, first five seconds, with extra measurement only; offline single-column command counterfactuals hold all other input entries constant.",
+        "error": "ValueError('Local pilot exam differs from its independent frozen derivation')",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/scripts/diagnose_local_commands.py\", line 80, in main\n    env = FixedCaseEnv(runtime, manifest, load_chassis_control(root / contract[\"control_math_source\"]), root,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source/src/wheeled_tasks/chassis/eval_env.py\", line 18, in __init__\n    super().__init__(config, *args, **kwargs)\n  File \"/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source/src/wheeled_tasks/chassis/env.py\", line 51, in __init__\n    self.design_preflight = design_preflight(config, control, root, stage=stage_name,\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source/src/wheeled_tasks/chassis/preflight.py\", line 509, in design_preflight\n    receipt[\"budget\"] = validate_config(config, root)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source/src/wheeled_tasks/chassis/local_evaluation.py\", line 84, in validate_config\n    raise ValueError(\"Local pilot exam differs from its independent frozen derivation\")\nValueError: Local pilot exam differs from its independent frozen derivation\n"
+      },
+      "artifact_sha256": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe001/source.py": "c1e84acef308cc54762b2624eb6ea4ab2e3acdd83b091a73538be256840079d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe001/contract.json": "8942c81a2d96c40d80444e294a75d55146976f420ae243f57af3135f9f4cf407",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe001/diagnosis.json": "e1cf792d1f5cc76861a6c19d694f2027e5f3ae1051ee84275a9a0dfab4590d1a"
+      }
+    },
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe002",
+      "status": "failed",
+      "ppo_updates": 0,
+      "report": {
+        "schema": "v6-local-command-path-diagnosis-v1",
+        "status": "failed",
+        "started_at": "2026-10-17T23:47:21.812011+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "counterfactual_commands_applied_to_simulator": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source",
+        "script_sha256": "964d1ad6d15b93b89a51636c397e7b4c4a72375d3e59f49add1647762a2d0f49",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval010",
+        "evaluation_sha256": "d6be2991895f34cdfccd234caa5198588e5f9fe73626a3d6637491593878f9f0",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010/model_final.pt",
+        "checkpoint_sha256": "83dce02ed0e7346ceb43522f51f0a133d7e6171c74f5789d5f5f34dca6483ea3",
+        "comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot009/model_final.pt",
+        "comparison_checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+        "ticks": 1000,
+        "scope": "Original nominal fixed cases, first five seconds, with extra measurement only; offline single-column command counterfactuals hold all other input entries constant.",
+        "observation_migration": {
+          "source_dim": 35,
+          "target_dim": 35,
+          "actor_parameters": "unchanged",
+          "physics_dt_old": 0.005,
+          "physics_dt_new": 0.005,
+          "critic_optimizer": "fresh_at_stage_transfer"
+        },
+        "measurement_neutrality_vs_original_evaluation": {
+          "values": {
+            "bitwise_equal": false,
+            "max_absolute_error": 10.366609692573547
+          },
+          "commands": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "episode_ticks": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "motor_velocity": {
+            "bitwise_equal": false,
+            "max_absolute_error": 2.9621477127075195
+          },
+          "actions": {
+            "bitwise_equal": false,
+            "max_absolute_error": 0.18143165111541748
+          },
+          "wheel_target_velocity": {
+            "bitwise_equal": false,
+            "max_absolute_error": 1.8143165111541748
+          }
+        },
+        "error": "AssertionError()",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/scripts/diagnose_local_commands.py\", line 142, in main\n    assert all(item[\"bitwise_equal\"] for item in comparisons.values())\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+      },
+      "artifact_sha256": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe002/source.py": "964d1ad6d15b93b89a51636c397e7b4c4a72375d3e59f49add1647762a2d0f49",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe002/contract.json": "8942c81a2d96c40d80444e294a75d55146976f420ae243f57af3135f9f4cf407",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe002/traces.npz": "92d217b02f3e367ede8b85f30529e3dc8b53f7d8bc2c8904fa6cfe621cb67e58",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe002/diagnosis.json": "2dcd6024d996318c693957fcf2526ae4349627c354aa08fac8ac4fbf7645f4ac"
+      }
+    },
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe003",
+      "status": "failed",
+      "ppo_updates": 0,
+      "report": {
+        "schema": "v6-local-command-path-diagnosis-v1",
+        "status": "failed",
+        "started_at": "2026-10-17T23:49:11.784628+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "counterfactual_commands_applied_to_simulator": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source",
+        "script_sha256": "61fcfdde0dec0bbe05d473e18ebb182a72bafe1a9e48d457642c84ee7aa37819",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval010",
+        "evaluation_sha256": "d6be2991895f34cdfccd234caa5198588e5f9fe73626a3d6637491593878f9f0",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010/model_final.pt",
+        "checkpoint_sha256": "83dce02ed0e7346ceb43522f51f0a133d7e6171c74f5789d5f5f34dca6483ea3",
+        "comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot009/model_final.pt",
+        "comparison_checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+        "ticks": 1000,
+        "scope": "Original nominal fixed cases, first five seconds, with extra measurement only; offline single-column command counterfactuals hold all other input entries constant.",
+        "observation_migration": {
+          "source_dim": 35,
+          "target_dim": 35,
+          "actor_parameters": "unchanged",
+          "physics_dt_old": 0.005,
+          "physics_dt_new": 0.005,
+          "critic_optimizer": "fresh_at_stage_transfer"
+        },
+        "measurement_neutrality_vs_original_evaluation": {
+          "values": {
+            "bitwise_equal": false,
+            "max_absolute_error": 10.366609692573547
+          },
+          "commands": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "episode_ticks": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "motor_velocity": {
+            "bitwise_equal": false,
+            "max_absolute_error": 2.9621477127075195
+          },
+          "actions": {
+            "bitwise_equal": false,
+            "max_absolute_error": 0.18143165111541748
+          },
+          "wheel_target_velocity": {
+            "bitwise_equal": false,
+            "max_absolute_error": 1.8143165111541748
+          }
+        },
+        "error": "AssertionError()",
+        "traceback": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/scripts/diagnose_local_commands.py\", line 146, in main\n    assert all(item[\"bitwise_equal\"] for item in comparisons.values())\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+      },
+      "artifact_sha256": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe003/source.py": "61fcfdde0dec0bbe05d473e18ebb182a72bafe1a9e48d457642c84ee7aa37819",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe003/contract.json": "8942c81a2d96c40d80444e294a75d55146976f420ae243f57af3135f9f4cf407",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe003/traces.npz": "92d217b02f3e367ede8b85f30529e3dc8b53f7d8bc2c8904fa6cfe621cb67e58",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe003/diagnosis.json": "4f4aede4e35808a43c7a62f8dda7ad0c0afdb0124a8ac2564c4126770c8b3b8b"
+      }
+    },
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe004",
+      "status": "completed",
+      "ppo_updates": 0,
+      "report": {
+        "schema": "v6-local-command-path-diagnosis-v1",
+        "status": "completed",
+        "started_at": "2026-10-17T23:50:37.037675+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "counterfactual_commands_applied_to_simulator": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source",
+        "script_sha256": "8c6b9add4955fdf2cd0b836d0d1e235c3730efb366021b37ffe36963b4b4dbfb",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval010",
+        "evaluation_sha256": "d6be2991895f34cdfccd234caa5198588e5f9fe73626a3d6637491593878f9f0",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010/model_final.pt",
+        "checkpoint_sha256": "83dce02ed0e7346ceb43522f51f0a133d7e6171c74f5789d5f5f34dca6483ea3",
+        "comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot009/model_final.pt",
+        "comparison_checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+        "ticks": 1000,
+        "scope": "Original nominal fixed cases, first five seconds, with extra measurement only; offline single-column command counterfactuals hold all other input entries constant.",
+        "evaluation_prefix_reproduction": [
+          {
+            "candidate_index": 0,
+            "ticks": 172,
+            "bitwise_equal": true
+          },
+          {
+            "candidate_index": 1,
+            "ticks": 3200,
+            "bitwise_equal": true
+          }
+        ],
+        "observation_migration": {
+          "source_dim": 35,
+          "target_dim": 35,
+          "actor_parameters": "unchanged",
+          "physics_dt_old": 0.005,
+          "physics_dt_new": 0.005,
+          "critic_optimizer": "fresh_at_stage_transfer"
+        },
+        "measurement_neutrality_vs_original_evaluation": {
+          "values": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "commands": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "episode_ticks": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "motor_velocity": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "actions": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          },
+          "wheel_target_velocity": {
+            "bitwise_equal": true,
+            "max_absolute_error": 0.0
+          }
+        },
+        "counterfactual_sample_count": 640,
+        "cpu_gpu_actor_max_error": 2.682209014892578e-07,
+        "counterfactual_actors": {
+          "current": {
+            "checkpoint_sha256": "83dce02ed0e7346ceb43522f51f0a133d7e6171c74f5789d5f5f34dca6483ea3",
+            "axes": {
+              "velocity": [
+                {
+                  "command": -0.5,
+                  "mean_action_policy_order": [
+                    0.42430663108825684,
+                    -0.193757563829422,
+                    -0.008716870099306107,
+                    0.043986834585666656,
+                    0.0935540422797203,
+                    0.2454378604888916
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.10607665777206421,
+                    -0.0484393909573555,
+                    -0.0021792175248265266,
+                    0.010996708646416664
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    0.9355405569076538,
+                    2.454378604888916
+                  ]
+                },
+                {
+                  "command": 0.0,
+                  "mean_action_policy_order": [
+                    0.42896977066993713,
+                    -0.1844712793827057,
+                    -0.027576154097914696,
+                    0.066291943192482,
+                    0.10285862535238266,
+                    0.2680993676185608
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.10724244266748428,
+                    -0.04611781984567642,
+                    -0.006894038524478674,
+                    0.0165729857981205
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    1.0285861492156982,
+                    2.6809940338134766
+                  ]
+                },
+                {
+                  "command": 0.5,
+                  "mean_action_policy_order": [
+                    0.43139153718948364,
+                    -0.17403554916381836,
+                    -0.04562496021389961,
+                    0.08727415651082993,
+                    0.11561606079339981,
+                    0.2903806269168854
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.10784788429737091,
+                    -0.04350888729095459,
+                    -0.011406240053474903,
+                    0.02181853912770748
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    1.156160593032837,
+                    2.903806209564209
+                  ]
+                }
+              ],
+              "yaw": [
+                {
+                  "command": -1.0,
+                  "mean_action_policy_order": [
+                    0.40290576219558716,
+                    -0.20251145958900452,
+                    -0.07163134217262268,
+                    0.07336627691984177,
+                    0.2076299488544464,
+                    0.30541640520095825
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.10072644054889679,
+                    -0.05062786489725113,
+                    -0.01790783554315567,
+                    0.01834156922996044
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    2.0762994289398193,
+                    3.054164409637451
+                  ]
+                },
+                {
+                  "command": 0.0,
+                  "mean_action_policy_order": [
+                    0.43008941411972046,
+                    -0.18403927981853485,
+                    -0.030167365446686745,
+                    0.06863631308078766,
+                    0.10165844112634659,
+                    0.269534170627594
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.10752235352993011,
+                    -0.04600981995463371,
+                    -0.007541841361671686,
+                    0.017159078270196915
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    1.0165843963623047,
+                    2.6953418254852295
+                  ]
+                },
+                {
+                  "command": 1.0,
+                  "mean_action_policy_order": [
+                    0.44733762741088867,
+                    -0.1584639549255371,
+                    0.015270153991878033,
+                    0.06268296390771866,
+                    0.018528802320361137,
+                    0.24038438498973846
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11183440685272217,
+                    -0.03961598873138428,
+                    0.003817538497969508,
+                    0.015670740976929665
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    0.18528802692890167,
+                    2.403843879699707
+                  ]
+                }
+              ],
+              "height": [
+                {
+                  "command": 0.23,
+                  "mean_action_policy_order": [
+                    0.4359106123447418,
+                    -0.19569452106952667,
+                    -0.04172521084547043,
+                    0.062459010630846024,
+                    0.12399673461914062,
+                    0.2916303277015686
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.10897765308618546,
+                    -0.04892363026738167,
+                    -0.010431302711367607,
+                    0.015614752657711506
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    1.2399675846099854,
+                    2.9163033962249756
+                  ]
+                },
+                {
+                  "command": 0.305,
+                  "mean_action_policy_order": [
+                    0.4296953082084656,
+                    -0.18414263427257538,
+                    -0.03043811395764351,
+                    0.06812690198421478,
+                    0.10523203760385513,
+                    0.27216920256614685
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.1074238270521164,
+                    -0.046035658568143845,
+                    -0.007609528489410877,
+                    0.017031725496053696
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    1.0523202419281006,
+                    2.721691846847534
+                  ]
+                },
+                {
+                  "command": 0.43,
+                  "mean_action_policy_order": [
+                    0.4175316393375397,
+                    -0.1640898734331131,
+                    -0.011549510061740875,
+                    0.07661930471658707,
+                    0.07904092222452164,
+                    0.24049802124500275
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.10438290983438492,
+                    -0.041022468358278275,
+                    -0.002887377515435219,
+                    0.019154826179146767
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    0.7904092073440552,
+                    2.404980182647705
+                  ]
+                }
+              ]
+            }
+          },
+          "previous": {
+            "checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+            "axes": {
+              "velocity": [
+                {
+                  "command": -0.5,
+                  "mean_action_policy_order": [
+                    0.4603925347328186,
+                    -0.30671700835227966,
+                    -0.05171174556016922,
+                    0.0074766711331903934,
+                    0.3923611044883728,
+                    0.4429769515991211
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11509813368320465,
+                    -0.07667925208806992,
+                    -0.012927936390042305,
+                    0.0018691677832975984
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    3.9236111640930176,
+                    4.429769992828369
+                  ]
+                },
+                {
+                  "command": 0.0,
+                  "mean_action_policy_order": [
+                    0.4639414846897125,
+                    -0.2947354018688202,
+                    -0.07020048797130585,
+                    0.02639201283454895,
+                    0.40642276406288147,
+                    0.4643401503562927
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11598537117242813,
+                    -0.07368385046720505,
+                    -0.017550121992826462,
+                    0.0065980032086372375
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    4.064227104187012,
+                    4.643402099609375
+                  ]
+                },
+                {
+                  "command": 0.5,
+                  "mean_action_policy_order": [
+                    0.46492066979408264,
+                    -0.28099268674850464,
+                    -0.08758846670389175,
+                    0.044299542903900146,
+                    0.4214108884334564,
+                    0.48522916436195374
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11623016744852066,
+                    -0.07024817168712616,
+                    -0.02189711667597294,
+                    0.011074885725975037
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    4.214108943939209,
+                    4.852292060852051
+                  ]
+                }
+              ],
+              "yaw": [
+                {
+                  "command": -1.0,
+                  "mean_action_policy_order": [
+                    0.4347302317619324,
+                    -0.30961012840270996,
+                    -0.10530630499124527,
+                    0.02060769870877266,
+                    0.4894466996192932,
+                    0.48841166496276855
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.1086825579404831,
+                    -0.07740253210067749,
+                    -0.026326576247811317,
+                    0.005151924677193165
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    4.894466876983643,
+                    4.8841166496276855
+                  ]
+                },
+                {
+                  "command": 0.0,
+                  "mean_action_policy_order": [
+                    0.4652473032474518,
+                    -0.29433363676071167,
+                    -0.07284096628427505,
+                    0.028415042906999588,
+                    0.4067959189414978,
+                    0.466177374124527
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11631182581186295,
+                    -0.07358340919017792,
+                    -0.018210241571068764,
+                    0.007103760726749897
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    4.067959308624268,
+                    4.661773681640625
+                  ]
+                },
+                {
+                  "command": 1.0,
+                  "mean_action_policy_order": [
+                    0.48298096656799316,
+                    -0.26831525564193726,
+                    -0.03477459400892258,
+                    0.034461893141269684,
+                    0.33416804671287537,
+                    0.44657373428344727
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.12074524164199829,
+                    -0.06707881391048431,
+                    -0.008693648502230644,
+                    0.008615473285317421
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    3.3416805267333984,
+                    4.465737342834473
+                  ]
+                }
+              ],
+              "height": [
+                {
+                  "command": 0.23,
+                  "mean_action_policy_order": [
+                    0.45871561765670776,
+                    -0.28414103388786316,
+                    -0.07990563660860062,
+                    0.024717282503843307,
+                    0.38429689407348633,
+                    0.46449360251426697
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11467890441417694,
+                    -0.07103525847196579,
+                    -0.019976409152150154,
+                    0.006179320625960827
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    3.8429691791534424,
+                    4.644936561584473
+                  ]
+                },
+                {
+                  "command": 0.305,
+                  "mean_action_policy_order": [
+                    0.463576078414917,
+                    -0.29250234365463257,
+                    -0.0726979449391365,
+                    0.02798706293106079,
+                    0.4058997631072998,
+                    0.46676141023635864
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11589401960372925,
+                    -0.07312558591365814,
+                    -0.018174486234784126,
+                    0.006996765732765198
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    4.058997631072998,
+                    4.667613983154297
+                  ]
+                },
+                {
+                  "command": 0.43,
+                  "mean_action_policy_order": [
+                    0.4690555930137634,
+                    -0.3036366403102875,
+                    -0.059945445507764816,
+                    0.032922424376010895,
+                    0.4420880675315857,
+                    0.4686461091041565
+                  ],
+                  "leg_target_offset_mean_rad": [
+                    0.11726389825344086,
+                    -0.07590916007757187,
+                    -0.014986361376941204,
+                    0.008230606094002724
+                  ],
+                  "wheel_target_mean_rad_s": [
+                    4.4208807945251465,
+                    4.686460971832275
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "input_command_max_absolute_error": 0.0,
+        "runtime_contract_unchanged": true,
+        "unchanged_actor": true,
+        "unchanged_critic": true,
+        "optimizer_state_empty": true,
+        "terminal_records": [],
+        "first_episode_survivors": 32,
+        "seed": 290929,
+        "representative_ids": [
+          0,
+          4,
+          8,
+          12,
+          16,
+          20,
+          24,
+          28
+        ],
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "policy_order": [
+          "L_joint1",
+          "LL_joint1",
+          "R_joint1",
+          "RR_joint1",
+          "L_joint3",
+          "R_joint3"
+        ],
+        "interpretation": "A nonzero offline command response only excludes complete input insensitivity on these states; it does not establish correct tracking or identify a unique learning cause.",
+        "finished_at": "2026-10-17T23:52:49.467111+00:00",
+        "trace_sha256": "65bedaf726922749e0d1cf0c0c3d741ae5fcdff7abf9a94b2001c382f6e18959"
+      },
+      "artifact_sha256": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe004/source.py": "8c6b9add4955fdf2cd0b836d0d1e235c3730efb366021b37ffe36963b4b4dbfb",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe004/contract.json": "8942c81a2d96c40d80444e294a75d55146976f420ae243f57af3135f9f4cf407",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe004/traces.npz": "65bedaf726922749e0d1cf0c0c3d741ae5fcdff7abf9a94b2001c382f6e18959",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/command_probe004/diagnosis.json": "7c580b59cd7174e34566372d019a9fb3454f5f0114c24d52c5138a93680e9296"
+      }
+    }
+  ],
+  "failed_attempt_interpretation": [
+    "001 was rejected by the unchanged independent config validator before environment construction/physics; adding diagnostic_trace changed the pinned config. No validator was relaxed.",
+    "002 and 003 each completed 1000 physical/policy ticks but failed exact comparison to eval010. All 15 arrays between the two cold probes are bitwise identical; removing the actor-input clone and adding the original body-pose read cadence did not fix the discrepancy. This negative result is retained.",
+    "004 repeats the original preceding candidates: initial 172 ticks and v5-1152 3200 ticks, both representative value trajectories exactly equal the original evaluation. Then all six compared 1000-tick v5-1664 representative arrays exactly equal eval010. Reproducing evaluation order was necessary for this exact check; no claim identifies a unique native cache/solver cause."
+  ],
+  "cold_repeat": {
+    "same_cold_probe_arrays": {
+      "active": true,
+      "policy_input": true,
+      "pre_step_commands": true,
+      "actor_mean_policy": true,
+      "values": true,
+      "commands": true,
+      "episode_ticks": true,
+      "done": true,
+      "motor_position": true,
+      "motor_velocity": true,
+      "actions": true,
+      "wheel_target_velocity": true,
+      "leg_target_position": true,
+      "requested_motor_effort": true,
+      "motor_effort_bounds": true
+    },
+    "all_equal": true,
+    "ppo_updates": 0
+  },
+  "capture_validation": {
+    "schema": "v6-local-command-path-diagnosis-v1",
+    "status": "completed",
+    "started_at": "2026-10-17T23:50:37.037675+00:00",
+    "ppo_updates": 0,
+    "acceptance_evaluation": false,
+    "counterfactual_commands_applied_to_simulator": false,
+    "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source",
+    "script_sha256": "8c6b9add4955fdf2cd0b836d0d1e235c3730efb366021b37ffe36963b4b4dbfb",
+    "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval010",
+    "evaluation_sha256": "d6be2991895f34cdfccd234caa5198588e5f9fe73626a3d6637491593878f9f0",
+    "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010/model_final.pt",
+    "checkpoint_sha256": "83dce02ed0e7346ceb43522f51f0a133d7e6171c74f5789d5f5f34dca6483ea3",
+    "comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot009/model_final.pt",
+    "comparison_checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+    "ticks": 1000,
+    "scope": "Original nominal fixed cases, first five seconds, with extra measurement only; offline single-column command counterfactuals hold all other input entries constant.",
+    "evaluation_prefix_reproduction": [
+      {
+        "candidate_index": 0,
+        "ticks": 172,
+        "bitwise_equal": true
+      },
+      {
+        "candidate_index": 1,
+        "ticks": 3200,
+        "bitwise_equal": true
+      }
+    ],
+    "observation_migration": {
+      "source_dim": 35,
+      "target_dim": 35,
+      "actor_parameters": "unchanged",
+      "physics_dt_old": 0.005,
+      "physics_dt_new": 0.005,
+      "critic_optimizer": "fresh_at_stage_transfer"
+    },
+    "measurement_neutrality_vs_original_evaluation": {
+      "values": {
+        "bitwise_equal": true,
+        "max_absolute_error": 0.0
+      },
+      "commands": {
+        "bitwise_equal": true,
+        "max_absolute_error": 0.0
+      },
+      "episode_ticks": {
+        "bitwise_equal": true,
+        "max_absolute_error": 0.0
+      },
+      "motor_velocity": {
+        "bitwise_equal": true,
+        "max_absolute_error": 0.0
+      },
+      "actions": {
+        "bitwise_equal": true,
+        "max_absolute_error": 0.0
+      },
+      "wheel_target_velocity": {
+        "bitwise_equal": true,
+        "max_absolute_error": 0.0
+      }
+    },
+    "counterfactual_sample_count": 640,
+    "cpu_gpu_actor_max_error": 2.682209014892578e-07,
+    "counterfactual_actors": {
+      "current": {
+        "checkpoint_sha256": "83dce02ed0e7346ceb43522f51f0a133d7e6171c74f5789d5f5f34dca6483ea3",
+        "axes": {
+          "velocity": [
+            {
+              "command": -0.5,
+              "mean_action_policy_order": [
+                0.42430663108825684,
+                -0.193757563829422,
+                -0.008716870099306107,
+                0.043986834585666656,
+                0.0935540422797203,
+                0.2454378604888916
+              ],
+              "leg_target_offset_mean_rad": [
+                0.10607665777206421,
+                -0.0484393909573555,
+                -0.0021792175248265266,
+                0.010996708646416664
+              ],
+              "wheel_target_mean_rad_s": [
+                0.9355405569076538,
+                2.454378604888916
+              ]
+            },
+            {
+              "command": 0.0,
+              "mean_action_policy_order": [
+                0.42896977066993713,
+                -0.1844712793827057,
+                -0.027576154097914696,
+                0.066291943192482,
+                0.10285862535238266,
+                0.2680993676185608
+              ],
+              "leg_target_offset_mean_rad": [
+                0.10724244266748428,
+                -0.04611781984567642,
+                -0.006894038524478674,
+                0.0165729857981205
+              ],
+              "wheel_target_mean_rad_s": [
+                1.0285861492156982,
+                2.6809940338134766
+              ]
+            },
+            {
+              "command": 0.5,
+              "mean_action_policy_order": [
+                0.43139153718948364,
+                -0.17403554916381836,
+                -0.04562496021389961,
+                0.08727415651082993,
+                0.11561606079339981,
+                0.2903806269168854
+              ],
+              "leg_target_offset_mean_rad": [
+                0.10784788429737091,
+                -0.04350888729095459,
+                -0.011406240053474903,
+                0.02181853912770748
+              ],
+              "wheel_target_mean_rad_s": [
+                1.156160593032837,
+                2.903806209564209
+              ]
+            }
+          ],
+          "yaw": [
+            {
+              "command": -1.0,
+              "mean_action_policy_order": [
+                0.40290576219558716,
+                -0.20251145958900452,
+                -0.07163134217262268,
+                0.07336627691984177,
+                0.2076299488544464,
+                0.30541640520095825
+              ],
+              "leg_target_offset_mean_rad": [
+                0.10072644054889679,
+                -0.05062786489725113,
+                -0.01790783554315567,
+                0.01834156922996044
+              ],
+              "wheel_target_mean_rad_s": [
+                2.0762994289398193,
+                3.054164409637451
+              ]
+            },
+            {
+              "command": 0.0,
+              "mean_action_policy_order": [
+                0.43008941411972046,
+                -0.18403927981853485,
+                -0.030167365446686745,
+                0.06863631308078766,
+                0.10165844112634659,
+                0.269534170627594
+              ],
+              "leg_target_offset_mean_rad": [
+                0.10752235352993011,
+                -0.04600981995463371,
+                -0.007541841361671686,
+                0.017159078270196915
+              ],
+              "wheel_target_mean_rad_s": [
+                1.0165843963623047,
+                2.6953418254852295
+              ]
+            },
+            {
+              "command": 1.0,
+              "mean_action_policy_order": [
+                0.44733762741088867,
+                -0.1584639549255371,
+                0.015270153991878033,
+                0.06268296390771866,
+                0.018528802320361137,
+                0.24038438498973846
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11183440685272217,
+                -0.03961598873138428,
+                0.003817538497969508,
+                0.015670740976929665
+              ],
+              "wheel_target_mean_rad_s": [
+                0.18528802692890167,
+                2.403843879699707
+              ]
+            }
+          ],
+          "height": [
+            {
+              "command": 0.23,
+              "mean_action_policy_order": [
+                0.4359106123447418,
+                -0.19569452106952667,
+                -0.04172521084547043,
+                0.062459010630846024,
+                0.12399673461914062,
+                0.2916303277015686
+              ],
+              "leg_target_offset_mean_rad": [
+                0.10897765308618546,
+                -0.04892363026738167,
+                -0.010431302711367607,
+                0.015614752657711506
+              ],
+              "wheel_target_mean_rad_s": [
+                1.2399675846099854,
+                2.9163033962249756
+              ]
+            },
+            {
+              "command": 0.305,
+              "mean_action_policy_order": [
+                0.4296953082084656,
+                -0.18414263427257538,
+                -0.03043811395764351,
+                0.06812690198421478,
+                0.10523203760385513,
+                0.27216920256614685
+              ],
+              "leg_target_offset_mean_rad": [
+                0.1074238270521164,
+                -0.046035658568143845,
+                -0.007609528489410877,
+                0.017031725496053696
+              ],
+              "wheel_target_mean_rad_s": [
+                1.0523202419281006,
+                2.721691846847534
+              ]
+            },
+            {
+              "command": 0.43,
+              "mean_action_policy_order": [
+                0.4175316393375397,
+                -0.1640898734331131,
+                -0.011549510061740875,
+                0.07661930471658707,
+                0.07904092222452164,
+                0.24049802124500275
+              ],
+              "leg_target_offset_mean_rad": [
+                0.10438290983438492,
+                -0.041022468358278275,
+                -0.002887377515435219,
+                0.019154826179146767
+              ],
+              "wheel_target_mean_rad_s": [
+                0.7904092073440552,
+                2.404980182647705
+              ]
+            }
+          ]
+        }
+      },
+      "previous": {
+        "checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+        "axes": {
+          "velocity": [
+            {
+              "command": -0.5,
+              "mean_action_policy_order": [
+                0.4603925347328186,
+                -0.30671700835227966,
+                -0.05171174556016922,
+                0.0074766711331903934,
+                0.3923611044883728,
+                0.4429769515991211
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11509813368320465,
+                -0.07667925208806992,
+                -0.012927936390042305,
+                0.0018691677832975984
+              ],
+              "wheel_target_mean_rad_s": [
+                3.9236111640930176,
+                4.429769992828369
+              ]
+            },
+            {
+              "command": 0.0,
+              "mean_action_policy_order": [
+                0.4639414846897125,
+                -0.2947354018688202,
+                -0.07020048797130585,
+                0.02639201283454895,
+                0.40642276406288147,
+                0.4643401503562927
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11598537117242813,
+                -0.07368385046720505,
+                -0.017550121992826462,
+                0.0065980032086372375
+              ],
+              "wheel_target_mean_rad_s": [
+                4.064227104187012,
+                4.643402099609375
+              ]
+            },
+            {
+              "command": 0.5,
+              "mean_action_policy_order": [
+                0.46492066979408264,
+                -0.28099268674850464,
+                -0.08758846670389175,
+                0.044299542903900146,
+                0.4214108884334564,
+                0.48522916436195374
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11623016744852066,
+                -0.07024817168712616,
+                -0.02189711667597294,
+                0.011074885725975037
+              ],
+              "wheel_target_mean_rad_s": [
+                4.214108943939209,
+                4.852292060852051
+              ]
+            }
+          ],
+          "yaw": [
+            {
+              "command": -1.0,
+              "mean_action_policy_order": [
+                0.4347302317619324,
+                -0.30961012840270996,
+                -0.10530630499124527,
+                0.02060769870877266,
+                0.4894466996192932,
+                0.48841166496276855
+              ],
+              "leg_target_offset_mean_rad": [
+                0.1086825579404831,
+                -0.07740253210067749,
+                -0.026326576247811317,
+                0.005151924677193165
+              ],
+              "wheel_target_mean_rad_s": [
+                4.894466876983643,
+                4.8841166496276855
+              ]
+            },
+            {
+              "command": 0.0,
+              "mean_action_policy_order": [
+                0.4652473032474518,
+                -0.29433363676071167,
+                -0.07284096628427505,
+                0.028415042906999588,
+                0.4067959189414978,
+                0.466177374124527
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11631182581186295,
+                -0.07358340919017792,
+                -0.018210241571068764,
+                0.007103760726749897
+              ],
+              "wheel_target_mean_rad_s": [
+                4.067959308624268,
+                4.661773681640625
+              ]
+            },
+            {
+              "command": 1.0,
+              "mean_action_policy_order": [
+                0.48298096656799316,
+                -0.26831525564193726,
+                -0.03477459400892258,
+                0.034461893141269684,
+                0.33416804671287537,
+                0.44657373428344727
+              ],
+              "leg_target_offset_mean_rad": [
+                0.12074524164199829,
+                -0.06707881391048431,
+                -0.008693648502230644,
+                0.008615473285317421
+              ],
+              "wheel_target_mean_rad_s": [
+                3.3416805267333984,
+                4.465737342834473
+              ]
+            }
+          ],
+          "height": [
+            {
+              "command": 0.23,
+              "mean_action_policy_order": [
+                0.45871561765670776,
+                -0.28414103388786316,
+                -0.07990563660860062,
+                0.024717282503843307,
+                0.38429689407348633,
+                0.46449360251426697
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11467890441417694,
+                -0.07103525847196579,
+                -0.019976409152150154,
+                0.006179320625960827
+              ],
+              "wheel_target_mean_rad_s": [
+                3.8429691791534424,
+                4.644936561584473
+              ]
+            },
+            {
+              "command": 0.305,
+              "mean_action_policy_order": [
+                0.463576078414917,
+                -0.29250234365463257,
+                -0.0726979449391365,
+                0.02798706293106079,
+                0.4058997631072998,
+                0.46676141023635864
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11589401960372925,
+                -0.07312558591365814,
+                -0.018174486234784126,
+                0.006996765732765198
+              ],
+              "wheel_target_mean_rad_s": [
+                4.058997631072998,
+                4.667613983154297
+              ]
+            },
+            {
+              "command": 0.43,
+              "mean_action_policy_order": [
+                0.4690555930137634,
+                -0.3036366403102875,
+                -0.059945445507764816,
+                0.032922424376010895,
+                0.4420880675315857,
+                0.4686461091041565
+              ],
+              "leg_target_offset_mean_rad": [
+                0.11726389825344086,
+                -0.07590916007757187,
+                -0.014986361376941204,
+                0.008230606094002724
+              ],
+              "wheel_target_mean_rad_s": [
+                4.4208807945251465,
+                4.686460971832275
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "input_command_max_absolute_error": 0.0,
+    "runtime_contract_unchanged": true,
+    "unchanged_actor": true,
+    "unchanged_critic": true,
+    "optimizer_state_empty": true,
+    "terminal_records": [],
+    "first_episode_survivors": 32,
+    "seed": 290929,
+    "representative_ids": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28
+    ],
+    "scene_groups": [
+      "stand_230mm",
+      "stand_230mm",
+      "stand_230mm",
+      "stand_230mm",
+      "stand_305mm",
+      "stand_305mm",
+      "stand_305mm",
+      "stand_305mm",
+      "stand_430mm",
+      "stand_430mm",
+      "stand_430mm",
+      "stand_430mm",
+      "forward_05",
+      "forward_05",
+      "forward_05",
+      "forward_05",
+      "backward_05",
+      "backward_05",
+      "backward_05",
+      "backward_05",
+      "start_stop_05",
+      "start_stop_05",
+      "start_stop_05",
+      "start_stop_05",
+      "rotate_1",
+      "rotate_1",
+      "rotate_1",
+      "rotate_1",
+      "rotate_1_reverse",
+      "rotate_1_reverse",
+      "rotate_1_reverse",
+      "rotate_1_reverse"
+    ],
+    "policy_order": [
+      "L_joint1",
+      "LL_joint1",
+      "R_joint1",
+      "RR_joint1",
+      "L_joint3",
+      "R_joint3"
+    ],
+    "interpretation": "A nonzero offline command response only excludes complete input insensitivity on these states; it does not establish correct tracking or identify a unique learning cause.",
+    "finished_at": "2026-10-17T23:52:49.467111+00:00",
+    "trace_sha256": "65bedaf726922749e0d1cf0c0c3d741ae5fcdff7abf9a94b2001c382f6e18959"
+  },
+  "actuation_and_density_analysis": {
+    "post_warmup_frames": 25600,
+    "action_clipping_max": 0.0,
+    "action_clipping_fraction": 0.0,
+    "requested_torque_over_bounds_fraction_by_control_axis": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dense_reward_derivatives": {
+      "velocity": {
+        "errors": [
+          -0.51647,
+          0.43245
+        ],
+        "reward_density": [
+          -1.475388765335083,
+          -1.2442784309387207
+        ],
+        "density_gradient_per_axis_unit": [
+          2.8738796710968018,
+          -2.616668462753296
+        ]
+      },
+      "height": {
+        "errors": [
+          0.082258,
+          -0.114868
+        ],
+        "reward_density": [
+          -5.36009407043457,
+          -7.622496604919434
+        ],
+        "density_gradient_per_axis_unit": [
+          -67.44824981689453,
+          70.8284683227539
+        ]
+      },
+      "yaw": {
+        "errors": [
+          -0.435909
+        ],
+        "reward_density": [
+          -0.43785199522972107
+        ],
+        "density_gradient_per_axis_unit": [
+          0.4655655026435852
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "The exact trajectory comparison covers the original eight representatives, not unrecorded trajectories of all 32 replicas.",
+    "Offline command queries use 640 common states from the current model, 1.2-4.8 seconds, all 32 replicas. Other input entries are held exactly fixed and no counterfactual action reaches simulation.",
+    "Previous-model predictions on current-model states are conditional network comparisons, not a paired training intervention or proof of correct closed-loop response.",
+    "Nonzero response and correctly directed reward-density derivatives rule out absent signal only on the examined inputs/errors; they do not prove convergence, identify a unique learning cause or qualify hardware."
+  ],
+  "decision": {
+    "action": "same_v5_full_state_bounded_512_then_original_eval011",
+    "parent_lineage": 1664,
+    "target_lineage": 2176,
+    "additional_updates": 512,
+    "total_consumption_before": 2752,
+    "total_consumption_after": 3264,
+    "remaining_after": 16736,
+    "rationale": "Real yaw/drift bias improves. Original-event velocity cost remains flat and original exam tracking still fails. Read-only command/actuation/reward diagnostics found no missing command, action clipping or missing dense cost on these samples, so test another bounded learning block before changing reward/curriculum.",
+    "full_training_admitted": false
+  },
+  "tensorboard": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010",
+    "step": 1664,
+    "namespace": "LocalDiagnostics/CommandPath",
+    "command_units": {
+      "velocity": "m/s",
+      "yaw": "rad/s",
+      "height": "m"
+    },
+    "response_note": "Secant of current actor mean target over the documented command grid on the same current-state sample batch. Not a closed-loop tracking gain."
+  }
+}
