@@ -41,7 +41,7 @@ def parent():
 def test_finalized_local_state_and_cumulative_ceiling(parent):
     checkpoint, config = parent
     args = invocation()
-    args.resume, args.updates = checkpoint, 19936
+    args.resume, args.updates = checkpoint, 19872
     assert local.validate_invocation(config, args, ROOT) == 64
     args.updates += 1
     with pytest.raises(ValueError, match="cumulative"):
@@ -73,10 +73,10 @@ def test_new_source_root_reuses_exact_contract_paths_and_hash(parent, tmp_path):
     checkpoint, config = parent
     plan = local.read_plan(ROOT)
     for name in (local.PLAN_FILE, plan["source_worker_file"], plan["source_design_file"],
-                 plan["reward_reference_file"], plan["control_file"]):
+                 plan["reward_reference_file"], plan["control_file"], plan["prior_experiment_receipt_file"]):
         target = tmp_path / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((ROOT / name).read_bytes())
     worker = local.restore_bundle(tmp_path, checkpoint)
     assert worker.read_bytes() == checkpoint.with_suffix(".contract.json").read_bytes()
-    assert local.validate_config(config, tmp_path)["inherited_consumption"] == 0
+    assert local.validate_config(config, tmp_path)["inherited_consumption"] == 64
