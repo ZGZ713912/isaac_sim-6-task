@@ -1,7 +1,7 @@
 # 本机 200 Hz 短训与长训
 
 2026-10-17 用户授权在本机完成短训，检查效果；正常后长训，有问题先诊断并迭代。
-当前对照使用 `contracts/v6_local_scratch_200hz_v3.json`，独立于已停止的 Kaiser 课程。
+当前对照使用 `contracts/v6_local_scratch_200hz_v4.json`，独立于已停止的 Kaiser 课程。
 不启动本机 TensorBoard 服务，曲线写入现有 RSL-RL TensorBoard event。
 
 ## 执行顺序
@@ -39,8 +39,8 @@ reward 改善代替行为通过。继续学习的准入不授予最终技能、�
 conda activate isaacsim6
 python scripts/train_local_chassis.py --num-envs 512 --updates 128 --run-dir runs/my_pilot
 python scripts/evaluate_local_chassis.py --checkpoint runs/my_pilot/initial_state/model_final.pt --checkpoint runs/my_pilot/model_final.pt --output runs/my_pilot_eval
-# 仅在实际行为及工程读回通过后：v3 的 128 加 19296，到本实验 19424；此前 576，总计 20000。
-python scripts/train_local_chassis.py --num-envs 512 --resume runs/my_pilot/model_final.pt --updates 19296 --max-runtime-seconds 604800 --run-dir runs/my_long
+# 仅在实际行为及工程读回通过后：v4 的 128 加 18784，到本实验 18912；此前 1088，总计 20000。
+python scripts/train_local_chassis.py --num-envs 512 --resume runs/my_pilot/model_final.pt --updates 18784 --max-runtime-seconds 604800 --run-dir runs/my_long
 ```
 
 评测 `LocalEvaluation/<case>/<metric>` 写入各候选训练目录原有 TensorBoard
@@ -149,3 +149,37 @@ v3 累计 512 更新于 19:44:48 UTC 完成，实际 learner 已退出；全实�
 而实际倒地轨迹中的轮速纠偏仍弱。使用相同初始网络、固定初态和同一标准
 Gaussian 样本，对照独立腿／轮幅度；这是假设，不能预先归为唯一根因，也
 不能把随机短回合的改善当成正式八场景通过。当前不准入长训。
+
+## 分轴探索的受限对照
+
+`axis_probe004/005/006` 分别在独立模拟器进程中完成 0-PPO 测量，原始初始
+网络不变，32 环境、原八场景各 4 副本；初始策略输入数组逐位相同，标准
+Gaussian 样本 seed/形状及首帧 SHA 相同。统一 std=0.2、腿 0.05/轮 0.5、
+腿 0.05/轮 1.0 的平均初始回合分别 0.573、0.705、0.639 秒；各组仍全部
+因非轮接触倒地，没有闭链终止。32 回合不能覆盖随机训练的机械风险。
+
+早期 axis_probe001 的人口前置拒绝、002 的汇总接口错误、003 的复用进程
+初态不一致全部保留，没有 PPO 消费，不能当作有效配对。不得只凭 Isaac
+外壳的 exit0 判定测量成功，须读取 `diagnosis.json` 的实际 status/错误。
+回执 `reports/local_training_20261017/axis_exploration001.json` 保留完整证据。
+
+v4 从相同种子重新初始化，仅将初始 Gaussian std 向量改为策略序
+`[0.05, 0.05, 0.05, 0.05, 0.5, 0.5]`。四腿对应位置探索 0.0125 rad；
+双轮对应速度探索 5 rad/s（0.3 m/s 轮缘速度）。Gaussian 仍原生采样，
+std 可学习，entropy=0；reward、时序、课程和机械阈值保持 v3。此为待验证
+的初始化假设，不是已确认根因或已学会平衡。
+
+RSL-RL 5.5.1 的构造参数 init_std 为标量；向量在 runner 构造后、首次 Adam
+更新或 checkpoint load 之前，一次性复制到原有 Parameter，保留优化器
+持有的对象、均值网络和 RNG。续训随后完整 load 覆盖为 checkpoint 的学习
+状态，不能重新设置其 std。`Policy/std/<axis>` 使用原 RSL-RL logger/writer
+及原生 action_std 和 update step，单位为未缩放策略动作。
+
+下一段 pilot006 为 512 环境、128 更新的新学习谱系。此前 1088 次消费不
+退款，新谱系上限 18912；本段结束预计总消费 1216，剩余 18784。完成后
+以原始初始、v3 的 128 更新和 v4 的 128 更新做相同八场景评测及 event
+匹配窗口对比。数值通过或随机初态存活延长都不能直接授长训准入。
+
+137 项本机合同、续训、评测、恢复时钟、Gaussian/Adam、日志、熵系数、
+reward 与 rollout 测试通过；512 环境静态前置通过。初始测试中一处旧
+消费常量仍为 576，已改为本轮真实 1088 后重新完成全组；没有改实现回避。

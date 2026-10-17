@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 
 
-PLAN_FILE = "contracts/v6_local_scratch_200hz_v3.json"
+PLAN_FILE = "contracts/v6_local_scratch_200hz_v4.json"
+ENTROPY_PLAN_FILE = "contracts/v6_local_scratch_200hz_v3.json"
 LOW_NOISE_PLAN_FILE = "contracts/v6_local_scratch_200hz_v2.json"
 POLICY200_PLAN_FILE = "contracts/v6_local_scratch_200hz_v1.json"
 LEGACY_PLAN_FILE = "contracts/v6_local_scratch_v1.json"
@@ -23,7 +24,7 @@ def digest(path):
 
 def read_plan(root, plan_file=PLAN_FILE):
     root = Path(root)
-    if plan_file not in (PLAN_FILE, LOW_NOISE_PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
+    if plan_file not in (PLAN_FILE, ENTROPY_PLAN_FILE, LOW_NOISE_PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
         raise ValueError("Unsupported local scratch plan file")
     plan = json.loads((root / plan_file).read_text())
     if plan.get("schema") != "v6-local-scratch-plan-v1":
@@ -41,6 +42,9 @@ def read_plan(root, plan_file=PLAN_FILE):
                 or receipt.get("consumption") != plan["prior_experiment_consumption"]
                 or plan["update_ceiling"] + plan["prior_experiment_consumption"] != 20000):
             raise ValueError("Prior local experiment consumption binding changed")
+    if "initial_noise_std_policy_order" in plan:
+        from wheeled_algo.exploration_init import validate_policy_std
+        validate_policy_std(plan["initial_noise_std_policy_order"])
     return plan
 
 
@@ -83,7 +87,7 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
             action_difference_reference_dt=plan["action_difference_reference_dt"])
         timing_changes = ("physics_dt", "policy_dt", "control_math_source", "control_math_sha256",
             "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt")
-    for field in ("initial_noise_std", "entropy_coef"):
+    for field in ("initial_noise_std", "entropy_coef", "initial_noise_std_policy_order"):
         if field in plan:
             worker[field] = plan[field]
             timing_changes += (field,)
@@ -236,6 +240,7 @@ def restore_bundle(root, checkpoint):
 def source_files(root, plan_file=PLAN_FILE):
     plan = read_plan(root, plan_file)
     return [plan_file, "src/wheeled_tasks/chassis/local_scratch.py", "scripts/train_local_chassis.py",
+        "src/wheeled_algo/exploration_init.py",
         plan["source_worker_file"], plan["source_design_file"], plan["reward_reference_file"],
         "src/wheeled_tasks/chassis/nonstandard_start.py", "src/wheeled_tasks/chassis/nonstandard_start_revision.py",
         "src/wheeled_tasks/chassis/release_stop.py", "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",

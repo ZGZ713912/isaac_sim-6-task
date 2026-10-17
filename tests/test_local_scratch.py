@@ -41,7 +41,8 @@ def test_latest_reward_and_native_mechanics_are_retained(bundle):
         "target_num_envs", "ppo_minibatch_samples", "checkpoint_first_update",
         "budget_spec_file", "budget_spec_sha256", "nonstandard_start", "locomotion_difficulty",
         "ordinary_posture_curriculum", "policy_dt", "control_math_source", "control_math_sha256",
-        "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt", "initial_noise_std", "entropy_coef"}
+        "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt", "initial_noise_std", "entropy_coef",
+        "initial_noise_std_policy_order"}
     assert {k: v for k, v in bundle.items() if k not in changed} == {
         k: v for k, v in latest.items() if k not in changed}
     for field in ("nonstandard_start", "locomotion_difficulty", "ordinary_posture_curriculum"):
@@ -69,11 +70,12 @@ def test_independent_design_and_all_scene_groups(population):
         rows = choose_scene_groups(config["scene_groups"], population)
         assert len(rows) == population
         assert len({name for name, terrain in rows}) == 135
-        assert receipt["budget"]["inherited_consumption"] == 576
-        assert receipt["budget"]["transition_ceiling"] == 19424 * population * 96
+        assert receipt["budget"]["inherited_consumption"] == 1088
+        assert receipt["budget"]["transition_ceiling"] == 18912 * population * 96
         assert receipt["runtime_expected"]["decimation"] == 1
         assert receipt["runtime_expected"]["policy_dt"] == .005
         assert config["initial_noise_std"] == .2
+        assert config["initial_noise_std_policy_order"] == [.05] * 4 + [.5] * 2
         assert config["entropy_coef"] == 0.
 
 
@@ -81,7 +83,7 @@ def test_entropy_comparison_preserves_the_previous_plant_reward_and_sampling_std
     directory = ROOT / "runs/entropy-comparison-fixture"
     _, old = local_scratch.build_bundle(ROOT, directory, 512,
         plan_file=local_scratch.LOW_NOISE_PLAN_FILE)
-    _, new = local_scratch.build_bundle(ROOT, directory, 512)
+    _, new = local_scratch.build_bundle(ROOT, directory, 512, plan_file=local_scratch.ENTROPY_PLAN_FILE)
     changed = {key for key in old["worker"].keys() | new["worker"].keys()
         if old["worker"].get(key) != new["worker"].get(key)}
     assert changed == {"entropy_coef", "budget_spec_sha256", "design_preflight", "local_scratch"}
@@ -91,6 +93,18 @@ def test_entropy_comparison_preserves_the_previous_plant_reward_and_sampling_std
     assert new["budget"]["inherited_consumption"] == 576
     for bundle in (old, new):
         assert bundle["budget"]["inherited_consumption"] + bundle["budget"]["update_ceiling"] == 20000
+
+
+def test_axis_experiment_changes_only_initial_std_and_budget_binding():
+    directory = ROOT / "runs/axis-exploration-fixture"
+    _, old = local_scratch.build_bundle(ROOT, directory, 512, plan_file=local_scratch.ENTROPY_PLAN_FILE)
+    _, new = local_scratch.build_bundle(ROOT, directory, 512)
+    changed = {k for k in old["worker"].keys() | new["worker"].keys()
+               if old["worker"].get(k) != new["worker"].get(k)}
+    assert changed == {"initial_noise_std_policy_order", "budget_spec_sha256", "design_preflight", "local_scratch"}
+    assert new["budget"]["inherited_consumption"] == 1088
+    assert new["budget"]["update_ceiling"] == 18912
+    assert old["worker"]["entropy_coef"] == new["worker"]["entropy_coef"] == 0.
 
 
 @pytest.mark.parametrize("field,value", [
