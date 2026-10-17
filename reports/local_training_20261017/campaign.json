@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-17T19:03:15.922802+00:00",
-  "status": "entropy_comparison_completed_behavior_rejected_preparing_512_continuation",
+  "recorded_at": "2026-10-17T19:05:29.264916+00:00",
+  "status": "v3_exact_state_continuation_running_not_long_training",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -13,47 +13,47 @@
   "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot005",
   "tmux_session": "v6-local-pilot005",
   "log_file": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot005.log",
-  "source_commit": "pending_committed_freeze",
+  "source_commit": "f2b8785609c52f92a8566f75aa2846ea82ba4840",
   "phase_parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot004/model_final.pt",
   "additional_updates": 384,
   "target_local_updates": 512,
   "target_total_consumption": 1088,
-  "pid": null,
-  "process_start_ticks": null,
+  "pid": 565082,
+  "process_start_ticks": 4110517,
   "observed_progress": {
-    "updated_at": "2026-10-17T19:00:30.102362+00:00",
-    "pid": 553153,
-    "successful_updates": 128,
-    "parent_updates": 0,
-    "attempted_updates": 128,
+    "updated_at": "2026-10-17T19:05:29.264916+00:00",
+    "pid": 565082,
+    "successful_updates": 8,
+    "parent_updates": 128,
+    "attempted_updates": 8,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 128,
-    "stage_actor_update": 128,
-    "global_actor_update": 128,
-    "global_budget_actor_updates": 128,
+    "actor_updates_in_block": 8,
+    "stage_actor_update": 136,
+    "global_actor_update": 136,
+    "global_budget_actor_updates": 136,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 6291456,
+    "training_transitions": 6684672,
     "prior_local_experiment_consumption": 576,
-    "total_local_consumed_updates": 704,
+    "total_local_consumed_updates": 712,
     "recovery_rollout": {
-      "valid_transitions": 46743,
-      "script_or_blend_transitions": 2409,
-      "valid_fraction": 0.95098876953125,
-      "minimum_mini_batch_population": 11685
+      "valid_transitions": 46400,
+      "script_or_blend_transitions": 2752,
+      "valid_fraction": 0.9440104166666666,
+      "minimum_mini_batch_population": 11600
     },
-    "policy_learning_transitions_in_block": 5992429,
-    "script_or_blend_transitions_in_block": 299027
+    "policy_learning_transitions_in_block": 374974,
+    "script_or_blend_transitions_in_block": 18242
   },
   "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval005",
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 19296,
+  "full_training_remaining_if_admitted": 19288,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -73,21 +73,19 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": true,
+  "training_process_exited": false,
   "latest_completed_report": "reports/local_training_20261017/pilot004.json",
   "latest_evaluation_status": "evaluated",
   "latest_evaluation_passed_cases": 0,
   "next_phase": {
-    "action": "exact_learning_state_continuation_pilot",
-    "additional_updates": 384,
-    "target_local_updates": 512,
-    "target_total_consumption": 1088,
-    "update_ceiling": 19424,
-    "full_training_admitted": false,
-    "reason": "Matched 512-update comparison against v2; retain critic learning and lower-noise actor state, Adam, RNG and curricula. Evaluate actual standing and forward/backward behavior again; do not treat finite state or reward improvements as admission.",
-    "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot005",
-    "tmux_session": "v6-local-pilot005",
-    "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot004/model_final.pt"
+    "action": "matched_512_update_fixed_evaluation",
+    "output": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval005",
+    "checkpoints": [
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot003/model_final.pt",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot005/model_final.pt"
+    ],
+    "full_training_admitted": false
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot004",
   "previous_resume_verification": {
@@ -124,13 +122,14 @@
     "note": "Initial test run imported the primary editable package and was rejected; rerun explicitly used this worktree src.",
     "entropy_reward_rollout_tests_66": "passed",
     "native_initial_state_and_entropy_readback": "passed",
-    "pilot005_exact_resume_preflight": "static_passed"
+    "pilot005_exact_resume_preflight": "static_passed",
+    "pilot005_native_full_resume": "passed"
   },
   "frozen_source_receipt": {
-    "commit": "9b631c3bd30b305c0eb0a4d37ff6a358fab8f3cc",
-    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T184628Z-2ccc06c6/source.tar.gz",
-    "source_archive_sha256": "b460cf2e72e545fd9f6e2d3dcd36cccbc26b1c2dd2e52289603e0380f97aeb71",
-    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T184628Z-2ccc06c6/source"
+    "commit": "f2b8785609c52f92a8566f75aa2846ea82ba4840",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T190420Z-d7de667e/source.tar.gz",
+    "source_archive_sha256": "f8b5aa3bdd8167dc842b972ada0f58f6a6b268be28cd58388bd71876ac193696",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T190420Z-d7de667e/source"
   },
   "initial_learning_state_equal_to_v2": {
     "actor_state_dict": true,
@@ -143,5 +142,44 @@
   "actual_entropy_coef": 0.0,
   "expected_total_consumption_on_completion": 704,
   "previous_source_commit": "9b631c3bd30b305c0eb0a4d37ff6a358fab8f3cc",
-  "remaining_after_target": 18912
+  "remaining_after_target": 18912,
+  "resume_verification": {
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "56788405ce2da597eea9e1e5d97b6d99746e8009c370eb6b69736556fa009ea9",
+    "parent_updates": 128,
+    "restored_checkpoint_updates": 128,
+    "learning_lineage_updates": 128,
+    "requested_learning_rate_scale": null,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 6291456,
+    "torch_rng_restored": true,
+    "environment_rng_restored": true,
+    "cuda_rng_restored": true,
+    "environment_state": "new_episodes_after_rng_restore",
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": false,
+    "parent_entropy_coef": 0.0,
+    "effective_entropy_coef": 0.0,
+    "entropy_coef_source": "contract"
+  },
+  "independent_initial_state_equal": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "current_phase": {
+    "action": "exact_learning_state_continuation_pilot",
+    "additional_updates": 384,
+    "target_local_updates": 512,
+    "target_total_consumption": 1088,
+    "update_ceiling": 19424,
+    "full_training_admitted": false,
+    "reason": "Matched 512-update comparison against v2; retain critic learning and lower-noise actor state, Adam, RNG and curricula. Evaluate actual standing and forward/backward behavior again; do not treat finite state or reward improvements as admission.",
+    "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot005",
+    "tmux_session": "v6-local-pilot005",
+    "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot004/model_final.pt"
+  }
 }
