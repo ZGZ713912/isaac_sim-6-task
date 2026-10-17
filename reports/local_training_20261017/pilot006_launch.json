@@ -1,0 +1,117 @@
+{
+  "schema": "v6-local-pilot-launch-verification-v1",
+  "recorded_at": "2026-10-17T20:06:13.721646+00:00",
+  "status": "v4_running_not_behavior_accepted",
+  "source": {
+    "commit": "f581e1cd9e47d53e07099165b4d7be4ca8dd6288",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T200415Z-57c0d85d/source.tar.gz",
+    "source_archive_sha256": "d572b49a103b5779af095631aa1451d04cf1fb15d25a082b03cf9f7f81e9fb66",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T200415Z-57c0d85d/source"
+  },
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot006",
+  "pid": 618413,
+  "process_start_ticks": 4470068,
+  "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
+  "initial_mean_critic_adam_rng_exact": {
+    "actor_mean_exact": true,
+    "critic_exact": true,
+    "adam_exact": true,
+    "cpu_rng_exact": true,
+    "env_rng_exact": true,
+    "cuda_rng_exact": true
+  },
+  "initial_std_policy_order": [
+    0.05000000074505806,
+    0.05000000074505806,
+    0.05000000074505806,
+    0.05000000074505806,
+    0.5,
+    0.5
+  ],
+  "initial_state_sha256": "98d085f049d50ea0b66a128e8cd581c6a19603802611289d911b994db43c1fba",
+  "initialization_rng_consumption": "none; exact CPU/CUDA/environment RNG comparison passed",
+  "first_ppo": {
+    "actor_changed_tensors": 9,
+    "critic_changed_tensors": 8,
+    "learning_state_finite": {
+      "actor_state_dict": true,
+      "critic_state_dict": true,
+      "optimizer_state_dict": true
+    },
+    "adam_parameter_states": 17,
+    "adam_steps": [
+      20
+    ],
+    "clocks": {
+      "successful_updates_total": 1,
+      "learning_lineage_updates": 1,
+      "stage_actor_update": 1,
+      "global_actor_update": 1,
+      "actor_updates_consumed": 1,
+      "training_transitions": 49152,
+      "critic_warmup_remaining": 0
+    }
+  },
+  "axis_std_event_readback": {
+    "Policy/std/left_leg1": {
+      "step": 14,
+      "value": 0.04907942935824394
+    },
+    "Policy/std/left_leg2": {
+      "step": 14,
+      "value": 0.04922562092542648
+    },
+    "Policy/std/right_leg1": {
+      "step": 14,
+      "value": 0.05216595530509949
+    },
+    "Policy/std/right_leg2": {
+      "step": 14,
+      "value": 0.04946230351924896
+    },
+    "Policy/std/left_wheel": {
+      "step": 14,
+      "value": 0.506210446357727
+    },
+    "Policy/std/right_wheel": {
+      "step": 14,
+      "value": 0.49418017268180847
+    }
+  },
+  "observed_progress": {
+    "updated_at": "2026-10-17T20:06:11.833164+00:00",
+    "pid": 618413,
+    "successful_updates": 15,
+    "parent_updates": 0,
+    "attempted_updates": 15,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 15,
+    "stage_actor_update": 15,
+    "global_actor_update": 15,
+    "global_budget_actor_updates": 15,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 737280,
+    "prior_local_experiment_consumption": 1088,
+    "total_local_consumed_updates": 1103,
+    "recovery_rollout": {
+      "valid_transitions": 47038,
+      "script_or_blend_transitions": 2114,
+      "valid_fraction": 0.9569905598958334,
+      "minimum_mini_batch_population": 11759
+    },
+    "policy_learning_transitions_in_block": 702521,
+    "script_or_blend_transitions_in_block": 34759
+  },
+  "prior_consumption": 1088,
+  "target_v4_updates": 128,
+  "target_total_consumption": 1216,
+  "total_budget_ceiling": 20000,
+  "remaining_after_target": 18784,
+  "full_training_admitted": false
+}

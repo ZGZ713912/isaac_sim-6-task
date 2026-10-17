@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-17T20:03:43.101875+00:00",
-  "status": "v4_axis_initialization_prepared_not_running",
+  "recorded_at": "2026-10-17T20:06:13.721646+00:00",
+  "status": "v4_axis_initialization_pilot_running_not_long_training",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -13,18 +13,47 @@
   "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot006",
   "tmux_session": "v6-local-pilot006",
   "log_file": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot006.log",
-  "source_commit": null,
+  "source_commit": "f581e1cd9e47d53e07099165b4d7be4ca8dd6288",
   "phase_parent_checkpoint": null,
   "additional_updates": 128,
   "target_local_updates": 128,
   "target_total_consumption": 1216,
-  "pid": null,
-  "process_start_ticks": null,
-  "observed_progress": null,
+  "pid": 618413,
+  "process_start_ticks": 4470068,
+  "observed_progress": {
+    "updated_at": "2026-10-17T20:06:11.833164+00:00",
+    "pid": 618413,
+    "successful_updates": 15,
+    "parent_updates": 0,
+    "attempted_updates": 15,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 15,
+    "stage_actor_update": 15,
+    "global_actor_update": 15,
+    "global_budget_actor_updates": 15,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 737280,
+    "prior_local_experiment_consumption": 1088,
+    "total_local_consumed_updates": 1103,
+    "recovery_rollout": {
+      "valid_transitions": 47038,
+      "script_or_blend_transitions": 2114,
+      "valid_fraction": 0.9569905598958334,
+      "minimum_mini_batch_population": 11759
+    },
+    "policy_learning_transitions_in_block": 702521,
+    "script_or_blend_transitions_in_block": 34759
+  },
   "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval006",
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 18912,
+  "full_training_remaining_if_admitted": 18897,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -44,7 +73,7 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": true,
+  "training_process_exited": false,
   "latest_completed_report": "reports/local_training_20261017/pilot005.json",
   "latest_evaluation_status": "evaluated",
   "latest_evaluation_passed_cases": 0,
@@ -69,7 +98,8 @@
     "pilot005_exact_resume_preflight": "static_passed",
     "pilot005_native_full_resume": "passed",
     "axis_exploration_cpu_and_regression_tests_137": "passed",
-    "pilot006_preflight_512": "static_passed"
+    "pilot006_preflight_512": "static_passed",
+    "pilot006_native_initialization_and_first_ppo": "passed"
   },
   "actual_entropy_coef": 0.0,
   "expected_total_consumption_on_completion": 1216,
@@ -90,8 +120,8 @@
     "target_total_consumption": 1216,
     "full_training_admitted": false
   },
-  "total_consumption": 1088,
-  "remaining_total_budget": 18912,
+  "total_consumption": 1103,
+  "remaining_total_budget": 18897,
   "previous_phase_snapshot": {
     "active_plan": "contracts/v6_local_scratch_200hz_v3.json",
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot005",
@@ -127,5 +157,20 @@
       "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T190420Z-d7de667e/source"
     }
   },
-  "latest_diagnosis": "reports/local_training_20261017/axis_exploration001.json"
+  "latest_diagnosis": "reports/local_training_20261017/axis_exploration001.json",
+  "frozen_source_receipt": {
+    "commit": "f581e1cd9e47d53e07099165b4d7be4ca8dd6288",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T200415Z-57c0d85d/source.tar.gz",
+    "source_archive_sha256": "d572b49a103b5779af095631aa1451d04cf1fb15d25a082b03cf9f7f81e9fb66",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T200415Z-57c0d85d/source"
+  },
+  "initial_mean_critic_adam_rng_exact": {
+    "actor_mean_exact": true,
+    "critic_exact": true,
+    "adam_exact": true,
+    "cpu_rng_exact": true,
+    "env_rng_exact": true,
+    "cuda_rng_exact": true
+  },
+  "current_launch_verification": "reports/local_training_20261017/pilot006_launch.json"
 }
