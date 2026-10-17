@@ -703,14 +703,19 @@ def main():
                     runner_config["actor"]["distribution_cfg"]["init_std"] = c["initial_noise_std"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(runner_config, indent=2))
                 runner = OnPolicyRunner(env, deepcopy(runner_config), log_dir=str(args.run_dir), device=args.device)
+                if "initial_noise_std_policy_order" in c:
+                    from wheeled_algo.exploration_init import initialize_policy_std, install_axis_std_logging
+                    initialize_policy_std(runner.alg, c["initial_noise_std_policy_order"])
+                    install_axis_std_logging(runner.logger)
                 if c.get("local_scratch"):
                     report["ppo_timing"] = dict(gamma=runner.alg.gamma, lam=runner.alg.lam,
                         num_steps_per_env=runner.alg.storage.num_transitions_per_env,
                         policy_dt=env.policy_dt,
                         rollout_seconds=runner.alg.storage.num_transitions_per_env * env.policy_dt)
                     report["fresh_initial_noise_std"] = runner.alg.actor.distribution.std_param.detach().cpu().tolist()
-                    if any(not math.isclose(value, c["initial_noise_std"], abs_tol=1e-6)
-                           for value in report["fresh_initial_noise_std"]):
+                    expected_std = c.get("initial_noise_std_policy_order", [c["initial_noise_std"]] * 6)
+                    if any(not math.isclose(value, expected, abs_tol=1e-6)
+                           for value, expected in zip(report["fresh_initial_noise_std"], expected_std)):
                         raise ValueError("PPO initial exploration differs from the local contract")
                     for parameter in ("gamma", "lam"):
                         if parameter in c and report["ppo_timing"][parameter] != c[parameter]:
