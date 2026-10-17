@@ -100,3 +100,9 @@ std 仍参加 PPO 学习。环境 reward、200 Hz 时序、折扣、GAE、课程
 v3 上限 19424。对照结束须比较原 v2 128 更新、原始模型和 v3，再按相同
 八场景复测；没有实际基础行为，不准入长训。完整证据及消费绑定见
 `reports/local_training_20261017/pilot003.json`。
+
+v3 已于 18:46 UTC 从冻结提交 `9b631c3` 启动，tmux `v6-local-pilot004`。
+实际初始 checkpoint 与 v2 的 actor、critic、Adam、CPU/CUDA/环境 RNG 均
+逐值相同，熵系数原生读回为 0；并非通过修改 std 或采样器来关闭随机动作。
+57 项本机合同/续训/评测/恢复时钟测试、66 项熵系数/原生 reward/rollout
+测试通过，512 环境静态预检通过。测试显式指定本 worktree 的 `src`。
