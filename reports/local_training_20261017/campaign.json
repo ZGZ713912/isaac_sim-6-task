@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-17T19:05:29.264916+00:00",
-  "status": "v3_exact_state_continuation_running_not_long_training",
+  "recorded_at": "2026-10-17T19:54:08.107648+00:00",
+  "status": "v3_512_completed_behavior_rejected_diagnosis",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -21,39 +21,39 @@
   "pid": 565082,
   "process_start_ticks": 4110517,
   "observed_progress": {
-    "updated_at": "2026-10-17T19:05:29.264916+00:00",
+    "updated_at": "2026-10-17T19:44:48.235792+00:00",
     "pid": 565082,
-    "successful_updates": 8,
+    "successful_updates": 384,
     "parent_updates": 128,
-    "attempted_updates": 8,
+    "attempted_updates": 384,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 8,
-    "stage_actor_update": 136,
-    "global_actor_update": 136,
-    "global_budget_actor_updates": 136,
+    "actor_updates_in_block": 384,
+    "stage_actor_update": 512,
+    "global_actor_update": 512,
+    "global_budget_actor_updates": 512,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 6684672,
+    "training_transitions": 25165824,
     "prior_local_experiment_consumption": 576,
-    "total_local_consumed_updates": 712,
+    "total_local_consumed_updates": 1088,
     "recovery_rollout": {
-      "valid_transitions": 46400,
-      "script_or_blend_transitions": 2752,
-      "valid_fraction": 0.9440104166666666,
-      "minimum_mini_batch_population": 11600
+      "valid_transitions": 46251,
+      "script_or_blend_transitions": 2901,
+      "valid_fraction": 0.94097900390625,
+      "minimum_mini_batch_population": 11562
     },
-    "policy_learning_transitions_in_block": 374974,
-    "script_or_blend_transitions_in_block": 18242
+    "policy_learning_transitions_in_block": 17851864,
+    "script_or_blend_transitions_in_block": 1022504
   },
   "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval005",
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 19288,
+  "full_training_remaining_if_admitted": 18912,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -73,19 +73,14 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": false,
-  "latest_completed_report": "reports/local_training_20261017/pilot004.json",
+  "training_process_exited": true,
+  "latest_completed_report": "reports/local_training_20261017/pilot005.json",
   "latest_evaluation_status": "evaluated",
   "latest_evaluation_passed_cases": 0,
   "next_phase": {
-    "action": "matched_512_update_fixed_evaluation",
-    "output": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval005",
-    "checkpoints": [
-      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
-      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot003/model_final.pt",
-      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot005/model_final.pt"
-    ],
-    "full_training_admitted": false
+    "action": "diagnose_axis_exploration_and_control_response",
+    "training_allowed": false,
+    "reason": "Uniform low std also limits wheel velocity exploration; investigate using 0-PPO same-initial-actor paired stochastic rollouts before a new bounded pilot. No long-run admission."
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot004",
   "previous_resume_verification": {
@@ -140,7 +135,7 @@
     "cuda_rng_states": true
   },
   "actual_entropy_coef": 0.0,
-  "expected_total_consumption_on_completion": 704,
+  "expected_total_consumption_on_completion": 1088,
   "previous_source_commit": "9b631c3bd30b305c0eb0a4d37ff6a358fab8f3cc",
   "remaining_after_target": 18912,
   "resume_verification": {
@@ -181,5 +176,7 @@
     "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot005",
     "tmux_session": "v6-local-pilot005",
     "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot004/model_final.pt"
-  }
+  },
+  "total_consumption": 1088,
+  "remaining_total_budget": 18912
 }
