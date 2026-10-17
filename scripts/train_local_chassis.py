@@ -13,7 +13,9 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from wheeled_tasks.chassis.local_scratch import PLAN_FILE, read_plan, restore_bundle, validate_parent, write_bundle
+from wheeled_tasks.chassis.local_scratch import (
+    PLAN_FILE, BIRTH_RAMP_PLAN_FILE, read_plan, restore_bundle, validate_parent, write_bundle,
+)
 
 
 def freeze_source(root, directory):
@@ -43,12 +45,16 @@ def main():
     parser.add_argument("--updates", type=int, default=plan["update_ceiling"])
     parser.add_argument("--run-dir", type=Path)
     parser.add_argument("--resume", type=Path, help="Finalized checkpoint of this same local experiment; --updates is additional")
+    parser.add_argument("--resume-local-birth-revision", action="store_true",
+                        help="Named v4-1024 -> local v5 full-state continuation, at most 128 additional updates")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--validate-scene", type=int, default=0)
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
     if not 1 <= args.updates <= plan["update_ceiling"]:
         parser.error("updates exceed the independent local budget")
+    if args.resume_local_birth_revision and not args.resume:
+        parser.error("The local birth revision requires its finalized parent")
     if args.resume:
         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
         parent_config = json.loads(checkpoint_contract_path(args.resume).read_text())
@@ -57,6 +63,10 @@ def main():
         if (parent_config["policy_dt"] != .005 or parent_config["target_num_envs"] != args.num_envs
                 or parent + args.updates > plan["update_ceiling"]):
             parser.error("resume must preserve the population/200 Hz plan and cumulative update ceiling")
+        if args.resume_local_birth_revision:
+            plan = read_plan(ROOT, BIRTH_RAMP_PLAN_FILE)
+            if args.updates > plan["local_birth_revision"]["first_block_update_ceiling"]:
+                parser.error("The first birth revision block is bounded to 128 updates")
     # A launched PPO must come from a committed training version. The scene
     # and static probes can validate a candidate before it is committed.
     if not args.preflight_only and not args.validate_scene:
@@ -64,7 +74,7 @@ def main():
         if pending:
             parser.error("Commit verified training changes before starting PPO")
         for file in ("scripts/train_local_chassis.py", "src/wheeled_tasks/chassis/local_scratch.py",
-                     PLAN_FILE, plan["control_file"]):
+                     BIRTH_RAMP_PLAN_FILE if args.resume_local_birth_revision else PLAN_FILE, plan["control_file"]):
             if subprocess.run(["git", "ls-files", "--error-unmatch", file], cwd=ROOT,
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
                 parser.error("The local training entry and plan must be committed before PPO")
@@ -72,8 +82,14 @@ def main():
     source = ROOT
     if not args.preflight_only and not args.validate_scene:
         source = freeze_source(ROOT, ROOT / "runs/local_scratch_sources" / stamp)
-    config = (restore_bundle(source, args.resume) if args.resume else
-        write_bundle(source, source / "runs/local_scratch_configs" / stamp, args.num_envs))
+    if args.resume_local_birth_revision:
+        config = write_bundle(source, source / "runs/local_scratch_configs" / stamp, args.num_envs,
+            plan_file=BIRTH_RAMP_PLAN_FILE)
+        from wheeled_tasks.chassis.local_birth_revision import validate_parent as validate_revision_parent
+        validate_revision_parent(args.resume, json.loads(config.read_text()), source)
+    else:
+        config = (restore_bundle(source, args.resume) if args.resume else
+            write_bundle(source, source / "runs/local_scratch_configs" / stamp, args.num_envs))
     run_dir = args.run_dir or ROOT / "runs/v6_local_scratch" / stamp
     command = [sys.executable, str(source / "scripts/train_chassis.py"), "--contract", str(config),
         "--stage", plan["stage"], "--num-envs", str(args.num_envs), "--updates", str(args.updates),
@@ -83,6 +99,8 @@ def main():
         command.append("--preflight-only")
     if args.resume:
         command.extend(["--resume", str(args.resume.resolve())])
+    if args.resume_local_birth_revision:
+        command.append("--resume-local-birth-revision")
     if args.validate_scene:
         command.extend(["--validate-scene", str(args.validate_scene)])
     print("Local V6 scratch contract:", config, flush=True)

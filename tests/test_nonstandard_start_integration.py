@@ -136,6 +136,7 @@ def physics_env():
                write_data_to_sim=lambda: None, update=lambda dt: None)
     env = NS(nonstandard_start=module, robot=robot, ids=ids, spring_ids=spring_ids,
         decimation=4, dt=.005, signal_delay=None, usb_transport=None, recovery=None,
+        _pc_feedback_transport=None,
         is_v5=True, v5=NS(WHEELS=(2, 5), motor_efforts=lambda *args: torch.full((2, 6), 10.),
         spring_efforts=lambda q: torch.full_like(q, 27.), current_motor_bounds=torch.full((2, 6), 40.)),
         motor_strength=torch.full((2, 6), .8), spring_strength=torch.full((2, 1), .9), skills=None,
