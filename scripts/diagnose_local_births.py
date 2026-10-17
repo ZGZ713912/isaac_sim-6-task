@@ -24,11 +24,15 @@ def main():
     parser.add_argument("--noise-seed", type=int, default=290933)
     parser.add_argument("--birth-seed", type=int,
                         help="Independent fresh batch instead of the checkpoint environment RNG")
+    parser.add_argument("--local-birth-contract", type=Path,
+                        help="Authenticate and exercise the real local v5 runtime without diagnostic intervention")
     args = parser.parse_args()
     if not 1 <= args.ticks <= 1000:
         parser.error("first-birth probe is bounded to 1..1000 policy ticks")
     if args.passive_hold_seconds != .2 and args.release_ramp_seconds != .1:
         parser.error("The no-passive-hold diagnostic requires the bounded 100 ms effort ramp")
+    if args.local_birth_contract and (args.passive_hold_seconds != .2 or args.release_ramp_seconds):
+        parser.error("The native local birth revision cannot combine with diagnostic interventions")
     if any(seed is not None and not 0 <= seed < 2**63 for seed in (args.noise_seed, args.birth_seed)):
         parser.error("diagnostic seeds must be nonnegative signed 64-bit integers")
     from train_chassis import digest, preflight
@@ -36,6 +40,10 @@ def main():
     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
     contract_path = checkpoint_contract_path(args.checkpoint)
     contract, manifest = preflight(contract_path)
+    if args.local_birth_contract:
+        from wheeled_tasks.chassis.local_birth_revision import validate_parent
+        contract, manifest = preflight(args.local_birth_contract)
+        validate_parent(args.checkpoint, contract, ROOT)
     count = contract["target_num_envs"]
     assert count == 512 and contract["policy_dt"] == .005
     args.output.mkdir(parents=True, exist_ok=False)
@@ -53,7 +61,10 @@ def main():
         sampler="unchanged deterministic actor mean plus independent standard Gaussian times learned native std")
     if args.passive_hold_seconds != .2:
         report["recipe"] = "no_passive_hold_ramp_100ms"
-    (args.output / "contract.json").write_bytes(contract_path.read_bytes())
+    if args.local_birth_contract:
+        report.update(recipe="native_local_v5_birth_v2", target_contract_sha256=digest(args.local_birth_contract),
+            release_ramp_seconds=.1, passive_hold_seconds=0.)
+    (args.output / "contract.json").write_bytes((args.local_birth_contract or contract_path).read_bytes())
     (args.output / "source.py").write_bytes(Path(__file__).read_bytes())
     launcher = env = None
     try:
@@ -88,7 +99,8 @@ def main():
         births = env.nonstandard_start
         # Explicit runtime intervention after authenticating the original contract.
         # It affects the next fresh reset only; no production validator is changed.
-        births.hold_steps = round(args.passive_hold_seconds / env.dt)
+        if not args.local_birth_contract:
+            births.hold_steps = round(args.passive_hold_seconds / env.dt)
         env.reset(torch.arange(count, device="cuda:0"))
         observations = env.get_observations()
         profile = births.profile_ids.clone()
@@ -113,14 +125,23 @@ def main():
         terminal_ticks = torch.zeros(count, device="cuda:0", dtype=torch.long)
         generator = torch.Generator(device="cuda:0").manual_seed(report["noise_seed"])
         records, gap_trace, state_trace = [], [], []
+        mask_trace, bootstrap_trace, gain_trace = [], [], []
         with torch.no_grad():
             for tick in range(args.ticks):
+                if args.local_birth_contract:
+                    before_conditioning = births.conditioning.clone()
+                    gain_trace.append(births.effort_gain.cpu().numpy().copy())
                 normal = torch.randn((count, 6), generator=generator, device="cuda:0")
                 if tick == 0:
                     import hashlib
                     report["first_standard_normal_sha256"] = hashlib.sha256(normal.cpu().numpy().tobytes()).hexdigest()
                 observations, _, done, extras = env.step(actor(observations["policy"]) + normal * scale)
                 d = extras["diagnostics"]
+                if args.local_birth_contract:
+                    assert torch.equal(extras["policy_learning_mask"], ~before_conditioning)
+                    assert not births.holding.any()
+                    mask_trace.append(extras["policy_learning_mask"].cpu().numpy().copy())
+                    bootstrap_trace.append(extras["policy_bootstrap_mask"].cpu().numpy().copy())
                 gap_trace.append(torch.where(alive, d["gap"], torch.nan).cpu().numpy().copy())
                 state = torch.cat([d[k] for k in ("motor_position", "motor_velocity", "motor_effort",
                                                  "gravity", "omega", "position")], -1)
@@ -156,7 +177,11 @@ def main():
             initial_profile_id=profile.cpu().numpy(), selected=selected.cpu().numpy(),
             terminal_ticks=terminal_ticks.cpu().numpy(), max_gap_m=max_gap.cpu().numpy(),
             unfinished=alive.cpu().numpy(), first_birth_gap_m=np.asarray(gap_trace),
-            first_birth_state=np.asarray(state_trace))
+            first_birth_state=np.asarray(state_trace), learning_mask=np.asarray(mask_trace),
+            bootstrap_mask=np.asarray(bootstrap_trace), applied_effort_gain=np.asarray(gain_trace))
+        if args.local_birth_contract:
+            report.update(native_learning_mask_verified_every_frame=True, native_holding_always_false=True,
+                native_version=births.settings["version"], action_history=births.settings["action_history"])
         report["state_trace_columns"] = ["motor_position6", "motor_velocity6", "motor_effort6",
                                           "gravity3", "omega3", "position3"]
         with SummaryWriter(str(args.checkpoint.parent)) as writer:

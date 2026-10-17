@@ -51,10 +51,20 @@ def nonstandard_start_settings(origin_actor_update, enabled=True):
     }
 
 
+def ramped_start_settings(origin_actor_update, enabled=True):
+    """Named local v2: immediate, final-effort 100 ms conditioning."""
+    result = nonstandard_start_settings(origin_actor_update, enabled)
+    result.update(version="v6_nonstandard_start_v2", hold_seconds=0.,
+        release_ramp_seconds=.1, application="linear_all_active_motor_effort_after_response",
+        action_history="preserve_issued_policy_actions_during_ramp")
+    return result
+
+
 def validate_nonstandard_start(settings):
-    expected = nonstandard_start_settings(0)
+    v2 = isinstance(settings, dict) and settings.get("version") == "v6_nonstandard_start_v2"
+    expected = ramped_start_settings(0) if v2 else nonstandard_start_settings(0)
     if not isinstance(settings, dict) or settings.keys() != expected.keys():
-        raise ValueError("Nonstandard birth settings require the complete v1 schema")
+        raise ValueError("Nonstandard birth settings require the complete named schema")
     for key in ("version", "training_only", "clock", "application", "state_writes",
                 "levels", "profiles_file", "profiles_sha256", "asset_manifest_sha256"):
         if settings[key] != expected[key]:
@@ -64,8 +74,10 @@ def validate_nonstandard_start(settings):
     origin = settings["origin_actor_update"]
     if type(origin) is not int or origin < 0:
         raise ValueError("Nonstandard birth origin must be a nonnegative integer")
-    if settings["hold_seconds"] != .2:
-        raise ValueError("Nonstandard birth v1 requires a 0.2 second passive hold")
+    if settings["hold_seconds"] != expected["hold_seconds"]:
+        raise ValueError("Nonstandard birth passive hold differs from its named version")
+    if v2 and (settings["release_ramp_seconds"] != .1 or settings["action_history"] != expected["action_history"]):
+        raise ValueError("Nonstandard birth v2 requires 100 ms ramp with issued action history")
     for key in ("capture_seconds", "capture_vx_cap_m_s", "capture_yaw_cap_rad_s"):
         if settings[key] != expected[key]:
             raise ValueError(f"Unsupported nonstandard birth {key}")
@@ -106,7 +118,7 @@ def runtime_expectation(settings, policy_dt):
     validate_nonstandard_start(settings)
     if not math.isfinite(policy_dt) or policy_dt <= 0:
         raise ValueError("Nonstandard birth policy dt must be positive")
-    return {
+    result = {
         "enabled": settings["enabled"],
         "version": settings["version"],
         "hold_seconds": settings["hold_seconds"],
@@ -122,6 +134,10 @@ def runtime_expectation(settings, policy_dt):
         "bootstrap_uses_returned_observation": True,
         "settings": deepcopy(settings),
     }
+    if settings["version"] == "v6_nonstandard_start_v2":
+        result.update(release_ramp_seconds=settings["release_ramp_seconds"],
+            action_history=settings["action_history"], conditioning="whole_final_effort_ramp_interval")
+    return result
 
 
 def support_height_for_footprint(surface_data, surface_valid, center_xy, bounds):
@@ -151,12 +167,12 @@ def support_height_for_footprint(surface_data, surface_valid, center_xy, bounds)
 
 
 class NonstandardStart:
-    """A pose sampler and motor hold; never writes simulator state itself.
+    """A reset pose sampler and named motor conditioning; no simulator writes.
 
     Call reset() only for episode-reset IDs; initial_state() applies the chosen
     full configuration to local reset buffers. begin_policy(), apply_torque()
     after all response/transport filtering, and advance() once after each
-    physical step define ownership. A partially held interval is excluded from
+    physical step define ownership. A partially conditioned interval is excluded from
     actor and critic training. The next observation can already bootstrap RL.
     """
 
@@ -173,6 +189,10 @@ class NonstandardStart:
         self.component_settings = None
         self.enabled = settings["enabled"] and not evaluation
         self.hold_steps = round(steps)
+        ramp = settings.get("release_ramp_seconds", 0.) / physics_dt
+        if abs(ramp - round(ramp)) > 1e-7:
+            raise ValueError("Nonstandard birth ramp must contain whole physics steps")
+        self.ramp_steps = round(ramp)
         capture_steps = settings["capture_seconds"] / physics_dt
         if abs(capture_steps - round(capture_steps)) > 1e-7:
             raise ValueError("Nonstandard birth capture must contain whole physics steps")
@@ -224,6 +244,7 @@ class NonstandardStart:
         self.episode_steps = torch.zeros(count, dtype=torch.long, device=self.device)
         self.selected = torch.zeros(count, dtype=torch.bool, device=self.device)
         self.held_interval = torch.zeros_like(self.selected)
+        self.conditioned_interval = torch.zeros_like(self.selected)
         self.learning_mask = torch.ones_like(self.selected)
         self.profile_reset_counts = torch.zeros(len(self.profile_names), dtype=torch.long, device=self.device)
         self.level_reset_counts = torch.zeros(3, dtype=torch.long, device=self.device)
@@ -233,6 +254,19 @@ class NonstandardStart:
     @property
     def holding(self):
         return self.remaining_steps > 0
+
+    @property
+    def conditioning(self):
+        return self.holding | (self.selected & (self.episode_steps < self.ramp_steps))
+
+    @property
+    def effort_gain(self):
+        if not self.ramp_steps:
+            return (~self.holding).float()
+        # Keep the same floating point operations as the paired native probes.
+        elapsed = (self.episode_steps + 1) * self.physics_dt
+        gain = (elapsed / self.settings["release_ramp_seconds"]).clamp(0., 1.)
+        return torch.where(self.selected, gain, torch.ones_like(gain))
 
     @property
     def capturing(self):
@@ -359,7 +393,8 @@ class NonstandardStart:
 
     def begin_policy(self):
         self.held_interval.zero_()
-        self.learning_mask.copy_(~self.holding)
+        self.conditioned_interval.zero_()
+        self.learning_mask.copy_(~self.conditioning)
         self._policy_open = True
 
     def cap_commands(self, commands):
@@ -386,8 +421,10 @@ class NonstandardStart:
             raise ValueError("Nonstandard birth torque requires begin_policy and active effort [N,6]")
         held = self.holding
         self.held_interval |= held
-        self.learning_mask &= ~held
-        return torch.where(held[:, None], 0., torque)
+        self.conditioned_interval |= self.conditioning
+        self.learning_mask &= ~self.conditioning
+        result = torch.where(held[:, None], 0., torque)
+        return result * self.effort_gain[:, None] if self.ramp_steps else result
 
     def advance(self):
         """Advance once after a physics step, including the last zero-torque step."""
@@ -406,7 +443,7 @@ class NonstandardStart:
     def bootstrap_mask(self, terminated):
         if terminated.shape != (self.count,) or terminated.dtype != torch.bool or terminated.device != self.device:
             raise ValueError("Nonstandard birth terminal mask must be bool [N]")
-        return ~self.holding & ~terminated
+        return ~self.conditioning & ~terminated
 
     def runtime_state(self, policy_dt):
         result = runtime_expectation(self.settings, policy_dt)
@@ -416,7 +453,7 @@ class NonstandardStart:
         return result
 
     def diagnostics(self):
-        return {"nonstandard_start_" + key: value.clone() for key, value in {
+        values = {
             "selected": self.selected, "profile_id": self.profile_ids,
             "level_id": self.level_ids, "holding": self.holding,
             "hold_remaining_seconds": self.remaining_steps * self.physics_dt,
@@ -424,7 +461,12 @@ class NonstandardStart:
             "capturing": self.capturing,
             "birth_elapsed_seconds": self.episode_steps * self.physics_dt,
             "learning_mask": self.learning_mask,
-        }.items()}
+        }
+        if self.ramp_steps:
+            values.update(conditioning=self.conditioning, conditioned_interval=self.conditioned_interval,
+                effort_gain=self.effort_gain,
+                ramp_remaining_seconds=(self.ramp_steps - self.episode_steps).clamp_min(0) * self.physics_dt * self.selected)
+        return {"nonstandard_start_" + key: value.clone() for key, value in values.items()}
 
     def metrics(self, actor_update):
         prefix = "/nonstandard_start/"
@@ -433,6 +475,11 @@ class NonstandardStart:
                   prefix + "holding_fraction": self.holding.float().mean(),
                   prefix + "capturing_fraction": self.capturing.float().mean(),
                   prefix + "selected_fraction": self.selected.float().mean()}
+        if self.ramp_steps:
+            result.update({prefix + "conditioning_fraction": self.conditioning.float().mean(),
+                prefix + "conditioned_interval_fraction": self.conditioned_interval.float().mean(),
+                prefix + "effort_gain_next_frame_mean": self.effort_gain.mean(),
+                prefix + "ramp_seconds": self.settings["release_ramp_seconds"]})
         if self.component_settings is None:
             result[prefix + "relative_actor_updates"] = float(max(0, actor_update - self.settings["origin_actor_update"]))
             for level, probability in zip(LEVELS, birth_probabilities(self.settings, actor_update)):

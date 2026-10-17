@@ -1,0 +1,4129 @@
+{
+  "schema": "v6-local-birth-v2-implementation-v1",
+  "recorded_at": "2026-10-17T22:32:02.090958+00:00",
+  "status": "engineering_passed_bounded_128_only",
+  "ppo_updates": 0,
+  "full_training_admitted": false,
+  "training_consumption": 2112,
+  "remaining_training_budget": 17888,
+  "validation_source": "uncommitted_candidate_exact_source_hashes_before_first_v5_PPO",
+  "candidate_files_sha256": {
+    "scripts/train_chassis.py": "2ec6f3db905844b6a1d409da3229321b2a46cf9259baad8105ebc7d79868cb77",
+    "scripts/train_local_chassis.py": "684a5722955f7cd958b1d989675d0bc00059a284f9b41e7e0f489c631952979b",
+    "scripts/diagnose_local_births.py": "86a6e1bd45bb8b5428bbeb969f488d161131593372a0f6df143d3c52c10b49c6",
+    "src/wheeled_tasks/chassis/local_birth_revision.py": "651ef066b4997608aa8d8212d0f1093d947cb3d8eae82e761356ad666bdfaf3e",
+    "src/wheeled_tasks/chassis/nonstandard_start.py": "2864376b8b9882170304e206333e13d372e9a474cb34d3efd8b3757b1ce172a9",
+    "src/wheeled_tasks/chassis/local_scratch.py": "2511d5780ea8c37bac324ecd725e94f13446f29200f36a4125bf1192d1b535cd",
+    "contracts/v6_local_scratch_200hz_v5.json": "877d2d6d6c3a5a3b945a3d38b28f53d323069045006ebaed7f8fba2e7bfc5bc9"
+  },
+  "native_comparisons": [
+    {
+      "reference_probe": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/birth_probe011",
+      "native_probe": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/birth_probe014",
+      "arrays_exact": {
+        "initial_policy_input": true,
+        "initial_full_joint_position": true,
+        "initial_full_joint_velocity": true,
+        "initial_body_link_pose": true,
+        "initial_profile_id": true,
+        "selected": true,
+        "terminal_ticks": true,
+        "max_gap_m": true,
+        "unfinished": true,
+        "first_birth_gap_m": true,
+        "first_birth_state": true
+      },
+      "first_gaussian_exact": true,
+      "full_native_result": {
+        "schema": "v6-local-first-birth-diagnosis-v1",
+        "status": "completed",
+        "started_at": "2026-10-17T22:26:03.801627+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008/model_final.pt",
+        "checkpoint_sha256": "f57d05f7f32c9a89ed400b7b2350b71879968175faa12a190858eb59cd8b9c0e",
+        "contract_sha256": "bf692fd6c861820a13dac2c94494aea1a0a216dddd4bbfd575f0388171a8e699",
+        "script_sha256": "86a6e1bd45bb8b5428bbeb969f488d161131593372a0f6df143d3c52c10b49c6",
+        "num_envs": 512,
+        "ticks": 400,
+        "noise_seed": 290933,
+        "seed": 290927,
+        "release_ramp_seconds": 0.1,
+        "birth_seed": null,
+        "birth_rng_mode": "checkpoint_state",
+        "passive_hold_seconds": 0.0,
+        "recipe": "native_local_v5_birth_v2",
+        "scope": "One fresh batch at checkpoint curriculum clock. First births only; later auto-resets excluded. Not a native rollout replay.",
+        "sampler": "unchanged deterministic actor mean plus independent standard Gaussian times learned native std",
+        "target_contract_sha256": "eb0e49335ee57a2b0b914950e5fc58c87b2dbd444d0a6fe8c17ee56ce5423e33",
+        "first_standard_normal_sha256": "e2b064174a5f7e8481e980a8c5467dca0e735231d34f25222e7c5e3eefd8661e",
+        "completed_ticks": 400,
+        "actor_unchanged": true,
+        "curriculum_actor_update": 1024,
+        "learned_std_policy_order": [
+          0.03616739809513092,
+          0.02787037566304207,
+          0.020168861374258995,
+          0.015578617341816425,
+          0.1801183819770813,
+          0.16000652313232422
+        ],
+        "first_birth_profiles": [
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "wide_02",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_02",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "gentle_07",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_04",
+          "wide_06",
+          "gentle_03",
+          "nominal",
+          "wide_09",
+          "gentle_05",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "wide_10",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "gentle_06",
+          "nominal",
+          "wide_11",
+          "gentle_02",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "gentle_05",
+          "wide_05",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "gentle_01",
+          "wide_01",
+          "nominal",
+          "wide_09",
+          "wide_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "wide_02",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "wide_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "gentle_00",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_09",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "gentle_03",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "wide_08",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "wide_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "wide_10",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_08",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "wide_10",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "wide_03",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_11",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "wide_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_01",
+          "gentle_07",
+          "nominal",
+          "gentle_06",
+          "gentle_02",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_10",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "gentle_03",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "wide_04",
+          "nominal",
+          "nominal",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "wide_10",
+          "gentle_00",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "gentle_06",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "wide_09",
+          "gentle_00",
+          "nominal",
+          "wide_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_06",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "gentle_00",
+          "wide_07",
+          "wide_08",
+          "nominal",
+          "wide_02",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "wide_10",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "gentle_02",
+          "nominal",
+          "gentle_00",
+          "wide_08",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "gentle_04",
+          "nominal",
+          "gentle_05",
+          "wide_02",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_00",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "wide_10",
+          "nominal",
+          "gentle_03",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_01",
+          "nominal",
+          "nominal",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "gentle_02",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_06",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "wide_02",
+          "nominal"
+        ],
+        "selected_birth_count": 151,
+        "unfinished_first_episodes": 484,
+        "terminal_records": [
+          {
+            "lane": 64,
+            "scene_group": "forward_3",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 4.358865407994017e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.199626088142395,
+              -0.7197792530059814,
+              -31.435197830200195,
+              -0.40134716033935547,
+              0.20100679993629456,
+              41.52109146118164
+            ],
+            "motor_effort": [
+              10.678160667419434,
+              -10.814167022705078,
+              -0.6226868033409119,
+              -13.11386775970459,
+              14.006868362426758,
+              0.3236732482910156
+            ],
+            "gravity": [
+              -0.6970735788345337,
+              -0.019391749054193497,
+              -0.7167378664016724
+            ]
+          },
+          {
+            "lane": 117,
+            "scene_group": "rotate_2rps__reverse_train",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 5.510526898433454e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              2.440406084060669,
+              -1.1908577680587769,
+              -26.165729522705078,
+              -1.5551416873931885,
+              1.8162821531295776,
+              35.95289611816406
+            ],
+            "motor_effort": [
+              15.93997859954834,
+              -4.2155351638793945,
+              2.75677490234375,
+              -10.410365104675293,
+              13.923006057739258,
+              -2.8378214836120605
+            ],
+            "gravity": [
+              -0.6896950602531433,
+              -0.0013307449407875538,
+              -0.7240987420082092
+            ]
+          },
+          {
+            "lane": 177,
+            "scene_group": "forward_continuous",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 3.4196771593997255e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              -1.2137057781219482,
+              -1.1807752847671509,
+              -27.339744567871094,
+              1.145872712135315,
+              -0.03873191773891449,
+              37.95273208618164
+            ],
+            "motor_effort": [
+              15.062820434570312,
+              -7.354527473449707,
+              -0.12336502224206924,
+              -17.09720802307129,
+              15.46057415008545,
+              -0.5538437366485596
+            ],
+            "gravity": [
+              -0.6864380240440369,
+              -0.024059582501649857,
+              -0.7267903089523315
+            ]
+          },
+          {
+            "lane": 187,
+            "scene_group": "yaw_continuous__height_train",
+            "profile_id": 16,
+            "profile_name": "wide_08",
+            "episode_tick": 41,
+            "gap_m": 9.155397856375203e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.0627379417419434,
+              0.7538421750068665,
+              29.67974281311035,
+              -0.9134771823883057,
+              -0.48572808504104614,
+              -24.9045467376709
+            ],
+            "motor_effort": [
+              12.991972923278809,
+              -9.444159507751465,
+              -1.3923935890197754,
+              -12.117416381835938,
+              12.101056098937988,
+              1.8590961694717407
+            ],
+            "gravity": [
+              0.6639764904975891,
+              -0.003175731748342514,
+              -0.747747004032135
+            ]
+          },
+          {
+            "lane": 398,
+            "scene_group": "stand_320mm",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 6.116420991020277e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.2214418649673462,
+              0.27273130416870117,
+              -22.16180992126465,
+              -2.013383388519287,
+              2.665320873260498,
+              36.89040756225586
+            ],
+            "motor_effort": [
+              1.6797945499420166,
+              -3.38336443901062,
+              -3.9502320289611816,
+              -15.04650592803955,
+              13.265093803405762,
+              -0.8017116785049438
+            ],
+            "gravity": [
+              -0.6634840965270996,
+              0.0019740816205739975,
+              -0.7481880187988281
+            ]
+          },
+          {
+            "lane": 297,
+            "scene_group": "start_stop_1__height_train",
+            "profile_id": 14,
+            "profile_name": "wide_06",
+            "episode_tick": 52,
+            "gap_m": 0.000143254452268593,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.25999999046325684,
+            "holding": false,
+            "motor_velocity": [
+              -0.7214809060096741,
+              2.9320690631866455,
+              35.102237701416016,
+              1.0316996574401855,
+              -3.5682084560394287,
+              -24.818069458007812
+            ],
+            "motor_effort": [
+              8.610733985900879,
+              -14.404762268066406,
+              1.0440771579742432,
+              -2.759274959564209,
+              7.5713419914245605,
+              -1.8478323221206665
+            ],
+            "gravity": [
+              0.6435117721557617,
+              -0.00347118079662323,
+              -0.7654286026954651
+            ]
+          },
+          {
+            "lane": 399,
+            "scene_group": "stand_320mm",
+            "profile_id": 0,
+            "profile_name": "gentle_00",
+            "episode_tick": 100,
+            "gap_m": 4.316506237955764e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.5,
+            "holding": false,
+            "motor_velocity": [
+              -2.725407361984253,
+              -0.4765995740890503,
+              -23.83725929260254,
+              3.527839183807373,
+              0.5270184278488159,
+              34.504844665527344
+            ],
+            "motor_effort": [
+              12.426673889160156,
+              -9.012170791625977,
+              -1.5446057319641113,
+              -9.20252513885498,
+              6.800930976867676,
+              1.5735336542129517
+            ],
+            "gravity": [
+              -0.6397306323051453,
+              -0.0035039931535720825,
+              -0.7685914039611816
+            ]
+          },
+          {
+            "lane": 482,
+            "scene_group": "height_scan",
+            "profile_id": 8,
+            "profile_name": "wide_00",
+            "episode_tick": 112,
+            "gap_m": 4.3440992158139125e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.5600000023841858,
+            "holding": false,
+            "motor_velocity": [
+              4.988743305206299,
+              7.010924339294434,
+              -25.325668334960938,
+              -6.380273342132568,
+              -10.851375579833984,
+              34.96440505981445
+            ],
+            "motor_effort": [
+              10.642895698547363,
+              -9.063570976257324,
+              -2.556457281112671,
+              -4.345033168792725,
+              5.062202453613281,
+              2.402491331100464
+            ],
+            "gravity": [
+              -0.6741299033164978,
+              -0.020711466670036316,
+              -0.7383224964141846
+            ]
+          },
+          {
+            "lane": 74,
+            "scene_group": "forward_4__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 139,
+            "gap_m": 6.85812919982709e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.6993387937545776,
+              -0.933417797088623,
+              -21.977611541748047,
+              1.4350923299789429,
+              -2.977968215942383,
+              34.935157775878906
+            ],
+            "motor_effort": [
+              14.461709976196289,
+              -12.489385604858398,
+              -0.7807442545890808,
+              -9.421862602233887,
+              7.065340518951416,
+              1.8205469846725464
+            ],
+            "gravity": [
+              -0.6449997425079346,
+              -0.014613360166549683,
+              -0.764043390750885
+            ]
+          },
+          {
+            "lane": 408,
+            "scene_group": "stand_380mm",
+            "profile_id": 7,
+            "profile_name": "gentle_07",
+            "episode_tick": 140,
+            "gap_m": 4.531051672529429e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.699999988079071,
+            "holding": false,
+            "motor_velocity": [
+              -2.8100390434265137,
+              -0.923606276512146,
+              -30.106538772583008,
+              2.678130626678467,
+              -2.6765425205230713,
+              38.093101501464844
+            ],
+            "motor_effort": [
+              11.903019905090332,
+              -11.824142456054688,
+              0.027889227494597435,
+              -11.352781295776367,
+              8.219633102416992,
+              1.4054731130599976
+            ],
+            "gravity": [
+              -0.6660521030426025,
+              -0.024050027132034302,
+              -0.7455173134803772
+            ]
+          },
+          {
+            "lane": 424,
+            "scene_group": "stand_430mm",
+            "profile_id": 16,
+            "profile_name": "wide_08",
+            "episode_tick": 160,
+            "gap_m": 7.22354743629694e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.7999999523162842,
+            "holding": false,
+            "motor_velocity": [
+              -5.832896709442139,
+              -1.5422523021697998,
+              32.1839714050293,
+              2.3319666385650635,
+              0.8190514445304871,
+              -28.810359954833984
+            ],
+            "motor_effort": [
+              5.075512886047363,
+              -4.664119720458984,
+              2.4190316200256348,
+              -7.845404148101807,
+              10.373358726501465,
+              -1.0541938543319702
+            ],
+            "gravity": [
+              0.6596318483352661,
+              -0.004319295287132263,
+              -0.7515770196914673
+            ]
+          },
+          {
+            "lane": 173,
+            "scene_group": "curve_fast__reverse_train",
+            "profile_id": 8,
+            "profile_name": "wide_00",
+            "episode_tick": 170,
+            "gap_m": 5.185030386201106e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.8499999642372131,
+            "holding": false,
+            "motor_velocity": [
+              -2.164968252182007,
+              -0.4616011083126068,
+              -31.6658935546875,
+              2.6558470726013184,
+              -3.1802728176116943,
+              43.81658172607422
+            ],
+            "motor_effort": [
+              13.301596641540527,
+              -12.789458274841309,
+              -1.5268982648849487,
+              -8.598074913024902,
+              8.80359935760498,
+              2.2875585556030273
+            ],
+            "gravity": [
+              -0.6797903776168823,
+              -0.038612961769104004,
+              -0.7323896288871765
+            ]
+          },
+          {
+            "lane": 172,
+            "scene_group": "curve_fast__reverse_train",
+            "profile_id": 0,
+            "profile_name": "gentle_00",
+            "episode_tick": 190,
+            "gap_m": 6.826319440733641e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.949999988079071,
+            "holding": false,
+            "motor_velocity": [
+              -1.1834090948104858,
+              -0.2487664669752121,
+              -24.003582000732422,
+              1.0421808958053589,
+              -3.6840193271636963,
+              36.06220626831055
+            ],
+            "motor_effort": [
+              12.866548538208008,
+              -14.585570335388184,
+              -0.7347816824913025,
+              -8.190901756286621,
+              5.5328192710876465,
+              2.5047569274902344
+            ],
+            "gravity": [
+              -0.666278064250946,
+              -0.01664838194847107,
+              -0.7455178499221802
+            ]
+          },
+          {
+            "lane": 361,
+            "scene_group": "start_stop_5",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 190,
+            "gap_m": 4.8108038754435256e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              0.09384234994649887,
+              2.2368836402893066,
+              14.284462928771973,
+              -2.5696535110473633,
+              -3.82241153717041,
+              -7.159643650054932
+            ],
+            "motor_effort": [
+              2.9679086208343506,
+              -7.0172600746154785,
+              4.043886184692383,
+              -3.3480191230773926,
+              2.3443667888641357,
+              -4.2416534423828125
+            ],
+            "gravity": [
+              0.528221607208252,
+              0.032502248883247375,
+              -0.8484842777252197
+            ]
+          },
+          {
+            "lane": 84,
+            "scene_group": "backward_5",
+            "profile_id": 12,
+            "profile_name": "wide_04",
+            "episode_tick": 200,
+            "gap_m": 8.769162377575412e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.8344365358352661,
+              -0.15207180380821228,
+              -25.701156616210938,
+              1.2534372806549072,
+              -3.356423854827881,
+              35.00520324707031
+            ],
+            "motor_effort": [
+              11.21631908416748,
+              -10.722003936767578,
+              -0.7569385766983032,
+              -7.986822605133057,
+              5.855881214141846,
+              0.6690948605537415
+            ],
+            "gravity": [
+              -0.6625331044197083,
+              -0.019128113985061646,
+              -0.7487882375717163
+            ]
+          },
+          {
+            "lane": 150,
+            "scene_group": "spin_translate_3rps__reverse_train__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 204,
+            "gap_m": 6.84482220094651e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -0.8857073783874512,
+              2.4524967670440674,
+              -23.83134651184082,
+              1.4013220071792603,
+              -2.231226921081543,
+              35.2664794921875
+            ],
+            "motor_effort": [
+              11.446272850036621,
+              -14.192201614379883,
+              -1.9707847833633423,
+              -8.771455764770508,
+              6.584598541259766,
+              0.868853747844696
+            ],
+            "gravity": [
+              -0.6696122884750366,
+              -0.003405332565307617,
+              -0.7427027821540833
+            ]
+          },
+          {
+            "lane": 411,
+            "scene_group": "stand_380mm",
+            "profile_id": 16,
+            "profile_name": "wide_08",
+            "episode_tick": 204,
+            "gap_m": 6.11093346378766e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.0199999809265137,
+            "holding": false,
+            "motor_velocity": [
+              -2.6922311782836914,
+              1.2113709449768066,
+              32.51775360107422,
+              -0.6878416538238525,
+              -0.8984994888305664,
+              -29.06540870666504
+            ],
+            "motor_effort": [
+              1.2669342756271362,
+              -5.96072244644165,
+              -0.1663352996110916,
+              -8.628116607666016,
+              11.020156860351562,
+              -0.8041340112686157
+            ],
+            "gravity": [
+              0.6365495920181274,
+              0.00993257761001587,
+              -0.7711718678474426
+            ]
+          },
+          {
+            "lane": 466,
+            "scene_group": "height_scan",
+            "profile_id": 4,
+            "profile_name": "gentle_04",
+            "episode_tick": 241,
+            "gap_m": 6.443947495426983e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.2049999237060547,
+            "holding": false,
+            "motor_velocity": [
+              -2.733353853225708,
+              -1.4712872505187988,
+              -23.37464141845703,
+              2.767373561859131,
+              -1.608543038368225,
+              36.072654724121094
+            ],
+            "motor_effort": [
+              9.75092601776123,
+              -14.370749473571777,
+              -0.4071250855922699,
+              -11.546527862548828,
+              10.707406044006348,
+              2.1429834365844727
+            ],
+            "gravity": [
+              -0.6527883410453796,
+              -0.010790824890136719,
+              -0.7574634552001953
+            ]
+          },
+          {
+            "lane": 303,
+            "scene_group": "velocity_curve_1",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 251,
+            "gap_m": 3.1612060411134735e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              0.6975825428962708,
+              1.304645299911499,
+              3.9613401889801025,
+              -1.2651453018188477,
+              -1.6780781745910645,
+              4.168128967285156
+            ],
+            "motor_effort": [
+              -1.883741021156311,
+              3.1754605770111084,
+              2.4540555477142334,
+              -1.056860089302063,
+              5.219287872314453,
+              -1.7395662069320679
+            ],
+            "gravity": [
+              0.5041623115539551,
+              0.05373828113079071,
+              -0.8619354963302612
+            ]
+          },
+          {
+            "lane": 376,
+            "scene_group": "stand_230mm",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 284,
+            "gap_m": 4.380694008432329e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              0.8504455089569092,
+              1.9772669076919556,
+              -0.32160836458206177,
+              -1.8251616954803467,
+              -2.9541852474212646,
+              9.293755531311035
+            ],
+            "motor_effort": [
+              3.653736114501953,
+              -3.386122941970825,
+              3.003305196762085,
+              -2.0219197273254395,
+              3.1674563884735107,
+              -2.641408681869507
+            ],
+            "gravity": [
+              0.5244534015655518,
+              0.03147830069065094,
+              -0.850857138633728
+            ]
+          },
+          {
+            "lane": 83,
+            "scene_group": "forward_5__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 298,
+            "gap_m": 6.868380296509713e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.1349902153015137,
+              -0.333639919757843,
+              -22.660598754882812,
+              1.6156784296035767,
+              -3.417551040649414,
+              36.30288314819336
+            ],
+            "motor_effort": [
+              11.872293472290039,
+              -11.556943893432617,
+              1.0271692276000977,
+              -7.3823418617248535,
+              7.495620250701904,
+              1.7646522521972656
+            ],
+            "gravity": [
+              -0.6622892022132874,
+              -0.027983099222183228,
+              -0.748725950717926
+            ]
+          },
+          {
+            "lane": 236,
+            "scene_group": "yaw_continuous_low__reverse_train__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 310,
+            "gap_m": 3.880079384543933e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -7.340807914733887,
+              -4.161830425262451,
+              28.136831283569336,
+              3.933776617050171,
+              3.054910659790039,
+              -24.417591094970703
+            ],
+            "motor_effort": [
+              6.93488073348999,
+              -5.7061686515808105,
+              1.4698395729064941,
+              -7.285999298095703,
+              9.03089714050293,
+              -0.6011162996292114
+            ],
+            "gravity": [
+              0.632108211517334,
+              0.010222166776657104,
+              -0.7748130559921265
+            ]
+          },
+          {
+            "lane": 198,
+            "scene_group": "forward_continuous_low__height_train",
+            "profile_id": 7,
+            "profile_name": "gentle_07",
+            "episode_tick": 369,
+            "gap_m": 3.86901774618309e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.84499990940094,
+            "holding": false,
+            "motor_velocity": [
+              -2.3314874172210693,
+              1.8386003971099854,
+              28.131847381591797,
+              -0.5632417798042297,
+              -1.5001296997070312,
+              -26.228723526000977
+            ],
+            "motor_effort": [
+              2.0128536224365234,
+              -5.786178112030029,
+              2.1707050800323486,
+              -9.644827842712402,
+              10.418169021606445,
+              -1.1264866590499878
+            ],
+            "gravity": [
+              0.6265789866447449,
+              0.015195265412330627,
+              -0.7792096734046936
+            ]
+          },
+          {
+            "lane": 239,
+            "scene_group": "yaw_continuous_low__reverse_train__height_train",
+            "profile_id": 1,
+            "profile_name": "gentle_01",
+            "episode_tick": 369,
+            "gap_m": 6.104860949562863e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.84499990940094,
+            "holding": false,
+            "motor_velocity": [
+              0.4193717837333679,
+              -0.5045971274375916,
+              4.904964447021484,
+              -1.5517253875732422,
+              -1.7671910524368286,
+              5.831643104553223
+            ],
+            "motor_effort": [
+              1.3620518445968628,
+              -1.4619181156158447,
+              1.6766506433486938,
+              -2.146761894226074,
+              2.0340261459350586,
+              -2.166473150253296
+            ],
+            "gravity": [
+              0.5054030418395996,
+              0.04666842520236969,
+              -0.8616205453872681
+            ]
+          },
+          {
+            "lane": 311,
+            "scene_group": "velocity_curve_1__height_train",
+            "profile_id": 4,
+            "profile_name": "gentle_04",
+            "episode_tick": 369,
+            "gap_m": 7.644821016583592e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.84499990940094,
+            "holding": false,
+            "motor_velocity": [
+              -2.603431463241577,
+              2.75216007232666,
+              30.9510440826416,
+              -1.3129481077194214,
+              -1.742710828781128,
+              -25.005727767944336
+            ],
+            "motor_effort": [
+              6.2372331619262695,
+              -8.94890022277832,
+              1.610997200012207,
+              -10.162217140197754,
+              12.846193313598633,
+              -1.3911819458007812
+            ],
+            "gravity": [
+              0.6330845952033997,
+              0.009671121835708618,
+              -0.7740225791931152
+            ]
+          },
+          {
+            "lane": 366,
+            "scene_group": "velocity_curve_5",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 372,
+            "gap_m": 3.9721577195450664e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.1587443351745605,
+              1.7837404012680054,
+              30.84263801574707,
+              -0.5516389012336731,
+              -1.6171938180923462,
+              -25.196712493896484
+            ],
+            "motor_effort": [
+              2.426600456237793,
+              -6.010404586791992,
+              3.3060803413391113,
+              -9.035648345947266,
+              10.362753868103027,
+              0.23563960194587708
+            ],
+            "gravity": [
+              0.628139078617096,
+              0.015833184123039246,
+              -0.7779398560523987
+            ]
+          },
+          {
+            "lane": 365,
+            "scene_group": "velocity_curve_5",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 386,
+            "gap_m": 3.0717827030457556e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              1.1566355228424072,
+              1.4682480096817017,
+              2.6016526222229004,
+              -2.386759042739868,
+              -2.363192081451416,
+              8.05468463897705
+            ],
+            "motor_effort": [
+              3.4065005779266357,
+              -2.7663819789886475,
+              3.1029911041259766,
+              -3.5386550426483154,
+              5.008889198303223,
+              -2.961991786956787
+            ],
+            "gravity": [
+              0.5254355072975159,
+              0.03745512664318085,
+              -0.850008487701416
+            ]
+          },
+          {
+            "lane": 261,
+            "scene_group": "start_stop_05",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 400,
+            "gap_m": 3.655530235846527e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.8659294843673706,
+              1.9316065311431885,
+              30.195425033569336,
+              -0.9391738772392273,
+              -1.7029905319213867,
+              -25.043561935424805
+            ],
+            "motor_effort": [
+              5.094526767730713,
+              -4.081750392913818,
+              1.9381245374679565,
+              -9.181670188903809,
+              10.01528263092041,
+              -0.679779052734375
+            ],
+            "gravity": [
+              0.6228498816490173,
+              0.019229799509048462,
+              -0.7821052670478821
+            ]
+          }
+        ],
+        "max_closure_gap_m": 0.0013828446390107274,
+        "optimizer_state_empty": true,
+        "native_learning_mask_verified_every_frame": true,
+        "native_holding_always_false": true,
+        "native_version": "v6_nonstandard_start_v2",
+        "action_history": "preserve_issued_policy_actions_during_ramp",
+        "state_trace_columns": [
+          "motor_position6",
+          "motor_velocity6",
+          "motor_effort6",
+          "gravity3",
+          "omega3",
+          "position3"
+        ],
+        "finished_at": "2026-10-17T22:27:25.315157+00:00"
+      },
+      "reference_json_sha256": "14b7c5d1f531785bf1bb54f999e0955aa17bc361f35d4ee4aab693babbb8d84b",
+      "native_json_sha256": "1c0210cc4f49c3692afe6bb8f0cd67c382b4c7af1cd07a84bef7d2644d8cb413",
+      "reference_npz_sha256": "c77a3a05d9b5c8d48cbf51958bb18625ba7d5cb14dc0634e9cfcde259ca6d5cb",
+      "native_npz_sha256": "4a3fb4ee76eee681135f50863d306a7581cf63a4f56c3a64d7e4acd89b754b15",
+      "native_script_sha256": "86a6e1bd45bb8b5428bbeb969f488d161131593372a0f6df143d3c52c10b49c6",
+      "first_gain": 0.04999999701976776,
+      "twentieth_gain": 0.9999999403953552,
+      "whole_first_20_frames_masked": true,
+      "twentieth_returned_state_bootstraps": true,
+      "frame21_onward_initial_ramp_ends": true
+    },
+    {
+      "reference_probe": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/birth_probe013",
+      "native_probe": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/birth_probe015",
+      "arrays_exact": {
+        "initial_policy_input": true,
+        "initial_full_joint_position": true,
+        "initial_full_joint_velocity": true,
+        "initial_body_link_pose": true,
+        "initial_profile_id": true,
+        "selected": true,
+        "terminal_ticks": true,
+        "max_gap_m": true,
+        "unfinished": true,
+        "first_birth_gap_m": true,
+        "first_birth_state": true
+      },
+      "first_gaussian_exact": true,
+      "full_native_result": {
+        "schema": "v6-local-first-birth-diagnosis-v1",
+        "status": "completed",
+        "started_at": "2026-10-17T22:28:55.406362+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008/model_final.pt",
+        "checkpoint_sha256": "f57d05f7f32c9a89ed400b7b2350b71879968175faa12a190858eb59cd8b9c0e",
+        "contract_sha256": "bf692fd6c861820a13dac2c94494aea1a0a216dddd4bbfd575f0388171a8e699",
+        "script_sha256": "86a6e1bd45bb8b5428bbeb969f488d161131593372a0f6df143d3c52c10b49c6",
+        "num_envs": 512,
+        "ticks": 1000,
+        "noise_seed": 290934,
+        "seed": 290927,
+        "release_ramp_seconds": 0.1,
+        "birth_seed": 290934,
+        "birth_rng_mode": "explicit_seed_fresh_batch",
+        "passive_hold_seconds": 0.0,
+        "recipe": "native_local_v5_birth_v2",
+        "scope": "One fresh batch at checkpoint curriculum clock. First births only; later auto-resets excluded. Not a native rollout replay.",
+        "sampler": "unchanged deterministic actor mean plus independent standard Gaussian times learned native std",
+        "target_contract_sha256": "eb0e49335ee57a2b0b914950e5fc58c87b2dbd444d0a6fe8c17ee56ce5423e33",
+        "first_standard_normal_sha256": "a468efd35bc75c2bfdddc2e3e7a2dbf62a023909cb42da50bf420bbc2c7767e7",
+        "completed_ticks": 1000,
+        "actor_unchanged": true,
+        "curriculum_actor_update": 1024,
+        "learned_std_policy_order": [
+          0.03616739809513092,
+          0.02787037566304207,
+          0.020168861374258995,
+          0.015578617341816425,
+          0.1801183819770813,
+          0.16000652313232422
+        ],
+        "first_birth_profiles": [
+          "gentle_07",
+          "wide_10",
+          "nominal",
+          "wide_09",
+          "nominal",
+          "wide_00",
+          "wide_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "wide_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_01",
+          "wide_11",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "wide_05",
+          "gentle_06",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_08",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_03",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "wide_04",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_07",
+          "nominal",
+          "nominal",
+          "wide_03",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_11",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_03",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "wide_09",
+          "gentle_01",
+          "nominal",
+          "gentle_04",
+          "wide_11",
+          "gentle_04",
+          "gentle_04",
+          "wide_02",
+          "nominal",
+          "nominal",
+          "wide_11",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_01",
+          "wide_11",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "gentle_06",
+          "gentle_02",
+          "nominal",
+          "gentle_03",
+          "gentle_01",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_03",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "wide_11",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_01",
+          "gentle_07",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_05",
+          "gentle_03",
+          "nominal",
+          "wide_04",
+          "gentle_00",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_05",
+          "nominal",
+          "wide_05",
+          "nominal",
+          "wide_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_01",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "wide_09",
+          "nominal",
+          "nominal",
+          "wide_09",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_11",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_07",
+          "gentle_06",
+          "wide_08",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_05",
+          "nominal",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_02",
+          "nominal",
+          "wide_09",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_02",
+          "gentle_01",
+          "gentle_03",
+          "nominal",
+          "gentle_05",
+          "wide_09",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_06",
+          "gentle_05",
+          "nominal",
+          "gentle_06",
+          "gentle_03",
+          "gentle_06",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_11",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_03",
+          "gentle_03",
+          "gentle_05",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_02",
+          "wide_07",
+          "gentle_03",
+          "nominal",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_03",
+          "gentle_05",
+          "gentle_02",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_04",
+          "gentle_03",
+          "nominal",
+          "gentle_04",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "nominal",
+          "gentle_07",
+          "nominal",
+          "gentle_03",
+          "nominal",
+          "gentle_00",
+          "nominal",
+          "wide_00",
+          "nominal",
+          "nominal",
+          "nominal",
+          "wide_08",
+          "nominal",
+          "nominal"
+        ],
+        "selected_birth_count": 138,
+        "unfinished_first_episodes": 455,
+        "terminal_records": [
+          {
+            "lane": 3,
+            "scene_group": "forward_05",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 0.0001260757417185232,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.2657592296600342,
+              -1.1392521858215332,
+              -30.78959083557129,
+              -1.9366565942764282,
+              1.6088117361068726,
+              39.46171951293945
+            ],
+            "motor_effort": [
+              15.45463752746582,
+              -9.744926452636719,
+              0.9225220084190369,
+              -17.73984146118164,
+              14.79941463470459,
+              -1.672895073890686
+            ],
+            "gravity": [
+              -0.7115775942802429,
+              -0.010225212201476097,
+              -0.7025331258773804
+            ]
+          },
+          {
+            "lane": 39,
+            "scene_group": "rotate_1__reverse_train__height_train",
+            "profile_id": 16,
+            "profile_name": "wide_08",
+            "episode_tick": 41,
+            "gap_m": 6.823948206147179e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.6443252563476562,
+              -0.09039231389760971,
+              35.0266227722168,
+              -1.634416937828064,
+              0.3666941523551941,
+              -24.613426208496094
+            ],
+            "motor_effort": [
+              10.043795585632324,
+              -11.883929252624512,
+              2.1710848808288574,
+              -11.441641807556152,
+              11.939767837524414,
+              1.1371077299118042
+            ],
+            "gravity": [
+              0.6694808602333069,
+              -0.00870702788233757,
+              -0.7427782416343689
+            ]
+          },
+          {
+            "lane": 176,
+            "scene_group": "forward_continuous",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 6.293900514720008e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.3724846839904785,
+              -0.43061402440071106,
+              -23.406827926635742,
+              -0.9108800888061523,
+              1.1564728021621704,
+              36.76976776123047
+            ],
+            "motor_effort": [
+              8.718855857849121,
+              -2.5042269229888916,
+              -2.3239917755126953,
+              -9.477052688598633,
+              8.09591007232666,
+              1.337867021560669
+            ],
+            "gravity": [
+              -0.6619356870651245,
+              -0.021054834127426147,
+              -0.7492650151252747
+            ]
+          },
+          {
+            "lane": 345,
+            "scene_group": "velocity_curve_3__height_train",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 3.191574433003552e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              0.5319421887397766,
+              -0.4655698537826538,
+              -32.85932922363281,
+              -0.7023508548736572,
+              2.4675676822662354,
+              39.17030715942383
+            ],
+            "motor_effort": [
+              20.995222091674805,
+              -14.932951927185059,
+              -1.2300485372543335,
+              -18.144811630249023,
+              15.367056846618652,
+              0.06069057062268257
+            ],
+            "gravity": [
+              -0.7141320705413818,
+              -0.016317030414938927,
+              -0.6998214721679688
+            ]
+          },
+          {
+            "lane": 365,
+            "scene_group": "velocity_curve_5",
+            "profile_id": 16,
+            "profile_name": "wide_08",
+            "episode_tick": 41,
+            "gap_m": 3.4153526939917356e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.0595777034759521,
+              -0.5582570433616638,
+              28.4508113861084,
+              -1.1110930442810059,
+              1.0435413122177124,
+              -20.94363021850586
+            ],
+            "motor_effort": [
+              6.578881740570068,
+              -6.685725688934326,
+              1.056571364402771,
+              -4.543957233428955,
+              6.9489426612854,
+              -1.5721863508224487
+            ],
+            "gravity": [
+              0.6435593962669373,
+              -0.0024087149649858475,
+              -0.7653923034667969
+            ]
+          },
+          {
+            "lane": 381,
+            "scene_group": "stand_250mm",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 4.3159852793905884e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              -0.5145139098167419,
+              0.8111861348152161,
+              -23.745365142822266,
+              0.6664422750473022,
+              0.6951172351837158,
+              37.45823287963867
+            ],
+            "motor_effort": [
+              -0.3552521765232086,
+              -8.573180198669434,
+              -2.335880994796753,
+              -11.186137199401855,
+              20.089134216308594,
+              -0.2885849177837372
+            ],
+            "gravity": [
+              -0.6851892471313477,
+              -0.002486865036189556,
+              -0.7283610701560974
+            ]
+          },
+          {
+            "lane": 390,
+            "scene_group": "stand_305mm",
+            "profile_id": 17,
+            "profile_name": "wide_09",
+            "episode_tick": 41,
+            "gap_m": 4.345126581029035e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.20499999821186066,
+            "holding": false,
+            "motor_velocity": [
+              1.1703028678894043,
+              -0.30493059754371643,
+              -28.556106567382812,
+              -1.2533471584320068,
+              1.8589122295379639,
+              38.71393585205078
+            ],
+            "motor_effort": [
+              5.840176582336426,
+              -5.828786849975586,
+              2.718557834625244,
+              -9.769723892211914,
+              7.622509956359863,
+              -3.7489266395568848
+            ],
+            "gravity": [
+              -0.6659349799156189,
+              -0.01797628216445446,
+              -0.7457931637763977
+            ]
+          },
+          {
+            "lane": 50,
+            "scene_group": "backward_1",
+            "profile_id": 8,
+            "profile_name": "wide_00",
+            "episode_tick": 55,
+            "gap_m": 7.056222239043564e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.2750000059604645,
+            "holding": false,
+            "motor_velocity": [
+              -2.337007761001587,
+              -0.9266829490661621,
+              -32.36379623413086,
+              2.460094451904297,
+              -2.9028584957122803,
+              45.58027648925781
+            ],
+            "motor_effort": [
+              12.632161140441895,
+              -13.053862571716309,
+              0.24960188567638397,
+              -13.874612808227539,
+              13.466620445251465,
+              0.7683610320091248
+            ],
+            "gravity": [
+              -0.7555238008499146,
+              -0.08843065798282623,
+              -0.6491253972053528
+            ]
+          },
+          {
+            "lane": 297,
+            "scene_group": "start_stop_1__height_train",
+            "profile_id": 5,
+            "profile_name": "gentle_05",
+            "episode_tick": 55,
+            "gap_m": 6.298387597780675e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.2750000059604645,
+            "holding": false,
+            "motor_velocity": [
+              -3.7286314964294434,
+              0.20473921298980713,
+              -2.056368589401245,
+              2.051057815551758,
+              1.368828296661377,
+              20.120548248291016
+            ],
+            "motor_effort": [
+              5.770992755889893,
+              -1.9909842014312744,
+              -0.5379573702812195,
+              -5.693370819091797,
+              3.198044538497925,
+              1.169867753982544
+            ],
+            "gravity": [
+              -0.5815701484680176,
+              0.04190026968717575,
+              -0.8124164938926697
+            ]
+          },
+          {
+            "lane": 416,
+            "scene_group": "stand_400mm",
+            "profile_id": 8,
+            "profile_name": "wide_00",
+            "episode_tick": 56,
+            "gap_m": 0.00014228968939278275,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.2800000011920929,
+            "holding": false,
+            "motor_velocity": [
+              -2.109318256378174,
+              -3.2080299854278564,
+              -27.693634033203125,
+              2.2557036876678467,
+              0.8788525462150574,
+              40.670509338378906
+            ],
+            "motor_effort": [
+              10.302541732788086,
+              -6.324711799621582,
+              -0.20787568390369415,
+              -9.586845397949219,
+              3.220392942428589,
+              1.1019713878631592
+            ],
+            "gravity": [
+              -0.6681234836578369,
+              -0.015251977369189262,
+              -0.7438943386077881
+            ]
+          },
+          {
+            "lane": 407,
+            "scene_group": "stand_380mm",
+            "profile_id": 5,
+            "profile_name": "gentle_05",
+            "episode_tick": 93,
+            "gap_m": 6.895083060953766e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.4650000035762787,
+            "holding": false,
+            "motor_velocity": [
+              -2.3116157054901123,
+              0.9107177257537842,
+              -16.91454315185547,
+              0.874515175819397,
+              -1.1168731451034546,
+              31.338420867919922
+            ],
+            "motor_effort": [
+              5.513599395751953,
+              -5.5330352783203125,
+              -0.35828927159309387,
+              -8.875198364257812,
+              6.574949741363525,
+              0.2681896686553955
+            ],
+            "gravity": [
+              -0.6415243744850159,
+              -0.0035000666975975037,
+              -0.7670945525169373
+            ]
+          },
+          {
+            "lane": 307,
+            "scene_group": "velocity_curve_1",
+            "profile_id": 9,
+            "profile_name": "wide_01",
+            "episode_tick": 149,
+            "gap_m": 6.76453928463161e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.7450000047683716,
+            "holding": false,
+            "motor_velocity": [
+              -2.2380855083465576,
+              1.7502472400665283,
+              31.701377868652344,
+              -0.7994197010993958,
+              -1.4455540180206299,
+              -24.74913215637207
+            ],
+            "motor_effort": [
+              2.8526980876922607,
+              -5.530520915985107,
+              2.117147207260132,
+              -9.934974670410156,
+              11.71859359741211,
+              -0.7563788890838623
+            ],
+            "gravity": [
+              0.6368536353111267,
+              0.00939759612083435,
+              -0.7709279656410217
+            ]
+          },
+          {
+            "lane": 465,
+            "scene_group": "height_scan",
+            "profile_id": 15,
+            "profile_name": "wide_07",
+            "episode_tick": 160,
+            "gap_m": 0.0001271188084501773,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.7999999523162842,
+            "holding": false,
+            "motor_velocity": [
+              -3.328547477722168,
+              -1.6215112209320068,
+              9.176031112670898,
+              1.280977487564087,
+              1.4325401782989502,
+              5.4697041511535645
+            ],
+            "motor_effort": [
+              2.6303963661193848,
+              -4.979426860809326,
+              -1.5412440299987793,
+              -3.7491166591644287,
+              4.305169105529785,
+              1.9257996082305908
+            ],
+            "gravity": [
+              -0.5474722385406494,
+              0.07700939476490021,
+              -0.8332729339599609
+            ]
+          },
+          {
+            "lane": 505,
+            "scene_group": "release_stop_combined",
+            "profile_id": 8,
+            "profile_name": "wide_00",
+            "episode_tick": 161,
+            "gap_m": 7.679033296881244e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.8050000071525574,
+            "holding": false,
+            "motor_velocity": [
+              2.311410903930664,
+              3.788022518157959,
+              -32.48188400268555,
+              -3.8334262371063232,
+              -8.067704200744629,
+              38.3281135559082
+            ],
+            "motor_effort": [
+              15.63471508026123,
+              -12.357420921325684,
+              -2.152359962463379,
+              -7.079988956451416,
+              4.6825761795043945,
+              2.3715808391571045
+            ],
+            "gravity": [
+              -0.6818644404411316,
+              -0.042626261711120605,
+              -0.7302354574203491
+            ]
+          },
+          {
+            "lane": 389,
+            "scene_group": "stand_305mm",
+            "profile_id": 5,
+            "profile_name": "gentle_05",
+            "episode_tick": 177,
+            "gap_m": 7.631490007042885e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.8849999904632568,
+            "holding": false,
+            "motor_velocity": [
+              -0.24233272671699524,
+              -0.3390117883682251,
+              -25.81222915649414,
+              1.165697455406189,
+              -4.062884330749512,
+              36.947998046875
+            ],
+            "motor_effort": [
+              14.41192626953125,
+              -11.686349868774414,
+              -0.6966099143028259,
+              -6.957785129547119,
+              6.8896164894104,
+              1.2234925031661987
+            ],
+            "gravity": [
+              -0.6647958159446716,
+              -0.02315869927406311,
+              -0.7466658353805542
+            ]
+          },
+          {
+            "lane": 417,
+            "scene_group": "stand_400mm",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 193,
+            "gap_m": 6.136282900115475e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.8860440254211426,
+              -0.5400673151016235,
+              -22.69751739501953,
+              1.2348005771636963,
+              -3.3862464427948,
+              35.279178619384766
+            ],
+            "motor_effort": [
+              7.932253360748291,
+              -10.136872291564941,
+              0.39186862111091614,
+              -6.863613128662109,
+              5.815985202789307,
+              1.4376572370529175
+            ],
+            "gravity": [
+              -0.6492189764976501,
+              -0.01780793070793152,
+              -0.760392963886261
+            ]
+          },
+          {
+            "lane": 451,
+            "scene_group": "stand_continuous",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 197,
+            "gap_m": 6.83180769556202e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -0.9541177153587341,
+              -0.4214690923690796,
+              13.170517921447754,
+              -0.052608463913202286,
+              -1.1239650249481201,
+              -1.8836629390716553
+            ],
+            "motor_effort": [
+              -3.534381151199341,
+              0.4841477572917938,
+              4.187939643859863,
+              -2.399817705154419,
+              3.4693429470062256,
+              -2.1351749897003174
+            ],
+            "gravity": [
+              0.49640724062919617,
+              0.07482504844665527,
+              -0.864858865737915
+            ]
+          },
+          {
+            "lane": 340,
+            "scene_group": "start_stop_3__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 206,
+            "gap_m": 7.04646299709566e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -3.525912284851074,
+              0.706780195236206,
+              -2.157327890396118,
+              1.275532841682434,
+              1.203039288520813,
+              15.229004859924316
+            ],
+            "motor_effort": [
+              3.947664737701416,
+              -13.949042320251465,
+              -4.5,
+              -6.086530685424805,
+              7.797961711883545,
+              4.5
+            ],
+            "gravity": [
+              -0.6137838959693909,
+              0.020575374364852905,
+              -0.7892061471939087
+            ]
+          },
+          {
+            "lane": 202,
+            "scene_group": "backward_continuous_low",
+            "profile_id": 6,
+            "profile_name": "gentle_06",
+            "episode_tick": 208,
+            "gap_m": 6.383411528076977e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.0399999618530273,
+            "holding": false,
+            "motor_velocity": [
+              -1.952728509902954,
+              -0.7293700575828552,
+              -25.119029998779297,
+              0.9800781011581421,
+              -3.994828462600708,
+              36.630470275878906
+            ],
+            "motor_effort": [
+              12.698627471923828,
+              -8.788277626037598,
+              -1.6000568866729736,
+              -9.320380210876465,
+              6.5053558349609375,
+              2.240009307861328
+            ],
+            "gravity": [
+              -0.6599277257919312,
+              -0.014390677213668823,
+              -0.751191258430481
+            ]
+          },
+          {
+            "lane": 14,
+            "scene_group": "backward_05__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 222,
+            "gap_m": 0.00012886605691164732,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -3.093522310256958,
+              -1.7750402688980103,
+              -31.491559982299805,
+              3.4979968070983887,
+              -1.6730948686599731,
+              40.34146499633789
+            ],
+            "motor_effort": [
+              10.066231727600098,
+              -10.45015811920166,
+              -0.7777559161186218,
+              -12.099934577941895,
+              9.236824035644531,
+              0.17904752492904663
+            ],
+            "gravity": [
+              -0.681887686252594,
+              -0.021836131811141968,
+              -0.7311307191848755
+            ]
+          },
+          {
+            "lane": 118,
+            "scene_group": "rotate_2rps__reverse_train__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 236,
+            "gap_m": 0.00010348684736527503,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.7452291250228882,
+              -0.5375836491584778,
+              -21.534887313842773,
+              1.1362361907958984,
+              -3.929137706756592,
+              37.959434509277344
+            ],
+            "motor_effort": [
+              13.235495567321777,
+              -12.059906005859375,
+              -0.685070812702179,
+              -10.088563919067383,
+              6.942452907562256,
+              -0.07158508896827698
+            ],
+            "gravity": [
+              -0.656639039516449,
+              -0.0021296143531799316,
+              -0.7542019486427307
+            ]
+          },
+          {
+            "lane": 432,
+            "scene_group": "stand_continuous",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 240,
+            "gap_m": 0.00010239241237286478,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.3689937591552734,
+              -1.091731309890747,
+              -29.56792640686035,
+              2.1972439289093018,
+              -3.277937412261963,
+              36.9743766784668
+            ],
+            "motor_effort": [
+              13.227365493774414,
+              -11.954605102539062,
+              -1.1825462579727173,
+              -12.711479187011719,
+              10.019522666931152,
+              -0.18148314952850342
+            ],
+            "gravity": [
+              -0.6756687164306641,
+              -0.012171775102615356,
+              -0.7371047735214233
+            ]
+          },
+          {
+            "lane": 335,
+            "scene_group": "start_stop_3",
+            "profile_id": 4,
+            "profile_name": "gentle_04",
+            "episode_tick": 249,
+            "gap_m": 6.112716800998896e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.2450000047683716,
+            "holding": false,
+            "motor_velocity": [
+              -1.3028093576431274,
+              -0.024125605821609497,
+              -28.259281158447266,
+              1.442159652709961,
+              -3.4353597164154053,
+              35.81463623046875
+            ],
+            "motor_effort": [
+              12.209383010864258,
+              -11.04974365234375,
+              -1.3105579614639282,
+              -4.629885196685791,
+              6.360258102416992,
+              0.8724700808525085
+            ],
+            "gravity": [
+              -0.6589667797088623,
+              -0.033027082681655884,
+              -0.7514469623565674
+            ]
+          },
+          {
+            "lane": 423,
+            "scene_group": "stand_430mm",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 249,
+            "gap_m": 0.00012678706843871623,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.7149258852005005,
+              -0.3105123043060303,
+              -25.26590919494629,
+              1.1218383312225342,
+              -3.7901787757873535,
+              37.275028228759766
+            ],
+            "motor_effort": [
+              9.920318603515625,
+              -11.784348487854004,
+              -0.9512044191360474,
+              -9.306574821472168,
+              5.329434871673584,
+              1.6746643781661987
+            ],
+            "gravity": [
+              -0.6548579931259155,
+              -0.018836140632629395,
+              -0.7555171847343445
+            ]
+          },
+          {
+            "lane": 434,
+            "scene_group": "stand_continuous",
+            "profile_id": 19,
+            "profile_name": "wide_11",
+            "episode_tick": 249,
+            "gap_m": 4.415651710587554e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.2450000047683716,
+            "holding": false,
+            "motor_velocity": [
+              -2.6783413887023926,
+              -0.43991100788116455,
+              -27.607297897338867,
+              1.8944417238235474,
+              -2.501011371612549,
+              45.69900894165039
+            ],
+            "motor_effort": [
+              10.464746475219727,
+              -11.9902982711792,
+              0.2371760606765747,
+              -10.263585090637207,
+              9.306364059448242,
+              1.9195390939712524
+            ],
+            "gravity": [
+              -0.6792943477630615,
+              -0.024199604988098145,
+              -0.733466625213623
+            ]
+          },
+          {
+            "lane": 509,
+            "scene_group": "release_stop_combined__height_train",
+            "profile_id": 16,
+            "profile_name": "wide_08",
+            "episode_tick": 250,
+            "gap_m": 0.00012596408487297595,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.25,
+            "holding": false,
+            "motor_velocity": [
+              -2.6811985969543457,
+              1.8537968397140503,
+              32.25505447387695,
+              -0.7596850991249084,
+              -1.4235024452209473,
+              -28.293092727661133
+            ],
+            "motor_effort": [
+              3.0389606952667236,
+              -4.528013706207275,
+              1.8133083581924438,
+              -9.255122184753418,
+              10.964247703552246,
+              -1.521605372428894
+            ],
+            "gravity": [
+              0.6442506909370422,
+              -0.0006038397550582886,
+              -0.764814019203186
+            ]
+          },
+          {
+            "lane": 372,
+            "scene_group": "stand_230mm",
+            "profile_id": 13,
+            "profile_name": "wide_05",
+            "episode_tick": 259,
+            "gap_m": 4.317170532885939e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.2949999570846558,
+            "holding": false,
+            "motor_velocity": [
+              0.18771998584270477,
+              1.1442056894302368,
+              2.087559938430786,
+              -2.1529459953308105,
+              -2.3793978691101074,
+              5.9602460861206055
+            ],
+            "motor_effort": [
+              1.6312278509140015,
+              -3.0521230697631836,
+              1.769534707069397,
+              -7.1346964836120605,
+              7.6202521324157715,
+              -1.8887356519699097
+            ],
+            "gravity": [
+              0.5252383947372437,
+              0.03934040665626526,
+              -0.8500455617904663
+            ]
+          },
+          {
+            "lane": 346,
+            "scene_group": "velocity_curve_3__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 270,
+            "gap_m": 2.4233302610809915e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -0.604577362537384,
+              0.1240243911743164,
+              0.32425108551979065,
+              -1.0266013145446777,
+              -2.63731050491333,
+              11.454102516174316
+            ],
+            "motor_effort": [
+              -0.40058231353759766,
+              -4.480340003967285,
+              1.0473488569259644,
+              -0.18026576936244965,
+              8.357396125793457,
+              1.3148386478424072
+            ],
+            "gravity": [
+              0.511546790599823,
+              0.046370893716812134,
+              -0.8580034375190735
+            ]
+          },
+          {
+            "lane": 18,
+            "scene_group": "rotate_1",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 286,
+            "gap_m": 0.0001265218306798488,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.3719109296798706,
+              -0.16383686661720276,
+              -25.542634963989258,
+              0.9634737968444824,
+              -4.18784761428833,
+              36.94799041748047
+            ],
+            "motor_effort": [
+              12.422273635864258,
+              -13.888049125671387,
+              -1.3542011976242065,
+              -10.06005573272705,
+              7.285125255584717,
+              1.3535774946212769
+            ],
+            "gravity": [
+              -0.6660205125808716,
+              -0.03247302770614624,
+              -0.7452260255813599
+            ]
+          },
+          {
+            "lane": 112,
+            "scene_group": "rotate_2rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 302,
+            "gap_m": 9.278635843656957e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.6242518424987793,
+              -0.19006384909152985,
+              -22.47022819519043,
+              0.9499392509460449,
+              -3.399967908859253,
+              27.37542152404785
+            ],
+            "motor_effort": [
+              10.535264015197754,
+              -10.753936767578125,
+              -0.8958309292793274,
+              -8.668763160705566,
+              7.032310485839844,
+              0.8856755495071411
+            ],
+            "gravity": [
+              -0.6638449430465698,
+              -0.04219210147857666,
+              -0.7466789484024048
+            ]
+          },
+          {
+            "lane": 318,
+            "scene_group": "velocity_curve_1__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 343,
+            "gap_m": 4.332142634666525e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.3906265497207642,
+              1.7962234020233154,
+              27.32198143005371,
+              -0.8029941916465759,
+              -1.8883891105651855,
+              -23.67911720275879
+            ],
+            "motor_effort": [
+              -0.4702710807323456,
+              -1.681217074394226,
+              1.666672945022583,
+              -7.5286102294921875,
+              6.937526226043701,
+              -0.3712223172187805
+            ],
+            "gravity": [
+              0.6062408089637756,
+              0.025391072034835815,
+              -0.7948758602142334
+            ]
+          },
+          {
+            "lane": 295,
+            "scene_group": "start_stop_1__height_train",
+            "profile_id": 12,
+            "profile_name": "wide_04",
+            "episode_tick": 370,
+            "gap_m": 3.492695032036863e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 1.8499999046325684,
+            "holding": false,
+            "motor_velocity": [
+              1.1584391593933105,
+              3.6781928539276123,
+              -5.4584736824035645,
+              -2.2354111671447754,
+              -3.3023183345794678,
+              9.82809066772461
+            ],
+            "motor_effort": [
+              3.6793744564056396,
+              -1.059618592262268,
+              3.901921033859253,
+              -3.5051980018615723,
+              0.898786723613739,
+              -3.866750717163086
+            ],
+            "gravity": [
+              0.5380685925483704,
+              0.027768045663833618,
+              -0.8424431085586548
+            ]
+          },
+          {
+            "lane": 368,
+            "scene_group": "velocity_curve_5__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 445,
+            "gap_m": 6.901964661665261e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              4.788033485412598,
+              7.316734313964844,
+              -27.3724422454834,
+              -6.141259670257568,
+              -12.276198387145996,
+              37.955535888671875
+            ],
+            "motor_effort": [
+              12.46802806854248,
+              -10.581137657165527,
+              -2.6792662143707275,
+              -5.417974472045898,
+              6.109810829162598,
+              4.231865882873535
+            ],
+            "gravity": [
+              -0.685764491558075,
+              -0.022726263850927353,
+              -0.7274686098098755
+            ]
+          },
+          {
+            "lane": 415,
+            "scene_group": "stand_400mm",
+            "profile_id": 7,
+            "profile_name": "gentle_07",
+            "episode_tick": 482,
+            "gap_m": 6.83543985360302e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 2.4099998474121094,
+            "holding": false,
+            "motor_velocity": [
+              -2.5281624794006348,
+              -1.3477795124053955,
+              0.3621000647544861,
+              0.7854574918746948,
+              1.4202462434768677,
+              13.375170707702637
+            ],
+            "motor_effort": [
+              0.843778133392334,
+              -1.1662644147872925,
+              -1.2635692358016968,
+              -3.550981283187866,
+              3.8552093505859375,
+              2.3659842014312744
+            ],
+            "gravity": [
+              -0.5319226384162903,
+              0.07979166507720947,
+              -0.8430252075195312
+            ]
+          },
+          {
+            "lane": 34,
+            "scene_group": "rotate_1__reverse_train__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 548,
+            "gap_m": 6.320452666841447e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              4.5392560958862305,
+              7.16355562210083,
+              -24.70708656311035,
+              -5.755651473999023,
+              -11.944282531738281,
+              35.08848571777344
+            ],
+            "motor_effort": [
+              11.550738334655762,
+              -8.900375366210938,
+              -1.0891811847686768,
+              0.42359086871147156,
+              3.693669557571411,
+              3.5747830867767334
+            ],
+            "gravity": [
+              -0.6686203479766846,
+              -0.027767926454544067,
+              -0.7430852651596069
+            ]
+          },
+          {
+            "lane": 488,
+            "scene_group": "release_stop_translate",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 568,
+            "gap_m": 0.00018567254301160574,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -3.660043954849243,
+              0.40343818068504333,
+              31.35943031311035,
+              0.2147316187620163,
+              -0.8985138535499573,
+              -23.634553909301758
+            ],
+            "motor_effort": [
+              1.7281951904296875,
+              -2.3614203929901123,
+              3.3205792903900146,
+              -7.86489200592041,
+              8.761369705200195,
+              -0.9241752624511719
+            ],
+            "gravity": [
+              0.6225347518920898,
+              0.014547884464263916,
+              -0.7824571132659912
+            ]
+          },
+          {
+            "lane": 137,
+            "scene_group": "spin_translate_2rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 636,
+            "gap_m": 6.378153193509206e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.4633822441101074,
+              -0.5733145475387573,
+              -20.043514251708984,
+              1.7664177417755127,
+              -2.6217117309570312,
+              24.5010929107666
+            ],
+            "motor_effort": [
+              14.302531242370605,
+              -11.024358749389648,
+              -0.27328571677207947,
+              -13.119531631469727,
+              9.918371200561523,
+              -0.45993033051490784
+            ],
+            "gravity": [
+              -0.6769044995307922,
+              -0.07233290374279022,
+              -0.7325084209442139
+            ]
+          },
+          {
+            "lane": 145,
+            "scene_group": "spin_translate_3rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 663,
+            "gap_m": 4.43175777036231e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -7.371875762939453,
+              -3.5420610904693604,
+              17.254562377929688,
+              5.035165786743164,
+              3.8453097343444824,
+              -15.921652793884277
+            ],
+            "motor_effort": [
+              2.0263679027557373,
+              -4.7145676612854,
+              0.8693853616714478,
+              -4.2758917808532715,
+              6.7028045654296875,
+              -2.630091905593872
+            ],
+            "gravity": [
+              0.6017723083496094,
+              0.04532128572463989,
+              -0.7973812222480774
+            ]
+          },
+          {
+            "lane": 146,
+            "scene_group": "spin_translate_3rps__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 692,
+            "gap_m": 4.176015136181377e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.8539247512817383,
+              0.3196004033088684,
+              -20.088537216186523,
+              0.6922208070755005,
+              -3.0123519897460938,
+              24.24755096435547
+            ],
+            "motor_effort": [
+              6.378768444061279,
+              -9.57884693145752,
+              -2.968845844268799,
+              -7.865898132324219,
+              8.2151517868042,
+              1.3230549097061157
+            ],
+            "gravity": [
+              -0.6727904677391052,
+              -0.0759056806564331,
+              -0.7359286546707153
+            ]
+          },
+          {
+            "lane": 144,
+            "scene_group": "spin_translate_3rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 701,
+            "gap_m": 7.363641634583473e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -3.092618703842163,
+              -0.7626454830169678,
+              -17.563018798828125,
+              1.4813945293426514,
+              -2.01772403717041,
+              25.245784759521484
+            ],
+            "motor_effort": [
+              7.666614055633545,
+              -7.868991374969482,
+              2.051774024963379,
+              -11.677311897277832,
+              7.869624614715576,
+              1.7007869482040405
+            ],
+            "gravity": [
+              -0.6728699207305908,
+              -0.08176637440919876,
+              -0.7352281808853149
+            ]
+          },
+          {
+            "lane": 114,
+            "scene_group": "rotate_2rps__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 708,
+            "gap_m": 6.29604619462043e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.514111876487732,
+              0.04967261850833893,
+              -16.208175659179688,
+              0.5182175040245056,
+              -2.892624616622925,
+              22.934202194213867
+            ],
+            "motor_effort": [
+              8.628036499023438,
+              -8.215468406677246,
+              -0.6971769332885742,
+              -10.689864158630371,
+              5.814769268035889,
+              0.8732711672782898
+            ],
+            "gravity": [
+              -0.6602703928947449,
+              -0.06834187358617783,
+              -0.747911810874939
+            ]
+          },
+          {
+            "lane": 96,
+            "scene_group": "rotate_8",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 724,
+            "gap_m": 7.769219519104809e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.9689886569976807,
+              -0.8338321447372437,
+              -25.45724105834961,
+              2.5010063648223877,
+              -2.8531341552734375,
+              31.495466232299805
+            ],
+            "motor_effort": [
+              11.8792085647583,
+              -10.428637504577637,
+              -1.0360270738601685,
+              -10.62739372253418,
+              9.674556732177734,
+              1.1387590169906616
+            ],
+            "gravity": [
+              -0.7015244960784912,
+              -0.029485397040843964,
+              -0.7120353579521179
+            ]
+          },
+          {
+            "lane": 120,
+            "scene_group": "rotate_3rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 729,
+            "gap_m": 6.436818512156606e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.3528249263763428,
+              0.4432177245616913,
+              -15.557900428771973,
+              0.590266764163971,
+              -2.9898855686187744,
+              21.084430694580078
+            ],
+            "motor_effort": [
+              9.115463256835938,
+              -7.5694427490234375,
+              -1.0218327045440674,
+              -9.765921592712402,
+              7.52670431137085,
+              3.4821629524230957
+            ],
+            "gravity": [
+              -0.6716313362121582,
+              -0.07875663787126541,
+              -0.7366880774497986
+            ]
+          },
+          {
+            "lane": 147,
+            "scene_group": "spin_translate_3rps__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 755,
+            "gap_m": 6.312450568657368e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -5.698459148406982,
+              -2.594343423843384,
+              13.919831275939941,
+              2.977593183517456,
+              1.3812073469161987,
+              -8.348882675170898
+            ],
+            "motor_effort": [
+              8.442763328552246,
+              -5.001143932342529,
+              1.723798155784607,
+              -6.982292175292969,
+              9.315815925598145,
+              -2.152604579925537
+            ],
+            "gravity": [
+              0.6061689853668213,
+              0.05087471753358841,
+              -0.7937073111534119
+            ]
+          },
+          {
+            "lane": 138,
+            "scene_group": "spin_translate_2rps__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 763,
+            "gap_m": 5.238064841250889e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.5118811130523682,
+              1.425997018814087,
+              21.492815017700195,
+              -0.7066112756729126,
+              -1.954427719116211,
+              -16.64214515686035
+            ],
+            "motor_effort": [
+              2.137033224105835,
+              -5.631964206695557,
+              3.1873719692230225,
+              -5.925376892089844,
+              8.333024024963379,
+              -1.5204793214797974
+            ],
+            "gravity": [
+              0.5994451642036438,
+              0.03942270949482918,
+              -0.7994444370269775
+            ]
+          },
+          {
+            "lane": 123,
+            "scene_group": "rotate_3rps__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 767,
+            "gap_m": 7.198504317784682e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -5.144503593444824,
+              -2.225860118865967,
+              14.052013397216797,
+              2.6607606410980225,
+              1.8014408349990845,
+              -12.953307151794434
+            ],
+            "motor_effort": [
+              4.22186279296875,
+              -6.041512489318848,
+              0.7155007123947144,
+              -5.714033603668213,
+              6.065460205078125,
+              -2.413252830505371
+            ],
+            "gravity": [
+              0.6003256440162659,
+              0.04454515129327774,
+              -0.798514187335968
+            ]
+          },
+          {
+            "lane": 139,
+            "scene_group": "spin_translate_2rps__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 776,
+            "gap_m": 6.89108346705325e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.6349072456359863,
+              1.507468819618225,
+              17.50193977355957,
+              -0.602601170539856,
+              -1.8149327039718628,
+              -15.277181625366211
+            ],
+            "motor_effort": [
+              4.306739807128906,
+              -7.922820568084717,
+              0.8941486477851868,
+              -5.537991046905518,
+              9.851061820983887,
+              -3.0879852771759033
+            ],
+            "gravity": [
+              0.5984334945678711,
+              0.039489708840847015,
+              -0.8001986742019653
+            ]
+          },
+          {
+            "lane": 104,
+            "scene_group": "rotate_1rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 792,
+            "gap_m": 7.183232810348272e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.688590407371521,
+              0.5834488272666931,
+              -25.049692153930664,
+              0.7864294648170471,
+              -3.733637571334839,
+              29.003616333007812
+            ],
+            "motor_effort": [
+              8.994762420654297,
+              -7.567868232727051,
+              -4.10535192489624,
+              -8.975272178649902,
+              7.746537208557129,
+              1.0325535535812378
+            ],
+            "gravity": [
+              -0.6900357604026794,
+              -0.014261770993471146,
+              -0.7236347794532776
+            ]
+          },
+          {
+            "lane": 113,
+            "scene_group": "rotate_2rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 826,
+            "gap_m": 6.103658233769238e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.0565192699432373,
+              0.2730564773082733,
+              -15.509369850158691,
+              0.623600959777832,
+              -3.130805253982544,
+              24.218299865722656
+            ],
+            "motor_effort": [
+              8.231343269348145,
+              -7.670145511627197,
+              -0.44921499490737915,
+              -8.195070266723633,
+              6.592080593109131,
+              1.49071204662323
+            ],
+            "gravity": [
+              -0.6676023006439209,
+              -0.07580410689115524,
+              -0.7406489253044128
+            ]
+          },
+          {
+            "lane": 98,
+            "scene_group": "rotate_8__height_train",
+            "profile_id": 11,
+            "profile_name": "wide_03",
+            "episode_tick": 849,
+            "gap_m": 3.616259709815495e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 4.244999885559082,
+            "holding": false,
+            "motor_velocity": [
+              3.6426448822021484,
+              6.180709362030029,
+              -20.909669876098633,
+              -4.542923450469971,
+              -9.800826072692871,
+              26.88829803466797
+            ],
+            "motor_effort": [
+              11.088380813598633,
+              -9.113692283630371,
+              -0.5310264825820923,
+              -7.357067108154297,
+              7.906826972961426,
+              1.3024009466171265
+            ],
+            "gravity": [
+              -0.6857279539108276,
+              -0.05029609799385071,
+              -0.7261179089546204
+            ]
+          },
+          {
+            "lane": 122,
+            "scene_group": "rotate_3rps__height_train",
+            "profile_id": 19,
+            "profile_name": "wide_11",
+            "episode_tick": 856,
+            "gap_m": 4.3789754272438586e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 4.279999732971191,
+            "holding": false,
+            "motor_velocity": [
+              -1.6762628555297852,
+              1.6199960708618164,
+              16.5189151763916,
+              -0.5347148776054382,
+              -2.1525259017944336,
+              -10.820109367370605
+            ],
+            "motor_effort": [
+              5.141820430755615,
+              -5.668242931365967,
+              2.3296749591827393,
+              -3.620230197906494,
+              8.222071647644043,
+              -0.7680855989456177
+            ],
+            "gravity": [
+              0.5907779335975647,
+              0.037657737731933594,
+              -0.8059548139572144
+            ]
+          },
+          {
+            "lane": 97,
+            "scene_group": "rotate_8",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 868,
+            "gap_m": 4.40883741248399e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -2.2046310901641846,
+              0.0625583752989769,
+              -24.52048683166504,
+              0.9162036180496216,
+              -3.0155296325683594,
+              30.323978424072266
+            ],
+            "motor_effort": [
+              7.255934238433838,
+              -7.867857456207275,
+              -2.825998306274414,
+              -6.760384559631348,
+              6.208856582641602,
+              2.920621633529663
+            ],
+            "gravity": [
+              -0.6685385704040527,
+              -0.057052239775657654,
+              -0.7414858937263489
+            ]
+          },
+          {
+            "lane": 12,
+            "scene_group": "backward_05__height_train",
+            "profile_id": 0,
+            "profile_name": "gentle_00",
+            "episode_tick": 894,
+            "gap_m": 0.00012211674766149372,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 4.46999979019165,
+            "holding": false,
+            "motor_velocity": [
+              -0.8816494345664978,
+              -0.43038180470466614,
+              -27.6157169342041,
+              1.5433990955352783,
+              -4.247554779052734,
+              38.365421295166016
+            ],
+            "motor_effort": [
+              13.022157669067383,
+              -15.32390308380127,
+              -0.40583154559135437,
+              -9.769943237304688,
+              7.411376476287842,
+              1.7905609607696533
+            ],
+            "gravity": [
+              -0.6641533374786377,
+              -0.024012044072151184,
+              -0.7472109198570251
+            ]
+          },
+          {
+            "lane": 187,
+            "scene_group": "yaw_continuous__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 911,
+            "gap_m": 3.7730966141680256e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.697041392326355,
+              0.5499132871627808,
+              -18.065645217895508,
+              0.28660497069358826,
+              -3.1510584354400635,
+              24.64207649230957
+            ],
+            "motor_effort": [
+              8.478543281555176,
+              -9.296077728271484,
+              -0.4041057527065277,
+              -8.348672866821289,
+              7.29479455947876,
+              2.3465962409973145
+            ],
+            "gravity": [
+              -0.6690322756767273,
+              -0.09030207991600037,
+              -0.7377268075942993
+            ]
+          },
+          {
+            "lane": 115,
+            "scene_group": "rotate_2rps__height_train",
+            "profile_id": 3,
+            "profile_name": "gentle_03",
+            "episode_tick": 916,
+            "gap_m": 6.879450666019693e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 4.579999923706055,
+            "holding": false,
+            "motor_velocity": [
+              -1.6384519338607788,
+              1.932584285736084,
+              17.746076583862305,
+              -1.3797917366027832,
+              -1.9382243156433105,
+              -16.880626678466797
+            ],
+            "motor_effort": [
+              3.8834354877471924,
+              -6.8120036125183105,
+              -0.830203652381897,
+              -8.249795913696289,
+              6.623592376708984,
+              -1.64790940284729
+            ],
+            "gravity": [
+              0.5954997539520264,
+              0.041435837745666504,
+              -0.8022862076759338
+            ]
+          },
+          {
+            "lane": 127,
+            "scene_group": "rotate_3rps__reverse_train__height_train",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 946,
+            "gap_m": 9.652000881033018e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -8.585960388183594,
+              -3.856184482574463,
+              27.778196334838867,
+              3.169023036956787,
+              2.569366931915283,
+              -10.507746696472168
+            ],
+            "motor_effort": [
+              -4.234310150146484,
+              -1.3996450901031494,
+              2.162065267562866,
+              -13.90380573272705,
+              11.564460754394531,
+              -0.123398557305336
+            ],
+            "gravity": [
+              0.6264067888259888,
+              0.0015870332717895508,
+              -0.7794951796531677
+            ]
+          },
+          {
+            "lane": 121,
+            "scene_group": "rotate_3rps",
+            "profile_id": -1,
+            "profile_name": "nominal",
+            "episode_tick": 986,
+            "gap_m": 4.461407661437988e-05,
+            "reasons": [
+              "nonwheel_contact"
+            ],
+            "birth_elapsed_seconds": 0.0,
+            "holding": false,
+            "motor_velocity": [
+              -1.5763707160949707,
+              1.5775282382965088,
+              11.457744598388672,
+              -0.9942641258239746,
+              -1.661512851715088,
+              -9.67186450958252
+            ],
+            "motor_effort": [
+              3.0167832374572754,
+              -6.706712245941162,
+              -0.7421350479125977,
+              -6.02786111831665,
+              7.992781162261963,
+              -2.748328447341919
+            ],
+            "gravity": [
+              0.5969749689102173,
+              0.05252207815647125,
+              -0.800538957118988
+            ]
+          }
+        ],
+        "max_closure_gap_m": 0.0013624081620946527,
+        "optimizer_state_empty": true,
+        "native_learning_mask_verified_every_frame": true,
+        "native_holding_always_false": true,
+        "native_version": "v6_nonstandard_start_v2",
+        "action_history": "preserve_issued_policy_actions_during_ramp",
+        "state_trace_columns": [
+          "motor_position6",
+          "motor_velocity6",
+          "motor_effort6",
+          "gravity3",
+          "omega3",
+          "position3"
+        ],
+        "finished_at": "2026-10-17T22:31:46.689556+00:00"
+      },
+      "reference_json_sha256": "b9417a00a149447471f4151c78d3982d58050fd81e2693a4c05b97f0e70555fa",
+      "native_json_sha256": "43de5effa0f6ebf9eaaa8dc73527fa9e9cc13d3f0986c70f1ef0c86c84cd65fc",
+      "reference_npz_sha256": "76e9c0912c34d8199da01064d2d09d0e8096073a452fa6f58a9f218ccd8c421a",
+      "native_npz_sha256": "95c2c9688a179f7f7276c8c85b5432acdd1d18a4e9f8587a6bb3fc167cb1fdaf",
+      "native_script_sha256": "86a6e1bd45bb8b5428bbeb969f488d161131593372a0f6df143d3c52c10b49c6",
+      "first_gain": 0.04999999701976776,
+      "twentieth_gain": 0.9999999403953552,
+      "whole_first_20_frames_masked": true,
+      "twentieth_returned_state_bootstraps": true,
+      "frame21_onward_initial_ramp_ends": true
+    }
+  ],
+  "cpu_tests": {
+    "passed_distinct": 188,
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/birth_v2_cpu004.log",
+    "sha256": "c750a1c7b36a340786646b23ff39e87cb0b74e0bd36e2d19f3cee834ee6f0907",
+    "capture_quota_retry_log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/birth_v2_cpu005.log",
+    "capture_quota_retry_sha256": "f1e43ed19d1685219160e564ee70bc04a73ede942205705e3f5f13be6db3146f",
+    "note": "186 passed,2 failed from pytest fd-capture /tmp quota; same2 passed with memory capture.188 distinct,not188 in one run.",
+    "prior_183_passed_log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/birth_v2_cpu003.log",
+    "prior_fixture_failure_log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/birth_v2_cpu001.log",
+    "prior_tmp_quota_failures_log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/birth_v2_cpu002.log",
+    "failed_generated_fixtures_preserved": [
+      "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/birth_v2_failed_fixture_tmp001",
+      "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/birth_v2_failed_fixture_tmp002"
+    ]
+  },
+  "static_preflight": {
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot009_preflight001.log",
+    "sha256": "437c631daaa4127151fa2362851190aba5f2513bff2f54f45f4e95c4da458a18"
+  },
+  "next_action": "Commit/freeze exact candidate, full-state resume pilot008 for at most128 additional updates, verify initial weights and firstPPO",
+  "limitations": [
+    "Candidate still falls: independent5s batch57 non-wheel contacts",
+    "First births only; shared RNG after autoresets limits long lane-wise causal claims",
+    "No PPO behavior acceptance from this engineering probe",
+    "Core class docstring and first-PPO snapshot condition refined after probe014; physical path unchanged"
+  ]
+}
