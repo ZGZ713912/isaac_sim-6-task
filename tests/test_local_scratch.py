@@ -31,7 +31,8 @@ def invocation():
     return SimpleNamespace(resume=None, transfer=None, consumed_updates=None,
         learning_rate_scale=None, task_actor_update=None, stage_actor_update=None,
         actor_updates_consumed=0, global_actor_update_offset=0, block_index=0,
-        confirmed_jump_bins_json="[]", seed=290927, num_envs=512, stage="speed", updates=20000)
+        confirmed_jump_bins_json="[]", seed=290927, num_envs=512, stage="speed",
+        updates=local_scratch.read_plan(ROOT)["update_ceiling"])
 
 
 def test_latest_reward_and_native_mechanics_are_retained(bundle):
@@ -40,7 +41,7 @@ def test_latest_reward_and_native_mechanics_are_retained(bundle):
         "target_num_envs", "ppo_minibatch_samples", "checkpoint_first_update",
         "budget_spec_file", "budget_spec_sha256", "nonstandard_start", "locomotion_difficulty",
         "ordinary_posture_curriculum", "policy_dt", "control_math_source", "control_math_sha256",
-        "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt"}
+        "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt", "initial_noise_std"}
     assert {k: v for k, v in bundle.items() if k not in changed} == {
         k: v for k, v in latest.items() if k not in changed}
     for field in ("nonstandard_start", "locomotion_difficulty", "ordinary_posture_curriculum"):
@@ -68,10 +69,11 @@ def test_independent_design_and_all_scene_groups(population):
         rows = choose_scene_groups(config["scene_groups"], population)
         assert len(rows) == population
         assert len({name for name, terrain in rows}) == 135
-        assert receipt["budget"]["inherited_consumption"] == 0
-        assert receipt["budget"]["transition_ceiling"] == 20000 * population * 96
+        assert receipt["budget"]["inherited_consumption"] == 64
+        assert receipt["budget"]["transition_ceiling"] == 19936 * population * 96
         assert receipt["runtime_expected"]["decimation"] == 1
         assert receipt["runtime_expected"]["policy_dt"] == .005
+        assert config["initial_noise_std"] == .2
 
 
 @pytest.mark.parametrize("field,value", [

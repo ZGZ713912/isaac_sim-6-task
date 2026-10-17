@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 
 
-PLAN_FILE = "contracts/v6_local_scratch_200hz_v1.json"
+PLAN_FILE = "contracts/v6_local_scratch_200hz_v2.json"
+POLICY200_PLAN_FILE = "contracts/v6_local_scratch_200hz_v1.json"
 LEGACY_PLAN_FILE = "contracts/v6_local_scratch_v1.json"
 SCHEMA = "v6-local-scratch-worker-v1"
 
@@ -21,7 +22,7 @@ def digest(path):
 
 def read_plan(root, plan_file=PLAN_FILE):
     root = Path(root)
-    if plan_file not in (PLAN_FILE, LEGACY_PLAN_FILE):
+    if plan_file not in (PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
         raise ValueError("Unsupported local scratch plan file")
     plan = json.loads((root / plan_file).read_text())
     if plan.get("schema") != "v6-local-scratch-plan-v1":
@@ -29,8 +30,16 @@ def read_plan(root, plan_file=PLAN_FILE):
     for name in ("source_worker", "source_design", "reward_reference"):
         if digest(root / plan[name + "_file"]) != plan[name + "_sha256"]:
             raise ValueError(f"Local scratch {name} source changed")
-    if plan_file == PLAN_FILE and digest(root / plan["control_file"]) != plan["control_sha256"]:
+    if plan_file != LEGACY_PLAN_FILE and digest(root / plan["control_file"]) != plan["control_sha256"]:
         raise ValueError("Local scratch 200 Hz control source changed")
+    if plan.get("prior_experiment_receipt_file"):
+        path = root / plan["prior_experiment_receipt_file"]
+        receipt = json.loads(path.read_text())
+        if (digest(path) != plan["prior_experiment_receipt_sha256"]
+                or receipt.get("status") != "behavior_rejected"
+                or receipt.get("consumption") != plan["prior_experiment_consumption"]
+                or plan["update_ceiling"] + plan["prior_experiment_consumption"] != 20000):
+            raise ValueError("Prior local experiment consumption binding changed")
     return plan
 
 
@@ -65,7 +74,7 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         raise ValueError("Latest speed recipe no longer matches the authenticated native reward source")
     worker.pop("task_campaign")
     timing_changes = ()
-    if plan_file == PLAN_FILE:
+    if plan_file != LEGACY_PLAN_FILE:
         temporal = plan["ppo_timing"]
         worker.update(physics_dt=plan["timing"]["physics_dt"], policy_dt=plan["timing"]["policy_dt"],
             control_math_source=plan["control_file"], control_math_sha256=plan["control_sha256"],
@@ -73,6 +82,9 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
             action_difference_reference_dt=plan["action_difference_reference_dt"])
         timing_changes = ("physics_dt", "policy_dt", "control_math_source", "control_math_sha256",
             "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt")
+    if "initial_noise_std" in plan:
+        worker["initial_noise_std"] = plan["initial_noise_std"]
+        timing_changes += ("initial_noise_std",)
     worker.update(target_num_envs=num_envs,
         ppo_minibatch_samples=num_envs * worker["num_steps_per_env"] // worker["num_mini_batches"],
         checkpoint_first_update=plan["checkpoint_first_update"])
@@ -82,10 +94,11 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         initialization=plan["initialization"], num_envs=num_envs, seed=plan["seed"])
     worker["local_scratch"] = marker
     budget = dict(schema="v6-local-scratch-budget-v1", initialization=plan["initialization"],
-        inherited_consumption=0, update_ceiling=plan["update_ceiling"], num_envs=num_envs,
+        inherited_consumption=plan.get("prior_experiment_consumption", 0),
+        update_ceiling=plan["update_ceiling"], num_envs=num_envs,
         num_steps_per_env=worker["num_steps_per_env"],
         transition_ceiling=plan["update_ceiling"] * num_envs * worker["num_steps_per_env"])
-    if plan_file == PLAN_FILE:
+    if plan_file != LEGACY_PLAN_FILE:
         budget.update(policy_dt=worker["policy_dt"],
             rollout_seconds=worker["num_steps_per_env"] * worker["policy_dt"],
             simulated_seconds_per_env_ceiling=plan["update_ceiling"] * worker["num_steps_per_env"] * worker["policy_dt"])
@@ -104,7 +117,7 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         if "origin_actor_update" in expected:
             expected["origin_actor_update"] = origin
         expected["settings"]["origin_actor_update"] = origin
-    if plan_file == PLAN_FILE:
+    if plan_file != LEGACY_PLAN_FILE:
         control = json.loads((root / plan["control_file"]).read_text())
         row["control"]["timing"] = deepcopy(plan["timing"])
         row["control"]["simulation_timing_approximation"] = deepcopy(control["simulation_timing_approximation"])
@@ -224,4 +237,5 @@ def source_files(root, plan_file=PLAN_FILE):
         plan["source_worker_file"], plan["source_design_file"], plan["reward_reference_file"],
         "src/wheeled_tasks/chassis/nonstandard_start.py", "src/wheeled_tasks/chassis/nonstandard_start_revision.py",
         "src/wheeled_tasks/chassis/release_stop.py", "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",
-        "src/wheeled_tasks/chassis/locomotion_difficulty.py", "src/wheeled_tasks/chassis/graded_locomotion_revision.py"]
+        "src/wheeled_tasks/chassis/locomotion_difficulty.py", "src/wheeled_tasks/chassis/graded_locomotion_revision.py",
+        *([plan["prior_experiment_receipt_file"]] if plan.get("prior_experiment_receipt_file") else [])]

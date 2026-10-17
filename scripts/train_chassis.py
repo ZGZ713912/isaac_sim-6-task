@@ -612,6 +612,8 @@ def main():
                "successful_updates": 0, "attempted_updates": 0, "parent_updates": 0, "parent_training_transitions": 0,
                "actor_updates_in_block": 0,
               "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
+    if c.get("local_scratch"):
+        report["prior_local_experiment_consumption"] = json.loads((ROOT / c["budget_spec_file"]).read_text())["inherited_consumption"]
     if c.get("integrated_production"):
         (args.run_dir / "integrated_admission.json").write_bytes(args.integrated_source_selection_file.read_bytes())
         (args.run_dir / "integrated_design.json").write_text(json.dumps(integrated_design, indent=2, allow_nan=False) + "\n")
@@ -706,6 +708,10 @@ def main():
                         num_steps_per_env=runner.alg.storage.num_transitions_per_env,
                         policy_dt=env.policy_dt,
                         rollout_seconds=runner.alg.storage.num_transitions_per_env * env.policy_dt)
+                    report["fresh_initial_noise_std"] = runner.alg.actor.distribution.std_param.detach().cpu().tolist()
+                    if any(not math.isclose(value, c["initial_noise_std"], abs_tol=1e-6)
+                           for value in report["fresh_initial_noise_std"]):
+                        raise ValueError("PPO initial exploration differs from the local contract")
                     for parameter in ("gamma", "lam"):
                         if parameter in c and report["ppo_timing"][parameter] != c[parameter]:
                             raise ValueError(f"PPO {parameter} differs from the local timing contract")
@@ -1029,6 +1035,10 @@ def main():
                         "diagnostic_origin": report.get("diagnostic_origin"),
                         "remediation": c.get("remediation"), "continuation": c.get("continuation"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
+                    if c.get("local_scratch"):
+                        prior = report["prior_local_experiment_consumption"]
+                        progress.update(prior_local_experiment_consumption=prior,
+                            total_local_consumed_updates=prior + report["parent_updates"] + report["successful_updates"])
                     if c.get("task_campaign"):
                         progress.update(task_actor_update=env.task_actor_update, task_campaign=c["task_campaign"])
                     if c.get("integrated_production"):

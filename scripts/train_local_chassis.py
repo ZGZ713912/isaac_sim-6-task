@@ -52,11 +52,11 @@ def main():
     if args.resume:
         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
         parent_config = json.loads(checkpoint_contract_path(args.resume).read_text())
+        plan = read_plan(ROOT, parent_config.get("local_scratch", {}).get("plan_file"))
         parent = validate_parent(args.resume, parent_config)
-        if (parent_config.get("local_scratch", {}).get("plan_file") != PLAN_FILE
-                or parent_config["target_num_envs"] != args.num_envs
+        if (parent_config["policy_dt"] != .005 or parent_config["target_num_envs"] != args.num_envs
                 or parent + args.updates > plan["update_ceiling"]):
-            parser.error("resume must preserve the population/200 Hz plan and cumulative 20000-update ceiling")
+            parser.error("resume must preserve the population/200 Hz plan and cumulative update ceiling")
     # A launched PPO must come from a committed training version. The scene
     # and static probes can validate a candidate before it is committed.
     if not args.preflight_only and not args.validate_scene:
