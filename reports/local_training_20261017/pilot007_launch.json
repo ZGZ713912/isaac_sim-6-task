@@ -1,0 +1,179 @@
+{
+  "schema": "v6-local-pilot-launch-verification-v1",
+  "recorded_at": "2026-10-17T20:24:43.178431+00:00",
+  "status": "v4_bounded_continuation_running_not_behavior_accepted",
+  "source": {
+    "commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T202301Z-235f0c86/source.tar.gz",
+    "source_archive_sha256": "359d83d130c1bae0901ec7100cfa33f0d7a315998db1bc7822f781625d57d7bc",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T202301Z-235f0c86/source"
+  },
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
+  "tmux_session": "v6-local-pilot007",
+  "pid": 631506,
+  "process_start_ticks": 4582601,
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot006/model_final.pt",
+  "parent_checkpoint_sha256": "63e5fb28a0e1f9d44f8809257c5601df3ff684273fbf4a37c11067ff081b6c1a",
+  "initial_checkpoint_sha256": "915882eaf8928da7706d3eaa329019d7401eb7400c4a4c477c6db9ed5f0d4616",
+  "independent_initial_state_exact": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "native_resume_verification": {
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "63e5fb28a0e1f9d44f8809257c5601df3ff684273fbf4a37c11067ff081b6c1a",
+    "parent_updates": 128,
+    "restored_checkpoint_updates": 128,
+    "learning_lineage_updates": 128,
+    "requested_learning_rate_scale": null,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 6291456,
+    "torch_rng_restored": true,
+    "environment_rng_restored": true,
+    "cuda_rng_restored": true,
+    "environment_state": "new_episodes_after_rng_restore",
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": false,
+    "parent_entropy_coef": 0.0,
+    "effective_entropy_coef": 0.0,
+    "entropy_coef_source": "contract"
+  },
+  "initial_learning_clocks": {
+    "stage_actor_update": 128,
+    "global_actor_update": 128,
+    "successful_updates_total": 128,
+    "learning_lineage_updates": 128,
+    "actor_updates_consumed": 128,
+    "training_transitions": 6291456,
+    "critic_warmup_remaining": 0
+  },
+  "initial_learned_std_policy_order": [
+    0.048579081892967224,
+    0.05411790683865547,
+    0.04775159806013107,
+    0.04819779098033905,
+    0.4857769310474396,
+    0.45674437284469604
+  ],
+  "optimizer_parameter_states": 17,
+  "initial_adam_steps": [
+    2560
+  ],
+  "curriculum_resume_probe": {
+    "enabled": true,
+    "settings": {
+      "schema": "locomotion-difficulty-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 2.0,
+          "yaw_max_rad_s": 6.283185307179586,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 3.0,
+          "yaw_max_rad_s": 10.210176124166829,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 4.0,
+          "yaw_max_rad_s": 14.137166941154069,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 5.0,
+          "yaw_max_rad_s": 18.84955592153876,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "actor_update": 128,
+    "envelope": {
+      "grade": 2.066666666666667,
+      "vx_max_m_s": 3.066666666666667,
+      "yaw_max_rad_s": 10.471975511965978,
+      "motion_height_range_m": [
+        0.24933333333333332,
+        0.38133333333333336
+      ]
+    },
+    "sampled_planar_abs_max": [
+      3.066666603088379,
+      10.471976280212402
+    ],
+    "sampled_motion_height_range_m": [
+      0.24933333694934845,
+      0.3813333213329315
+    ],
+    "sample_check": "passed"
+  },
+  "observed_progress": {
+    "updated_at": "2026-10-17T20:24:38.582374+00:00",
+    "pid": 631506,
+    "successful_updates": 13,
+    "parent_updates": 128,
+    "attempted_updates": 13,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 13,
+    "stage_actor_update": 141,
+    "global_actor_update": 141,
+    "global_budget_actor_updates": 141,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 6930432,
+    "prior_local_experiment_consumption": 1088,
+    "total_local_consumed_updates": 1229,
+    "recovery_rollout": {
+      "valid_transitions": 46642,
+      "script_or_blend_transitions": 2510,
+      "valid_fraction": 0.9489339192708334,
+      "minimum_mini_batch_population": 11660
+    },
+    "policy_learning_transitions_in_block": 609775,
+    "script_or_blend_transitions_in_block": 29201
+  },
+  "prior_consumption": 1088,
+  "parent_v4_updates": 128,
+  "additional_updates": 384,
+  "target_v4_updates": 512,
+  "target_total_consumption": 1600,
+  "total_budget_ceiling": 20000,
+  "remaining_after_target": 18400,
+  "full_training_admitted": false,
+  "validation": {
+    "pilot007_exact_resume_static_preflight": "passed",
+    "code_changes_since_137_tests": "none; documentation and result receipts only"
+  },
+  "environment_restore_scope": "actor/critic/Adam/RNG/curriculum clock restored before creating new episodes; not a mid-rollout simulator state replay"
+}

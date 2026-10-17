@@ -215,3 +215,11 @@ pilot006 于 20:18:02 UTC 正常完成且进程退出；全实验消费 1216，�
 不改 reward、Gaussian 采样、时序、课程或机械阈值，不重新初始化学习过的 std。
 预期全实验消费 1600，剩余 18400。完成后 eval007 比较原始初始、v3-512
 与 v4-512；若仍秒倒，必须保留负结果并继续诊断，不能直接扩大为长训。
+
+该受限续训 pilot007 已于 20:23 UTC 从已提交冻结 `2950f60` 启动，tmux
+`v6-local-pilot007`。原生 actor/critic/Adam 和 CPU/CUDA/环境 RNG 恢复检查
+全部通过，独立初始 checkpoint 的 actor/critic/Adam 与父模型逐值相同；
+学习过的分轴 std 保留，17 组 Adam 从 2560 步继续，无新增 critic 预热。
+课程时钟从 128 连续接上，实际命令包络采样检查通过。RNG 恢复后创建新
+episode，不冒称模拟器中途轨迹重放。512 环境续训静态前置通过；源码较
+137 项测试版本仅增加文档和回执。身份见 `reports/local_training_20261017/pilot007_launch.json`。
