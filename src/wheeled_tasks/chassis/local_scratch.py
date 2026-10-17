@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 
 
-PLAN_FILE = "contracts/v6_local_scratch_200hz_v2.json"
+PLAN_FILE = "contracts/v6_local_scratch_200hz_v3.json"
+LOW_NOISE_PLAN_FILE = "contracts/v6_local_scratch_200hz_v2.json"
 POLICY200_PLAN_FILE = "contracts/v6_local_scratch_200hz_v1.json"
 LEGACY_PLAN_FILE = "contracts/v6_local_scratch_v1.json"
 SCHEMA = "v6-local-scratch-worker-v1"
@@ -22,7 +23,7 @@ def digest(path):
 
 def read_plan(root, plan_file=PLAN_FILE):
     root = Path(root)
-    if plan_file not in (PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
+    if plan_file not in (PLAN_FILE, LOW_NOISE_PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
         raise ValueError("Unsupported local scratch plan file")
     plan = json.loads((root / plan_file).read_text())
     if plan.get("schema") != "v6-local-scratch-plan-v1":
@@ -82,9 +83,10 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
             action_difference_reference_dt=plan["action_difference_reference_dt"])
         timing_changes = ("physics_dt", "policy_dt", "control_math_source", "control_math_sha256",
             "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt")
-    if "initial_noise_std" in plan:
-        worker["initial_noise_std"] = plan["initial_noise_std"]
-        timing_changes += ("initial_noise_std",)
+    for field in ("initial_noise_std", "entropy_coef"):
+        if field in plan:
+            worker[field] = plan[field]
+            timing_changes += (field,)
     worker.update(target_num_envs=num_envs,
         ppo_minibatch_samples=num_envs * worker["num_steps_per_env"] // worker["num_mini_batches"],
         checkpoint_first_update=plan["checkpoint_first_update"])
