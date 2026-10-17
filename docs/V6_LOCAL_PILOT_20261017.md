@@ -57,3 +57,13 @@ v2 单独从相同种子重新初始化，将 Gaussian 初始 std 从 1.0 改为
 128 更新的对照。该修改是待验证的探索幅度假设；不宣称已定位唯一根因。
 保持原始 reward、5 ms 时序、折扣、GAE、课程、闭链和力矩门。v1 的 64 更新
 不退款，v2 剩余上限 19936；两条学习谱系分开记录，不把重置称为恢复。
+
+只读检查当前阶段（不启动 TensorBoard 服务）：
+
+```bash
+python scripts/inspect_local_chassis.py --run-dir runs/my_pilot
+```
+
+该命令读取现有 event，回合长度同时换算为秒；有限性检查限定为每个选定 tag
+最多 200 个保留样本。PPO 梯度裁剪已核对本机 5.5.1 源码：actor 与 critic
+分别裁剪，不能归因为 critic 梯度占用了 actor 的裁剪额度。
