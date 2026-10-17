@@ -1,0 +1,212 @@
+{
+  "schema": "v6-local-pilot-launch-v1",
+  "recorded_at": "2026-10-17T22:54:44.846538+00:00",
+  "status": "native_same_v5_full_resume_verified_running",
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010",
+  "tmux_session": "v6-local-pilot010",
+  "pid": 735914,
+  "process_start_ticks": 5484155,
+  "command_line": "/home/noir/miniconda3/envs/isaacsim6/bin/python /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source/scripts/train_chassis.py --contract /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source/runs/local_scratch_configs/20261017T223256Z-c355dd49/worker.json --stage speed --num-envs 512 --updates 512 --seed 290927 --device cuda:0 --research --run-dir /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010 --max-runtime-seconds 21600.0 --resume /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot009/model_final.pt ",
+  "source": {
+    "commit": "b56d1237d8b837aeb5c0b8172c364c899ad1acba",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source.tar.gz",
+    "source_archive_sha256": "85bfc7baddee2112738de211257a5529e6e354ff4570c736da356c3dd76e815c",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source"
+  },
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot009/model_final.pt",
+  "parent_checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+  "contract_sha256": "65abce0937c0e7222935674ae89642f8489f19622f873b7b65617116b33d5a15",
+  "contract": {
+    "schema": "v6-local-scratch-worker-v1",
+    "plan_file": "contracts/v6_local_scratch_200hz_v5.json",
+    "plan_sha256": "877d2d6d6c3a5a3b945a3d38b28f53d323069045006ebaed7f8fba2e7bfc5bc9",
+    "initialization": "full_state_continuation_from_v4_1024",
+    "num_envs": 512,
+    "seed": 290927
+  },
+  "native_resume_verification": {
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "bef2d5eef9dff795277ab49379f274a42900380f75d61981666937d51225f2c2",
+    "parent_updates": 1152,
+    "restored_checkpoint_updates": 1152,
+    "learning_lineage_updates": 1152,
+    "requested_learning_rate_scale": null,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 56623104,
+    "torch_rng_restored": true,
+    "environment_rng_restored": true,
+    "cuda_rng_restored": true,
+    "environment_state": "new_episodes_after_rng_restore",
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": false,
+    "parent_entropy_coef": 0.0,
+    "effective_entropy_coef": 0.0,
+    "entropy_coef_source": "contract"
+  },
+  "independent_initial_state_exact": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "independent_initial_state_sha256": "53bb6ffc2e2e6f2d0e71b08332b183fda6a1bbe50e3773ec42f0565878d4b73f",
+  "initial_clocks": {
+    "successful_updates_total": 1152,
+    "learning_lineage_updates": 1152,
+    "stage_actor_update": 1152,
+    "global_actor_update": 1152,
+    "actor_updates_consumed": 1152,
+    "training_transitions": 56623104,
+    "critic_warmup_remaining": 0
+  },
+  "initial_adam_states": 17,
+  "initial_adam_steps": [
+    23040.0
+  ],
+  "learned_std_preserved": [
+    0.030650189146399498,
+    0.02559470199048519,
+    0.017024556174874306,
+    0.013385161757469177,
+    0.1472283899784088,
+    0.13882280886173248
+  ],
+  "initial_rng_note": "Native CPU/CUDA/environment RNG restored before new episodes; no mid-rollout simulator trajectory replay claimed.",
+  "locomotion_difficulty_resume_probe": {
+    "enabled": true,
+    "settings": {
+      "schema": "locomotion-difficulty-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 2.0,
+          "yaw_max_rad_s": 6.283185307179586,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 3.0,
+          "yaw_max_rad_s": 10.210176124166829,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 4.0,
+          "yaw_max_rad_s": 14.137166941154069,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 5.0,
+          "yaw_max_rad_s": 18.84955592153876,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "actor_update": 1152,
+    "envelope": {
+      "grade": 4.0,
+      "vx_max_m_s": 5.0,
+      "yaw_max_rad_s": 18.84955592153876,
+      "motion_height_range_m": [
+        0.23,
+        0.43
+      ]
+    },
+    "sampled_planar_abs_max": [
+      5.0,
+      18.84955596923828
+    ],
+    "sampled_motion_height_range_m": [
+      0.23000000417232513,
+      0.4300000071525574
+    ],
+    "sample_check": "passed"
+  },
+  "source_file_hashes_verified": 70,
+  "original_event_axes_tags": [
+    "Policy/std/left_leg1",
+    "Policy/std/left_leg2",
+    "Policy/std/right_leg1",
+    "Policy/std/right_leg2",
+    "Policy/std/left_wheel",
+    "Policy/std/right_wheel"
+  ],
+  "original_event_conditioning_tags": [
+    "/nonstandard_start/conditioning_fraction",
+    "/nonstandard_start/conditioned_interval_fraction",
+    "/nonstandard_start/effort_gain_next_frame_mean",
+    "/nonstandard_start/ramp_seconds"
+  ],
+  "all_current_event_scalars_finite": true,
+  "checkpoint_schedule": {
+    "interval": 500,
+    "parent": 1152,
+    "next_periodic_lineage": 1500,
+    "next_periodic_additional_updates": 348,
+    "final": 1664,
+    "first_ppo_deep_tensor_verification": "pending original periodic seal; no forced live snapshot"
+  },
+  "observed_progress": {
+    "updated_at": "2026-10-17T22:54:41.786007+00:00",
+    "pid": 735914,
+    "successful_updates": 13,
+    "parent_updates": 1152,
+    "attempted_updates": 13,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 13,
+    "stage_actor_update": 1165,
+    "global_actor_update": 1165,
+    "global_budget_actor_updates": 1165,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 57262080,
+    "prior_local_experiment_consumption": 1088,
+    "total_local_consumed_updates": 2253,
+    "recovery_rollout": {
+      "valid_transitions": 49152,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 12288
+    },
+    "policy_learning_transitions_in_block": 637076,
+    "script_or_blend_transitions_in_block": 1900
+  },
+  "budget": {
+    "prior_failed": 1088,
+    "parent_lineage": 1152,
+    "additional_requested": 512,
+    "target_lineage": 1664,
+    "total_ceiling": 20000,
+    "lineage_ceiling": 18912,
+    "target_total": 2752,
+    "remaining_after_target": 17248
+  },
+  "full_training_admitted": false
+}
