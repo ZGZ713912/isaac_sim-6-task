@@ -137,7 +137,11 @@ def manifest_sources(config):
     start, end = assignments[0], assignments[-1]
     namespace = dict(c=config, manifest=dict(model_kind="test"), ROOT=ROOT, json=json,
         args=SimpleNamespace(transfer=False, resume_physics_change=False,
-                             resume_response_change=False, resume_task_change=False))
+                             resume_response_change=False, resume_task_change=False,
+                             publish_state=False))
+    helper = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                  and node.name == "scut_curriculum_source_files")
+    exec(compile(ast.Module(body=[helper], type_ignores=[]), str(ENTRY), "exec"), namespace)
     block = ast.Module(body=main.body[start:end + 1], type_ignores=[])
     exec(compile(block, str(ENTRY), "exec"), namespace)
     return namespace["source_files"]
