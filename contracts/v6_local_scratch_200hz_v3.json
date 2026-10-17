@@ -1,0 +1,52 @@
+{
+  "schema": "v6-local-scratch-plan-v1",
+  "source_worker_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+  "source_worker_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+  "source_design_file": "contracts/v6_task_campaign_speed_expectations_v18.json",
+  "source_design_sha256": "07040ed673eab2b56594206bfc123b1aef240dd153805e7b4621dc7ec52bf2b7",
+  "reward_reference_file": "contracts/v6_task_campaign_speed_worker_v27.json",
+  "reward_reference_sha256": "6591674143f2884ebe91c52aa4d9cdf1ac11ab4e6e8d423485567496d7f4f73f",
+  "initialization": "random_actor_critic_fresh_optimizer",
+  "scope": "local_flat_locomotion_and_height_from_scratch",
+  "stage": "speed",
+  "seed": 290927,
+  "default_num_envs": 512,
+  "allowed_num_envs": [
+    256,
+    512,
+    1024
+  ],
+  "update_ceiling": 19424,
+  "checkpoint_first_update": 1,
+  "curriculum_origins": {
+    "nonstandard_start": 0,
+    "locomotion_difficulty": 0,
+    "ordinary_posture_curriculum": 0
+  },
+  "training_release": false,
+  "hardware_deployment_ready": false,
+  "control_file": "contracts/v6_wheel_response_control_policy200hz_v1.json",
+  "control_sha256": "270853429fc5036da7f68275e44d9a6cced7ea9d7baa710546185b04e0d285ef",
+  "timing": {
+    "physics_dt": 0.005,
+    "policy_dt": 0.005,
+    "pc_control_dt": 0.005,
+    "decimation": 1
+  },
+  "ppo_timing": {
+    "reference_policy_dt": 0.02,
+    "reference_num_steps_per_env": 24,
+    "reference_gamma": 0.99,
+    "reference_lam": 0.95,
+    "num_steps_per_env": 96,
+    "gamma": 0.9974905699336811,
+    "lam": 0.9872585449014338
+  },
+  "action_difference_reference_dt": 0.02,
+  "initial_noise_std": 0.2,
+  "prior_experiment_consumption": 576,
+  "prior_experiment_receipt_file": "reports/local_training_20261017/pilot003.json",
+  "prior_experiment_receipt_sha256": "dfa4c28ab20a5c285d590c58a5a77bd35d847728c9707861f5c547c5933eac28",
+  "initial_exploration_basis": "Controlled fresh-start comparison against v2 pilot002 at 128 updates: change only PPO entropy_coef from native default 0.005 to 0.0. Keep Gaussian sampling, trainable std initialized to 0.2, identical seed, actor/critic initialization, environment reward, timing and physical safeguards. All 576 prior local updates remain charged.",
+  "entropy_coef": 0.0
+}

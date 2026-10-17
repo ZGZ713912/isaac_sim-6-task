@@ -41,7 +41,7 @@ def test_latest_reward_and_native_mechanics_are_retained(bundle):
         "target_num_envs", "ppo_minibatch_samples", "checkpoint_first_update",
         "budget_spec_file", "budget_spec_sha256", "nonstandard_start", "locomotion_difficulty",
         "ordinary_posture_curriculum", "policy_dt", "control_math_source", "control_math_sha256",
-        "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt", "initial_noise_std"}
+        "num_steps_per_env", "gamma", "lam", "action_difference_reference_dt", "initial_noise_std", "entropy_coef"}
     assert {k: v for k, v in bundle.items() if k not in changed} == {
         k: v for k, v in latest.items() if k not in changed}
     for field in ("nonstandard_start", "locomotion_difficulty", "ordinary_posture_curriculum"):
@@ -69,11 +69,28 @@ def test_independent_design_and_all_scene_groups(population):
         rows = choose_scene_groups(config["scene_groups"], population)
         assert len(rows) == population
         assert len({name for name, terrain in rows}) == 135
-        assert receipt["budget"]["inherited_consumption"] == 64
-        assert receipt["budget"]["transition_ceiling"] == 19936 * population * 96
+        assert receipt["budget"]["inherited_consumption"] == 576
+        assert receipt["budget"]["transition_ceiling"] == 19424 * population * 96
         assert receipt["runtime_expected"]["decimation"] == 1
         assert receipt["runtime_expected"]["policy_dt"] == .005
         assert config["initial_noise_std"] == .2
+        assert config["entropy_coef"] == 0.
+
+
+def test_entropy_comparison_preserves_the_previous_plant_reward_and_sampling_std():
+    directory = ROOT / "runs/entropy-comparison-fixture"
+    _, old = local_scratch.build_bundle(ROOT, directory, 512,
+        plan_file=local_scratch.LOW_NOISE_PLAN_FILE)
+    _, new = local_scratch.build_bundle(ROOT, directory, 512)
+    changed = {key for key in old["worker"].keys() | new["worker"].keys()
+        if old["worker"].get(key) != new["worker"].get(key)}
+    assert changed == {"entropy_coef", "budget_spec_sha256", "design_preflight", "local_scratch"}
+    assert "entropy_coef" not in old["worker"]
+    assert old["worker"]["initial_noise_std"] == new["worker"]["initial_noise_std"] == .2
+    assert old["budget"]["inherited_consumption"] == 64
+    assert new["budget"]["inherited_consumption"] == 576
+    for bundle in (old, new):
+        assert bundle["budget"]["inherited_consumption"] + bundle["budget"]["update_ceiling"] == 20000
 
 
 @pytest.mark.parametrize("field,value", [
@@ -93,6 +110,7 @@ def test_scratch_cannot_import_a_parent_or_foreign_budget(bundle, field, value):
     ("policy_dt", .02), ("num_steps_per_env", 24), ("gamma", .99), ("lam", .95),
     ("action_difference_reference_dt", .005),
     ("termination_event_cost", 1.), ("target_num_envs", 64),
+    ("entropy_coef", .005),
     ("dense_tracking", {"enabled": False}), ("task_campaign", {"domain": "speed"})])
 def test_contract_changes_cannot_bypass_the_original_guards(bundle, field, value):
     bad = deepcopy(bundle)
