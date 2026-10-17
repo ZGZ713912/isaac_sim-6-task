@@ -288,3 +288,5 @@ v4-512 和新 v4-1024 复测并保存 traces，同时比较非重叠训练窗口
 队列的机械失败率。仍失败就继续根据证据诊断，不能只看 reward/存活。
 
 下一段 512 环境完整续训的原生静态前置通过，actor/critic/Adam/RNG 恢复仍须实际启动后读回。wrapper 的首次 preflight 因 worktree 内已有原生成配置目录而在 trainer 启动前拒绝；保留失败日志，随后直接用该已认证父合同运行原生 trainer preflight 通过，0PPO，没有覆盖已有目录。
+
+pilot008 已于 21:18 UTC 从已提交冻结 `ce74f5b` 启动，tmux `v6-local-pilot008`。实际 actor/critic/Adam 与父 512 模型逐值一致，17 组 Adam 从 10240 步继续，CPU/CUDA/环境 RNG 原生恢复全部通过，课程时钟从 512 继续且实际命令包络采样通过，无新 critic 预热。原 event 的六个分轴 std 和当前标量有限；首个原有周期 checkpoint 尚未到达，不中断或强制制造快照。完整身份见 pilot008_launch.json。

@@ -1,0 +1,189 @@
+{
+  "schema": "v6-local-pilot-launch-verification-v1",
+  "recorded_at": "2026-10-17T21:19:58.748002+00:00",
+  "status": "v4_bounded_tracking_continuation_running_not_behavior_accepted",
+  "source": {
+    "commit": "ce74f5b535bd5d502d6cc3da43ac3cbb8ea9b8c0",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T211836Z-a1d445cd/source.tar.gz",
+    "source_archive_sha256": "125a43fbc6f7b26e94c94f42b0dd14a12056b35f4e29835a59ed3c93d06a8341",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T211836Z-a1d445cd/source"
+  },
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008",
+  "tmux_session": "v6-local-pilot008",
+  "pid": 669650,
+  "process_start_ticks": 4916194,
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007/model_final.pt",
+  "parent_checkpoint_sha256": "88df4727e827818fe55f7f6a37ddc79c254fcd3176d68752e679393bbbee95e8",
+  "initial_checkpoint_sha256": "5f6083f57677974412aeb298c06be70e21a0271864b797bfae6de4cd28e48576",
+  "independent_initial_state_exact": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "native_resume_verification": {
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "88df4727e827818fe55f7f6a37ddc79c254fcd3176d68752e679393bbbee95e8",
+    "parent_updates": 512,
+    "restored_checkpoint_updates": 512,
+    "learning_lineage_updates": 512,
+    "requested_learning_rate_scale": null,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 25165824,
+    "torch_rng_restored": true,
+    "environment_rng_restored": true,
+    "cuda_rng_restored": true,
+    "environment_state": "new_episodes_after_rng_restore",
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": false,
+    "parent_entropy_coef": 0.0,
+    "effective_entropy_coef": 0.0,
+    "entropy_coef_source": "contract"
+  },
+  "initial_learning_clocks": {
+    "stage_actor_update": 512,
+    "global_actor_update": 512,
+    "successful_updates_total": 512,
+    "learning_lineage_updates": 512,
+    "actor_updates_consumed": 512,
+    "training_transitions": 25165824,
+    "critic_warmup_remaining": 0
+  },
+  "initial_learned_std_policy_order": [
+    0.06797933578491211,
+    0.06489472091197968,
+    0.059853196144104004,
+    0.06685137748718262,
+    0.3749202489852905,
+    0.34906134009361267
+  ],
+  "optimizer_parameter_states": 17,
+  "initial_adam_steps": [
+    10240
+  ],
+  "curriculum_resume_probe": {
+    "enabled": true,
+    "settings": {
+      "schema": "locomotion-difficulty-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 2.0,
+          "yaw_max_rad_s": 6.283185307179586,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 3.0,
+          "yaw_max_rad_s": 10.210176124166829,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 4.0,
+          "yaw_max_rad_s": 14.137166941154069,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 5.0,
+          "yaw_max_rad_s": 18.84955592153876,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "actor_update": 512,
+    "envelope": {
+      "grade": 4.0,
+      "vx_max_m_s": 5.0,
+      "yaw_max_rad_s": 18.84955592153876,
+      "motion_height_range_m": [
+        0.23,
+        0.43
+      ]
+    },
+    "sampled_planar_abs_max": [
+      5.0,
+      18.84955596923828
+    ],
+    "sampled_motion_height_range_m": [
+      0.23000000417232513,
+      0.4300000071525574
+    ],
+    "sample_check": "passed"
+  },
+  "observed_progress": {
+    "updated_at": "2026-10-17T21:19:58.178547+00:00",
+    "pid": 669650,
+    "successful_updates": 13,
+    "parent_updates": 512,
+    "attempted_updates": 13,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 13,
+    "stage_actor_update": 525,
+    "global_actor_update": 525,
+    "global_budget_actor_updates": 525,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 25804800,
+    "prior_local_experiment_consumption": 1088,
+    "total_local_consumed_updates": 1613,
+    "recovery_rollout": {
+      "valid_transitions": 49072,
+      "script_or_blend_transitions": 80,
+      "valid_fraction": 0.9983723958333334,
+      "minimum_mini_batch_population": 12268
+    },
+    "policy_learning_transitions_in_block": 633776,
+    "script_or_blend_transitions_in_block": 5200
+  },
+  "prior_consumption": 1088,
+  "parent_v4_updates": 512,
+  "additional_updates": 512,
+  "target_v4_updates": 1024,
+  "target_total_consumption": 2112,
+  "total_budget_ceiling": 20000,
+  "remaining_after_target": 17888,
+  "full_training_admitted": false,
+  "validation": {
+    "pilot008_exact_resume_static_preflight": "passed",
+    "training_code_changes_since137_tests": "none; result receipts and 0-PPO diagnostic utility only",
+    "native_axis_std_tags": [
+      "Policy/std/left_leg1",
+      "Policy/std/left_leg2",
+      "Policy/std/right_leg1",
+      "Policy/std/right_leg2",
+      "Policy/std/left_wheel",
+      "Policy/std/right_wheel"
+    ],
+    "observed_event_values_all_finite": true,
+    "post_update_checkpoint_state_check": "pending first original periodic seal; do not interrupt to manufacture checkpoint"
+  },
+  "environment_restore_scope": "actor/critic/Adam/RNG/curriculum clock restored before creating new episodes; not a mid-rollout simulator state replay"
+}
