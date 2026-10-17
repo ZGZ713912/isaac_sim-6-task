@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-17T22:34:44.619563+00:00",
-  "status": "v5_birth_v2_exact_resume_128_running",
+  "recorded_at": "2026-10-17T22:52:42.167777+00:00",
+  "status": "v5_1152_evaluated_tracking_failed_bounded_512_continuation_planned",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -21,38 +21,38 @@
   "pid": 722051,
   "process_start_ticks": 5362138,
   "observed_progress": {
-    "updated_at": "2026-10-17T22:33:56.420937+00:00",
+    "updated_at": "2026-10-17T22:43:29.925195+00:00",
     "pid": 722051,
-    "successful_updates": 7,
+    "successful_updates": 128,
     "parent_updates": 1024,
-    "attempted_updates": 7,
+    "attempted_updates": 128,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 7,
-    "stage_actor_update": 1031,
-    "global_actor_update": 1031,
-    "global_budget_actor_updates": 1031,
+    "actor_updates_in_block": 128,
+    "stage_actor_update": 1152,
+    "global_actor_update": 1152,
+    "global_budget_actor_updates": 1152,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 50675712,
+    "training_transitions": 56623104,
     "prior_local_experiment_consumption": 1088,
-    "total_local_consumed_updates": 2119,
+    "total_local_consumed_updates": 2240,
     "recovery_rollout": {
-      "valid_transitions": 49152,
-      "script_or_blend_transitions": 0,
-      "valid_fraction": 1.0,
-      "minimum_mini_batch_population": 12288
+      "valid_transitions": 49039,
+      "script_or_blend_transitions": 113,
+      "valid_fraction": 0.9977010091145834,
+      "minimum_mini_batch_population": 12259
     },
-    "policy_learning_transitions_in_block": 342304,
-    "script_or_blend_transitions_in_block": 1760
+    "policy_learning_transitions_in_block": 6281336,
+    "script_or_blend_transitions_in_block": 10120
   },
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 17881,
+  "full_training_remaining_if_admitted": 17760,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -72,16 +72,29 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": false,
-  "latest_completed_report": "reports/local_training_20261017/pilot008.json",
+  "training_process_exited": true,
+  "latest_completed_report": "reports/local_training_20261017/pilot009.json",
   "latest_evaluation_status": "evaluated",
   "latest_evaluation_passed_cases": 0,
   "next_phase": {
-    "action": "after_exit_eval_initial_v4_1024_v5_1152_same_8_cases_traces",
-    "target_lineage": 1152,
-    "target_total_consumption": 2240,
-    "remaining_after_target": 17760,
-    "full_training_admitted": false
+    "action": "bounded_same_v5_full_state_resume_then_eval010",
+    "additional_updates": 512,
+    "parent_lineage": 1152,
+    "target_lineage": 1664,
+    "prior_total_consumption": 2240,
+    "target_total_consumption": 2752,
+    "remaining_after_target": 17248,
+    "hypothesis": "Test whether negative yaw/translation bias continues correcting with 512 more updates after the birth repair; no reward, physics, schedule, std or thresholds changed.",
+    "admission": false,
+    "after_exit": "Repeat original eight cases on initial, v5-1152 and v5-1664 with traces; compare matched original-event costs, command response and normalized mechanical rates. If progress stalls, diagnose control/command/reward contribution before extending again.",
+    "checkpoint_schedule": "Normal interval 500 remains; next periodic learning-state seal at lineage 1500 (348 additional updates), final 1664. No new first-update seal is requested.",
+    "static_preflight": {
+      "status": "static_passed",
+      "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot010_preflight.log",
+      "sha256": "ebcb09ae1578f14f1873a37b83b59ede688fbc3ca0776a6885752da4b46519e4",
+      "source_commit": "6e47865c5963d882891f1d5ff0fdd57ecef26a82",
+      "ppo_updates": 0
+    }
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008",
   "validation": {
@@ -106,22 +119,23 @@
     "birth_diagnosis002_exact_pairs_and_independent_5s_confirmation": "passed_candidate_only_not_production",
     "birth_v2_cpu_distinct_188": "passed_including_two_tmp_capture_quota_retries",
     "birth_v2_native_2s_and_5s": "bitwise_exact_to_diagnostic_candidates",
-    "pilot009_native_exact_resume_and_first_ppo": "passed"
+    "pilot009_native_exact_resume_and_first_ppo": "passed",
+    "pilot009_1152_final_state": "finite_actor_critic_17adam_and_continuous_clocks",
+    "eval009_old_candidates_exact": "all_original_per_case_payloads_equal_eval008",
+    "pilot010_same_v5_full_resume_preflight": "static_passed"
   },
   "actual_entropy_coef": 0.0,
   "previous_source_commit": "ce74f5b535bd5d502d6cc3da43ac3cbb8ea9b8c0",
   "remaining_after_target": 17760,
   "current_phase": {
-    "action": "bounded_128_training_then_matched_eval009",
-    "learner_running": true,
-    "contract_revision": "named_v4_to_v5_birth_v2",
-    "all_prior_consumption_preserved": 2112,
-    "native_first_ppo_verified": true,
-    "engineering_receipt": "reports/local_training_20261017/birth_v2_implementation001.json",
+    "action": "pilot009_completed_and_eval009_failed_tracking",
+    "learner_running": false,
+    "contract_revision": "local_v5_birth_v2",
+    "all_prior_consumption_preserved": 2240,
     "full_training_admitted": false
   },
-  "total_consumption": 2119,
-  "remaining_total_budget": 17881,
+  "total_consumption": 2240,
+  "remaining_total_budget": 17760,
   "previous_phase_snapshot": {
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
     "source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
@@ -194,12 +208,31 @@
     "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008/completion.json"
   },
   "checkpoint_schedule_verification": "reports/local_training_20261017/pilot008_checkpoint_schedule001.json",
-  "no_live_learner": false,
+  "no_live_learner": true,
   "completed_learner_identity": {
-    "pid": 669650,
-    "start_ticks": 4916194,
-    "source_commit": "ce74f5b535bd5d502d6cc3da43ac3cbb8ea9b8c0"
+    "pid": 722051,
+    "start_ticks": 5362138,
+    "source_commit": "6e47865c5963d882891f1d5ff0fdd57ecef26a82"
   },
-  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval008",
-  "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval009"
+  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval009",
+  "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval010",
+  "latest_training_completion": {
+    "status": "completed",
+    "started_at": "2026-10-17T22:33:06.302990+00:00",
+    "finished_at": "2026-10-17T22:43:30.613518+00:00",
+    "parent_updates": 1024,
+    "successful_updates": 128,
+    "attempted_updates": 128,
+    "final_learning_lineage_updates": 1152,
+    "actor_updates_consumed": 1152,
+    "discarded_updates_charged": 0,
+    "learner_exited": true,
+    "native_pid": 722051,
+    "native_start_ticks": 5362138,
+    "wrapper_exit": {
+      "started_at": "2026-10-17T22:32:54.555479+00:00",
+      "finished_at": "2026-10-17T22:43:31.129922+00:00",
+      "exit_code": 0
+    }
+  }
 }
