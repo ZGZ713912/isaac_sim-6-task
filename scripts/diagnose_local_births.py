@@ -19,9 +19,18 @@ def main():
     parser.add_argument("--ticks", type=int, default=250)
     parser.add_argument("--release-ramp-seconds", type=float, choices=(0., .1), default=0.,
                         help="Diagnostic-only post-hold effort ramp; production contract stays unchanged")
+    parser.add_argument("--passive-hold-seconds", type=float, choices=(0., .2), default=.2,
+                        help="Diagnostic-only passive interval; zero tests immediate ramped takeover")
+    parser.add_argument("--noise-seed", type=int, default=290933)
+    parser.add_argument("--birth-seed", type=int,
+                        help="Independent fresh batch instead of the checkpoint environment RNG")
     args = parser.parse_args()
     if not 1 <= args.ticks <= 1000:
         parser.error("first-birth probe is bounded to 1..1000 policy ticks")
+    if args.passive_hold_seconds != .2 and args.release_ramp_seconds != .1:
+        parser.error("The no-passive-hold diagnostic requires the bounded 100 ms effort ramp")
+    if any(seed is not None and not 0 <= seed < 2**63 for seed in (args.noise_seed, args.birth_seed)):
+        parser.error("diagnostic seeds must be nonnegative signed 64-bit integers")
     from train_chassis import digest, preflight
     from wheeled_tasks.chassis.control_contract import load_chassis_control
     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
@@ -35,10 +44,15 @@ def main():
         acceptance_evaluation=False, checkpoint=str(args.checkpoint.resolve()),
         checkpoint_sha256=digest(args.checkpoint), contract_sha256=digest(contract_path),
         script_sha256=digest(Path(__file__)), num_envs=count, ticks=args.ticks,
-        noise_seed=290933, seed=290927, release_ramp_seconds=args.release_ramp_seconds,
+        noise_seed=args.noise_seed, seed=290927, release_ramp_seconds=args.release_ramp_seconds,
+        birth_seed=args.birth_seed,
+        birth_rng_mode="checkpoint_state" if args.birth_seed is None else "explicit_seed_fresh_batch",
+        passive_hold_seconds=args.passive_hold_seconds,
         recipe="release_ramp_100ms" if args.release_ramp_seconds else "native",
         scope="One fresh batch at checkpoint curriculum clock. First births only; later auto-resets excluded. Not a native rollout replay.",
         sampler="unchanged deterministic actor mean plus independent standard Gaussian times learned native std")
+    if args.passive_hold_seconds != .2:
+        report["recipe"] = "no_passive_hold_ramp_100ms"
     (args.output / "contract.json").write_bytes(contract_path.read_bytes())
     (args.output / "source.py").write_bytes(Path(__file__).read_bytes())
     launcher = env = None
@@ -69,12 +83,20 @@ def main():
         env.global_actor_update = checkpoint["infos"]["global_actor_update"]
         env.training_transitions = checkpoint["infos"]["training_transitions"]
         env.generator.set_state(checkpoint["infos"]["env_rng_state"])
+        if args.birth_seed is not None:
+            env.generator.manual_seed(args.birth_seed)
+        births = env.nonstandard_start
+        # Explicit runtime intervention after authenticating the original contract.
+        # It affects the next fresh reset only; no production validator is changed.
+        births.hold_steps = round(args.passive_hold_seconds / env.dt)
         env.reset(torch.arange(count, device="cuda:0"))
         observations = env.get_observations()
-        births = env.nonstandard_start
         profile = births.profile_ids.clone()
         selected = births.selected.clone()
         initial_input = observations["policy"].cpu().numpy().copy()
+        initial_position = env.robot.data.joint_pos.torch.cpu().numpy().copy()
+        initial_velocity = env.robot.data.joint_vel.torch.cpu().numpy().copy()
+        initial_body_pose = env.robot.data.body_link_pose_w.torch.cpu().numpy().copy()
         if args.release_ramp_seconds:
             original_apply = births.apply_torque
 
@@ -129,6 +151,8 @@ def main():
         report["optimizer_state_empty"] = not runner.alg.optimizer.state
         assert report["actor_unchanged"] and report["optimizer_state_empty"]
         np.savez_compressed(args.output / "births.npz", initial_policy_input=initial_input,
+            initial_full_joint_position=initial_position, initial_full_joint_velocity=initial_velocity,
+            initial_body_link_pose=initial_body_pose,
             initial_profile_id=profile.cpu().numpy(), selected=selected.cpu().numpy(),
             terminal_ticks=terminal_ticks.cpu().numpy(), max_gap_m=max_gap.cpu().numpy(),
             unfinished=alive.cpu().numpy(), first_birth_gap_m=np.asarray(gap_trace),

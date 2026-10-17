@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-17T21:34:51.526558+00:00",
-  "status": "v4_bounded_512_to1024_tracking_continuation_running_not_long_training",
+  "recorded_at": "2026-10-17T22:16:55.938937+00:00",
+  "status": "v4_1024_behavior_rejected_birth_candidate_confirmed_implementation_pending",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -11,49 +11,48 @@
   "active_plan": "contracts/v6_local_scratch_200hz_v4.json",
   "active_plan_update_ceiling": 18912,
   "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008",
-  "tmux_session": "v6-local-pilot008",
+  "tmux_session": null,
   "log_file": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot008.log",
   "source_commit": "ce74f5b535bd5d502d6cc3da43ac3cbb8ea9b8c0",
   "phase_parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007/model_final.pt",
   "additional_updates": 512,
   "target_local_updates": 1024,
   "target_total_consumption": 2112,
-  "pid": 669650,
-  "process_start_ticks": 4916194,
+  "pid": null,
+  "process_start_ticks": null,
   "observed_progress": {
-    "updated_at": "2026-10-17T21:34:50.079881+00:00",
+    "updated_at": "2026-10-17T22:00:06.776651+00:00",
     "pid": 669650,
-    "successful_updates": 199,
+    "successful_updates": 512,
     "parent_updates": 512,
-    "attempted_updates": 199,
+    "attempted_updates": 512,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 199,
-    "stage_actor_update": 711,
-    "global_actor_update": 711,
-    "global_budget_actor_updates": 711,
+    "actor_updates_in_block": 512,
+    "stage_actor_update": 1024,
+    "global_actor_update": 1024,
+    "global_budget_actor_updates": 1024,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 34947072,
+    "training_transitions": 50331648,
     "prior_local_experiment_consumption": 1088,
-    "total_local_consumed_updates": 1799,
+    "total_local_consumed_updates": 2112,
     "recovery_rollout": {
-      "valid_transitions": 49152,
-      "script_or_blend_transitions": 0,
-      "valid_fraction": 1.0,
-      "minimum_mini_batch_population": 12288
+      "valid_transitions": 48915,
+      "script_or_blend_transitions": 237,
+      "valid_fraction": 0.99517822265625,
+      "minimum_mini_batch_population": 12228
     },
-    "policy_learning_transitions_in_block": 9745508,
-    "script_or_blend_transitions_in_block": 35740
+    "policy_learning_transitions_in_block": 25071844,
+    "script_or_blend_transitions_in_block": 93980
   },
-  "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval008",
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 18201,
+  "full_training_remaining_if_admitted": 17888,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -73,17 +72,21 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": false,
-  "latest_completed_report": "reports/local_training_20261017/pilot007.json",
+  "training_process_exited": true,
+  "latest_completed_report": "reports/local_training_20261017/pilot008.json",
   "latest_evaluation_status": "evaluated",
-  "latest_evaluation_passed_cases": 1,
+  "latest_evaluation_passed_cases": 0,
   "next_phase": {
-    "action": "matched_fixed_suite_evaluation",
-    "output": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval008",
-    "checkpoints": [
-      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
-      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007/model_final.pt",
-      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008/model_final.pt"
+    "action": "exact_full_state_v4_1024_to_birth_v2_local_v5_then_bounded_128",
+    "proposed_learning_updates_target": 1152,
+    "proposed_consumption_target": 2240,
+    "remaining_after_proposed_target": 17760,
+    "requires": [
+      "explicit_local_revision_and_independent_design_authentication",
+      "targeted_cpu_tests",
+      "512_env_native_v2_matches_zero_ppo_candidate",
+      "committed_frozen_source",
+      "actual_actor_critic_adam_rng_clock_restore_readback"
     ],
     "full_training_admitted": false
   },
@@ -105,23 +108,25 @@
     "pilot008_exact_resume_static_preflight": "passed",
     "pilot008_preflight_log_sha256": "ac2dd3f2f9bb3ce7f38765b2e5c86853073d64da51a6f8aeb6cce0bf2bb9ce25",
     "pilot008_wrapper_preflight_attempt": "rejected before trainer: original config directory already present; direct native trainer preflight using the exact authenticated parent contract passed without mutations or PPO.",
-    "pilot008_native_full_resume": "passed"
+    "pilot008_native_full_resume": "passed",
+    "pilot008_1000_and_1024_state_seals": "finite_actor_critic_17adam_and_exact_clocks_verified",
+    "birth_diagnosis002_exact_pairs_and_independent_5s_confirmation": "passed_candidate_only_not_production"
   },
   "actual_entropy_coef": 0.0,
-  "expected_total_consumption_on_completion": 2112,
   "previous_source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
   "remaining_after_target": 17888,
   "current_phase": {
-    "action": "bounded_v4_full_state_tracking_continuation",
-    "parent_v4_updates": 512,
-    "additional_updates": 512,
-    "target_v4_updates": 1024,
-    "target_total_consumption": 2112,
-    "remaining_after_target": 17888,
+    "action": "implement_and_validate_named_local_birth_ramp_revision",
+    "learner_running": false,
+    "ppo_updates_after_pilot008": 0,
+    "diagnosis_receipt": "reports/local_training_20261017/birth_diagnosis002.json",
+    "plan": "docs/V6_LOCAL_BIRTH_RAMP_PLAN_20261017.md",
+    "all_consumption_preserved": 2112,
+    "production_contract_changed": false,
     "full_training_admitted": false
   },
-  "total_consumption": 1799,
-  "remaining_total_budget": 18201,
+  "total_consumption": 2112,
+  "remaining_total_budget": 17888,
   "previous_phase_snapshot": {
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
     "source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
@@ -130,7 +135,7 @@
     "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval007",
     "passed_cases": 1
   },
-  "latest_diagnosis": "reports/local_training_20261017/birth_diagnosis001.json",
+  "latest_diagnosis": "reports/local_training_20261017/birth_diagnosis002.json",
   "frozen_source_receipt": {
     "commit": "ce74f5b535bd5d502d6cc3da43ac3cbb8ea9b8c0",
     "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T211836Z-a1d445cd/source.tar.gz",
@@ -177,5 +182,22 @@
     "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007/completion.json"
   },
   "checkpoint_schedule_verification": "reports/local_training_20261017/pilot008_checkpoint_schedule001.json",
-  "next_periodic_checkpoint_learning_updates": 1000
+  "no_live_learner": true,
+  "completed_learner_identity": {
+    "pid": 669650,
+    "start_ticks": 4916194,
+    "source_commit": "ce74f5b535bd5d502d6cc3da43ac3cbb8ea9b8c0"
+  },
+  "training_completion": {
+    "status": "completed",
+    "started_at": "2026-10-17T21:18:45.800826+00:00",
+    "finished_at": "2026-10-17T22:00:07.417875+00:00",
+    "successful_updates": 512,
+    "parent_updates": 512,
+    "attempted_updates": 512,
+    "final_learning_lineage_updates": 1024,
+    "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008/completion.json"
+  },
+  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval008",
+  "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval009"
 }
