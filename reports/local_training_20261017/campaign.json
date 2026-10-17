@@ -1,6 +1,6 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-17T22:55:19.979669+00:00",
+  "recorded_at": "2026-10-17T23:29:11.814909+00:00",
   "status": "v5_same_contract_bounded_512_tracking_diagnostic_running",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
@@ -21,38 +21,38 @@
   "pid": 735914,
   "process_start_ticks": 5484155,
   "observed_progress": {
-    "updated_at": "2026-10-17T22:55:14.974627+00:00",
+    "updated_at": "2026-10-17T23:29:09.774654+00:00",
     "pid": 735914,
-    "successful_updates": 20,
+    "successful_updates": 442,
     "parent_updates": 1152,
-    "attempted_updates": 20,
+    "attempted_updates": 442,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 20,
-    "stage_actor_update": 1172,
-    "global_actor_update": 1172,
-    "global_budget_actor_updates": 1172,
+    "actor_updates_in_block": 442,
+    "stage_actor_update": 1594,
+    "global_actor_update": 1594,
+    "global_budget_actor_updates": 1594,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 57606144,
+    "training_transitions": 78348288,
     "prior_local_experiment_consumption": 1088,
-    "total_local_consumed_updates": 2260,
+    "total_local_consumed_updates": 2682,
     "recovery_rollout": {
-      "valid_transitions": 49084,
-      "script_or_blend_transitions": 68,
-      "valid_fraction": 0.9986165364583334,
-      "minimum_mini_batch_population": 12271
+      "valid_transitions": 49076,
+      "script_or_blend_transitions": 76,
+      "valid_fraction": 0.9984537760416666,
+      "minimum_mini_batch_population": 12269
     },
-    "policy_learning_transitions_in_block": 981000,
-    "script_or_blend_transitions_in_block": 2040
+    "policy_learning_transitions_in_block": 21689984,
+    "script_or_blend_transitions_in_block": 35200
   },
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 17740,
+  "full_training_remaining_if_admitted": 17318,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -110,7 +110,8 @@
     "pilot009_1152_final_state": "finite_actor_critic_17adam_and_continuous_clocks",
     "eval009_old_candidates_exact": "all_original_per_case_payloads_equal_eval008",
     "pilot010_same_v5_full_resume_preflight": "static_passed",
-    "pilot010_native_same_v5_full_resume": "actor_critic_17adam_rng_clocks_exact_initial_no_new_warmup"
+    "pilot010_native_same_v5_full_resume": "actor_critic_17adam_rng_clocks_exact_initial_no_new_warmup",
+    "pilot010_periodic_1500": "all_actor_critic_17adam_finite_and_changed_adam30000_clocks1500"
   },
   "actual_entropy_coef": 0.0,
   "previous_source_commit": "6e47865c5963d882891f1d5ff0fdd57ecef26a82",
@@ -128,8 +129,8 @@
     "native_resume_verified": true,
     "full_training_admitted": false
   },
-  "total_consumption": 2260,
-  "remaining_total_budget": 17740,
+  "total_consumption": 2682,
+  "remaining_total_budget": 17318,
   "previous_phase_snapshot": {
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
     "source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
@@ -229,6 +230,11 @@
     "next_periodic_lineage": 1500,
     "next_periodic_additional_updates": 348,
     "final": 1664,
-    "first_ppo_deep_tensor_verification": "pending original periodic seal; no forced live snapshot"
-  }
+    "first_ppo_deep_tensor_verification": "actual learning-state advancement verified at the original periodic 1500 seal",
+    "periodic_1500_verified": true,
+    "periodic_1500_sha256": "96b04f9864a380a6beb99d32bf3d2d2520a91c0b2aa578dfa429be1d37736cd1",
+    "next_final_lineage": 1664,
+    "expected_final_adam_step": 33280
+  },
+  "latest_learning_state_verification": "reports/local_training_20261017/pilot010_checkpoint1500.json"
 }

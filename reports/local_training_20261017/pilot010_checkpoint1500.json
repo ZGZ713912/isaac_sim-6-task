@@ -1,0 +1,152 @@
+{
+  "schema": "v6-local-learning-state-verification-v1",
+  "recorded_at": "2026-10-17T23:28:40.580203+00:00",
+  "status": "periodic_1500_verified_original_learner_still_running",
+  "source": {
+    "commit": "b56d1237d8b837aeb5c0b8172c364c899ad1acba",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source.tar.gz",
+    "source_archive_sha256": "85bfc7baddee2112738de211257a5529e6e354ff4570c736da356c3dd76e815c",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T225316Z-ea968e03/source"
+  },
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010",
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010/checkpoints/update_00001500/model.pt",
+  "checkpoint_sha256": "96b04f9864a380a6beb99d32bf3d2d2520a91c0b2aa578dfa429be1d37736cd1",
+  "seal_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010/checkpoints/update_00001500/model.checkpoint.json",
+  "seal_sha256": "0be53a9329d1b265723cea08b7385a8f4c8da307214ab45ae5a017910c33b8c7",
+  "seal": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "96b04f9864a380a6beb99d32bf3d2d2520a91c0b2aa578dfa429be1d37736cd1",
+    "contract_sha256": "65abce0937c0e7222935674ae89642f8489f19622f873b7b65617116b33d5a15",
+    "entropy_coef": 0.0,
+    "learning_updates": 1500,
+    "learning_lineage_updates": 1500,
+    "stage_actor_update": 1500,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 1500,
+    "actor_updates_consumed": 1500,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "initial_checkpoint_sha256": "53bb6ffc2e2e6f2d0e71b08332b183fda6a1bbe50e3773ec42f0565878d4b73f",
+  "finite": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "changed_tensor_counts": {
+    "actor_state_dict": 9,
+    "critic_state_dict": 8
+  },
+  "adam_states": 17,
+  "adam_steps": [
+    30000.0
+  ],
+  "changed_adam_moment_counts": {
+    "exp_avg": 17,
+    "exp_avg_sq": 17
+  },
+  "clocks": {
+    "successful_updates_total": 1500,
+    "learning_lineage_updates": 1500,
+    "stage_actor_update": 1500,
+    "global_actor_update": 1500,
+    "actor_updates_consumed": 1500,
+    "training_transitions": 73728000,
+    "critic_warmup_remaining": 0
+  },
+  "std_policy_order": [
+    0.019572610035538673,
+    0.023302236571907997,
+    0.01255725882947445,
+    0.011217109858989716,
+    0.10065462440252304,
+    0.09289641678333282
+  ],
+  "rng_state_present": {
+    "rng_state": true,
+    "env_rng_state": true,
+    "cuda_rng_states": true
+  },
+  "source_file_hashes_verified": 70,
+  "live_identity": {
+    "pid": 735914,
+    "process_start_ticks": 5484155
+  },
+  "observed_progress": {
+    "updated_at": "2026-10-17T23:28:30.509018+00:00",
+    "pid": 735914,
+    "successful_updates": 434,
+    "parent_updates": 1152,
+    "attempted_updates": 434,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 434,
+    "stage_actor_update": 1586,
+    "global_actor_update": 1586,
+    "global_budget_actor_updates": 1586,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 77955072,
+    "prior_local_experiment_consumption": 1088,
+    "total_local_consumed_updates": 2674,
+    "recovery_rollout": {
+      "valid_transitions": 49115,
+      "script_or_blend_transitions": 37,
+      "valid_fraction": 0.9992472330729166,
+      "minimum_mini_batch_population": 12278
+    },
+    "policy_learning_transitions_in_block": 21297008,
+    "script_or_blend_transitions_in_block": 34960
+  },
+  "scalar_finiteness": {
+    "tags": 8889,
+    "samples": 446641,
+    "nonfinite": []
+  },
+  "mechanical_window": {
+    "phase_update_boundaries": [
+      330,
+      430
+    ],
+    "lineage_update_boundaries": [
+      1482,
+      1582
+    ],
+    "ended_episodes": 1499,
+    "observed_env_seconds": 24576.0,
+    "termination_counts": {
+      "fall": 4,
+      "nonwheel_contact": 307,
+      "knee": 0,
+      "boundary": 0,
+      "takeoff_timeout": 0,
+      "closure_gap": 0,
+      "jump_request_timeout": 0,
+      "jump_outcome_timeout": 0,
+      "spring_travel": 0,
+      "recovery_script": 0,
+      "recovery_actor_failure": 0,
+      "recovery_premature_release": 0
+    },
+    "reasons_may_overlap": true,
+    "closure_fraction_of_ended": 0.0,
+    "closure_per1000_env_seconds": 0.0
+  },
+  "full_training_admitted": false,
+  "interpretation": "The normal periodic state proves actual actor/critic/Adam advancement and clock continuity. It does not establish fixed-case tracking acceptance. No signal, forced snapshot or new simulation process was used.",
+  "next": {
+    "final_lineage": 1664,
+    "expected_final_adam_step": 33280,
+    "after_learner_exit": "same original eight-case eval010 with initial, v5-1152, v5-1664 and traces",
+    "total_target_consumption": 2752,
+    "remaining_after_target": 17248
+  },
+  "seal_checkpoint_hash_exact": true
+}
