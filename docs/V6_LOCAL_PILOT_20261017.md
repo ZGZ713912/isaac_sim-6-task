@@ -1,6 +1,6 @@
 # 本机 200 Hz 短训与长训
 
-2026-10-18 用户授权在本机完成短训，检查效果；正常后长训，有问题先诊断并迭代。
+2026-10-17 用户授权在本机完成短训，检查效果；正常后长训，有问题先诊断并迭代。
 本实验继承 `contracts/v6_local_scratch_200hz_v1.json`，独立于已停止的 Kaiser 课程。
 不启动本机 TensorBoard 服务，曲线写入现有 RSL-RL TensorBoard event。
 
@@ -24,3 +24,24 @@ reward 改善代替行为通过。继续学习的准入不授予最终技能、�
 
 每段从已提交源码生成冻结归档，记录 commit/SHA、进程身份、checkpoint 和预算。
 修复及结果分别提交，并推送到用户指定的 upstream 仓库，保留主工作区已暂存内容。
+
+首段运行目录中的 `20261018` 是实验标识；真实启动时间为 2026-10-17 UTC，
+所有完成和进程回执使用实际 UTC 时间。
+
+续训命令的 `--updates` 表示追加更新数，必须使用同一实验已完成区块的
+`model_final.pt`；自动恢复 actor/critic/Adam/RNG 及累计消费，不能重新从零计费。
+本机 8 场景诊断使用原生 v18 独立 train 表中的 230/305/430 mm、前后 0.5、
+正反 1 rad/s 和启停原始场景；4 副本、种子、时长和阈值不变。它不是完整课程验收。
+
+## 本机入口
+
+```bash
+conda activate isaacsim6
+python scripts/train_local_chassis.py --num-envs 512 --updates 64 --run-dir runs/my_pilot
+python scripts/evaluate_local_chassis.py --checkpoint runs/my_pilot/initial_state/model_final.pt --checkpoint runs/my_pilot/model_final.pt --output runs/my_pilot_eval
+# 评测和工程读回通过后，追加到累计 20000：
+python scripts/train_local_chassis.py --num-envs 512 --resume runs/my_pilot/model_final.pt --updates 19936 --max-runtime-seconds 604800 --run-dir runs/my_long
+```
+
+评测 `LocalEvaluation/<case>/<metric>` 写入各候选训练目录原有 TensorBoard
+event；step 是该 checkpoint 的累计更新数。JSON 保留完整机器判定及 SHA。
