@@ -470,3 +470,20 @@ velocity broad实付1.760→1.759每秒基本持平，yaw broad1.489→.875每�
 目标谱系2176、全部消费3264、余16736；继续actor/critic/17Adam/学习std/RNG/课程1664，
 不加critic预热、不改reward/物理/课程/阈值。原周期seal2000（追加336）、最终2176应
 Adam43520，不制造活进程快照。实际启动另记pilot011_launch.json，本节仅为已完成准备。
+
+
+## pilot011命令诊断后同v5有界续训已启动（23:57 UTC）
+
+原生PID780708/start5863691，tmux v6-local-pilot011；提交冻结
+c37ce79837b7，归档61e1803d2ebf913c0929082666943dcaf09bc20af4149b13f040da6c1f62b4f7。
+512环境从pilot010-1664按精确同v5合同正常resume，再追加512至2176。
+没有重复首次命名迁移。独立initial_state的actor/critic/17Adam与父模型逐值相同，
+Adam33280步，学习std保持；原生CPU/CUDA/环境RNG恢复、课程1664和实际命令包络
+核对通过，无新critic预热。恢复RNG后创建新episode，不冒称中途模拟器轨迹重放。
+
+PPO progress已真实推进；原event六分轴std和四conditioning指标存在、已记录标量有限。
+原周期500保持，下一2000（追加336）再深读9actor/8critic/17Adam及连续时钟，
+最终2176应Adam43520，不制造新快照或干预活进程。完整身份及恢复证据见
+pilot011_launch.json。本段仍是有界跟踪学习诊断，原0/8及所有失败保持，长训门关闭。
+此前2752不退款，本段完成预计总3264、余16736；结束退出后原八场景比较初始、
+1664与2176，若旧逐场景结果不复现则诊断，不放宽判据。
