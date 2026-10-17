@@ -417,7 +417,7 @@ def main():
     c, manifest = preflight(args.contract)
     if c.get("local_scratch"):
         from wheeled_tasks.chassis.local_scratch import validate_invocation
-        validate_invocation(c, args, ROOT)
+        args.actor_updates_consumed = validate_invocation(c, args, ROOT)
     contract_config = c
     integrated_receipt = None
     integrated_design = None
