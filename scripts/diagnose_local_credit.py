@@ -45,6 +45,27 @@ def same_tree(a, b):
     return a == b
 
 
+def policy_credit_snapshot(storage, observation_key='policy'):
+    """Copy a completed native buffer; no forward, sampling or optimization."""
+    import torch
+    if storage.step != storage.num_transitions_per_env:
+        raise ValueError('Policy credit needs a complete native rollout')
+    params = storage.distribution_params
+    if params is None or len(params) != 2:
+        raise ValueError('Policy credit needs native Gaussian mean/std buffers')
+    values = dict(policy_input=storage.observations[observation_key],
+        native_action=storage.actions, native_log_prob=storage.actions_log_prob.squeeze(-1),
+        native_mean=params[0], native_std=params[1])
+    shape = storage.actions.shape
+    if (values['policy_input'].shape[:2] != shape[:2]
+            or any(values[key].shape != shape for key in ('native_mean', 'native_std'))
+            or values['native_log_prob'].shape != shape[:2]):
+        raise ValueError('Native policy credit buffer shapes disagree')
+    if not all(bool(torch.isfinite(v).all()) for v in values.values()) or not bool((params[1] > 0).all()):
+        raise ValueError('Nonfinite policy credit buffer or nonpositive std')
+    return {key: value.detach().clone() for key, value in values.items()}
+
+
 def event_advantage(events, learning, bootstrap, dones, gamma, lam):
     """Linear reward-event contribution with the native ownership boundaries.
 
@@ -83,6 +104,8 @@ def main():
                         help='Read native discrete event payments and their linear GAE contribution')
     parser.add_argument('--birth-attribution', action='store_true',
                         help='Read pre-reset birth ownership and native push events without changing them')
+    parser.add_argument('--policy-credit', action='store_true',
+                        help='Copy native policy inputs/actions/Gaussian/log-prob at completed rollout boundaries; no extra actor forward')
     args = parser.parse_args()
     root = args.source_root.resolve()
     sys.path[:0] = [str(root / 'scripts'), str(root / 'src')]
@@ -129,6 +152,7 @@ def main():
         checkpoint=str(checkpoint), checkpoint_sha256=digest(checkpoint),
         contract_sha256=digest(contract_path), num_envs=512, rollout_ticks=rollout_ticks,
         requested_rollouts=args.rollouts, source_hashes_verified=len(startup['source_sha256']),
+        policy_credit_recording=args.policy_credit,
         target_contract=str(args.target_contract) if args.target_contract else None,
         target_contract_sha256=digest(args.target_contract) if args.target_contract else None,
         parent_source_root=str(parent_root), named_revision=revision,
@@ -306,6 +330,11 @@ def main():
                     adapter.bootstrap, storage.dones.squeeze(-1).bool(), alg.gamma, alg.lam)
             if args.birth_attribution:
                 items.update({key: torch.stack(values) for key, values in birth_records.items()})
+            if args.policy_credit:
+                snapshot = policy_credit_snapshot(storage)
+                items.update(snapshot)
+                for key in snapshot:
+                    arrays.setdefault(key, [])
             for key, value in items.items():
                 arrays[key].append(value.cpu().numpy().copy())
             for key, values in components.items():
