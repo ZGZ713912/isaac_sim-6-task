@@ -1,0 +1,108 @@
+{
+  "schema": "v6-local-return-implementation-v1",
+  "recorded_at": "2026-10-18T03:38:28.306932+00:00",
+  "status": "engineering_preconditions_passed_no_behavior_admission",
+  "source_sha256": {
+    "scripts/train_chassis.py": "fc9510c773a59cd95295581b336dc6af371200b67ab733487e7fb00aae240133",
+    "scripts/train_local_chassis.py": "1b60ab899dd1e1fad885a1e21df3c47f69b544461a4a5ca1842775d5bd425917",
+    "scripts/diagnose_local_credit.py": "fa213a0c3d7e1a16940b51494976732ef02bcfb5678143b4f57f18cf7bcccc9d",
+    "src/wheeled_tasks/chassis/local_scratch.py": "297319c9ccee3c292a9d5f8c0062f8d3bae5b71089f8d2f9005c311d4aac46d2",
+    "src/wheeled_tasks/chassis/local_return_revision.py": "8071f232032b6cdf6bb338d986315becfad24bbb43e6f137b6abd97d39e85593",
+    "tests/test_local_return_revision.py": "2f6ebe3569745e21c23719a8893dec345a7214b16d1aeb83528bce60e3966d9c",
+    "contracts/v6_local_scratch_200hz_v8.json": "3e42fb67b805a15306188468a138912138ed9630b3481b5a5c13c1757eece920"
+  },
+  "plan_file": "docs/V6_LOCAL_RETURN_HORIZON_PLAN_20261018.md",
+  "plan_sha256": "91d6d411258f2eb1266245ae9c41f6f0930c8b704da3d0b21708e9871135d314",
+  "tests": {
+    "distinct_passed": 119,
+    "first_collection_attempt": {
+      "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pytest_return001.log",
+      "sha256": "92fa3135fb4bcca8e1ce0009a9ee7707ed9b44db2619abcd7b811dd3012cbb51",
+      "status": "file_name_error_no_tests_collected"
+    },
+    "main": {
+      "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pytest_return002.log",
+      "sha256": "21ea21ccc4acd916d168c645b9940d84be7c5b8442df65b0671073e5a3cd9a32",
+      "passed": 117,
+      "failed": 2
+    },
+    "corrected_two_fixture_checks": {
+      "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pytest_return003.log",
+      "sha256": "93e4ceb91656e5feb6d556f32a274a60e7ef348da878936a7c10d21fee969933",
+      "passed": 2,
+      "note": "One negative case reused the source unchanged12288. Native optimizer.load aliases saved optimizer tensors, so the test now loads a deepcopy before checking advancement. Validators and optimizer unchanged."
+    },
+    "native384": "discounted_segment_sums_mask_done_and_native_Adam_load_then_real_update_passed"
+  },
+  "preflight": {
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot016_preflight001.log",
+    "sha256": "5b333ab651d01be2ec5b926bb812ddee49755ab52f68bdb89920b600092dcddb",
+    "exit_code": 0,
+    "status": "static_passed",
+    "num_envs": 512,
+    "contract": "runs/local_scratch_configs/20261018T033338Z-42e84bd9/worker.json"
+  },
+  "native_pair": {
+    "file": "reports/local_training_20261017/return_window_native_pair001.json",
+    "sha256": "323989772824f99a72296b38650e4e667b2d8dc641e4e982f117824c2c1dcd02",
+    "status": "paired_exact",
+    "recorded_initial_arrays": 10,
+    "recorded_physical_reward_arrays": 66,
+    "previous_source_arrays_exact": 69,
+    "frames_per_arm": 1152,
+    "ppo_updates": 0,
+    "premature_reduction": {
+      "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/analyze_return_probe001.log",
+      "status": "refused_until_both_arms_complete_no_result"
+    },
+    "completed_reduction_log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/analyze_return_probe002.log"
+  },
+  "change": {
+    "source_rollout_ticks": 96,
+    "target_rollout_ticks": 384,
+    "source_lam": 0.9872585449014338,
+    "target_lam": 1.0,
+    "gamma": 0.9974905699336811,
+    "entropy_coef": 0.0005,
+    "policy_dt": 0.005,
+    "physics_dt": 0.005,
+    "additional_critic_warmup": 0,
+    "other_reward_control_profiles_curriculum_unchanged": true
+  },
+  "budget": {
+    "total_before": 3904,
+    "inherited": 1216,
+    "parent_lineage": 2688,
+    "parent_transitions": 132120576,
+    "first_block": 128,
+    "target_lineage": 2816,
+    "total_after": 4032,
+    "remaining_after": 15968,
+    "lineage_ceiling": 18784,
+    "total_ceiling": 20000,
+    "transition_ceiling": 3296722944,
+    "no_refund": true
+  },
+  "expected_first": {
+    "lineage": 2689,
+    "adam_step": 53780,
+    "training_transitions": 132317184
+  },
+  "expected_final": {
+    "lineage": 2816,
+    "adam_step": 56320,
+    "training_transitions": 157286400
+  },
+  "admission": {
+    "ppo_started": false,
+    "bounded128_engineering_trial_permitted": true,
+    "behavior_qualified": false,
+    "full_training_admitted": false
+  },
+  "limits": [
+    "raw credit RMS grows3.028 to6.543 before any update; no convergence guarantee",
+    "66 recorded per-step arrays match, not a proof of every unrecorded simulator state",
+    "rollout memory excludes optimizer/update peaks",
+    "fresh episodes after saved RNG restoration, not mid-simulator trajectory replay"
+  ]
+}
