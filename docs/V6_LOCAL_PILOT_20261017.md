@@ -542,3 +542,9 @@ credit_probe001 完成 12×96 帧、512 环境，0 PPO，actor/critic/17 Adam �
 已提交fe10be4冻结源的credit_probe002/003独立进程各跑1152帧。源002全部原始数组逐位复现001；两侧完整出生q/dq、刚体pose、profile、CPU/CUDA/环境RNG、首帧标准Gaussian和其他33个policy列逐位一致，首20帧实际learning mask一致。候选实采包络0.5m/s、1rad/s，原高度和135个实际人口组保持；两侧actor/critic/17Adam均不变、0PPO。6秒内观测结束45→22、return-minus-value RMS3.062→1.589，仅描述课程变化后的短时分布，不证明学会跟踪或机械资格。完整回执`reports/local_training_20261017/command_rehearsal_native001.json`。
 
 工程前置只支持从精确v5-2176完整恢复追加128更新，不授长训。实际启动必须再从已提交源码冻结；首PPO须逐值核验独立初态、17Adam43520→43540、课程2176→2177，无新critic预热。
+
+## v6基础命令复习128短训启动与首PPO核验（01:07 UTC）
+
+原生tmux v6-local-pilot012，PID827550/start6283618，从已提交冻结7761bdf源码启动，仅从pilot011的2176更新完整接续128至2304。出生/奖励/物理/PPO保持；命名迁移只改平面难度上限，实际2176时钟采样为0.5m/s、1rad/s和原0.23–0.43m高度。独立initial_state的actor/critic/17Adam逐值等父模型，Adam43520，学习std保留，CPU/CUDA/环境RNG恢复，课程origin0，无新critic预热。恢复后新episode，不宣称中途模拟器重放。
+
+首PPO原生seal2177 SHAa3859306c4698a9c739a52c8c11f642161de7857ed2977c144d3cb6642c529c5：9actor/8critic及17Adam一二阶矩全改变且有限，17Adam43540，学习/课程/消费时钟2177、transitions107003904。75份冻结源哈希一致，原event六轴std/四conditioning指标存在且有限。详见`reports/local_training_20261017/pilot012_launch.json`。本段仍是受限短训，长训门关闭；目标全消费3392、余16608。
