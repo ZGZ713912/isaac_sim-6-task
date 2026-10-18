@@ -1,0 +1,295 @@
+{
+  "schema": "v6-local-pilot-launch-v1",
+  "recorded_at": "2026-10-18T05:46:47.959064+00:00",
+  "status": "native_same_v8_one_update_completed_full_state_verified",
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot018",
+  "source": {
+    "commit": "0a363c431d70a09687fb035910b9efc0de453d06",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T054330Z-1f1f9f6e/source.tar.gz",
+    "source_archive_sha256": "304d598859b7b3dc81e83fd74a7c9da5665d669ff834bdb7238e9ddb1ba0b645",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T054330Z-1f1f9f6e/source"
+  },
+  "pid": 1030377,
+  "process_start_ticks": 7945445,
+  "command_line": "/home/noir/miniconda3/envs/isaacsim6/bin/python /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T054330Z-1f1f9f6e/source/scripts/train_chassis.py --contract /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T054330Z-1f1f9f6e/source/runs/local_scratch_configs/20261018T033905Z-51fe479e/worker.json --stage speed --num-envs 512 --updates 1 --seed 290927 --device cuda:0 --research --run-dir /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot018 --max-runtime-seconds 1800.0 --resume /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot017/model_final.pt --audit-local-ppo ",
+  "native_resume_verification": {
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "046f7ec34c1394d53b39be5f7ae1d9f029f9e8d281c05ea0364db2dc12dd21f4",
+    "parent_updates": 2944,
+    "restored_checkpoint_updates": 2944,
+    "learning_lineage_updates": 2944,
+    "requested_learning_rate_scale": null,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 182452224,
+    "torch_rng_restored": true,
+    "environment_rng_restored": true,
+    "cuda_rng_restored": true,
+    "environment_state": "new_episodes_after_rng_restore",
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": false,
+    "parent_entropy_coef": 0.0005,
+    "effective_entropy_coef": 0.0005,
+    "entropy_coef_source": "contract"
+  },
+  "independent_initial_state_exact": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "initial_adam_states": 17,
+  "initial_adam_steps": [
+    58880
+  ],
+  "native_timing": {
+    "num_steps_per_env": 384,
+    "lam": 1.0,
+    "gamma": 0.9974905699336811,
+    "rollout_seconds": 1.92
+  },
+  "contract_same_bytes": true,
+  "source_file_hashes_verified": 92,
+  "locomotion_difficulty_resume_probe": {
+    "enabled": true,
+    "settings": {
+      "schema": "locomotion-difficulty-local-rehearsal-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "actor_update": 2944,
+    "envelope": {
+      "grade": 4.0,
+      "vx_max_m_s": 0.5,
+      "yaw_max_rad_s": 1.0,
+      "motion_height_range_m": [
+        0.23,
+        0.43
+      ]
+    },
+    "sampled_planar_abs_max": [
+      0.5,
+      1.0
+    ],
+    "sampled_motion_height_range_m": [
+      0.23000000417232513,
+      0.4300000071525574
+    ],
+    "sample_check": "passed"
+  },
+  "original_event_audit_tags": [
+    "LocalDiagnostics/NativePPOAudit/optimizer_index/mean",
+    "LocalDiagnostics/NativePPOAudit/optimizer_index/min",
+    "LocalDiagnostics/NativePPOAudit/optimizer_index/max",
+    "LocalDiagnostics/NativePPOAudit/samples/mean",
+    "LocalDiagnostics/NativePPOAudit/samples/min",
+    "LocalDiagnostics/NativePPOAudit/samples/max",
+    "LocalDiagnostics/NativePPOAudit/ratio_clip_fraction/mean",
+    "LocalDiagnostics/NativePPOAudit/ratio_clip_fraction/min",
+    "LocalDiagnostics/NativePPOAudit/ratio_clip_fraction/max",
+    "LocalDiagnostics/NativePPOAudit/surrogate_clipped_branch_fraction/mean",
+    "LocalDiagnostics/NativePPOAudit/surrogate_clipped_branch_fraction/min",
+    "LocalDiagnostics/NativePPOAudit/surrogate_clipped_branch_fraction/max",
+    "LocalDiagnostics/NativePPOAudit/ratio_mean/mean",
+    "LocalDiagnostics/NativePPOAudit/ratio_mean/min",
+    "LocalDiagnostics/NativePPOAudit/ratio_mean/max",
+    "LocalDiagnostics/NativePPOAudit/old_to_new_kl_nats/mean",
+    "LocalDiagnostics/NativePPOAudit/old_to_new_kl_nats/min",
+    "LocalDiagnostics/NativePPOAudit/old_to_new_kl_nats/max",
+    "LocalDiagnostics/NativePPOAudit/value_mse/mean",
+    "LocalDiagnostics/NativePPOAudit/value_mse/min",
+    "LocalDiagnostics/NativePPOAudit/value_mse/max",
+    "LocalDiagnostics/NativePPOAudit/native_value_loss/mean",
+    "LocalDiagnostics/NativePPOAudit/native_value_loss/min",
+    "LocalDiagnostics/NativePPOAudit/native_value_loss/max",
+    "LocalDiagnostics/NativePPOAudit/old_value_mse/mean",
+    "LocalDiagnostics/NativePPOAudit/old_value_mse/min",
+    "LocalDiagnostics/NativePPOAudit/old_value_mse/max",
+    "LocalDiagnostics/NativePPOAudit/value_clipped_flat_fraction/mean",
+    "LocalDiagnostics/NativePPOAudit/value_clipped_flat_fraction/min",
+    "LocalDiagnostics/NativePPOAudit/value_clipped_flat_fraction/max",
+    "LocalDiagnostics/NativePPOAudit/return_mean/mean",
+    "LocalDiagnostics/NativePPOAudit/return_mean/min",
+    "LocalDiagnostics/NativePPOAudit/return_mean/max",
+    "LocalDiagnostics/NativePPOAudit/return_std/mean",
+    "LocalDiagnostics/NativePPOAudit/return_std/min",
+    "LocalDiagnostics/NativePPOAudit/return_std/max",
+    "LocalDiagnostics/NativePPOAudit/advantage_std/mean",
+    "LocalDiagnostics/NativePPOAudit/advantage_std/min",
+    "LocalDiagnostics/NativePPOAudit/advantage_std/max",
+    "LocalDiagnostics/NativePPOAudit/entropy_nats/mean",
+    "LocalDiagnostics/NativePPOAudit/entropy_nats/min",
+    "LocalDiagnostics/NativePPOAudit/entropy_nats/max",
+    "LocalDiagnostics/NativePPOAudit/learning_rate/mean",
+    "LocalDiagnostics/NativePPOAudit/learning_rate/min",
+    "LocalDiagnostics/NativePPOAudit/learning_rate/max",
+    "LocalDiagnostics/NativePPOAudit/adam_step_before_min/mean",
+    "LocalDiagnostics/NativePPOAudit/adam_step_before_min/min",
+    "LocalDiagnostics/NativePPOAudit/adam_step_before_min/max",
+    "LocalDiagnostics/NativePPOAudit/adam_step_before_max/mean",
+    "LocalDiagnostics/NativePPOAudit/adam_step_before_max/min",
+    "LocalDiagnostics/NativePPOAudit/adam_step_before_max/max",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis0/mean",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis0/min",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis0/max",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis1/mean",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis1/min",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis1/max",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis2/mean",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis2/min",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis2/max",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis3/mean",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis3/min",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis3/max",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis4/mean",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis4/min",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis4/max",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis5/mean",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis5/min",
+    "LocalDiagnostics/NativePPOAudit/std_policy_axis5/max",
+    "LocalDiagnostics/NativePPOAudit/actor_gradient_l2_before_clip/mean",
+    "LocalDiagnostics/NativePPOAudit/actor_gradient_l2_before_clip/min",
+    "LocalDiagnostics/NativePPOAudit/actor_gradient_l2_before_clip/max",
+    "LocalDiagnostics/NativePPOAudit/actor_gradient_l2_after_clip/mean",
+    "LocalDiagnostics/NativePPOAudit/actor_gradient_l2_after_clip/min",
+    "LocalDiagnostics/NativePPOAudit/actor_gradient_l2_after_clip/max",
+    "LocalDiagnostics/NativePPOAudit/critic_gradient_l2_before_clip/mean",
+    "LocalDiagnostics/NativePPOAudit/critic_gradient_l2_before_clip/min",
+    "LocalDiagnostics/NativePPOAudit/critic_gradient_l2_before_clip/max",
+    "LocalDiagnostics/NativePPOAudit/critic_gradient_l2_after_clip/mean",
+    "LocalDiagnostics/NativePPOAudit/critic_gradient_l2_after_clip/min",
+    "LocalDiagnostics/NativePPOAudit/critic_gradient_l2_after_clip/max",
+    "LocalDiagnostics/NativePPOAudit/adam_step_after_min/mean",
+    "LocalDiagnostics/NativePPOAudit/adam_step_after_min/min",
+    "LocalDiagnostics/NativePPOAudit/adam_step_after_min/max",
+    "LocalDiagnostics/NativePPOAudit/adam_step_after_max/mean",
+    "LocalDiagnostics/NativePPOAudit/adam_step_after_max/min",
+    "LocalDiagnostics/NativePPOAudit/adam_step_after_max/max",
+    "LocalDiagnostics/NativePPOAudit/actor_parameter_delta_l2/mean",
+    "LocalDiagnostics/NativePPOAudit/actor_parameter_delta_l2/min",
+    "LocalDiagnostics/NativePPOAudit/actor_parameter_delta_l2/max",
+    "LocalDiagnostics/NativePPOAudit/critic_parameter_delta_l2/mean",
+    "LocalDiagnostics/NativePPOAudit/critic_parameter_delta_l2/min",
+    "LocalDiagnostics/NativePPOAudit/critic_parameter_delta_l2/max",
+    "LocalDiagnostics/NativePPOAudit/optimizer_calls"
+  ],
+  "all_event_values_finite": true,
+  "observed_progress": {
+    "updated_at": "2026-10-18T05:44:07.589276+00:00",
+    "pid": 1030377,
+    "successful_updates": 1,
+    "parent_updates": 2944,
+    "attempted_updates": 1,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 1,
+    "stage_actor_update": 2945,
+    "global_actor_update": 2945,
+    "global_budget_actor_updates": 2945,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0005,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 182648832,
+    "prior_local_experiment_consumption": 1216,
+    "total_local_consumed_updates": 4161,
+    "recovery_rollout": {
+      "valid_transitions": 195008,
+      "script_or_blend_transitions": 1600,
+      "valid_fraction": 0.9918619791666666,
+      "minimum_mini_batch_population": 48752
+    },
+    "policy_learning_transitions_in_block": 195008,
+    "script_or_blend_transitions_in_block": 1600
+  },
+  "actual_exited": true,
+  "final_state": {
+    "checkpoint_sha256": "3cbd7aabf95d500d6ffa089728b28ad1a92c8e812be9d503d9c6bdf152ae2b0e",
+    "seal_sha256": "9708b32c471dca8a43741fe96a20d75d77349a4cc9103f3aa076f3defa58ad34",
+    "changed_tensor_counts": {
+      "actor_state_dict": 9,
+      "critic_state_dict": 8
+    },
+    "changed_adam_moment_counts": {
+      "exp_avg": 17,
+      "exp_avg_sq": 17
+    },
+    "adam_states": 17,
+    "adam_steps": [
+      58900
+    ],
+    "clocks": {
+      "successful_updates_total": 2945,
+      "learning_lineage_updates": 2945,
+      "stage_actor_update": 2945,
+      "global_actor_update": 2945,
+      "actor_updates_consumed": 2945,
+      "training_transitions": 182648832,
+      "critic_warmup_remaining": 0
+    },
+    "rng_state_present": {
+      "rng_state": true,
+      "env_rng_state": true,
+      "cuda_rng_states": true
+    },
+    "all_actor_critic_adam_finite": true
+  },
+  "budget": {
+    "inherited1216": 1216,
+    "lineage": 2945,
+    "total": 4161,
+    "remaining": 15839,
+    "total_ceiling": 20000,
+    "lineage_ceiling": 18784,
+    "current_transitions": 182648832,
+    "transition_ceiling": 3296722944
+  },
+  "native_ppo_audit_sha256": "15cd3451ddf64867e0e30a34351c6e5bcd3f75d7888b2e5337c2bc8c3f04bdcf",
+  "full_training_admitted": false
+}
