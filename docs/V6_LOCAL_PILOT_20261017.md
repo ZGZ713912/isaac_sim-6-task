@@ -1038,3 +1038,11 @@ v9处理臂当前未实现或启动。仅在控制仍失败且严格设计/CPU�
 冻结38ecd8d的两个独立进程均从pilot018-2945和保存的CPU/CUDA/环境RNG创建新episode，各512环境、3×384帧。10类初态/RNG/首Gaussian、69类rollout数组及critic返回端点逐位相同；两臂actor/critic/17Adam保持，原生value clipping分别True/False，update和optimizer.step禁止。记录包括命令、奖励、conditioning ownership和已采样动力学，不能扩称全部隐藏模拟器状态。见`reports/local_training_20261017/value_clip_ab001_native_pair.json`，指标已进入pilot018原event的LocalDiagnostics/ValueClipAB/NativePair，step2945。
 
 工程前置齐全，允许从同一个018-2945完整状态进行处理臂128更新至3073。控制128已计入继承1344，总上限20000不退款；处理完成总4417/剩15583。此为有界假设对照，尚无行为或长训准入。
+
+## 2026-10-18 06:51 UTC：pilot020 处理臂已运行
+
+pilot020从已提交冻结1a359ab启动，512环境，从共同父pilot018-2945完整接续128至3073；唯一算法变化是原生use_clipped_value_loss=False。实际初态actor/critic/17Adam逐值等共同父，Adam58900、学习std保留，CPU/CUDA/环境RNG与课程2945实际包络采样恢复，无新critic预热。RNG恢复后创建新episode，不冒称模拟器中途重放。101份实际冻结源哈希通过。
+
+原配置首次命名seal2946只读验证：SHA6589ad1f882436ef0845333582143328de8d6d01e1ad7ce1e0bda10175586b9a，9actor/8critic及17Adam一二阶矩全改变有限，Adam58920、全部时钟2946、182845440transitions、RNG封存。不是额外制造快照。见pilot020_launch.json及pilot020_first2946.json。冻结目录20261018T064949Z-38101e30，archive SHA92790377b739d4d0f6293769b4b86a3a6082da966459a1b8f7cf5c321f5dced0。
+
+继承1344已包含控制128，最终3073预计总消费4417/剩15583，谱系18656和transcap3271557120保持。下一原周期3000在本段55更新，应Adam60000/trans193462272；正常完成并确认退出后才运行冻结源eval020，原初始/共同父2945/新3073及traces、原8场景种子时长warmup阈值保持。当前没有行为或长训准入。
