@@ -1,0 +1,27 @@
+{
+  "schema": "v6-local-policy-credit-implementation-v1",
+  "recorded_at": "2026-10-18T07:45:30.374845+00:00",
+  "status": "CPU_passed_native_recording_pair_pending",
+  "ppo_updates": 0,
+  "optimizer_steps": 0,
+  "training_contract_changed": false,
+  "cpu_tests": {
+    "distinct_passed": 11,
+    "new_policy_credit_tests": 7,
+    "old_credit_regression_tests": 4,
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/policy_credit_cpu001.log",
+    "log_sha256": "842c538e2204761de2d39899f0351321caf5a872e251a181b1143aa278c6fe6c",
+    "command": "PYTHONPATH=worktree/src absoluteIsaacPython -m pytest tests/test_local_policy_credit.py tests/test_local_credit_diagnosis.py --capture=sys --basetemp=homeLOG/pytest-policy-credit001 -q"
+  },
+  "source_sha256": {
+    "scripts/diagnose_local_credit.py": "c5502f4b246739597e2366ddff3c3c4a32e19f339692faf10ce4081e43cdbc6e",
+    "scripts/analyze_local_policy_credit.py": "ba36f25296239dd38d9c83567397c3d752ace9b81b87907443c33fb1e72730e9",
+    "tests/test_local_policy_credit.py": "33dbd030dc8812fe52091624b837024a141db7b9804431ed11826dff1c53b795",
+    "docs/V6_LOCAL_POLICY_CREDIT_DIAGNOSIS_20261018.md": "c60d60ae75d3c8ab2e26d0458fdf2a2ac01016891904a47409b0dc3b7dec0bfa"
+  },
+  "native_pair_pending": true,
+  "reason": "Native CPU old-policy ratio=1 gradient including learnable std, mask ownership, snapshot-only state/RNG independence and negative inputs verified. Requires serial two-process native dynamics witness before interpreting added observations.",
+  "total_consumption": 4417,
+  "remaining": 15583,
+  "full_training_admitted": false
+}
