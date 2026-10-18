@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-18T02:11:21.306120+00:00",
-  "status": "completed2560_evaluated1of8_zero_ppo_action_credit_next",
+  "recorded_at": "2026-10-18T02:22:44.473226+00:00",
+  "status": "action_credit_complete_control_arm_ready",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -77,11 +77,12 @@
   "latest_evaluation_status": "evaluated",
   "latest_evaluation_passed_cases": 1,
   "next_phase": {
-    "action": "paired_recording_neutrality_then13_action_credit_arms_zero_PPO",
-    "plan": "docs/V6_LOCAL_ACTION_CREDIT_PLAN_20261018.md",
+    "action": "control128_same_v6_then_eval014_then_conditional_named_entropy_treatment",
+    "plan": "docs/V6_LOCAL_ENTROPY_AB_PLAN_20261018.md",
+    "receipt": "reports/local_training_20261017/entropy_ab001_plan.json",
     "full_training_admitted": false,
-    "total_consumption": 3648,
-    "remaining_budget": 16352
+    "control_target_total": 3776,
+    "remaining_after_control": 16224
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012",
   "validation": {
@@ -139,13 +140,15 @@
     "pilot013_periodic2500": "9actor_8critic_17adam_moments_changed_finite_adam50000_clocks2500",
     "pilot013_final2560": "9actor_8critic_17adam_moments_changed_finite_adam51200_clocks2560",
     "eval013_old_candidates_exact": "complete_initial_and2304_payloads_equal_eval012",
-    "action_credit_measurement_cpu4": "passed"
+    "action_credit_measurement_cpu4": "passed",
+    "action_credit_native14": "all_initial_rng_17legacy600frames_and13arm200prefix_exact_native_reward_reconstruct7.93e-9_all448survived3s_no_clips_guard_0PPO",
+    "pilot014_control_static_preflight": "static_passed_73_tracked_sources_and2_frozen_generated_configs_match_completed_parent"
   },
   "actual_entropy_coef": 0.0,
   "previous_source_commit": "7761bdfec01321b9f8a7fad5c13fb1346828ecff",
   "remaining_after_target": 16352,
   "current_phase": {
-    "action": "zero_PPO_action_reward_credit_diagnosis",
+    "action": "same2560_entropy_AB_control128_pending_committed_launch",
     "learner_running": false,
     "full_training_admitted": false
   },
@@ -159,7 +162,7 @@
     "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval007",
     "passed_cases": 1
   },
-  "latest_diagnosis": "reports/local_training_20261017/event_credit_diagnosis001.json",
+  "latest_diagnosis": "reports/local_training_20261017/action_credit_diagnosis001.json",
   "frozen_source_receipt": {
     "commit": "4abc6976ca3fe29285dcb2b2bae73e94e25f2dd1",
     "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T014311Z-a385a7b0/source.tar.gz",
