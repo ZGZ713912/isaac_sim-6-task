@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-18T04:33:06.837179+00:00",
-  "status": "bounded_same_v8_return_continuation128_running_no_admission",
+  "recorded_at": "2026-10-18T05:41:52.438685+00:00",
+  "status": "pilot017_completed_eval017_failed0of8_one_native_ppo_audit_pending_freeze",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -21,38 +21,38 @@
   "pid": 977784,
   "process_start_ticks": 7511955,
   "observed_progress": {
-    "updated_at": "2026-10-18T04:33:05.015933+00:00",
+    "updated_at": "2026-10-18T05:11:06.939135+00:00",
     "pid": 977784,
-    "successful_updates": 5,
+    "successful_updates": 128,
     "parent_updates": 2816,
-    "attempted_updates": 5,
+    "attempted_updates": 128,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 5,
-    "stage_actor_update": 2821,
-    "global_actor_update": 2821,
-    "global_budget_actor_updates": 2821,
+    "actor_updates_in_block": 128,
+    "stage_actor_update": 2944,
+    "global_actor_update": 2944,
+    "global_budget_actor_updates": 2944,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0005,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 158269440,
+    "training_transitions": 182452224,
     "prior_local_experiment_consumption": 1216,
-    "total_local_consumed_updates": 4037,
+    "total_local_consumed_updates": 4160,
     "recovery_rollout": {
-      "valid_transitions": 196608,
-      "script_or_blend_transitions": 0,
-      "valid_fraction": 1.0,
-      "minimum_mini_batch_population": 49152
+      "valid_transitions": 196348,
+      "script_or_blend_transitions": 260,
+      "valid_fraction": 0.9986775716145834,
+      "minimum_mini_batch_population": 49087
     },
-    "policy_learning_transitions_in_block": 981280,
-    "script_or_blend_transitions_in_block": 1760
+    "policy_learning_transitions_in_block": 25125524,
+    "script_or_blend_transitions_in_block": 40300
   },
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 15963,
+  "full_training_remaining_if_admitted": 15840,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -72,14 +72,16 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": false,
-  "latest_completed_report": "reports/local_training_20261017/pilot016.json",
+  "training_process_exited": true,
+  "latest_completed_report": "reports/local_training_20261017/pilot017.json",
   "latest_evaluation_status": "completed_strict0of8_no_admission",
   "latest_evaluation_passed_cases": 0,
   "next_phase": {
-    "action": "actual_exit_then_eval017_original8_initial_parent2816_new2944",
+    "action": "commit_freeze_then_same_v8_resume_one_update2944to2945_with_observer",
     "full_training_admitted": false,
-    "if_tracking_stagnates": "No further extension on this adaptation rationale alone. Require fresh trajectory/control/credit evidence and bounded revision."
+    "additional_updates": 1,
+    "total_after": 4161,
+    "remaining_after": 15839
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot016",
   "validation": {
@@ -162,27 +164,24 @@
     "eval016_old_candidates_exact": "complete_initial_and2688_payloads_equal_eval015",
     "return_credit001": "6native384_rollouts_2304frames_0PPO_all_models_Adam_unchanged_GAE_norm_and_failure200_payment_verified",
     "pilot017_same_v8_preflight": "static_passed_all91_authenticated_sources_match_parent",
-    "pilot017_native_same_v8_resume": "contract_bytes_actor_critic17Adam56320_exact_CPU_CUDA_env_RNG_and_course2816_restored_no_warmup_native384_lambda1_progress_and_events_finite"
+    "pilot017_native_same_v8_resume": "contract_bytes_actor_critic17Adam56320_exact_CPU_CUDA_env_RNG_and_course2816_restored_no_warmup_native384_lambda1_progress_and_events_finite",
+    "pilot017_final2944": "all9actor8critic17Adam_moments_advanced_finite_Adam58880_clocks2944_trans182452224_91source_hashes_verified",
+    "eval017_old_candidates_exact": "complete_initial_and2816_payloads_equal_eval016",
+    "return_credit002": "6native384_rollouts_2304frames_0PPO_GAE_norm_failure_payment_verified_all_learning_state_unchanged",
+    "native_ppo_audit_cpu63": "passed_actual_native_Adam_load_masks_loss_models_optimizer_RNG_bitwise_equal",
+    "native_ppo_audit_static512": "passed_exact_parent_v8_contract_no_physics_no_PPO"
   },
   "actual_entropy_coef": 0.0005,
   "previous_source_commit": "cc9c9612f12fb05c4141c897a8164b482de3dc34",
   "remaining_after_target": 15840,
   "current_phase": {
-    "action": "bounded_same_v8_return_continuation128",
-    "learner_running": true,
+    "action": "prepare_one_native_ppo_audit_after_fresh_credit",
+    "learner_running": false,
     "full_training_admitted": false,
-    "native_timing": {
-      "num_steps_per_env": 384,
-      "lam": 1.0,
-      "gamma": 0.9974905699336811,
-      "rollout_seconds": 1.92
-    },
-    "decision_receipt": "reports/local_training_20261017/return_window_continuation001.json",
-    "actual_full_state_restore_verified": true,
-    "no_new_named_revision": true
+    "decision_receipt": "reports/local_training_20261017/native_ppo_audit001_plan.json"
   },
-  "total_consumption": 4037,
-  "remaining_total_budget": 15963,
+  "total_consumption": 4160,
+  "remaining_total_budget": 15840,
   "previous_phase_snapshot": {
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
     "source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
@@ -191,7 +190,7 @@
     "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval007",
     "passed_cases": 1
   },
-  "latest_diagnosis": "reports/local_training_20261017/return_credit_diagnosis001.json",
+  "latest_diagnosis": "reports/local_training_20261017/component_credit_diagnosis002.json",
   "frozen_source_receipt": {
     "commit": "b64e09bb4cc754dd660a8f7cf1e331117be9b817",
     "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T043114Z-0cddce3f/source.tar.gz",
@@ -249,27 +248,26 @@
     }
   },
   "checkpoint_schedule_verification": "reports/local_training_20261017/pilot008_checkpoint_schedule001.json",
-  "no_live_learner": false,
+  "no_live_learner": true,
   "completed_learner_identity": {
     "pid": 939545,
     "start_ticks": 7199058,
     "source_commit": "cc9c9612f12fb05c4141c897a8164b482de3dc34"
   },
-  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval016",
+  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval017",
   "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval017",
   "latest_training_completion": {
     "status": "completed",
-    "started_at": "2026-10-18T03:39:15.574795+00:00",
-    "finished_at": "2026-10-18T04:19:26.034412+00:00",
-    "parent_updates": 2688,
+    "started_at": "2026-10-18T04:31:24.319555+00:00",
+    "finished_at": "2026-10-18T05:11:07.888049+00:00",
+    "parent_updates": 2816,
     "successful_updates": 128,
     "attempted_updates": 128,
-    "final_learning_lineage_updates": 2816,
-    "actor_updates_consumed": 2816,
+    "final_learning_lineage_updates": 2944,
+    "actor_updates_consumed": 2944,
     "discarded_updates_charged": 0,
+    "checkpoint_sha256": "046f7ec34c1394d53b39be5f7ae1d9f029f9e8d281c05ea0364db2dc12dd21f4",
     "learner_exited": true,
-    "native_pid": 939545,
-    "native_start_ticks": 7199058,
     "wrapper_exit": {
       "command": [
         "/home/noir/miniconda3/bin/conda",
@@ -282,20 +280,20 @@
         "--num-envs",
         "512",
         "--resume",
-        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot015/model_final.pt",
-        "--resume-local-return-revision",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot016/model_final.pt",
         "--updates",
         "128",
         "--run-dir",
-        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot016",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot017",
         "--max-runtime-seconds",
         "10800"
       ],
-      "started_at": "2026-10-18T03:39:03.807906+00:00",
-      "source_commit": "cc9c9612f12fb05c4141c897a8164b482de3dc34",
-      "experiment": "return_window384_lambda1_from_exact2688",
-      "target_plan_sha256": "3e42fb67b805a15306188468a138912138ed9630b3481b5a5c13c1757eece920",
-      "finished_at": "2026-10-18T04:19:26.623049+00:00",
+      "started_at": "2026-10-18T04:31:12.690096+00:00",
+      "source_commit": "b64e09bb4cc754dd660a8f7cf1e331117be9b817",
+      "experiment": "same_v8_bounded128_from2816_full_state",
+      "decision_receipt": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/reports/local_training_20261017/return_window_continuation001.json",
+      "decision_sha256": "b08caafec8f1c563b1459684e71f2041f29a841fd4cc242085fd704dc447e6e6",
+      "finished_at": "2026-10-18T05:11:08.488144+00:00",
       "exit_code": 0
     }
   },

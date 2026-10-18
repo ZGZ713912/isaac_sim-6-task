@@ -1,0 +1,61 @@
+{
+  "schema": "local-native-ppo-audit-plan-v1",
+  "recorded_at": "2026-10-18T05:41:52.438685+00:00",
+  "status": "verified_candidate_pending_committed_frozen_launch",
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot017/model_final.pt",
+  "parent_checkpoint_sha256": "046f7ec34c1394d53b39be5f7ae1d9f029f9e8d281c05ea0364db2dc12dd21f4",
+  "parent_contract_sha256": "36ede273b3bbaeb231d2440809641b9a747cbdde105142352c14d6239417d32c",
+  "parent_seal_sha256": "a7416075b9a5788346534fd575e1be4a9e33e4fcd087bf79460d3cd4315355ed",
+  "parent_completion_sha256": "c5923cf5261b6baf43d3a9c3ffd0cb23e513f4edcecd1351afc91c4e628d6f1f",
+  "evidence": [
+    {
+      "file": "reports/local_training_20261017/pilot017.json",
+      "sha256": "701d91da301621b32ba1b4335da8c96f4a30e28272a35f66dd61ee2f1b7f6ed8"
+    },
+    {
+      "file": "reports/local_training_20261017/return_credit_diagnosis002.json",
+      "sha256": "625c234835ffa775a8cc03b7406e956783c6f73700ec5c6251d6d6db6ee2382c"
+    },
+    {
+      "file": "reports/local_training_20261017/component_credit_diagnosis002.json",
+      "sha256": "bdc739d19bcee971929659dc062618c60273bef5417efb512aaa9968893f61de"
+    }
+  ],
+  "reason": "2944 fixed evaluation0/8. Height remains near0.31m; forward/backward tracking inadequate. Fresh component-credit evidence does not show dominant leg-smoothness credit and most environment-cluster intervals cross0. Observe actual native PPO optimization once before selecting a bounded adjustment; do not extend solely on adaptation rationale.",
+  "additional_updates": 1,
+  "parent_lineage": 2944,
+  "target_lineage": 2945,
+  "budget": {
+    "inherited_consumption": 1216,
+    "total_before": 4160,
+    "total_after": 4161,
+    "remaining_after": 15839,
+    "lineage_ceiling": 18784,
+    "total_ceiling": 20000,
+    "transitions_before": 182452224,
+    "transitions_after": 182648832,
+    "transition_ceiling": 3296722944
+  },
+  "training_contract": "Exact same v8 bytes; native rollout384/lambda1/gamma0.9974905699336811/entropy0.0005 and all control/reward/DR/profiles/curricula unchanged. Full actor/critic/17Adam/CPU-CUDA-env RNG/std/course restore; no new critic warmup.",
+  "observer": "Only native generator/critic-output/parameter-gradient/optimizer-call observation. Exact batch yielded unchanged; native step invoked once; no added forward/sample/backward/step. Compact mask storage observed at class generator. CLI limited to one same-contract local full-resume update.",
+  "validation": {
+    "cpu_tests": 63,
+    "cpu_log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/native_audit_cpu002.log",
+    "cpu_log_sha256": "b976da7930b0c7037620538de00a62c034297a49ee1644eb9d32ab065aa7ebb0",
+    "direct_static_preflight": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot018_direct_preflight.log",
+    "direct_static_preflight_sha256": "da86d37f36b5aa3ced1f0f12f03e6622f8fb3df475728e237899b84b3cc09028",
+    "static_status": "passed_512",
+    "wrapper_attempt_rejected": {
+      "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot018_preflight.log",
+      "sha256": "92e29f770bdc88f7190524eaf3dd93117be93122b1c2bf47231d1603c2f54616",
+      "reason": "Existing immutable generated config directory; 0 physical steps/0PPO. Direct entry with exact parent contract passed. Original directory preserved."
+    }
+  },
+  "component_analysis_old_failed_assertion": {
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/component_credit001.log",
+    "sha256": "70417640fb064fa1f60a05b717902697be914f60ca59b1ee045e7c8e437a453b",
+    "reason": "Arbitrary normalized1e-4 threshold rejected .00014987. Retained failure; independent centered float64 identity and native float32 roundoff propagation bound pass. No trainer/validator alteration."
+  },
+  "post_completion": "Verify actual exit, final seal,9actor8critic17Adam moments and clocks2945/Adam58900/trans182648832/RNG/source hashes. Original eight cases initial+2944+2945 with unchanged seed/duration/warmup/thresholds and all failures/traces. Old complete candidate payloads reproduce eval017.",
+  "full_training_admitted": false
+}

@@ -923,3 +923,44 @@ tmux v6-local-pilot017，原生PID977784/start7511955，512环境，
 届时在真实退出后深验；不signal或制造新快照。当前仍是有界适应检验，不是长训。
 本段完成全部消费4160、余15840；所有旧消费及transition历史保持。完成后原八场景
 比较初始、父2816、新2944，旧完整payload须复现eval016，保留失败及traces。
+
+### 2944完成、行为仍失败；改做一次原生优化观测（05:41 UTC）
+
+pilot017于05:11:08 UTC正常完成且原生进程退出；原final seal和91份冻结源哈希
+通过，9actor/8critic/17Adam一二阶矩有限且相对独立初态全部推进，Adam58880，
+学习/课程/消费时钟2944、182452224 transitions，无新critic预热。全128更新闭链
+0次，峰2.165874mm，非轮接触420次。完整状态和失败保存在pilot017.json。
+
+eval017于05:20:58 UTC完成；旧初始/2816完整候选payload精确复现eval016，原八
+场景种子290929、四副本、10/16秒、1秒warmup和判据保持。32回合全跑满但严格
+仍0/8：前进+.5实速+.00152→+.07129，反向-.5从-.09312→-.05146而误差增大；
+三档高度仍.30829/.31083/.31507m，305mm静站yaw MAE.33791→.31317。不能以
+局部静站改善或存活当通过。等曝光25/25更新各24576环境秒，训练回合21.477→
+21.670秒；history累计20→120差分，各98304环境秒，闭链0/4825与0/4819结束回合。
+
+当前2944保存RNG的新episode原生return_credit002为6×384、512环境、0PPO；
+actor/critic/17Adam/课程/消费时钟保持。原始GAE重建峰差.000591、原生归一化
+7.63e-6、lambda1直接折扣和4.55e-13；26次真失败各扣原合同200，实付重建峰差
+4.47e-8。post-warmup残差RMS3.742与旧诊断不同模型/RNG/episode，不能作配对
+因果方差改善。分项线性GAE重建峰差.000594、同中心化float64恒等式<1e-10；
+多数整环境轨迹bootstrap区间跨0，腿平滑信用未显示主导，不据此削弱奖励、重置
+std或改变熵。新增指标写原pilot017的LocalDiagnostics/ComponentCredit。早期
+001分解的任意1e-4归一化断言失败保留；采用原始float32重建误差传播界和独立
+float64恒等式核对，没有改训练器或合同。详见return_credit_diagnosis002.json与
+component_credit_diagnosis002.json，原数组和分析脚本哈希保留。
+
+下一步仅一次计费的同v8原生PPO观测：2944→2945、总消费4161/余15839，
+Adam58900、182648832 transitions。新增--audit-local-ppo只允许本机同合同完整
+resume且updates=1，不含新迁移/场景探测/学习率覆盖；不增critic预热。记录原生
+minibatch的ratio/实际裁剪分支/KL、critic裁剪平坦比例、actor/critic梯度裁剪前后
+范数及真实Adam参数变化，写原RSL event稳定tag与native_ppo_audit.json。没有额外
+forward/sample/backward/optimizer调用。用storage类生成器观察原生压紧后的合法
+样本，避免把generator绑定旧storage而绕过conditioning mask。默认入口不启用。
+63项针对性CPU检查通过，含真实已学习Adam恢复、mask压紧、原生归一化、5×4次
+minibatch的loss/model/Adam/RNG逐值相同、异常清理与JSON安全；512静态前置通过。
+首次wrapper静态前置因原generated目录已存在拒绝，0物理/0PPO；保持原目录及
+失败日志，用原生入口同合同静态前置通过，没有放宽验证器。
+
+这一步是优化环节诊断，不是再扩训或机制已修复。源码必须先提交冻结才启动。
+完成退出后深验全部学习状态，再按原八场景评测初始、2944、新2945且保留所有
+失败/traces。后续受限调整须根据实际裁剪/梯度和既有控制/信用证据；长训门仍关闭。
