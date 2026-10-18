@@ -749,3 +749,24 @@ completion、评测与报告，不退款、不重复计共同父2560。local_ent
 pilot013原event LocalDiagnostics/EntropyAB/NativePair。仅授工程受限处理试验，
 不当行为改进或唯一原因。提交冻结后再启动128；首seal预期2561/Adam51220，最终
 2688/Adam53760，学习与课程时钟连续，恢复RNG后是新episode而非模拟器中途重放。
+
+
+## 小熵处理臂已精确全状态启动（02:49 UTC）
+
+从已提交冻结03be0149e20c79b9502b52e7ff97fd33bf158155启动tmux v6-local-pilot015，
+原生PID903841/start6899945，512环境，精确pilot013-2560追加128至2688，entropy.0005。
+完整归档/目录/命令见pilot015_launch.json。独立initial_state的actor/critic/17Adam
+逐值等父，Adam51200/学习std保留，CPU/CUDA/环境RNG恢复及课程2560实际命令包络
+采样通过，无新critic预热。RNG恢复后新episode，不称中途模拟器轨迹重放。
+原event六轴std/四conditioning标签存在且当前标量有限；计划/设计/预算差分认证通过。
+
+只读原有首次命名seal2561：SHA7c8f6357…5bf961，9actor/8critic张量及17Adam一二阶矩
+均改变有限，Adam51220、全部时钟2561、125878272 transitions、entropy.0005、
+CPU/CUDA/环境RNG封存，首总消费3777。没有signal或制造额外快照。
+首次命名最多128已认证，最终预期2688/Adam53760/132120576 transitions。
+原周期3000在本块外；活learner只读，不热改/重启/重复启动。
+
+本臂完整继承旧1088+已完成控制128=1216，谱系上限18784；最终总3904、余16096，
+不因同起点分叉或换回旧臂退款。仍无长训准入；完成确认退出后本段冻结源eval015按
+同原八场景比较初始、共同父2560和处理2688，旧候选须完整复现eval014，保留全部
+失败/traces，再与控制2688同判据比较。不能以std/reward/存活单独认定探索假设成立。
