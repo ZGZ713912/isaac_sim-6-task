@@ -56,6 +56,8 @@ def main():
                         help="Named v7-2688 -> local v8 longer-return trial, at most 128 updates")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--validate-scene", type=int, default=0)
+    parser.add_argument("--audit-local-ppo", action="store_true",
+                        help="Observe exactly one same-contract full-resume native PPO update")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
     if not 1 <= args.updates <= plan["update_ceiling"]:
@@ -64,6 +66,12 @@ def main():
         parser.error("The local revision requires its finalized parent")
     if sum((args.resume_local_birth_revision, args.resume_local_command_revision, args.resume_local_entropy_revision, args.resume_local_return_revision)) > 1:
         parser.error("Choose exactly one named local revision")
+    if args.audit_local_ppo:
+        from wheeled_algo.native_ppo_audit import validate_local_audit_request
+        validate_local_audit_request(True, local=True, resume=args.resume,
+            updates=args.updates, scene=args.validate_scene,
+            revision=any((args.resume_local_birth_revision, args.resume_local_command_revision,
+                          args.resume_local_entropy_revision, args.resume_local_return_revision)))
     if args.resume:
         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
         parent_config = json.loads(checkpoint_contract_path(args.resume).read_text())
@@ -140,6 +148,8 @@ def main():
         command.append("--preflight-only")
     if args.resume:
         command.extend(["--resume", str(args.resume.resolve())])
+    if args.audit_local_ppo:
+        command.append("--audit-local-ppo")
     if args.resume_local_birth_revision:
         command.append("--resume-local-birth-revision")
     if args.resume_local_command_revision:

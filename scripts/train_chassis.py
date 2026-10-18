@@ -417,12 +417,22 @@ def main():
     parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
     parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
     parser.add_argument("--profile", action="store_true", help="Save bounded PPO sampling CPU profile before Kit shutdown")
+    parser.add_argument("--audit-local-ppo", action="store_true",
+                        help="Observe exactly one same-contract local full-resume native PPO update")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
     if not (1 <= args.num_envs <= 20000 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
+    if args.audit_local_ppo:
+        from wheeled_algo.native_ppo_audit import validate_local_audit_request
+        validate_local_audit_request(True, local=bool(c.get("local_scratch")), resume=args.resume,
+            updates=args.updates, scene=args.validate_scene,
+            revision=any((args.resume_local_birth_revision, args.resume_local_command_revision,
+                          args.resume_local_entropy_revision, args.resume_local_return_revision,
+                          args.resume_response_change, args.resume_diagnostic, args.resume_task_change,
+                          args.transfer_actor_only, args.learning_rate_scale is not None)))
     if c.get("local_scratch"):
         from wheeled_tasks.chassis.local_scratch import validate_invocation
         args.actor_updates_consumed = validate_invocation(c, args, ROOT)
@@ -503,6 +513,8 @@ def main():
                     "src/wheeled_algo/v40_job.py", "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
     if args.publish_state:
         source_files.append("src/wheeled_tasks/chassis/state_snapshot.py")
+    if args.audit_local_ppo:
+        source_files.append("src/wheeled_algo/native_ppo_audit.py")
     if c.get("design_preflight"):
         source_files.append(c["design_preflight"]["file"])
     from wheeled_tasks.chassis.preflight import GAS_SPRING_MODEL_KINDS
@@ -633,6 +645,7 @@ def main():
     (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
     (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
     launcher, env, runner, metrics, profiler, timing = None, None, None, None, None, None
+    native_ppo_audit = None
     from wheeled_algo.v40_job import TrainingBudget, PlannedStop
     budget = TrainingBudget(args.max_runtime_seconds)
     try:
@@ -969,6 +982,9 @@ def main():
                     raise ValueError("Diagnostic source learning rate differs from the fixed study")
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
                 recovery_rollout = configure_recovery_rollout(runner.alg, env)
+                if args.audit_local_ppo:
+                    from wheeled_algo.native_ppo_audit import NativePPOAudit
+                    native_ppo_audit = NativePPOAudit(runner.alg)
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
                 pending_assessment = None
                 if c.get("task_campaign"):
@@ -1034,6 +1050,9 @@ def main():
                     # The optimizer has returned: retain its real clocks even
                     # if a post-update invariant fails. Never seal that state.
                     report["entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
+                    if native_ppo_audit is not None:
+                        native_ppo_audit.log(runner.logger.writer,
+                            report["parent_updates"] + report["successful_updates"] - 1)
                     if recovery_rollout is not None:
                         report["recovery_rollout"] = dict(recovery_rollout.metrics)
                         report["policy_learning_transitions_in_block"] = (
@@ -1291,6 +1310,14 @@ def main():
         report.update(status="failed", error=traceback.format_exc())
         traceback.print_exc()
     finally:
+        if native_ppo_audit is not None:
+            native_ppo_audit.close()
+            audit_report = native_ppo_audit.report()
+            (args.run_dir / "native_ppo_audit.json").write_text(
+                json.dumps(audit_report, indent=2, allow_nan=False) + "\n")
+            report["native_ppo_audit"] = {
+                key: audit_report[key] for key in
+                ("optimizer_calls", "committed_optimizer_calls", "all_recorded_values_finite", "closed")}
         if profiler is not None:
             profiler.disable()
             profiler.dump_stats(str(args.run_dir / "profile.pstats"))
