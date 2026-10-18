@@ -36,6 +36,8 @@ def main():
     parser.add_argument("--candidate-index", type=int, required=True)
     parser.add_argument("--axis", type=int, choices=range(6), required=True)
     parser.add_argument("--sign", type=int, choices=(-1, 0, 1), required=True)
+    parser.add_argument("--reward-credit", action="store_true",
+        help="Record native reward components and existing critic observations without optimization")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     root = args.source_root.resolve()
@@ -62,6 +64,7 @@ def main():
         evaluation=str(args.evaluation), evaluation_sha256=digest(args.evaluation / "evaluation.json"),
         checkpoint=str(checkpoint), checkpoint_sha256=digest(checkpoint),
         axis_policy_order=args.axis, sign=args.sign, peak_policy_offset=.1 * args.sign,
+        reward_credit_recording=args.reward_credit,
         ticks=600, prefix_ticks=200, seed=contract["evaluation"]["seed"],
         waveform="ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
         scope="Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.")
@@ -121,12 +124,13 @@ def main():
         with torch.no_grad():
             for tick in range(600):
                 policy_input = observations["policy"].clone()
+                critic_input = observations["critic"].clone() if args.reward_credit else None
                 mean = actor(policy_input)
                 offset = mean.new_tensor(intervention(tick, args.axis, args.sign))[None].expand_as(mean)
                 offset = offset * alive[:, None]
                 sent = mean + offset
                 was_alive = alive.clone()
-                observations, _, done, extras = env.step(sent)
+                observations, native_reward, done, extras = env.step(sent)
                 d = extras["diagnostics"]
                 bounds = env.v5.current_motor_bounds
                 requested = env.v5.requested_motor_effort
@@ -141,6 +145,15 @@ def main():
                 for name in ("commands", "episode_ticks", "done", "motor_position", "motor_velocity",
                         "actions", "wheel_target_velocity", "gap", "gravity"):
                     row[name] = d[name]
+                if args.reward_credit:
+                    components = extras["native_reward_components"]
+                    row.update(critic_input_pre=critic_input,
+                        critic_input_post=observations["critic"],
+                        reward=native_reward, terminated=d["terminated"],
+                        timeouts=extras["time_outs"], success=d["success"],
+                        observed_event_reward=native_reward - sum(components.values()) * env.policy_dt)
+                    for name, value in components.items():
+                        row["reward_density__" + name] = value
                 for name, value in row.items():
                     records.setdefault(name, []).append(value.cpu().numpy().copy())
                 if tick % 4 == 0:
@@ -163,6 +176,12 @@ def main():
             optimizer_state_empty=True, runtime_contract_unchanged=True,
             clipped_action_coordinates=clipped_count, bounded_torque_coordinates=requested_count,
             initial_sha256=digest(args.output / "initial.npz"), traces_sha256=digest(args.output / "traces.npz"))
+        if args.reward_credit:
+            report["reward_credit_scope"] = (
+                "Per-lane native rewards and already returned critic observations only. "
+                "Observed discrete reward is raw reward minus continuous densities times dt. "
+                "Post-step observations may be reset after done; do not bootstrap those states. "
+                "The runner critic is unchanged and unused; any saved-model values are computed offline.")
     except BaseException as error:
         report.update(status="failed", error=repr(error), traceback=traceback.format_exc())
         print(report["traceback"], flush=True)
