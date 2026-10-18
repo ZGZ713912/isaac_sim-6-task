@@ -1,0 +1,245 @@
+{
+  "schema": "v6-local-pilot-launch-v1",
+  "recorded_at": "2026-10-18T02:50:02.634246+00:00",
+  "status": "native_named_same2560_v7_entropy_full_resume_verified_running",
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot015",
+  "tmux_session": "v6-local-pilot015",
+  "pid": 903841,
+  "process_start_ticks": 6899945,
+  "command_line": "/home/noir/miniconda3/envs/isaacsim6/bin/python /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T024914Z-4e08253a/source/scripts/train_chassis.py --contract /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T024914Z-4e08253a/source/runs/local_scratch_configs/20261018T024914Z-4e08253a/worker.json --stage speed --num-envs 512 --updates 128 --seed 290927 --device cuda:0 --research --run-dir /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot015 --max-runtime-seconds 7200.0 --resume /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot013/model_final.pt --resume-local-entropy-revision ",
+  "source": {
+    "commit": "03be0149e20c79b9502b52e7ff97fd33bf158155",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T024914Z-4e08253a/source.tar.gz",
+    "source_archive_sha256": "40305f9525f6e74edcd7fe2acb194f33dbfb6a8f9fcd8f0971e0ae409c6ffeeb",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T024914Z-4e08253a/source"
+  },
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot013/model_final.pt",
+  "parent_checkpoint_sha256": "2dfd8288c7df3e2da99b3ca9064b45fe9ca7b36f334b96a42e339f3174be3552",
+  "contract_sha256": "533382b32cbec3a6be0f36d72bfb94197f981c2f2f985b2800da17b5987cf7c9",
+  "contract_diff_verification": {
+    "schema": "v6-local-entropy-revision-v1",
+    "changed_contract_fields": [
+      "budget_spec_file",
+      "budget_spec_sha256",
+      "design_preflight",
+      "entropy_coef",
+      "local_scratch"
+    ],
+    "source_entropy_coef": 0.0,
+    "target_entropy_coef": 0.0005,
+    "consumption": "all_old_lineages_and_control_updates_preserved_no_refund",
+    "additional_critic_warmup": 0
+  },
+  "contract": {
+    "schema": "v6-local-scratch-worker-v1",
+    "plan_file": "contracts/v6_local_scratch_200hz_v7.json",
+    "plan_sha256": "4066923002b9f694c41a3048f8820f3eb3494a26469f47ee1e0ebb770eb93689",
+    "initialization": "full_state_same2560_entropy_ab_treatment",
+    "num_envs": 512,
+    "seed": 290927
+  },
+  "native_resume_verification": {
+    "schema": "v6-local-entropy-revision-v1",
+    "changed_contract_fields": [
+      "budget_spec_file",
+      "budget_spec_sha256",
+      "design_preflight",
+      "entropy_coef",
+      "local_scratch"
+    ],
+    "source_entropy_coef": 0.0,
+    "target_entropy_coef": 0.0005,
+    "consumption": "all_old_lineages_and_control_updates_preserved_no_refund",
+    "additional_critic_warmup": 0,
+    "parent_updates": 2560,
+    "inherited_consumption": 1216,
+    "total_prior_consumption": 3776,
+    "lineage_update_ceiling": 18784,
+    "source_contract_sha256": "693aad6a37ff305f459589e8932990a674676bbdc909d426b2234a5c7777c8ab",
+    "target_contract_sha256": "533382b32cbec3a6be0f36d72bfb94197f981c2f2f985b2800da17b5987cf7c9",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "2dfd8288c7df3e2da99b3ca9064b45fe9ca7b36f334b96a42e339f3174be3552",
+    "restored_checkpoint_updates": 2560,
+    "learning_lineage_updates": 2560,
+    "requested_learning_rate_scale": null,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 125829120,
+    "torch_rng_restored": true,
+    "environment_rng_restored": true,
+    "cuda_rng_restored": true,
+    "environment_state": "new_episodes_after_rng_restore",
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": false,
+    "parent_entropy_coef": 0.0,
+    "effective_entropy_coef": 0.0005,
+    "entropy_coef_source": "contract"
+  },
+  "independent_initial_state_exact": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "independent_initial_state_sha256": "a7cf5809d5ae0a83e77953eb27b32eca884e8b914bb6bebca01ad75f92fc8731",
+  "initial_clocks": {
+    "successful_updates_total": 2560,
+    "learning_lineage_updates": 2560,
+    "stage_actor_update": 2560,
+    "global_actor_update": 2560,
+    "actor_updates_consumed": 2560,
+    "training_transitions": 125829120,
+    "critic_warmup_remaining": 0
+  },
+  "initial_adam_states": 17,
+  "initial_adam_steps": [
+    51200.0
+  ],
+  "learned_std_preserved": [
+    0.013951431959867477,
+    0.010427344590425491,
+    0.016450615599751472,
+    0.01137407124042511,
+    0.028177551925182343,
+    0.033461377024650574
+  ],
+  "initial_rng_note": "Native CPU/CUDA/environment RNG restored before new episodes; no mid-rollout simulator trajectory replay claimed.",
+  "locomotion_difficulty_resume_probe": {
+    "enabled": true,
+    "settings": {
+      "schema": "locomotion-difficulty-local-rehearsal-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "actor_update": 2560,
+    "envelope": {
+      "grade": 4.0,
+      "vx_max_m_s": 0.5,
+      "yaw_max_rad_s": 1.0,
+      "motion_height_range_m": [
+        0.23,
+        0.43
+      ]
+    },
+    "sampled_planar_abs_max": [
+      0.5,
+      1.0
+    ],
+    "sampled_motion_height_range_m": [
+      0.23000000417232513,
+      0.4300000071525574
+    ],
+    "sample_check": "passed"
+  },
+  "source_file_hashes_verified": 83,
+  "original_event_axes_tags": [
+    "Policy/std/left_leg1",
+    "Policy/std/left_leg2",
+    "Policy/std/right_leg1",
+    "Policy/std/right_leg2",
+    "Policy/std/left_wheel",
+    "Policy/std/right_wheel"
+  ],
+  "original_event_conditioning_tags": [
+    "/nonstandard_start/conditioning_fraction",
+    "/nonstandard_start/conditioned_interval_fraction",
+    "/nonstandard_start/effort_gain_next_frame_mean",
+    "/nonstandard_start/ramp_seconds"
+  ],
+  "all_current_event_scalars_finite": true,
+  "checkpoint_schedule": {
+    "interval": 500,
+    "parent": 2560,
+    "next_periodic_lineage": 3000,
+    "next_periodic_additional_updates": 440,
+    "final": 2688,
+    "first_named_migration_seal_lineage": 2561,
+    "first_named_migration_adam_step": 51220,
+    "first_ppo_deep_tensor_verification": "verify existing first named seal2561; next periodic3000 outside this128-update block, no forced live snapshot"
+  },
+  "observed_progress": {
+    "updated_at": "2026-10-18T02:50:02.586482+00:00",
+    "pid": 903841,
+    "successful_updates": 6,
+    "parent_updates": 2560,
+    "attempted_updates": 6,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 6,
+    "stage_actor_update": 2566,
+    "global_actor_update": 2566,
+    "global_budget_actor_updates": 2566,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0005,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 126124032,
+    "prior_local_experiment_consumption": 1216,
+    "total_local_consumed_updates": 3782,
+    "recovery_rollout": {
+      "valid_transitions": 49152,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 12288
+    },
+    "policy_learning_transitions_in_block": 293172,
+    "script_or_blend_transitions_in_block": 1740
+  },
+  "budget": {
+    "prior_failed_and_control": 1216,
+    "parent_lineage": 2560,
+    "additional_requested": 128,
+    "target_lineage": 2688,
+    "total_ceiling": 20000,
+    "lineage_ceiling": 18784,
+    "target_total": 3904,
+    "remaining_after_target": 16096
+  },
+  "full_training_admitted": false
+}
