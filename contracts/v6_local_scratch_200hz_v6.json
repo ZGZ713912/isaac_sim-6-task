@@ -1,0 +1,118 @@
+{
+  "schema": "v6-local-scratch-plan-v1",
+  "source_worker_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+  "source_worker_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+  "source_design_file": "contracts/v6_task_campaign_speed_expectations_v18.json",
+  "source_design_sha256": "07040ed673eab2b56594206bfc123b1aef240dd153805e7b4621dc7ec52bf2b7",
+  "reward_reference_file": "contracts/v6_task_campaign_speed_worker_v27.json",
+  "reward_reference_sha256": "6591674143f2884ebe91c52aa4d9cdf1ac11ab4e6e8d423485567496d7f4f73f",
+  "initialization": "full_state_continuation_from_v5_2176",
+  "scope": "local_flat_locomotion_and_height_from_scratch",
+  "stage": "speed",
+  "seed": 290927,
+  "default_num_envs": 512,
+  "allowed_num_envs": [
+    256,
+    512,
+    1024
+  ],
+  "update_ceiling": 18912,
+  "checkpoint_first_update": 1,
+  "curriculum_origins": {
+    "nonstandard_start": 0,
+    "locomotion_difficulty": 0,
+    "ordinary_posture_curriculum": 0
+  },
+  "training_release": false,
+  "hardware_deployment_ready": false,
+  "control_file": "contracts/v6_wheel_response_control_policy200hz_v1.json",
+  "control_sha256": "270853429fc5036da7f68275e44d9a6cced7ea9d7baa710546185b04e0d285ef",
+  "timing": {
+    "physics_dt": 0.005,
+    "policy_dt": 0.005,
+    "pc_control_dt": 0.005,
+    "decimation": 1
+  },
+  "ppo_timing": {
+    "reference_policy_dt": 0.02,
+    "reference_num_steps_per_env": 24,
+    "reference_gamma": 0.99,
+    "reference_lam": 0.95,
+    "num_steps_per_env": 96,
+    "gamma": 0.9974905699336811,
+    "lam": 0.9872585449014338
+  },
+  "action_difference_reference_dt": 0.02,
+  "initial_noise_std": 0.2,
+  "prior_experiment_consumption": 1088,
+  "prior_experiment_receipt_file": "reports/local_training_20261017/pilot005.json",
+  "prior_experiment_receipt_sha256": "fd9226f04c4f39fe57d155f3612293252b2f8051a18e9515a1c3bd826bca1840",
+  "initial_exploration_basis": "Fresh same-seed comparison with identical actor mean, critic, empty Adam and RNG. Change only initial Gaussian std vector from uniform 0.2 to leg 0.05 / wheel 0.5 in policy order. Native Gaussian sampling, learnable std, entropy=0, reward, timing, curriculum and mechanical safeguards remain. Paired independent-process 0-PPO probes 004-006 have matching initial observation and standard-normal hashes; leg0.05/wheel0.5 increased untrained first-episode mean survival 0.573 to 0.705s across 32 episodes, all still failed. This is limited support for a bounded 128-update hypothesis, not behavior acceptance. All 1088 prior updates stay charged.",
+  "entropy_coef": 0.0,
+  "initial_noise_std_policy_order": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.5,
+    0.5
+  ],
+  "local_birth_revision": {
+    "schema": "v6-local-birth-revision-v1",
+    "source_plan_file": "contracts/v6_local_scratch_200hz_v4.json",
+    "source_plan_sha256": "dca8aba16f8b54c89c4e85441ea95f1e76e9746d14317f7373e323ea8f71dd2c",
+    "checkpoint_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008/model_final.pt",
+    "checkpoint_sha256": "f57d05f7f32c9a89ed400b7b2350b71879968175faa12a190858eb59cd8b9c0e",
+    "source_contract_sha256": "bf692fd6c861820a13dac2c94494aea1a0a216dddd4bbfd575f0388171a8e699",
+    "completion_sha256": "355e0e49a50efacae425c79414559aca6770470c934a21a2c3eef09392b44743",
+    "seal_sha256": "e285e1f7d4393de1c0d26e2c807e3caf675eefc25165a99de6d1bf51b094c7c5",
+    "learning_updates": 1024,
+    "prior_consumption": 1088,
+    "lineage_update_ceiling": 18912,
+    "first_block_update_ceiling": 128,
+    "training_transitions": 50331648,
+    "evidence": [
+      {
+        "file": "reports/local_training_20261017/pilot008.json",
+        "sha256": "9a161097a23c5f4b5f54e4938efc2f2273c4ea74fe1ce5a1fba98a0e67a2298d"
+      },
+      {
+        "file": "reports/local_training_20261017/birth_diagnosis002.json",
+        "sha256": "1040e0d370114029cabe2dfb21eae18c931df8af0aa1c0957057a63179b18e78"
+      },
+      {
+        "file": "docs/V6_LOCAL_BIRTH_RAMP_PLAN_20261017.md",
+        "sha256": "c054d52005b986d0649081036e48e5248d5472003722eac218b01be25fc5283b"
+      }
+    ]
+  },
+  "local_command_revision": {
+    "schema": "v6-local-command-revision-v1",
+    "source_plan_file": "contracts/v6_local_scratch_200hz_v5.json",
+    "source_plan_sha256": "877d2d6d6c3a5a3b945a3d38b28f53d323069045006ebaed7f8fba2e7bfc5bc9",
+    "checkpoint_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot011/model_final.pt",
+    "checkpoint_sha256": "872bc86d2007e5a664507278f4ec6c35c4acbe4a0e936cf306b14768c5710034",
+    "source_contract_sha256": "65abce0937c0e7222935674ae89642f8489f19622f873b7b65617116b33d5a15",
+    "completion_sha256": "78bd12bb7f41073a6ee5e9ceec6d13545b1ac5a096871551253c8d61daaa79e0",
+    "seal_sha256": "2ca7546f137707f89e4e4949ba9c2e3872a993aaba72b84b0c048faeb02df080",
+    "learning_updates": 2176,
+    "prior_consumption": 1088,
+    "lineage_update_ceiling": 18912,
+    "first_block_update_ceiling": 128,
+    "training_transitions": 106954752,
+    "evidence": [
+      {
+        "file": "reports/local_training_20261017/pilot011.json",
+        "sha256": "38b51f6d3385e81eb44694f5970ab993ab840eb7599cafb867448c3ee96f7687"
+      },
+      {
+        "file": "reports/local_training_20261017/credit_diagnosis001.json",
+        "sha256": "68830e57cacea96b98719590aee95ddef18a4211d78507c645632aa96aa8382a"
+      },
+      {
+        "file": "docs/V6_LOCAL_COMMAND_REHEARSAL_PLAN_20261018.md",
+        "sha256": "41ffcc2eb1ca149b1779cbec6e28cc3692798b5f5dc7317e0f6b98084d2f749a"
+      }
+    ]
+  }
+}
