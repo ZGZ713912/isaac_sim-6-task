@@ -1,6 +1,6 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-18T07:45:30.374845+00:00",
+  "recorded_at": "2026-10-18T07:55:03.120997+00:00",
   "status": "value_clip_ab_completed_both0of8_command_diagnosis",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
@@ -77,11 +77,12 @@
   "latest_evaluation_status": "evaluated_behavior_rejected",
   "latest_evaluation_passed_cases": 0,
   "next_phase": {
-    "action": "serial_zero_PPO_policy_credit_baseline_recording_pair",
-    "plan": "docs/V6_LOCAL_POLICY_CREDIT_DIAGNOSIS_20261018.md",
-    "engineering": "reports/local_training_20261017/policy_credit_implementation001.json",
+    "action": "retain_negative_result_require_new_causal_hypothesis",
     "PPO_updates": 0,
-    "full_training_admitted": false
+    "full_training_admitted": false,
+    "total_consumption": 4417,
+    "remaining": 15583,
+    "reason": "Command and policy-credit diagnostics do not demonstrate a task-interference mechanism; no automatic extension."
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot019",
   "validation": {
@@ -190,9 +191,10 @@
   "previous_source_commit": "0a363c431d70a09687fb035910b9efc0de453d06",
   "remaining_after_target": 15583,
   "current_phase": {
-    "action": "policy_credit_CPU11_passed_native_pair_pending",
+    "action": "policy_credit_diagnosis_completed_no_stable_interference",
     "learner_running": false,
-    "full_training_admitted": false
+    "full_training_admitted": false,
+    "report": "reports/local_training_20261017/policy_credit_diagnosis001.json"
   },
   "total_consumption": 4417,
   "remaining_total_budget": 15583,
@@ -204,7 +206,7 @@
     "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval007",
     "passed_cases": 1
   },
-  "latest_diagnosis": "reports/local_training_20261017/command_diagnosis002.json",
+  "latest_diagnosis": "reports/local_training_20261017/policy_credit_diagnosis001.json",
   "frozen_source_receipt": {
     "commit": "8a34f287a9288814cf301494ae7582ab34b3f149",
     "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T055628Z-1d733df7/source.tar.gz",
