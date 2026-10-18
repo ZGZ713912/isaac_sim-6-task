@@ -14,7 +14,7 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from wheeled_tasks.chassis.local_scratch import (
-    PLAN_FILE, BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE,
+    PLAN_FILE, BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE,
     read_plan, restore_bundle, validate_parent, write_bundle,
 )
 
@@ -52,15 +52,17 @@ def main():
                         help="Named v5-2176 -> local v6 planar rehearsal, at most 128 additional updates")
     parser.add_argument("--resume-local-entropy-revision", action="store_true",
                         help="Named same-2560 local v7 entropy arm with all control consumption, at most 128 updates")
+    parser.add_argument("--resume-local-return-revision", action="store_true",
+                        help="Named v7-2688 -> local v8 longer-return trial, at most 128 updates")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--validate-scene", type=int, default=0)
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
     if not 1 <= args.updates <= plan["update_ceiling"]:
         parser.error("updates exceed the independent local budget")
-    if (args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision) and not args.resume:
+    if (args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision) and not args.resume:
         parser.error("The local revision requires its finalized parent")
-    if sum((args.resume_local_birth_revision, args.resume_local_command_revision, args.resume_local_entropy_revision)) > 1:
+    if sum((args.resume_local_birth_revision, args.resume_local_command_revision, args.resume_local_entropy_revision, args.resume_local_return_revision)) > 1:
         parser.error("Choose exactly one named local revision")
     if args.resume:
         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
@@ -84,6 +86,10 @@ def main():
                 parser.error("The first entropy revision block is bounded to 128 updates")
             if parent + args.updates > plan["update_ceiling"]:
                 parser.error("The entropy arm must carry every control update within the total budget")
+        if args.resume_local_return_revision:
+            plan = read_plan(ROOT, RETURN_PLAN_FILE)
+            if args.updates > plan["local_return_revision"]["first_block_update_ceiling"]:
+                parser.error("The first return revision block is bounded to 128 updates")
     # A launched PPO must come from a committed training version. The scene
     # and static probes can validate a candidate before it is committed.
     if not args.preflight_only and not args.validate_scene:
@@ -91,6 +97,7 @@ def main():
         if pending:
             parser.error("Commit verified training changes before starting PPO")
         for file in ("scripts/train_local_chassis.py", "src/wheeled_tasks/chassis/local_scratch.py",
+                     RETURN_PLAN_FILE if args.resume_local_return_revision else
                      ENTROPY_AB_PLAN_FILE if args.resume_local_entropy_revision else
                      REHEARSAL_PLAN_FILE if args.resume_local_command_revision else
                      BIRTH_RAMP_PLAN_FILE if args.resume_local_birth_revision else PLAN_FILE, plan["control_file"]):
@@ -101,7 +108,12 @@ def main():
     source = ROOT
     if not args.preflight_only and not args.validate_scene:
         source = freeze_source(ROOT, ROOT / "runs/local_scratch_sources" / stamp)
-    if args.resume_local_entropy_revision:
+    if args.resume_local_return_revision:
+        config = write_bundle(source, source / "runs/local_scratch_configs" / stamp, args.num_envs,
+            plan_file=RETURN_PLAN_FILE)
+        from wheeled_tasks.chassis.local_return_revision import validate_parent as validate_revision_parent
+        validate_revision_parent(args.resume, json.loads(config.read_text()), source)
+    elif args.resume_local_entropy_revision:
         config = write_bundle(source, source / "runs/local_scratch_configs" / stamp, args.num_envs,
             plan_file=ENTROPY_AB_PLAN_FILE)
         from wheeled_tasks.chassis.local_entropy_revision import validate_parent as validate_revision_parent
@@ -134,10 +146,14 @@ def main():
         command.append("--resume-local-command-revision")
     if args.resume_local_entropy_revision:
         command.append("--resume-local-entropy-revision")
+    if args.resume_local_return_revision:
+        command.append("--resume-local-return-revision")
     if args.validate_scene:
         command.extend(["--validate-scene", str(args.validate_scene)])
     print("Local V6 scratch contract:", config, flush=True)
-    print("Timing: 200 Hz policy / 200 Hz physics / decimation 1; 96 steps = 0.48 s per rollout", flush=True)
+    timing = plan["ppo_timing"]
+    print(f"Timing: 200 Hz policy / 200 Hz physics / decimation 1; {timing['num_steps_per_env']} steps = "
+          f"{timing['num_steps_per_env'] * plan['timing']['policy_dt']:g} s per rollout", flush=True)
     print("Training output:", run_dir, flush=True)
     os.execv(sys.executable, command)
 

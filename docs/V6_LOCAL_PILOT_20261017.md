@@ -817,3 +817,32 @@ std信用的描述性block bootstrap区间均跨零，仍不足以断言应继�
 梯度或唯一因果，但提示应检验回报窗口/bootstrapping信用，见
  action_horizon_diagnosis001.json。下一步先在当前2688状态做严格受限回报窗口
 诊断，再决定新命名短训；当前没有learner，不把待验证假设当修复或长训资格。
+
+
+## 本机v8长回报窗口工程前置通过（03:39 UTC）
+
+小熵两臂仍1/8且出生归属不支持直接简化课程，按独立计划仅将rollout96→384
+（0.48→1.92秒）、lambda→1；gamma .9974905699336811、entropy .0005、200Hz
+物理/策略及全部奖励/控制/出生/DR/课程不变。独立v8 design与预算、精确pilot015-2688
+checkpoint/合同/seal/completion和全部诊断证据SHA认证，旧v1–v7验证保持。继承1216、
+谱系上限18784、总20000；实际既往132120576 transitions保留，未来按384帧计曝光，
+不能把旧历史伪称长窗口。当前全消费3904，追加128后4032、余15968。
+
+119项针对性CPU检查通过，包括384帧原生lambda1分段折扣和、conditioning/reset隔离、
+原生Adam精确load后实际更新，以及合同/预算/父状态负例。首收集错路径0测试和两个
+fixture断言失败保留；修正原源mini-batch负例与optimizer load别名测试，不改验证器
+或优化器。512原入口静态前置通过。完整日志SHA见return_window_implementation001.json。
+
+两个独立0PPO进程从同一2688模型与CPU/CUDA/环境RNG创建新episode，源12×96与
+候选3×384均1152帧。10类完整初态、66项已记录动力学/命令/Gaussian/奖励/ownership
+数组逐位一致；源69项全部原数组亦逐位复现既有birth-credit记录，actor/critic/17Adam
+均不变。候选只改变advantages/residuals/event_gae；保存独立tail critic后float64
+递归重建原生原始GAE峰差.000673、归一化优势1.91e−6，lambda1直接折扣n步和与
+GAE+V差3.70e−13。不是未记录的所有模拟器状态等价或行为资格。原始残差RMS
+3.028→6.543，方差风险保留。源/候选rollout-only CUDA峰73.5/236.2MB，不能代替
+PPO更新内存测试。原event稳定ReturnWindow标签，报告return_window_native_pair001.json。
+
+准备从已提交冻结源码完整接续128至2816；首2689应Adam53780/132317184 transitions，
+最终Adam56320/157286400，所有时钟连续，无critic预热。恢复RNG后是新episode，
+不是模拟器中途重放。仍无长训准入；实际退出后原八场景比较初始/父2688/新2816，
+旧payload必须复现，保留全部失败/traces。25新更新与100旧更新才是等环境秒曝光。
