@@ -155,9 +155,9 @@ def main():
             cfg['num_steps_per_env'] = rollout_ticks
             for key in ('gamma', 'lam'):
                 cfg['algorithm'][key] = contract[key]
-            if 'use_clipped_value_loss' in contract:
-                from wheeled_tasks.chassis.local_value_revision import value_clipping_setting
-                cfg['algorithm']['use_clipped_value_loss'] = value_clipping_setting(contract)
+        if 'use_clipped_value_loss' in contract:
+            from wheeled_tasks.chassis.local_value_revision import value_clipping_setting
+            cfg['algorithm']['use_clipped_value_loss'] = value_clipping_setting(contract)
         runner = OnPolicyRunner(env, deepcopy(cfg), log_dir=None, device='cuda:0')
         alg = runner.alg
         if 'use_clipped_value_loss' in contract:
