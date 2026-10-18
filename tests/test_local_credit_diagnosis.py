@@ -40,6 +40,23 @@ def test_empty_population_has_explicit_zero_samples_and_rejects_bad_masks():
         probe.credit_statistics(a, a, a[:, None], torch.ones(1))
 
 
+def test_event_credit_respects_script_handoffs_done_and_bootstrap_without_mutation():
+    events = torch.tensor([[float('nan'), 0.], [0., -4.], [-4., 0.], [0., 0.]])
+    learning = torch.tensor([[False, True], [True, True], [True, True], [True, True]])
+    bootstrap = torch.ones_like(learning)
+    dones = torch.tensor([[False, False], [False, True], [True, False], [False, False]])
+    original = events.clone()
+    result = probe.event_advantage(events, learning, bootstrap, dones, .9, .5)
+    assert torch.allclose(result, torch.tensor([[0., -1.8], [-1.8, -4.], [-4., 0.], [0., 0.]]))
+    assert torch.allclose(events, original, equal_nan=True)
+    bootstrap[1, 0] = False
+    assert probe.event_advantage(events, learning, bootstrap, dones, .9, .5)[1, 0] == 0
+    with pytest.raises(ValueError, match='Nonfinite'):
+        probe.event_advantage(events, torch.ones_like(learning), bootstrap, dones, .9, .5)
+    with pytest.raises(ValueError, match='aligned'):
+        probe.event_advantage(events, learning.float(), bootstrap, dones, .9, .5)
+
+
 def test_reading_native_masked_gae_preserves_models_adam_storage_and_rng():
     from test_recovery_rollout_mask import algorithm, collect
     from wheeled_algo.recovery_rollout import attach_recovery_rollout_mask
