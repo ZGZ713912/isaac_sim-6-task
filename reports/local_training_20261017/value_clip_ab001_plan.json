@@ -1,0 +1,76 @@
+{
+  "schema": "v6-local-value-clip-ab-plan-v1",
+  "recorded_at": "2026-10-18T05:55:11.562325+00:00",
+  "status": "control128_static_passed_pending_committed_frozen_launch_treatment_not_implemented",
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot018/model_final.pt",
+  "parent_checkpoint_sha256": "3cbd7aabf95d500d6ffa089728b28ad1a92c8e812be9d503d9c6bdf152ae2b0e",
+  "parent_contract_sha256": "36ede273b3bbaeb231d2440809641b9a747cbdde105142352c14d6239417d32c",
+  "parent_seal_sha256": "9708b32c471dca8a43741fe96a20d75d77349a4cc9103f3aa076f3defa58ad34",
+  "parent_completion_sha256": "907d9743d91485eb517901a7079a831c2599f31c30fb16c889da06db07659d5d",
+  "parent_lineage": 2945,
+  "evidence": [
+    {
+      "file": "reports/local_training_20261017/pilot018.json",
+      "sha256": "10027207ef90c13aadc422ff62bf8d5f7d0aa67ed4421ed7334495397a4732e7"
+    },
+    {
+      "file": "reports/local_training_20261017/native_ppo_audit001.json",
+      "sha256": "ea4fda72f42fe4d351738d03227616001cf0d1bd9e400f336f8905a5e0997eb4"
+    },
+    {
+      "file": "reports/local_training_20261017/return_credit_diagnosis002.json",
+      "sha256": "625c234835ffa775a8cc03b7406e956783c6f73700ec5c6251d6d6db6ee2382c"
+    },
+    {
+      "file": "reports/local_training_20261017/component_credit_diagnosis002.json",
+      "sha256": "bdc739d19bcee971929659dc062618c60273bef5417efb512aaa9968893f61de"
+    },
+    {
+      "file": "docs/V6_LOCAL_VALUE_CLIP_AB_PLAN_20261018.md",
+      "sha256": "f7ba3412e846c6af05a5e9785ed2b05b5976cfbe8604b978dd35bd389649738d"
+    }
+  ],
+  "hypothesis": "Only test native critic value clipping off versus existing true. One fresh-rollout audit showed13.12pct clipped-flat value samples and0.54pct MSE improvement in native minibatches; not a unique cause, bug diagnosis, or retraining guarantee. No reward/std/LR/control change.",
+  "control": {
+    "run": "pilot019",
+    "source_plan": "contracts/v6_local_scratch_200hz_v8.json",
+    "additional_updates": 128,
+    "parent_lineage": 2945,
+    "target_lineage": 3073,
+    "native_use_clipped_value_loss": true,
+    "target_adam_steps": 61460,
+    "target_transitions": 207814656,
+    "total_before": 4161,
+    "total_after": 4289,
+    "remaining_after": 15711
+  },
+  "treatment": {
+    "implemented": false,
+    "launched": false,
+    "proposed_named_revision": "exact_local_v8_to_v9",
+    "same_parent_lineage": 2945,
+    "additional_updates_ceiling": 128,
+    "target_lineage": 3073,
+    "native_use_clipped_value_loss": false,
+    "preserve_actor_critic_adam_rng_std_course": true,
+    "no_new_critic_warmup": true,
+    "required_inherited_consumption_if_control128_completed": 1344,
+    "lineage_ceiling_if_control128_completed": 18656,
+    "total_after_if_both128_complete": 4417,
+    "remaining_after_if_both128_complete": 15583,
+    "transition_ceiling_if_control128_completed": 3271557120,
+    "validation": "independent target design; unchanged old validators; native CPU loss/state checks and two independent0PPO384-window native processes before target PPO; authenticate actual completed control evidence and immutable merged consumption, no placeholders"
+  },
+  "static_preflight": {
+    "status": "passed_512_control_only",
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot019_preflight.log",
+    "log_sha256": "da86d37f36b5aa3ced1f0f12f03e6622f8fb3df475728e237899b84b3cc09028",
+    "physics_steps": 0,
+    "ppo_updates": 0
+  },
+  "no_refund": true,
+  "total_ceiling": 20000,
+  "full_training_admitted": false,
+  "if_control_passes_original_gate": "May continue full-state v8 after actual behavior/mechanics qualification review; skip unnecessary treatment.",
+  "if_control_fails": "Complete strict v9 implementation and actual-control budget/evidence binding; target starts exact same2945 parent, never control3073. Keep every negative result and consumption."
+}
