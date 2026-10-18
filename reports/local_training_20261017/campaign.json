@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-18T01:08:55.912544+00:00",
-  "status": "v6_rehearsal_128_pilot_native_full_resume_first_ppo_verified_running",
+  "recorded_at": "2026-10-18T01:26:59.276388+00:00",
+  "status": "pilot012_completed_evaluated_tracking_failed_zero_ppo_actuation_diagnosis",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -21,34 +21,34 @@
   "pid": 827550,
   "process_start_ticks": 6283618,
   "observed_progress": {
-    "updated_at": "2026-10-18T01:08:53.744719+00:00",
+    "updated_at": "2026-10-18T01:17:00.322343+00:00",
     "pid": 827550,
-    "successful_updates": 26,
+    "successful_updates": 128,
     "parent_updates": 2176,
-    "attempted_updates": 26,
+    "attempted_updates": 128,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 26,
-    "stage_actor_update": 2202,
-    "global_actor_update": 2202,
-    "global_budget_actor_updates": 2202,
+    "actor_updates_in_block": 128,
+    "stage_actor_update": 2304,
+    "global_actor_update": 2304,
+    "global_budget_actor_updates": 2304,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 108232704,
+    "training_transitions": 113246208,
     "prior_local_experiment_consumption": 1088,
-    "total_local_consumed_updates": 3290,
+    "total_local_consumed_updates": 3392,
     "recovery_rollout": {
-      "valid_transitions": 49152,
-      "script_or_blend_transitions": 0,
-      "valid_fraction": 1.0,
-      "minimum_mini_batch_population": 12288
+      "valid_transitions": 49037,
+      "script_or_blend_transitions": 115,
+      "valid_fraction": 0.9976603190104166,
+      "minimum_mini_batch_population": 12259
     },
-    "policy_learning_transitions_in_block": 1276252,
-    "script_or_blend_transitions_in_block": 1700
+    "policy_learning_transitions_in_block": 6281316,
+    "script_or_blend_transitions_in_block": 10140
   },
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
@@ -72,15 +72,15 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": false,
-  "latest_completed_report": "reports/local_training_20261017/pilot011.json",
+  "training_process_exited": true,
+  "latest_completed_report": "reports/local_training_20261017/pilot012.json",
   "latest_evaluation_status": "evaluated",
   "latest_evaluation_passed_cases": 1,
   "next_phase": {
-    "action": "wait_exit_deep_verify2304_then_original8case_eval012",
+    "action": "pair_initial_and_200frame_prefix_then_review_local_actuation_response_before_any_new_ppo",
     "full_training_admitted": false,
-    "total_after_target": 3392,
-    "remaining_after_target": 16608
+    "total_consumption": 3392,
+    "remaining_budget": 16608
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot011",
   "validation": {
@@ -125,18 +125,23 @@
     "local_command_rehearsal_static_preflight": "passed",
     "command_rehearsal_native_pair001": "exact_birth_rng_first_gaussian_masks_actual_caps_actor_critic_adam_unchanged",
     "pilot012_native_named_full_resume": "actor_critic_17adam_cpu_cuda_env_rng_exact_initial_clocks2176_std_preserved",
-    "pilot012_first2177": "9actor_8critic_17adam_moments_changed_finite_adam43540_clocks2177"
+    "pilot012_first2177": "9actor_8critic_17adam_moments_changed_finite_adam43540_clocks2177",
+    "pilot012_final2304": "9actor_8critic_17adam_moments_changed_finite_adam46080_clocks2304",
+    "eval012_old_candidates_exact": "complete_initial_and2176_payloads_equal_eval011",
+    "actuation_pulse_cpu4": "passed"
   },
   "actual_entropy_coef": 0.0,
   "previous_source_commit": "c37ce79837b7143f72679a3d0e40212a27c3f3ba",
   "remaining_after_target": 16608,
   "current_phase": {
-    "action": "v5_2176_to_v6_planar_caps128_ppo",
-    "learner_running": true,
+    "action": "zero_ppo_actuation_interventions",
+    "learner_running": false,
+    "tmux": "v6-local-actuation001",
+    "progress": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/actuation001_progress.json",
     "full_training_admitted": false
   },
-  "total_consumption": 3290,
-  "remaining_total_budget": 16710,
+  "total_consumption": 3392,
+  "remaining_total_budget": 16608,
   "previous_phase_snapshot": {
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
     "source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
@@ -218,32 +223,32 @@
     }
   },
   "checkpoint_schedule_verification": "reports/local_training_20261017/pilot008_checkpoint_schedule001.json",
-  "no_live_learner": false,
+  "no_live_learner": true,
   "completed_learner_identity": {
-    "pid": 780708,
-    "start_ticks": 5863691,
-    "source_commit": "c37ce79837b7143f72679a3d0e40212a27c3f3ba"
+    "pid": 827550,
+    "start_ticks": 6283618,
+    "source_commit": "7761bdfec01321b9f8a7fad5c13fb1346828ecff"
   },
-  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval011",
-  "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+  "next_evaluation_dir": null,
   "latest_training_completion": {
     "status": "completed",
-    "started_at": "2026-10-17T23:56:41.602441+00:00",
-    "finished_at": "2026-10-18T00:37:22.452578+00:00",
-    "parent_updates": 1664,
-    "successful_updates": 512,
-    "attempted_updates": 512,
-    "final_learning_lineage_updates": 2176,
-    "actor_updates_consumed": 2176,
+    "started_at": "2026-10-18T01:06:41.067362+00:00",
+    "finished_at": "2026-10-18T01:17:00.943010+00:00",
+    "parent_updates": 2176,
+    "successful_updates": 128,
+    "attempted_updates": 128,
+    "final_learning_lineage_updates": 2304,
+    "actor_updates_consumed": 2304,
+    "discarded_updates_charged": 0,
     "learner_exited": true,
-    "native_pid": 780708,
-    "native_start_ticks": 5863691,
+    "native_pid": 827550,
+    "native_start_ticks": 6283618,
     "wrapper_exit": {
-      "started_at": "2026-10-17T23:56:30.132182+00:00",
-      "finished_at": "2026-10-18T00:37:23.058873+00:00",
+      "started_at": "2026-10-18T01:06:29.373237+00:00",
+      "finished_at": "2026-10-18T01:17:01.526002+00:00",
       "exit_code": 0
-    },
-    "discarded_updates_charged": 0
+    }
   },
   "next_checkpoint_schedule": {
     "interval": 500,
