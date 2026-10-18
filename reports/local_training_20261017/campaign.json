@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-18T00:31:12.259474+00:00",
-  "status": "v5_same_contract_bounded_512_after_command_diagnosis_running",
+  "recorded_at": "2026-10-18T00:55:42.193788+00:00",
+  "status": "v5_2176_completed_eval011_one_of_eight_zero_ppo_credit_diagnosis",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -21,38 +21,38 @@
   "pid": 780708,
   "process_start_ticks": 5863691,
   "observed_progress": {
-    "updated_at": "2026-10-18T00:31:05.045799+00:00",
+    "updated_at": "2026-10-18T00:37:21.871441+00:00",
     "pid": 780708,
-    "successful_updates": 433,
+    "successful_updates": 512,
     "parent_updates": 1664,
-    "attempted_updates": 433,
+    "attempted_updates": 512,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 433,
-    "stage_actor_update": 2097,
-    "global_actor_update": 2097,
-    "global_budget_actor_updates": 2097,
+    "actor_updates_in_block": 512,
+    "stage_actor_update": 2176,
+    "global_actor_update": 2176,
+    "global_budget_actor_updates": 2176,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 103071744,
+    "training_transitions": 106954752,
     "prior_local_experiment_consumption": 1088,
-    "total_local_consumed_updates": 3185,
+    "total_local_consumed_updates": 3264,
     "recovery_rollout": {
-      "valid_transitions": 49132,
-      "script_or_blend_transitions": 20,
-      "valid_fraction": 0.9995930989583334,
-      "minimum_mini_batch_population": 12283
+      "valid_transitions": 49131,
+      "script_or_blend_transitions": 21,
+      "valid_fraction": 0.99957275390625,
+      "minimum_mini_batch_population": 12282
     },
-    "policy_learning_transitions_in_block": 21247656,
-    "script_or_blend_transitions_in_block": 35160
+    "policy_learning_transitions_in_block": 25124563,
+    "script_or_blend_transitions_in_block": 41261
   },
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 16815,
+  "full_training_remaining_if_admitted": 16736,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -72,16 +72,15 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": false,
-  "latest_completed_report": "reports/local_training_20261017/pilot010.json",
+  "training_process_exited": true,
+  "latest_completed_report": "reports/local_training_20261017/pilot011.json",
   "latest_evaluation_status": "evaluated",
-  "latest_evaluation_passed_cases": 0,
+  "latest_evaluation_passed_cases": 1,
   "next_phase": {
-    "action": "after_exit_eval_initial_v5_1664_v5_2176_same_8_cases_traces",
-    "target_lineage": 2176,
-    "target_total_consumption": 3264,
-    "remaining_after_target": 16736,
-    "full_training_admitted": false
+    "action": "strict_local_v5_to_v6_planar_caps_candidate_before_any_128_ppo",
+    "full_training_admitted": false,
+    "all_consumption_preserved": 3264,
+    "remaining_budget": 16736
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot010",
   "validation": {
@@ -117,26 +116,27 @@
     "command_diagnosis004": "original_prefix_and_current_representatives_bitwise_equal_640_same_input_offline_samples_0PPO",
     "pilot011_same_v5_full_resume_preflight": "static_passed",
     "pilot011_native_same_v5_full_resume": "actor_critic_17adam_rng_clocks_exact_initial_no_new_warmup",
-    "pilot011_periodic_2000": "all_actor_critic_17adam_moments_finite_and_changed_adam40000_clocks2000"
+    "pilot011_periodic_2000": "all_actor_critic_17adam_moments_finite_and_changed_adam40000_clocks2000",
+    "pilot011_final2176": "all_actor_critic_17adam_moments_finite_and_changed_adam43520_clocks2176",
+    "eval011_old_candidates_exact": "complete_candidate_payloads_equal_eval010",
+    "credit_diagnosis_cpu3": "passed_explicit_worktree_src",
+    "credit_probe001": "12native_rollouts_actor_critic_17adam_unchanged_0PPO",
+    "local_command_rehearsal_cpu99": "passed",
+    "local_command_rehearsal_static_preflight": "passed"
   },
   "actual_entropy_coef": 0.0,
   "previous_source_commit": "b56d1237d8b837aeb5c0b8172c364c899ad1acba",
   "remaining_after_target": 16736,
   "current_phase": {
-    "action": "bounded_512_same_v5_after_zero_ppo_diagnosis_then_eval011",
-    "learner_running": true,
-    "contract_revision": "same_v5_birth_v2",
-    "all_prior_consumption_preserved": 2752,
-    "independent_initial_state_exact": {
-      "actor_state_dict": true,
-      "critic_state_dict": true,
-      "optimizer_state_dict": true
-    },
-    "native_resume_verified": true,
-    "full_training_admitted": false
+    "action": "prepare_basic_command_rehearsal_candidate",
+    "learner_running": false,
+    "completed_probe": "credit_probe001",
+    "ppo_updates": 0,
+    "full_training_admitted": false,
+    "native_pair_status": "pending"
   },
-  "total_consumption": 3185,
-  "remaining_total_budget": 16815,
+  "total_consumption": 3264,
+  "remaining_total_budget": 16736,
   "previous_phase_snapshot": {
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
     "source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
@@ -145,7 +145,7 @@
     "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval007",
     "passed_cases": 1
   },
-  "latest_diagnosis": "reports/local_training_20261017/command_diagnosis001.json",
+  "latest_diagnosis": "reports/local_training_20261017/credit_diagnosis001.json",
   "frozen_source_receipt": {
     "commit": "c37ce79837b7143f72679a3d0e40212a27c3f3ba",
     "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261017T235631Z-42e271ca/source.tar.gz",
@@ -203,32 +203,32 @@
     }
   },
   "checkpoint_schedule_verification": "reports/local_training_20261017/pilot008_checkpoint_schedule001.json",
-  "no_live_learner": false,
+  "no_live_learner": true,
   "completed_learner_identity": {
-    "pid": 735914,
-    "start_ticks": 5484155,
-    "source_commit": "b56d1237d8b837aeb5c0b8172c364c899ad1acba"
+    "pid": 780708,
+    "start_ticks": 5863691,
+    "source_commit": "c37ce79837b7143f72679a3d0e40212a27c3f3ba"
   },
-  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval010",
+  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval011",
   "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval011",
   "latest_training_completion": {
     "status": "completed",
-    "started_at": "2026-10-17T22:53:26.083667+00:00",
-    "finished_at": "2026-10-17T23:34:51.983523+00:00",
-    "parent_updates": 1152,
+    "started_at": "2026-10-17T23:56:41.602441+00:00",
+    "finished_at": "2026-10-18T00:37:22.452578+00:00",
+    "parent_updates": 1664,
     "successful_updates": 512,
     "attempted_updates": 512,
-    "final_learning_lineage_updates": 1664,
-    "actor_updates_consumed": 1664,
-    "discarded_updates_charged": 0,
+    "final_learning_lineage_updates": 2176,
+    "actor_updates_consumed": 2176,
     "learner_exited": true,
-    "native_pid": 735914,
-    "native_start_ticks": 5484155,
+    "native_pid": 780708,
+    "native_start_ticks": 5863691,
     "wrapper_exit": {
-      "started_at": "2026-10-17T22:53:14.785695+00:00",
-      "finished_at": "2026-10-17T23:34:52.528425+00:00",
+      "started_at": "2026-10-17T23:56:30.132182+00:00",
+      "finished_at": "2026-10-18T00:37:23.058873+00:00",
       "exit_code": 0
-    }
+    },
+    "discarded_updates_charged": 0
   },
   "next_checkpoint_schedule": {
     "interval": 500,
@@ -239,5 +239,6 @@
     "expected_final_adam_step": 43520,
     "periodic_2000_verified": true
   },
-  "latest_learning_state_verification": "reports/local_training_20261017/pilot011_checkpoint2000.json"
+  "latest_learning_state_verification": "reports/local_training_20261017/pilot011.json",
+  "candidate_plan": "contracts/v6_local_scratch_200hz_v6.json"
 }

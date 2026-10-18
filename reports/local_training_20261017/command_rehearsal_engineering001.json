@@ -1,0 +1,30 @@
+{
+  "schema": "v6-local-command-rehearsal-engineering-v1",
+  "recorded_at": "2026-10-18T01:01:49.395384+00:00",
+  "status": "cpu_and_static_passed_native_pair_pending",
+  "actual_ppo_updates": 0,
+  "full_training_admitted": false,
+  "cpu": {
+    "passed": 99,
+    "seconds": 11.74,
+    "command": "env PYTHONPATH=worktree/src /home/noir/miniconda3/envs/isaacsim6/bin/python -m pytest -q tests/test_local_command_rehearsal.py tests/test_local_scratch.py tests/test_local_birth_ramp.py tests/test_locomotion_difficulty.py tests/test_local_credit_diagnosis.py --capture=sys --basetemp=home-state/pytest-rehearsal001"
+  },
+  "static_preflight": {
+    "exit_code": 0,
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot012_preflight001.log",
+    "sha256": "888c993f9f9ad14a358d99469f0d11b13302951c6fbd376cdf345628d9343523"
+  },
+  "plan": "contracts/v6_local_scratch_200hz_v6.json",
+  "source_sha256": {
+    "scripts/train_local_chassis.py": "856dbb8f64b08ab2f5a743a61dc6d93fb47359e83d2e4b7f059c186441fa6972",
+    "scripts/train_chassis.py": "b20af30a821970e3631e3d64073cd42da39bde839e7c942a86a54a7e9ef478d2",
+    "scripts/diagnose_local_credit.py": "97ce9b0f179fca8ce6030092226636d2695ab4549d6da2a00cb7b99723f22bdb",
+    "src/wheeled_tasks/chassis/local_scratch.py": "520012db50e59d628a38c885073b7bd833a3bf64103acb7c558cf8dd47df6085",
+    "src/wheeled_tasks/chassis/local_command_revision.py": "5793a4f3823f72ab42f0a9a095d3a2902dbb75d5bbd4bdc0c492129a327c08ac",
+    "src/wheeled_tasks/chassis/locomotion_difficulty.py": "b59d7e6e29084da6abafd40b1d8689c40e98cf669633edf76c9e56948bc32250",
+    "contracts/v6_local_scratch_200hz_v6.json": "d39f52c61b6eedacdb3589f5b5d48676ecf9eef9534c63eca7c4e01a387bf23e",
+    "tests/test_local_command_rehearsal.py": "1127ccfbf4d5af17692848b4ae64bd701f9331362c532998eb74fca747ad5d07",
+    "tests/test_local_credit_diagnosis.py": "1e9494f6c1d768ad81f06d277948e34ceabb1aff01e60b03a459e9eed65c4beb"
+  },
+  "scope": "CPU and independent design/static invocation only. No native candidate result, optimizer update or tracking qualification yet."
+}

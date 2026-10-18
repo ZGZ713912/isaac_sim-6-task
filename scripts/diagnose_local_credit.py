@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+"""Measure native rollout credit at a frozen checkpoint, without optimization."""
+import argparse
+from copy import deepcopy
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import sys
+import traceback
+
+
+def credit_statistics(advantages, residuals, gaussian_noise, eligible):
+    """Condition on actual ownership before reducing; excluded data may be NaN."""
+    import torch
+    if eligible.dtype != torch.bool or advantages.shape != eligible.shape:
+        raise ValueError("Credit population requires a boolean mask matching advantages")
+    if residuals.shape != eligible.shape or gaussian_noise.shape[:-1] != eligible.shape:
+        raise ValueError("Credit arrays must share their transition dimensions")
+    a, r, n = advantages[eligible], residuals[eligible], gaussian_noise[eligible]
+    if not all(bool(torch.isfinite(x).all()) for x in (a, r, n)):
+        raise ValueError("Nonfinite policy-owned credit sample")
+    count = a.numel()
+    if not count:
+        return dict(samples=0, advantage_mean=0., advantage_std=0.,
+            advantage_positive_fraction=0., residual_mean=0., residual_rms=0.,
+            advantage_times_noise_mean=[0.] * gaussian_noise.shape[-1],
+            advantage_times_noise_square_minus_one_mean=[0.] * gaussian_noise.shape[-1])
+    return dict(samples=count, advantage_mean=float(a.mean()),
+        advantage_std=float(a.std(correction=0)),
+        advantage_positive_fraction=float((a > 0).float().mean()),
+        residual_mean=float(r.mean()), residual_rms=float(r.square().mean().sqrt()),
+        advantage_times_noise_mean=(a[:, None] * n).mean(0).tolist(),
+        advantage_times_noise_square_minus_one_mean=(a[:, None] * (n.square() - 1.)).mean(0).tolist())
+
+
+def same_tree(a, b):
+    import torch
+    if isinstance(a, torch.Tensor):
+        return isinstance(b, torch.Tensor) and torch.equal(a, b)
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(same_tree(v, b[k]) for k, v in a.items())
+    if isinstance(a, (tuple, list)):
+        return len(a) == len(b) and all(same_tree(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source-root', type=Path, required=True)
+    parser.add_argument('--checkpoint', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--rollouts', type=int, default=12, choices=range(1, 13))
+    parser.add_argument('--target-contract', type=Path,
+                        help='Only the authenticated named v5-2176 to v6 candidate is supported')
+    parser.add_argument('--parent-source-root', type=Path,
+                        help='Original frozen parent modules, required for a named candidate')
+    args = parser.parse_args()
+    root = args.source_root.resolve()
+    sys.path[:0] = [str(root / 'scripts'), str(root / 'src')]
+    from train_chassis import preflight, configure_recovery_rollout
+    from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+    from wheeled_tasks.chassis.control_contract import load_chassis_control
+    digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+    checkpoint = args.checkpoint.resolve()
+    contract_path = checkpoint_contract_path(checkpoint)
+    contract, manifest = preflight(args.target_contract or contract_path)
+    if args.target_contract:
+        if not args.parent_source_root:
+            parser.error('A named candidate needs the independently frozen parent source')
+        from wheeled_tasks.chassis.local_command_revision import validate_parent
+        revision = validate_parent(checkpoint, contract, root)
+    else:
+        if args.parent_source_root:
+            parser.error('Parent-source override is restricted to the named candidate')
+        revision = None
+    assert contract['local_scratch'] and contract['target_num_envs'] == 512
+    assert contract['policy_dt'] == .005 and contract['num_steps_per_env'] == 96
+    startup = json.loads((checkpoint.parent / 'startup.json').read_text())
+    parent_root = args.parent_source_root.resolve() if args.target_contract else root
+    for name, expected in startup['source_sha256'].items():
+        assert digest(parent_root / name) == expected, name
+    args.output.mkdir(parents=True, exist_ok=False)
+    (args.output / 'source.py').write_bytes(Path(__file__).read_bytes())
+    (args.output / 'contract.json').write_bytes((args.target_contract or contract_path).read_bytes())
+    report = dict(schema='v6-local-native-credit-diagnosis-v1', status='starting',
+        started_at=datetime.now(timezone.utc).isoformat(), ppo_updates=0,
+        acceptance_evaluation=False, source_root=str(root), script_sha256=digest(Path(__file__)),
+        checkpoint=str(checkpoint), checkpoint_sha256=digest(checkpoint),
+        contract_sha256=digest(contract_path), num_envs=512, rollout_ticks=96,
+        requested_rollouts=args.rollouts, source_hashes_verified=len(startup['source_sha256']),
+        target_contract=str(args.target_contract) if args.target_contract else None,
+        target_contract_sha256=digest(args.target_contract) if args.target_contract else None,
+        parent_source_root=str(parent_root), named_revision=revision,
+        scope='Fresh training episodes at the saved curriculum clock. Native Gaussian act/process/GAE only. No optimizer update, no checkpoint written, no mid-rollout replay or fixed-case acceptance claim.')
+    launcher = env = None
+    try:
+        from isaaclab.app import AppLauncher
+        launcher = AppLauncher(dict(headless=True, enable_cameras=False, device='cuda:0',
+            kit_args='--/exts/omni.kit.telemetry/skipDeferredStartup=true'))
+        import numpy as np
+        import torch
+        from rsl_rl.runners import OnPolicyRunner
+        from torch.utils.tensorboard import SummaryWriter
+        from wheeled_tasks.chassis.env import ChassisEnv
+        torch.set_num_threads(4)
+        saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
+        assert saved['infos']['contract_sha256'] == digest(contract_path)
+        torch.manual_seed(290927)
+        env = ChassisEnv(contract, manifest, load_chassis_control(root / contract['control_math_source']),
+            root, stage_name='speed', num_envs=512, device='cuda:0', level=1., seed=290927)
+        cfg = json.loads((checkpoint.parent / 'agent_config.json').read_text())
+        runner = OnPolicyRunner(env, deepcopy(cfg), log_dir=None, device='cuda:0')
+        alg = runner.alg
+        alg.actor.load_state_dict(saved['actor_state_dict'], strict=True)
+        alg.critic.load_state_dict(saved['critic_state_dict'], strict=True)
+        alg.optimizer.load_state_dict(saved['optimizer_state_dict'])
+        before = {k: deepcopy(v.state_dict()) for k, v in
+            (('actor', alg.actor), ('critic', alg.critic), ('optimizer', alg.optimizer))}
+        def forbidden(*a, **kw):
+            raise RuntimeError('Optimization is forbidden in this zero-PPO diagnostic')
+        alg.update = forbidden
+        alg.optimizer.step = forbidden
+        adapter = configure_recovery_rollout(alg, env)
+        assert adapter is not None
+        clock = saved['infos']['stage_actor_update']
+        env.stage_actor_update = clock
+        env.global_actor_update = saved['infos']['global_actor_update']
+        env.training_transitions = saved['infos']['training_transitions']
+        torch.set_rng_state(saved['infos']['rng_state'])
+        torch.cuda.set_rng_state_all(saved['infos']['cuda_rng_states'])
+        env.generator.set_state(saved['infos']['env_rng_state'])
+        env.reset(torch.arange(512, device='cuda:0'))
+        obs = env.get_observations()
+        initial = dict(joint_position=env.robot.data.joint_pos.torch.cpu().numpy().copy(),
+            joint_velocity=env.robot.data.joint_vel.torch.cpu().numpy().copy(),
+            body_pose=env.robot.data.body_link_pose_w.torch.cpu().numpy().copy(),
+            profile_id=env.nonstandard_start.profile_ids.cpu().numpy().copy(),
+            policy_observation=obs['policy'].cpu().numpy().copy(),
+            critic_observation=obs['critic'].cpu().numpy().copy(),
+            cpu_rng=torch.get_rng_state().numpy().copy(),
+            cuda_rng=torch.cuda.get_rng_state().cpu().numpy().copy(),
+            environment_rng=env.generator.get_state().cpu().numpy().copy())
+        # Replay only the standard-normal kernel in an isolated RNG fork.
+        # The native distribution still performs its own unmodified sample.
+        with torch.random.fork_rng(devices=[torch.cuda.current_device()]):
+            initial['first_standard_gaussian'] = torch.normal(
+                torch.zeros((512, 6), device='cuda:0'),
+                torch.ones((512, 6), device='cuda:0')).cpu().numpy().copy()
+        assert np.array_equal(initial['cuda_rng'], torch.cuda.get_rng_state().cpu().numpy())
+        np.savez_compressed(args.output / 'initial.npz', **initial)
+        report['initial_sha256'] = digest(args.output / 'initial.npz')
+        report['actual_difficulty_samples'] = env.skills.verify_difficulty_samples()
+        arrays = {k: [] for k in ('advantages', 'residuals', 'gaussian_noise', 'learning',
+            'post_warmup', 'commands', 'episode_ticks', 'velocity', 'height', 'done')}
+        component_arrays = {}
+        populations = []
+        for rollout in range(args.rollouts):
+            means, stds, commands, ticks, velocity, height, done = [], [], [], [], [], [], []
+            components = {}
+            with torch.inference_mode():
+                for tick in range(96):
+                    command = obs['policy'][:, [0, 2, 3]].clone()
+                    command[:, 2] /= 5.
+                    action = alg.act(obs)
+                    means.append(alg.actor.output_mean.clone())
+                    stds.append(alg.actor.output_std.clone())
+                    obs, rewards, dones, extras = env.step(action)
+                    alg.process_env_step(obs, rewards, dones, extras)
+                    d = extras['diagnostics']
+                    commands.append(command)
+                    ticks.append(d['episode_ticks'].clone())
+                    velocity.append(d['velocity'].clone())
+                    height.append(d['height'].clone())
+                    done.append(dones.clone())
+                    for key, value in extras['native_reward_components'].items():
+                        components.setdefault(key, []).append(value.clone())
+                alg.compute_returns(obs)
+            storage = alg.storage
+            learning = adapter.learning.clone()
+            episode_ticks = torch.stack(ticks)
+            items = dict(advantages=storage.advantages.squeeze(-1).clone(),
+                residuals=(storage.returns - storage.values).squeeze(-1).clone(),
+                gaussian_noise=(storage.actions - torch.stack(means)) / torch.stack(stds),
+                learning=learning, post_warmup=learning & (episode_ticks * .005 > 1.),
+                commands=torch.stack(commands), episode_ticks=episode_ticks,
+                velocity=torch.stack(velocity), height=torch.stack(height), done=torch.stack(done))
+            for key, value in items.items():
+                arrays[key].append(value.cpu().numpy().copy())
+            for key, values in components.items():
+                component_arrays.setdefault(key, []).append(torch.stack(values).cpu().numpy().copy())
+            populations.append(dict(rollout=rollout, **adapter.metrics))
+            storage.clear()
+            report['completed_rollouts'] = rollout + 1
+        arrays = {key: np.concatenate(values) for key, values in arrays.items()}
+        component_arrays = {key: np.concatenate(values) for key, values in component_arrays.items()}
+        all_ids = torch.arange(512)
+        groups = [('all', all_ids)] + [(spec['group_name'], ids.cpu()) for ids, spec in env.skills.batches]
+        report['groups'] = {}
+        a, r, noise = [torch.from_numpy(arrays[k]) for k in ('advantages', 'residuals', 'gaussian_noise')]
+        masks = {key: torch.from_numpy(arrays[key]) for key in ('learning', 'post_warmup')}
+        for name, ids in groups:
+            entry = {}
+            for population, mask in masks.items():
+                eligible = mask[:, ids]
+                entry[population] = credit_statistics(a[:, ids], r[:, ids], noise[:, ids], eligible)
+                entry[population]['reward_density'] = {key: float(torch.from_numpy(value)[:, ids][eligible].mean())
+                    if bool(eligible.any()) else 0. for key, value in component_arrays.items()}
+            report['groups'][name] = entry
+        report['unchanged'] = {key: same_tree(before[key], module.state_dict()) for key, module in
+            (('actor', alg.actor), ('critic', alg.critic), ('optimizer', alg.optimizer))}
+        assert all(report['unchanged'].values())
+        assert env.stage_actor_update == clock and env.training_transitions == saved['infos']['training_transitions']
+        np.savez_compressed(args.output / 'rollouts.npz', **arrays,
+            **{'reward_' + key: value for key, value in component_arrays.items()})
+        report.update(status='completed', finished_at=datetime.now(timezone.utc).isoformat(),
+            curriculum_actor_update=clock, rollouts=populations, physics_steps=96 * args.rollouts,
+            learned_std_policy_order=saved['actor_state_dict']['distribution.std_param'].tolist(),
+            native_advantage_normalize_per_minibatch=alg.normalize_advantage_per_mini_batch,
+            scene_groups=env.scene_groups, arrays_sha256=digest(args.output / 'rollouts.npz'),
+            units=dict(advantages='native PPO advantage units', residuals='discounted reward',
+                gaussian_noise='unit-normal residual', reward_density='reward per simulated second'),
+            interpretation='Group-conditioned credit and noise moments are descriptive score estimates before PPO clipping/epochs, not a unique cause or guaranteed update direction. Post-warmup populations explicitly exclude episode age <=1s. No optimization or learning/curriculum clock advance occurred.')
+        with SummaryWriter(str(checkpoint.parent)) as writer:
+            for name, populations in report['groups'].items():
+                for population, statistics in populations.items():
+                    for key, value in statistics.items():
+                        if isinstance(value, (float, int)):
+                            writer.add_scalar(f'LocalDiagnostics/CreditProbe/{name}/{population}/{key}', value, clock)
+                        elif isinstance(value, list):
+                            for axis, number in enumerate(value):
+                                writer.add_scalar(f'LocalDiagnostics/CreditProbe/{name}/{population}/{key}/axis{axis}', number, clock)
+            writer.add_scalar('LocalDiagnostics/CreditProbe/rollouts', args.rollouts, clock)
+    except BaseException as error:
+        report.update(status='failed', error=repr(error), traceback=traceback.format_exc())
+        print(report['traceback'], flush=True)
+        raise
+    finally:
+        (args.output / 'diagnosis.json').write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
+        if env is not None:
+            env.close()
+        if launcher is not None:
+            launcher.app.close()
+
+
+if __name__ == '__main__':
+    main()
