@@ -846,3 +846,21 @@ PPO更新内存测试。原event稳定ReturnWindow标签，报告return_window_n
 最终Adam56320/157286400，所有时钟连续，无critic预热。恢复RNG后是新episode，
 不是模拟器中途重放。仍无长训准入；实际退出后原八场景比较初始/父2688/新2816，
 旧payload必须复现，保留全部失败/traces。25新更新与100旧更新才是等环境秒曝光。
+
+
+## v8受限128已从精确2688全状态启动（03:40 UTC）
+
+提交冻结cc9c9612f12fb05c4141c897a8164b482de3dc34，tmux v6-local-pilot016，
+原生PID939545/start7199058，512环境，384帧/lambda1，追加128至2816。
+归档SHA81b801d2…4bd6f4，完整来源/命令/独立恢复见pilot016_launch.json。
+actor/critic/17Adam逐值等pilot015父状态，Adam53760/学习std保留，CPU/CUDA/环境RNG
+恢复及课程2688实际包络采样通过；无新critic预热，恢复后创建新episode。
+原event六轴std/四conditioning标签当前有限，实际PPO已推进。
+
+原有首次命名seal2689只读深验SHAa710d5ff…91ac4：9actor/8critic、17Adam一二阶矩
+全部改变且有限，Adam53780、所有学习/课程/消费时钟2689、132317184 transitions，
+CPU/CUDA/环境RNG封存。没有signal或制造额外快照。周期3000在本块外，不能把
+尚未到期的周期seal当缺失；最终2816应Adam56320/157286400 transitions。
+全消费3904起算，本段结束4032、余15968；旧消费全部保持。本段仍为有界试验，
+无长训准入，不能把新回报估计或数值有限当行为正常。完成并真实退出后冻结源eval016
+同原八场景/种子/时长/warmup/阈值比较初始、父2688、新2816，保留全部失败/traces。
