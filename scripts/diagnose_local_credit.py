@@ -76,7 +76,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--rollouts', type=int, default=12, choices=range(1, 13))
     parser.add_argument('--target-contract', type=Path,
-                        help='Only an authenticated named local v6 rehearsal or v7 entropy candidate is supported')
+                        help='Only an authenticated named local rehearsal, entropy or return-window candidate is supported')
     parser.add_argument('--parent-source-root', type=Path,
                         help='Original frozen parent modules, required for a named candidate')
     parser.add_argument('--event-attribution', action='store_true',
@@ -98,7 +98,9 @@ def main():
             parser.error('A named candidate needs the independently frozen parent source')
         from wheeled_tasks.chassis import local_scratch
         plan_file = contract.get('local_scratch', {}).get('plan_file')
-        if plan_file == local_scratch.ENTROPY_AB_PLAN_FILE:
+        if plan_file == local_scratch.RETURN_PLAN_FILE:
+            from wheeled_tasks.chassis.local_return_revision import validate_parent
+        elif plan_file == local_scratch.ENTROPY_AB_PLAN_FILE:
             from wheeled_tasks.chassis.local_entropy_revision import validate_parent
         elif plan_file == local_scratch.REHEARSAL_PLAN_FILE:
             from wheeled_tasks.chassis.local_command_revision import validate_parent
@@ -110,7 +112,8 @@ def main():
             parser.error('Parent-source override is restricted to the named candidate')
         revision = None
     assert contract['local_scratch'] and contract['target_num_envs'] == 512
-    assert contract['policy_dt'] == .005 and contract['num_steps_per_env'] == 96
+    assert contract['policy_dt'] == .005 and contract['num_steps_per_env'] in (96, 384)
+    rollout_ticks = contract['num_steps_per_env']
     startup = json.loads((checkpoint.parent / 'startup.json').read_text())
     parent_root = args.parent_source_root.resolve() if args.target_contract else root
     for name, expected in startup['source_sha256'].items():
@@ -122,7 +125,7 @@ def main():
         started_at=datetime.now(timezone.utc).isoformat(), ppo_updates=0,
         acceptance_evaluation=False, source_root=str(root), script_sha256=digest(Path(__file__)),
         checkpoint=str(checkpoint), checkpoint_sha256=digest(checkpoint),
-        contract_sha256=digest(contract_path), num_envs=512, rollout_ticks=96,
+        contract_sha256=digest(contract_path), num_envs=512, rollout_ticks=rollout_ticks,
         requested_rollouts=args.rollouts, source_hashes_verified=len(startup['source_sha256']),
         target_contract=str(args.target_contract) if args.target_contract else None,
         target_contract_sha256=digest(args.target_contract) if args.target_contract else None,
@@ -147,6 +150,9 @@ def main():
         cfg = json.loads((checkpoint.parent / 'agent_config.json').read_text())
         if args.target_contract:
             cfg['algorithm']['entropy_coef'] = contract['entropy_coef']
+            cfg['num_steps_per_env'] = rollout_ticks
+            for key in ('gamma', 'lam'):
+                cfg['algorithm'][key] = contract[key]
         runner = OnPolicyRunner(env, deepcopy(cfg), log_dir=None, device='cuda:0')
         alg = runner.alg
         report['effective_entropy_coef'] = verify_entropy_coef(alg, contract['entropy_coef'])
@@ -223,13 +229,15 @@ def main():
                 'push_applied_for_next_state', 'omega')})
         component_arrays = {}
         populations = []
+        tail_values = []
+        torch.cuda.reset_peak_memory_stats()
         for rollout in range(args.rollouts):
             means, stds, commands, ticks, velocity, height, done = [], [], [], [], [], [], []
             components = {}
             event_records = {}
             birth_records = {}
             with torch.inference_mode():
-                for tick in range(96):
+                for tick in range(rollout_ticks):
                     if args.birth_attribution:
                         # Ordinary posture can reset inside step. Snapshot the
                         # ownership of the interval before invoking the actor.
@@ -271,6 +279,7 @@ def main():
                     done.append(dones.clone())
                     for key, value in extras['native_reward_components'].items():
                         components.setdefault(key, []).append(value.clone())
+                tail_values.append(alg.critic(obs).squeeze(-1).cpu().numpy().copy())
                 alg.compute_returns(obs)
             storage = alg.storage
             learning = adapter.learning.clone()
@@ -317,11 +326,17 @@ def main():
         assert env.stage_actor_update == clock and env.training_transitions == saved['infos']['training_transitions']
         np.savez_compressed(args.output / 'rollouts.npz', **arrays,
             **{'reward_' + key: value for key, value in component_arrays.items()})
+        np.savez_compressed(args.output / 'return_tails.npz', critic_value=np.stack(tail_values))
         report.update(status='completed', finished_at=datetime.now(timezone.utc).isoformat(),
-            curriculum_actor_update=clock, rollouts=populations, physics_steps=96 * args.rollouts,
+            curriculum_actor_update=clock, rollouts=populations, physics_steps=rollout_ticks * args.rollouts,
+            native_ppo_timing=dict(num_steps_per_env=rollout_ticks, gamma=alg.gamma, lam=alg.lam),
             learned_std_policy_order=saved['actor_state_dict']['distribution.std_param'].tolist(),
             native_advantage_normalize_per_minibatch=alg.normalize_advantage_per_mini_batch,
             scene_groups=env.scene_groups, arrays_sha256=digest(args.output / 'rollouts.npz'),
+            return_tails_sha256=digest(args.output / 'return_tails.npz'),
+            device_memory=dict(peak_allocated_bytes=torch.cuda.max_memory_allocated(),
+                peak_reserved_bytes=torch.cuda.max_memory_reserved(),
+                scope='rollout-only diagnostic; no optimizer step or training memory claim'),
             units=dict(advantages='native PPO advantage units', residuals='discounted reward',
                 gaussian_noise='unit-normal residual', reward_density='reward per simulated second'),
             interpretation='Group-conditioned credit and noise moments are descriptive score estimates before PPO clipping/epochs, not a unique cause or guaranteed update direction. Post-warmup populations explicitly exclude episode age <=1s. No optimization or learning/curriculum clock advance occurred.')

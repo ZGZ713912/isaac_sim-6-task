@@ -14,6 +14,7 @@ PLAN_FILE = "contracts/v6_local_scratch_200hz_v4.json"
 BIRTH_RAMP_PLAN_FILE = "contracts/v6_local_scratch_200hz_v5.json"
 REHEARSAL_PLAN_FILE = "contracts/v6_local_scratch_200hz_v6.json"
 ENTROPY_AB_PLAN_FILE = "contracts/v6_local_scratch_200hz_v7.json"
+RETURN_PLAN_FILE = "contracts/v6_local_scratch_200hz_v8.json"
 ENTROPY_PLAN_FILE = "contracts/v6_local_scratch_200hz_v3.json"
 LOW_NOISE_PLAN_FILE = "contracts/v6_local_scratch_200hz_v2.json"
 POLICY200_PLAN_FILE = "contracts/v6_local_scratch_200hz_v1.json"
@@ -27,7 +28,7 @@ def digest(path):
 
 def read_plan(root, plan_file=PLAN_FILE):
     root = Path(root)
-    if plan_file not in (ENTROPY_AB_PLAN_FILE, REHEARSAL_PLAN_FILE, BIRTH_RAMP_PLAN_FILE, PLAN_FILE, ENTROPY_PLAN_FILE, LOW_NOISE_PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
+    if plan_file not in (RETURN_PLAN_FILE, ENTROPY_AB_PLAN_FILE, REHEARSAL_PLAN_FILE, BIRTH_RAMP_PLAN_FILE, PLAN_FILE, ENTROPY_PLAN_FILE, LOW_NOISE_PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
         raise ValueError("Unsupported local scratch plan file")
     plan = json.loads((root / plan_file).read_text())
     if plan.get("schema") != "v6-local-scratch-plan-v1":
@@ -56,6 +57,9 @@ def read_plan(root, plan_file=PLAN_FILE):
         validate_plan(plan, root)
     if plan_file == ENTROPY_AB_PLAN_FILE:
         from .local_entropy_revision import validate_plan
+        validate_plan(plan, root)
+    if plan_file == RETURN_PLAN_FILE:
+        from .local_return_revision import validate_plan
         validate_plan(plan, root)
     return plan
 
@@ -108,10 +112,10 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         checkpoint_first_update=plan["checkpoint_first_update"])
     for field, origin in plan["curriculum_origins"].items():
         worker[field]["origin_actor_update"] = origin
-    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE):
+    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE):
         from .nonstandard_start import ramped_start_settings
         worker["nonstandard_start"] = ramped_start_settings(plan["curriculum_origins"]["nonstandard_start"])
-    if plan_file in (REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE):
+    if plan_file in (REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE):
         from .locomotion_difficulty import local_rehearsal_settings
         worker["locomotion_difficulty"] = local_rehearsal_settings(0)
     marker = dict(schema=SCHEMA, plan_file=plan_file, plan_sha256=digest(root / plan_file),
@@ -126,6 +130,11 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         budget.update(policy_dt=worker["policy_dt"],
             rollout_seconds=worker["num_steps_per_env"] * worker["policy_dt"],
             simulated_seconds_per_env_ceiling=plan["update_ceiling"] * worker["num_steps_per_env"] * worker["policy_dt"])
+    if plan_file == RETURN_PLAN_FILE:
+        revision = plan["local_return_revision"]
+        budget["transition_ceiling"] = revision["training_transitions"] + (
+            plan["update_ceiling"] - revision["learning_updates"]) * num_envs * worker["num_steps_per_env"]
+        budget["simulated_seconds_per_env_ceiling"] = budget["transition_ceiling"] / num_envs * worker["policy_dt"]
     worker.update(budget_spec_file=paths["budget"], budget_spec_sha256=hashlib.sha256(_encode(budget)).hexdigest())
     source_design = json.loads((root / plan["source_design_file"]).read_text())
     row = deepcopy(source_design["stages"][plan["stage"]]["roles"]["train"])
@@ -149,10 +158,10 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         row["runtime"]["action_difference_reference_dt"] = plan["action_difference_reference_dt"]
         for field in ("finite_passive_landing", "start_stop_timing", "nonstandard_start", "release_stop"):
             row["runtime"][field]["policy_dt"] = plan["timing"]["policy_dt"]
-    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE):
+    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE):
         from .nonstandard_start import runtime_expectation
         row["runtime"]["nonstandard_start"] = runtime_expectation(worker["nonstandard_start"], worker["policy_dt"])
-    if plan_file in (REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE):
+    if plan_file in (REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE):
         row["runtime"]["locomotion_difficulty"] = dict(enabled=True,
             settings=deepcopy(worker["locomotion_difficulty"]))
     design = dict(schema=source_design["schema"], status="frozen", scope=source_design["scope"],
@@ -193,7 +202,7 @@ def validate_config(config, root):
 def validate_invocation(config, args, root):
     validate_config(config, root)
     if sum(bool(getattr(args, name, False)) for name in (
-            "resume_local_birth_revision", "resume_local_command_revision", "resume_local_entropy_revision")) > 1:
+            "resume_local_birth_revision", "resume_local_command_revision", "resume_local_entropy_revision", "resume_local_return_revision")) > 1:
         raise ValueError("Choose exactly one named local revision")
     plan = read_plan(root, config["local_scratch"]["plan_file"])
     # A continuation keeps this exact local contract and sealed consumption.
@@ -208,7 +217,12 @@ def validate_invocation(config, args, root):
         raise ValueError("Local scratch requires fresh learning state, zero clocks and its frozen invocation")
     if args.resume:
         try:
-            if getattr(args, "resume_local_entropy_revision", False):
+            if getattr(args, "resume_local_return_revision", False):
+                from .local_return_revision import validate_parent as validate_revision_parent
+                parent = validate_revision_parent(args.resume, config, root)["parent_updates"]
+                if args.updates > plan["local_return_revision"]["first_block_update_ceiling"]:
+                    raise ValueError("The first return revision block is bounded to 128 updates")
+            elif getattr(args, "resume_local_entropy_revision", False):
                 from .local_entropy_revision import validate_parent as validate_revision_parent
                 parent = validate_revision_parent(args.resume, config, root)["parent_updates"]
                 if args.updates > plan["local_entropy_revision"]["first_block_update_ceiling"]:
@@ -230,10 +244,11 @@ def validate_invocation(config, args, root):
         if parent + args.updates > plan["update_ceiling"]:
             raise ValueError("Local continuation exceeds the cumulative local update ceiling")
         return parent
-    if (config["local_scratch"]["plan_file"] in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE)
+    if (config["local_scratch"]["plan_file"] in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE)
             or getattr(args, "resume_local_birth_revision", False)
             or getattr(args, "resume_local_command_revision", False)
-            or getattr(args, "resume_local_entropy_revision", False)):
+            or getattr(args, "resume_local_entropy_revision", False)
+            or getattr(args, "resume_local_return_revision", False)):
         raise ValueError("The local revision requires full-state continuation, never fresh initialization")
     return 0
 
@@ -294,14 +309,17 @@ def source_files(root, plan_file=PLAN_FILE):
         "src/wheeled_tasks/chassis/release_stop.py", "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",
         "src/wheeled_tasks/chassis/locomotion_difficulty.py", "src/wheeled_tasks/chassis/graded_locomotion_revision.py",
         *([plan["prior_experiment_receipt_file"]] if plan.get("prior_experiment_receipt_file") else [])]
-    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE):
+    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE):
         files += ["src/wheeled_tasks/chassis/local_birth_revision.py", PLAN_FILE]
         files += [row["file"] for row in plan["local_birth_revision"]["evidence"]]
-    if plan_file in (REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE):
+    if plan_file in (REHEARSAL_PLAN_FILE, ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE):
         files += ["src/wheeled_tasks/chassis/local_command_revision.py", BIRTH_RAMP_PLAN_FILE]
         files += [row["file"] for row in plan["local_command_revision"]["evidence"]]
-    if plan_file == ENTROPY_AB_PLAN_FILE:
+    if plan_file in (ENTROPY_AB_PLAN_FILE, RETURN_PLAN_FILE):
         files += ["src/wheeled_tasks/chassis/local_entropy_revision.py", REHEARSAL_PLAN_FILE,
                   read_plan(root, REHEARSAL_PLAN_FILE)["prior_experiment_receipt_file"]]
         files += [row["file"] for row in plan["local_entropy_revision"]["evidence"]]
+    if plan_file == RETURN_PLAN_FILE:
+        files += ["src/wheeled_tasks/chassis/local_return_revision.py", ENTROPY_AB_PLAN_FILE]
+        files += [row["file"] for row in plan["local_return_revision"]["evidence"]]
     return files
