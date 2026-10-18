@@ -1,0 +1,519 @@
+{
+  "schema": "v6-local-policy-credit-native-pair-v1",
+  "recorded_at": "2026-10-18T07:51:57.077197+00:00",
+  "status": "completed_bitwise_pair",
+  "ppo_updates": 0,
+  "optimizer_steps": 0,
+  "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T074500Z-policy-credit-291a705/source",
+  "source_archive_sha256": "e8a7696d5d69e167612f0bd87cfc0b12a8c3b9c20d44701d6b8ea6e859b71ec3",
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot020/model_final.pt",
+  "checkpoint_sha256": "5a2688a514cdbc2e879cba3df9f5739ba1188ae1ec47375902c1dd493ec874a7",
+  "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/policy_credit_probe001_baseline",
+  "candidate": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/policy_credit_probe001_candidate",
+  "baseline_diagnosis_sha256": "d4fb47c8180d0c35ceac680bb7fef870e5952cd89920dc29f202eeaae4f6bc77",
+  "candidate_diagnosis_sha256": "19bc7a87e720b45e6c186674b03ace02279a51c2db8846ce2a726be482805932",
+  "initial_and_rng_exact": true,
+  "shared_rollout_arrays_bitwise": true,
+  "shared_critic_tail_bitwise": true,
+  "baseline_and_candidate_models_optimizers_unchanged": true,
+  "baseline_rollout_count": 3,
+  "candidate_rollout_count": 3,
+  "arrays": {
+    "advantages": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "fd9d0b36daca75a80cc9dfab73c7e3e1adad32a6b871eadbb8756fcc42000260"
+    },
+    "residuals": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "aaeb7b5c4e01e782e6796f291838bc41520a37de5e368450568e551e64f2cf11"
+    },
+    "gaussian_noise": {
+      "shape": [
+        1152,
+        512,
+        6
+      ],
+      "sha256": "d2d174e7ea9e4db3ae118bab167360669dce9d848041932f2d8d510d2aa0fddd"
+    },
+    "learning": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "0fe7eb5847025081317d19a52fc83346d9f5b6a65332c0fd62e9e1907c6e01c4"
+    },
+    "post_warmup": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "5b8e85886a7a9db7d2a0d149bb191453e5a9da4158e7e965567ba107acfcbe59"
+    },
+    "commands": {
+      "shape": [
+        1152,
+        512,
+        3
+      ],
+      "sha256": "06e725e760a616355c10d159a74a5abb2e6e1c73a1e24fb111af4590a73d8cc5"
+    },
+    "episode_ticks": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "88d7c60dfc340306ad5d18cc08f115864f16adc5e00814d3d24e0ec2773c3c12"
+    },
+    "velocity": {
+      "shape": [
+        1152,
+        512,
+        3
+      ],
+      "sha256": "9787c6a58fd78c686c746d93398d6fc5c489b2558b698ddf16e04fa6309de402"
+    },
+    "height": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "5e506ea002d374f85f55070e2744339991a562cd3c35d9a4b6013f8c877d7058"
+    },
+    "done": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "c5ec8cd3439f857a97198b11ab011effe1f99d2b3b93169c0bd169a581a42b60"
+    },
+    "failure_event": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "93a6dc1fb4d7fbb3a2db309e11a4501659515be8cd97d545958703d7c55ca12b"
+    },
+    "success_event": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c"
+    },
+    "event_gae": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "25cd8957e77eaef3b84b5afcaef84bb71df4023bfa8e9749549f8af553362f3b"
+    },
+    "raw_reward": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "91dd1641dce2404c4827e26c93d5d33c1c3e5c9465c1daa0776d2069ed7febf7"
+    },
+    "storage_reward": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "91dd1641dce2404c4827e26c93d5d33c1c3e5c9465c1daa0776d2069ed7febf7"
+    },
+    "stored_value": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "4fafe2b805a63e8feb5c16237253b4203a3d11a0cfaa095e00fa6365264adc3b"
+    },
+    "bootstrap": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "ff793b51dfe66573516fc11f129cd148d80e534f44990456475effd166e79326"
+    },
+    "terminated": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "c5ec8cd3439f857a97198b11ab011effe1f99d2b3b93169c0bd169a581a42b60"
+    },
+    "event_payment_reconstruction_error": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "714490c1ca6e0f5f10c374acd60e75466640c312015af157a2189f2fb303a3d5"
+    },
+    "birth_profile_id": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "2f7357e92c1da4ec6739eb41dc29ef53116e224c5efff05a4e0ebb2ec7b32efa"
+    },
+    "birth_level_id": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "6e68fee2ca4220fcd76e8b3cb5658f86d3d97bcb432def72573b72073368a6f3"
+    },
+    "ordinary_birth_selected": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "3b17ed1a0d44c9880e52e60ecaea713c4a42fbf3212974cfc4ef1d6a55ef9072"
+    },
+    "ordinary_birth_angles": {
+      "shape": [
+        1152,
+        512,
+        2
+      ],
+      "sha256": "73ddea8632323ed8a7cce05226bc208722df6c1d585d8559b71033ee1c27ac42"
+    },
+    "ordinary_birth_eligible": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "e9a694650e153617a58033a67c89a910c3d4c2ca7b68c129113407ee2a7c358a"
+    },
+    "push_applied_for_next_state": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "c31615e566e9af5125da7945eb92fcb17ebd13fa16aad5d92a43f18f97b3de1f"
+    },
+    "omega": {
+      "shape": [
+        1152,
+        512,
+        3
+      ],
+      "sha256": "0925bea14782551c47e11da5a547830e978dcea296499c080f09991c920cbfb6"
+    },
+    "reward_pitch_exp": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "74855de2e896000f64fb48eac8168f4f858a8ca5ef7f084d11e40e62e802b9e7"
+    },
+    "reward_roll_exp": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "106d24deb60c9aa09d45d084629ca293fb2d15c518372ca46691011bcede73fc"
+    },
+    "reward_pitch_velocity": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "9d4195f4946b5f6733b472b2ac9f087b5292140775d4068ebd0e27e72a5e8817"
+    },
+    "reward_roll_velocity": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "025c20edce4f656ef973adb69349cac828ee613c4bb6b0d6b88fa9d2c8a725d7"
+    },
+    "reward_leg_velocity": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "98684b5b33a0b34586278b5fcf63188cb99b71881f65a8d113d1cbd2a0f80a26"
+    },
+    "reward_leg_acceleration": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "c6a03093282f56bc909246130efe19a12ed2c6e4a24267669be328d990b40c20"
+    },
+    "reward_wheel_velocity": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "ef58845b6f34086862361450118e3f86c0d79879aeb262bc6022e3e9d0e002fc"
+    },
+    "reward_wheel_acceleration": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "adf1ff678e13ffeffd538de6b4f92776bb8059a0fbc7f1d380d73cfea2995ec8"
+    },
+    "reward_motor_torque": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "97a22af159f19af1dac70d2548ce1fc4dac66099103b98997b331480c533f0d9"
+    },
+    "reward_wheel_power": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "df1f3d739dad5bb786405529639d3a270532b317a0ecdf3c5e1a2ed96daea45e"
+    },
+    "reward_vertical_velocity": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c"
+    },
+    "reward_horizontal_angular_velocity": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "917775a3391ad9f57c4e5e9274d1da058c6916c8a83075d10d82357a3dd8a566"
+    },
+    "reward_action_rate": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "c3cf087f968b435727ebe5eb050dc972bce9ff8bf2cb864c4b10af355fdb6be5"
+    },
+    "reward_leg_action_smoothness": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "7924d6ea6bd045e276d2349909d2569fd41fabf15ce9d898b659b3774865992c"
+    },
+    "reward_wheel_action_smoothness": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "f68fbb0a85184eac3e1e026129722acd7b847bfa02d406106deb7e4ed909a53e"
+    },
+    "reward_no_fork": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "434ba8093d5de9e413e9887eda18bfa0007a491621121b7fe7397ebdaf9fd2cd"
+    },
+    "reward_no_fork_square": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "1682b52bc04b0305454c84492baf1785bf02fa53f1a1d6eb2a20ea586976aa12"
+    },
+    "reward_undesired_contact": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "2b088f23c9f27d0df090caf5a1c6cb4f7e548eb89ba14e755c7429905156fb87"
+    },
+    "reward_landing_height_tracking": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "0a7caddf9bdee523482b3a51b5598614f15bead120e6eb44e6407a5e5aaf3ada"
+    },
+    "reward_landing_velocity_tracking": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "0a7caddf9bdee523482b3a51b5598614f15bead120e6eb44e6407a5e5aaf3ada"
+    },
+    "reward_landing_impact": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "2503e9d4982ab60adeb8aaf2a5cd592151c59fd63573c0a6f07e433dd1a97ff0"
+    },
+    "reward_air_wheel_centering": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c"
+    },
+    "reward_air_low_wheel_torque": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c"
+    },
+    "reward_air_leg_retraction": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c"
+    },
+    "reward_locomotion_pitch_floor": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "57ce3175093437bc1e9d903540e9ebd08e978b8fdf90bc37db62683245082e4b"
+    },
+    "reward_locomotion_roll_floor": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "5fce4857a765b649058665eea86008330de7ca78a566d75c0b50678ec855431b"
+    },
+    "reward_dense_height_broad": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "3a5c11788c234ed25843ebc82db90e491cd57da6a8968ae1ad9371f7ea44958a"
+    },
+    "reward_dense_height_precision": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "1f2c5c102b26632aa800ed88e9b67ea188dcd1a591a677efaa3b00fdce1ae005"
+    },
+    "reward_dense_velocity_broad": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "84d962a8a0ae000f8d61e728f01f2403bba35af6692250e69c88fca9fdb12aed"
+    },
+    "reward_dense_velocity_precision": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "f160f8d45eb96a67e6df531e92fe8d4de473b56faf2e1e8b05de9da1380bf82f"
+    },
+    "reward_dense_lateral_broad": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "1eab17ba59c8b92a5fe4e1ae9844e581142df086d75440c1b0930220fdc28e81"
+    },
+    "reward_dense_lateral_precision": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "41933a13d63f15d410c2652265e54abff0ae4fa7e9559e666103c1da7918fc66"
+    },
+    "reward_dense_yaw_broad": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "2fb49f8c44f456116adea707eaa79425e77cb832d583369b49da06e96fbd743d"
+    },
+    "reward_dense_yaw_precision": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "2ceac3ed35151cbd5759205df61be2fd40d5f71ddc96abf6e81d93238127df7f"
+    },
+    "reward_dense_stationary_broad": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "810472977fe5e26ccd94b6571dd185c459531b0374d00a542f95b4dced6665c5"
+    },
+    "reward_dense_stationary_precision": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "0fef1ecca1f6511fadc8730f6200c3d6cf1e7b5db00172ded64d9165683df57b"
+    },
+    "reward_track_lin_vel": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "b375f53321b69fc615dce8bef1336725c0d87d342be3fb6c737c74d9d9af9ede"
+    },
+    "reward_track_yaw": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "b375f53321b69fc615dce8bef1336725c0d87d342be3fb6c737c74d9d9af9ede"
+    },
+    "reward_track_height": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "a3b700115de938d3f7392ece3b2c858c9e07b0373b0f0eea01c20bd28d42cf34"
+    },
+    "reward_stand_still_lin_vel": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "8c10bfce4e1bac63b397f957c033c8de9ec45d616e2a557143ddcac8882b2afb"
+    },
+    "reward_dense_spin_velocity_broad": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "254310635c987fe7dd785750fecb94a60e4aa4dbbe6c3c515edda07b8f2a5daa"
+    },
+    "reward_dense_spin_velocity_precision": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "b7e8e24c93f5b7a8c9bb1a9263a9096920c9c2551f18fa5991b4d234164ade94"
+    },
+    "reward_working_margin": {
+      "shape": [
+        1152,
+        512
+      ],
+      "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c"
+    }
+  },
+  "extra_candidate_arrays": [
+    "policy_input",
+    "native_action",
+    "native_log_prob",
+    "native_mean",
+    "native_std"
+  ],
+  "scope": "Only recorded native arrays were paired. The policy-credit flag copied existing rollout storage at complete boundaries; it added no actor forward/sample/update/optimizer step. This does not certify all hidden simulator state or behavior."
+}

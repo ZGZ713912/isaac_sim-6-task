@@ -1,0 +1,41 @@
+{
+  "schema": "v6-local-policy-credit-diagnosis-v1",
+  "recorded_at": "2026-10-18T07:55:00Z",
+  "status": "completed_zero_PPO_no_stable_task_interference_evidence",
+  "ppo_updates": 0,
+  "optimizer_steps": 0,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot020/model_final.pt",
+  "checkpoint_sha256": "5a2688a514cdbc2e879cba3df9f5739ba1188ae1ec47375902c1dd493ec874a7",
+  "source_archive_sha256": "e8a7696d5d69e167612f0bd87cfc0b12a8c3b9c20d44701d6b8ea6e859b71ec3",
+  "source_commit": "291a705db35cdb4f8aac27cd131cf94c938a5390",
+  "native_pair": "reports/local_training_20261017/policy_credit_native_pair001.json",
+  "baseline_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/policy_credit_probe001_baseline",
+  "candidate_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/policy_credit_probe001_candidate",
+  "analysis": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/policy_credit_analysis001",
+  "cpu_validation": "reports/local_training_20261017/policy_credit_implementation001.json",
+  "native_pair_scope": "Two serial independent 512-environment 3x384 native rollouts from the saved pilot020 checkpoint/RNG. Candidate only copied native rollout storage at completed boundaries; it added no actor forward/sample/update/optimizer step.",
+  "native_pair_result": {
+    "initial_and_rng_bitwise_equal": true,
+    "original_rollout_arrays_bitwise_equal": true,
+    "critic_tail_bitwise_equal": true,
+    "actor_critic_optimizer_unchanged": true,
+    "baseline_exit_code": 0,
+    "candidate_exit_code": 0,
+    "candidate_extra_arrays": ["policy_input", "native_action", "native_log_prob", "native_mean", "native_std"]
+  },
+  "gradient_analysis": {
+    "rollouts": 3,
+    "samples_per_rollout": [192908, 196508, 196588],
+    "native_vs_within_bucket_cosine": [0.9972545587738804, 0.9962447986502059, 0.9990825456670948],
+    "aggregate_native_vs_within_bucket_cosine": 0.9982404409831996,
+    "bucket_mean_advantage_variance_fraction": [0.008639263084876139, 0.02120463692470748, 0.0074159746415048055],
+    "command_buckets": ["stand_low", "stand_mid", "stand_high", "forward", "backward", "yaw_positive", "yaw_negative", "other"],
+    "interpretation": "The old-policy score gradient and command-bucket-centered component are nearly aligned in all three serial rollouts. Bucket-mean advantage variance is small (0.74% to 2.12%); one backward-bucket cosine is negative in one rollout, but this is not stable paired training-seed evidence. No demonstrated task-interference mechanism, reward fix, entropy fix, or optimizer fix follows."
+  },
+  "rsl_event": {"event_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot020", "tag_prefix": "LocalDiagnostics/PolicyCredit/rolloutN", "step": 3073},
+  "training_contract_unchanged": true,
+  "full_training_admitted": false,
+  "total_consumption": 4417,
+  "remaining_total_budget": 15583,
+  "next_step": "Retain the negative behavior result and do not add PPO on this diagnosis alone. A future algorithm change requires a separate named plan/design/CPU-negative/zero-PPO identity and budget receipt based on a new causal hypothesis."
+}

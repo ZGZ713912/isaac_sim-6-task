@@ -1068,3 +1068,11 @@ eval020原初始/共同父2945的完整payload精确复现eval019，原八场景
 `command_probe005`零PPO完成：回放原前序172+3200帧，8条代表value轨迹逐位复现；当前1000帧6类代表数组逐位复现eval020。32首回合均存活5秒，命令列误差0，25600个post-warmup名义样本动作和请求力矩未限幅；actor/critic不变、Adam空。640份同输入离线反事实仅改一个命令列，其余34列保持，CPU/GPU最大差2.682e-7，未发反事实动作到模拟器。
 
 020同输入vx -.5→+.5的两轮目标只变-.0205/+.8190rad/s；高度.23→.43的四腿目标只变-.01442/+.01116/+.01021/-.00750rad。命令仍被网络使用，但响应弱，不能把非零响应当正确跟踪，也不能单独归因为某个奖励或优化器。详见`command_diagnosis002.json`，基础行为门仍关闭，全部消费4417。下一步用当前训练分布的原生信用及只读梯度归属诊断检查任务干扰假设，暂不追加PPO或改变控制。
+
+## 2026-10-18 07:55 UTC：只读策略信用分解未发现稳定任务抵消
+
+`policy_credit_implementation001.json` 的 11 项针对性 CPU 检查通过。新增记录选项只在完整原生 rollout 边界复制已有 storage 的 policy 输入、动作、Gaussian mean/std/log-prob；无额外 actor forward/sample/update/optimizer.step。两个串行独立进程均从 pilot020-3073 保存的状态/RNG、512 环境各 3×384 帧启动，初态/RNG/原有 rollout、critic tail 逐位相同，actor/critic/Adam不变；新增记录为 `policy_credit_native_pair001.json`，不能扩称全部隐藏模拟器状态。
+
+`policy_credit_diagnosis001.json` 在同一保存 actor 上做 CPU 旧策略 score-gradient 分解，按当前命令将学习样本拆为低/中/高静站、前/后行、正/反 yaw 与 other。原始梯度与命令桶内中心化梯度 cosine 为 0.99725、0.99624、0.99908，合并 0.99824；桶均值优势方差占比 0.74%–2.12%。单次 backward 桶出现负 cosine 不稳定，不能作为任务抵消或唯一根因。该分析没有 PPO/Adam/奖励/熵/控制改动，指标写入 pilot020 原 event `LocalDiagnostics/PolicyCredit/rolloutN`，step3073。
+
+因此当前没有足够证据进行另一次同理由追加 PPO，也未获得基础站立、前后速度或高度跟踪资格；长训门保持关闭，累计消费4417、剩15583。后续若要改算法，必须提出新的因果假设、独立命名计划、负例和 zero-PPO 身份核对并携带全部账本。
