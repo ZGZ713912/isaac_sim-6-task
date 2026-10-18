@@ -76,7 +76,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--rollouts', type=int, default=12, choices=range(1, 13))
     parser.add_argument('--target-contract', type=Path,
-                        help='Only the authenticated named v5-2176 to v6 candidate is supported')
+                        help='Only an authenticated named local v6 rehearsal or v7 entropy candidate is supported')
     parser.add_argument('--parent-source-root', type=Path,
                         help='Original frozen parent modules, required for a named candidate')
     parser.add_argument('--event-attribution', action='store_true',
@@ -84,7 +84,7 @@ def main():
     args = parser.parse_args()
     root = args.source_root.resolve()
     sys.path[:0] = [str(root / 'scripts'), str(root / 'src')]
-    from train_chassis import preflight, configure_recovery_rollout
+    from train_chassis import preflight, configure_recovery_rollout, verify_entropy_coef
     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
     from wheeled_tasks.chassis.control_contract import load_chassis_control
     digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
@@ -94,7 +94,14 @@ def main():
     if args.target_contract:
         if not args.parent_source_root:
             parser.error('A named candidate needs the independently frozen parent source')
-        from wheeled_tasks.chassis.local_command_revision import validate_parent
+        from wheeled_tasks.chassis import local_scratch
+        plan_file = contract.get('local_scratch', {}).get('plan_file')
+        if plan_file == local_scratch.ENTROPY_AB_PLAN_FILE:
+            from wheeled_tasks.chassis.local_entropy_revision import validate_parent
+        elif plan_file == local_scratch.REHEARSAL_PLAN_FILE:
+            from wheeled_tasks.chassis.local_command_revision import validate_parent
+        else:
+            parser.error('The target must be an independently authenticated named local revision')
         revision = validate_parent(checkpoint, contract, root)
     else:
         if args.parent_source_root:
@@ -136,8 +143,11 @@ def main():
         env = ChassisEnv(contract, manifest, load_chassis_control(root / contract['control_math_source']),
             root, stage_name='speed', num_envs=512, device='cuda:0', level=1., seed=290927)
         cfg = json.loads((checkpoint.parent / 'agent_config.json').read_text())
+        if args.target_contract:
+            cfg['algorithm']['entropy_coef'] = contract['entropy_coef']
         runner = OnPolicyRunner(env, deepcopy(cfg), log_dir=None, device='cuda:0')
         alg = runner.alg
+        report['effective_entropy_coef'] = verify_entropy_coef(alg, contract['entropy_coef'])
         alg.actor.load_state_dict(saved['actor_state_dict'], strict=True)
         alg.critic.load_state_dict(saved['critic_state_dict'], strict=True)
         alg.optimizer.load_state_dict(saved['optimizer_state_dict'])
