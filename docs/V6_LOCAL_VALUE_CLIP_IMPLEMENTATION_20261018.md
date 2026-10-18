@@ -25,3 +25,9 @@
 pilot019正常完成3073/Adam61460/trans207814656，原初始及2945完整评测payload精确复现，32回合全跑满但0/8。前后±.5实速+.02480/-.07225，三档高度.30786/.31050/.31481m，不授长训。全128随机闭链0、峰2.284426mm、非轮369/边界1；等98304环境秒100窗0/4765结束回合。
 
 已以真实控制final/completion/seal/evaluation及结果报告SHA生成不可变合并消费回执和v9计划，没有占位。继承1344/谱系18656/transcap3271557120，控制128不退款；共同父仍018-2945。132项CPU及512独立design静态前置通过，见`value_clip_implementation002.json`。原生双进程0PPO配对尚待，不把静态结果当行为资格。
+
+## 2026-10-18 06:48 UTC：独立原生零 PPO 配对完成
+
+冻结38ecd8d的两个独立进程均从pilot018-2945和保存的CPU/CUDA/环境RNG创建新episode，各512环境、3×384帧。10类初态/RNG/首Gaussian、69类rollout数组及critic返回端点逐位相同；两臂actor/critic/17Adam保持，原生value clipping分别True/False，update和optimizer.step禁止。记录包括命令、奖励、conditioning ownership和已采样动力学，不能扩称全部隐藏模拟器状态。见`reports/local_training_20261017/value_clip_ab001_native_pair.json`，指标已进入pilot018原event的LocalDiagnostics/ValueClipAB/NativePair，step2945。
+
+工程前置齐全，允许从同一个018-2945完整状态进行处理臂128更新至3073。控制128已计入继承1344，总上限20000不退款；处理完成总4417/剩15583。此为有界假设对照，尚无行为或长训准入。
