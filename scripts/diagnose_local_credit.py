@@ -76,7 +76,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--rollouts', type=int, default=12, choices=range(1, 13))
     parser.add_argument('--target-contract', type=Path,
-                        help='Only an authenticated named local rehearsal, entropy or return-window candidate is supported')
+                        help='Only an authenticated named local rehearsal, entropy, return-window or value-clipping candidate is supported')
     parser.add_argument('--parent-source-root', type=Path,
                         help='Original frozen parent modules, required for a named candidate')
     parser.add_argument('--event-attribution', action='store_true',
@@ -98,7 +98,9 @@ def main():
             parser.error('A named candidate needs the independently frozen parent source')
         from wheeled_tasks.chassis import local_scratch
         plan_file = contract.get('local_scratch', {}).get('plan_file')
-        if plan_file == local_scratch.RETURN_PLAN_FILE:
+        if plan_file == local_scratch.VALUE_PLAN_FILE:
+            from wheeled_tasks.chassis.local_value_revision import validate_parent
+        elif plan_file == local_scratch.RETURN_PLAN_FILE:
             from wheeled_tasks.chassis.local_return_revision import validate_parent
         elif plan_file == local_scratch.ENTROPY_AB_PLAN_FILE:
             from wheeled_tasks.chassis.local_entropy_revision import validate_parent
@@ -153,8 +155,14 @@ def main():
             cfg['num_steps_per_env'] = rollout_ticks
             for key in ('gamma', 'lam'):
                 cfg['algorithm'][key] = contract[key]
+            if 'use_clipped_value_loss' in contract:
+                from wheeled_tasks.chassis.local_value_revision import value_clipping_setting
+                cfg['algorithm']['use_clipped_value_loss'] = value_clipping_setting(contract)
         runner = OnPolicyRunner(env, deepcopy(cfg), log_dir=None, device='cuda:0')
         alg = runner.alg
+        if 'use_clipped_value_loss' in contract:
+            assert alg.use_clipped_value_loss is value_clipping_setting(contract)
+            report['effective_use_clipped_value_loss'] = alg.use_clipped_value_loss
         report['effective_entropy_coef'] = verify_entropy_coef(alg, contract['entropy_coef'])
         alg.actor.load_state_dict(saved['actor_state_dict'], strict=True)
         alg.critic.load_state_dict(saved['critic_state_dict'], strict=True)

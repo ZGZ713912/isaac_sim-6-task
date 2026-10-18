@@ -1,0 +1,68 @@
+{
+  "schema": "v6-local-value-clip-implementation-v1",
+  "recorded_at": "2026-10-18T06:20:17.876529+00:00",
+  "status": "candidate_code_cpu_passed_waiting_for_actual_control_not_ready_for_PPO",
+  "unique_cpu_tests_passed": 84,
+  "native_learned_load_flag_recheck": 4,
+  "tests": [
+    {
+      "file": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/value_cpu001.log",
+      "sha256": "7480e32ac491e854e1bbc5f4778347b0a2330cc36d219662bf6d10074e143912"
+    },
+    {
+      "file": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/value_cpu002.log",
+      "sha256": "05141983476315c0bb6deb20cded0a1c3d6db9cf492bb65187b588eacfed669c"
+    }
+  ],
+  "modules": [
+    "src/wheeled_tasks/chassis/local_value_revision.py",
+    "src/wheeled_tasks/chassis/local_scratch.py",
+    "scripts/train_local_chassis.py",
+    "scripts/train_chassis.py",
+    "scripts/diagnose_local_credit.py"
+  ],
+  "no_target_plan_created": true,
+  "no_placeholder_sha": true,
+  "actual_target_PPO": 0,
+  "actual_native_pair": false,
+  "control_running": {
+    "updated_at": "2026-10-18T06:20:12.893002+00:00",
+    "pid": 1039116,
+    "successful_updates": 75,
+    "parent_updates": 2945,
+    "attempted_updates": 75,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 75,
+    "stage_actor_update": 3020,
+    "global_actor_update": 3020,
+    "global_budget_actor_updates": 3020,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0005,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 197394432,
+    "prior_local_experiment_consumption": 1216,
+    "total_local_consumed_updates": 4236,
+    "recovery_rollout": {
+      "valid_transitions": 196211,
+      "script_or_blend_transitions": 397,
+      "valid_fraction": 0.9979807535807291,
+      "minimum_mini_batch_population": 49052
+    },
+    "policy_learning_transitions_in_block": 14721833,
+    "script_or_blend_transitions_in_block": 23767
+  },
+  "original_periodic_verification": "reports/local_training_20261017/pilot019_checkpoint3000.json",
+  "algorithm_change": "native use_clipped_value_loss False only; actor loss and native optimizer untouched",
+  "pending": [
+    "actual completed/evaluated control evidence",
+    "immutable merged1344 budget",
+    "target plan/design strict positive and negative fixtures",
+    "512 static preflight",
+    "two independent0PPO same-parent native processes"
+  ],
+  "full_training_admitted": false
+}

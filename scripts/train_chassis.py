@@ -411,6 +411,8 @@ def main():
                         help="Exact local v6-2560 -> v7 entropy comparison with control consumption charged")
     parser.add_argument("--resume-local-return-revision", action="store_true",
                         help="Exact local v7-2688 -> v8 longer native return window")
+    parser.add_argument("--resume-local-value-revision", action="store_true",
+                        help="Exact same-2945 local v9 native value-clipping comparison")
     parser.add_argument("--consumed-updates", type=int, help="Same-batch budget already spent, including discarded updates")
     parser.add_argument("--learning-rate-scale", type=float,
                         help="Explicit positive ratio to the contract's initial LR; may exceed one after adaptive updates")
@@ -430,13 +432,13 @@ def main():
         validate_local_audit_request(True, local=bool(c.get("local_scratch")), resume=args.resume,
             updates=args.updates, scene=args.validate_scene,
             revision=any((args.resume_local_birth_revision, args.resume_local_command_revision,
-                          args.resume_local_entropy_revision, args.resume_local_return_revision,
+                          args.resume_local_entropy_revision, args.resume_local_return_revision, args.resume_local_value_revision,
                           args.resume_response_change, args.resume_diagnostic, args.resume_task_change,
                           args.transfer_actor_only, args.learning_rate_scale is not None)))
     if c.get("local_scratch"):
         from wheeled_tasks.chassis.local_scratch import validate_invocation
         args.actor_updates_consumed = validate_invocation(c, args, ROOT)
-    elif args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision:
+    elif args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision or args.resume_local_value_revision:
         parser.error("The local revision requires an authenticated local contract")
     contract_config = c
     integrated_receipt = None
@@ -448,9 +450,9 @@ def main():
         parser.error("--transfer-actor-only requires --transfer")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.resume_task_change or args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.resume_task_change or args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision or args.resume_local_value_revision or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed-update rebasing require --resume")
-    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change, args.resume_diagnostic, args.resume_task_change, args.resume_local_birth_revision, args.resume_local_command_revision, args.resume_local_entropy_revision, args.resume_local_return_revision)) > 1:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change, args.resume_diagnostic, args.resume_task_change, args.resume_local_birth_revision, args.resume_local_command_revision, args.resume_local_entropy_revision, args.resume_local_return_revision, args.resume_local_value_revision)) > 1:
         parser.error("Choose exactly one explicit resume migration")
     if args.resume_response_change and args.consumed_updates is None:
         parser.error("Response migration requires explicit consumed-update accounting")
@@ -715,6 +717,9 @@ def main():
                     cfg.algorithm.schedule = c["learning_rate_schedule"]
                 if "entropy_coef" in c:
                     cfg.algorithm.entropy_coef = validate_entropy_coef(c["entropy_coef"])
+                if 'use_clipped_value_loss' in c:
+                    from wheeled_tasks.chassis.local_value_revision import value_clipping_setting
+                    cfg.algorithm.use_clipped_value_loss = value_clipping_setting(c)
                 for parameter in ("gamma", "lam"):
                     if parameter in c:
                         setattr(cfg.algorithm, parameter, c[parameter])
@@ -726,6 +731,10 @@ def main():
                     runner_config["actor"]["distribution_cfg"]["init_std"] = c["initial_noise_std"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(runner_config, indent=2))
                 runner = OnPolicyRunner(env, deepcopy(runner_config), log_dir=str(args.run_dir), device=args.device)
+                if 'use_clipped_value_loss' in c:
+                    if runner.alg.use_clipped_value_loss is not value_clipping_setting(c):
+                        raise ValueError('Native PPO value-clipping setting differs from the exact local contract')
+                    report['use_clipped_value_loss'] = runner.alg.use_clipped_value_loss
                 if "initial_noise_std_policy_order" in c:
                     from wheeled_algo.exploration_init import initialize_policy_std, install_axis_std_logging
                     initialize_policy_std(runner.alg, c["initial_noise_std_policy_order"])
@@ -805,7 +814,7 @@ def main():
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
-                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.resume_task_change or args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision
+                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.resume_task_change or args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision or args.resume_local_value_revision
                     if migrating:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                         from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume, validate_budget_resume
@@ -829,14 +838,17 @@ def main():
                                 continue
                             if infos.get(key) != identity[key]:
                                 raise ValueError(f"Learning-state resume changes {key}")
-                        resume_key = ("local_return_resume" if args.resume_local_return_revision else "local_entropy_resume" if args.resume_local_entropy_revision else "local_command_resume" if args.resume_local_command_revision else "local_birth_resume" if args.resume_local_birth_revision else "task_resume" if args.resume_task_change else "response_resume" if args.resume_response_change else "diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else
+                        resume_key = ("local_value_resume" if args.resume_local_value_revision else "local_return_resume" if args.resume_local_return_revision else "local_entropy_resume" if args.resume_local_entropy_revision else "local_command_resume" if args.resume_local_command_revision else "local_birth_resume" if args.resume_local_birth_revision else "task_resume" if args.resume_task_change else "response_resume" if args.resume_response_change else "diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else
                                       "reward_resume" if args.resume_reward_change else "physics_resume")
                         validate = (validate_diagnostic_resume if args.resume_diagnostic else validate_budget_resume if args.resume_budget_change else
                                     validate_reward_resume if args.resume_reward_change else validate_physics_resume)
                         if args.resume_task_change:
                             from wheeled_tasks.chassis.task_campaign import validate_task_resume
                             validate = validate_task_resume
-                        if args.resume_local_return_revision:
+                        if args.resume_local_value_revision:
+                            from wheeled_tasks.chassis.local_value_revision import validate_parent as validate_local_value_parent
+                            report[resume_key] = validate_local_value_parent(args.resume, c, ROOT)
+                        elif args.resume_local_return_revision:
                             from wheeled_tasks.chassis.local_return_revision import validate_parent as validate_local_return_parent
                             report[resume_key] = validate_local_return_parent(args.resume, c, ROOT)
                         elif args.resume_local_entropy_revision:
@@ -865,6 +877,9 @@ def main():
                     elif any(infos.get(k) != v for k, v in identity.items()):
                         raise ValueError("Parent checkpoint has a different task/asset/control interface")
                     runner.load(str(args.resume))
+                    if 'use_clipped_value_loss' in c:
+                        if runner.alg.use_clipped_value_loss is not value_clipping_setting(c):
+                            raise ValueError('Native resume changed its authenticated value-clipping setting')
                     if "entropy_coef" in infos:
                         parent_entropy = validate_entropy_coef(infos["entropy_coef"])
                         if not migrating and parent_entropy != cfg.algorithm.entropy_coef:
@@ -1126,7 +1141,7 @@ def main():
                     if c.get("checkpoint_snapshots") and (
                             completed % c.get("checkpoint_interval", 100) == 0
                             or completed == c.get("checkpoint_first_update", 10)
-                            or (args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision) and report["successful_updates"] == 1
+                            or (args.resume_local_birth_revision or args.resume_local_command_revision or args.resume_local_entropy_revision or args.resume_local_return_revision or args.resume_local_value_revision) and report["successful_updates"] == 1
                             or c.get("task_campaign") and report["successful_updates"] == 1
                             or c.get("task_campaign") and actor_enabled and report["actor_updates_in_block"] == 1
                             or changes or assessment_due):
