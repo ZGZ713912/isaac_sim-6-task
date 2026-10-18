@@ -39,3 +39,9 @@ pilot020从已提交冻结1a359ab启动，512环境，从共同父pilot018-2945�
 原配置首次命名seal2946只读验证：SHA6589ad1f882436ef0845333582143328de8d6d01e1ad7ce1e0bda10175586b9a，9actor/8critic及17Adam一二阶矩全改变有限，Adam58920、全部时钟2946、182845440transitions、RNG封存。不是额外制造快照。见pilot020_launch.json及pilot020_first2946.json。冻结目录20261018T064949Z-38101e30，archive SHA92790377b739d4d0f6293769b4b86a3a6082da966459a1b8f7cf5c321f5dced0。
 
 继承1344已包含控制128，最终3073预计总消费4417/剩15583，谱系18656和transcap3271557120保持。下一原周期3000在本段55更新，应Adam60000/trans193462272；正常完成并确认退出后才运行冻结源eval020，原初始/共同父2945/新3073及traces、原8场景种子时长warmup阈值保持。当前没有行为或长训准入。
+
+## 2026-10-18 07:07 UTC：pilot020 原周期3000封存核验
+
+原learner持续运行，未signal或制造快照。周期3000 checkpoint SHA425ce9d323a12a02ccdd9f6216a4abfc5ec874b2d2d3eef5220d73667269de2f与原seal一致；9actor/8critic及17Adam一二阶矩相对独立初态全改变有限，Adam60000、学习/课程/消费时钟3000、193462272transitions、无新critic预热。CPU/CUDA/环境RNG封存和101份冻结来源哈希通过，原event全部已记录标量有限。详见`reports/local_training_20261017/pilot020_checkpoint3000.json`。
+
+原history30→50更新窗19660.8环境秒，闭链0/956结束回合，非轮61/fall0，原因可重叠。只是训练中机械窗和状态连续性，不是固定场景跟踪成绩。最终仍须128完成至3073、确认退出、深验final后运行原八场景eval020；长训门保持关闭，全部消费不退款。
