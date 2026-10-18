@@ -12,6 +12,7 @@ from pathlib import Path
 
 PLAN_FILE = "contracts/v6_local_scratch_200hz_v4.json"
 BIRTH_RAMP_PLAN_FILE = "contracts/v6_local_scratch_200hz_v5.json"
+REHEARSAL_PLAN_FILE = "contracts/v6_local_scratch_200hz_v6.json"
 ENTROPY_PLAN_FILE = "contracts/v6_local_scratch_200hz_v3.json"
 LOW_NOISE_PLAN_FILE = "contracts/v6_local_scratch_200hz_v2.json"
 POLICY200_PLAN_FILE = "contracts/v6_local_scratch_200hz_v1.json"
@@ -25,7 +26,7 @@ def digest(path):
 
 def read_plan(root, plan_file=PLAN_FILE):
     root = Path(root)
-    if plan_file not in (BIRTH_RAMP_PLAN_FILE, PLAN_FILE, ENTROPY_PLAN_FILE, LOW_NOISE_PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
+    if plan_file not in (REHEARSAL_PLAN_FILE, BIRTH_RAMP_PLAN_FILE, PLAN_FILE, ENTROPY_PLAN_FILE, LOW_NOISE_PLAN_FILE, POLICY200_PLAN_FILE, LEGACY_PLAN_FILE):
         raise ValueError("Unsupported local scratch plan file")
     plan = json.loads((root / plan_file).read_text())
     if plan.get("schema") != "v6-local-scratch-plan-v1":
@@ -48,6 +49,9 @@ def read_plan(root, plan_file=PLAN_FILE):
         validate_policy_std(plan["initial_noise_std_policy_order"])
     if plan_file == BIRTH_RAMP_PLAN_FILE:
         from .local_birth_revision import validate_plan
+        validate_plan(plan, root)
+    if plan_file == REHEARSAL_PLAN_FILE:
+        from .local_command_revision import validate_plan
         validate_plan(plan, root)
     return plan
 
@@ -100,9 +104,12 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         checkpoint_first_update=plan["checkpoint_first_update"])
     for field, origin in plan["curriculum_origins"].items():
         worker[field]["origin_actor_update"] = origin
-    if plan_file == BIRTH_RAMP_PLAN_FILE:
+    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE):
         from .nonstandard_start import ramped_start_settings
         worker["nonstandard_start"] = ramped_start_settings(plan["curriculum_origins"]["nonstandard_start"])
+    if plan_file == REHEARSAL_PLAN_FILE:
+        from .locomotion_difficulty import local_rehearsal_settings
+        worker["locomotion_difficulty"] = local_rehearsal_settings(0)
     marker = dict(schema=SCHEMA, plan_file=plan_file, plan_sha256=digest(root / plan_file),
         initialization=plan["initialization"], num_envs=num_envs, seed=plan["seed"])
     worker["local_scratch"] = marker
@@ -138,9 +145,12 @@ def build_bundle(root, directory, num_envs, *, plan_file=PLAN_FILE):
         row["runtime"]["action_difference_reference_dt"] = plan["action_difference_reference_dt"]
         for field in ("finite_passive_landing", "start_stop_timing", "nonstandard_start", "release_stop"):
             row["runtime"][field]["policy_dt"] = plan["timing"]["policy_dt"]
-    if plan_file == BIRTH_RAMP_PLAN_FILE:
+    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE):
         from .nonstandard_start import runtime_expectation
         row["runtime"]["nonstandard_start"] = runtime_expectation(worker["nonstandard_start"], worker["policy_dt"])
+    if plan_file == REHEARSAL_PLAN_FILE:
+        row["runtime"]["locomotion_difficulty"] = dict(enabled=True,
+            settings=deepcopy(worker["locomotion_difficulty"]))
     design = dict(schema=source_design["schema"], status="frozen", scope=source_design["scope"],
         training_release=False, hardware_deployment_ready=False,
         review_basis=dict(source_design_file=plan["source_design_file"],
@@ -178,6 +188,9 @@ def validate_config(config, root):
 
 def validate_invocation(config, args, root):
     validate_config(config, root)
+    if (getattr(args, "resume_local_birth_revision", False)
+            and getattr(args, "resume_local_command_revision", False)):
+        raise ValueError("Choose exactly one named local revision")
     plan = read_plan(root, config["local_scratch"]["plan_file"])
     # A continuation keeps this exact local contract and sealed consumption.
     # Foreign state and caller-supplied clocks remain forbidden.
@@ -191,7 +204,12 @@ def validate_invocation(config, args, root):
         raise ValueError("Local scratch requires fresh learning state, zero clocks and its frozen invocation")
     if args.resume:
         try:
-            if getattr(args, "resume_local_birth_revision", False):
+            if getattr(args, "resume_local_command_revision", False):
+                from .local_command_revision import validate_parent as validate_revision_parent
+                parent = validate_revision_parent(args.resume, config, root)["parent_updates"]
+                if args.updates > plan["local_command_revision"]["first_block_update_ceiling"]:
+                    raise ValueError("The first command revision block is bounded to 128 updates")
+            elif getattr(args, "resume_local_birth_revision", False):
                 from .local_birth_revision import validate_parent as validate_revision_parent
                 parent = validate_revision_parent(args.resume, config, root)["parent_updates"]
                 if args.updates > plan["local_birth_revision"]["first_block_update_ceiling"]:
@@ -203,8 +221,10 @@ def validate_invocation(config, args, root):
         if parent + args.updates > plan["update_ceiling"]:
             raise ValueError("Local continuation exceeds the cumulative local update ceiling")
         return parent
-    if config["local_scratch"]["plan_file"] == BIRTH_RAMP_PLAN_FILE or getattr(args, "resume_local_birth_revision", False):
-        raise ValueError("The local birth revision requires full-state continuation, never fresh initialization")
+    if (config["local_scratch"]["plan_file"] in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE)
+            or getattr(args, "resume_local_birth_revision", False)
+            or getattr(args, "resume_local_command_revision", False)):
+        raise ValueError("The local revision requires full-state continuation, never fresh initialization")
     return 0
 
 
@@ -264,7 +284,10 @@ def source_files(root, plan_file=PLAN_FILE):
         "src/wheeled_tasks/chassis/release_stop.py", "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",
         "src/wheeled_tasks/chassis/locomotion_difficulty.py", "src/wheeled_tasks/chassis/graded_locomotion_revision.py",
         *([plan["prior_experiment_receipt_file"]] if plan.get("prior_experiment_receipt_file") else [])]
-    if plan_file == BIRTH_RAMP_PLAN_FILE:
+    if plan_file in (BIRTH_RAMP_PLAN_FILE, REHEARSAL_PLAN_FILE):
         files += ["src/wheeled_tasks/chassis/local_birth_revision.py", PLAN_FILE]
         files += [row["file"] for row in plan["local_birth_revision"]["evidence"]]
+    if plan_file == REHEARSAL_PLAN_FILE:
+        files += ["src/wheeled_tasks/chassis/local_command_revision.py", BIRTH_RAMP_PLAN_FILE]
+        files += [row["file"] for row in plan["local_command_revision"]["evidence"]]
     return files

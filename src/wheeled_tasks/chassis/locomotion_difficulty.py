@@ -25,10 +25,24 @@ def validate_difficulty(settings):
     """Explicit frozen semantics: a missing/disabled field cannot default silently."""
     if settings is None:
         return None
+    factory = (local_rehearsal_settings if isinstance(settings, dict)
+               and settings.get("schema") == "locomotion-difficulty-local-rehearsal-v1"
+               else difficulty_settings)
     if (not isinstance(settings, dict) or settings.get("enabled") is not True
-            or settings != difficulty_settings(settings.get("origin_actor_update"))):
+            or settings != factory(settings.get("origin_actor_update"))):
         raise ValueError("Locomotion difficulty differs from its explicit frozen rule")
     return deepcopy(settings)
+
+
+def local_rehearsal_settings(origin_actor_update):
+    """Named local candidate: preserve clocks/heights, reduce only planar caps."""
+    if origin_actor_update != 0 or type(origin_actor_update) is not int:
+        raise ValueError("Local rehearsal preserves the original zero curriculum origin")
+    settings = difficulty_settings(origin_actor_update)
+    settings["schema"] = "locomotion-difficulty-local-rehearsal-v1"
+    for node in settings["keyframes"]:
+        node.update(vx_max_m_s=.5, yaw_max_rad_s=1.)
+    return settings
 
 
 def difficulty_envelope(settings, actor_update):
