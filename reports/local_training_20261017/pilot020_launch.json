@@ -1,0 +1,256 @@
+{
+  "schema": "v6-local-pilot-launch-v1",
+  "recorded_at": "2026-10-18T06:50:56.269323+00:00",
+  "status": "value_clip_ab_treatment_same2945_native_false_full_resume_verified_running",
+  "run_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot020",
+  "tmux_session": "v6-local-pilot020",
+  "pid": 1077814,
+  "process_start_ticks": 8343425,
+  "command_line": "/home/noir/miniconda3/envs/isaacsim6/bin/python /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064949Z-38101e30/source/scripts/train_chassis.py --contract /home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064949Z-38101e30/source/runs/local_scratch_configs/20261018T064949Z-38101e30/worker.json --stage speed --num-envs 512 --updates 128 --seed 290927 --device cuda:0 --research --run-dir /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot020 --max-runtime-seconds 10800.0 --resume /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot018/model_final.pt --resume-local-value-revision ",
+  "source": {
+    "commit": "1a359ab08335dd71ec02a22cc031b2a6a29cdc29",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064949Z-38101e30/source.tar.gz",
+    "source_archive_sha256": "92790377b739d4d0f6293769b4b86a3a6082da966459a1b8f7cf5c321f5dced0",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064949Z-38101e30/source"
+  },
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot018/model_final.pt",
+  "parent_checkpoint_sha256": "3cbd7aabf95d500d6ffa089728b28ad1a92c8e812be9d503d9c6bdf152ae2b0e",
+  "contract_sha256": "3341e42ec802e2aa47296fae9793a89b4c0533fd5327e9b6de14fed3f10fa60a",
+  "contract_diff_verification": {
+    "schema": "v6-local-value-revision-v1",
+    "changed_contract_fields": [
+      "budget_spec_file",
+      "budget_spec_sha256",
+      "design_preflight",
+      "local_scratch",
+      "use_clipped_value_loss"
+    ],
+    "source_use_clipped_value_loss": true,
+    "target_use_clipped_value_loss": false,
+    "consumption": "all_old_lineages_entropy_control_and_value_control_preserved_no_refund",
+    "additional_critic_warmup": 0
+  },
+  "contract": {
+    "schema": "v6-local-scratch-worker-v1",
+    "plan_file": "contracts/v6_local_scratch_200hz_v9.json",
+    "plan_sha256": "99dfa76ffe4f860abbabc60edd91b7604aeb54fe304402909164b401c40e81b6",
+    "initialization": "full_state_same2945_value_clip_ab_treatment",
+    "num_envs": 512,
+    "seed": 290927
+  },
+  "native_resume_verification": {
+    "schema": "v6-local-value-revision-v1",
+    "changed_contract_fields": [
+      "budget_spec_file",
+      "budget_spec_sha256",
+      "design_preflight",
+      "local_scratch",
+      "use_clipped_value_loss"
+    ],
+    "source_use_clipped_value_loss": true,
+    "target_use_clipped_value_loss": false,
+    "consumption": "all_old_lineages_entropy_control_and_value_control_preserved_no_refund",
+    "additional_critic_warmup": 0,
+    "parent_updates": 2945,
+    "inherited_consumption": 1344,
+    "total_prior_consumption": 4289,
+    "lineage_update_ceiling": 18656,
+    "parent_training_transitions": 182648832,
+    "source_contract_sha256": "36ede273b3bbaeb231d2440809641b9a747cbdde105142352c14d6239417d32c",
+    "target_contract_sha256": "3341e42ec802e2aa47296fae9793a89b4c0533fd5327e9b6de14fed3f10fa60a",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "3cbd7aabf95d500d6ffa089728b28ad1a92c8e812be9d503d9c6bdf152ae2b0e",
+    "restored_checkpoint_updates": 2945,
+    "learning_lineage_updates": 2945,
+    "requested_learning_rate_scale": null,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "torch_rng_restored": true,
+    "environment_rng_restored": true,
+    "cuda_rng_restored": true,
+    "environment_state": "new_episodes_after_rng_restore",
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": false,
+    "parent_entropy_coef": 0.0005,
+    "effective_entropy_coef": 0.0005,
+    "entropy_coef_source": "contract"
+  },
+  "independent_initial_state_exact": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "independent_initial_state_sha256": "8a2515093f1729cec4369acc9b5267394ee75806a08dfee5b4a288513990321f",
+  "initial_clocks": {
+    "successful_updates_total": 2945,
+    "learning_lineage_updates": 2945,
+    "stage_actor_update": 2945,
+    "global_actor_update": 2945,
+    "actor_updates_consumed": 2945,
+    "training_transitions": 182648832,
+    "critic_warmup_remaining": 0
+  },
+  "initial_adam_states": 17,
+  "initial_adam_steps": [
+    58900.0
+  ],
+  "learned_std_preserved": [
+    0.018134096637368202,
+    0.013347435742616653,
+    0.025267306715250015,
+    0.021814996376633644,
+    0.017291385680437088,
+    0.032824765890836716
+  ],
+  "native_timing": {
+    "num_steps_per_env": 384,
+    "lam": 1.0,
+    "gamma": 0.9974905699336811,
+    "rollout_seconds": 1.92
+  },
+  "initial_rng_note": "Native CPU/CUDA/environment RNG restored before new episodes; no mid-rollout simulator trajectory replay claimed.",
+  "locomotion_difficulty_resume_probe": {
+    "enabled": true,
+    "settings": {
+      "schema": "locomotion-difficulty-local-rehearsal-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "actor_update": 2945,
+    "envelope": {
+      "grade": 4.0,
+      "vx_max_m_s": 0.5,
+      "yaw_max_rad_s": 1.0,
+      "motion_height_range_m": [
+        0.23,
+        0.43
+      ]
+    },
+    "sampled_planar_abs_max": [
+      0.5,
+      1.0
+    ],
+    "sampled_motion_height_range_m": [
+      0.23000000417232513,
+      0.4300000071525574
+    ],
+    "sample_check": "passed"
+  },
+  "source_file_hashes_verified": 101,
+  "original_event_axes_tags": [
+    "Policy/std/left_leg1",
+    "Policy/std/left_leg2",
+    "Policy/std/right_leg1",
+    "Policy/std/right_leg2",
+    "Policy/std/left_wheel",
+    "Policy/std/right_wheel"
+  ],
+  "original_event_conditioning_tags": [
+    "/nonstandard_start/conditioning_fraction",
+    "/nonstandard_start/conditioned_interval_fraction",
+    "/nonstandard_start/effort_gain_next_frame_mean",
+    "/nonstandard_start/ramp_seconds"
+  ],
+  "all_current_event_scalars_finite": true,
+  "checkpoint_schedule": {
+    "interval": 500,
+    "parent": 2945,
+    "next_periodic_lineage": 3000,
+    "next_periodic_additional_updates": 55,
+    "final": 3073,
+    "first_named_migration_seal_lineage": 2946,
+    "first_named_migration_adam_step": 58920,
+    "first_ppo_deep_tensor_verification": "read existing named first2946 seal; periodic3000 at55; final3073; no forced snapshots"
+  },
+  "observed_progress": {
+    "updated_at": "2026-10-18T06:50:46.783900+00:00",
+    "pid": 1077814,
+    "successful_updates": 2,
+    "parent_updates": 2945,
+    "attempted_updates": 2,
+    "num_envs": 512,
+    "stage": "speed",
+    "actor_updates_in_block": 2,
+    "stage_actor_update": 2947,
+    "global_actor_update": 2947,
+    "global_budget_actor_updates": 2947,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0005,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 183042048,
+    "prior_local_experiment_consumption": 1344,
+    "total_local_consumed_updates": 4291,
+    "recovery_rollout": {
+      "valid_transitions": 196508,
+      "script_or_blend_transitions": 100,
+      "valid_fraction": 0.9994913736979166,
+      "minimum_mini_batch_population": 49127
+    },
+    "policy_learning_transitions_in_block": 391476,
+    "script_or_blend_transitions_in_block": 1740
+  },
+  "budget": {
+    "prior_failed_and_control": 1344,
+    "parent_lineage": 2945,
+    "additional_requested": 128,
+    "target_lineage": 3073,
+    "total_ceiling": 20000,
+    "lineage_ceiling": 18656,
+    "target_total": 4417,
+    "remaining_after_target": 15583
+  },
+  "full_training_admitted": false,
+  "comparison_arm": "native_value_clipping_false_treatment",
+  "treatment_implemented": true,
+  "treatment_launched": true,
+  "native_use_clipped_value_loss": false,
+  "transition_ceiling": 3271557120
+}
