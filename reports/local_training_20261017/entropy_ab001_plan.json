@@ -1,0 +1,64 @@
+{
+  "schema": "v6-local-entropy-ab-decision-v1",
+  "recorded_at": "2026-10-18T02:22:44.473226+00:00",
+  "status": "control_arm_ready_pending_committed_launch",
+  "parent_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot013/model_final.pt",
+  "parent_sha256": "2dfd8288c7df3e2da99b3ca9064b45fe9ca7b36f334b96a42e339f3174be3552",
+  "parent_learning_updates": 2560,
+  "prior_consumption": 1088,
+  "total_consumption_before": 3648,
+  "control": {
+    "run": "pilot014",
+    "entropy_coef": 0.0,
+    "additional_updates": 128,
+    "target_lineage": 2688,
+    "total_after": 3776,
+    "remaining_after": 16224
+  },
+  "treatment": {
+    "run": "pilot015",
+    "entropy_coef": 0.0005,
+    "additional_updates": 128,
+    "parent_is_same_pilot013_2560": true,
+    "implementation_and_named_full_state_migration_pending": true,
+    "run_only_if_control_not_behaviorally_accepted": true,
+    "inherited_consumption_if_full_control": 1216,
+    "lineage_ceiling_if_full_control": 18784,
+    "target_lineage": 2688,
+    "total_after_both": 3904,
+    "remaining_after_both": 16096
+  },
+  "evidence_sha256": {
+    "reports/local_training_20261017/pilot013.json": "78fef25a88d89ab8690a2717d245d8bfd3bfbddd8847b4b37df9bc0cf99783e0",
+    "reports/local_training_20261017/action_credit_diagnosis001.json": "2d7240a19e66f1257e1cdf63550fdd401baa04162881ced0f6e4d41fec992544",
+    "docs/V6_LOCAL_ENTROPY_AB_PLAN_20261018.md": "3c8ac17db08e8fdf354f5e9185bd3aef293e99304f96aa5b16635eccb00cc9f5"
+  },
+  "all_state_preserved": [
+    "actor",
+    "critic",
+    "17Adam",
+    "learned_std",
+    "CPU_RNG",
+    "CUDA_RNG",
+    "environment_RNG",
+    "learning_and_curriculum_clocks"
+  ],
+  "full_training_admitted": false,
+  "control_preflight": {
+    "log": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot014_preflight.log",
+    "sha256": "cdbc5db910644a9ae8f2c7d65fe1b9b51e7844660f67b9c2bec3a62685225c80",
+    "status": "static_passed",
+    "source_equivalence": {
+      "recorded_at": "2026-10-18T02:23:20.106243+00:00",
+      "status": "static_passed_and_source_equivalent",
+      "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T014311Z-a385a7b0/source",
+      "tracked_source_count": 73,
+      "frozen_generated_configs": [
+        "runs/local_scratch_configs/20261018T010631Z-d36a700a/design.json",
+        "runs/local_scratch_configs/20261018T010631Z-d36a700a/budget.json"
+      ],
+      "all_original_manifest_entries_checked": 75,
+      "prior_audit_failure": "Read ignored generated design.json under current worktree instead of authenticated frozen source; failed before launch. Corrected audit checks tracked files against current checkout and all generated files against their existing frozen root; no trainer/contract change."
+    }
+  }
+}
