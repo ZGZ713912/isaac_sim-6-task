@@ -908,3 +908,18 @@ SHA c9d1df1aab0d6516b0e350dcf8023c54eb8db6e53b60bc6f04151c526db1fadb；
 原通过也保留；若下一段前进/高度继续停滞，不能再仅按同一“继续适应”理由延长。
 下一阶段必须重新核对行为/控制/信用并提出受限调整。精确决定及来源SHA见
 return_window_continuation001.json，先静态前置，再从提交冻结源启动。
+
+### 同v8完整接续已启动并实核（04:32 UTC）
+
+pilot017从提交冻结b64e09bb4cc754dd660a8f7cf1e331117be9b817启动，
+tmux v6-local-pilot017，原生PID977784/start7511955，512环境，
+从2816追加128至2944。归档SHA ef0bbae0942b8aead0dbc8dfde7035519af1418e2053ae176b188397fdf2c944。
+合同与pilot016逐字节相同，未再次使用首次命名迁移开关；原生CPU/CUDA/环境RNG
+恢复、独立initial_state的actor/critic/17Adam逐值等父、Adam56320、学习std保留，
+课程2816及实际命令包络采样通过，无新critic预热。原event六轴std和四conditioning
+标签有限，实际PPO已有推进；不冒称模拟器中途轨迹重放。完整证据pilot017_launch.json。
+
+下个原周期seal3000超出本128块，最终2944应Adam58880/182452224 transitions，
+届时在真实退出后深验；不signal或制造新快照。当前仍是有界适应检验，不是长训。
+本段完成全部消费4160、余15840；所有旧消费及transition历史保持。完成后原八场景
+比较初始、父2816、新2944，旧完整payload须复现eval016，保留失败及traces。
