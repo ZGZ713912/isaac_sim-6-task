@@ -697,3 +697,23 @@ pilot013原event的LocalDiagnostics/ActionCredit，step2560。
 当处理起点。控制128全计费，处理预算继承旧1088+控制128，谱系上限降18784，
 双臂完成总消费3904、剩16096；任何选回旧臂也不能退款。当前训练代码/合同仍v6，
 尚未实现或启动v7，不把计划当已采纳。
+
+## 小熵对照的原v6控制臂已启动（02:24 UTC）
+
+tmux v6-local-pilot014，原生PID882483/start6749520，从已提交冻结88eb9e6
+启动512环境，从精确pilot013的2560状态完整续训128至2688，entropy仍0，
+合同逐字节与pilot013相同，没有再次命名迁移。归档SHA0e58bec6…ba8e2b，
+完整冻结目录与命令见pilot014_launch.json。独立initial_state的actor/critic/17Adam
+逐值等父模型，Adam51200、学习std保留，CPU/CUDA/环境RNG恢复及实际课程包络
+采样通过，无新critic预热；RNG恢复后新episode，不宣称模拟器中途重放。
+
+静态前置通过。源码等价审计首次把被忽略的generated design路径读到工作区，
+在启动前报FileNotFoundError；更正审计读源后，73份tracked源与工作区逐字节相同、
+另2份原冻结生成design/budget哈希均通过，不改训练器或验证器。该负回执与日志
+保存在pilot014_source_equivalence.json和pilot014_preflight.log，0物理/0PPO。
+
+实际PPO已推进，原event六轴std与四conditioning指标存在且有限。原周期下一3000
+在本128控制块之外，完成2688后深读原最终seal（预期Adam53760、全部时钟2688）；
+不为制造快照干预活进程。控制臂完成预计全部消费3776、余16224。
+完成退出后以本段冻结源eval014比较初始、2560、控制2688，保留全部失败/traces。
+处理臂仍未实现或启动，必须先看控制行为、按同起点A/B计划认证来源和携带全部消费。
