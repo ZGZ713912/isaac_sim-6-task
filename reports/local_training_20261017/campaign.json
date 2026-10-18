@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-18T03:41:57.210456+00:00",
-  "status": "bounded_v8_return_window128_running_no_admission",
+  "recorded_at": "2026-10-18T04:28:58.508754+00:00",
+  "status": "v8_credit_verified_preparing_same_contract_bounded128",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -21,38 +21,38 @@
   "pid": 939545,
   "process_start_ticks": 7199058,
   "observed_progress": {
-    "updated_at": "2026-10-18T03:41:53.922133+00:00",
+    "updated_at": "2026-10-18T04:19:25.149791+00:00",
     "pid": 939545,
-    "successful_updates": 8,
+    "successful_updates": 128,
     "parent_updates": 2688,
-    "attempted_updates": 8,
+    "attempted_updates": 128,
     "num_envs": 512,
     "stage": "speed",
-    "actor_updates_in_block": 8,
-    "stage_actor_update": 2696,
-    "global_actor_update": 2696,
-    "global_budget_actor_updates": 2696,
+    "actor_updates_in_block": 128,
+    "stage_actor_update": 2816,
+    "global_actor_update": 2816,
+    "global_budget_actor_updates": 2816,
     "optimizer_phase": "actor_and_critic",
     "entropy_coef": 0.0005,
     "entropy_coef_source": "contract",
     "diagnostic_origin": null,
     "remediation": null,
     "continuation": null,
-    "training_transitions": 133693440,
+    "training_transitions": 157286400,
     "prior_local_experiment_consumption": 1216,
-    "total_local_consumed_updates": 3912,
+    "total_local_consumed_updates": 4032,
     "recovery_rollout": {
-      "valid_transitions": 196608,
-      "script_or_blend_transitions": 0,
-      "valid_fraction": 1.0,
-      "minimum_mini_batch_population": 49152
+      "valid_transitions": 196328,
+      "script_or_blend_transitions": 280,
+      "valid_fraction": 0.9985758463541666,
+      "minimum_mini_batch_population": 49082
     },
-    "policy_learning_transitions_in_block": 1571144,
-    "script_or_blend_transitions_in_block": 1720
+    "policy_learning_transitions_in_block": 25126704,
+    "script_or_blend_transitions_in_block": 39120
   },
   "initial_comparison_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot002/initial_state/model_final.pt",
   "full_training_admitted": false,
-  "full_training_remaining_if_admitted": 16088,
+  "full_training_remaining_if_admitted": 15968,
   "worktree_retention": "keep attached worktree and its frozen source roots while training is running",
   "original_staged_file": {
     "file": ".vscode/settings.json",
@@ -72,19 +72,18 @@
     "status": "ACTIVE",
     "purpose": "continue pilot, deterministic evaluation, evidence-based repairs and conditional long-run launch in this thread"
   },
-  "training_process_exited": false,
-  "latest_completed_report": "reports/local_training_20261017/pilot015.json",
-  "latest_evaluation_status": "completed_strict1of8_no_admission",
-  "latest_evaluation_passed_cases": 1,
+  "training_process_exited": true,
+  "latest_completed_report": "reports/local_training_20261017/pilot016.json",
+  "latest_evaluation_status": "completed_strict0of8_no_admission",
+  "latest_evaluation_passed_cases": 0,
   "next_phase": {
-    "action": "after_real_exit_verify_final2816_and_original_eight_cases",
-    "ppo_started": true,
-    "evaluation_started": false,
-    "expected_final_adam_step": 56320,
-    "expected_final_transitions": 157286400,
-    "original_parent_payload_should_reproduce": "eval015",
-    "equal_exposure_comparison": "25 new384-frame updates equals100 old96-frame updates",
-    "full_training_admitted": false
+    "action": "same_v8_full_resume128",
+    "parent_updates": 2816,
+    "target_updates": 2944,
+    "additional_updates": 128,
+    "full_training_admitted": false,
+    "target_total_consumption": 4160,
+    "target_remaining_budget": 15840
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot015",
   "validation": {
@@ -162,25 +161,23 @@
     "return_revision_512_preflight": "static_passed_exact_design_and_nonuniform_historical_transitions",
     "return_revision_native_pair": "10 initial and66 per-step physical_reward arrays exact1152 frames,source69 arrays reproduce prior0PPO,all_learning_state_unchanged",
     "pilot016_full_resume": "independent_actor_critic_17Adam53760_exact_CPU_CUDA_env_RNG_restored_course2688_and_actual_command_samples_passed",
-    "pilot016_first2689": "all9actor_8critic_17Adam_both_moments_changed_finite_Adam53780_trans132317184_clocks2689_no_new_warmup"
+    "pilot016_first2689": "all9actor_8critic_17Adam_both_moments_changed_finite_Adam53780_trans132317184_clocks2689_no_new_warmup",
+    "pilot016_final2816": "all9actor8critic17Adam_moments_advanced_finite_Adam56320_clocks2816_trans157286400_91source_hashes_verified",
+    "eval016_old_candidates_exact": "complete_initial_and2688_payloads_equal_eval015",
+    "return_credit001": "6native384_rollouts_2304frames_0PPO_all_models_Adam_unchanged_GAE_norm_and_failure200_payment_verified",
+    "pilot017_same_v8_preflight": "static_passed_all91_authenticated_sources_match_parent"
   },
   "actual_entropy_coef": 0.0005,
   "previous_source_commit": "03be0149e20c79b9502b52e7ff97fd33bf158155",
   "remaining_after_target": 15968,
   "current_phase": {
-    "action": "bounded384_return_window_adaptation",
-    "learner_running": true,
+    "action": "prepare_same_v8_bounded128",
+    "learner_running": false,
     "full_training_admitted": false,
-    "native_timing": {
-      "num_steps_per_env": 384,
-      "lam": 1.0,
-      "gamma": 0.9974905699336811,
-      "rollout_seconds": 1.92
-    },
-    "first_ppo_verification": "reports/local_training_20261017/pilot016_first2689.json"
+    "decision_receipt": "reports/local_training_20261017/return_window_continuation001.json"
   },
-  "total_consumption": 3912,
-  "remaining_total_budget": 16088,
+  "total_consumption": 4032,
+  "remaining_total_budget": 15968,
   "previous_phase_snapshot": {
     "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot007",
     "source_commit": "2950f60d3b7bc96651ade4e126e322ab1e09ef9e",
@@ -189,7 +186,7 @@
     "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval007",
     "passed_cases": 1
   },
-  "latest_diagnosis": "reports/local_training_20261017/return_window_native_pair001.json",
+  "latest_diagnosis": "reports/local_training_20261017/return_credit_diagnosis001.json",
   "frozen_source_receipt": {
     "commit": "cc9c9612f12fb05c4141c897a8164b482de3dc34",
     "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T033905Z-51fe479e/source.tar.gz",
@@ -269,27 +266,27 @@
     }
   },
   "checkpoint_schedule_verification": "reports/local_training_20261017/pilot008_checkpoint_schedule001.json",
-  "no_live_learner": false,
+  "no_live_learner": true,
   "completed_learner_identity": {
-    "pid": 903841,
-    "start_ticks": 6899945,
-    "source_commit": "03be0149e20c79b9502b52e7ff97fd33bf158155"
+    "pid": 939545,
+    "start_ticks": 7199058,
+    "source_commit": "cc9c9612f12fb05c4141c897a8164b482de3dc34"
   },
-  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval015",
+  "last_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval016",
   "next_evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval016",
   "latest_training_completion": {
     "status": "completed",
-    "started_at": "2026-10-18T02:49:24.407826+00:00",
-    "finished_at": "2026-10-18T02:59:44.210330+00:00",
-    "parent_updates": 2560,
+    "started_at": "2026-10-18T03:39:15.574795+00:00",
+    "finished_at": "2026-10-18T04:19:26.034412+00:00",
+    "parent_updates": 2688,
     "successful_updates": 128,
     "attempted_updates": 128,
-    "final_learning_lineage_updates": 2688,
-    "actor_updates_consumed": 2688,
+    "final_learning_lineage_updates": 2816,
+    "actor_updates_consumed": 2816,
     "discarded_updates_charged": 0,
     "learner_exited": true,
-    "native_pid": 903841,
-    "native_start_ticks": 6899945,
+    "native_pid": 939545,
+    "native_start_ticks": 7199058,
     "wrapper_exit": {
       "command": [
         "/home/noir/miniconda3/bin/conda",
@@ -302,20 +299,20 @@
         "--num-envs",
         "512",
         "--resume",
-        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot013/model_final.pt",
-        "--resume-local-entropy-revision",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot015/model_final.pt",
+        "--resume-local-return-revision",
         "--updates",
         "128",
         "--run-dir",
-        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot015",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot016",
         "--max-runtime-seconds",
-        "7200"
+        "10800"
       ],
-      "started_at": "2026-10-18T02:49:12.688832+00:00",
-      "source_commit": "03be0149e20c79b9502b52e7ff97fd33bf158155",
-      "ab_role": "entropy0005_treatment_from_same2560",
-      "treatment_plan_sha256": "4066923002b9f694c41a3048f8820f3eb3494a26469f47ee1e0ebb770eb93689",
-      "finished_at": "2026-10-18T02:59:44.721975+00:00",
+      "started_at": "2026-10-18T03:39:03.807906+00:00",
+      "source_commit": "cc9c9612f12fb05c4141c897a8164b482de3dc34",
+      "experiment": "return_window384_lambda1_from_exact2688",
+      "target_plan_sha256": "3e42fb67b805a15306188468a138912138ed9630b3481b5a5c13c1757eece920",
+      "finished_at": "2026-10-18T04:19:26.623049+00:00",
       "exit_code": 0
     }
   },
@@ -329,7 +326,7 @@
     "first_named_migration_adam_step": 53780,
     "first_ppo_deep_tensor_verification": "verify existing first named seal2689; next periodic3000 outside this128-update block, no forced live snapshot"
   },
-  "latest_learning_state_verification": "reports/local_training_20261017/pilot016_first2689.json",
+  "latest_learning_state_verification": "reports/local_training_20261017/pilot016.json",
   "candidate_plan": "contracts/v6_local_scratch_200hz_v8.json",
   "entropy_comparison": {
     "plan": "docs/V6_LOCAL_ENTROPY_AB_PLAN_20261018.md",
