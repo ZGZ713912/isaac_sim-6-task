@@ -45,6 +45,30 @@ def same_tree(a, b):
     return a == b
 
 
+def event_advantage(events, learning, bootstrap, dones, gamma, lam):
+    """Linear reward-event contribution with the native ownership boundaries.
+
+    Values and the rollout-tail value contribution are zero for this component.
+    Subtracting it holds the recorded policy, transitions and critic fixed.
+    """
+    import torch
+    if (events.ndim != 2 or any(mask.shape != events.shape or mask.dtype != torch.bool
+            for mask in (learning, bootstrap, dones)) or not 0 <= gamma <= 1 or not 0 <= lam <= 1):
+        raise ValueError("Event attribution needs aligned bool masks and bounded discount factors")
+    if not bool(torch.isfinite(events[learning]).all()):
+        raise ValueError("Nonfinite policy-owned event")
+    result = torch.zeros_like(events)
+    future = torch.zeros_like(events[0])
+    for tick in reversed(range(len(events))):
+        continues = learning[tick] & bootstrap[tick] & ~dones[tick]
+        if tick + 1 < len(events):
+            continues &= learning[tick + 1]
+        future = torch.where(learning[tick], events[tick], 0.) + torch.where(
+            continues, gamma * lam * future, 0.)
+        result[tick] = future
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-root', type=Path, required=True)
@@ -55,6 +79,8 @@ def main():
                         help='Only the authenticated named v5-2176 to v6 candidate is supported')
     parser.add_argument('--parent-source-root', type=Path,
                         help='Original frozen parent modules, required for a named candidate')
+    parser.add_argument('--event-attribution', action='store_true',
+                        help='Read native discrete event payments and their linear GAE contribution')
     args = parser.parse_args()
     root = args.source_root.resolve()
     sys.path[:0] = [str(root / 'scripts'), str(root / 'src')]
@@ -93,7 +119,7 @@ def main():
         target_contract_sha256=digest(args.target_contract) if args.target_contract else None,
         parent_source_root=str(parent_root), named_revision=revision,
         scope='Fresh training episodes at the saved curriculum clock. Native Gaussian act/process/GAE only. No optimizer update, no checkpoint written, no mid-rollout replay or fixed-case acceptance claim.')
-    launcher = env = None
+    launcher = env = event_module = original_event_function = None
     try:
         from isaaclab.app import AppLauncher
         launcher = AppLauncher(dict(headless=True, enable_cameras=False, device='cuda:0',
@@ -123,6 +149,18 @@ def main():
         alg.optimizer.step = forbidden
         adapter = configure_recovery_rollout(alg, env)
         assert adapter is not None
+        native_events = {}
+        if args.event_attribution:
+            from wheeled_tasks.chassis import rewards as event_module
+            original_event_function = event_module.episode_event_terms
+
+            def observe_events(*a, **kw):
+                result = original_event_function(*a, **kw)
+                native_events.clear()
+                native_events.update(result)
+                return result
+
+            event_module.episode_event_terms = observe_events
         clock = saved['infos']['stage_actor_update']
         env.stage_actor_update = clock
         env.global_actor_update = saved['infos']['global_actor_update']
@@ -153,11 +191,16 @@ def main():
         report['actual_difficulty_samples'] = env.skills.verify_difficulty_samples()
         arrays = {k: [] for k in ('advantages', 'residuals', 'gaussian_noise', 'learning',
             'post_warmup', 'commands', 'episode_ticks', 'velocity', 'height', 'done')}
+        if args.event_attribution:
+            arrays.update({key: [] for key in ('failure_event', 'success_event', 'event_gae',
+                'raw_reward', 'storage_reward', 'stored_value', 'bootstrap', 'terminated',
+                'event_payment_reconstruction_error')})
         component_arrays = {}
         populations = []
         for rollout in range(args.rollouts):
             means, stds, commands, ticks, velocity, height, done = [], [], [], [], [], [], []
             components = {}
+            event_records = {}
             with torch.inference_mode():
                 for tick in range(96):
                     command = obs['policy'][:, [0, 2, 3]].clone()
@@ -166,6 +209,15 @@ def main():
                     means.append(alg.actor.output_mean.clone())
                     stds.append(alg.actor.output_std.clone())
                     obs, rewards, dones, extras = env.step(action)
+                    if args.event_attribution:
+                        density = sum(extras['native_reward_components'].values())
+                        reconstruction = (rewards - density * env.policy_dt
+                            - native_events['failure_event'] - native_events['success_event'])
+                        for key, value in dict(raw_reward=rewards,
+                                failure_event=native_events['failure_event'], success_event=native_events['success_event'],
+                                terminated=extras['diagnostics']['terminated'],
+                                event_payment_reconstruction_error=reconstruction).items():
+                            event_records.setdefault(key, []).append(value.clone())
                     alg.process_env_step(obs, rewards, dones, extras)
                     d = extras['diagnostics']
                     commands.append(command)
@@ -185,6 +237,12 @@ def main():
                 learning=learning, post_warmup=learning & (episode_ticks * .005 > 1.),
                 commands=torch.stack(commands), episode_ticks=episode_ticks,
                 velocity=torch.stack(velocity), height=torch.stack(height), done=torch.stack(done))
+            if args.event_attribution:
+                items.update({key: torch.stack(values) for key, values in event_records.items()})
+                items.update(bootstrap=adapter.bootstrap.clone(),
+                    stored_value=storage.values.squeeze(-1).clone(), storage_reward=storage.rewards.squeeze(-1).clone())
+                items['event_gae'] = event_advantage(items['failure_event'], learning,
+                    adapter.bootstrap, storage.dones.squeeze(-1).bool(), alg.gamma, alg.lam)
             for key, value in items.items():
                 arrays[key].append(value.cpu().numpy().copy())
             for key, values in components.items():
@@ -221,6 +279,13 @@ def main():
             units=dict(advantages='native PPO advantage units', residuals='discounted reward',
                 gaussian_noise='unit-normal residual', reward_density='reward per simulated second'),
             interpretation='Group-conditioned credit and noise moments are descriptive score estimates before PPO clipping/epochs, not a unique cause or guaranteed update direction. Post-warmup populations explicitly exclude episode age <=1s. No optimization or learning/curriculum clock advance occurred.')
+        if args.event_attribution:
+            report['event_attribution'] = dict(termination_event_cost=contract['termination_event_cost'],
+                maximum_payment_reconstruction_error=float(np.abs(arrays['event_payment_reconstruction_error']).max()),
+                failure_events=int(arrays['terminated'].sum()),
+                native_failure_payments_match=bool(np.array_equal(arrays['failure_event'],
+                    -arrays['terminated'].astype(arrays['failure_event'].dtype) * contract['termination_event_cost'])),
+                interpretation='Linear GAE reward component with recorded transitions/critic and zero event-tail value. Removing it is an offline algebraic intervention, not learning or a policy-return improvement.')
         with SummaryWriter(str(checkpoint.parent)) as writer:
             for name, populations in report['groups'].items():
                 for population, statistics in populations.items():
@@ -236,6 +301,8 @@ def main():
         print(report['traceback'], flush=True)
         raise
     finally:
+        if event_module is not None:
+            event_module.episode_event_terms = original_event_function
         (args.output / 'diagnosis.json').write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
         if env is not None:
             env.close()
