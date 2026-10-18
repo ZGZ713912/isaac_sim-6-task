@@ -536,3 +536,9 @@ velocity broad1.75884→1.72982、yaw broad.87516→1.01542、height broad1.7030
 credit_probe001 完成 12×96 帧、512 环境，0 PPO，actor/critic/17 Adam 逐值不变，课程保持2176。跨1s warmup的高难命令占25.75%样本、73.37% advantage平方和；基础命令占59.18%/18.33%。末480ms内将结束的样本占0.538%/30.36%，与难度分区有重叠，不能相加。描述性统计不证明唯一根因。回执`reports/local_training_20261017/credit_diagnosis001.json`保留完整分组、原始74.56MB压缩数组和原event的LocalDiagnostics/CreditProbe指标。
 
 依照`docs/V6_LOCAL_COMMAND_REHEARSAL_PLAN_20261018.md`实现命名v5-2176→本机v6候选：仅各难度节点的vx/yaw上限为0.5m/s、1rad/s，原高度/所有场景人口/时钟origin/出生/奖励/PPO和机械合同保持。99项CPU和512命名迁移静态前置通过；原生0PPO配对尚待，不授行为资格。候选首次追加上限128；全部已消费3264保留，完成目标谱系2304/总3392/余16608。pilot011.json、credit_diagnosis001.json和新计划已被新合同绑定，后续结果写新回执，不修改这些冻结证据。
+
+## 基础命令复习原生前置通过（01:05 UTC）
+
+已提交fe10be4冻结源的credit_probe002/003独立进程各跑1152帧。源002全部原始数组逐位复现001；两侧完整出生q/dq、刚体pose、profile、CPU/CUDA/环境RNG、首帧标准Gaussian和其他33个policy列逐位一致，首20帧实际learning mask一致。候选实采包络0.5m/s、1rad/s，原高度和135个实际人口组保持；两侧actor/critic/17Adam均不变、0PPO。6秒内观测结束45→22、return-minus-value RMS3.062→1.589，仅描述课程变化后的短时分布，不证明学会跟踪或机械资格。完整回执`reports/local_training_20261017/command_rehearsal_native001.json`。
+
+工程前置只支持从精确v5-2176完整恢复追加128更新，不授长训。实际启动必须再从已提交源码冻结；首PPO须逐值核验独立初态、17Adam43520→43540、课程2176→2177，无新critic预热。
