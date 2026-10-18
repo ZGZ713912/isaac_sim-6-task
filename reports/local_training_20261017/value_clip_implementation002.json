@@ -1,0 +1,45 @@
+{
+  "schema": "v6-local-value-clip-implementation-v1",
+  "recorded_at": "2026-10-18T06:44:18.320564+00:00",
+  "status": "strict_target_design_cpu132_static512_passed_pending_native_pair",
+  "algorithm_change": "Only native use_clipped_value_loss True to False; actor loss, native Adam, clipping and reward unchanged",
+  "control_report": {
+    "file": "reports/local_training_20261017/pilot019.json",
+    "sha256": "da6b0aaa920e9e99ce1fe94aaba49353b4a6e4cf549eda6b32337ec1f97a59a8"
+  },
+  "control_learning_updates": 3073,
+  "control_original_cases_passed": 0,
+  "control_full_horizon_episodes": 32,
+  "target_plan": {
+    "file": "contracts/v6_local_scratch_200hz_v9.json",
+    "sha256": "99dfa76ffe4f860abbabc60edd91b7604aeb54fe304402909164b401c40e81b6"
+  },
+  "consumption_receipt": {
+    "file": "reports/local_training_20261017/value_clip_ab001_consumption.json",
+    "sha256": "0370128098b8ff20822f20da3b0c544b8c8d1765036d01921812d6f38d6bf9bb"
+  },
+  "target_inherited_consumption": 1344,
+  "lineage_ceiling": 18656,
+  "transition_ceiling": 3271557120,
+  "cpu_tests_passed": 132,
+  "cpu_log": {
+    "file": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/value_cpu003.log",
+    "sha256": "1d68414388232703bc3eacd6366188825995f10a20079afe54e39055bfd81a8a"
+  },
+  "static_preflight": {
+    "file": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/pilot020_preflight001.log",
+    "sha256": "cecb9accb55ab56e6e5f85ee19c207ad3fcb94cb817d4aaaeae0d6b43fa870dc",
+    "status": "static_passed",
+    "num_envs": 512,
+    "physics_steps": 0,
+    "ppo_updates": 0
+  },
+  "engineering_actual_target_PPO": 0,
+  "native_pair_pending": true,
+  "full_training_admitted": false,
+  "limits": [
+    "Synthetic CPU clipping fixture proves gradient and restore semantics, not real rollout cause or behavior.",
+    "The critic-clipping hypothesis is bounded and may fail. No reward/std/LR/clock reset.",
+    "Real target is restricted to the same018-2945 checkpoint, never the control endpoint."
+  ]
+}

@@ -19,3 +19,9 @@
 84 项针对性 CPU 检查通过，包括原生已学 Adam 精确 load、20 次小批更新、mask 压紧、两类优势归一化、actor/采样/RNG 保持、原生 clipped-flat 梯度 0 与 unclipped 正确梯度、旧 v8 与观察器回归、缺控制回执拒绝。合成旧值偏移 fixture 只用来覆盖裁剪平坦分支，不是实际 rollout 结论。日志 `~/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/value_cpu001.log`。
 
 仍须实际控制完成/评测、预算合并、独立 target design 的正负例、512 静态前置、同父保存 RNG 的两个独立零 PPO 原生进程核对，再从已提交冻结源码启动处理。零 PPO 必须禁止 update/step，核对已记录完整初态、Gaussian、动力学、命令、reward、conditioning mask 和学习状态保持。通过这些工程检查也不授予行为或长训资格。
+
+## 2026-10-18 06:44 UTC：实际控制结果与严格 v9 合同
+
+pilot019正常完成3073/Adam61460/trans207814656，原初始及2945完整评测payload精确复现，32回合全跑满但0/8。前后±.5实速+.02480/-.07225，三档高度.30786/.31050/.31481m，不授长训。全128随机闭链0、峰2.284426mm、非轮369/边界1；等98304环境秒100窗0/4765结束回合。
+
+已以真实控制final/completion/seal/evaluation及结果报告SHA生成不可变合并消费回执和v9计划，没有占位。继承1344/谱系18656/transcap3271557120，控制128不退款；共同父仍018-2945。132项CPU及512独立design静态前置通过，见`value_clip_implementation002.json`。原生双进程0PPO配对尚待，不把静态结果当行为资格。
