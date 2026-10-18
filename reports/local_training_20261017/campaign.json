@@ -1,7 +1,7 @@
 {
   "schema": "v6-local-campaign-progress-v1",
-  "recorded_at": "2026-10-18T01:26:59.276388+00:00",
-  "status": "pilot012_completed_evaluated_tracking_failed_zero_ppo_actuation_diagnosis",
+  "recorded_at": "2026-10-18T01:42:45.137292+00:00",
+  "status": "actuation_and_credit_complete_same_v6_256_update_block_prepared",
   "workspace": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train",
   "primary_checkout": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
   "branch": "dev/completed-speed-resume-20261010",
@@ -77,10 +77,11 @@
   "latest_evaluation_status": "evaluated",
   "latest_evaluation_passed_cases": 1,
   "next_phase": {
-    "action": "pair_initial_and_200frame_prefix_then_review_local_actuation_response_before_any_new_ppo",
-    "full_training_admitted": false,
-    "total_consumption": 3392,
-    "remaining_budget": 16608
+    "action": "commit_freeze_full_resume2304_plus256_then_original8case_eval013",
+    "target_lineage": 2560,
+    "target_total": 3648,
+    "remaining_after_target": 16352,
+    "full_training_admitted": false
   },
   "previous_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot011",
   "validation": {
@@ -128,16 +129,19 @@
     "pilot012_first2177": "9actor_8critic_17adam_moments_changed_finite_adam43540_clocks2177",
     "pilot012_final2304": "9actor_8critic_17adam_moments_changed_finite_adam46080_clocks2304",
     "eval012_old_candidates_exact": "complete_initial_and2176_payloads_equal_eval011",
-    "actuation_pulse_cpu4": "passed"
+    "actuation_pulse_cpu4": "passed",
+    "actuation001_native_pair": "all_initial_rng_and200prefix_exact_13arms_all416survived3s_no_clips_or_guards_0PPO",
+    "credit004_zero_ppo": "native_actor_critic_17adam_unchanged_saved_rng_clock2304",
+    "event_credit_cpu8": "passed",
+    "credit005_zero_ppo": "all_004_initial_and_raw_arrays_bitwise_exact_native56_failures_cost200_payment_error4.47e-8_no_optimizer",
+    "pilot013_same_v6_preflight": "static_passed"
   },
   "actual_entropy_coef": 0.0,
   "previous_source_commit": "c37ce79837b7143f72679a3d0e40212a27c3f3ba",
   "remaining_after_target": 16608,
   "current_phase": {
-    "action": "zero_ppo_actuation_interventions",
+    "action": "same_v6_256_update_continuation_prepared_not_started",
     "learner_running": false,
-    "tmux": "v6-local-actuation001",
-    "progress": "/home/noir/.local/state/isaac_wheeled_rl_train/local-200hz-20261018/actuation001_progress.json",
     "full_training_admitted": false
   },
   "total_consumption": 3392,
@@ -150,7 +154,7 @@
     "evaluation_dir": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval007",
     "passed_cases": 1
   },
-  "latest_diagnosis": "reports/local_training_20261017/command_rehearsal_native001.json",
+  "latest_diagnosis": "reports/local_training_20261017/event_credit_diagnosis001.json",
   "frozen_source_receipt": {
     "commit": "7761bdfec01321b9f8a7fad5c13fb1346828ecff",
     "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source.tar.gz",

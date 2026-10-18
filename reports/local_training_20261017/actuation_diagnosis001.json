@@ -1,0 +1,3959 @@
+{
+  "schema": "v6-local-actuation-paired-result-v1",
+  "recorded_at": "2026-10-18T01:32:15.962587+00:00",
+  "status": "completed",
+  "ppo_updates": 0,
+  "acceptance_evaluation": false,
+  "total_consumption": 3392,
+  "remaining_budget": 16608,
+  "source": {
+    "commit": "7761bdfec01321b9f8a7fad5c13fb1346828ecff",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source.tar.gz",
+    "source_archive_sha256": "2c669b30362b7700ac56d4f94974afdb894d28ec12cee47d0f331af65f4f5ce4",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source"
+  },
+  "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+  "policy_order": [
+    "left_leg1",
+    "left_leg2",
+    "right_leg1",
+    "right_leg2",
+    "left_wheel",
+    "right_wheel"
+  ],
+  "scope": "Thirteen independent processes, same cold-start32 original fixed cases. All initial arrays and200 pre-intervention frames paired exactly. Closed-loop actor continues to react; finite action interventions do not certify task tracking, pure open-loop gains or globally linear dynamics.",
+  "measured_columns": [
+    "vx_body_m_s",
+    "yaw_body_rad_s",
+    "height_m"
+  ],
+  "prefix_ticks": 200,
+  "windows": {
+    "early_plateau": [
+      220,
+      240
+    ],
+    "late_plateau": [
+      300,
+      400
+    ],
+    "after_release": [
+      500,
+      600
+    ]
+  },
+  "arms": {
+    "baseline": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:26:16.766862+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 0,
+        "sign": 0,
+        "peak_policy_offset": 0.0,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:26:39.496566+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "63f3880073741887f8a82d94a69a514dbfe50880d059d3fb05ea1eb65acd3975"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actual_control_action_delta": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.0,
+            0.0
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actual_control_action_delta": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.0,
+            0.0
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actual_control_action_delta": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.0,
+            0.0
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_baseline/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_baseline/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_baseline/traces.npz": "63f3880073741887f8a82d94a69a514dbfe50880d059d3fb05ea1eb65acd3975",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_baseline/diagnosis.json": "1d3c66094d44b4a196732f3f8428a9010ae0aa556b8bf867ba2d92ea722fb6ad"
+      }
+    },
+    "axis0_plus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:26:41.691724+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 0,
+        "sign": 1,
+        "peak_policy_offset": 0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:27:04.103771+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "e3431b2ec3896b58b4d100b211c641eae57f5b00e44c5aebe3d0da2628da0784"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            -0.0037670836318284273,
+            0.02317262813448906,
+            -0.00306122237816453
+          ],
+          "actual_control_action_delta": [
+            0.10974130779504776,
+            -0.00959581695497036,
+            0.03719749674201012,
+            -0.006349922623485327,
+            0.0008360259234905243,
+            -0.07150845229625702
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.3719747066497803,
+            -0.7150850892066956
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.15442046523094177,
+            -0.11809246242046356,
+            0.43110474944114685,
+            0.008499162271618843,
+            -0.020107002928853035,
+            -0.5897996425628662
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.04189100116491318,
+            0.006283649709075689,
+            -0.001991749508306384
+          ],
+          "actual_control_action_delta": [
+            0.10207666456699371,
+            0.005594761576503515,
+            -0.08573712408542633,
+            0.0019730364438146353,
+            0.013470220379531384,
+            0.08435209095478058
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.85737144947052,
+            0.8435205817222595
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0007614889182150364,
+            -0.012051243335008621,
+            -0.8204609751701355,
+            0.004885479342192411,
+            -0.0006169932894408703,
+            0.8131040930747986
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.0030400482937693596,
+            -0.0010305297328159213,
+            -0.00010711663344409317
+          ],
+          "actual_control_action_delta": [
+            0.000899995444342494,
+            -0.0009179982589557767,
+            0.006342010106891394,
+            -8.563840674469247e-05,
+            -0.0010493359295651317,
+            -0.005839502438902855
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.06342004984617233,
+            -0.058394905179739
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0004214739892631769,
+            0.0016865420620888472,
+            0.04843850061297417,
+            -0.0034659458324313164,
+            0.004384299740195274,
+            -0.04780767858028412
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_plus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_plus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_plus/traces.npz": "e3431b2ec3896b58b4d100b211c641eae57f5b00e44c5aebe3d0da2628da0784",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_plus/diagnosis.json": "0265ea0621e717695e03da3e2e2b93dc7d9ea21c7f028bba9afe946bd2bdffba"
+      }
+    },
+    "axis0_minus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:27:06.334191+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 0,
+        "sign": -1,
+        "peak_policy_offset": -0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:27:28.828998+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "5e7937dd5628a1ff7a6b85cac571100ad34f1bd394d1bc4ef89b7bb9d56417a1"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            0.002844323869794607,
+            -0.0021318872459232807,
+            0.003176541533321142
+          ],
+          "actual_control_action_delta": [
+            -0.11317925155162811,
+            0.011615289375185966,
+            -0.039079613983631134,
+            0.008125508204102516,
+            -0.0019023856148123741,
+            0.07307315617799759
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.3907961845397949,
+            0.7307313680648804
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.16962459683418274,
+            0.13132359087467194,
+            -0.46613916754722595,
+            -0.018525058403611183,
+            0.01658361405134201,
+            0.5625445246696472
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.03998555988073349,
+            -0.0009824461303651333,
+            0.0021354490891098976
+          ],
+          "actual_control_action_delta": [
+            -0.10640933364629745,
+            -0.0038567546289414167,
+            0.08158857375383377,
+            0.00015193196304608136,
+            -0.014300266280770302,
+            -0.07890841364860535
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.8158861398696899,
+            -0.7890838384628296
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.00245886342599988,
+            0.012971064075827599,
+            0.786958634853363,
+            -0.004260670393705368,
+            0.0024421291891485453,
+            -0.7844293117523193
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.002682479564100504,
+            0.002100959187373519,
+            0.00011625883053056896
+          ],
+          "actual_control_action_delta": [
+            -0.0010045596864074469,
+            0.0010240869596600533,
+            -0.006523380987346172,
+            0.00013616899377666414,
+            0.001036603469401598,
+            0.006005637813359499
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.06523393094539642,
+            0.060056284070014954
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0009358564275316894,
+            -0.0014307987876236439,
+            -0.05177237465977669,
+            0.0037724485155194998,
+            -0.004306964110583067,
+            0.0496598444879055
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_minus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_minus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_minus/traces.npz": "5e7937dd5628a1ff7a6b85cac571100ad34f1bd394d1bc4ef89b7bb9d56417a1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis0_minus/diagnosis.json": "ff385b571eaf3e29ec6654123a3898d6a9e0f0d8ac19c56f21dd06237c9a7910"
+      }
+    },
+    "axis1_plus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:27:31.086289+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 1,
+        "sign": 1,
+        "peak_policy_offset": 0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:27:53.421186+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "34af88bb18a3da15e6208f176e3ed2ccad492ec84fc7d17ab63754622ba80305"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            0.0069104814901947975,
+            -0.08645771443843842,
+            0.002349618822336197
+          ],
+          "actual_control_action_delta": [
+            -0.0024238077457994223,
+            0.10475696623325348,
+            5.229951420915313e-05,
+            0.004811964929103851,
+            0.002698874566704035,
+            0.019769400358200073
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.0005229062517173588,
+            0.19769395887851715
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.08155078440904617,
+            0.1401778757572174,
+            0.0034007863141596317,
+            -0.01103899348527193,
+            0.04694010317325592,
+            0.286518931388855
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.015195807442069054,
+            0.013672584667801857,
+            0.0023512800689786673
+          ],
+          "actual_control_action_delta": [
+            -0.0117267444729805,
+            0.10813650488853455,
+            0.02590475045144558,
+            0.005082483869045973,
+            -0.0017610442591831088,
+            -0.02994105964899063
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.25904732942581177,
+            -0.29941022396087646
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.0010138893267139792,
+            0.013357254676520824,
+            0.24775782227516174,
+            -0.0016803210601210594,
+            0.0023179270792752504,
+            -0.3237859308719635
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.0016369958175346255,
+            0.0016927608521655202,
+            2.5907773306244053e-05
+          ],
+          "actual_control_action_delta": [
+            -0.0004481042269617319,
+            0.0004110488807782531,
+            -0.0013218605890870094,
+            8.132697257678956e-05,
+            0.0002654779236763716,
+            0.001150210970081389
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.013218608684837818,
+            0.011502117849886417
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0027388802263885736,
+            -0.00301469792611897,
+            -0.0199357271194458,
+            3.86372375942301e-05,
+            -0.0022438224405050278,
+            0.019827134907245636
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_plus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_plus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_plus/traces.npz": "34af88bb18a3da15e6208f176e3ed2ccad492ec84fc7d17ab63754622ba80305",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_plus/diagnosis.json": "ef1bf6b6d221f537512ef1d9763ae29e0aa915e248be72608e52694a4113e640"
+      }
+    },
+    "axis1_minus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:27:55.691304+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 1,
+        "sign": -1,
+        "peak_policy_offset": -0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:28:18.195961+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "44efc90a2621473a5419e390c7ca126ec9193adabd556e5e09fbd5aef4451800"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            -0.00658006314188242,
+            0.0884651243686676,
+            -0.002311984309926629
+          ],
+          "actual_control_action_delta": [
+            0.0010856048902496696,
+            -0.10390222072601318,
+            -0.0035347584635019302,
+            -0.004337606951594353,
+            -0.0023482623510062695,
+            -0.01632469706237316
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.03534756228327751,
+            -0.16324689984321594
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.07715705782175064,
+            -0.13305197656154633,
+            -0.03630908578634262,
+            0.01130764652043581,
+            -0.05047288537025452,
+            -0.26166486740112305
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.019749784842133522,
+            -0.006663214415311813,
+            -0.0023296235594898462
+          ],
+          "actual_control_action_delta": [
+            0.009827863425016403,
+            -0.10643672943115234,
+            -0.03388958051800728,
+            -0.004059339873492718,
+            0.0022732538636773825,
+            0.03920712694525719
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.3388952612876892,
+            0.39207106828689575
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0022954768501222134,
+            -0.0116824796423316,
+            -0.3442515432834625,
+            -0.0016748133348301053,
+            -0.0015265424735844135,
+            0.39385560154914856
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.001253486261703074,
+            -0.001466877176426351,
+            -2.2712760255672038e-05
+          ],
+          "actual_control_action_delta": [
+            0.0004693986556958407,
+            -0.0004394181305542588,
+            0.0019127228297293186,
+            -8.500875992467627e-05,
+            -0.00035707815550267696,
+            -0.0017857811180874705
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.019127264618873596,
+            -0.017857814207673073
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.0027760022785514593,
+            0.0029670237563550472,
+            0.021839475259184837,
+            0.00029196791001595557,
+            0.0020880287047475576,
+            -0.02458631806075573
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_minus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_minus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_minus/traces.npz": "44efc90a2621473a5419e390c7ca126ec9193adabd556e5e09fbd5aef4451800",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis1_minus/diagnosis.json": "b2b4faf33cf08aad3ad1b648f44c3d56b92440a12e178606acb256b190d3afd7"
+      }
+    },
+    "axis2_plus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:28:20.407354+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 2,
+        "sign": 1,
+        "peak_policy_offset": 0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:28:42.757736+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "61f9c450956cf5e7faa4e37719f458ed4733ad0582f80fbd829a6de786998c30"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            -0.010523192584514618,
+            -0.04930407181382179,
+            0.002535215113312006
+          ],
+          "actual_control_action_delta": [
+            -0.010456723161041737,
+            -0.0030410957988351583,
+            0.026170477271080017,
+            0.10048370063304901,
+            -0.0005230162641964853,
+            -0.005839397199451923
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.2617047429084778,
+            -0.05839395523071289
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.01083185151219368,
+            0.00828577671200037,
+            0.3847375810146332,
+            0.14708741009235382,
+            -0.09256048500537872,
+            -0.1364143043756485
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.060401760041713715,
+            -0.06071402132511139,
+            0.002406688407063484
+          ],
+          "actual_control_action_delta": [
+            -0.01805809698998928,
+            0.013116463087499142,
+            -0.09069567918777466,
+            0.10892591625452042,
+            0.012426849454641342,
+            0.1397135853767395
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.9069562554359436,
+            1.3971335887908936
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.005021579097956419,
+            -0.0038295602425932884,
+            -0.8748024702072144,
+            0.002905821893364191,
+            -0.0057843816466629505,
+            1.3680073022842407
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.002297556959092617,
+            -0.0022423951886594296,
+            -6.292852776823565e-05
+          ],
+          "actual_control_action_delta": [
+            0.001003537210635841,
+            -0.0011217858409509063,
+            0.007597733289003372,
+            -0.0001674368540989235,
+            -0.0011780064087361097,
+            -0.007249108515679836
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.07597735524177551,
+            -0.07249100506305695
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.0011658216826617718,
+            0.0037495188880711794,
+            0.06284551322460175,
+            -0.0018312963657081127,
+            0.005023620557039976,
+            -0.06156538054347038
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_plus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_plus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_plus/traces.npz": "61f9c450956cf5e7faa4e37719f458ed4733ad0582f80fbd829a6de786998c30",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_plus/diagnosis.json": "163402b79e51a3df2ce3fcedfae2bed13f1f337cf149a5fb785fd1029ec57c9c"
+      }
+    },
+    "axis2_minus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:28:45.060691+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 2,
+        "sign": -1,
+        "peak_policy_offset": -0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:29:07.474066+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "729aec58e7b8850f7aa69698e8abd24185eb4e1c52b459353f3df6bde58fffc0"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            0.009941871277987957,
+            0.05967966839671135,
+            -0.002476833062246442
+          ],
+          "actual_control_action_delta": [
+            0.008662132546305656,
+            0.004258668515831232,
+            -0.029225042089819908,
+            -0.09951714426279068,
+            0.0002129030181095004,
+            0.009090876206755638
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.29225030541419983,
+            0.09090876579284668
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.018226752057671547,
+            0.001744454144500196,
+            -0.4225751459598541,
+            -0.15796105563640594,
+            0.09205298870801926,
+            0.13597550988197327
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.0607881024479866,
+            0.06907930225133896,
+            -0.0021703531965613365
+          ],
+          "actual_control_action_delta": [
+            0.011008900590240955,
+            -0.01100450474768877,
+            0.09203634411096573,
+            -0.10548977553844452,
+            -0.014761319383978844,
+            -0.14144481718540192
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.9203638434410095,
+            -1.4144511222839355
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0003016787231899798,
+            0.005141673609614372,
+            0.889047384262085,
+            -0.0013223964488133788,
+            0.005544112529605627,
+            -1.4082324504852295
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.0019221354741603136,
+            0.0035948441363871098,
+            9.864243475021794e-05
+          ],
+          "actual_control_action_delta": [
+            -0.0012727594003081322,
+            0.00140981818549335,
+            -0.008481989614665508,
+            0.00025769646163098514,
+            0.001280627097003162,
+            0.007980447262525558
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.08481989800930023,
+            0.07980471849441528
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.003002022858709097,
+            -0.003582762787118554,
+            -0.07455337792634964,
+            0.0013800126034766436,
+            -0.003868827596306801,
+            0.0694936215877533
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_minus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_minus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_minus/traces.npz": "729aec58e7b8850f7aa69698e8abd24185eb4e1c52b459353f3df6bde58fffc0",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis2_minus/diagnosis.json": "28d762ad4d982315b321d3a9fcc689a964f925f239a2876a29a77a824d60f33b"
+      }
+    },
+    "axis3_plus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:29:09.704268+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 3,
+        "sign": 1,
+        "peak_policy_offset": 0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:29:31.888259+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "232ff49ce7813ba6326fabceb1dac006331ec1f135f199d99a5f4a8e0fdfe262"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            0.0009516154532320797,
+            -0.0226677805185318,
+            -0.0025844422634691
+          ],
+          "actual_control_action_delta": [
+            0.0034971919376403093,
+            0.000657176598906517,
+            -0.023683540523052216,
+            -0.00014609721256420016,
+            0.10116173326969147,
+            0.0018141467589884996
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.23683536052703857,
+            0.018141508102416992
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.018132224678993225,
+            0.03554224222898483,
+            -0.18537792563438416,
+            -0.08521273732185364,
+            0.14206816256046295,
+            0.05941198021173477
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.0005740872002206743,
+            0.06207809969782829,
+            -0.0016565847909078002
+          ],
+          "actual_control_action_delta": [
+            -0.00898826029151678,
+            0.0073796785436570644,
+            -0.017665665596723557,
+            0.0015749424928799272,
+            0.10017102211713791,
+            -0.022324638441205025
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.1766565442085266,
+            -0.22324581444263458
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.0013585208216682076,
+            0.004595661535859108,
+            -0.18853001296520233,
+            7.667315367143601e-05,
+            0.006927049718797207,
+            -0.24454116821289062
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.0005143707385286689,
+            0.003586499486118555,
+            1.7340946669719415e-06
+          ],
+          "actual_control_action_delta": [
+            -0.00039747965638525784,
+            0.0002698589814826846,
+            0.00027648810646496713,
+            5.9666941524483263e-05,
+            -3.2544368878006935e-05,
+            -0.0009706533164717257
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.0027648890390992165,
+            -0.009706505574285984
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0026150576304644346,
+            -0.003638151567429304,
+            -0.0018382746493443847,
+            -0.0007334292749874294,
+            -0.0022170485462993383,
+            -0.008237002417445183
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_plus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_plus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_plus/traces.npz": "232ff49ce7813ba6326fabceb1dac006331ec1f135f199d99a5f4a8e0fdfe262",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_plus/diagnosis.json": "44cf2240c81ef3626e03bd1b2552663c9e114fcb59368c060b36905d56d5bb08"
+      }
+    },
+    "axis3_minus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:29:34.124720+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 3,
+        "sign": -1,
+        "peak_policy_offset": -0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:29:56.388938+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "d4312cffb8f6a1925294c0cd9fd41fe4c7b94cc77d60f35ca1162e232b930a4e"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            -0.0005986966425552964,
+            0.028819959610700607,
+            0.002640116261318326
+          ],
+          "actual_control_action_delta": [
+            -0.004612814635038376,
+            0.00039052063948474824,
+            0.020657094195485115,
+            0.0006411856738850474,
+            -0.10092969983816147,
+            0.001435689046047628
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.20657101273536682,
+            0.01435690838843584
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.01137693040072918,
+            -0.02870994247496128,
+            0.15153273940086365,
+            0.08026233315467834,
+            -0.1436080038547516,
+            -0.03279516473412514
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.0022541414946317673,
+            -0.05389254540205002,
+            0.0016589617589488626
+          ],
+          "actual_control_action_delta": [
+            0.007479692809283733,
+            -0.00590630155056715,
+            0.012094225734472275,
+            -0.0009143833885900676,
+            -0.09986459463834763,
+            0.027839327231049538
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.12094219028949738,
+            0.2783931493759155
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0027926317416131496,
+            -0.0015711162704974413,
+            0.11163384467363358,
+            -0.0012387746246531606,
+            -0.005984803661704063,
+            0.27838265895843506
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            5.994099046802148e-05,
+            -0.0023378385230898857,
+            1.9802926544798538e-05
+          ],
+          "actual_control_action_delta": [
+            0.00026150274788960814,
+            -0.00013378277071751654,
+            -0.00030189831159077585,
+            -6.940830644452944e-06,
+            4.986352450941922e-06,
+            0.0008660806925036013
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.0030189724639058113,
+            0.00866080541163683
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.0021098905708640814,
+            0.0026927695143967867,
+            -0.0029808070976287127,
+            -0.0002343773958273232,
+            0.002551297191530466,
+            0.007164204027503729
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_minus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_minus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_minus/traces.npz": "d4312cffb8f6a1925294c0cd9fd41fe4c7b94cc77d60f35ca1162e232b930a4e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis3_minus/diagnosis.json": "71ff7f4ed52162fe6434ce4328f18588701a3c397e251237e49df9524d5a0e6b"
+      }
+    },
+    "axis4_plus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:29:58.640562+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 4,
+        "sign": 1,
+        "peak_policy_offset": 0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:30:21.108188+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "a76eea8fb0e7442c36c66ff30f0078db2c7adb576fa76bf00da30e18f9d03578"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            -0.011706528253853321,
+            -0.21729722619056702,
+            -0.0007172368932515383
+          ],
+          "actual_control_action_delta": [
+            0.022122226655483246,
+            -0.033582497388124466,
+            0.12994395196437836,
+            -0.00935310311615467,
+            -0.0015009600901976228,
+            0.053895749151706696
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            1.2994384765625,
+            0.5389575362205505
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0787944346666336,
+            -0.05461768060922623,
+            1.3275487422943115,
+            -0.0017200721194967628,
+            0.032749198377132416,
+            0.21824614703655243
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.08437187969684601,
+            -0.3169647455215454,
+            -0.0008922189590521157
+          ],
+          "actual_control_action_delta": [
+            0.009593307040631771,
+            -0.015208306722342968,
+            -0.04603274166584015,
+            5.3887652029516175e-05,
+            0.02461024560034275,
+            0.2789745628833771
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.4603271782398224,
+            2.789745807647705
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0015237319748848677,
+            -0.010614964179694653,
+            -0.42967987060546875,
+            0.007790429517626762,
+            0.002059112535789609,
+            2.7601423263549805
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.0015485439216718078,
+            -0.007247203029692173,
+            -0.00014512153575196862
+          ],
+          "actual_control_action_delta": [
+            0.002081229817122221,
+            -0.0024533092509955168,
+            0.014236284419894218,
+            -0.0005817025667056441,
+            -0.001971023390069604,
+            -0.013872500509023666
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.14236317574977875,
+            -0.1387248933315277
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.0009443427552469075,
+            0.00288592791184783,
+            0.1366855502128601,
+            -0.003150741569697857,
+            0.00553157227113843,
+            -0.11666592955589294
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_plus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_plus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_plus/traces.npz": "a76eea8fb0e7442c36c66ff30f0078db2c7adb576fa76bf00da30e18f9d03578",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_plus/diagnosis.json": "6e69c3569ab6c9a28c14ca4731e17a37f6b3399e404bed72b8d33233f67ff60a"
+      }
+    },
+    "axis4_minus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:30:23.369543+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 4,
+        "sign": -1,
+        "peak_policy_offset": -0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:30:45.624605+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "26e2954988783dcd65c08b0ae6b4f0a127567c87aa95e210ea23360706b5b2a9"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            0.01151649933308363,
+            0.21256378293037415,
+            0.0009041065350174904
+          ],
+          "actual_control_action_delta": [
+            -0.025888655334711075,
+            0.036414071917533875,
+            -0.1431988626718521,
+            0.010524285957217216,
+            0.002663465216755867,
+            -0.04062498360872269
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -1.4319889545440674,
+            -0.4062500596046448
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.09599613398313522,
+            0.06445017457008362,
+            -1.4112318754196167,
+            -0.007752551697194576,
+            -0.017011085525155067,
+            -0.08852871507406235
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.07689853012561798,
+            0.3036755621433258,
+            0.0014169259229674935
+          ],
+          "actual_control_action_delta": [
+            -0.025985553860664368,
+            0.018708284944295883,
+            0.03755844384431839,
+            0.007696839515119791,
+            -0.026988420635461807,
+            -0.2632979154586792
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.37558335065841675,
+            -2.632976770401001
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.001664152485318482,
+            0.015453364700078964,
+            0.345499187707901,
+            -0.0023344492074102163,
+            -0.006074601784348488,
+            -2.5856399536132812
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.0026415714528411627,
+            0.0025451197288930416,
+            0.00010419423051644117
+          ],
+          "actual_control_action_delta": [
+            -0.0014189736684784293,
+            0.0015396027592942119,
+            -0.011022345162928104,
+            0.000325202097883448,
+            0.0015788822202011943,
+            0.010935571044683456
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.11022339016199112,
+            0.10935577750205994
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.000351559225236997,
+            -0.0008863957482390106,
+            -0.08934300392866135,
+            0.004008270800113678,
+            -0.005901509430259466,
+            0.08764477074146271
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_minus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_minus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_minus/traces.npz": "26e2954988783dcd65c08b0ae6b4f0a127567c87aa95e210ea23360706b5b2a9",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis4_minus/diagnosis.json": "921b5d2d3e1fa742570e35b93a3bac5c858f574133e9a0471dcfa16d5518c295"
+      }
+    },
+    "axis5_plus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:30:47.933463+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 5,
+        "sign": 1,
+        "peak_policy_offset": 0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:31:10.500731+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "cc5481e7a338b19028579348707b68fa035eedc8622a8b20018e6a716c2e2aae"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            0.013574719429016113,
+            -0.19666478037834167,
+            -0.0014793226728215814
+          ],
+          "actual_control_action_delta": [
+            0.02261865884065628,
+            -0.008600934408605099,
+            -0.006968303117901087,
+            -0.008289171382784843,
+            0.02252734825015068,
+            0.15190574526786804
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.06968306005001068,
+            1.5190576314926147
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.06995027512311935,
+            -0.04254249483346939,
+            -0.2642594873905182,
+            -0.03811320662498474,
+            0.08387704193592072,
+            1.643613576889038
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.11883997917175293,
+            -0.14021968841552734,
+            -0.001445160829462111
+          ],
+          "actual_control_action_delta": [
+            0.03305916115641594,
+            -0.040288046002388,
+            0.27010220289230347,
+            -0.013382737524807453,
+            -0.01996379904448986,
+            -0.16986417770385742
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            2.701017141342163,
+            -1.6986405849456787
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.001844369457103312,
+            -0.005717471707612276,
+            2.6510324478149414,
+            0.006613114383071661,
+            -0.001834160415455699,
+            -1.6504384279251099
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            0.0064410013146698475,
+            -0.001568291219882667,
+            0.000167580132256262
+          ],
+          "actual_control_action_delta": [
+            -0.0017999683041125536,
+            0.002243935829028487,
+            -0.018537241965532303,
+            0.0003165815433021635,
+            0.002888032700866461,
+            0.018896594643592834
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -0.18537239730358124,
+            0.18896642327308655
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.001968342112377286,
+            -0.0016227613668888807,
+            -0.14308790862560272,
+            0.004527563229203224,
+            -0.004052581265568733,
+            0.16526077687740326
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_plus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_plus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_plus/traces.npz": "cc5481e7a338b19028579348707b68fa035eedc8622a8b20018e6a716c2e2aae",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_plus/diagnosis.json": "08f5527307945a410f17d73b8e51469a18b1a46cffb38a926cfbda3358f97c1b"
+      }
+    },
+    "axis5_minus": {
+      "report": {
+        "schema": "v6-local-actuation-probe-v1",
+        "status": "completed",
+        "started_at": "2026-10-18T01:31:12.768963+00:00",
+        "ppo_updates": 0,
+        "acceptance_evaluation": false,
+        "source_root": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T010631Z-d36a700a/source",
+        "script_sha256": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval012",
+        "evaluation_sha256": "72ca45c86cd6056fac9773ff6972ceacefcc45fdeb10660d6f57b37688e87e00",
+        "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot012/model_final.pt",
+        "checkpoint_sha256": "4c269a9d4ef5220da417e20b2efc2763d73dad25ab609325eb767c74a12cf069",
+        "axis_policy_order": 5,
+        "sign": -1,
+        "peak_policy_offset": -0.1,
+        "ticks": 600,
+        "prefix_ticks": 200,
+        "seed": 290929,
+        "waveform": "ticks200..219 rise .05..1,220..399 plateau,400..419 fall1..0.05,420+ zero",
+        "scope": "Independent-process cold start; pair initial arrays and all200 pre-intervention frames. Original evaluation prefix is not replayed, so identity to its trajectories is not claimed. Closed-loop actor remains active; actual intervention is recorded.",
+        "finished_at": "2026-10-18T01:31:35.695461+00:00",
+        "physics_steps": 600,
+        "policy_steps": 600,
+        "num_envs": 32,
+        "scene_groups": [
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_230mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_305mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "stand_430mm",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "forward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "backward_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "start_stop_05",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse",
+          "rotate_1_reverse"
+        ],
+        "terminal_first_episodes": [],
+        "survivors": 32,
+        "actor_unchanged": true,
+        "critic_unchanged": true,
+        "optimizer_state_empty": true,
+        "runtime_contract_unchanged": true,
+        "clipped_action_coordinates": 0,
+        "bounded_torque_coordinates": 0,
+        "initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "traces_sha256": "98be89646443ca403da094e36fd6c0bb451d4707e2f23cac0f2347c078e522d4"
+      },
+      "initial_bitwise_exact": {
+        "joint_position": true,
+        "joint_velocity": true,
+        "body_pose": true,
+        "cpu_rng": true,
+        "cuda_rng": true,
+        "env_rng": true
+      },
+      "prefix200_bitwise_exact": {
+        "active": true,
+        "policy_input": true,
+        "actor_mean_policy": true,
+        "applied_offset_policy": true,
+        "sent_action_policy": true,
+        "values": true,
+        "requested_motor_effort": true,
+        "motor_effort_bounds": true,
+        "commands": true,
+        "episode_ticks": true,
+        "done": true,
+        "motor_position": true,
+        "motor_velocity": true,
+        "actions": true,
+        "wheel_target_velocity": true,
+        "gap": true,
+        "gravity": true
+      },
+      "windows": {
+        "early_plateau": {
+          "paired_samples": 640,
+          "mean_response_delta": [
+            -0.013458186760544777,
+            0.20638151466846466,
+            0.0016598219517618418
+          ],
+          "actual_control_action_delta": [
+            -0.02676573023200035,
+            0.009803196415305138,
+            0.009403059259057045,
+            0.010131781920790672,
+            -0.0244821235537529,
+            -0.15328413248062134
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.09403059631586075,
+            -1.5328413248062134
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.07812587171792984,
+            0.05146707966923714,
+            0.2949245572090149,
+            0.03437643498182297,
+            -0.0941554382443428,
+            -1.6688820123672485
+          ]
+        },
+        "late_plateau": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.11047035455703735,
+            0.11817943304777145,
+            0.0023277075961232185
+          ],
+          "actual_control_action_delta": [
+            -0.05680383741855621,
+            0.04529321566224098,
+            -0.2605839669704437,
+            0.025989746674895287,
+            0.010399682447314262,
+            0.161457359790802
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            -2.6058390140533447,
+            1.6145706176757812
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            0.0048308344557881355,
+            0.003167489543557167,
+            -2.4047508239746094,
+            -0.003562481375411153,
+            -0.003863202640786767,
+            1.5791990756988525
+          ]
+        },
+        "after_release": {
+          "paired_samples": 3200,
+          "mean_response_delta": [
+            -0.004314919002354145,
+            -0.0008505117730237544,
+            -0.00017111215856857598
+          ],
+          "actual_control_action_delta": [
+            0.0017258604057133198,
+            -0.002301431493833661,
+            0.017618244513869286,
+            -0.000346710323356092,
+            -0.0027069919742643833,
+            -0.017952438443899155
+          ],
+          "actual_wheel_target_delta_rad_s": [
+            0.17618215084075928,
+            -0.17952489852905273
+          ],
+          "actual_motor_velocity_delta_rad_s": [
+            -0.0018036842811852694,
+            0.001661442220211029,
+            0.1455884873867035,
+            0.000772545114159584,
+            0.0004965889966115355,
+            -0.1602538675069809
+          ]
+        }
+      },
+      "artifacts": {
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_minus/source.py": "46edb8a2c016ae26350356ef8ed11d4afeb5ac4e098979a05e9287a9a21032d1",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_minus/initial.npz": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_minus/traces.npz": "98be89646443ca403da094e36fd6c0bb451d4707e2f23cac0f2347c078e522d4",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/actuation001_axis5_minus/diagnosis.json": "6ea7456bb19b74ac0051390e7ccdcd2865abab766644364c0c6526342d13837f"
+      }
+    }
+  },
+  "central_responses": {
+    "left_leg1": {
+      "early_plateau": {
+        "paired_samples": 640,
+        "central_gain_per_policy_unit": [
+          -0.03305703029036522,
+          0.12652258574962616,
+          -0.031188800930976868
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.00046138031757436693,
+          0.010520366951823235,
+          5.7659530284581706e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.03407233580946922,
+              0.14807870984077454,
+              -0.030666714534163475
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.03350072354078293,
+              0.09767279028892517,
+              -0.03178288787603378
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.029360277578234673,
+              0.16177265346050262,
+              -0.030541380867362022
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.03496106341481209,
+              0.10281689465045929,
+              -0.03234031796455383
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.03163193166255951,
+              0.10870238393545151,
+              -0.031330209225416183
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.034914519637823105,
+              0.19075079262256622,
+              -0.031166471540927887
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.02641226537525654,
+              0.21368499100208282,
+              -0.031731680035591125
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.03960317745804787,
+              -0.01129857450723648,
+              -0.029950877651572227
+            ]
+          }
+        }
+      },
+      "late_plateau": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.40938329696655273,
+          0.03633048012852669,
+          -0.020635969936847687
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.0009526953217573464,
+          0.0026506015565246344,
+          7.185089634731412e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.4066213071346283,
+              0.06391285359859467,
+              -0.0197906494140625
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.406622052192688,
+              0.0760781317949295,
+              -0.020484860986471176
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.4123949706554413,
+              0.07968583703041077,
+              -0.021667739376425743
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.4167744517326355,
+              0.08301243931055069,
+              -0.020594879984855652
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.3979940712451935,
+              0.0787200927734375,
+              -0.020207084715366364
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.41677775979042053,
+              0.0800548642873764,
+              -0.020641090348362923
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.3653198778629303,
+              -0.004480205941945314,
+              -0.020521370694041252
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.45255887508392334,
+              -0.16634011268615723,
+              -0.02118016593158245
+            ]
+          }
+        }
+      },
+      "after_release": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.028612622991204262,
+          -0.015657490119338036,
+          -0.0011168792843818665
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.00017878279322758317,
+          0.0005352176958695054,
+          4.57052146884962e-06
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.0185528751462698,
+              -0.03916807845234871,
+              -0.0012804876314476132
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.022179512307047844,
+              -0.007159773726016283,
+              -0.0010348032228648663
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.04029446840286255,
+              -0.020444782450795174,
+              -0.0013292814837768674
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.029181063175201416,
+              -0.017311088740825653,
+              -0.001077946973964572
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.01869661919772625,
+              -0.0116237448528409,
+              -0.0011710356920957565
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.031779490411281586,
+              -0.010796014219522476,
+              -0.0011442501563578844
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.028286950662732124,
+              -0.019533412531018257,
+              -0.0008571378421038389
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.03993029519915581,
+              0.0007773861289024353,
+              -0.0010400753235444427
+            ]
+          }
+        }
+      }
+    },
+    "left_leg2": {
+      "early_plateau": {
+        "paired_samples": 640,
+        "central_gain_per_policy_unit": [
+          0.06745273619890213,
+          -0.8746135234832764,
+          0.023308005183935165
+        ],
+        "symmetric_nonlinearity_absolute": [
+          0.00016520838835276663,
+          0.001003692508675158,
+          1.881732532638125e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.06945206969976425,
+              -0.8703783750534058,
+              0.023922024294734
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.06665784120559692,
+              -0.8819143176078796,
+              0.022176489233970642
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.06385646760463715,
+              -0.8298971652984619,
+              0.02281397581100464
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.06646639853715897,
+              -0.8204598426818848,
+              0.023588277399539948
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.06822498142719269,
+              -0.9067108631134033,
+              0.02337324433028698
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.065116286277771,
+              -0.8321622610092163,
+              0.02367863617837429
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.06960014998912811,
+              -0.933866560459137,
+              0.02397897094488144
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.07024771720170975,
+              -0.9215235710144043,
+              0.02293233573436737
+            ]
+          }
+        }
+      },
+      "late_plateau": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          0.174727663397789,
+          0.1016789972782135,
+          0.02340451255440712
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.0022769635543227196,
+          0.0035046986304223537,
+          1.0828040103660896e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.17808355391025543,
+              0.08126655220985413,
+              0.02312811091542244
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.16814815998077393,
+              0.09260700643062592,
+              0.023426221683621407
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.15931814908981323,
+              0.12756161391735077,
+              0.023790644481778145
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.16690082848072052,
+              0.1310654729604721,
+              0.023666156455874443
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.17416685819625854,
+              0.06894119083881378,
+              0.023181896656751633
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.1683053970336914,
+              0.129243865609169,
+              0.023593788966536522
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.16041986644268036,
+              0.15684056282043457,
+              0.023992426693439484
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.22247950732707977,
+              0.025905700400471687,
+              0.02245662547647953
+            ]
+          }
+        }
+      },
+      "after_release": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.014452427625656128,
+          0.015798162668943405,
+          0.00024310265143867582
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.00019175437046214938,
+          0.00011294181604171172,
+          1.5975348333086004e-06
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.012910516001284122,
+              0.02458825893700123,
+              0.00025176332565024495
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.01189818512648344,
+              0.014794914983212948,
+              0.0002536945103202015
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.022287333384156227,
+              0.012203157879412174,
+              2.034492717939429e-05
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.014524832367897034,
+              0.009588734246790409,
+              0.00015657096810173243
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.012913177721202374,
+              0.012229695916175842,
+              0.00011112727224826813
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.016605686396360397,
+              0.017893724143505096,
+              0.00027641726774163544
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.008597941137850285,
+              0.023617027327418327,
+              0.00022433661797549576
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.01588154211640358,
+              0.011470131576061249,
+              0.0006505664205178618
+            ]
+          }
+        }
+      }
+    },
+    "right_leg1": {
+      "early_plateau": {
+        "paired_samples": 640,
+        "central_gain_per_policy_unit": [
+          -0.10232526808977127,
+          -0.5449187755584717,
+          0.025060225278139114
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.00029066120623610914,
+          0.0051878164522349834,
+          2.919188773375936e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.10426545143127441,
+              -0.6138657331466675,
+              0.02440468780696392
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.10252011567354202,
+              -0.5470377206802368,
+              0.02457396499812603
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.10005397349596024,
+              -0.5132927298545837,
+              0.02601715177297592
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.10233114659786224,
+              -0.5440352559089661,
+              0.026146499440073967
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.10284107178449631,
+              -0.5397568345069885,
+              0.024375813081860542
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.10283605754375458,
+              -0.5477860569953918,
+              0.024895932525396347
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.09881553053855896,
+              -0.39558619260787964,
+              0.024588987231254578
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.10493920743465424,
+              -0.6579883098602295,
+              0.025478940457105637
+            ]
+          }
+        }
+      },
+      "late_plateau": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.6059495806694031,
+          -0.648966372013092,
+          0.022885214537382126
+        ],
+        "symmetric_nonlinearity_absolute": [
+          0.00019315605459269136,
+          0.0041826749220490456,
+          0.00011816886399174109
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.5725538730621338,
+              -0.6178756952285767,
+              0.023805750533938408
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.5999011993408203,
+              -0.599353015422821,
+              0.023091502487659454
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.6577653884887695,
+              -0.5896780490875244,
+              0.02165907435119152
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.6156323552131653,
+              -0.6292057633399963,
+              0.02277109958231449
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.578345537185669,
+              -0.5838379859924316,
+              0.02363903447985649
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.6200553178787231,
+              -0.6171701550483704,
+              0.022875133901834488
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.5411186218261719,
+              -0.613419771194458,
+              0.02372882515192032
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.6622270941734314,
+              -0.9411858916282654,
+              0.021511301398277283
+            ]
+          }
+        }
+      },
+      "after_release": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.02109847404062748,
+          -0.029186172410845757,
+          -0.0008078545215539634
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.00018771065515466034,
+          0.0006762284901924431,
+          1.7856769773061387e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.00803670659661293,
+              -0.0803494080901146,
+              -0.0011363878147676587
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.019989337772130966,
+              -0.03784012049436569,
+              -0.0008517064270563424
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.029364151880145073,
+              0.004553922917693853,
+              -0.0004088558198418468
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.023787066340446472,
+              -0.039303939789533615,
+              -0.0009050212684087455
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.012707544490695,
+              -0.037398871034383774,
+              -0.0009657699265517294
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.023228013888001442,
+              -0.04524035379290581,
+              -0.0009472541278228164
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.027402199804782867,
+              -0.017641671001911163,
+              -0.0004567943688016385
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.0242727380245924,
+              0.019730601459741592,
+              -0.0007910486310720444
+            ]
+          }
+        }
+      }
+    },
+    "right_leg2": {
+      "early_plateau": {
+        "paired_samples": 640,
+        "central_gain_per_policy_unit": [
+          0.007751557044684887,
+          -0.25743865966796875,
+          -0.026122799143195152
+        ],
+        "symmetric_nonlinearity_absolute": [
+          0.00017645924526732415,
+          0.0030761007219552994,
+          2.7836114895762876e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.009636928327381611,
+              -0.23715972900390625,
+              -0.026216091588139534
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.007176925428211689,
+              -0.25492140650749207,
+              -0.02617248147726059
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.0054595815017819405,
+              -0.22314998507499695,
+              -0.026119954884052277
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.005180880427360535,
+              -0.2392425686120987,
+              -0.02739078737795353
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.008413158357143402,
+              -0.28116461634635925,
+              -0.025757191702723503
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.0071696387603878975,
+              -0.26178714632987976,
+              -0.02531519904732704
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.007257297169417143,
+              -0.2568959891796112,
+              -0.026205040514469147
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.011718042194843292,
+              -0.30518779158592224,
+              -0.025805655866861343
+            ]
+          }
+        }
+      },
+      "late_plateau": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          0.008400281891226768,
+          0.5798529982566833,
+          -0.016577722504734993
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.0014141155406832695,
+          0.004092788323760033,
+          1.189382714983367e-06
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.022481942549347878,
+              0.5890699625015259,
+              -0.016649335622787476
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.009520357474684715,
+              0.5873682498931885,
+              -0.016519365832209587
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.013100236654281616,
+              0.5706510543823242,
+              -0.01666252873837948
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.005517334211617708,
+              0.6011946201324463,
+              -0.016513140872120857
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.0217491053044796,
+              0.5710470676422119,
+              -0.016556911170482635
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.001463058521039784,
+              0.6000592708587646,
+              -0.016488147899508476
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.01304616779088974,
+              0.637262761592865,
+              -0.015751957893371582
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.020485350862145424,
+              0.48217296600341797,
+              -0.01748052053153515
+            ]
+          }
+        }
+      },
+      "after_release": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.002871559699997306,
+          0.029621675610542297,
+          -9.034415415953845e-05
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.00022721469576936215,
+          0.0006243306561373174,
+          1.0768566426122561e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.0031552689615637064,
+              0.0477820448577404,
+              8.260905451606959e-05
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              3.780992847168818e-05,
+              0.033172909170389175,
+              -5.03804549225606e-05
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.005665123928338289,
+              0.020581066608428955,
+              -0.00023804494412615895
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.00407741405069828,
+              0.03786124289035797,
+              -0.00010756030678749084
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.0010871726553887129,
+              0.029933227226138115,
+              -2.37558033404639e-05
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.002203161595389247,
+              0.015804309397935867,
+              -0.000283595931250602
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.005278114229440689,
+              0.04052289202809334,
+              -0.00018743313557934016
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.0015440199058502913,
+              0.011315764859318733,
+              8.54082391015254e-05
+            ]
+          }
+        }
+      }
+    },
+    "left_wheel": {
+      "early_plateau": {
+        "paired_samples": 640,
+        "central_gain_per_policy_unit": [
+          -0.11611518263816833,
+          -2.149305820465088,
+          -0.008106714114546776
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -9.501313616055995e-05,
+          -0.002366675529628992,
+          9.343456622445956e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.11901108175516129,
+              -2.1181328296661377,
+              -0.008460622280836105
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.11738217622041702,
+              -2.233504295349121,
+              -0.009232671931385994
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.11107461154460907,
+              -2.179621696472168,
+              -0.007007773965597153
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.115843765437603,
+              -2.170287847518921,
+              -0.007520623505115509
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.11817696690559387,
+              -2.1167502403259277,
+              -0.008732326328754425
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.11613824963569641,
+              -2.1725308895111084,
+              -0.007082024589180946
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.1212768405675888,
+              -2.0714924335479736,
+              -0.010132990777492523
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              -0.11001770198345184,
+              -2.132120370864868,
+              -0.006684688851237297
+            ]
+          }
+        }
+      },
+      "late_plateau": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.8063518404960632,
+          -3.1032049655914307,
+          -0.011545718647539616
+        ],
+        "symmetric_nonlinearity_absolute": [
+          -0.003736672690138221,
+          -0.006644831970334053,
+          0.00026235359837301075
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.7857062816619873,
+              -3.125685453414917,
+              -0.010124124586582184
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.7895228266716003,
+              -3.108891725540161,
+              -0.011673964560031891
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.8614600896835327,
+              -2.9302799701690674,
+              -0.01251263078302145
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.8088931441307068,
+              -3.140211582183838,
+              -0.012189575470983982
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.7734663486480713,
+              -3.0926177501678467,
+              -0.01183424610644579
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.8097516894340515,
+              -3.1302967071533203,
+              -0.011990681290626526
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.7018136382102966,
+              -2.914370059967041,
+              -0.010468980297446251
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.9201998710632324,
+              -3.383268356323242,
+              -0.011571641080081463
+            ]
+          }
+        }
+      },
+      "after_release": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          -0.020950566977262497,
+          -0.04896164312958717,
+          -0.001246576546691358
+        ],
+        "symmetric_nonlinearity_absolute": [
+          0.0005465112626552582,
+          -0.002351046772673726,
+          -2.0463681721594185e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.0035022771917283535,
+              -0.12256724387407303,
+              -0.001824063016101718
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.016934579238295555,
+              -0.09167701750993729,
+              -0.001418241416104138
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.04873453453183174,
+              -0.02401740290224552,
+              -0.0012925819028168917
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.018987445160746574,
+              -0.07020246982574463,
+              -0.001307652099058032
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.014618609100580215,
+              -0.09696730226278305,
+              -0.0015028647612780333
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.02126934938132763,
+              -0.05529029667377472,
+              -0.0012390166521072388
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.0076761129312217236,
+              -0.028563769534230232,
+              -0.0005772210424765944
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              -0.03588184714317322,
+              0.0975920557975769,
+              -0.0008109893533401191
+            ]
+          }
+        }
+      }
+    },
+    "right_wheel": {
+      "early_plateau": {
+        "paired_samples": 640,
+        "central_gain_per_policy_unit": [
+          0.13516448438167572,
+          -2.015230655670166,
+          -0.015695720911026
+        ],
+        "symmetric_nonlinearity_absolute": [
+          5.826766209793277e-05,
+          0.004858352243900299,
+          9.024939208757132e-05
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.13570484519004822,
+              -1.9810750484466553,
+              -0.014875395223498344
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.13503700494766235,
+              -1.9789624214172363,
+              -0.015297360718250275
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.13361215591430664,
+              -1.9881912469863892,
+              -0.017470678314566612
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.13370472192764282,
+              -2.0203545093536377,
+              -0.0164865180850029
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.1367308646440506,
+              -2.0241668224334717,
+              -0.015406539663672447
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.13335636258125305,
+              -1.9551154375076294,
+              -0.015165621414780617
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.14725443720817566,
+              -2.1349682807922363,
+              -0.015306968241930008
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 80,
+            "central_gain_per_policy_unit": [
+              0.1259160041809082,
+              -2.039017677307129,
+              -0.015556685626506805
+            ]
+          }
+        }
+      },
+      "late_plateau": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          1.1465507745742798,
+          -1.2919952869415283,
+          -0.018864333629608154
+        ],
+        "symmetric_nonlinearity_absolute": [
+          0.004184869583696127,
+          -0.011020052246749401,
+          0.00044127163710072637
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.0743188858032227,
+              -1.3539384603500366,
+              -0.020993009209632874
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.1312358379364014,
+              -1.2850217819213867,
+              -0.018911272287368774
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.2466353178024292,
+              -1.1603944301605225,
+              -0.01547128427773714
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.1562273502349854,
+              -1.247359275817871,
+              -0.018011823296546936
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.1050353050231934,
+              -1.3599653244018555,
+              -0.02025509625673294
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.159873604774475,
+              -1.2385231256484985,
+              -0.01787678338587284
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.049127221107483,
+              -1.5991129875183105,
+              -0.023278286680579185
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              1.2499566078186035,
+              -1.0916529893875122,
+              -0.016117185354232788
+            ]
+          }
+        }
+      },
+      "after_release": {
+        "paired_samples": 3200,
+        "central_gain_per_policy_unit": [
+          0.053779542446136475,
+          -0.003588908351957798,
+          0.0016934658633545041
+        ],
+        "symmetric_nonlinearity_absolute": [
+          0.0010630495380610228,
+          -0.001209400943480432,
+          -1.7663836615611217e-06
+        ],
+        "case_gains": {
+          "stand_230mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.03228283300995827,
+              -0.015254974365234375,
+              0.0016186877619475126
+            ]
+          },
+          "stand_305mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.04643196240067482,
+              -0.008846340700984001,
+              0.0016191813629120588
+            ]
+          },
+          "stand_430mm": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.09370964765548706,
+              -0.0383051261305809,
+              0.0019085378153249621
+            ]
+          },
+          "forward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.06091361865401268,
+              -0.012069366872310638,
+              0.001639766269363463
+            ]
+          },
+          "backward_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.03539218008518219,
+              0.00521606020629406,
+              0.0015167280798777938
+            ]
+          },
+          "start_stop_05": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.06368129700422287,
+              0.002811433980241418,
+              0.0017874474870041013
+            ]
+          },
+          "rotate_1": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.03574373200535774,
+              0.03576050326228142,
+              0.001539268414489925
+            ]
+          },
+          "rotate_1_reverse": {
+            "paired_samples": 400,
+            "central_gain_per_policy_unit": [
+              0.06208113953471184,
+              0.0019766821060329676,
+              0.0019180886447429657
+            ]
+          }
+        }
+      }
+    }
+  },
+  "baseline_initial_sha256": "13d322d235fbaa757f682c12748997e023af500313be42a55c5879233161cf8e",
+  "all_first_episodes_survived": true,
+  "any_guard_events": {},
+  "maximum_closure_gap_m": 0.0003452669770922512,
+  "all_actions_unclipped": true,
+  "all_requested_torques_within_bounds": true
+}
