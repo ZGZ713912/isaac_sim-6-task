@@ -1,0 +1,315 @@
+{
+  "schema": "v6-local-value-clip-native-pair-v1",
+  "recorded_at": "2026-10-18T06:47:34.179896+00:00",
+  "status": "paired_exact",
+  "ppo_updates": 0,
+  "num_envs": 512,
+  "physics_steps_per_arm": 1152,
+  "common_parent": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot018/model_final.pt",
+  "candidate_source": {
+    "commit": "38ecd8da255d2eeb385740f8bbf14dc34594f194",
+    "source_archive": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064439Z-5eb03008/source.tar.gz",
+    "source_archive_sha256": "ab026e787b8d201216d2d08fad27bd6c22cc52ae7945624a19f35a6f066991f3",
+    "frozen_source": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064439Z-5eb03008/source",
+    "target_contract": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064439Z-5eb03008/source/runs/local_scratch_configs/20261018T064439Z-5eb03008/worker.json",
+    "target_contract_sha256": "8f3be815bcc14c4df855b0148bc4b3e6e9ee59d910fd934088eebc165b47ce22",
+    "target_design": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064439Z-5eb03008/source/runs/local_scratch_configs/20261018T064439Z-5eb03008/design.json",
+    "target_budget": "/home/noir/.codex/worktrees/local-200hz-training/isaac_wheeled_rl_train/runs/local_scratch_sources/20261018T064439Z-5eb03008/source/runs/local_scratch_configs/20261018T064439Z-5eb03008/budget.json",
+    "parent_validation": {
+      "schema": "v6-local-value-revision-v1",
+      "changed_contract_fields": [
+        "budget_spec_file",
+        "budget_spec_sha256",
+        "design_preflight",
+        "local_scratch",
+        "use_clipped_value_loss"
+      ],
+      "source_use_clipped_value_loss": true,
+      "target_use_clipped_value_loss": false,
+      "consumption": "all_old_lineages_entropy_control_and_value_control_preserved_no_refund",
+      "additional_critic_warmup": 0,
+      "parent_updates": 2945,
+      "inherited_consumption": 1344,
+      "total_prior_consumption": 4289,
+      "lineage_update_ceiling": 18656,
+      "parent_training_transitions": 182648832
+    }
+  },
+  "arms": {
+    "source": {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/value_probe001_source",
+      "diagnosis_sha256": "77e18555c5dd62da253786fba76e9b6449c088241521c3e8c46c71dc6529815c",
+      "initial_sha256": "424c19addc639c3a8a173854585c34a0c9e5ecfbf17e7f9a8ad21e5f535b00c5",
+      "rollouts_sha256": "ca9e200348179f40a08cc173c531752876e7b5a129561002158806324ceba338",
+      "return_tails_sha256": "5a77830521bb4b3f0cf446adce3f35200e01794a1df0c7c03d2126bd5141a1e3",
+      "native_ppo_timing": {
+        "num_steps_per_env": 384,
+        "gamma": 0.9974905699336811,
+        "lam": 1.0
+      },
+      "source_hashes_verified": 92,
+      "unchanged": {
+        "actor": true,
+        "critic": true,
+        "optimizer": true
+      },
+      "value_clipping": true,
+      "actual_difficulty_samples": {
+        "enabled": true,
+        "settings": {
+          "schema": "locomotion-difficulty-local-rehearsal-v1",
+          "enabled": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 0,
+          "interpolation": "linear",
+          "apply_at": "command_sampling",
+          "scope": "moving_commands_only_static_heights_unchanged",
+          "exact_evaluation": "bypass",
+          "keyframes": [
+            {
+              "actor_updates": 0,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.28,
+                0.35
+              ]
+            },
+            {
+              "actor_updates": 120,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.25,
+                0.38
+              ]
+            },
+            {
+              "actor_updates": 240,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.24,
+                0.4
+              ]
+            },
+            {
+              "actor_updates": 360,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.23,
+                0.43
+              ]
+            }
+          ]
+        },
+        "actor_update": 2945,
+        "envelope": {
+          "grade": 4.0,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        },
+        "sampled_planar_abs_max": [
+          0.5,
+          1.0
+        ],
+        "sampled_motion_height_range_m": [
+          0.23000000417232513,
+          0.4300000071525574
+        ],
+        "sample_check": "passed"
+      },
+      "device_memory": {
+        "peak_allocated_bytes": 236221440,
+        "peak_reserved_bytes": 251658240,
+        "scope": "rollout-only diagnostic; no optimizer step or training memory claim"
+      }
+    },
+    "target": {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/value_probe001_target",
+      "diagnosis_sha256": "8f01e170b70a8999131ad6174e743db43078beb1cae3ccf7ae80f8b91d0ff24d",
+      "initial_sha256": "424c19addc639c3a8a173854585c34a0c9e5ecfbf17e7f9a8ad21e5f535b00c5",
+      "rollouts_sha256": "ca9e200348179f40a08cc173c531752876e7b5a129561002158806324ceba338",
+      "return_tails_sha256": "5a77830521bb4b3f0cf446adce3f35200e01794a1df0c7c03d2126bd5141a1e3",
+      "native_ppo_timing": {
+        "num_steps_per_env": 384,
+        "gamma": 0.9974905699336811,
+        "lam": 1.0
+      },
+      "source_hashes_verified": 92,
+      "unchanged": {
+        "actor": true,
+        "critic": true,
+        "optimizer": true
+      },
+      "value_clipping": false,
+      "actual_difficulty_samples": {
+        "enabled": true,
+        "settings": {
+          "schema": "locomotion-difficulty-local-rehearsal-v1",
+          "enabled": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 0,
+          "interpolation": "linear",
+          "apply_at": "command_sampling",
+          "scope": "moving_commands_only_static_heights_unchanged",
+          "exact_evaluation": "bypass",
+          "keyframes": [
+            {
+              "actor_updates": 0,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.28,
+                0.35
+              ]
+            },
+            {
+              "actor_updates": 120,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.25,
+                0.38
+              ]
+            },
+            {
+              "actor_updates": 240,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.24,
+                0.4
+              ]
+            },
+            {
+              "actor_updates": 360,
+              "vx_max_m_s": 0.5,
+              "yaw_max_rad_s": 1.0,
+              "motion_height_range_m": [
+                0.23,
+                0.43
+              ]
+            }
+          ]
+        },
+        "actor_update": 2945,
+        "envelope": {
+          "grade": 4.0,
+          "vx_max_m_s": 0.5,
+          "yaw_max_rad_s": 1.0,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        },
+        "sampled_planar_abs_max": [
+          0.5,
+          1.0
+        ],
+        "sampled_motion_height_range_m": [
+          0.23000000417232513,
+          0.4300000071525574
+        ],
+        "sample_check": "passed"
+      },
+      "device_memory": {
+        "peak_allocated_bytes": 236221440,
+        "peak_reserved_bytes": 251658240,
+        "scope": "rollout-only diagnostic; no optimizer step or training memory claim"
+      }
+    }
+  },
+  "initial_arrays_bitwise_exact": {
+    "joint_position": true,
+    "joint_velocity": true,
+    "body_pose": true,
+    "profile_id": true,
+    "policy_observation": true,
+    "critic_observation": true,
+    "cpu_rng": true,
+    "cuda_rng": true,
+    "environment_rng": true,
+    "first_standard_gaussian": true
+  },
+  "rollouts_arrays_bitwise_exact": {
+    "advantages": true,
+    "residuals": true,
+    "gaussian_noise": true,
+    "learning": true,
+    "post_warmup": true,
+    "commands": true,
+    "episode_ticks": true,
+    "velocity": true,
+    "height": true,
+    "done": true,
+    "failure_event": true,
+    "success_event": true,
+    "event_gae": true,
+    "raw_reward": true,
+    "storage_reward": true,
+    "stored_value": true,
+    "bootstrap": true,
+    "terminated": true,
+    "event_payment_reconstruction_error": true,
+    "birth_profile_id": true,
+    "birth_level_id": true,
+    "ordinary_birth_selected": true,
+    "ordinary_birth_angles": true,
+    "ordinary_birth_eligible": true,
+    "push_applied_for_next_state": true,
+    "omega": true,
+    "reward_pitch_exp": true,
+    "reward_roll_exp": true,
+    "reward_pitch_velocity": true,
+    "reward_roll_velocity": true,
+    "reward_leg_velocity": true,
+    "reward_leg_acceleration": true,
+    "reward_wheel_velocity": true,
+    "reward_wheel_acceleration": true,
+    "reward_motor_torque": true,
+    "reward_wheel_power": true,
+    "reward_vertical_velocity": true,
+    "reward_horizontal_angular_velocity": true,
+    "reward_action_rate": true,
+    "reward_leg_action_smoothness": true,
+    "reward_wheel_action_smoothness": true,
+    "reward_no_fork": true,
+    "reward_no_fork_square": true,
+    "reward_undesired_contact": true,
+    "reward_landing_height_tracking": true,
+    "reward_landing_velocity_tracking": true,
+    "reward_landing_impact": true,
+    "reward_air_wheel_centering": true,
+    "reward_air_low_wheel_torque": true,
+    "reward_air_leg_retraction": true,
+    "reward_locomotion_pitch_floor": true,
+    "reward_locomotion_roll_floor": true,
+    "reward_dense_height_broad": true,
+    "reward_dense_height_precision": true,
+    "reward_dense_velocity_broad": true,
+    "reward_dense_velocity_precision": true,
+    "reward_dense_lateral_broad": true,
+    "reward_dense_lateral_precision": true,
+    "reward_dense_yaw_broad": true,
+    "reward_dense_yaw_precision": true,
+    "reward_dense_stationary_broad": true,
+    "reward_dense_stationary_precision": true,
+    "reward_track_lin_vel": true,
+    "reward_track_yaw": true,
+    "reward_track_height": true,
+    "reward_stand_still_lin_vel": true,
+    "reward_dense_spin_velocity_broad": true,
+    "reward_dense_spin_velocity_precision": true,
+    "reward_working_margin": true
+  },
+  "return_tails_arrays_bitwise_exact": {
+    "critic_value": true
+  },
+  "interpretation": "Only recorded arrays and restored learning state are paired. Changing a critic optimization switch must not change pre-update Gaussian sampling, dynamics, rewards, masks or credit. Native update and optimizer.step were forbidden. No hidden simulator state equivalence or behavior qualification is claimed. All control128 updates remain charged; treatment starts same2945 parent."
+}

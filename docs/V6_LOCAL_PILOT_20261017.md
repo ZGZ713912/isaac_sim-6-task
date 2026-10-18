@@ -1032,3 +1032,9 @@ v9处理臂当前未实现或启动。仅在控制仍失败且严格设计/CPU�
 控制019完成3073并真实退出；9actor/8critic/17Adam一二阶矩推进有限，Adam61460、时钟3073/trans207814656、91冻结源哈希通过。eval019旧初始/2945完整payload精确复现eval018；32回合全跑满仍0/8。+.5实速+.07458→+.02480恶化，-.5从-.04980→-.07225仍欠速；高度仍约.31m。305mm静站yaw .31302→.29515但漂移最大.10552→.21986m。原判据/种子/时长/全部失败和traces保持，不准入长训。
 
 本段全128闭链0、峰2.284426mm，非轮369/边界1。固定100更新20→120窗98304环境秒0/4765结束回合；017等曝光0/4819仅作历史上下文，018只有1更新不伪作100窗稳态。详见`pilot019.json`。实际控制消费128合并到继承1344，v9仅native value clipping False，同018-2945完整状态；132CPU与512独立静态前置通过，原生0PPO核对及处理尚未启动。
+
+## 2026-10-18 06:48 UTC：独立原生零 PPO 配对完成
+
+冻结38ecd8d的两个独立进程均从pilot018-2945和保存的CPU/CUDA/环境RNG创建新episode，各512环境、3×384帧。10类初态/RNG/首Gaussian、69类rollout数组及critic返回端点逐位相同；两臂actor/critic/17Adam保持，原生value clipping分别True/False，update和optimizer.step禁止。记录包括命令、奖励、conditioning ownership和已采样动力学，不能扩称全部隐藏模拟器状态。见`reports/local_training_20261017/value_clip_ab001_native_pair.json`，指标已进入pilot018原event的LocalDiagnostics/ValueClipAB/NativePair，step2945。
+
+工程前置齐全，允许从同一个018-2945完整状态进行处理臂128更新至3073。控制128已计入继承1344，总上限20000不退款；处理完成总4417/剩15583。此为有界假设对照，尚无行为或长训准入。
