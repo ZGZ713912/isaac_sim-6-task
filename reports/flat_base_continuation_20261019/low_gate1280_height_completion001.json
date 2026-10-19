@@ -1,0 +1,187 @@
+{
+  "schema": "flat-low-gate1280-height-development-completion-v1",
+  "recorded_at": "2026-10-19T10:40:31.810346+00:00",
+  "passed": true,
+  "checks": {
+    "two_serial_children_exit0": true,
+    "same_complete1280_checkpoint": true,
+    "bounded_trial_seal_bound": true,
+    "exact_height_contract": true,
+    "all_frozen_execution_sources_exact": true,
+    "no_optimizer_heldout_or_hardware": true,
+    "rmcs_default1280_envelope001/identity": true,
+    "rmcs_default1280_envelope001/comparisons": true,
+    "rmcs_default1280_envelope001/existing_RSL_events": true,
+    "rmcs_maximum1280_envelope001/identity": true,
+    "rmcs_maximum1280_envelope001/comparisons": true,
+    "rmcs_maximum1280_envelope001/existing_RSL_events": true
+  },
+  "queue_sha256": "e27db1b4b3138a74d0b08066610a5dae4f9ef03c3aac07439303637a216e36cc",
+  "contract_sha256": "1861fc327610e6a05cc846f8afca823de2034d254b3a57d641fe1ef4887d550d",
+  "bounded_completion_sha256": "8ba5b11253af1f76cd79548211a703ad5fb47edd96f7c1a82c202113d34a0489",
+  "checkpoint_sha256": "9f8c858099a3f92a25b0f97bab6f9dc4a1d1644ed4497abbe68758263a36401f",
+  "cohorts": {
+    "rmcs_default1280_envelope001": {
+      "evaluation_sha256": "2464b1f9e47e642423c7c84bac5dd6b1366ecef63d665db4cf0e587d086f6a91",
+      "traces_sha256": "4e4b6032a216480bf979e618c0368718d6bbe97393bad0347cc76eac69ec4da4",
+      "passed_cases": 13,
+      "requested_cases": 22,
+      "full_horizon_episodes": 86,
+      "requested_episodes": 88,
+      "termination_reasons": {
+        "boundary": 2,
+        "closure_gap": 0,
+        "fall": 0,
+        "jump_outcome_timeout": 0,
+        "jump_request_timeout": 0,
+        "knee": 0,
+        "nonwheel_contact": 0,
+        "spring_travel": 0,
+        "takeoff_timeout": 0
+      },
+      "comparisons": {
+        "source": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_default1280_envelope001_source.json",
+          "sha256": "986144197548670c1511ade18236f0520877c2670320156e97e81d20042633fd",
+          "lost_checks": [
+            {
+              "case": "rotate_4",
+              "lost_checks": [
+                "velocity"
+              ]
+            }
+          ],
+          "relative_regressions": [
+            {
+              "case": "rotate_4",
+              "metric": "vx_mae_m_s",
+              "before": 0.04924278990676006,
+              "after": 0.07047869747090671,
+              "tolerance": 0.02
+            }
+          ]
+        },
+        "parent1248": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_default1280_envelope001_parent1248.json",
+          "sha256": "64569d583633b23599191e0858cd8c521c94bb4a0f378e7702c9a22358ca642d",
+          "lost_checks": [
+            {
+              "case": "curve_low",
+              "lost_checks": [
+                "survival"
+              ]
+            }
+          ],
+          "relative_regressions": []
+        },
+        "parent1264": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_default1280_envelope001_parent1264.json",
+          "sha256": "440edd59081d1e5e350e93e35a1b7877b83b21a56f841bf3c1ceddad17d9fbdc",
+          "lost_checks": [],
+          "relative_regressions": []
+        }
+      }
+    },
+    "rmcs_maximum1280_envelope001": {
+      "evaluation_sha256": "38e59d902d9afc5097da1b8cd7336d317da67e4b02ca708ef4c0960b58c9432a",
+      "traces_sha256": "d685beda4f0ad0aa0c5d96907696036dbc4d729af3fb366c7acdc5d0061568b5",
+      "passed_cases": 10,
+      "requested_cases": 22,
+      "full_horizon_episodes": 84,
+      "requested_episodes": 88,
+      "termination_reasons": {
+        "boundary": 4,
+        "closure_gap": 0,
+        "fall": 0,
+        "jump_outcome_timeout": 0,
+        "jump_request_timeout": 0,
+        "knee": 0,
+        "nonwheel_contact": 0,
+        "spring_travel": 0,
+        "takeoff_timeout": 0
+      },
+      "comparisons": {
+        "source": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_maximum1280_envelope001_source.json",
+          "sha256": "3fade99b0b364dac26ef6d8c78451c15f530074b1f9cfce6b3b562533ae509a3",
+          "lost_checks": [],
+          "relative_regressions": []
+        },
+        "parent1248": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_maximum1280_envelope001_parent1248.json",
+          "sha256": "b12c8e7ad7a17fc2cec00460e9802d75ce7d37912c73813d5ecf915db9fc648b",
+          "lost_checks": [],
+          "relative_regressions": [
+            {
+              "case": "backward_2",
+              "metric": "vx_mae_m_s",
+              "before": 1.5199566043085522,
+              "after": 1.6201384435097377,
+              "tolerance": 0.02
+            },
+            {
+              "case": "backward_3",
+              "metric": "vx_mae_m_s",
+              "before": 3.3485753385225934,
+              "after": 3.3733241448137496,
+              "tolerance": 0.02
+            },
+            {
+              "case": "rotate_4_reverse",
+              "metric": "vx_mae_m_s",
+              "before": 0.08963372878212895,
+              "after": 0.11222999750326076,
+              "tolerance": 0.02
+            }
+          ]
+        },
+        "parent1264": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_maximum1280_envelope001_parent1264.json",
+          "sha256": "c28336c80ecbe94016e9e56f76fd7e93ea36f137b12514035e3392bb232c1944",
+          "lost_checks": [],
+          "relative_regressions": [
+            {
+              "case": "forward_2",
+              "metric": "vx_mae_m_s",
+              "before": 0.06180319428443909,
+              "after": 0.08410201410452525,
+              "tolerance": 0.02
+            },
+            {
+              "case": "backward_2",
+              "metric": "vx_mae_m_s",
+              "before": 1.5391309624910354,
+              "after": 1.6201384435097377,
+              "tolerance": 0.02
+            },
+            {
+              "case": "backward_3",
+              "metric": "vx_mae_m_s",
+              "before": 3.344420546028349,
+              "after": 3.3733241448137496,
+              "tolerance": 0.02
+            },
+            {
+              "case": "start_stop_2",
+              "metric": "vx_mae_m_s",
+              "before": 0.510714820036155,
+              "after": 0.5369031964733646,
+              "tolerance": 0.02
+            }
+          ]
+        }
+      }
+    }
+  },
+  "event_file_sha256": {
+    "events.out.tfevents.1792402244.ZGZ.2342718.0": "a86ce0938c2ba7079363d5fc94e0598bc1b111d935fb7b820c9f35da73f70ce0",
+    "events.out.tfevents.1792405001.ZGZ.2406096.0": "9503388f23e621529e96abbda744550c46cd9bf2acac565285ea974537c9fbeb",
+    "events.out.tfevents.1792405788.ZGZ.2425058.0": "a058765e6f7834b3e9103a29b933630a53da8dc34eacc2905803cff2972400cf",
+    "events.out.tfevents.1792406395.ZGZ.2440658.0": "cf0e1549fe3c25d4c1e41d9b95d03589a95201bf3c908c552b1ca56d76676ade"
+  },
+  "all_release_cohorts_complete": false,
+  "behavior_qualified": false,
+  "optimizer_updates": 0,
+  "heldout_seed_used": false,
+  "hardware_motion_started": false
+}

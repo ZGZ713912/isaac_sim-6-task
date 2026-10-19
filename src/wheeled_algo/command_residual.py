@@ -182,18 +182,30 @@ def mean_from_checkpoint(checkpoint, source):
     from .guarded_feedback_residual import GuardedFeedbackActor, KIND as FEEDBACK_KIND, TRACKING_KIND
     from .separated_feedback import SeparatedFeedbackActor, KIND as SEPARATED_KIND
     from .low_demand_feedback import LowDemandFeedbackActor, KIND as LOW_DEMAND_KIND
-    if kind not in (None, KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND):
+    from .static_feedback import StaticFeedbackActor, KIND as STATIC_KIND
+    if kind not in (None, KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND):
         raise ValueError("Unknown checkpoint actor adaptation")
     original, _ = recover_actor(source)
     mean = (GuardedFeedbackActor(CommandResidualActor(original), tracking_gate=kind == TRACKING_KIND)
             if kind in (FEEDBACK_KIND, TRACKING_KIND)
             else CommandResidualActor(original) if kind == KIND else original)
     state = {n.removeprefix("mlp."): v for n, v in checkpoint["actor_state_dict"].items() if n.startswith("mlp.")}
-    if kind in (SEPARATED_KIND, LOW_DEMAND_KIND):
+    if kind in (SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND):
         mean = SeparatedFeedbackActor(GuardedFeedbackActor(CommandResidualActor(original), tracking_gate=True))
-    if kind == LOW_DEMAND_KIND:
+    if kind in (LOW_DEMAND_KIND, STATIC_KIND):
         mean = LowDemandFeedbackActor(mean)
-    if kind in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND):
+    if kind == STATIC_KIND:
+        from pathlib import Path
+        import hashlib
+        settings = checkpoint["infos"].get("static_feedback_recall")
+        root = Path(__file__).resolve().parents[2]
+        path = root / settings["checkpoint"] if isinstance(settings, dict) else None
+        if path is None or hashlib.sha256(path.read_bytes()).hexdigest() != settings.get("sha256"):
+            raise ValueError("Static feedback reference checkpoint changed")
+        recalled = mean_from_checkpoint(torch.load(path, map_location="cpu", weights_only=True), source)
+        mean.load_state_dict({n:v for n,v in state.items() if not n.startswith("static_feedback.")},strict=True)
+        mean = StaticFeedbackActor(mean, recalled, settings["sha256"])
+    if kind in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND):
         mean.load_state_dict(state, strict=True)
         mean.verify_original(original)
     else:

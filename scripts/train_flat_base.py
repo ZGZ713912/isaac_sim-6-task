@@ -338,13 +338,17 @@ def main():
     if plan.get("actor_adaptation") in ("original-command-and-gated-feedback-residual-v1",
                                        "original-command-and-tracking-feedback-residual-v2",
                                        "original-command-and-separated-tracking-feedback-residual-v3",
-                                       "original-command-and-continuous-low-feedback-residual-v4"):
+                                       "original-command-and-continuous-low-feedback-residual-v4",
+                                       "original-command-and-static-recall-feedback-residual-v5"):
         sources.append(ROOT / "src/wheeled_algo/guarded_feedback_residual.py")
     if plan.get("actor_adaptation") in ("original-command-and-separated-tracking-feedback-residual-v3",
-                                         "original-command-and-continuous-low-feedback-residual-v4"):
+                                         "original-command-and-continuous-low-feedback-residual-v4",
+                                       "original-command-and-static-recall-feedback-residual-v5"):
         sources.append(ROOT / "src/wheeled_algo/separated_feedback.py")
-    if plan.get("actor_adaptation") == "original-command-and-continuous-low-feedback-residual-v4":
+    if plan.get("actor_adaptation") in ("original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5"):
         sources.append(ROOT / "src/wheeled_algo/low_demand_feedback.py")
+    if plan.get("actor_adaptation") == "original-command-and-static-recall-feedback-residual-v5":
+        sources.append(ROOT / "src/wheeled_algo/static_feedback.py")
     if plan.get("training_command_reference"):
         sources.append(ROOT / "scripts/flat_rmcs_command_reference.py")
     report["source_sha256"] = {str(p.relative_to(ROOT)): digest(p) for p in sources}
@@ -409,9 +413,11 @@ def main():
         feedback_kinds = ("original-command-and-gated-feedback-residual-v1",
                           "original-command-and-tracking-feedback-residual-v2",
                           "original-command-and-separated-tracking-feedback-residual-v3",
-                          "original-command-and-continuous-low-feedback-residual-v4")
+                          "original-command-and-continuous-low-feedback-residual-v4",
+                          "original-command-and-static-recall-feedback-residual-v5")
         separated_feedback = plan.get("actor_adaptation") in feedback_kinds[2:]
-        low_demand_feedback = plan.get("actor_adaptation") == feedback_kinds[3]
+        low_demand_feedback = plan.get("actor_adaptation") in feedback_kinds[3:]
+        static_feedback = plan.get("actor_adaptation") == feedback_kinds[4]
         feedback_residual = plan.get("actor_adaptation") in feedback_kinds
         command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds)
         if plan.get("actor_adaptation") and not command_residual:
@@ -440,6 +446,31 @@ def main():
                             configure_low_demand_feedback_training)
                         runner.alg.actor.mlp = LowDemandFeedbackActor(runner.alg.actor.mlp).to(args.device)
                         configure_command_residual_training = configure_low_demand_feedback_training
+                        if static_feedback:
+                            from wheeled_algo.static_feedback import (StaticFeedbackActor,
+                                configure_static_feedback_training, extend_static_feedback_parent)
+                            from wheeled_algo.command_residual import mean_from_checkpoint
+                            from wheeled_algo.separated_feedback import KIND as STATIC_SOURCE_KIND
+                            if not args.resume:
+                                raise ValueError("Static feedback requires a complete moving parent")
+                            seed_state = torch.load(args.resume, map_location=args.device, weights_only=True)
+                            if seed_state["infos"].get("actor_adaptation") not in feedback_kinds[3:]:
+                                raise ValueError("Static feedback only extends v4 or resumes its own v5 state")
+                            runner.alg.actor.mlp.load_state_dict({n.removeprefix("mlp."):v
+                                for n,v in seed_state["actor_state_dict"].items()
+                                if n.startswith("mlp.") and not n.startswith("mlp.static_feedback.")},strict=True)
+                            settings = plan["static_feedback_recall"]
+                            static_path = ROOT / settings["checkpoint"]
+                            if digest(static_path) != settings["sha256"]:
+                                raise ValueError("Static feedback reference changed")
+                            static_state = torch.load(static_path, map_location="cpu", weights_only=True)
+                            if static_state["infos"].get("actor_adaptation") != STATIC_SOURCE_KIND:
+                                raise ValueError("Static feedback reference must be the declared v3 snapshot")
+                            recalled = mean_from_checkpoint(static_state, ROOT / plan["actor_bundle"] / "source.onnx").to(args.device)
+                            old_actor_names = list(dict(runner.alg.actor.named_parameters()))
+                            runner.alg.actor.mlp = StaticFeedbackActor(runner.alg.actor.mlp, recalled, settings["sha256"]).to(args.device)
+                            configure_command_residual_training = configure_static_feedback_training
+                            report["static_feedback_recall"] = deepcopy(settings)
                 else:
                     from functools import partial
                     configure_command_residual_training = partial(configure_command_residual_training,
@@ -470,7 +501,7 @@ def main():
                            "teacher_anchor", "group_episode_seconds", "additional_critic_warmup_updates", "stationary_tracking",
                            "critic_position_anchor", "critic_dim", "actor_output_layer_only", "actor_adaptation",
                            "learning_rate", "training_command_reference", "feedback_training_scope", "command_branch_restore",
-                           "physics_dt", "control_file", "control_sha256", "moving_velocity_cost_scale",
+                           "physics_dt", "control_file", "control_sha256", "moving_velocity_cost_scale", "static_feedback_recall",
                            "allowed_num_envs", "default_num_envs"}
                 if (revision.get("schema") != "flat-training-plan-revision-v1"
                         or revision["parent_checkpoint_sha256"] != digest(args.resume)
@@ -548,6 +579,14 @@ def main():
                     after=plan["actor_adaptation"], initial_mean_is_identity=False,
                     weights_Adam_std_critic_RNG_consumption="parent_exact",
                     gate_contract=runner.alg.actor.mlp.verify_original(teacher)["low_demand_gate"])
+                for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
+                            "post_split_actor_updates", "inherited_shared_feedback_updates"):
+                    report[key] = info[key]
+            elif static_feedback and info.get("actor_adaptation") == feedback_kinds[3]:
+                if not migration:
+                    raise ValueError("Static feedback composition requires an explicit forward plan migration")
+                checkpoint, report["static_feedback_extension"] = extend_static_feedback_parent(
+                    checkpoint, runner.alg.actor, runner.alg.critic, runner.alg.optimizer, old_actor_names)
                 for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
                             "post_split_actor_updates", "inherited_shared_feedback_updates"):
                     report[key] = info[key]
@@ -639,6 +678,10 @@ def main():
             if report.get("feedback_gate_revision"):
                 report.update(initialization="exact_parent_state_with_declared_feedback_gate_function_change",
                     resumption_semantics="parent weights/Adam/std/critic/RNG/counters exact; moving mean changes by declared gate; fresh physical reset")
+            if report.get("static_feedback_extension"):
+                report.update(initialization="declared_static_snapshot_composition_with_exact_moving_parent",
+                    restore_verification_reference="declared_static_extension_with_retained_existing_Adam",
+                    resumption_semantics="existing v4 weights/Adam/std/critic/RNG/counters retained; new frozen static head from declared snapshot; fresh physical reset")
             env.stage_actor_update = report["actor_updates_total"]
             env.global_actor_update = report["actor_updates_total"]
             env.training_transitions = report["training_transitions_total"]
