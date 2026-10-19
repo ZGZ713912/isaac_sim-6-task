@@ -1,0 +1,71 @@
+{
+  "schema": "flat-moving-velocity-reward-shape-audit-v1",
+  "recorded_at": "2026-10-18T23:48:29.051248+00:00",
+  "runtime_reward_sha256": "f4dc968cb323e50ad894b1715a9865f1202e4663c401e2f68bf64398a1b7818d",
+  "actual_training_contract_sha256": "3ee083bbb39870ed694a1725f625eac9ed3b3e344aeafb0a86dd64fb5eabf9d8",
+  "settings": {
+    "broad_scale": 0.5,
+    "broad_weight": 2.0,
+    "fine_scale": 0.1,
+    "fine_weight": 0.6
+  },
+  "rows": [
+    {
+      "velocity_error_m_s": 0.0,
+      "broad_density_per_s": -0.0,
+      "precision_density_per_s": -0.0,
+      "broad_density_slope": -0.0,
+      "total_density_slope": -0.0
+    },
+    {
+      "velocity_error_m_s": 0.05000000074505806,
+      "broad_density_per_s": -0.009975124150514603,
+      "precision_density_per_s": -0.13271953165531158,
+      "broad_density_slope": -0.3980148434638977,
+      "total_density_slope": -5.070819854736328
+    },
+    {
+      "velocity_error_m_s": 0.10000000149011612,
+      "broad_density_per_s": -0.039607807993888855,
+      "precision_density_per_s": -0.37927234172821045,
+      "broad_density_slope": -0.7844645380973816,
+      "total_density_slope": -5.1990180015563965
+    },
+    {
+      "velocity_error_m_s": 0.5,
+      "broad_density_per_s": -0.8284270763397217,
+      "precision_density_per_s": -0.6000000238418579,
+      "broad_density_slope": -2.8284268379211426,
+      "total_density_slope": -2.8284268379211426
+    },
+    {
+      "velocity_error_m_s": 1.0,
+      "broad_density_per_s": -2.4721360206604004,
+      "precision_density_per_s": -0.6000000238418579,
+      "broad_density_slope": -3.5777087211608887,
+      "total_density_slope": -3.5777087211608887
+    },
+    {
+      "velocity_error_m_s": 2.0,
+      "broad_density_per_s": -6.246211528778076,
+      "precision_density_per_s": -0.6000000238418579,
+      "broad_density_slope": -3.88057017326355,
+      "total_density_slope": -3.88057017326355
+    },
+    {
+      "velocity_error_m_s": 3.0,
+      "broad_density_per_s": -10.16552448272705,
+      "precision_density_per_s": -0.6000000238418579,
+      "broad_density_slope": -3.9455759525299072,
+      "total_density_slope": -3.9455759525299072
+    }
+  ],
+  "checks": {
+    "broad_penalty_does_not_saturate_at_large_error": true,
+    "total_penalty_continues_increasing": true
+  },
+  "interpretation": "The installed broad term is an unclipped pseudo-Huber density; an additional unsaturated velocity cost is not missing. These slopes concern the scalar reward shape, not the PPO policy gradient or a unique cause of slow starts.",
+  "native_optimizer_updates": 0,
+  "native_environment_steps": 0,
+  "training_reward_changed": false
+}

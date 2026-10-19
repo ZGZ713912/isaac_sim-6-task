@@ -74,6 +74,11 @@ class ChassisEnv:
             from .v5_control import V5Control
             directory = root / config["asset_directory"]
             self.model_spec = json.loads((directory / "model_spec.json").read_text())
+            if config["v5_control"].get("leg_target_winding") == "paired_branch107_v1":
+                import hashlib
+                from .paired_leg_targets import MODEL_SPEC_SHA256
+                if hashlib.sha256((directory / "model_spec.json").read_bytes()).hexdigest() != MODEL_SPEC_SHA256:
+                    raise ValueError("Paired-107 control requires the exact declared model specification")
             fit = json.loads((directory / "fit_10mpa.json").read_text())
             self.v5 = V5Control(manifest, self.model_spec, fit, control, config["v5_control"], device)
             if config.get("height_workspace"):
@@ -510,6 +515,14 @@ class ChassisEnv:
             cases_by_name = {c["name"]: c for c in config["evaluation"]["cases"]}
             self.episode_limits[:] = torch.tensor([round(cases_by_name[g].get("episode_seconds", config["episode_seconds"]) / self.policy_dt)
                                                   for g in self.scene_groups], device=device)
+        if config.get("flat_group_episode_seconds"):
+            durations = config["flat_group_episode_seconds"]
+            if (not config.get("flat_base_continuation") or config.get("evaluation_exact_cases")
+                    or set(durations) - set(self.scene_groups)
+                    or any(not .5 <= seconds <= config["episode_seconds"] for seconds in durations.values())):
+                raise ValueError("Short flat training horizons require explicit valid groups and preserve evaluation horizons")
+            self.episode_limits[:] = torch.tensor([round(durations.get(g, config["episode_seconds"]) / self.policy_dt)
+                                                  for g in self.scene_groups], device=device)
         self.commands = torch.zeros(num_envs, 3, device=device)
         self.raw_height = torch.zeros(num_envs, device=device)
         self.command_acceleration = torch.zeros(num_envs, device=device)
@@ -579,7 +592,9 @@ class ChassisEnv:
         if config.get("stationary_tracking"):
             from .rewards import StationaryAnchor
             settings = config["stationary_tracking"]
-            self.stationary_anchor = StationaryAnchor(num_envs, device, settings["position_weight"], settings["position_band_m"])
+            self.stationary_anchor = StationaryAnchor(num_envs, device, settings["position_weight"], settings["position_band_m"],
+                cost=settings.get("position_cost", "bounded_exponential"), cap=settings.get("position_cost_cap", 25.),
+                failure_cost=settings.get("failure_event_cost", 0.))
             self.stationary_group[:] = torch.tensor([
                 self.skills.specs.get(group, {}).get("kind") in ("stand", "height")
                 for group in self.scene_groups], device=device)
@@ -1406,6 +1421,10 @@ class ChassisEnv:
             target = self.targets * frame.new_tensor([0.5, 5., 0.5, 1.])
             frame = torch.cat((frame, F.one_hot(self.mode, 5).float(), target.clamp(-10, 10), contacts,
                                F.one_hot(self.phase.phase, 5).float(), self.phase.time.clamp_max(5)[:, None]), -1)
+        if self.cfg.get("flat_base_continuation"):
+            # RMCS's ordinary flat-ground context is constant. Command-clock
+            # training for unrelated jump/step tasks must not reach this actor.
+            frame[:, 28:35] = frame.new_tensor([1., 0., 0., 0., 0., 0., 0.])
         critic_q = self.robot.data.joint_pos.torch
         if self.cfg.get("zero_critic_wheel_positions"):
             critic_q = critic_q.clone()
@@ -1431,6 +1450,13 @@ class ChassisEnv:
             critic = torch.cat((critic, self.body_mass / self.nominal_body_mass, com_offset * 10.,
                 relative_xy.clamp(-5., 5.) * .2, com_vz[:, None], self.full_tasks.com_rise[:, None] * 5.,
                 F.one_hot(self.phase.phase, 5).float(), self.full_tasks.com_displacement[:, None] * 5.), -1)
+        if self.cfg.get("flat_critic_anchor_xy"):
+            if not self.cfg.get("flat_base_continuation") or self.stationary_anchor is None:
+                raise RuntimeError("Privileged flat position inputs require an active stationary anchor")
+            local_xy = self.robot.data.root_link_pose_w.torch[:, :2] - self.origins[:, :2]
+            selected = self.stationary_group & self.stationary_anchor.valid
+            error_xy = torch.where(selected[:, None], local_xy - self.stationary_anchor.position, 0.)
+            critic = torch.cat((critic, (error_xy * 10.).clamp(-10., 10.)), -1)
         if frame.shape[-1] != self.cfg["actor_frame_dim"] or critic.shape[-1] != self.cfg["critic_dim"]:
             raise RuntimeError("New task observation layout mismatch")
         if self._pc_feedback_transport is not None:
@@ -1966,6 +1992,8 @@ class ChassisEnv:
         self.successful_jump_count += (success_event & (self.mode == 4)).long()
         from .rewards import episode_event_terms
         event_terms = episode_event_terms(success_event, terminated, self.cfg)
+        if self.stationary_anchor is not None and self.stationary_anchor.failure_cost:
+            event_terms["failure_event"] += self.stationary_anchor.failure_penalty(terminated, self.stationary_group)
         reward += event_terms["success_event"]
         sequence_pending = self.skills.sequence_pending() if self.skills is not None else torch.zeros_like(success)
         done = terminated | timeouts | (success & ~sequence_pending)

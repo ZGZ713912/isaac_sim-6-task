@@ -1,0 +1,60 @@
+{
+  "schema": "flat-source-live-file-verification-v1",
+  "recorded_at": "2026-10-18T23:34:48.077298+00:00",
+  "user_file": "/home/noir/Downloads/wheel_leg_flat_base.onnx",
+  "bundle_source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/models/wheel_leg_flat_base_20261018/source.onnx",
+  "source_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "bundle_source_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "byte_exact": true,
+  "input_names": [
+    "obs"
+  ],
+  "output_names": [
+    "actions"
+  ],
+  "nodes": [
+    "Gemm",
+    "Elu",
+    "Gemm",
+    "Elu",
+    "Gemm",
+    "Elu",
+    "Gemm"
+  ],
+  "tensor_shapes": [
+    [
+      256,
+      35
+    ],
+    [
+      256
+    ],
+    [
+      128,
+      256
+    ],
+    [
+      128
+    ],
+    [
+      64,
+      128
+    ],
+    [
+      64
+    ],
+    [
+      6,
+      64
+    ],
+    [
+      6
+    ]
+  ],
+  "parameter_count": 50758,
+  "policy_hz": 50,
+  "policy_hz_source": "user confirmation",
+  "original_training_update_count": "unknown",
+  "original_critic_available": false,
+  "original_optimizer_available": false
+}

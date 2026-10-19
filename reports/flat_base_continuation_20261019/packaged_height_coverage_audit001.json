@@ -1,0 +1,94 @@
+{
+  "schema": "flat-packaged-height-coverage-audit-v1",
+  "recorded_at": "2026-10-18T23:52:18.604621+00:00",
+  "authenticated_default_height_contract": {
+    "schema": "flat-rmcs-packaged-default-height-v1",
+    "height_m": 0.23,
+    "command_height_bounds_m": [
+      0.23,
+      0.42
+    ],
+    "source_file": "rmcs_bringup/config/wheel-leg-infantry-rl.yaml",
+    "source_sha256": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063",
+    "scope": "moving requests use the packaged default height; original static heights and height scan remain separate"
+  },
+  "packaged_height_range_m": [
+    0.23,
+    0.42
+  ],
+  "completed_full_RMCS_moving_height_coverage_m": [
+    0.23,
+    0.305
+  ],
+  "completed_cohorts": [
+    {
+      "run": "rmcs448_envelope001",
+      "evaluation_sha256": "fa2ad519ee368292a47580acd8a3fd631d8d2df92b14305d1043ec43ba333e31",
+      "moving_heights_m": [
+        0.305
+      ]
+    },
+    {
+      "run": "rmcs512_envelope001",
+      "evaluation_sha256": "1fa2e189def6e571315949b3bfb65e747fe975c9e4b7dfe452e18cc41ff1d02c",
+      "moving_heights_m": [
+        0.305
+      ]
+    },
+    {
+      "run": "rmcs576_envelope001",
+      "evaluation_sha256": "0f42858a7904f5da5494fa60326e39ea9ae6f58562798b3d03b58e549565dd3a",
+      "moving_heights_m": [
+        0.305
+      ]
+    },
+    {
+      "run": "rmcs640_envelope001",
+      "evaluation_sha256": "4d210e01f1ac89fe06bc9977931826d8786ee925fc5b3600134e827935fa00af",
+      "moving_heights_m": [
+        0.305
+      ]
+    },
+    {
+      "run": "rmcs704_envelope001",
+      "evaluation_sha256": "1d6379ded47883af989861373b0d3c8e31e9d4e3de4b1799e0315c5bcaad7c3b",
+      "moving_heights_m": [
+        0.305
+      ]
+    },
+    {
+      "run": "rmcs_default640_envelope001",
+      "evaluation_sha256": "e929d51ff9ff0d9d16a4012fd66a0744e90f17eb4ea57dd6bdc0009fe3459eba",
+      "moving_heights_m": [
+        0.23
+      ]
+    },
+    {
+      "run": "rmcs_default704_envelope001",
+      "evaluation_sha256": "45d27754781dbe302c1cc147f3adf84e2f9afbe2a65530ea37d10e751fa59880",
+      "moving_heights_m": [
+        0.23
+      ]
+    },
+    {
+      "run": "rmcs_default_source_envelope001",
+      "evaluation_sha256": "9d01e2962b1fbbdf5ea16821a17c8e47b478dbd1a8058d5c9cfe9c9334f5d50e",
+      "moving_heights_m": [
+        0.23
+      ]
+    },
+    {
+      "run": "rmcs_source_envelope001",
+      "evaluation_sha256": "c8c82074b4d998b6e8860322ca529072e877a8ab1ebb13b40c5bd5c43e3abf75",
+      "moving_heights_m": [
+        0.305
+      ]
+    }
+  ],
+  "upper_height_moving_cohort_missing": true,
+  "required_before_final_release": "Same final checkpoint must cover42cm moving, turning and start/stop cases at1000Hz under RMCS reference, with development and heldout seeds; static43cm or training samples do not prove that behavior.",
+  "exporter_v3_sha256": "c1e3dea1b7fc3d4a4886a7728030f6e8a9b18d1ee4a40df7d63a3e1593fe551c",
+  "existing_release_gate_changed": false,
+  "new_optimizer_updates": 0,
+  "behavior_qualified": false
+}

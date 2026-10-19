@@ -1,0 +1,125 @@
+{
+  "schema": "flat-original-actor-pd-clock-diagnostic-v1",
+  "policy_hz": 50,
+  "changed_physics_and_PD_hz": [
+    200,
+    1000
+  ],
+  "rows": {
+    "stand_230mm": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.03272294532941588,
+        "yaw_mae_rad_s": 0.0105931671376983,
+        "stand_drift_max_m": 0.1473054438829422,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.03004372727221279,
+        "yaw_mae_rad_s": 0.0072773857810271795,
+        "stand_drift_max_m": 0.1130121722817421,
+        "full_horizon_episodes": 4
+      }
+    },
+    "stand_305mm": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.10799287487856216,
+        "yaw_mae_rad_s": 0.0034784189329729997,
+        "stand_drift_max_m": 1.0705630779266357,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.10472737981316944,
+        "yaw_mae_rad_s": 0.001522581955495702,
+        "stand_drift_max_m": 1.038004755973816,
+        "full_horizon_episodes": 4
+      }
+    },
+    "stand_430mm": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.11734336282980318,
+        "yaw_mae_rad_s": 0.003985596937970209,
+        "stand_drift_max_m": 1.2257295846939087,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.11096103436481725,
+        "yaw_mae_rad_s": 0.002284472600286891,
+        "stand_drift_max_m": 1.1732182502746582,
+        "full_horizon_episodes": 4
+      }
+    },
+    "forward_05": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.1104150825076633,
+        "yaw_mae_rad_s": 0.007013418377371434,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.10794958700736364,
+        "yaw_mae_rad_s": 0.005627330983825232,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      }
+    },
+    "backward_05": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.13008362328012785,
+        "yaw_mae_rad_s": 0.0019145654754194968,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.1278993578420745,
+        "yaw_mae_rad_s": 0.0008882685113096361,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      }
+    },
+    "rotate_1": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.09822635949278871,
+        "yaw_mae_rad_s": 0.009294173816839854,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.08574690017124845,
+        "yaw_mae_rad_s": 0.007721409731441074,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      }
+    },
+    "rotate_1_reverse": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.13844134201399155,
+        "yaw_mae_rad_s": 0.0220702212717798,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.12857289551239875,
+        "yaw_mae_rad_s": 0.026023414565457238,
+        "stand_drift_max_m": 0.0,
+        "full_horizon_episodes": 4
+      }
+    },
+    "start_stop_05": {
+      "PD200Hz": {
+        "vx_mae_m_s": 0.1138311601318419,
+        "yaw_mae_rad_s": 0.0029511596826347765,
+        "stand_drift_max_m": 2.8443830013275146,
+        "full_horizon_episodes": 4
+      },
+      "PD1000Hz": {
+        "vx_mae_m_s": 0.11078138554592927,
+        "yaw_mae_rad_s": 0.0016879692605004189,
+        "stand_drift_max_m": 2.824267864227295,
+        "full_horizon_episodes": 4
+      }
+    }
+  },
+  "causal_limit": "Physics integration and feedback PD rates change together; this is not an isolated PD-only effect.",
+  "conclusion": "Original forward velocity bias persists at both timings; deployment timing does not explain the stationary bias by itself.",
+  "new_optimizer_updates": 0
+}

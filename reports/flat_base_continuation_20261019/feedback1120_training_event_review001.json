@@ -1,0 +1,761 @@
+{
+  "schema": "flat-feedback1120-training-event-review-v1",
+  "source": "existing RSL-RL TensorBoard event files",
+  "checkpoint_sha256": "00e1fafb5849f6d1c40bc8b69df157b5d44a4c27a40f2e4ebc3b647988a624bf",
+  "custom_update_steps": [
+    1057,
+    1058,
+    1059,
+    1060,
+    1061,
+    1062,
+    1063,
+    1064,
+    1065,
+    1066,
+    1067,
+    1068,
+    1069,
+    1070,
+    1071,
+    1072,
+    1073,
+    1074,
+    1075,
+    1076,
+    1077,
+    1078,
+    1079,
+    1080,
+    1081,
+    1082,
+    1083,
+    1084,
+    1085,
+    1086,
+    1087,
+    1088,
+    1089,
+    1090,
+    1091,
+    1092,
+    1093,
+    1094,
+    1095,
+    1096,
+    1097,
+    1098,
+    1099,
+    1100,
+    1101,
+    1102,
+    1103,
+    1104,
+    1105,
+    1106,
+    1107,
+    1108,
+    1109,
+    1110,
+    1111,
+    1112,
+    1113,
+    1114,
+    1115,
+    1116,
+    1117,
+    1118,
+    1119,
+    1120
+  ],
+  "native_iteration_steps": [
+    1056,
+    1119
+  ],
+  "sampled_training_behavior_only": true,
+  "behavior_qualified": false,
+  "inherited_shared_feedback_updates": 304,
+  "post_split_actor_updates": 268,
+  "critic_only_adaptation_updates": 0,
+  "actor_updates_in_block": 64,
+  "failure_event": {
+    "points": 64,
+    "minimum": 0.0,
+    "maximum": 0.0,
+    "nonzero_points": 0
+  },
+  "PPO_diagnostics": {
+    "approx_policy_kl": {
+      "points": 64,
+      "unit": "nats per action sample",
+      "minimum": 0.0015357774682343006,
+      "maximum": 0.006746069528162479,
+      "first10": 0.0032672549597918986,
+      "final10": 0.0027719342964701355,
+      "first10_actor": 0.0032672549597918986,
+      "final10_actor": 0.0027719342964701355
+    },
+    "policy_clip_fraction": {
+      "points": 64,
+      "unit": "fraction",
+      "minimum": 0.01209174282848835,
+      "maximum": 0.0716484934091568,
+      "first10": 0.03516167663037777,
+      "final10": 0.029262289870530367,
+      "first10_actor": 0.03516167663037777,
+      "final10_actor": 0.029262289870530367
+    },
+    "actor_gradient_norm": {
+      "points": 64,
+      "unit": "L2 before clipping",
+      "minimum": 0.6116217374801636,
+      "maximum": 1.8225983381271362,
+      "first10": 1.0322117567062379,
+      "final10": 0.8401740372180939,
+      "first10_actor": 1.0322117567062379,
+      "final10_actor": 0.8401740372180939
+    },
+    "critic_gradient_norm": {
+      "points": 64,
+      "unit": "L2 before clipping",
+      "minimum": 1.9684791564941406,
+      "maximum": 17.646486282348633,
+      "first10": 6.097556519508362,
+      "final10": 5.101201868057251,
+      "first10_actor": 6.097556519508362,
+      "final10_actor": 5.101201868057251
+    },
+    "actor_learning_rate": {
+      "points": 64,
+      "unit": "Adam actor group rate",
+      "minimum": 0.0003000000142492354,
+      "maximum": 0.0003000000142492354,
+      "first10": 0.0003000000142492354,
+      "final10": 0.0003000000142492354,
+      "first10_actor": 0.0003000000142492354,
+      "final10_actor": 0.0003000000142492354
+    },
+    "critic_learning_rate": {
+      "points": 64,
+      "unit": "Adam critic group rate",
+      "minimum": 0.0005000000237487257,
+      "maximum": 0.0005000000237487257,
+      "first10": 0.0005000000237487257,
+      "final10": 0.0005000000237487257,
+      "first10_actor": 0.0005000000237487257,
+      "final10_actor": 0.0005000000237487257
+    },
+    "teacher": {
+      "points": 64,
+      "unit": "normalized action-error squared",
+      "minimum": 0.10254254937171936,
+      "maximum": 0.20991192758083344,
+      "first10": 0.18436581194400786,
+      "final10": 0.14316124692559243,
+      "first10_actor": 0.18436581194400786,
+      "final10_actor": 0.14316124692559243
+    },
+    "teacher_fraction": {
+      "points": 64,
+      "unit": "fraction of current training frames",
+      "minimum": 0.0115966796875,
+      "maximum": 0.0536702498793602,
+      "first10": 0.02558797299861908,
+      "final10": 0.019356283452361824,
+      "first10_actor": 0.02558797299861908,
+      "final10_actor": 0.019356283452361824
+    },
+    "teacher_action_rmse": {
+      "points": 64,
+      "unit": "raw action RMSE on selected current frames",
+      "minimum": 0.012777312658727169,
+      "maximum": 0.017666198313236237,
+      "first10": 0.016920721717178823,
+      "final10": 0.014859857503324747,
+      "first10_actor": 0.016920721717178823,
+      "final10_actor": 0.014859857503324747
+    }
+  },
+  "metrics": {
+    "FlatBirth/stand_low_birth/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.026698598451912404
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.016052486561238765
+      }
+    },
+    "FlatBirth/stand_low_birth/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.012731432355940342
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.012449815403670073
+      }
+    },
+    "FlatBirth/stand_low_birth/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.026373055949807166
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.01637905025854707
+      }
+    },
+    "FlatBirth/stand_low_birth/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBirth/stand_mid_birth/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.008166943024843932
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.006195785384625197
+      }
+    },
+    "FlatBirth/stand_mid_birth/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0017469491576775908
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0016939297085627914
+      }
+    },
+    "FlatBirth/stand_mid_birth/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.011506710015237332
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.00957343950867653
+      }
+    },
+    "FlatBirth/stand_mid_birth/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBirth/stand_high_birth/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.02282886244356632
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.02266566138714552
+      }
+    },
+    "FlatBirth/stand_high_birth/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.011917435564100742
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.011462484579533338
+      }
+    },
+    "FlatBirth/stand_high_birth/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.023696484602987768
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.02342871204018593
+      }
+    },
+    "FlatBirth/stand_high_birth/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 24960.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBirth/forward_edge3_start/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 1.6614931344985961
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 1.6498467338229963
+      }
+    },
+    "FlatBirth/forward_edge3_start/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 0.00724643194116652
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 0.006471897860016176
+      }
+    },
+    "FlatBirth/forward_edge3_start/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 0.4491071552038193
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 0.45829148644860457
+      }
+    },
+    "FlatBirth/forward_edge3_start/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBirth/backward_edge3_start/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 1.6490337371826171
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 1.6597034178282086
+      }
+    },
+    "FlatBirth/backward_edge3_start/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 0.007456166250631213
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 0.008516556568262789
+      }
+    },
+    "FlatBirth/backward_edge3_start/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 0.45681355595588685
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 0.4441277069842767
+      }
+    },
+    "FlatBirth/backward_edge3_start/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 2500.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 2470.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBehavior/stand_low/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.008573065630600347
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.004983550307064593
+      }
+    },
+    "FlatBehavior/stand_low/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0036339428797773606
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0034047281164880636
+      }
+    },
+    "FlatBehavior/stand_low/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.01154235071697078
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.008665061088094672
+      }
+    },
+    "FlatBehavior/stand_low/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBehavior/stand_mid/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.004218461578404838
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.004076922743243503
+      }
+    },
+    "FlatBehavior/stand_mid/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.0006090649211738299
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.0005776053906039714
+      }
+    },
+    "FlatBehavior/stand_mid/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.006451551415599309
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.0063497669083977136
+      }
+    },
+    "FlatBehavior/stand_mid/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 46410.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBehavior/stand_high/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.005491788635173669
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0058504556582032975
+      }
+    },
+    "FlatBehavior/stand_high/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0019389191542619041
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0017249884042929817
+      }
+    },
+    "FlatBehavior/stand_high/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.007181627265494931
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0076374364576742544
+      }
+    },
+    "FlatBehavior/stand_high/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 34580.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBehavior/forward_low/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.022722065223606078
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.02177362108377965
+      }
+    },
+    "FlatBehavior/forward_low/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.0009794982077277541
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.0010376726222163127
+      }
+    },
+    "FlatBehavior/forward_low/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.4321959255160866
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.4162896890561659
+      }
+    },
+    "FlatBehavior/forward_low/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBehavior/backward_low/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.04503731676019155
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.04530461400256052
+      }
+    },
+    "FlatBehavior/backward_low/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.001756843297926525
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.0017946683069957154
+      }
+    },
+    "FlatBehavior/backward_low/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.37445299134149657
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.3951539214495774
+      }
+    },
+    "FlatBehavior/backward_low/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 28210.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBehavior/forward_edge3/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4400.0,
+        "mean": 0.18423974974927576
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 0.14309040419675492
+      }
+    },
+    "FlatBehavior/forward_edge3/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4400.0,
+        "mean": 0.004612247703321786
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 0.004665953195807371
+      }
+    },
+    "FlatBehavior/forward_edge3/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4400.0,
+        "mean": 2.9515496093576603
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 3.021625735943134
+      }
+    },
+    "FlatBehavior/forward_edge3/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4400.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 0.0
+      }
+    },
+    "FlatBehavior/backward_edge3/vx_mae_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4500.0,
+        "mean": 1.920413943529129
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 0.16681765087358244
+      }
+    },
+    "FlatBehavior/backward_edge3/height_mae_m": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4500.0,
+        "mean": 0.00523466953728348
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 0.007074488142484819
+      }
+    },
+    "FlatBehavior/backward_edge3/planar_speed_mean_m_s": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4500.0,
+        "mean": 1.1641076046095955
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 2.8181698149377175
+      }
+    },
+    "FlatBehavior/backward_edge3/terminated_frame_fraction": {
+      "first10_actor": {
+        "points": 10,
+        "sample_frames": 4500.0,
+        "mean": 0.0
+      },
+      "final10_actor": {
+        "points": 10,
+        "sample_frames": 4550.0,
+        "mean": 0.0
+      }
+    }
+  },
+  "event_file_sha256": {
+    "runs/flat_base_20261019/pilot021/events.out.tfevents.1792379529.ZGZ.2067640.0": "2b4cfdc25034cbe706ef52c469f39e2f57636b6afdb0c64179463f36742fcb93"
+  },
+  "clock_scope": "50Hz policy;1000Hz physics/fresh-feedback PD, same-plan full resume with no new critic-only updates"
+}

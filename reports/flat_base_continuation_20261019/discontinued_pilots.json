@@ -1,0 +1,22 @@
+{
+  "consumed_optimizer_updates": 1,
+  "actor_updates": 0,
+  "runs": [
+    {
+      "run": "pilot001",
+      "receipt_sha256": "42813d458f2964a4f5bea7a5c75b1e89892a94fbf27979666b8395cc595b23f3",
+      "successful_updates": 0,
+      "actor_updates": 0,
+      "status": "failed",
+      "error": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/train_flat_base.py\", line 114, in main\n    report[\"actor_import\"] = load_actor_mean(runner.alg.actor, dict(format=FORMAT, actor_mean_state_dict=teacher.state_dict()))\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_algo/onnx_actor_import.py\", line 171, in load_actor_mean\n    \"critic_optimizer\": \"must_be_initialized_by_training\", \"source_sha256\": payload[\"source_sha256\"]}\n                                                                            ~~~~~~~^^^^^^^^^^^^^^^^^\nKeyError: 'source_sha256'\n"
+    },
+    {
+      "run": "pilot002",
+      "receipt_sha256": "abd91a03779b37b89926a50277abc657e2d34d46a8748fb69224222347e2cd8e",
+      "successful_updates": 1,
+      "actor_updates": 0,
+      "status": "failed",
+      "error": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/train_flat_base.py\", line 175, in main\n    runner.learn(args.updates, init_at_random_ep_len=False)\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/rsl_rl/runners/on_policy_runner.py\", line 108, in learn\n    loss_dict = self.alg.update()\n                ^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/train_flat_base.py\", line 163, in update\n    for name, value in env.diagnostic_reward_metrics().items():\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 2305, in diagnostic_reward_metrics\n    return self.diagnostic_reward_stats.drain(self.policy_dt)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'ChassisEnv' object has no attribute 'diagnostic_reward_stats'. Did you mean: 'diagnostic_reward_metrics'?\n"
+    }
+  ]
+}

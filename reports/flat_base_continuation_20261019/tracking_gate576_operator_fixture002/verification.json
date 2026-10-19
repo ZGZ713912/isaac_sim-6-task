@@ -1,0 +1,54 @@
+{
+  "schema": "flat-tracking-gate576-operator-fixture-v1",
+  "checks": {
+    "weights_all_exact": true,
+    "original_eight_initializer_bytes_exact": true,
+    "static_mean_exact": true,
+    "moving_mean_is_declared_change": true,
+    "actual_ORT_and_CPP_close": true,
+    "invalid_contracts_rejected": true
+  },
+  "passed": true,
+  "parent_checkpoint_sha256": "5bad4aadf34d88ebd031c1c793df28e68d4422e941db964f2c277ae44b6f3907",
+  "diagnostic_onnx_sha256": "18dfc4484bd7cf57e9b0b29eddb9f18bf114674896ea5a55464cd66336e4789a",
+  "new_optimizer_updates": 0,
+  "qualification_eligible": false,
+  "actual_observation_samples": 3520,
+  "torch_ORT_max_error": 2.86102294921875e-06,
+  "CPP_ORT_max_error": 1.9073486328125e-06,
+  "current_CPP_source_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/cpp/flat_base_rmcs_check.cpp": "9c0f6e99222d464e560c82b5741068ef3e1581551429e681cee1f4522d6913fb",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/onnx_runtime.cpp": "bec2b53639e93d1b50946e7e40912f77c8b3f2013d444866c37e088063a5fcf6",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/policy_model.cpp": "27c0f87fd1c4b8839fb7d4720dd424cf5a196cbf7a20394c1cc8b539376df9a4"
+  },
+  "negatives": {
+    "wrong_obs_size": {
+      "rejected": true,
+      "error": "model input 'obs' has 35 observations; vehicle configuration requires 34"
+    },
+    "wrong_model_spec": {
+      "rejected": true,
+      "error": "wheel_leg_v7 model_spec_sha256 does not match the deployed paired-107 contract"
+    },
+    "wrong_winding": {
+      "rejected": true,
+      "error": "model leg_winding_version metadata does not match the configured target contract"
+    }
+  },
+  "gate_contract": {
+    "low_command_limits": [
+      0.75,
+      1.5
+    ],
+    "wheel_dq_policy_indices": [
+      20,
+      21
+    ],
+    "encoder_scale": 0.1,
+    "wheel_radius_m": 0.06,
+    "wheel_track_m": 0.4373,
+    "max_linear_wheel_error_m_s": 0.015,
+    "full_gate_error_m_s": 0.1,
+    "tracking_gate": "bidirectional_per_wheel_linear"
+  }
+}

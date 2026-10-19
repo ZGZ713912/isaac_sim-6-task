@@ -1,0 +1,182 @@
+{
+  "schema": "flat-feedback1264-population-completion-v1",
+  "recorded_at": "2026-10-19T09:13:50.980357+00:00",
+  "passed": true,
+  "checks": {
+    "all_five_children_exit0": true,
+    "first_native_verified": true,
+    "exact_frozen_sources": true,
+    "exact_contract": true,
+    "exact_parent_seals": true,
+    "actual_complete_checkpoint": true,
+    "actual_final_counts": true,
+    "native_training_and_height_metrics": true,
+    "no_more_training_heldout_or_hardware": true,
+    "all16_finite_failure_event_points": true,
+    "deployment1264_basic001_identity": true,
+    "deployment1264_basic001_RSL_events": true,
+    "deployment1264_basic001_comparisons_bound": true,
+    "rmcs_default1264_envelope001_identity": true,
+    "rmcs_default1264_envelope001_RSL_events": true,
+    "rmcs_default1264_envelope001_comparisons_bound": true,
+    "rmcs_maximum1264_envelope001_identity": true,
+    "rmcs_maximum1264_envelope001_RSL_events": true,
+    "rmcs_maximum1264_envelope001_comparisons_bound": true
+  },
+  "queue_sha256": "325eff09ec05e847994f6c5bc7c08cdac98e4e7a7f54627f8db1fbcf2162739f",
+  "contract_sha256": "b90c8913d75b8272b05518b3ecdd2daed789638c410bdc57358afe4d801a7547",
+  "checkpoint_sha256": "a2da6311fb1d5bfcc75892f4fa1ac43ec8f8866edafc0f68ef28436ec1606b48",
+  "native_verification_sha256": "5879df5ac72582d3dac913701f13f43a57becc15999e9708e472f237721931cc",
+  "cohorts": {
+    "deployment1264_basic001": {
+      "evaluation_sha256": "dcc31aea6d95a1f4ed4a17ea093dece57ed5f258df9a7a3c41b7243e1296e896",
+      "traces_sha256": "19bf2cc9da0da776476a4a66043f8a2a3b8c6c57d2a964bbc84e902e2e0ff6fa",
+      "passed_cases": 5,
+      "requested_cases": 8,
+      "full_horizon_episodes": 32,
+      "requested_episodes": 32,
+      "comparisons": {
+        "source": {
+          "path": "reports/flat_base_continuation_20261019/comparison_deployment1264_basic001_source.json",
+          "sha256": "29102059931b038751b83a2c3223b4174ca4d5fcd405e5311ddc3405e62eca74",
+          "lost_checks": [],
+          "relative_regressions": []
+        },
+        "parent1248": {
+          "path": "reports/flat_base_continuation_20261019/comparison_deployment1264_basic001_parent1248.json",
+          "sha256": "65ccd1b6c33db821889612eeab842b1bf3552f489cb95e137ded734defbed1e4",
+          "lost_checks": [
+            {
+              "case": "stand_230mm",
+              "lost_checks": [
+                "stand_drift"
+              ]
+            },
+            {
+              "case": "stand_430mm",
+              "lost_checks": [
+                "stand_drift"
+              ]
+            }
+          ],
+          "relative_regressions": []
+        }
+      },
+      "terminations": {
+        "fall": 0,
+        "nonwheel_contact": 0,
+        "knee": 0,
+        "boundary": 0,
+        "takeoff_timeout": 0,
+        "closure_gap": 0,
+        "jump_request_timeout": 0,
+        "jump_outcome_timeout": 0,
+        "spring_travel": 0
+      }
+    },
+    "rmcs_default1264_envelope001": {
+      "evaluation_sha256": "b78e5a37314418b1f3d9ef875ccb12c81b0b0b0cbc4398cb38651b157cb53a68",
+      "traces_sha256": "dbfd952d2689266e990ac5d2d5561bc45e1e5f550562e426be49226da08f9611",
+      "passed_cases": 12,
+      "requested_cases": 22,
+      "full_horizon_episodes": 85,
+      "requested_episodes": 88,
+      "comparisons": {
+        "source": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_default1264_envelope001_source.json",
+          "sha256": "ac3b4abf74c931a705063138dd3384b9d65167153f60b919e19944e9c04f5648",
+          "lost_checks": [
+            {
+              "case": "rotate_4",
+              "lost_checks": [
+                "velocity"
+              ]
+            }
+          ],
+          "relative_regressions": []
+        },
+        "parent1248": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_default1264_envelope001_parent1248.json",
+          "sha256": "f46ee31515112114463cbb6517f25ac03183fde0915cb154c527e780ddce4fe6",
+          "lost_checks": [
+            {
+              "case": "stand_430mm",
+              "lost_checks": [
+                "stand_drift"
+              ]
+            },
+            {
+              "case": "curve_low",
+              "lost_checks": [
+                "survival"
+              ]
+            }
+          ],
+          "relative_regressions": []
+        }
+      },
+      "terminations": {
+        "fall": 0,
+        "nonwheel_contact": 0,
+        "knee": 0,
+        "boundary": 3,
+        "takeoff_timeout": 0,
+        "closure_gap": 0,
+        "jump_request_timeout": 0,
+        "jump_outcome_timeout": 0,
+        "spring_travel": 0
+      }
+    },
+    "rmcs_maximum1264_envelope001": {
+      "evaluation_sha256": "f1a968536a09984694440a49a8a6483f38874091ada97cebe30a73e3805f6a31",
+      "traces_sha256": "d41024874fc95b51899031bcb3511fb6ea08909dd296111ca638cd36bf9b6bf5",
+      "passed_cases": 8,
+      "requested_cases": 22,
+      "full_horizon_episodes": 84,
+      "requested_episodes": 88,
+      "comparisons": {
+        "source": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_maximum1264_envelope001_source.json",
+          "sha256": "e3649af1cfd813c2978c7f7958a9dc535a46ee81dc7a20f58839ebaca2d7fb22",
+          "lost_checks": [],
+          "relative_regressions": []
+        },
+        "parent1248": {
+          "path": "reports/flat_base_continuation_20261019/comparison_rmcs_maximum1264_envelope001_parent1248.json",
+          "sha256": "3f085fa97acc5b3bedb69d7c74840ea3a6684387a7209aeec3114f1140c676cc",
+          "lost_checks": [
+            {
+              "case": "stand_430mm",
+              "lost_checks": [
+                "stand_drift"
+              ]
+            }
+          ],
+          "relative_regressions": []
+        }
+      },
+      "terminations": {
+        "fall": 0,
+        "nonwheel_contact": 0,
+        "knee": 0,
+        "boundary": 4,
+        "takeoff_timeout": 0,
+        "closure_gap": 0,
+        "jump_request_timeout": 0,
+        "jump_outcome_timeout": 0,
+        "spring_travel": 0
+      }
+    }
+  },
+  "failure_event_nonzero_points": 5,
+  "event_file_sha256": {
+    "events.out.tfevents.1792393544.ZGZ.2239722.0": "2078e72e9a7a8d78c5f5d17a36a8c81742e5d681fcbb87c264093348e2610fd0",
+    "events.out.tfevents.1792396019.ZGZ.2269864.0": "b66f36901328b01f38a481666eaf1046d989f96c13a76b1e1300cab274f7675d",
+    "events.out.tfevents.1792396624.ZGZ.2273191.0": "0e51ff860877272277edec6cba3943bc325b9e597420b412cb7a5347f435d4e8",
+    "events.out.tfevents.1792397204.ZGZ.2280161.0": "382639382cdc283d99c893b83895e248aa237d538dd8b2019ed27173a6d86592"
+  },
+  "behavior_qualified": false,
+  "all_release_cohorts_complete": false,
+  "heldout_seed_used": false,
+  "hardware_motion_started": false
+}

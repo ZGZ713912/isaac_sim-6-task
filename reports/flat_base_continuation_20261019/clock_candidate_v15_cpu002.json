@@ -1,0 +1,159 @@
+{
+  "schema": "flat-clock-v15-candidate-cpu-review-v1",
+  "checks": {
+    "candidate_static_preflight": true,
+    "policy50_physics1000_feedback1000": true,
+    "all_other_plan_fields_retained": true,
+    "no_policy_time_discount_or_rollout_change": true,
+    "original200hz_plans_still_valid": true,
+    "reject_bad_physics": true,
+    "reject_bad_policy": true,
+    "reject_old_schema_cannot_enable_1khz": true,
+    "reject_unregistered_control": true,
+    "reject_bad_control_digest": true,
+    "reject_changed_reward": true,
+    "reject_changed_sampling": true,
+    "reject_changed_gamma": true,
+    "reject_changed_rollout": true,
+    "reject_changed_rate": true,
+    "reject_wrong_parent_control": true,
+    "reject_unchanged_clock_as_migration": true
+  },
+  "passed": true,
+  "static_preflight": {
+    "status": "static_passed",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261019/clock_v15_candidate_preflight002/config/design.json",
+    "stage": "speed",
+    "role": "train",
+    "seed": 191019,
+    "block_index": 0,
+    "num_envs": 512,
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "runtime_expected": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.001,
+      "decimation": 20,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "seed": 191019,
+      "action_difference_reference_dt": 0.02,
+      "precision_tracking": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "step_assist": false,
+        "actuator_response": true,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "design_sha256": "faac3c6da3b305d3dfc2e03a81bc4c2ee94270daf54e1117c9ce6e8eb2e6ae3a",
+    "environment_stage": "speed"
+  },
+  "timing_transition": {
+    "schema": "flat-feedback-clock-transition-v1",
+    "old": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.005,
+      "decimation": 4
+    },
+    "new": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.001,
+      "decimation": 20
+    },
+    "parent_control_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+    "new_control_sha256": "cc30b2b0572999224c8feb79ffa7afb3df1b8a28800bca4a153663b9ea8d4bf8",
+    "changed_plan_fields": [
+      "control_file",
+      "control_sha256",
+      "physics_dt",
+      "schema",
+      "training_scope"
+    ],
+    "policy_clock_unchanged": true,
+    "gamma_gae_and_rollout_unchanged": true,
+    "gains_geometry_actuators_unchanged": true,
+    "saved_models_optimizer_and_RNG": "exact before fresh physical reset",
+    "hardware_equivalence_verified": false
+  },
+  "candidate_plan_sha256": "215c4718d85aa6af46c4d609a393a5f2da8d7fafedd90f8135ae0ae848a30b07",
+  "source_adopted": false,
+  "native_environment_steps": 0,
+  "optimizer_updates_performed": 0,
+  "behavior_qualified": false
+}

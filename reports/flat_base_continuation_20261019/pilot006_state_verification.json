@@ -1,0 +1,35 @@
+{
+  "schema": "flat-mixed-pilot-native-state-check-v1",
+  "parent_updates": 128,
+  "initial_full_restore": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true,
+    "cpu_sampling_rng": true,
+    "cuda_sampling_rng": true,
+    "environment_rng_before_new_reset": true
+  },
+  "first_critic_update": 129,
+  "critic_warmup_remaining": 9,
+  "actor_std_exact_after_critic": true,
+  "critic_changed_after_critic": true,
+  "checkpoint161_actor_changed": true,
+  "checkpoint161_actor_updates": 131,
+  "checkpoint161_consumed": 162,
+  "teacher_setting": {
+    "coefficient": 0.02,
+    "action_scales": [
+      0.025,
+      0.025,
+      0.025,
+      0.025,
+      0.04,
+      0.04
+    ],
+    "min_vx": 0.75,
+    "min_yaw": 1.5,
+    "sampling": "current_training_observations_only",
+    "teacher_source": "original_source_onnx"
+  },
+  "training_release": false
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "flat-optimizer-rate-candidate-actual704-CPU-proof-v1",
+  "adopted": false,
+  "passed": true,
+  "checks": {
+    "load_restores_parent_rates": true,
+    "only_actor_lr_changed": true,
+    "source_mean_unchanged": true,
+    "critic_parameters_unchanged": true
+  },
+  "parent_checkpoint_sha256": "e217f5bf8678dc48cf7b94680f5987f361bcc5a5751c860453a16dbdc5c349c2",
+  "constructor_actor_lr": 0.0003,
+  "actual_loaded_rates": [
+    0.0001,
+    0.0005
+  ],
+  "declared_candidate_rate_receipt": {
+    "schema": "flat-optimizer-rate-contract-v1",
+    "before": {
+      "actor": 0.0001,
+      "critic": 0.0005
+    },
+    "after": {
+      "actor": 0.0003,
+      "critic": 0.0005
+    },
+    "declared_actor_rate_change": true,
+    "moments_steps_and_other_hyperparameters": "retained"
+  },
+  "policy_optimizer_updates_performed": 0,
+  "real_training_rate_changed": false,
+  "cpu_tests_passed": 13
+}

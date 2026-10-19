@@ -1,0 +1,36 @@
+{
+  "schema": "flat-feedback-native512-lineage-proof-v1",
+  "passed": true,
+  "checks": {
+    "all_original_tensors_std_buffers_frozen": true,
+    "changed_exactly_four_command_and_four_feedback_tensors": true,
+    "std_Adam_exact": true,
+    "source_Adam_absent": true,
+    "command_Adam_steps_1056": true,
+    "feedback_Adam_steps_528": true,
+    "critic_Adam_steps_6144": true,
+    "full_block_counters": true
+  },
+  "parent_initial_sha256": "ea82e7b4acd23f84d33233a697ce880069a2d62179018d9483c46530fc93e0de",
+  "checkpoint_sha256": "f86aa34c16b0de0ee20c7d8ff5b7fb65978672b999c4adea8f71fa29a21382b5",
+  "new_optimizer_updates_by_inspector": 0,
+  "additional_successful_updates": 64,
+  "additional_actor_updates": 44,
+  "additional_critic_only_updates": 20,
+  "all_local_trial_successful_updates": 512,
+  "consumed_updates_all_local_trials": 513,
+  "command_branch_actor_updates": 88,
+  "feedback_branch_actor_updates": 44,
+  "original_source_training_count": "unknown",
+  "changed_actor_state_names": [
+    "mlp.command.residual.0.weight",
+    "mlp.command.residual.0.bias",
+    "mlp.command.residual.2.weight",
+    "mlp.command.residual.2.bias",
+    "mlp.feedback.0.weight",
+    "mlp.feedback.0.bias",
+    "mlp.feedback.2.weight",
+    "mlp.feedback.2.bias"
+  ],
+  "behavior_qualified": false
+}

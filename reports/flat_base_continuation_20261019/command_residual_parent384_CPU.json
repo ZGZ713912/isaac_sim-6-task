@@ -1,0 +1,41 @@
+{
+  "schema": "flat-command-residual-real-parent-CPU-restore-v1",
+  "new_optimizer_updates": 0,
+  "native_physics_steps": 0,
+  "reference": "explicit transformed parent; previous actor is deliberately reset",
+  "parent_checkpoint_sha256": "5f34d2c6109665e80bc540b427c45cbc2e18567b0783fa7cafbb817c2cdbe690",
+  "previous_consumption_retained": 385,
+  "exact_models_Adam_after_RSL_load": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "original": {
+    "original_feedback": "exact_source_tensors",
+    "command_only_inputs": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "residual_parameters": 358,
+    "bounded_action_offsets": [
+      0.20000000298023224,
+      0.20000000298023224,
+      0.20000000298023224,
+      0.20000000298023224,
+      0.75,
+      0.75
+    ]
+  },
+  "migration": {
+    "actor_mean": "reset_to_exact_original_feedback_plus_zero_command_residual",
+    "previous_actor_mean_Adam": "discarded_in_this_new_branch_parent_checkpoint_retained",
+    "critic_and_Adam": "retained_exact",
+    "exploration_std_and_Adam": "retained_exact_and_frozen",
+    "saved_RNG": "retained_for_restore_before_new_physical_reset",
+    "previous_consumption": "retained_without_refund",
+    "active_branch_actor_updates": 0
+  },
+  "fresh_residual_Adam_slots": 0
+}

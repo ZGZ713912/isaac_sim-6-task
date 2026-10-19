@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": {
+    "imported_8_mean_tensors_exact": true,
+    "all_actor_and_std_exact_after_critic_update": true,
+    "critic_changed": true,
+    "fresh_optimizer_initially_empty": true,
+    "only_critic_adam_state_after_warmup_update": true,
+    "actual_minibatch_steps": true,
+    "clocks": true
+  },
+  "initial_checkpoint_sha256": "ab19870ad3ca5b18229ff2284464c52f6c78fa563d4fcc2cceaa20480a89ad08",
+  "checkpoint_sha256": "bb53cd2271d370edd8add9d37572acc3ee59a6ab73e5eb1575463eef8b2ee37c",
+  "critic_adam_tensor_count": 8,
+  "optimizer_groups": [
+    {
+      "lr": 1e-05,
+      "name": "actor"
+    },
+    {
+      "lr": 0.0005,
+      "name": "critic"
+    }
+  ]
+}
