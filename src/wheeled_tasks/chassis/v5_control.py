@@ -14,6 +14,9 @@ class V5Control:
     def __init__(self, manifest, spec, fit, prior, settings, device):
         if tuple(manifest["control_joint_names"]) != self.ACTIVE:
             raise ValueError("V5 requires the two root-driven leg axes per side, not virtual knee actuation")
+        if settings.get("leg_target_winding", "independent_nearest_v1") not in (
+                "independent_nearest_v1", "paired_branch107_v1"):
+            raise ValueError("Unknown leg_target_winding")
         self.nominal = torch.tensor([manifest["nominal_joint_pos"][n] for n in self.ACTIVE], device=device)
         self.spring_names = manifest["spring_joint_names"]
         self.s0 = torch.tensor([spec["spring_binding"][n]["compression_at_q_zero_m"] for n in self.spring_names], device=device)
@@ -31,8 +34,12 @@ class V5Control:
     def decode(self, actions, q):
         clipped = actions.clamp(-self.action_bounds, self.action_bounds)
         desired = self.nominal[list(self.LEGS)] + clipped[:, list(self.LEGS)] * self.settings["leg_position_scale"]
-        delta = desired - q[:, list(self.LEGS)]
-        legs = q[:, list(self.LEGS)] + torch.atan2(delta.sin(), delta.cos())
+        if self.settings.get("leg_target_winding") == "paired_branch107_v1":
+            from .paired_leg_targets import paired_leg_targets
+            legs = paired_leg_targets(desired, q[:, list(self.LEGS)])
+        else:
+            delta = desired - q[:, list(self.LEGS)]
+            legs = q[:, list(self.LEGS)] + torch.atan2(delta.sin(), delta.cos())
         wheels = clipped[:, list(self.WHEELS)] * self.settings["wheel_velocity_scale"]
         return legs, wheels, clipped
 

@@ -459,11 +459,14 @@ def apply_recovery_takeover(components, gravity, omega, height, velocity, comman
 
 
 class StationaryAnchor:
-    """Bounded residence reward; the anchor is privileged training state only."""
-    def __init__(self, count, device, weight, band_m):
-        if weight < 0 or band_m <= 0:
+    """Residence cost; the anchor remains privileged training state only."""
+    def __init__(self, count, device, weight, band_m, *, cost="bounded_exponential", cap=25., failure_cost=0.):
+        if not all(math.isfinite(v) for v in (weight, band_m, cap, failure_cost)) or weight < 0 or band_m <= 0:
             raise ValueError("Stationary reward requires nonnegative weight and positive distance band")
+        if cost not in ("bounded_exponential", "capped_square") or cap <= 0 or failure_cost < 0:
+            raise ValueError("Unknown or invalid stationary cost shape")
         self.weight, self.band_m = weight, band_m
+        self.cost, self.cap, self.failure_cost = cost, cap, failure_cost
         self.position = torch.zeros(count, 2, device=device)
         self.valid = torch.zeros(count, dtype=torch.bool, device=device)
 
@@ -476,7 +479,14 @@ class StationaryAnchor:
         self.position.copy_(torch.where(entering[:, None], position, self.position))
         self.valid |= entering
         distance_square = (position - self.position).square().sum(-1)
+        if self.cost == "capped_square":
+            # Contact loss must not erase an already latched position cost.
+            return -self.weight * (distance_square / self.band_m**2).clamp_max(self.cap) * requested * self.valid
         return self.weight * torch.expm1(-distance_square / self.band_m**2) * requested * supported * self.valid
+
+    def failure_penalty(self, terminated, stationary):
+        """One discrete event; cap/(1-gamma) is validated by the flat plan."""
+        return -self.failure_cost * (terminated & stationary).float()
 
 
 class CommandedHeightMargin:
