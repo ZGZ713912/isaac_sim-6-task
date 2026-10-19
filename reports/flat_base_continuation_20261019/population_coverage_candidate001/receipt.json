@@ -1,0 +1,1009 @@
+{
+  "schema": "flat-population-static-coverage-study-v1",
+  "recorded_at": "2026-10-19T06:36:05.318803+00:00",
+  "passed": true,
+  "parent_plan_file": "contracts/flat_base_finetune_v16.json",
+  "parent_plan_sha256": "40c60b50519503bab4703447393d50112307aec3a2cfa3453e72799d79946a4b",
+  "reader_sha256": "45fac5a1522ff785c5972a8737ea4893532d9c510c715d81c8e4cbfabae9a15d",
+  "all128_live_execution_sources_unchanged": true,
+  "populations": {
+    "512": {
+      "checks": {
+        "exact_only_two_population_plan_fields": true,
+        "unchanged_worker_fields_except_population_and_bundle_identity": true,
+        "all25_original_groups_present": true,
+        "all_environments_accounted": true,
+        "direct_and_legacy_partition": true,
+        "exact_policy_and_physics": true,
+        "exact_rollout_and_minibatch": true,
+        "CPU_design_preflight": true
+      },
+      "changed_plan_fields": [],
+      "plan_sha256": "2b2cbd1076a1a86068a92e8e775b8c9658412a499b7ba19501b8362749e98be5",
+      "worker_contract_sha256": "1a4cd6698cc3406409f43eb8fc8088e8589bfd1be22de7e1863dd2619e91f272",
+      "population": {
+        "stand_mid": {
+          "total": 51,
+          "direct": 51,
+          "ramped": 0
+        },
+        "stand_mid_birth": {
+          "total": 26,
+          "direct": 26,
+          "ramped": 0
+        },
+        "stand_low": {
+          "total": 38,
+          "direct": 38,
+          "ramped": 0
+        },
+        "stand_low_birth": {
+          "total": 26,
+          "direct": 26,
+          "ramped": 0
+        },
+        "stand_high": {
+          "total": 38,
+          "direct": 38,
+          "ramped": 0
+        },
+        "stand_high_birth": {
+          "total": 26,
+          "direct": 26,
+          "ramped": 0
+        },
+        "forward_low": {
+          "total": 31,
+          "direct": 16,
+          "ramped": 15
+        },
+        "forward_mid": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        },
+        "forward_high": {
+          "total": 15,
+          "direct": 8,
+          "ramped": 7
+        },
+        "backward_low": {
+          "total": 31,
+          "direct": 16,
+          "ramped": 15
+        },
+        "backward_mid": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        },
+        "backward_high": {
+          "total": 15,
+          "direct": 8,
+          "ramped": 7
+        },
+        "turn_left": {
+          "total": 28,
+          "direct": 14,
+          "ramped": 14
+        },
+        "turn_right": {
+          "total": 28,
+          "direct": 14,
+          "ramped": 14
+        },
+        "start_stop_0_5": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        },
+        "start_stop_1_0": {
+          "total": 15,
+          "direct": 8,
+          "ramped": 7
+        },
+        "start_stop_3_0": {
+          "total": 15,
+          "direct": 8,
+          "ramped": 7
+        },
+        "curve_left": {
+          "total": 13,
+          "direct": 7,
+          "ramped": 6
+        },
+        "curve_right": {
+          "total": 13,
+          "direct": 7,
+          "ramped": 6
+        },
+        "forward_edge3": {
+          "total": 5,
+          "direct": 3,
+          "ramped": 2
+        },
+        "forward_edge3_start": {
+          "total": 5,
+          "direct": 3,
+          "ramped": 2
+        },
+        "backward_edge3": {
+          "total": 5,
+          "direct": 3,
+          "ramped": 2
+        },
+        "backward_edge3_start": {
+          "total": 5,
+          "direct": 3,
+          "ramped": 2
+        },
+        "turn_left_edge4": {
+          "total": 10,
+          "direct": 5,
+          "ramped": 5
+        },
+        "turn_right_edge4": {
+          "total": 10,
+          "direct": 5,
+          "ramped": 5
+        }
+      },
+      "training_frames_per_update": 49152,
+      "minibatch_samples": 12288,
+      "static_preflight": {
+        "status": "static_passed",
+        "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/population_coverage_candidate001/envs_512/config/design.json",
+        "stage": "speed",
+        "role": "train",
+        "seed": 191019,
+        "block_index": 0,
+        "num_envs": 512,
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "runtime_expected": {
+          "physics_dt": 0.001,
+          "policy_dt": 0.02,
+          "pc_control_dt": 0.001,
+          "decimation": 20,
+          "leg_kp": 160.0,
+          "leg_kd": 2.5,
+          "wheel_velocity_p": 0.6,
+          "seed": 191019,
+          "action_difference_reference_dt": 0.02,
+          "precision_tracking": true,
+          "actuator_response": {
+            "enabled": true,
+            "schema": "chassis-actuator-response",
+            "version": 1,
+            "joint_names": [
+              "L_joint1",
+              "LL_joint1",
+              "L_joint3",
+              "R_joint1",
+              "RR_joint1",
+              "R_joint3"
+            ],
+            "gain": 1.0,
+            "armature": [
+              0.0,
+              0.0,
+              0.0038669808882082915,
+              0.0,
+              0.0,
+              0.003818453742910773
+            ],
+            "frictionloss": [
+              0.0,
+              0.0,
+              0.049507400779663126,
+              0.0,
+              0.0,
+              0.06957712078102896
+            ],
+            "damping": [
+              0.0,
+              0.0,
+              0.0006085318417485766,
+              0.0,
+              0.0,
+              0.0003429025559035852
+            ],
+            "time_constant_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "locomotion_quality_rewards": {
+            "stand_still_lin_vel": {
+              "version": "scut-flat-linear-velocity-v2",
+              "weight": -2.0,
+              "command_threshold_m_s": 0.1,
+              "exclude_world_reference_motion": true
+            },
+            "locomotion_posture": {
+              "version": "bounded-posture-floor-v1",
+              "pitch_scale_floor": 3.0,
+              "roll_scale_floor": 4.0
+            }
+          },
+          "modules": {
+            "usb_transport": false,
+            "command_transport": false,
+            "signal_perturbations": false,
+            "dynamics_randomization": false,
+            "contact_domain": false,
+            "step_assist": false,
+            "actuator_response": true,
+            "stand_still_lin_vel": true,
+            "locomotion_posture_floor": true
+          }
+        },
+        "actuator_response_evidence": {
+          "status": "authenticated",
+          "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+          "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+          "validated_file_count": 4
+        },
+        "design_sha256": "7899ce243c8357aeae6b48b362824d675d979ea4f14359370c7219c784723de0",
+        "environment_stage": "speed"
+      }
+    },
+    "1024": {
+      "checks": {
+        "exact_only_two_population_plan_fields": true,
+        "unchanged_worker_fields_except_population_and_bundle_identity": true,
+        "all25_original_groups_present": true,
+        "all_environments_accounted": true,
+        "direct_and_legacy_partition": true,
+        "exact_policy_and_physics": true,
+        "exact_rollout_and_minibatch": true,
+        "CPU_design_preflight": true
+      },
+      "changed_plan_fields": [
+        "allowed_num_envs",
+        "default_num_envs"
+      ],
+      "plan_sha256": "ad0f282ab621779296242ccdebcd5b70bd159ab1f0c978be2d0acc627e13b13b",
+      "worker_contract_sha256": "653b65b00e6b76ad730ae6fe04bd6cab3b95a50be34ba26acf38831676ec2d6f",
+      "population": {
+        "stand_mid": {
+          "total": 102,
+          "direct": 102,
+          "ramped": 0
+        },
+        "stand_mid_birth": {
+          "total": 51,
+          "direct": 51,
+          "ramped": 0
+        },
+        "stand_low": {
+          "total": 77,
+          "direct": 77,
+          "ramped": 0
+        },
+        "stand_low_birth": {
+          "total": 51,
+          "direct": 51,
+          "ramped": 0
+        },
+        "stand_high": {
+          "total": 77,
+          "direct": 77,
+          "ramped": 0
+        },
+        "stand_high_birth": {
+          "total": 51,
+          "direct": 51,
+          "ramped": 0
+        },
+        "forward_low": {
+          "total": 61,
+          "direct": 31,
+          "ramped": 30
+        },
+        "forward_mid": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "forward_high": {
+          "total": 31,
+          "direct": 16,
+          "ramped": 15
+        },
+        "backward_low": {
+          "total": 61,
+          "direct": 31,
+          "ramped": 30
+        },
+        "backward_mid": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "backward_high": {
+          "total": 31,
+          "direct": 16,
+          "ramped": 15
+        },
+        "turn_left": {
+          "total": 56,
+          "direct": 28,
+          "ramped": 28
+        },
+        "turn_right": {
+          "total": 56,
+          "direct": 28,
+          "ramped": 28
+        },
+        "start_stop_0_5": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "start_stop_1_0": {
+          "total": 31,
+          "direct": 16,
+          "ramped": 15
+        },
+        "start_stop_3_0": {
+          "total": 31,
+          "direct": 16,
+          "ramped": 15
+        },
+        "curve_left": {
+          "total": 26,
+          "direct": 13,
+          "ramped": 13
+        },
+        "curve_right": {
+          "total": 26,
+          "direct": 13,
+          "ramped": 13
+        },
+        "forward_edge3": {
+          "total": 10,
+          "direct": 5,
+          "ramped": 5
+        },
+        "forward_edge3_start": {
+          "total": 10,
+          "direct": 5,
+          "ramped": 5
+        },
+        "backward_edge3": {
+          "total": 10,
+          "direct": 5,
+          "ramped": 5
+        },
+        "backward_edge3_start": {
+          "total": 10,
+          "direct": 5,
+          "ramped": 5
+        },
+        "turn_left_edge4": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        },
+        "turn_right_edge4": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        }
+      },
+      "training_frames_per_update": 98304,
+      "minibatch_samples": 24576,
+      "static_preflight": {
+        "status": "static_passed",
+        "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/population_coverage_candidate001/envs_1024/config/design.json",
+        "stage": "speed",
+        "role": "train",
+        "seed": 191019,
+        "block_index": 0,
+        "num_envs": 1024,
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "runtime_expected": {
+          "physics_dt": 0.001,
+          "policy_dt": 0.02,
+          "pc_control_dt": 0.001,
+          "decimation": 20,
+          "leg_kp": 160.0,
+          "leg_kd": 2.5,
+          "wheel_velocity_p": 0.6,
+          "seed": 191019,
+          "action_difference_reference_dt": 0.02,
+          "precision_tracking": true,
+          "actuator_response": {
+            "enabled": true,
+            "schema": "chassis-actuator-response",
+            "version": 1,
+            "joint_names": [
+              "L_joint1",
+              "LL_joint1",
+              "L_joint3",
+              "R_joint1",
+              "RR_joint1",
+              "R_joint3"
+            ],
+            "gain": 1.0,
+            "armature": [
+              0.0,
+              0.0,
+              0.0038669808882082915,
+              0.0,
+              0.0,
+              0.003818453742910773
+            ],
+            "frictionloss": [
+              0.0,
+              0.0,
+              0.049507400779663126,
+              0.0,
+              0.0,
+              0.06957712078102896
+            ],
+            "damping": [
+              0.0,
+              0.0,
+              0.0006085318417485766,
+              0.0,
+              0.0,
+              0.0003429025559035852
+            ],
+            "time_constant_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "locomotion_quality_rewards": {
+            "stand_still_lin_vel": {
+              "version": "scut-flat-linear-velocity-v2",
+              "weight": -2.0,
+              "command_threshold_m_s": 0.1,
+              "exclude_world_reference_motion": true
+            },
+            "locomotion_posture": {
+              "version": "bounded-posture-floor-v1",
+              "pitch_scale_floor": 3.0,
+              "roll_scale_floor": 4.0
+            }
+          },
+          "modules": {
+            "usb_transport": false,
+            "command_transport": false,
+            "signal_perturbations": false,
+            "dynamics_randomization": false,
+            "contact_domain": false,
+            "step_assist": false,
+            "actuator_response": true,
+            "stand_still_lin_vel": true,
+            "locomotion_posture_floor": true
+          }
+        },
+        "actuator_response_evidence": {
+          "status": "authenticated",
+          "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+          "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+          "validated_file_count": 4
+        },
+        "design_sha256": "ef0f8ed88221f67aeffff28067b1c1b780cf9829a0066c39a91987759c3c9f2f",
+        "environment_stage": "speed"
+      }
+    },
+    "2048": {
+      "checks": {
+        "exact_only_two_population_plan_fields": true,
+        "unchanged_worker_fields_except_population_and_bundle_identity": true,
+        "all25_original_groups_present": true,
+        "all_environments_accounted": true,
+        "direct_and_legacy_partition": true,
+        "exact_policy_and_physics": true,
+        "exact_rollout_and_minibatch": true,
+        "CPU_design_preflight": true
+      },
+      "changed_plan_fields": [
+        "allowed_num_envs",
+        "default_num_envs"
+      ],
+      "plan_sha256": "300911397a5fab3c352a1428de532128bd6bb72ebe9c59114ad743786b8a5f7f",
+      "worker_contract_sha256": "cd40fd7c4466506f9b0ebe83e3edac4553ff1f368ccc3adb33f81580eecbc665",
+      "population": {
+        "stand_mid": {
+          "total": 205,
+          "direct": 205,
+          "ramped": 0
+        },
+        "stand_mid_birth": {
+          "total": 102,
+          "direct": 102,
+          "ramped": 0
+        },
+        "stand_low": {
+          "total": 154,
+          "direct": 154,
+          "ramped": 0
+        },
+        "stand_low_birth": {
+          "total": 102,
+          "direct": 102,
+          "ramped": 0
+        },
+        "stand_high": {
+          "total": 154,
+          "direct": 154,
+          "ramped": 0
+        },
+        "stand_high_birth": {
+          "total": 102,
+          "direct": 102,
+          "ramped": 0
+        },
+        "forward_low": {
+          "total": 123,
+          "direct": 62,
+          "ramped": 61
+        },
+        "forward_mid": {
+          "total": 82,
+          "direct": 41,
+          "ramped": 41
+        },
+        "forward_high": {
+          "total": 61,
+          "direct": 31,
+          "ramped": 30
+        },
+        "backward_low": {
+          "total": 123,
+          "direct": 62,
+          "ramped": 61
+        },
+        "backward_mid": {
+          "total": 82,
+          "direct": 41,
+          "ramped": 41
+        },
+        "backward_high": {
+          "total": 61,
+          "direct": 31,
+          "ramped": 30
+        },
+        "turn_left": {
+          "total": 113,
+          "direct": 57,
+          "ramped": 56
+        },
+        "turn_right": {
+          "total": 113,
+          "direct": 57,
+          "ramped": 56
+        },
+        "start_stop_0_5": {
+          "total": 82,
+          "direct": 41,
+          "ramped": 41
+        },
+        "start_stop_1_0": {
+          "total": 61,
+          "direct": 31,
+          "ramped": 30
+        },
+        "start_stop_3_0": {
+          "total": 61,
+          "direct": 31,
+          "ramped": 30
+        },
+        "curve_left": {
+          "total": 51,
+          "direct": 26,
+          "ramped": 25
+        },
+        "curve_right": {
+          "total": 51,
+          "direct": 26,
+          "ramped": 25
+        },
+        "forward_edge3": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        },
+        "forward_edge3_start": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        },
+        "backward_edge3": {
+          "total": 21,
+          "direct": 11,
+          "ramped": 10
+        },
+        "backward_edge3_start": {
+          "total": 20,
+          "direct": 10,
+          "ramped": 10
+        },
+        "turn_left_edge4": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "turn_right_edge4": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        }
+      },
+      "training_frames_per_update": 196608,
+      "minibatch_samples": 49152,
+      "static_preflight": {
+        "status": "static_passed",
+        "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/population_coverage_candidate001/envs_2048/config/design.json",
+        "stage": "speed",
+        "role": "train",
+        "seed": 191019,
+        "block_index": 0,
+        "num_envs": 2048,
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "runtime_expected": {
+          "physics_dt": 0.001,
+          "policy_dt": 0.02,
+          "pc_control_dt": 0.001,
+          "decimation": 20,
+          "leg_kp": 160.0,
+          "leg_kd": 2.5,
+          "wheel_velocity_p": 0.6,
+          "seed": 191019,
+          "action_difference_reference_dt": 0.02,
+          "precision_tracking": true,
+          "actuator_response": {
+            "enabled": true,
+            "schema": "chassis-actuator-response",
+            "version": 1,
+            "joint_names": [
+              "L_joint1",
+              "LL_joint1",
+              "L_joint3",
+              "R_joint1",
+              "RR_joint1",
+              "R_joint3"
+            ],
+            "gain": 1.0,
+            "armature": [
+              0.0,
+              0.0,
+              0.0038669808882082915,
+              0.0,
+              0.0,
+              0.003818453742910773
+            ],
+            "frictionloss": [
+              0.0,
+              0.0,
+              0.049507400779663126,
+              0.0,
+              0.0,
+              0.06957712078102896
+            ],
+            "damping": [
+              0.0,
+              0.0,
+              0.0006085318417485766,
+              0.0,
+              0.0,
+              0.0003429025559035852
+            ],
+            "time_constant_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "locomotion_quality_rewards": {
+            "stand_still_lin_vel": {
+              "version": "scut-flat-linear-velocity-v2",
+              "weight": -2.0,
+              "command_threshold_m_s": 0.1,
+              "exclude_world_reference_motion": true
+            },
+            "locomotion_posture": {
+              "version": "bounded-posture-floor-v1",
+              "pitch_scale_floor": 3.0,
+              "roll_scale_floor": 4.0
+            }
+          },
+          "modules": {
+            "usb_transport": false,
+            "command_transport": false,
+            "signal_perturbations": false,
+            "dynamics_randomization": false,
+            "contact_domain": false,
+            "step_assist": false,
+            "actuator_response": true,
+            "stand_still_lin_vel": true,
+            "locomotion_posture_floor": true
+          }
+        },
+        "actuator_response_evidence": {
+          "status": "authenticated",
+          "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+          "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+          "validated_file_count": 4
+        },
+        "design_sha256": "1a7e34747d3c76f0dee620ea1f25d4ae8a800137c36c0960c9fa88152460ffb4",
+        "environment_stage": "speed"
+      }
+    },
+    "4096": {
+      "checks": {
+        "exact_only_two_population_plan_fields": true,
+        "unchanged_worker_fields_except_population_and_bundle_identity": true,
+        "all25_original_groups_present": true,
+        "all_environments_accounted": true,
+        "direct_and_legacy_partition": true,
+        "exact_policy_and_physics": true,
+        "exact_rollout_and_minibatch": true,
+        "CPU_design_preflight": true
+      },
+      "changed_plan_fields": [
+        "allowed_num_envs",
+        "default_num_envs"
+      ],
+      "plan_sha256": "f062ad57ee7fa7af4db32991ce7b54b07e620d95cd07e2c3adcdbb65cf63b7e6",
+      "worker_contract_sha256": "0a3ea7b09dd801db4910dd8c3864609cc4dd050e1220903c84cd835fe8619546",
+      "population": {
+        "stand_mid": {
+          "total": 409,
+          "direct": 409,
+          "ramped": 0
+        },
+        "stand_mid_birth": {
+          "total": 205,
+          "direct": 205,
+          "ramped": 0
+        },
+        "stand_low": {
+          "total": 307,
+          "direct": 307,
+          "ramped": 0
+        },
+        "stand_low_birth": {
+          "total": 205,
+          "direct": 205,
+          "ramped": 0
+        },
+        "stand_high": {
+          "total": 307,
+          "direct": 307,
+          "ramped": 0
+        },
+        "stand_high_birth": {
+          "total": 205,
+          "direct": 205,
+          "ramped": 0
+        },
+        "forward_low": {
+          "total": 246,
+          "direct": 123,
+          "ramped": 123
+        },
+        "forward_mid": {
+          "total": 164,
+          "direct": 82,
+          "ramped": 82
+        },
+        "forward_high": {
+          "total": 123,
+          "direct": 62,
+          "ramped": 61
+        },
+        "backward_low": {
+          "total": 246,
+          "direct": 123,
+          "ramped": 123
+        },
+        "backward_mid": {
+          "total": 164,
+          "direct": 82,
+          "ramped": 82
+        },
+        "backward_high": {
+          "total": 123,
+          "direct": 62,
+          "ramped": 61
+        },
+        "turn_left": {
+          "total": 225,
+          "direct": 113,
+          "ramped": 112
+        },
+        "turn_right": {
+          "total": 225,
+          "direct": 113,
+          "ramped": 112
+        },
+        "start_stop_0_5": {
+          "total": 164,
+          "direct": 82,
+          "ramped": 82
+        },
+        "start_stop_1_0": {
+          "total": 123,
+          "direct": 62,
+          "ramped": 61
+        },
+        "start_stop_3_0": {
+          "total": 123,
+          "direct": 62,
+          "ramped": 61
+        },
+        "curve_left": {
+          "total": 102,
+          "direct": 51,
+          "ramped": 51
+        },
+        "curve_right": {
+          "total": 102,
+          "direct": 51,
+          "ramped": 51
+        },
+        "forward_edge3": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "forward_edge3_start": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "backward_edge3": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "backward_edge3_start": {
+          "total": 41,
+          "direct": 21,
+          "ramped": 20
+        },
+        "turn_left_edge4": {
+          "total": 82,
+          "direct": 41,
+          "ramped": 41
+        },
+        "turn_right_edge4": {
+          "total": 82,
+          "direct": 41,
+          "ramped": 41
+        }
+      },
+      "training_frames_per_update": 393216,
+      "minibatch_samples": 98304,
+      "static_preflight": {
+        "status": "static_passed",
+        "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/population_coverage_candidate001/envs_4096/config/design.json",
+        "stage": "speed",
+        "role": "train",
+        "seed": 191019,
+        "block_index": 0,
+        "num_envs": 4096,
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "runtime_expected": {
+          "physics_dt": 0.001,
+          "policy_dt": 0.02,
+          "pc_control_dt": 0.001,
+          "decimation": 20,
+          "leg_kp": 160.0,
+          "leg_kd": 2.5,
+          "wheel_velocity_p": 0.6,
+          "seed": 191019,
+          "action_difference_reference_dt": 0.02,
+          "precision_tracking": true,
+          "actuator_response": {
+            "enabled": true,
+            "schema": "chassis-actuator-response",
+            "version": 1,
+            "joint_names": [
+              "L_joint1",
+              "LL_joint1",
+              "L_joint3",
+              "R_joint1",
+              "RR_joint1",
+              "R_joint3"
+            ],
+            "gain": 1.0,
+            "armature": [
+              0.0,
+              0.0,
+              0.0038669808882082915,
+              0.0,
+              0.0,
+              0.003818453742910773
+            ],
+            "frictionloss": [
+              0.0,
+              0.0,
+              0.049507400779663126,
+              0.0,
+              0.0,
+              0.06957712078102896
+            ],
+            "damping": [
+              0.0,
+              0.0,
+              0.0006085318417485766,
+              0.0,
+              0.0,
+              0.0003429025559035852
+            ],
+            "time_constant_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "locomotion_quality_rewards": {
+            "stand_still_lin_vel": {
+              "version": "scut-flat-linear-velocity-v2",
+              "weight": -2.0,
+              "command_threshold_m_s": 0.1,
+              "exclude_world_reference_motion": true
+            },
+            "locomotion_posture": {
+              "version": "bounded-posture-floor-v1",
+              "pitch_scale_floor": 3.0,
+              "roll_scale_floor": 4.0
+            }
+          },
+          "modules": {
+            "usb_transport": false,
+            "command_transport": false,
+            "signal_perturbations": false,
+            "dynamics_randomization": false,
+            "contact_domain": false,
+            "step_assist": false,
+            "actuator_response": true,
+            "stand_still_lin_vel": true,
+            "locomotion_posture_floor": true
+          }
+        },
+        "actuator_response_evidence": {
+          "status": "authenticated",
+          "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+          "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+          "validated_file_count": 4
+        },
+        "design_sha256": "e50b6b2a41bf179abcc371a39e5b534cafed7a413e19af903ee089a1a3b9721e",
+        "environment_stage": "speed"
+      }
+    }
+  },
+  "candidate_adopted": false,
+  "native_steps": 0,
+  "optimizer_updates": 0,
+  "scope": "CPU population/configuration comparison only; no throughput, memory capacity or behavior qualification.",
+  "before_any_adoption": "Need authenticated population-changing full-state resume, exact cumulative transition accounting, and measured native capacity after all current owners exit; current trainer rejects a changed num_envs."
+}

@@ -1,0 +1,68 @@
+{
+  "source_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "source_of_semantics": "metadata_matched_local_deployment_reference",
+  "semantics_recovered_from_graph": false,
+  "original_training_contract_authenticated": false,
+  "reference_yaml_path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml",
+  "reference_yaml_sha256": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063",
+  "reference_model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+  "reference_asset_manifest_sha256": "088e699266fa3dc666379a911b23a30e2038ab3d7f113cab4dcd4bdd0a14279b",
+  "reference_model_file_sha256": "11b764bee0ea2e6f51c7dad25cff464efaab24e20a90235e96299c51858e765e",
+  "reference_model_bytes_equal_to_user_onnx": false,
+  "user_confirmed_policy_hz": 50,
+  "candidate_observation_terms": [
+    "index=0 path=/wheel_leg/rl/input/command take=x name=command/forward clip=-100:100",
+    "index=1 path=/wheel_leg/rl/input/command take=y name=command/lateral clip=-100:100",
+    "index=2 path=/wheel_leg/rl/input/command take=z name=command/yaw clip=-100:100",
+    "index=3 path=/wheel_leg/rl/input/height scale=5.0 name=height clip=-100:100",
+    "index=4 path=/wheel_leg/rl/input/angular_velocity take=vec3 scale=0.5 name=angular_velocity clip=-100:100",
+    "index=7 path=/wheel_leg/rl/input/projected_gravity take=vec3 name=projected_gravity clip=-100:100",
+    "index=10 type=joint_pos joints=left_hip_joint,left_knee_joint,right_hip_joint,right_knee_joint relative=true name=joint_position clip=-100:100",
+    "index=14 type=joint_pos joints=left_wheel,right_wheel zero=true name=joint_position_wheels clip=-100:100",
+    "index=16 type=joint_vel joints=left_hip_joint,left_knee_joint,right_hip_joint,right_knee_joint,left_wheel,right_wheel scale=0.1 name=joint_velocity clip=-100:100",
+    "index=22 type=last_action indices=0,1,2,3,4,5 name=previous_action clip=-100:100",
+    "index=28 type=constant value=1,0,0,0,0,0,0 name=context clip=-100:100"
+  ],
+  "candidate_action_terms": [
+    "index=0 output=/wheel_leg/rl/target/left_hip_joint scale=0.25 clip=-0.75:0.75",
+    "index=1 output=/wheel_leg/rl/target/left_knee_joint scale=0.25 clip=-0.75:0.75",
+    "index=2 output=/wheel_leg/rl/target/right_hip_joint scale=0.25 clip=-0.75:0.75",
+    "index=3 output=/wheel_leg/rl/target/right_knee_joint scale=0.25 clip=-0.75:0.75",
+    "index=4 output=/wheel_leg/rl/target/left_wheel scale=10.0 clip=-90:90",
+    "index=5 output=/wheel_leg/rl/target/right_wheel scale=10.0 clip=-90:90"
+  ],
+  "candidate_default_joint_pos": {
+    "left_hip_joint": -0.42,
+    "left_knee_joint": 0.13742282595395358,
+    "right_hip_joint": 0.42,
+    "right_knee_joint": -0.1374155762580851,
+    "left_wheel": 0.0,
+    "right_wheel": 0.0
+  },
+  "candidate_joint_names": [
+    "left_hip_joint",
+    "left_knee_joint",
+    "right_hip_joint",
+    "right_knee_joint",
+    "left_wheel",
+    "right_wheel"
+  ],
+  "candidate_obs_clip": 100.0,
+  "current_local_training": {
+    "contract_path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot020/contract.json",
+    "policy_dt": 0.005,
+    "physics_dt": 0.005,
+    "asset_directory": "model/纯底盘_v6_232mm_stop105/urdf",
+    "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "context_last_element": "reference.elapsed.clamp(0,5) via build_manual35"
+  },
+  "differences_requiring_resolution": [
+    "50 Hz source versus 200 Hz current local policy",
+    "paired_branch107 model specification differs from current stop105 asset",
+    "reference fixed flat context versus current manual35 elapsed context",
+    "reference target winding/hinge constraints require explicit simulation parity"
+  ],
+  "training_ready": false,
+  "PPO_updates": 0
+}

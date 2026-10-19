@@ -1,0 +1,71 @@
+{
+  "schema": "flat-static-factorial-diagnostic-completion-v1",
+  "passed": true,
+  "native_environment_steps": 1000,
+  "optimizer_updates_performed": 0,
+  "checkpoint_files_written": 0,
+  "behavior_qualified": false,
+  "review_sha256": "392da6170bad7791d8ab4caa8e1528bb46ecbceac55ca8ec993f4adb096d3a98",
+  "diagnostics": {
+    "static_mean_sampling960_native002": {
+      "audit_sha256": "aa3d5a994212743d565b1ff6444f83c5d171306a75762430e3936bdd4a8d5ee8",
+      "traces_sha256": "bf96e94cd1924fb50e2cc5fa991598745ddd75e9e0718c986ba3fa2d2f045be2",
+      "elapsed_s": 46.63456310998299,
+      "all288_lanes500frames": true,
+      "effective_std": {
+        "896": [
+          0.013401557691395283,
+          0.010291481390595436,
+          0.012677429243922234,
+          0.010584824718534946,
+          0.03364237770438194,
+          0.034173719584941864
+        ],
+        "960": [
+          0.013401557691395283,
+          0.010291481390595436,
+          0.012677429243922234,
+          0.010584824718534946,
+          0.03364237770438194,
+          0.034173719584941864
+        ]
+      },
+      "tensorboard_events": {
+        "events.out.tfevents.1792374756.ZGZ.2006605.0": "f8482f27fa1fb311efd597ee87e454cf22bc3ffc40bbe4d6c00e33ea2115bbda"
+      }
+    },
+    "static_mean_sampling960_1k_native001": {
+      "audit_sha256": "e782bf9fe199767ec2923b24e8a5f752a79891f7587b6c6c61ec45dc199931e3",
+      "traces_sha256": "f2105822633157a27cb43dfeb7442c966538b3bb623a707ffe2c5fadc6eb30a6",
+      "elapsed_s": 185.7481335369812,
+      "all288_lanes500frames": true,
+      "effective_std": {
+        "896": [
+          0.013401557691395283,
+          0.010291481390595436,
+          0.012677429243922234,
+          0.010584824718534946,
+          0.03364237770438194,
+          0.034173719584941864
+        ],
+        "960": [
+          0.013401557691395283,
+          0.010291481390595436,
+          0.012677429243922234,
+          0.010584824718534946,
+          0.03364237770438194,
+          0.034173719584941864
+        ]
+      },
+      "tensorboard_events": {
+        "events.out.tfevents.1792374960.ZGZ.2007456.0": "31302ab1747a9863e573ee1c1e0bdd8a01bf5de6792a2381a609b66b202fd7d3"
+      }
+    }
+  },
+  "failed_attempt_preserved": {
+    "path": "runs/flat_base_20261019/static_mean_sampling960_native001/audit.json",
+    "sha256": "85e3f456b20b44c3791b0c73eae1367e3a610bdd658826b2f81ca5144aa0d5be",
+    "native_environment_steps": 0,
+    "reason": "Initial sigma values were incorrectly assumed to equal checkpoint effective sigma; corrected without changing training state"
+  }
+}

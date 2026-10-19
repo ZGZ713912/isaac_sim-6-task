@@ -1,0 +1,98 @@
+"""Cause overlap, window/height ownership and learning-AST preservation."""
+from copy import deepcopy
+import ast
+from pathlib import Path
+import torch
+
+HERE=Path(__file__).resolve().parent
+source=(HERE/'train_flat_base.py').read_text()
+node=next(n for n in ast.parse(source).body if isinstance(n,ast.ClassDef) and n.name=='FlatTerminationMetrics')
+ns={};exec(compile(ast.Module(body=[node],type_ignores=[]),'<native-cause-logger>','exec'),ns)
+Metrics=ns['FlatTerminationMetrics']
+
+
+def data():
+    x=dict(commands=torch.tensor([[0.,0.,.23],[0.,0.,.305],[0.,0.,.42]],dtype=torch.float64),
+           terminated=torch.tensor([True,False,True]),done=torch.tensor([True,True,True]),
+           success=torch.tensor([False,False,False]))
+    x['reasons']={name:torch.zeros(3,dtype=torch.bool) for name in Metrics.reasons}
+    x['reasons']['fall'][0]=True;x['reasons']['nonwheel_contact'][0]=True
+    x['reasons']['boundary'][1]=True;x['reasons']['knee'][2]=True
+    return x
+
+
+def example():
+    m=Metrics(3,'cpu');d=data()
+    m.observe(d,torch.tensor([False,True,True]),torch.tensor([True,False,False]))
+    return m,d
+
+
+def test_overlapping_native_causes_are_retained_without_double_counting_terminated():
+    m,_=example();c=m.counts[0].sum((0,1));values=dict(zip(m.flags,c.tolist()))
+    assert values['terminated']==2 and values['done']==3 and values['success']==0
+    assert values['fall']==1 and values['nonwheel_contact']==1 and values['knee']==1
+    assert values['boundary']==1
+
+
+def test_boundary_done_is_not_recorded_as_a_failure_termination():
+    m,_=example();assert m.counts[0,1,1,m.flags.index('done')]==1
+    assert m.counts[0,1,1,m.flags.index('terminated')]==0
+    assert m.counts[0,1,1,m.flags.index('boundary')]==1
+
+
+def test_disjoint_first_and_after_windows_exactly_partition_whole_counts():
+    m,_=example();assert torch.equal(m.counts[0],m.counts[1]+m.counts[2])
+    assert int(m.counts[1].sum())==4 and int(m.counts[2].sum())==5
+
+
+def test_height_is_reclassified_after_each_reset_frame():
+    m,d=example();d['commands'][:,2]=torch.tensor([.42,.23,.305]);all_frames=torch.ones(3,dtype=torch.bool)
+    m.observe(d,all_frames,~all_frames)
+    term=m.counts[0,:,:,m.flags.index('terminated')].sum(1)
+    assert term.tolist()==[1,1,2]
+
+
+def test_observation_does_not_mutate_inputs_or_sampling_rng():
+    m=Metrics(3,'cpu');d=data();before=deepcopy(d);rng=torch.get_rng_state().clone()
+    m.observe(d,torch.tensor([False,True,True]),torch.tensor([True,False,False]))
+    assert torch.equal(rng,torch.get_rng_state())
+    assert all(torch.equal(d[k],before[k]) for k in ('commands','terminated','done','success'))
+    assert all(torch.equal(d['reasons'][k],before['reasons'][k]) for k in Metrics.reasons)
+
+
+def test_logging_uses_integer_counts_native_steps_and_respects_lane_views():
+    m,_=example();rows={}
+    class Writer:
+        def add_scalar(self,tag,value,step):
+            assert tag not in rows;rows[tag]=(value,step)
+    m.log(Writer(),'forward_high/legacy_ramp',torch.tensor([True,False,False]),1265)
+    assert len(rows)==3*3*12
+    assert rows['FlatTermination/whole/forward_high/legacy_ramp/height_low/terminated_events']==(1,1265)
+    assert rows['FlatTermination/whole/forward_high/legacy_ramp/height_nominal/boundary_events']==(0,1265)
+    assert all(type(v) is int and n==1265 for v,n in rows.values())
+
+
+def test_clear_does_not_carry_an_old_failure_into_the_next_update():
+    m,_=example();m.clear();assert torch.count_nonzero(m.counts)==0
+
+
+def test_all_old_training_AST_statements_are_exact_after_removing_six_diagnostic_nodes():
+    tree=ast.parse(source);parent=ast.parse((HERE/'frozen_parent_train_flat_base.py').read_text());removed=[]
+    class Strip(ast.NodeTransformer):
+        def visit_ClassDef(self,node):
+            if node.name=='FlatTerminationMetrics':removed.append('class');return None
+            return self.generic_visit(node)
+        def visit_Assign(self,node):
+            if any((isinstance(t,ast.Name) and t.id=='termination_metrics') or
+                   (isinstance(t,ast.Subscript) and isinstance(t.value,ast.Name) and t.value.id=='report'
+                    and isinstance(t.slice,ast.Constant) and t.slice.value=='termination_metrics_contract') for t in node.targets):
+                removed.append('assignment');return None
+            return self.generic_visit(node)
+        def visit_Expr(self,node):
+            call=node.value
+            if isinstance(call,ast.Call) and isinstance(call.func,ast.Attribute) and isinstance(call.func.value,ast.Name) and call.func.value.id=='termination_metrics':
+                removed.append(call.func.attr);return None
+            return self.generic_visit(node)
+    tree=Strip().visit(tree)
+    assert len(removed)==6
+    assert ast.dump(tree,include_attributes=False)==ast.dump(parent,include_attributes=False)

@@ -1,0 +1,126 @@
+{
+  "schema": "flat-teacher-loss-ablation-plan-candidate-v1",
+  "recorded_at": "2026-10-19T07:36:17.394494+00:00",
+  "passed": true,
+  "checks": {
+    "exact_two_declared_fields": true,
+    "only_teacher_coefficient_changed": true,
+    "all130_live_execution_sources_unchanged": true,
+    "four096_CPU_design_preflight": true
+  },
+  "parent_plan_file": "reports/flat_base_continuation_20261019/population_coverage_candidate001/plan_4096.json",
+  "parent_plan_sha256": "f062ad57ee7fa7af4db32991ce7b54b07e620d95cd07e2c3adcdbb65cf63b7e6",
+  "candidate_plan_file": "reports/flat_base_continuation_20261019/teacher_ablation_candidate001/plan_teacher0.json",
+  "candidate_plan_sha256": "ea52ab10b5277a46b17e475fabf2ac93416f23c9961d2e817bfb266c69410ba2",
+  "changed_plan_fields": [
+    "additional_critic_warmup_updates",
+    "teacher_anchor"
+  ],
+  "static_preflight": {
+    "status": "static_passed",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/teacher_ablation_candidate001/config4096/design.json",
+    "stage": "speed",
+    "role": "train",
+    "seed": 191019,
+    "block_index": 0,
+    "num_envs": 4096,
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "runtime_expected": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.001,
+      "decimation": 20,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "seed": 191019,
+      "action_difference_reference_dt": 0.02,
+      "precision_tracking": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "step_assist": false,
+        "actuator_response": true,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "design_sha256": "1c4ac3cfb8266bca6790ac040a8ecb71d46ec794b4187c357b2e17f59b67a7a3",
+    "environment_stage": "speed"
+  },
+  "unchanged": "Reward and all costs, population/groups/height probabilities, actor architecture, std, 50Hz/1000Hz clocks, LR, gamma/GAE, PPO epochs/minibatches and acceptance thresholds",
+  "candidate_adopted": false,
+  "native_steps": 0,
+  "optimizer_updates": 0,
+  "scope": "Future bounded learning experiment only; coefficient0 regularizer and no extra critic warmup. No behavior benefit established."
+}

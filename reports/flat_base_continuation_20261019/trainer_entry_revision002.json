@@ -1,0 +1,7 @@
+{
+  "schema": "flat-trainer-entry-revision-v1",
+  "parent_checkpoint_sha256": "cdf134b15188807ee060fe18a5b77c6a0e9e4e7197698d71c31e751fb2271fdc",
+  "old_entry_sha256": "3dbe8001146d8b3d4a17cff8265296ec837161445f541d91240b7d68b40fb89e",
+  "new_entry_sha256": "dfe815271c8bff7304baa958c51b32f65b2f8fd2948519f58d16332f706c54df",
+  "reason": "Trainer-only resume fix: explicitly pass load_cfg=None to installed PPO.load; restore serialized RNG and clocks; initialize consumption from parent learning count; gate larger blocks on matching behavior. PPO and all environment/control/reward sources unchanged. Pilot004 failed before any optimizer call."
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "flat-stationary-v14-production-contract-cpu-v1",
+  "checks": {
+    "static512_worker_design_passed": true,
+    "same_actor_optimizer_teacher_sampling": true,
+    "only_position_band_in_reward": true,
+    "exact_schema_only_source_change": true,
+    "parent960_preserved": true,
+    "only10_additional_critic_updates": true,
+    "actual_saved_std_finite": true,
+    "unchanged_acceptance": true
+  },
+  "passed": true,
+  "static_preflight": {
+    "status": "static_passed",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261019/stationary_v14_preflight001/config/design.json",
+    "stage": "speed",
+    "role": "train",
+    "seed": 191019,
+    "block_index": 0,
+    "num_envs": 512,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.005,
+      "decimation": 4,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "seed": 191019,
+      "action_difference_reference_dt": 0.02,
+      "precision_tracking": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "step_assist": false,
+        "actuator_response": true,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "design_sha256": "8b91b83ceb32a96e4702b0e227d06b332ff9c350b079db136d16b8b2d0f3a214",
+    "environment_stage": "speed"
+  },
+  "plan_sha256": "7fb7374b3e2251472c4cc6fc8d2f7fe7242a153a2f346ce7bf6744cfa07b1ab7",
+  "parent_checkpoint_sha256": "c85e20bc12c061679ae052cc705243cbeeb6cfdcb3668937e1a073d7d981c9d3",
+  "effective_std_policy_order": [
+    0.013401557691395283,
+    0.010291481390595436,
+    0.012677429243922234,
+    0.010584824718534946,
+    0.03364237770438194,
+    0.034173719584941864
+  ],
+  "native_environment_steps": 0,
+  "optimizer_updates_performed": 0,
+  "behavior_qualified": false
+}

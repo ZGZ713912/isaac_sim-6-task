@@ -1,0 +1,74 @@
+{
+  "schema": "flat-feedback832-source-action-capacity-audit-v1",
+  "recorded_at": "2026-10-19T00:45:50.570244+00:00",
+  "checkpoint_sha256": "31d0cc50c2b39b2a11753389b92603da51c8326c44297fdda3abd9a3aa69ff02",
+  "trace_sha256": "a2bc2977e424180dcbe7b105c82fe438905152ece25bada289cb33165301141d",
+  "checks": {
+    "all_selected_frames_full_feedback_gate": true,
+    "source_same_input_action_within_bound_on_all_selected_frames": true,
+    "all_four_high_cases_observed": true
+  },
+  "passed": true,
+  "cases": {
+    "forward_3": {
+      "selected_recorded_frames": 763,
+      "necessary_original_action_cancellation_within_bound_fraction": 1.0,
+      "max_command_to_available_feedback_bound_ratio": 0.3618279695510864,
+      "feedback_saturation_fraction_per_axis": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "normalized_teacher_action_difference_RMSE": 1.6563072204589844
+    },
+    "backward_3": {
+      "selected_recorded_frames": 360,
+      "necessary_original_action_cancellation_within_bound_fraction": 1.0,
+      "max_command_to_available_feedback_bound_ratio": 0.24028493463993073,
+      "feedback_saturation_fraction_per_axis": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "normalized_teacher_action_difference_RMSE": 1.040470838546753
+    },
+    "rotate_4": {
+      "selected_recorded_frames": 12,
+      "necessary_original_action_cancellation_within_bound_fraction": 1.0,
+      "max_command_to_available_feedback_bound_ratio": 0.32518669962882996,
+      "feedback_saturation_fraction_per_axis": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "normalized_teacher_action_difference_RMSE": 1.3864046335220337
+    },
+    "rotate_4_reverse": {
+      "selected_recorded_frames": 11,
+      "necessary_original_action_cancellation_within_bound_fraction": 1.0,
+      "max_command_to_available_feedback_bound_ratio": 0.28088489174842834,
+      "feedback_saturation_fraction_per_axis": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "normalized_teacher_action_difference_RMSE": 1.6844885349273682
+    }
+  },
+  "used_for_optimization": false,
+  "optimizer_updates_performed": 0,
+  "behavior_qualified": false,
+  "limitations": "This necessary same-input action-bound check excludes this particular teacher-target bound obstruction; it does not establish a sufficient control policy or a unique cause of behavior."
+}

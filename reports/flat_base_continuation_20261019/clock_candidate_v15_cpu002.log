@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "checks": {
+    "candidate_static_preflight": true,
+    "policy50_physics1000_feedback1000": true,
+    "all_other_plan_fields_retained": true,
+    "no_policy_time_discount_or_rollout_change": true,
+    "original200hz_plans_still_valid": true,
+    "reject_bad_physics": true,
+    "reject_bad_policy": true,
+    "reject_old_schema_cannot_enable_1khz": true,
+    "reject_unregistered_control": true,
+    "reject_bad_control_digest": true,
+    "reject_changed_reward": true,
+    "reject_changed_sampling": true,
+    "reject_changed_gamma": true,
+    "reject_changed_rollout": true,
+    "reject_changed_rate": true,
+    "reject_wrong_parent_control": true,
+    "reject_unchanged_clock_as_migration": true
+  },
+  "timing_transition": {
+    "schema": "flat-feedback-clock-transition-v1",
+    "old": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.005,
+      "decimation": 4
+    },
+    "new": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.001,
+      "decimation": 20
+    },
+    "parent_control_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+    "new_control_sha256": "cc30b2b0572999224c8feb79ffa7afb3df1b8a28800bca4a153663b9ea8d4bf8",
+    "changed_plan_fields": [
+      "control_file",
+      "control_sha256",
+      "physics_dt",
+      "schema",
+      "training_scope"
+    ],
+    "policy_clock_unchanged": true,
+    "gamma_gae_and_rollout_unchanged": true,
+    "gains_geometry_actuators_unchanged": true,
+    "saved_models_optimizer_and_RNG": "exact before fresh physical reset",
+    "hardware_equivalence_verified": false
+  }
+}

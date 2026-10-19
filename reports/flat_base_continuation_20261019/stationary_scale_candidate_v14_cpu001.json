@@ -1,0 +1,64 @@
+{
+  "schema": "flat-stationary-position-scale-candidate-v1",
+  "checks": {
+    "only_four_declared_plan_fields": true,
+    "only_position_band_in_stationary": true,
+    "candidate_band_equals_acceptance": true,
+    "failure_cost_still_covers_discounted_cap": true,
+    "all_probe_distances_below_candidate_cap": true,
+    "density_and_slope_strengthened_100over9": true
+  },
+  "passed": true,
+  "changed_plan_fields": [
+    "additional_critic_warmup_updates",
+    "schema",
+    "stationary_tracking",
+    "training_scope"
+  ],
+  "candidate_plan_sha256": "7fb7374b3e2251472c4cc6fc8d2f7fe7242a153a2f346ce7bf6744cfa07b1ab7",
+  "probe_displacements_m": [
+    0.014999999664723873,
+    0.029999999329447746,
+    0.05999999865889549,
+    0.12999999523162842
+  ],
+  "cost_shape": {
+    "current": {
+      "band_m": 0.1,
+      "density": [
+        -0.02250000089406967,
+        -0.09000000357627869,
+        -0.36000001430511475,
+        -1.6899999380111694
+      ],
+      "density_derivative_per_m": [
+        -3.0,
+        -6.0,
+        -12.0,
+        -26.0
+      ],
+      "saturation_distance_m": 0.5
+    },
+    "candidate": {
+      "band_m": 0.03,
+      "density": [
+        -0.25,
+        -1.0,
+        -4.0,
+        -18.77777671813965
+      ],
+      "density_derivative_per_m": [
+        -33.33333206176758,
+        -66.66666412353516,
+        -133.3333282470703,
+        -288.8888854980469
+      ],
+      "saturation_distance_m": 0.15
+    }
+  },
+  "source_adopted": false,
+  "native_environment_steps": 0,
+  "optimizer_updates_performed": 0,
+  "behavior_qualified": false,
+  "decision": "Only the position normalization scale changes to3cm, with10 critic-only adaptation updates; all other rewards, clocks, sampling, actor and PPO retained. Hypothesis, not a demonstrated improvement; no evaluation samples fit weights."
+}

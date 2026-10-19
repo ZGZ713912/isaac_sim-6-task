@@ -1,0 +1,36 @@
+{
+  "schema": "flat-576-parent-composition-CPU-v1",
+  "checks": {
+    "critic_state_dict": true,
+    "torch_rng_state": true,
+    "cuda_rng_state": true,
+    "env_generator_state": true,
+    "optimizer_groups_exact_current": true,
+    "non_command_actor_exact_current": true,
+    "command_weights_exact448": true,
+    "all_other_Adam_slots_exact_current": true,
+    "four_command_Adam_slots_exact448": true,
+    "lifetime_counters_and_consumption_exact_current": true,
+    "selected_command_learning_count44": true,
+    "mean_exact_native_counterfactual_composition": true
+  },
+  "passed": true,
+  "actual_observation_samples": 3072,
+  "new_optimizer_updates": 0,
+  "qualification_eligible": false,
+  "composition": {
+    "command_weights_and_Adam": "restored_from_declared_command_parent",
+    "replaced_tensors": [
+      "mlp.command.residual.0.weight",
+      "mlp.command.residual.0.bias",
+      "mlp.command.residual.2.weight",
+      "mlp.command.residual.2.bias"
+    ],
+    "feedback_critic_std_other_Adam_RNG_lifetime_counters": "current_parent_exact",
+    "prior_consumption": "retained_without_refund",
+    "current_parent_actor_restore": false,
+    "command_branch_actor_updates": 44
+  },
+  "parent_checkpoint_sha256": "f86aa34c16b0de0ee20c7d8ff5b7fb65978672b999c4adea8f71fa29a21382b5",
+  "command_checkpoint_sha256": "334bbee9a258a55d03be273f0c86d356b58ddcca6a8eddd4c1ebb6ad1c1ceaa2"
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "flat-command-residual-prototype-v1",
+  "architecture": "original-feedback-command-residual-v1",
+  "source_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "new_optimizer_updates": 0,
+  "scope": "CPU numerical and current RMCS loader only; nonzero branch is a synthetic fixture, not a learned policy",
+  "behavior_qualified": false,
+  "hardware_motion_started": false,
+  "residual_parameters": 358,
+  "samples": 3520,
+  "invariant": {
+    "original_feedback": "exact_source_tensors",
+    "command_only_inputs": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "residual_parameters": 358,
+    "bounded_action_offsets": [
+      0.20000000298023224,
+      0.20000000298023224,
+      0.20000000298023224,
+      0.20000000298023224,
+      0.75,
+      0.75
+    ]
+  },
+  "variants": {
+    "zero_initialization": {
+      "onnx_sha256": "7850cc14202daeed8c9623646b02d7f061fa261ab0169558bf75a800c5b7893e",
+      "pytorch_onnx_max_abs_error": 2.86102294921875e-06,
+      "cpp_python_ort_max_abs_error": 1.430511474609375e-06,
+      "exact_original_at_initialization": true
+    },
+    "nonzero_numerical_fixture": {
+      "onnx_sha256": "dde0b4583878e16d85a01738e559913f4b6bab9f781172b03412f3e75b1adaec",
+      "pytorch_onnx_max_abs_error": 2.86102294921875e-06,
+      "cpp_python_ort_max_abs_error": 1.430511474609375e-06,
+      "exact_original_at_initialization": null
+    }
+  },
+  "negative_contract_tests": {
+    "wrong_obs_size": {
+      "rejected": true,
+      "error": "model input 'obs' has 35 observations; vehicle configuration requires 34"
+    },
+    "wrong_model_spec": {
+      "rejected": true,
+      "error": "wheel_leg_v7 model_spec_sha256 does not match the deployed paired-107 contract"
+    },
+    "wrong_winding": {
+      "rejected": true,
+      "error": "model leg_winding_version metadata does not match the configured target contract"
+    }
+  },
+  "loader_source_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/cpp/flat_base_rmcs_check.cpp": "9c0f6e99222d464e560c82b5741068ef3e1581551429e681cee1f4522d6913fb",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/onnx_runtime.cpp": "bec2b53639e93d1b50946e7e40912f77c8b3f2013d444866c37e088063a5fcf6",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/policy_model.cpp": "27c0f87fd1c4b8839fb7d4720dd424cf5a196cbf7a20394c1cc8b539376df9a4"
+  }
+}

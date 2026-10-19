@@ -1,0 +1,46 @@
+{
+  "schema": "flat-separated-v3-unadopted-identity-cpp-interface-v1",
+  "recorded_at": "2026-10-19T00:27:10.058502+00:00",
+  "checks": {
+    "identity_fork_mean_exact_on_recorded_inputs": true,
+    "current_cpp_loader_source_matches": true,
+    "pytorch_python_ORT_within_existing_tolerance": true,
+    "cpp_python_ORT_within_existing_tolerance": true,
+    "all_three_bad_contracts_rejected": true
+  },
+  "passed": true,
+  "candidate_sha256": "144d80e978b557d469c7297dab85fecc0873155ded9819401737af69ca91a3e9",
+  "parent_checkpoint_sha256": "31d0cc50c2b39b2a11753389b92603da51c8326c44297fdda3abd9a3aa69ff02",
+  "temporary_model_sha256": "7062b8cc36ae7a1f17332c49d86a946a2a5e0118c7ddf19762644506cabfad46",
+  "cpp_binary_sha256": "d8f1b92957acffae4efd41be0eb28533478b9f51cf8d80568307c03a1b959a6d",
+  "current_cpp_source_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/cpp/flat_base_rmcs_check.cpp": "9c0f6e99222d464e560c82b5741068ef3e1581551429e681cee1f4522d6913fb",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/onnx_runtime.cpp": "bec2b53639e93d1b50946e7e40912f77c8b3f2013d444866c37e088063a5fcf6",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/policy_model.cpp": "27c0f87fd1c4b8839fb7d4720dd424cf5a196cbf7a20394c1cc8b539376df9a4"
+  },
+  "source_rmcs_yaml_sha256": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063",
+  "verification_samples": 2560,
+  "pytorch_python_ORT_max_abs_error": 1.0728836059570312e-06,
+  "cpp_python_ORT_max_abs_error": 8.344650268554688e-07,
+  "negative_contracts": {
+    "wrong_obs_size": {
+      "rejected": true,
+      "error": "model input 'obs' has 35 observations; vehicle configuration requires 34"
+    },
+    "wrong_model_spec": {
+      "rejected": true,
+      "error": "wheel_leg_v7 model_spec_sha256 does not match the deployed paired-107 contract"
+    },
+    "wrong_winding": {
+      "rejected": true,
+      "error": "model leg_winding_version metadata does not match the configured target contract"
+    }
+  },
+  "model_file_retained": false,
+  "checkpoint_files_written": 0,
+  "adopted": false,
+  "native_optimizer_updates": 0,
+  "native_environment_steps": 0,
+  "behavior_qualified": false,
+  "hardware_motion_started": false
+}

@@ -1,0 +1,114 @@
+{
+  "schema": "flat-ppo-diagnostics-candidate-cpu-v1",
+  "recorded_at": "2026-10-19T00:04:33.706867+00:00",
+  "source_sha256": {
+    "reports/flat_base_continuation_20261019/training_plan_revision012_source/src/wheeled_algo/anchored_ppo.py": "cc154ac64772bd00c1efa9a3ff9c9deecea3b07538e338710346452c63bd4560",
+    "src/wheeled_algo/anchored_ppo.py": "6265f957a4f99229b0c60352764da8a27af29302767654ebac27dea69dca9a3c"
+  },
+  "cases": [
+    {
+      "actor_enabled": false,
+      "teacher_coefficient": 0.0,
+      "checks": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "optimizer_exact": true,
+        "rng_exact": true,
+        "old_six_losses_exact": true,
+        "six_new_metrics_finite": true,
+        "rates_read_from_actual_adam": true,
+        "clip_and_gradient_ranges": true,
+        "only_declared_feedback_may_change": true,
+        "critic_adam_moments_exercised": true
+      },
+      "passed": true,
+      "final_metrics": {
+        "actor_gradient_norm": 0.0,
+        "actor_learning_rate": 0.0001,
+        "approx_policy_kl": 0.0,
+        "critic_gradient_norm": 0.8697423748672009,
+        "critic_learning_rate": 0.0005,
+        "policy_clip_fraction": 0.0
+      }
+    },
+    {
+      "actor_enabled": false,
+      "teacher_coefficient": 0.02,
+      "checks": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "optimizer_exact": true,
+        "rng_exact": true,
+        "old_six_losses_exact": true,
+        "six_new_metrics_finite": true,
+        "rates_read_from_actual_adam": true,
+        "clip_and_gradient_ranges": true,
+        "only_declared_feedback_may_change": true,
+        "critic_adam_moments_exercised": true
+      },
+      "passed": true,
+      "final_metrics": {
+        "actor_gradient_norm": 0.0,
+        "actor_learning_rate": 0.0001,
+        "approx_policy_kl": 0.0,
+        "critic_gradient_norm": 0.8697423748672009,
+        "critic_learning_rate": 0.0005,
+        "policy_clip_fraction": 0.0
+      }
+    },
+    {
+      "actor_enabled": true,
+      "teacher_coefficient": 0.0,
+      "checks": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "optimizer_exact": true,
+        "rng_exact": true,
+        "old_six_losses_exact": true,
+        "six_new_metrics_finite": true,
+        "rates_read_from_actual_adam": true,
+        "clip_and_gradient_ranges": true,
+        "only_declared_feedback_may_change": true,
+        "critic_adam_moments_exercised": true
+      },
+      "passed": true,
+      "final_metrics": {
+        "actor_gradient_norm": 13.781326532363892,
+        "actor_learning_rate": 0.0001,
+        "approx_policy_kl": 0.00010241754353046417,
+        "critic_gradient_norm": 0.8721511699259281,
+        "critic_learning_rate": 0.0005,
+        "policy_clip_fraction": 0.0
+      }
+    },
+    {
+      "actor_enabled": true,
+      "teacher_coefficient": 0.02,
+      "checks": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "optimizer_exact": true,
+        "rng_exact": true,
+        "old_six_losses_exact": true,
+        "six_new_metrics_finite": true,
+        "rates_read_from_actual_adam": true,
+        "clip_and_gradient_ranges": true,
+        "only_declared_feedback_may_change": true,
+        "critic_adam_moments_exercised": true
+      },
+      "passed": true,
+      "final_metrics": {
+        "actor_gradient_norm": 13.705469369888306,
+        "actor_learning_rate": 0.0001,
+        "approx_policy_kl": 9.563099592924118e-05,
+        "critic_gradient_norm": 0.8719841167330742,
+        "critic_learning_rate": 0.0005,
+        "policy_clip_fraction": 0.0
+      }
+    }
+  ],
+  "passed": true,
+  "adopted": false,
+  "native_training_optimizer_updates": 0,
+  "native_environment_steps": 0
+}

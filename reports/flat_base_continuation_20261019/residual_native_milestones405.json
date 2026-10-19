@@ -1,0 +1,77 @@
+{
+  "schema": "flat-original-feedback-residual-native-milestones-v1",
+  "passed": true,
+  "checks": {
+    "initial_critic_exact_parent": true,
+    "initial_critic_Adam_exact_parent": true,
+    "initial_critic_Adam_hyperparameters_exact": true,
+    "initial_std_and_Adam_exact_parent": true,
+    "initial_residual_Adam_slots_absent": true,
+    "initial_original_feedback_Adam_slots_absent": true,
+    "exact_source_feedback_at_all_milestones": true,
+    "frozen_source_std_and_buffers_at_all_milestones": true,
+    "first_critic_entire_actor_exact_initial": true,
+    "first_critic_std_Adam_exact_initial": true,
+    "first_critic_no_residual_Adam": true,
+    "first_critic_critic_changed": true,
+    "warmup_end_entire_actor_exact_initial": true,
+    "warmup_end_std_Adam_exact_initial": true,
+    "warmup_end_no_residual_Adam": true,
+    "warmup_end_critic_changed": true,
+    "first_actor_four_residual_tensors_changed": true,
+    "first_actor_residual_Adam_12_native_minibatches": true,
+    "first_actor_critic_changed_after_warmup": true,
+    "initial_actor_output_exact_original_on_352_real_inputs": true,
+    "native_pre_reset_full_restore_attestation_all_true": true,
+    "counts_consume_warmup_without_actor_advancement": true
+  },
+  "checkpoint_sha256": {
+    "parent": "5f34d2c6109665e80bc540b427c45cbc2e18567b0783fa7cafbb817c2cdbe690",
+    "initial": "0713d513811e8b0acaa0ee602ba3f819e851f2c32147836665e6a5d0aafc02b9",
+    "first_critic": "db9464959aba4cf250b6d0edb97595f7509207c7d53b18f3bb3ecc4a7f8ec79a",
+    "warmup_end": "46fe540b810935a61a9648f747ff2112f24251cf47001d6fb407704ce7968a1b",
+    "first_actor": "40fbd3fc1ff2c5c8d8358bb1a051fac608d35546af79fe598c8f61c3f0b403e1"
+  },
+  "counts": {
+    "parent": {
+      "successful_updates_total": 384,
+      "actor_updates_total": 334,
+      "active_branch_actor_updates": null,
+      "consumed_optimizer_updates_total": 385,
+      "critic_warmup_remaining": 0
+    },
+    "initial": {
+      "successful_updates_total": 384,
+      "actor_updates_total": 334,
+      "active_branch_actor_updates": 0,
+      "consumed_optimizer_updates_total": 385,
+      "critic_warmup_remaining": 20
+    },
+    "first_critic": {
+      "successful_updates_total": 385,
+      "actor_updates_total": 334,
+      "active_branch_actor_updates": 0,
+      "consumed_optimizer_updates_total": 386,
+      "critic_warmup_remaining": 19
+    },
+    "warmup_end": {
+      "successful_updates_total": 404,
+      "actor_updates_total": 334,
+      "active_branch_actor_updates": 0,
+      "consumed_optimizer_updates_total": 405,
+      "critic_warmup_remaining": 0
+    },
+    "first_actor": {
+      "successful_updates_total": 405,
+      "actor_updates_total": 335,
+      "active_branch_actor_updates": 1,
+      "consumed_optimizer_updates_total": 406,
+      "critic_warmup_remaining": 0
+    }
+  },
+  "source_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "new_branch_actor_updates_at_this_audit": 1,
+  "original_training_update_count": "unknown",
+  "scope": "native initial, first critic-only, twenty-critic warmup end and first residual actor checkpoints; not behavioral qualification",
+  "hardware_deployment_ready": false
+}

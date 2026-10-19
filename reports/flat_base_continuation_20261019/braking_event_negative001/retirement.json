@@ -1,0 +1,29 @@
+{
+  "schema": "flat-braking-event001-invalid-tag-coverage-retirement-v1",
+  "recorded_at": "2026-10-19T05:32:07.348967+00:00",
+  "valid": false,
+  "original_receipt_sha256": "1808a0fbd2ea7aacb658a0b4f6d1df03c272815b90e086b6453b48a6091cad99",
+  "source_reader_valid": true,
+  "reason": "The logger reused the case-name variable for settling metrics. Three reverse cases collapsed into one incorrect prefix. The original four checks only round-tripped the same incomplete mapping;44scalars per checkpoint is not the66required by three cases times two directions times11metrics.",
+  "preserved_event_files": [
+    {
+      "previous_file": "runs/flat_base_20261019/pilot021/events.out.tfevents.1792387887.ZGZ.2166885.0.braking_readout001",
+      "preserved_file": "reports/flat_base_continuation_20261019/braking_event_negative001/events.out.tfevents.1792387887.ZGZ.2166885.0.braking_readout001",
+      "sha256": "7293278cdfb6f906126e89b95b0432913054df01c997a92c98f31422d532f856"
+    },
+    {
+      "previous_file": "runs/flat_base_20261019/pilot022/events.out.tfevents.1792387887.ZGZ.2166885.1.braking_readout001",
+      "preserved_file": "reports/flat_base_continuation_20261019/braking_event_negative001/events.out.tfevents.1792387887.ZGZ.2166885.1.braking_readout001",
+      "sha256": "a59f03c522d907df4e62c359a6fafd60b0d447c3da7a1136f2cc1e42118f0a42"
+    }
+  ],
+  "expected_scalars_per_checkpoint": 66,
+  "actual_scalars_per_checkpoint": {
+    "1120": 44,
+    "1184": 44
+  },
+  "only_newly_created_invalid_diagnostic_events_retired": true,
+  "earlier_sealed_event_files_unchanged": true,
+  "native_environment_steps": 0,
+  "optimizer_updates_performed": 0
+}

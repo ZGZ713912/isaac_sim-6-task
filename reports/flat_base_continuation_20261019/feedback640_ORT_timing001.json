@@ -1,0 +1,26 @@
+{
+  "schema": "flat640-ORT-single-observation-CPU-timing-v1",
+  "policy_budget_ms": 20,
+  "batch": 1,
+  "onnxruntime": "1.30.0",
+  "system": "Linux-6.18.1-arch1-2-x86_64-with-glibc2.44",
+  "intra_inter_threads": 1,
+  "scope": "Python CPU ORT observations while native simulation is running; excludes ROS/sensors/actions and is not a worst-case real-time guarantee",
+  "behavior_qualification": false,
+  "results": {
+    "source": {
+      "model_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+      "samples": 2560,
+      "median_ms": 0.007085,
+      "p99_ms": 0.010761539999999986,
+      "max_observed_ms": 0.04687
+    },
+    "candidate640": {
+      "model_sha256": "30f89d899a916a64eb9ae17b1f78aae51e36f040cac0efef2b9831f2ce4ecd2c",
+      "samples": 2560,
+      "median_ms": 0.020513,
+      "p99_ms": 0.03313464,
+      "max_observed_ms": 0.036253
+    }
+  }
+}

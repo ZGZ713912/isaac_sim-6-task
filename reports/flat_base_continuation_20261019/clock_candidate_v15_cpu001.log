@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/verify_clock_v15_candidate.py", line 28, in <module>
+    static = design_preflight(config, control, ROOT, stage='speed', role='train', num_envs=512, seed=seed)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/clock_v15_source_candidate/src/wheeled_tasks/chassis/preflight.py", line 496, in design_preflight
+    receipt = validate_design_contract(config, json.loads(contents), control,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/clock_v15_source_candidate/src/wheeled_tasks/chassis/preflight.py", line 335, in validate_design_contract
+    from .rewards import validate_dense_tracking
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/clock_v15_source_candidate/src/wheeled_tasks/chassis/rewards.py", line 12, in <module>
+    from .v5_control import V5Control
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_continuation_20261019/clock_v15_source_candidate/src/wheeled_tasks/chassis/v5_control.py", line 6, in <module>
+    from wheeled_tasks.v40.core import motor_torque_limit
+ModuleNotFoundError: No module named 'wheeled_tasks.v40'

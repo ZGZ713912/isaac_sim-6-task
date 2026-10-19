@@ -1,0 +1,65 @@
+{
+  "schema": "flat-feedback1120-native-full-resume-milestones-v1",
+  "passed": true,
+  "checks": {
+    "initial_actor_state_dict_exact_parent": true,
+    "initial_critic_state_dict_exact_parent": true,
+    "initial_optimizer_state_dict_exact_parent": true,
+    "initial_torch_rng_state_exact_parent": true,
+    "initial_cuda_rng_state_exact_parent": true,
+    "native_six_restore_checks": true,
+    "no_rate_change": true,
+    "same_plan_source_parent": true,
+    "same_kind_no_identity_fork": true,
+    "no_critic_warmup": true,
+    "parent_counters": true,
+    "actual_selective_teacher_unchanged": true,
+    "actual_native_clock_unchanged1000Hz": true,
+    "exact_parent_control_and_command_reference": true,
+    "1057_frozen_actor_std_buffers_exact": true,
+    "1057_frozen_Adam_slots_exact": true,
+    "1057_eight_feedback_tensors_learned": true,
+    "1057_exactly2252_trainable_feedback_parameters": true,
+    "1057_feedback_critic_Adam_steps_exact": true,
+    "1057_critic_learned": true,
+    "1057_all_counters_without_refund": true,
+    "1057_exact_group_rates": true,
+    "1057_actual_rate_logs": true,
+    "1057_all_losses_finite": true
+  },
+  "all_required_milestones_present": true,
+  "milestones": {
+    "1057": {
+      "checkpoint_sha256": "d78313ac1d4602546e7f504d627718391fe768d6c47a1971c534ec48ac28ffab",
+      "checks": {
+        "frozen_actor_std_buffers_exact": true,
+        "frozen_Adam_slots_exact": true,
+        "eight_feedback_tensors_learned": true,
+        "exactly2252_trainable_feedback_parameters": true,
+        "feedback_critic_Adam_steps_exact": true,
+        "critic_learned": true,
+        "all_counters_without_refund": true,
+        "exact_group_rates": true,
+        "actual_rate_logs": true,
+        "all_losses_finite": true
+      },
+      "last_losses": {
+        "value": 0.08572961514194806,
+        "surrogate": -0.0011861358652822673,
+        "entropy": -16.059724807739258,
+        "teacher": 0.19806616753339767,
+        "teacher_action_rmse": 0.017287509981542826,
+        "teacher_fraction": 0.0536702498793602,
+        "approx_policy_kl": 0.0036101533446021663,
+        "policy_clip_fraction": 0.04086642910260707,
+        "actor_gradient_norm": 0.814773956934611,
+        "critic_gradient_norm": 4.4427173137664795,
+        "actor_learning_rate": 0.0003,
+        "critic_learning_rate": 0.0005000000000000001
+      }
+    }
+  },
+  "first_only": true,
+  "optimizer_updates_performed_by_verifier": 0,
+  "behavior_qualified": false
+}

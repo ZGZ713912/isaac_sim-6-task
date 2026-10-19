@@ -1,0 +1,1112 @@
+{
+  "schema": "flat-feedback1184-archived-braking-action-readout-v1",
+  "recorded_at": "2026-10-19T05:26:54.728457+00:00",
+  "passed": true,
+  "checks": {
+    "1120_completed_same_checkpoint": true,
+    "1120_all12_braking_episodes_full": true,
+    "1120_same_native_clock": true,
+    "1120_CPU_reproduces_archived_actions": true,
+    "1120_feedback_decomposition": true,
+    "1120_start_stop_1_400_zero_command_aligned": true,
+    "1120_start_stop_1_400_no_wheel_action_clipping": true,
+    "1120_start_stop_1_400_low_branch_selected": true,
+    "1120_start_stop_1_1200_zero_command_aligned": true,
+    "1120_start_stop_1_1200_no_wheel_action_clipping": true,
+    "1120_start_stop_1_1200_low_branch_selected": true,
+    "1120_start_stop_1_reconstruct_existing_settled_metric": true,
+    "1120_start_stop_2_400_zero_command_aligned": true,
+    "1120_start_stop_2_400_no_wheel_action_clipping": true,
+    "1120_start_stop_2_400_low_branch_selected": true,
+    "1120_start_stop_2_1200_zero_command_aligned": true,
+    "1120_start_stop_2_1200_no_wheel_action_clipping": true,
+    "1120_start_stop_2_1200_low_branch_selected": true,
+    "1120_start_stop_2_reconstruct_existing_settled_metric": true,
+    "1120_start_stop_3_400_zero_command_aligned": true,
+    "1120_start_stop_3_400_no_wheel_action_clipping": true,
+    "1120_start_stop_3_400_low_branch_selected": true,
+    "1120_start_stop_3_1200_zero_command_aligned": true,
+    "1120_start_stop_3_1200_no_wheel_action_clipping": true,
+    "1120_start_stop_3_1200_low_branch_selected": true,
+    "1120_start_stop_3_reconstruct_existing_settled_metric": true,
+    "1184_completed_same_checkpoint": true,
+    "1184_all12_braking_episodes_full": true,
+    "1184_same_native_clock": true,
+    "1184_CPU_reproduces_archived_actions": true,
+    "1184_feedback_decomposition": true,
+    "1184_start_stop_1_400_zero_command_aligned": true,
+    "1184_start_stop_1_400_no_wheel_action_clipping": true,
+    "1184_start_stop_1_400_low_branch_selected": true,
+    "1184_start_stop_1_1200_zero_command_aligned": true,
+    "1184_start_stop_1_1200_no_wheel_action_clipping": true,
+    "1184_start_stop_1_1200_low_branch_selected": true,
+    "1184_start_stop_1_reconstruct_existing_settled_metric": true,
+    "1184_start_stop_2_400_zero_command_aligned": true,
+    "1184_start_stop_2_400_no_wheel_action_clipping": true,
+    "1184_start_stop_2_400_low_branch_selected": true,
+    "1184_start_stop_2_1200_zero_command_aligned": true,
+    "1184_start_stop_2_1200_no_wheel_action_clipping": true,
+    "1184_start_stop_2_1200_low_branch_selected": true,
+    "1184_start_stop_2_reconstruct_existing_settled_metric": true,
+    "1184_start_stop_3_400_zero_command_aligned": true,
+    "1184_start_stop_3_400_no_wheel_action_clipping": true,
+    "1184_start_stop_3_400_low_branch_selected": true,
+    "1184_start_stop_3_1200_zero_command_aligned": true,
+    "1184_start_stop_3_1200_no_wheel_action_clipping": true,
+    "1184_start_stop_3_1200_low_branch_selected": true,
+    "1184_start_stop_3_reconstruct_existing_settled_metric": true,
+    "initial_selected_observations_bit_exact_between_versions": true
+  },
+  "reader_sha256": "acd34151b9cef4a22e1ed17b58d6010a4ddefb213a2cb89d282524d59c1261fc",
+  "versions": {
+    "1120": {
+      "checkpoint_sha256": "00e1fafb5849f6d1c40bc8b69df157b5d44a4c27a40f2e4ebc3b647988a624bf",
+      "evaluation_sha256": "cddb0d5539c45b9bb9327795fedc88d83a5037911b358798e633216534d526c8",
+      "traces_sha256": "3b8861cb7e3e82691bfd1bc6f477c0e4ef5a1adcf2fd761a427b9d91d518373e",
+      "CPU_native_action_max_abs_error": 2.86102294921875e-06,
+      "cases": {
+        "start_stop_1": {
+          "existing_settled_stop_speed_m_s": 0.05730723962187767,
+          "stops": [
+            {
+              "incoming_sign": 1,
+              "stop_start_policy_frame": 400,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                0.72,
+                0.74,
+                0.72,
+                0.74
+              ],
+              "speed_peak_after1s_m_s": 0.014699873514473438,
+              "speed_peak_after3s_m_s": 0.009445779025554657,
+              "mean_speed_after3s_m_s": 0.002536399755626917,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.5433521270751953,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.7578555345535278,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 0.9864679574966431,
+                  "planar_speed_max_m_s": 1.0132569074630737,
+                  "encoder_oriented_vx_mean_m_s": 0.997657060623169,
+                  "frozen_base_and_command_forward_target_m_s": 0.9227050542831421,
+                  "feedback_forward_target_m_s": 0.0832386240363121,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.3567960560321808
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 0.7857599854469299,
+                  "planar_speed_max_m_s": 0.8137210011482239,
+                  "encoder_oriented_vx_mean_m_s": 0.9061804413795471,
+                  "frozen_base_and_command_forward_target_m_s": 0.8234363794326782,
+                  "feedback_forward_target_m_s": -0.008026299066841602,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.5655261278152466
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 0.2922632694244385,
+                  "planar_speed_max_m_s": 0.31555742025375366,
+                  "encoder_oriented_vx_mean_m_s": 0.3081434965133667,
+                  "frozen_base_and_command_forward_target_m_s": 0.26333972811698914,
+                  "feedback_forward_target_m_s": -0.0707889199256897,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7140663266181946
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": -0.01413674931973219,
+                  "planar_speed_max_m_s": 0.014699873514473438,
+                  "encoder_oriented_vx_mean_m_s": -0.027334019541740417,
+                  "frozen_base_and_command_forward_target_m_s": -0.07068895548582077,
+                  "feedback_forward_target_m_s": 0.04422776401042938,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.021676961332559586
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.0010906626703217626,
+                  "planar_speed_max_m_s": 0.0033462741412222385,
+                  "encoder_oriented_vx_mean_m_s": 0.0050916122272610664,
+                  "frozen_base_and_command_forward_target_m_s": -0.03804737329483032,
+                  "feedback_forward_target_m_s": 0.03948497772216797,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.005853653885424137
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": 0.004162866156548262,
+                  "planar_speed_max_m_s": 0.007269903551787138,
+                  "encoder_oriented_vx_mean_m_s": 0.008346513845026493,
+                  "frozen_base_and_command_forward_target_m_s": -0.025974145159125328,
+                  "feedback_forward_target_m_s": 0.041737958788871765,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.06764408200979233
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": -0.0004930149298161268,
+                  "planar_speed_max_m_s": 0.005592870991677046,
+                  "encoder_oriented_vx_mean_m_s": -0.0055025191977620125,
+                  "frozen_base_and_command_forward_target_m_s": -0.04683631286025047,
+                  "feedback_forward_target_m_s": 0.04122477397322655,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.0059479232877492905
+                }
+              ]
+            },
+            {
+              "incoming_sign": -1,
+              "stop_start_policy_frame": 1200,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.12,
+                1.1400000000000001,
+                1.1400000000000001,
+                1.12
+              ],
+              "speed_peak_after1s_m_s": 0.05730723962187767,
+              "speed_peak_after3s_m_s": 0.009135790169239044,
+              "mean_speed_after3s_m_s": 0.0028987950645387173,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.5905309319496155,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.6668659448623657,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 1.0013480186462402,
+                  "planar_speed_max_m_s": 1.004847526550293,
+                  "encoder_oriented_vx_mean_m_s": 1.012048363685608,
+                  "frozen_base_and_command_forward_target_m_s": 1.0024622678756714,
+                  "feedback_forward_target_m_s": 0.00464676832780242,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.41930946707725525
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 0.8426891565322876,
+                  "planar_speed_max_m_s": 0.8473649621009827,
+                  "encoder_oriented_vx_mean_m_s": 0.9422056674957275,
+                  "frozen_base_and_command_forward_target_m_s": 0.9333462119102478,
+                  "feedback_forward_target_m_s": -0.09081921726465225,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.5294218063354492
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 0.4294092357158661,
+                  "planar_speed_max_m_s": 0.43509531021118164,
+                  "encoder_oriented_vx_mean_m_s": 0.43538931012153625,
+                  "frozen_base_and_command_forward_target_m_s": 0.4590054452419281,
+                  "feedback_forward_target_m_s": -0.10647804290056229,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.5276905298233032
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.053538113832473755,
+                  "planar_speed_max_m_s": 0.05730723962187767,
+                  "encoder_oriented_vx_mean_m_s": 0.03322964161634445,
+                  "frozen_base_and_command_forward_target_m_s": 0.0829794779419899,
+                  "feedback_forward_target_m_s": -0.06303330510854721,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.06971703469753265
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.0033982452005147934,
+                  "planar_speed_max_m_s": 0.004276598338037729,
+                  "encoder_oriented_vx_mean_m_s": 0.0008633694378659129,
+                  "frozen_base_and_command_forward_target_m_s": 0.048348475247621536,
+                  "feedback_forward_target_m_s": -0.042896486818790436,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.029992274940013885
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": -0.001734897610731423,
+                  "planar_speed_max_m_s": 0.0035232731606811285,
+                  "encoder_oriented_vx_mean_m_s": -0.0007820655591785908,
+                  "frozen_base_and_command_forward_target_m_s": 0.03981190174818039,
+                  "feedback_forward_target_m_s": -0.04095790907740593,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.004156162496656179
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": -0.0005426629213616252,
+                  "planar_speed_max_m_s": 0.002702245721593499,
+                  "encoder_oriented_vx_mean_m_s": 0.0062366207130253315,
+                  "frozen_base_and_command_forward_target_m_s": 0.04767444729804993,
+                  "feedback_forward_target_m_s": -0.04245917499065399,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.0157606303691864
+                }
+              ]
+            }
+          ]
+        },
+        "start_stop_2": {
+          "existing_settled_stop_speed_m_s": 0.4272552728652954,
+          "stops": [
+            {
+              "incoming_sign": 1,
+              "stop_start_policy_frame": 400,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.1400000000000001,
+                1.1400000000000001,
+                1.16,
+                1.16
+              ],
+              "speed_peak_after1s_m_s": 0.2051648646593094,
+              "speed_peak_after3s_m_s": 0.008707387372851372,
+              "mean_speed_after3s_m_s": 0.0027732448652386665,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.6437655687332153,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.8054802417755127,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 2.093642234802246,
+                  "planar_speed_max_m_s": 2.112607955932617,
+                  "encoder_oriented_vx_mean_m_s": 2.116727590560913,
+                  "frozen_base_and_command_forward_target_m_s": 1.9631556272506714,
+                  "feedback_forward_target_m_s": 0.1186053529381752,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7066941261291504
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 1.8605148792266846,
+                  "planar_speed_max_m_s": 1.8809282779693604,
+                  "encoder_oriented_vx_mean_m_s": 1.9877187013626099,
+                  "frozen_base_and_command_forward_target_m_s": 1.8848357200622559,
+                  "feedback_forward_target_m_s": 0.002533160150051117,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7085899710655212
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 1.2305923700332642,
+                  "planar_speed_max_m_s": 1.2580565214157104,
+                  "encoder_oriented_vx_mean_m_s": 1.2928617000579834,
+                  "frozen_base_and_command_forward_target_m_s": 1.2111072540283203,
+                  "feedback_forward_target_m_s": -0.04362577199935913,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.8477137088775635
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.18405579030513763,
+                  "planar_speed_max_m_s": 0.2051648646593094,
+                  "encoder_oriented_vx_mean_m_s": 0.1341547667980194,
+                  "frozen_base_and_command_forward_target_m_s": 0.09121248126029968,
+                  "feedback_forward_target_m_s": -0.08030731976032257,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7561092376708984
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": -0.010658780112862587,
+                  "planar_speed_max_m_s": 0.012344295158982277,
+                  "encoder_oriented_vx_mean_m_s": -0.016909997910261154,
+                  "frozen_base_and_command_forward_target_m_s": -0.061029620468616486,
+                  "feedback_forward_target_m_s": 0.04661539942026138,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.014562343247234821
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": -0.0015794977080076933,
+                  "planar_speed_max_m_s": 0.002851099707186222,
+                  "encoder_oriented_vx_mean_m_s": -0.004818391986191273,
+                  "frozen_base_and_command_forward_target_m_s": -0.0489913672208786,
+                  "feedback_forward_target_m_s": 0.03843998908996582,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.039142198860645294
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": 0.004201946314424276,
+                  "planar_speed_max_m_s": 0.00559596624225378,
+                  "encoder_oriented_vx_mean_m_s": 0.006779901217669249,
+                  "frozen_base_and_command_forward_target_m_s": -0.03122798167169094,
+                  "feedback_forward_target_m_s": 0.04069715738296509,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.03464886546134949
+                }
+              ]
+            },
+            {
+              "incoming_sign": -1,
+              "stop_start_policy_frame": 1200,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.6400000000000001,
+                1.62,
+                1.6,
+                1.6600000000000001
+              ],
+              "speed_peak_after1s_m_s": 0.4272552728652954,
+              "speed_peak_after3s_m_s": 0.009297688491642475,
+              "mean_speed_after3s_m_s": 0.0028808212373405695,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.5993458032608032,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.7746121287345886,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 1.9701310396194458,
+                  "planar_speed_max_m_s": 1.9745135307312012,
+                  "encoder_oriented_vx_mean_m_s": 1.9917967319488525,
+                  "frozen_base_and_command_forward_target_m_s": 1.795192003250122,
+                  "feedback_forward_target_m_s": 0.06062079221010208,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -1.2177095413208008
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 1.756847620010376,
+                  "planar_speed_max_m_s": 1.7634739875793457,
+                  "encoder_oriented_vx_mean_m_s": 1.928821325302124,
+                  "frozen_base_and_command_forward_target_m_s": 1.7785468101501465,
+                  "feedback_forward_target_m_s": -0.08223316818475723,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.9786593317985535
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 1.203446388244629,
+                  "planar_speed_max_m_s": 1.2093477249145508,
+                  "encoder_oriented_vx_mean_m_s": 1.173774003982544,
+                  "frozen_base_and_command_forward_target_m_s": 1.356821060180664,
+                  "feedback_forward_target_m_s": -0.11387033015489578,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.1457061767578125
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.42061346769332886,
+                  "planar_speed_max_m_s": 0.4272552728652954,
+                  "encoder_oriented_vx_mean_m_s": 0.4180988669395447,
+                  "frozen_base_and_command_forward_target_m_s": 0.4453009366989136,
+                  "feedback_forward_target_m_s": -0.10641247034072876,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.538976788520813
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.05099868029356003,
+                  "planar_speed_max_m_s": 0.05486152321100235,
+                  "encoder_oriented_vx_mean_m_s": 0.022673919796943665,
+                  "frozen_base_and_command_forward_target_m_s": 0.07706524431705475,
+                  "feedback_forward_target_m_s": -0.06469107419252396,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.07802620530128479
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": 0.0028268420137465,
+                  "planar_speed_max_m_s": 0.0047176000662148,
+                  "encoder_oriented_vx_mean_m_s": 0.001091317506507039,
+                  "frozen_base_and_command_forward_target_m_s": 0.04311341792345047,
+                  "feedback_forward_target_m_s": -0.04091724380850792,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.010716555640101433
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": -0.002356471959501505,
+                  "planar_speed_max_m_s": 0.005178484134376049,
+                  "encoder_oriented_vx_mean_m_s": -0.0026577215176075697,
+                  "frozen_base_and_command_forward_target_m_s": 0.040258441120386124,
+                  "feedback_forward_target_m_s": -0.04029674828052521,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.017292095348238945
+                }
+              ]
+            }
+          ]
+        },
+        "start_stop_3": {
+          "existing_settled_stop_speed_m_s": 1.01531183719635,
+          "stops": [
+            {
+              "incoming_sign": 1,
+              "stop_start_policy_frame": 400,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.5,
+                1.72,
+                1.5,
+                1.5
+              ],
+              "speed_peak_after1s_m_s": 0.9527468681335449,
+              "speed_peak_after3s_m_s": 0.00897801574319601,
+              "mean_speed_after3s_m_s": 0.0026856951881200075,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.7238118052482605,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.8661580681800842,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 3.0110912322998047,
+                  "planar_speed_max_m_s": 3.043442964553833,
+                  "encoder_oriented_vx_mean_m_s": 3.0692365169525146,
+                  "frozen_base_and_command_forward_target_m_s": 2.8422293663024902,
+                  "feedback_forward_target_m_s": 0.14872781932353973,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.9553576707839966
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 2.809840202331543,
+                  "planar_speed_max_m_s": 2.8197665214538574,
+                  "encoder_oriented_vx_mean_m_s": 2.8941802978515625,
+                  "frozen_base_and_command_forward_target_m_s": 2.8174867630004883,
+                  "feedback_forward_target_m_s": 0.022106321528553963,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.5291542410850525
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 2.2049052715301514,
+                  "planar_speed_max_m_s": 2.215561866760254,
+                  "encoder_oriented_vx_mean_m_s": 2.3098223209381104,
+                  "frozen_base_and_command_forward_target_m_s": 2.187333345413208,
+                  "feedback_forward_target_m_s": -0.012895115651190281,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.905068039894104
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.934475839138031,
+                  "planar_speed_max_m_s": 0.9527468681335449,
+                  "encoder_oriented_vx_mean_m_s": 0.9568893909454346,
+                  "frozen_base_and_command_forward_target_m_s": 0.8810704946517944,
+                  "feedback_forward_target_m_s": -0.06968914717435837,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.9732316732406616
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.00809202529489994,
+                  "planar_speed_max_m_s": 0.01391238160431385,
+                  "encoder_oriented_vx_mean_m_s": -0.1703004688024521,
+                  "frozen_base_and_command_forward_target_m_s": -0.2127232402563095,
+                  "feedback_forward_target_m_s": -0.028278443962335587,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.567528247833252
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": -0.001036359230056405,
+                  "planar_speed_max_m_s": 0.0029082871042191982,
+                  "encoder_oriented_vx_mean_m_s": 0.0031489955727010965,
+                  "frozen_base_and_command_forward_target_m_s": -0.038785140961408615,
+                  "feedback_forward_target_m_s": 0.047200657427310944,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.039621464908123016
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": 0.0005356487235985696,
+                  "planar_speed_max_m_s": 0.004738188814371824,
+                  "encoder_oriented_vx_mean_m_s": -0.002045932225883007,
+                  "frozen_base_and_command_forward_target_m_s": -0.040854014456272125,
+                  "feedback_forward_target_m_s": 0.04280799999833107,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.02421627938747406
+                }
+              ]
+            },
+            {
+              "incoming_sign": -1,
+              "stop_start_policy_frame": 1200,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                2.0,
+                1.98,
+                2.0,
+                2.0
+              ],
+              "speed_peak_after1s_m_s": 1.01531183719635,
+              "speed_peak_after3s_m_s": 0.008124330081045628,
+              "mean_speed_after3s_m_s": 0.002835743362084031,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.621623158454895,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.8560887575149536,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 2.880539894104004,
+                  "planar_speed_max_m_s": 2.885413885116577,
+                  "encoder_oriented_vx_mean_m_s": 2.914008140563965,
+                  "frozen_base_and_command_forward_target_m_s": 2.489025115966797,
+                  "feedback_forward_target_m_s": 0.08750781416893005,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -1.6590442657470703
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 2.5766005516052246,
+                  "planar_speed_max_m_s": 2.5882413387298584,
+                  "encoder_oriented_vx_mean_m_s": 2.579641103744507,
+                  "frozen_base_and_command_forward_target_m_s": 2.7846596240997314,
+                  "feedback_forward_target_m_s": -0.06881775707006454,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.017000770196318626
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 1.9346896409988403,
+                  "planar_speed_max_m_s": 1.9478753805160522,
+                  "encoder_oriented_vx_mean_m_s": 2.0165162086486816,
+                  "frozen_base_and_command_forward_target_m_s": 1.9412322044372559,
+                  "feedback_forward_target_m_s": -0.10734274983406067,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -1.0101170539855957
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 1.0070111751556396,
+                  "planar_speed_max_m_s": 1.01531183719635,
+                  "encoder_oriented_vx_mean_m_s": 1.04904043674469,
+                  "frozen_base_and_command_forward_target_m_s": 1.043001413345337,
+                  "feedback_forward_target_m_s": -0.11591386795043945,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7515022158622742
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.28253886103630066,
+                  "planar_speed_max_m_s": 0.28717371821403503,
+                  "encoder_oriented_vx_mean_m_s": 0.25589096546173096,
+                  "frozen_base_and_command_forward_target_m_s": 0.3018642067909241,
+                  "feedback_forward_target_m_s": -0.10532453656196594,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.4251667857170105
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": 0.023887209594249725,
+                  "planar_speed_max_m_s": 0.02578451856970787,
+                  "encoder_oriented_vx_mean_m_s": 0.000666195759549737,
+                  "frozen_base_and_command_forward_target_m_s": 0.051674287766218185,
+                  "feedback_forward_target_m_s": -0.056194551289081573,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.056603915989398956
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": 0.00016206305008381605,
+                  "planar_speed_max_m_s": 0.004603269975632429,
+                  "encoder_oriented_vx_mean_m_s": 0.004393436014652252,
+                  "frozen_base_and_command_forward_target_m_s": 0.048813678324222565,
+                  "feedback_forward_target_m_s": -0.04360770061612129,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.02742283046245575
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "1184": {
+      "checkpoint_sha256": "bc01eb1369ecc7e5b86c68207bb9f1fa064c3b03dc0e0de5c609443f67e323e0",
+      "evaluation_sha256": "4dbe1366342da02bbe2d3f2ff76818d907a3b54750d9d5dfa26f838fe5485ec8",
+      "traces_sha256": "fffe0963100829bef2a6fd8128257c11d9035691cc772dad83a4fe7865137c2a",
+      "CPU_native_action_max_abs_error": 2.86102294921875e-06,
+      "cases": {
+        "start_stop_1": {
+          "existing_settled_stop_speed_m_s": 0.10329321026802063,
+          "stops": [
+            {
+              "incoming_sign": 1,
+              "stop_start_policy_frame": 400,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                0.74,
+                0.72,
+                0.76,
+                0.74
+              ],
+              "speed_peak_after1s_m_s": 0.014889837242662907,
+              "speed_peak_after3s_m_s": 0.007257089018821716,
+              "mean_speed_after3s_m_s": 0.0023632177617400885,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.5257015228271484,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.7437785267829895,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 0.9864385724067688,
+                  "planar_speed_max_m_s": 0.9968294501304626,
+                  "encoder_oriented_vx_mean_m_s": 0.9905698895454407,
+                  "frozen_base_and_command_forward_target_m_s": 0.9241127371788025,
+                  "feedback_forward_target_m_s": 0.08135931938886642,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.32927778363227844
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 0.7916393280029297,
+                  "planar_speed_max_m_s": 0.804131269454956,
+                  "encoder_oriented_vx_mean_m_s": 0.9053260087966919,
+                  "frozen_base_and_command_forward_target_m_s": 0.8317131996154785,
+                  "feedback_forward_target_m_s": -0.005389667581766844,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.539035439491272
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 0.3007461130619049,
+                  "planar_speed_max_m_s": 0.31603503227233887,
+                  "encoder_oriented_vx_mean_m_s": 0.3186865448951721,
+                  "frozen_base_and_command_forward_target_m_s": 0.2727741003036499,
+                  "feedback_forward_target_m_s": -0.06845197081565857,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7146509289741516
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": -0.012955719605088234,
+                  "planar_speed_max_m_s": 0.014775973744690418,
+                  "encoder_oriented_vx_mean_m_s": -0.023598436266183853,
+                  "frozen_base_and_command_forward_target_m_s": -0.06836480647325516,
+                  "feedback_forward_target_m_s": 0.044354166835546494,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.029282988980412483
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": -0.002979936543852091,
+                  "planar_speed_max_m_s": 0.0076680779457092285,
+                  "encoder_oriented_vx_mean_m_s": 0.004758421331644058,
+                  "frozen_base_and_command_forward_target_m_s": -0.031339194625616074,
+                  "feedback_forward_target_m_s": 0.03932802006602287,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.028508219867944717
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": 0.003259199671447277,
+                  "planar_speed_max_m_s": 0.004999065771698952,
+                  "encoder_oriented_vx_mean_m_s": 0.011063117533922195,
+                  "frozen_base_and_command_forward_target_m_s": -0.026019960641860962,
+                  "feedback_forward_target_m_s": 0.04475492238998413,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.05586005747318268
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": -0.0011496766237542033,
+                  "planar_speed_max_m_s": 0.00402021873742342,
+                  "encoder_oriented_vx_mean_m_s": -0.001947582932189107,
+                  "frozen_base_and_command_forward_target_m_s": -0.04790453612804413,
+                  "feedback_forward_target_m_s": 0.04150491580367088,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.023178458213806152
+                }
+              ]
+            },
+            {
+              "incoming_sign": -1,
+              "stop_start_policy_frame": 1200,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.3800000000000001,
+                1.32,
+                1.32,
+                1.32
+              ],
+              "speed_peak_after1s_m_s": 0.10329321026802063,
+              "speed_peak_after3s_m_s": 0.0068000261671841145,
+              "mean_speed_after3s_m_s": 0.0023993842769414186,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.6209287047386169,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.7337077856063843,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 1.0000152587890625,
+                  "planar_speed_max_m_s": 1.005086064338684,
+                  "encoder_oriented_vx_mean_m_s": 1.005385160446167,
+                  "frozen_base_and_command_forward_target_m_s": 0.9974834322929382,
+                  "feedback_forward_target_m_s": 0.007215764839202166,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.40940168499946594
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 0.8474182486534119,
+                  "planar_speed_max_m_s": 0.8512863516807556,
+                  "encoder_oriented_vx_mean_m_s": 0.9417388439178467,
+                  "frozen_base_and_command_forward_target_m_s": 0.9076593518257141,
+                  "feedback_forward_target_m_s": -0.0891120433807373,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.598511815071106
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 0.4749108552932739,
+                  "planar_speed_max_m_s": 0.4846611022949219,
+                  "encoder_oriented_vx_mean_m_s": 0.49222028255462646,
+                  "frozen_base_and_command_forward_target_m_s": 0.5124623775482178,
+                  "feedback_forward_target_m_s": -0.09922295063734055,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.4900044798851013
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.09695713222026825,
+                  "planar_speed_max_m_s": 0.10329321026802063,
+                  "encoder_oriented_vx_mean_m_s": 0.07467477768659592,
+                  "frozen_base_and_command_forward_target_m_s": 0.12019720673561096,
+                  "feedback_forward_target_m_s": -0.06655671447515488,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.12082348018884659
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.013342865742743015,
+                  "planar_speed_max_m_s": 0.01661178283393383,
+                  "encoder_oriented_vx_mean_m_s": 0.004375926684588194,
+                  "frozen_base_and_command_forward_target_m_s": 0.05087875574827194,
+                  "feedback_forward_target_m_s": -0.05137593671679497,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.02246476151049137
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": 0.001376567524857819,
+                  "planar_speed_max_m_s": 0.005774887278676033,
+                  "encoder_oriented_vx_mean_m_s": -0.0029918206855654716,
+                  "frozen_base_and_command_forward_target_m_s": 0.03809576854109764,
+                  "feedback_forward_target_m_s": -0.042834505438804626,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.015716152265667915
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": 0.002135953865945339,
+                  "planar_speed_max_m_s": 0.0068000261671841145,
+                  "encoder_oriented_vx_mean_m_s": 0.0023029877338558435,
+                  "frozen_base_and_command_forward_target_m_s": 0.039876699447631836,
+                  "feedback_forward_target_m_s": -0.04242739826440811,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.017572741955518723
+                }
+              ]
+            }
+          ]
+        },
+        "start_stop_2": {
+          "existing_settled_stop_speed_m_s": 0.5005155205726624,
+          "stops": [
+            {
+              "incoming_sign": 1,
+              "stop_start_policy_frame": 400,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.1400000000000001,
+                1.12,
+                1.12,
+                1.12
+              ],
+              "speed_peak_after1s_m_s": 0.1554710417985916,
+              "speed_peak_after3s_m_s": 0.009547954425215721,
+              "mean_speed_after3s_m_s": 0.0026796041056513786,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.6402230858802795,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.7911449074745178,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 2.0349810123443604,
+                  "planar_speed_max_m_s": 2.072681427001953,
+                  "encoder_oriented_vx_mean_m_s": 2.0505080223083496,
+                  "frozen_base_and_command_forward_target_m_s": 1.8888416290283203,
+                  "feedback_forward_target_m_s": 0.10605554282665253,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.8077637553215027
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 1.7841157913208008,
+                  "planar_speed_max_m_s": 1.8032029867172241,
+                  "encoder_oriented_vx_mean_m_s": 1.9013419151306152,
+                  "frozen_base_and_command_forward_target_m_s": 1.7915396690368652,
+                  "feedback_forward_target_m_s": 0.0030999858863651752,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7477705478668213
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 1.1544464826583862,
+                  "planar_speed_max_m_s": 1.1644537448883057,
+                  "encoder_oriented_vx_mean_m_s": 1.2145313024520874,
+                  "frozen_base_and_command_forward_target_m_s": 1.1218156814575195,
+                  "feedback_forward_target_m_s": -0.048234060406684875,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.9060875177383423
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.14350393414497375,
+                  "planar_speed_max_m_s": 0.1554710417985916,
+                  "encoder_oriented_vx_mean_m_s": 0.0736820325255394,
+                  "frozen_base_and_command_forward_target_m_s": 0.03624694049358368,
+                  "feedback_forward_target_m_s": -0.0762731060385704,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.7246901988983154
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": -0.010123382322490215,
+                  "planar_speed_max_m_s": 0.011376973241567612,
+                  "encoder_oriented_vx_mean_m_s": -0.015849104151129723,
+                  "frozen_base_and_command_forward_target_m_s": -0.05497169494628906,
+                  "feedback_forward_target_m_s": 0.046331360936164856,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.001817735843360424
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": -0.003303700592368841,
+                  "planar_speed_max_m_s": 0.004955166019499302,
+                  "encoder_oriented_vx_mean_m_s": -0.006628965027630329,
+                  "frozen_base_and_command_forward_target_m_s": -0.04860839992761612,
+                  "feedback_forward_target_m_s": 0.04398530721664429,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.019231677055358887
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": -0.0007848057430237532,
+                  "planar_speed_max_m_s": 0.0030976056586951017,
+                  "encoder_oriented_vx_mean_m_s": 0.0014188168570399284,
+                  "frozen_base_and_command_forward_target_m_s": -0.034364253282547,
+                  "feedback_forward_target_m_s": 0.041226331144571304,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.04914562404155731
+                }
+              ]
+            },
+            {
+              "incoming_sign": -1,
+              "stop_start_policy_frame": 1200,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.82,
+                1.84,
+                1.84,
+                1.78
+              ],
+              "speed_peak_after1s_m_s": 0.5005155205726624,
+              "speed_peak_after3s_m_s": 0.007485969457775354,
+              "mean_speed_after3s_m_s": 0.0025149297434836626,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.6131775975227356,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.7344074249267578,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 1.967862606048584,
+                  "planar_speed_max_m_s": 1.9787404537200928,
+                  "encoder_oriented_vx_mean_m_s": 1.9896615743637085,
+                  "frozen_base_and_command_forward_target_m_s": 1.7819181680679321,
+                  "feedback_forward_target_m_s": 0.04800514131784439,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -1.29220449924469
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 1.7581064701080322,
+                  "planar_speed_max_m_s": 1.7675381898880005,
+                  "encoder_oriented_vx_mean_m_s": 1.9021742343902588,
+                  "frozen_base_and_command_forward_target_m_s": 1.7822139263153076,
+                  "feedback_forward_target_m_s": -0.07997900247573853,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.9276056289672852
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 1.2354466915130615,
+                  "planar_speed_max_m_s": 1.2462096214294434,
+                  "encoder_oriented_vx_mean_m_s": 1.2388261556625366,
+                  "frozen_base_and_command_forward_target_m_s": 1.3520848751068115,
+                  "feedback_forward_target_m_s": -0.1049012765288353,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.2974774241447449
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.4933336079120636,
+                  "planar_speed_max_m_s": 0.5005155205726624,
+                  "encoder_oriented_vx_mean_m_s": 0.49696075916290283,
+                  "frozen_base_and_command_forward_target_m_s": 0.5326135158538818,
+                  "feedback_forward_target_m_s": -0.10285414755344391,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.47876888513565063
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.09207675606012344,
+                  "planar_speed_max_m_s": 0.093714639544487,
+                  "encoder_oriented_vx_mean_m_s": 0.06154555827379227,
+                  "frozen_base_and_command_forward_target_m_s": 0.11217500269412994,
+                  "feedback_forward_target_m_s": -0.06972591578960419,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.12383352220058441
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": 0.012557657435536385,
+                  "planar_speed_max_m_s": 0.015553364530205727,
+                  "encoder_oriented_vx_mean_m_s": -0.0007724713650532067,
+                  "frozen_base_and_command_forward_target_m_s": 0.04767371714115143,
+                  "feedback_forward_target_m_s": -0.048632580786943436,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.006683092564344406
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": 0.004098409786820412,
+                  "planar_speed_max_m_s": 0.006491465028375387,
+                  "encoder_oriented_vx_mean_m_s": 0.008973242715001106,
+                  "frozen_base_and_command_forward_target_m_s": 0.05238363519310951,
+                  "feedback_forward_target_m_s": -0.04192652180790901,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.024796491488814354
+                }
+              ]
+            }
+          ]
+        },
+        "start_stop_3": {
+          "existing_settled_stop_speed_m_s": 1.0276079177856445,
+          "stops": [
+            {
+              "incoming_sign": 1,
+              "stop_start_policy_frame": 400,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                1.46,
+                1.46,
+                1.42,
+                1.4000000000000001
+              ],
+              "speed_peak_after1s_m_s": 0.8312872648239136,
+              "speed_peak_after3s_m_s": 0.007051471155136824,
+              "mean_speed_after3s_m_s": 0.002261923160403967,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.6535707116127014,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.8146095275878906,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 2.960585355758667,
+                  "planar_speed_max_m_s": 3.02518630027771,
+                  "encoder_oriented_vx_mean_m_s": 2.9898293018341064,
+                  "frozen_base_and_command_forward_target_m_s": 2.7657876014709473,
+                  "feedback_forward_target_m_s": 0.1275821477174759,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -1.2379326820373535
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 2.6928505897521973,
+                  "planar_speed_max_m_s": 2.7619423866271973,
+                  "encoder_oriented_vx_mean_m_s": 2.7755706310272217,
+                  "frozen_base_and_command_forward_target_m_s": 2.672208786010742,
+                  "feedback_forward_target_m_s": 0.019902808591723442,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.6707908511161804
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 2.0235908031463623,
+                  "planar_speed_max_m_s": 2.100010633468628,
+                  "encoder_oriented_vx_mean_m_s": 2.1137750148773193,
+                  "frozen_base_and_command_forward_target_m_s": 1.9900890588760376,
+                  "feedback_forward_target_m_s": -0.022039853036403656,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.9732459187507629
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 0.7663789391517639,
+                  "planar_speed_max_m_s": 0.8312872648239136,
+                  "encoder_oriented_vx_mean_m_s": 0.7827320098876953,
+                  "frozen_base_and_command_forward_target_m_s": 0.7227036356925964,
+                  "feedback_forward_target_m_s": -0.07936550676822662,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.931023120880127
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": -0.01812230423092842,
+                  "planar_speed_max_m_s": 0.025577260181307793,
+                  "encoder_oriented_vx_mean_m_s": -0.16221754252910614,
+                  "frozen_base_and_command_forward_target_m_s": -0.18587583303451538,
+                  "feedback_forward_target_m_s": 0.015138134360313416,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.23629772663116455
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": -0.000932166469283402,
+                  "planar_speed_max_m_s": 0.0028193634934723377,
+                  "encoder_oriented_vx_mean_m_s": 0.0013404228957369924,
+                  "frozen_base_and_command_forward_target_m_s": -0.03534833341836929,
+                  "feedback_forward_target_m_s": 0.044232502579689026,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.05828968808054924
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": -0.0013933564769104123,
+                  "planar_speed_max_m_s": 0.002531986217945814,
+                  "encoder_oriented_vx_mean_m_s": -0.003996298182755709,
+                  "frozen_base_and_command_forward_target_m_s": -0.04618187993764877,
+                  "feedback_forward_target_m_s": 0.04365583509206772,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.006344263907521963
+                }
+              ]
+            },
+            {
+              "incoming_sign": -1,
+              "stop_start_policy_frame": 1200,
+              "actual_per_lane_settles_by_end_of_segment_s": [
+                2.18,
+                2.16,
+                2.18,
+                2.2
+              ],
+              "speed_peak_after1s_m_s": 1.0276079177856445,
+              "speed_peak_after3s_m_s": 0.008571014739573002,
+              "mean_speed_after3s_m_s": 0.002745348960161209,
+              "first2s_low_MLP_abs_tanh_max_wheels": 0.6945081353187561,
+              "first2s_low_MLP_abs_tanh_max_legs": 0.846644401550293,
+              "first2s_low_MLP_wheel_fraction_at_or_above95percent": 0.0,
+              "first2s_low_MLP_leg_fraction_at_or_above95percent": 0.0,
+              "first2s_tracking_gate_min": 1.0,
+              "samples": [
+                {
+                  "stop_age_end_s": 0.02,
+                  "root_oriented_vx_mean_m_s": 2.8703200817108154,
+                  "planar_speed_max_m_s": 2.878600835800171,
+                  "encoder_oriented_vx_mean_m_s": 2.887016773223877,
+                  "frozen_base_and_command_forward_target_m_s": 2.495306968688965,
+                  "feedback_forward_target_m_s": 0.07155314832925797,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -1.6258682012557983
+                },
+                {
+                  "stop_age_end_s": 0.22,
+                  "root_oriented_vx_mean_m_s": 2.577667236328125,
+                  "planar_speed_max_m_s": 2.58675217628479,
+                  "encoder_oriented_vx_mean_m_s": 2.5595338344573975,
+                  "frozen_base_and_command_forward_target_m_s": 2.7948458194732666,
+                  "feedback_forward_target_m_s": -0.07457353919744492,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": 0.06698913127183914
+                },
+                {
+                  "stop_age_end_s": 0.52,
+                  "root_oriented_vx_mean_m_s": 1.9579217433929443,
+                  "planar_speed_max_m_s": 1.9700334072113037,
+                  "encoder_oriented_vx_mean_m_s": 2.1233279705047607,
+                  "frozen_base_and_command_forward_target_m_s": 1.7606593370437622,
+                  "feedback_forward_target_m_s": -0.11522790044546127,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -1.7932080030441284
+                },
+                {
+                  "stop_age_end_s": 1.02,
+                  "root_oriented_vx_mean_m_s": 1.017364501953125,
+                  "planar_speed_max_m_s": 1.0276079177856445,
+                  "encoder_oriented_vx_mean_m_s": 1.0211458206176758,
+                  "frozen_base_and_command_forward_target_m_s": 1.108130931854248,
+                  "feedback_forward_target_m_s": -0.11397476494312286,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.40696752071380615
+                },
+                {
+                  "stop_age_end_s": 1.52,
+                  "root_oriented_vx_mean_m_s": 0.32861000299453735,
+                  "planar_speed_max_m_s": 0.34227535128593445,
+                  "encoder_oriented_vx_mean_m_s": 0.31376174092292786,
+                  "frozen_base_and_command_forward_target_m_s": 0.35024604201316833,
+                  "feedback_forward_target_m_s": -0.09580130875110626,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.40915602445602417
+                },
+                {
+                  "stop_age_end_s": 2.02,
+                  "root_oriented_vx_mean_m_s": 0.05527838319540024,
+                  "planar_speed_max_m_s": 0.05809899419546127,
+                  "encoder_oriented_vx_mean_m_s": 0.04066358134150505,
+                  "frozen_base_and_command_forward_target_m_s": 0.09366577863693237,
+                  "feedback_forward_target_m_s": -0.062300458550453186,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.03731332719326019
+                },
+                {
+                  "stop_age_end_s": 3.02,
+                  "root_oriented_vx_mean_m_s": 0.0010487398831173778,
+                  "planar_speed_max_m_s": 0.0074331085197627544,
+                  "encoder_oriented_vx_mean_m_s": 0.0023799485061317682,
+                  "frozen_base_and_command_forward_target_m_s": 0.04192621633410454,
+                  "feedback_forward_target_m_s": -0.039662182331085205,
+                  "sampled_end_state_wheel_effort_oriented_mean_nm": -0.006468402221798897
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data_source": "Existing matched native evaluation traces, selected12 first-life episodes per checkpoint",
+  "interpretation_scope": "Descriptive same-input branch contributions and recorded closed-loop trajectories only. No intervention, causal proof, new acceptance test, per-physics-tick saturation claim or fitted action target.",
+  "qualification_eligible": false,
+  "behavior_qualified": false,
+  "optimizer_updates_performed": 0,
+  "native_environment_steps": 0,
+  "hardware_motion_started": false
+}

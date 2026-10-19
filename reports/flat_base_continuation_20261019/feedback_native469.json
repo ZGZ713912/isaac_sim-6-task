@@ -1,0 +1,49 @@
+{
+  "schema": "flat-feedback-native469-milestone-proof-v1",
+  "passed": true,
+  "checks": {
+    "full_native_restore": true,
+    "parent_critic_exact": true,
+    "actor_unchanged_first_critic": true,
+    "actor_unchanged_all_twenty_warmup": true,
+    "actor_Adam_unchanged_all_twenty_warmup": true,
+    "parent_Adam_group_0_exact": true,
+    "parent_Adam_group_1_exact": true,
+    "new_feedback_Adam_initially_empty": true,
+    "native_initial_mean_exact_parent_real_inputs": true,
+    "first_actor_changes_only_corrections": true,
+    "first_actor_updates_feedback": true,
+    "first_actor_updates_command_branch": true,
+    "first_critic_value_updates": true,
+    "twenty_critic_updates_charged": true,
+    "first_actor_counter": true,
+    "native_50Hz_policy_200Hz_physics_four_PD": true,
+    "native_population_mixed_commands": true
+  },
+  "milestones_sha256": {
+    "parent": "334bbee9a258a55d03be273f0c86d356b58ddcca6a8eddd4c1ebb6ad1c1ceaa2",
+    "initial": "ea82e7b4acd23f84d33233a697ce880069a2d62179018d9483c46530fc93e0de",
+    "first_critic": "b6e812dbe7226374a83b9368b685cf14d659f74da707ef3bd94dff6fa3dcf028",
+    "warmup_end": "68abe8d077db7e0090095776ef3decd0bc1924303f8de3bd54953ff6aea08793",
+    "first_actor": "85a48d9dce539ad60c10f3e951384e09e67ff5f5c8b420f270344538aa20bd28"
+  },
+  "real_inputs": 2816,
+  "changed_first_actor_state_names": [
+    "mlp.command.residual.0.weight",
+    "mlp.command.residual.0.bias",
+    "mlp.command.residual.2.weight",
+    "mlp.command.residual.2.bias",
+    "mlp.feedback.0.weight",
+    "mlp.feedback.0.bias",
+    "mlp.feedback.2.weight",
+    "mlp.feedback.2.bias"
+  ],
+  "new_optimizer_updates_by_this_inspector": 0,
+  "successful_updates_at_last_milestone": 469,
+  "consumed_updates_at_last_milestone": 470,
+  "actor_updates_all_local_trials": 379,
+  "command_branch_actor_updates": 45,
+  "feedback_branch_actor_updates": 1,
+  "hardware_qualified": false,
+  "inspector_sha256": "6837a84f48a67cf8e6ec380e8cdd15303051410240f1126ade498fd6cf50dfe7"
+}

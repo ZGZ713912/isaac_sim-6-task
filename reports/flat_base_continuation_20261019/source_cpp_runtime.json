@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "model_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "fixture_count": 2560,
+  "cpp_runtime": "actual_RMCS_PolicyModel_and_OnnxRuntime_ORT1.20.0",
+  "max_abs_error_vs_python_ORT": 1.0728836059570312e-06,
+  "negative": {
+    "wrong_obs_size": {
+      "rejected": true,
+      "message": "model input 'obs' has 35 observations; vehicle configuration requires 34"
+    },
+    "wrong_model_spec": {
+      "rejected": true,
+      "message": "wheel_leg_v7 model_spec_sha256 does not match the deployed paired-107 contract"
+    },
+    "wrong_winding": {
+      "rejected": true,
+      "message": "model leg_winding_version metadata does not match the configured target contract"
+    },
+    "missing_metadata": {
+      "rejected": true,
+      "message": "model leg_winding_version metadata does not match the configured target contract"
+    }
+  },
+  "source_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/cpp/flat_base_rmcs_check.cpp": "9c0f6e99222d464e560c82b5741068ef3e1581551429e681cee1f4522d6913fb",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/onnx_runtime.cpp": "bec2b53639e93d1b50946e7e40912f77c8b3f2013d444866c37e088063a5fcf6",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/policy_model.cpp": "27c0f87fd1c4b8839fb7d4720dd424cf5a196cbf7a20394c1cc8b539376df9a4"
+  },
+  "legacy_checker": "old tool/check_policy_contract.py absent from current RMCS checkout; current native loader compiled instead",
+  "hardware_motion": false
+}

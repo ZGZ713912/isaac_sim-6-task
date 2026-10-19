@@ -1,0 +1,16 @@
+{
+  "schema": "flat-trainer-entry-revision-v1",
+  "parent_checkpoint_sha256": "19150da17b971c052b1d7e14dd3588db25dd5e1dbc9f61aaf53a0958bbf82fe5",
+  "old_entry_sha256": "1b53915261ddfb8052b0a00b1d40e1d3eeb3c1d20420be229f5b2ff1b5b3e13d",
+  "new_entry_sha256": "ff7f37edc76fb58c73d12f276e9387bfe293ab918aaa790382404da8ec6d6a63",
+  "reason": "Require matched full-envelope preservation before large blocks; save resumed-block first critic/actor milestones. No change to rollout, PPO loss, environment, plan, model, Adam or clocks.",
+  "validation": {
+    "relevant_cpu_tests_passed": 126,
+    "large_block_tests": [
+      "basic accuracy plus preservation",
+      "broader numeric regression despite an already-failing absolute check",
+      "wrong checkpoint",
+      "wrong PD clock"
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "flat-separated-v3-candidate-actual832-cpu-v3",
+  "recorded_at": "2026-10-19T00:26:20.055135+00:00",
+  "checks": {
+    "parent_object_unchanged": true,
+    "mapper_rng_unchanged": true,
+    "all_parent_fields_except_actor_and_remapped_optimizer_exact": true,
+    "all_parent_actor_tensors_exact": true,
+    "initial_mean_exact": true,
+    "initial_critic_exact": true,
+    "all_actor_Adam_slots_preserved_or_exact_feedback_clones": true,
+    "all_critic_Adam_slots_exact": true,
+    "both_group_hyperparameters_retained": true,
+    "rejects_wrong_kind": true,
+    "rejects_wrong_names": true,
+    "rejects_changed_critic": true,
+    "rejects_reordered_names": true,
+    "all_cpu_losses_finite": true,
+    "only2252_feedback_parameters_trainable": true,
+    "all_frozen_actor_state_exact_after_cpu_PPO": true,
+    "all_frozen_Adam_slots_exact_after_cpu_PPO": true,
+    "feedback_four_tensors_learned": true,
+    "feedback_Adam12_native_minibatch_steps": true,
+    "fast_feedback_four_tensors_learned": true,
+    "fast_feedback_Adam12_native_minibatch_steps": true,
+    "critic_learned": true,
+    "eight_original_serialized_tensors_exact": true,
+    "metadata_identifies_separated_kind": true,
+    "ORT_dynamic_batch_numerically_matches": true,
+    "added_correction_cross_runtime_error_below2e6": true,
+    "actual832_recorded_frames_match_existing_export_tolerances": true,
+    "correction_stays_within_original_bounds": true
+  },
+  "passed": true,
+  "parent_checkpoint_sha256": "31d0cc50c2b39b2a11753389b92603da51c8326c44297fdda3abd9a3aa69ff02",
+  "candidate_sha256": "144d80e978b557d469c7297dab85fecc0873155ded9819401737af69ca91a3e9",
+  "extension": {
+    "actor_function": "exact_parent_mean_with_identical_feedback_clones",
+    "existing_weights_Adam_std_critic_RNG_counters": "retained_without_refund",
+    "fast_feedback_weights_and_Adam": "cloned_from_parent_shared_feedback_including_step",
+    "new_trainable_feedback_parameters": 2252,
+    "new_feedback_tensors": 4,
+    "inherited_shared_feedback_updates": 304,
+    "post_split_actor_updates": 0,
+    "actor_clip_semantics": "native_joint_actor_clip_unchanged"
+  },
+  "ORT_max_abs_errors_by_batch": {
+    "1": 9.5367431640625e-07,
+    "17": 1.9073486328125e-06,
+    "257": 3.814697265625e-06,
+    "8192": 1.52587890625e-05
+  },
+  "parent_graph_max_abs_errors_by_batch": {
+    "1": 9.5367431640625e-07,
+    "17": 1.9073486328125e-06,
+    "257": 3.814697265625e-06,
+    "8192": 1.52587890625e-05
+  },
+  "correction_delta_cross_runtime_errors": {
+    "1": 2.9802322387695312e-08,
+    "17": 4.76837158203125e-07,
+    "257": 9.5367431640625e-07,
+    "8192": 1.9073486328125e-06
+  },
+  "numeric_contract": {
+    "absolute_tolerance": 2e-05,
+    "relative_tolerance": 2e-05,
+    "source": "existing scripts/export_flat_base.py production interface tolerance; no production threshold changed",
+    "source_sha256": "a581fefebb7301ed4e8a5d5afb771ed319f3ff62b63c194e9fd220db20a42e24",
+    "prior_stricter_probe_failures_preserved": [
+      "separated_v3_candidate_actual832_cpu001.json",
+      "separated_v3_candidate_actual832_cpu002.json"
+    ]
+  },
+  "recorded_trace_verification": {
+    "samples": 2560,
+    "max_abs_error": 1.1920928955078125e-06,
+    "trace_sha256": "c9cf2146e30b5526cd96216a8e566648c878d5b8c7887d0b4eef7e26366c75ac",
+    "used_for_optimization": false
+  },
+  "cpu_synthetic_PPO_updates": 1,
+  "native_optimizer_updates": 0,
+  "native_environment_steps": 0,
+  "checkpoint_files_written": 0,
+  "adopted": false,
+  "behavior_qualified": false,
+  "limitations": "Native restoration, GPU learning, global actor clipping interaction and all behavior remain unverified."
+}

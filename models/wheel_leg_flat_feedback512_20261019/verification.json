@@ -1,0 +1,73 @@
+{
+  "schema": "flat-base-rmcs-export-v1",
+  "model_sha256": "288f2a4c933081b7c9e33fe5645a6efebb23a7c293445b0cb763b63e6902d1d9",
+  "source_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "checkpoint_sha256": "f86aa34c16b0de0ee20c7d8ff5b7fb65978672b999c4adea8f71fa29a21382b5",
+  "successful_updates_total": 512,
+  "actor_updates_total": 422,
+  "actor_adaptation": "original-command-and-gated-feedback-residual-v1",
+  "active_branch_actor_updates": 88,
+  "feedback_branch_actor_updates": 44,
+  "local_count_semantics": "all local trial branches; original training count remains unknown",
+  "consumed_optimizer_updates_total": 513,
+  "evaluation_sha256": "581d29740898840e3641dbf0c1a286d635ecf8526d75e942422c20c6b2c92ea9",
+  "behavior_passed": false,
+  "evaluated_case_names": [
+    "stand_230mm",
+    "stand_305mm",
+    "stand_430mm",
+    "forward_05",
+    "backward_05",
+    "rotate_1",
+    "rotate_1_reverse",
+    "start_stop_05"
+  ],
+  "input_shape": [
+    "batch",
+    35
+  ],
+  "output_shape": [
+    "batch",
+    6
+  ],
+  "layout_sha256": "233158e1836f56a0393ceb2c5342cd6d9ba46fdac43b8074247bfac6c4f87d61",
+  "source_rmcs_yaml_sha256": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063",
+  "source_loader_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/cpp/flat_base_rmcs_check.cpp": "9c0f6e99222d464e560c82b5741068ef3e1581551429e681cee1f4522d6913fb",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/onnx_runtime.cpp": "bec2b53639e93d1b50946e7e40912f77c8b3f2013d444866c37e088063a5fcf6",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/policy_model.cpp": "27c0f87fd1c4b8839fb7d4720dd424cf5a196cbf7a20394c1cc8b539376df9a4"
+  },
+  "verification_samples": 2560,
+  "pytorch_onnx_max_abs_error": 1.0132789611816406e-06,
+  "rmcs_cpp_python_ort_max_abs_error": 7.152557373046875e-07,
+  "negative_contract_tests": {
+    "wrong_obs_size": {
+      "rejected": true,
+      "error": "model input 'obs' has 35 observations; vehicle configuration requires 34"
+    },
+    "wrong_model_spec": {
+      "rejected": true,
+      "error": "wheel_leg_v7 model_spec_sha256 does not match the deployed paired-107 contract"
+    },
+    "wrong_winding": {
+      "rejected": true,
+      "error": "model leg_winding_version metadata does not match the configured target contract"
+    }
+  },
+  "deployment_interface_verified": true,
+  "behavior_qualified": false,
+  "export_kind": "intermediate",
+  "release_evaluation_receipts": null,
+  "release_evidence_sha256": null,
+  "packaged_command_limits": {
+    "vx_m_s": 3.0,
+    "yaw_rad_s": 4.0,
+    "height_m": [
+      0.23,
+      0.42
+    ]
+  },
+  "physical_robot_tested": false,
+  "hardware_motion_started": false,
+  "control_timing_scope": "50Hz actor; 200Hz training; 1000Hz deployment cohorts required for behavior qualification"
+}
