@@ -4,7 +4,52 @@
 `/home/noir/Downloads/wheel_leg_flat_base.onnx`，恢复副本位于
 `models/wheel_leg_flat_base_20261018/source.onnx`。
 
-## 最新进展：1280短训与基础复测封存，7/8通过，补查两档完整范围
+## 最新状态：静站分离的三组原生对照完成，开始16次运动反馈试验
+
+2026-10-19 11:09 UTC，1280仍为最新完整训练终点。独立静站分离对照基础8/8、
+RMCS23cm完整13/22、42cm完整10/22；三个原时长回放均已exit0，全部owner退出。
+两档完整对照各15项身份/event/动作复现检查通过，相对1280没有丢失通过检查；
+三档静站轨迹与1248逐位一致。42cm的3m/s停车峰从1.92470变为1.95255m/s，
+其余完整失败仍保留，不能因基础8/8而授予资格。
+
+依据这些对照，将v5冻结静站分支接入有界运动试验，并将teacher系数.02改为0，
+原生step/update/save_checkpoint逻辑保持。采纳回执`static_teacher0_plan_revision021.json`
+SHA `f001dec27d3c9060e49c2892fbdff3ad294c8045709bf8d160cad83451463e88`；
+11项真实状态CPU集成、4项学习路径AST、5项新计划合同及74项生产回归通过（集合重叠，不相加）。
+除actor类型、冻结1248参考及teacher三个字段外，父权重/Adam/std/critic/RNG/历史消费、
+4096人口、reward、份额、50/1000Hz时钟、学习率与验收门槛保留，0额外预热。
+
+唯一`static_teacher0_1296_queue001`已启动controller2473116/worker2473118的`pilot026`，
+126份执行文件冻结；拟新增16次actor/critic更新至成功1296/消费1297/80,216,064成功帧，
+这些是计划终点，尚非实测。首1281原生状态核查通过后才继续其余更新；终点串行复测
+基础、23cm完整、42cm完整三个场景，之后没有排队后续PPO。
+零命令刹车仍复用冻结静站反馈，是此试验明确保留的局限；这一轮只隔离运动误差，
+停车仍待独立改进。没有长训、heldout或实车动作；1280中间ONNX仍未qualified。
+
+首个1281原生更新已完成，`static_teacher0_native1281.json`26项检查通过；
+checkpoint SHA `07128f413eb2983f04d2ac5399b00e99b5c21257764e985ccdfaa72beed785d1`。
+静站/原actor/命令/std及冻结Adam保持、8张运动反馈与critic已变，12 Adam步/更新；
+成功1281、actor1101、消费1282，0预热，唯一原owner持续。前3次已完成更新的原生原因
+读回核对1个forward_high高档非轮触地失败；边界截断单独计。
+
+`braking_feedback_scope_audit001.json`在512个已记录高速刹车状态证明，当前v5的
+零命令样本对8张移动反馈张量梯度全0；这轮停车项只能随进入刹车时的状态变化，
+不能直接学新零命令刹车反馈。另`high_reverse1280_same_input_bounds001.json`证明
+42cm/−3m/s回放5–9秒800帧，CPU动作复现差1.967e−6，实际body/encoder均约+.42m/s，
+当前轮速目标约+.430m/s；即使反馈取最大反向边界，目标仍全部>+.1427m/s、均值+.1533。
+这只是已记录状态上的瞬时目标可达性限制，腿控及改变后的闭环状态仍可能逃离该区域，
+不能冒称全局不可学或tanh已饱和。后续若继续高档修复，需明确处理轮速修正权限与刹车学习范围。
+
+高速/刹车轮速权限候选已暂存`wheel_authority_candidate001/`，尚未采纳：
+在v5之上追加28→32ELU→2的994参数轮分支，末层初始全0，原函数逐位保持。
+高速命令门在|vx|>.75或|yaw|>1.5逐渐启用；零命令仅编码器轮缘速度>.4m/s时
+逐渐启用刹车反馈，现有29,200帧静站/高度扫描该门均为0。附加单轮raw bound6
+对应60rad/s，但既有总轮动作/扭矩帽保持；新分支首点导数为1，现有全部分支冻结。
+20项CPU函数/真实Adam归属/ONNX检查及13项暂存集成检查通过，独立4096合同和
+原生step/update/save_checkpoint AST保持；0新原生/0优化器/未生成PT或ONNX。
+这是后续修复候选，不能把相同输入静站不变当作所有未来闭环都不退化。
+
+## 1280三组复测与独立静站对照的阶段记录
 
 16次v4门控小训实际完成，0额外预热，耗时2461.069s；成功1280/全部actor1100/
 优化器消费1281/累计成功帧73,924,608。最终PT SHA
@@ -30,6 +75,64 @@
 独立静站反馈候选对实际1280的5120个旧trace输入也通过6项CPU检查，
 零命令精确复用1248反馈、移动区间精确保留1280反馈；原生静站/停车仍待验证。
 该候选只用于诊断、未替换训练策略；teacher-zero v4候选仍只CPU预检。
+
+23cm完整复测已实际exit0：13/22通过、86/88跑满、2条正向弯道边界退出，
+倒地及其它机械异常终止0；三档静站漂移.7617/.5748/1.8356cm全部通过。
+±3m/s误差.14296/.17887m/s，正向4rad/s平动.07048m/s仍失败，
+相对原策略该项丢失velocity通过且超过预设.02m/s相对容差；相对1248丢失curve_low survival，
+相对1264无丢失检查/预设相对退化。高度扫描高度MAE4.125mm通过，但漂移6.356cm失败。
+1/2/3m/s停车请求1s后峰.08767/.48839/1.01626m/s均失败。42cm由worker2440658运行中。
+
+独立静站候选新增`static_feedback_v5.py`只暂存reports，14项CPU检查通过：
+保持所有v4旧参数名和Adam/RNG/消费，另追加1248四张冻结静站反馈张量且无Adam状态；
+零命令对可学习两移动分支梯度为0，5120旧trace输入ONNX误差8.9407e−7，
+原ONNX全部initializer逐位保持。尚未集成生产loader/trainer、未采纳/0原生/0PPO。
+
+中间ONNX已实际导出至`models/wheel_leg_flat_low_gate1280_20261019/policy.onnx`，
+SHA `ea368a63395e5d7e7a1c90aa35e4d89c6210c34d6d3073624593d7f8e0d28f02`。
+2560组输入PyTorch/ORT最大误差8.9407e−7，RMCS实际C++加载/ORT差7.1526e−7，
+错obs维/错机械spec/错winding三个负例全部拒绝。35→6、50Hz与原初始tensor保持，
+附加v4门控/反馈图及metadata；`verification.json`明确intermediate、behavior_qualified=false、
+physical_robot_tested=false，没有修改RMCS工作树或启动实车。
+
+两档完整范围复测均exit0，controller2425057/最后worker2440658均退出；
+`low_gate1280_height_completion001.json`12项封存检查全通过，134份执行文件保持。
+42cm完整10/22通过、84/88跑满，4条反向弯道边界退出，全部机械异常终止0；
+−2/−3m/s误差1.62014/3.37332m/s，相对1248的1.51996/3.34858已超既定.02相对容差。
+`low_gate1280_behavior_review001.json`绑定三个同PT固定回放，继续标记未qualified/不能长训。
+
+封存后才启动`static_recall1280_diagnostic_queue001`的controller2449301/worker2449303，
+唯一`static_recall1280_basic001`完整8案例对照；父1280PT和静站1248PT保持，
+helper/evaluator/实际1280 CPU及AST证明绑定，0优化器写入、0训练checkpoint，
+原10秒静站/16秒启停/seed191029/50Hz1000Hz和所有阈值均保留。
+这是候选函数的原生诊断，尚未采纳v5或启动teacher0/后续PPO。
+
+独立静站完整原生对照已exit0，controller2449301/worker2449303均退出；
+`static_recall1280_diagnostic_review001.json`15项检查全通过，全部active原生动作的
+CPU最大复现差1.6466e−6。8/8案例通过、32/32跑满，所有异常终止0。
+三档静站动作、obs、速度、位置、高度、重力轨迹均与1248逐位一致，最大漂移
+1.3533/1.7704/1.9173cm；前后.5误差.02929/.02708m/s，双向转向vx.00325/.00395m/s，
+低速停止1s后峰.015888m/s通过。回执仍diagnostic_only，未生成训练checkpoint或发布资格。
+
+该对照封存后才启动`static_recall1280_envelope_queue001`的controller2454290/worker2454292，
+唯一`static_recall1280_default_envelope001` RMCS23cm完整22案例，原28秒高度扫描/
+32秒高速启停、seed191029、50Hz1000Hz与阈值保持，0优化器更新。
+137份既有执行源加新队列共138份冻结；后续v5采纳/teacher-zero训练均未排队。
+完整回读器`read_static_recall1280_envelope001.py`已准备，须该队列完成且两个owner退出后运行。
+
+23cm静站分离对照已完成，两个owner退出；
+`static_recall1280_envelope_review001.json`15项身份/动作复现/event检查通过，
+CPU与全部active原生动作最大差3.3379e−6，13/22项通过、86/88跑满，
+相对原1280没有丢失通过检查，三档静站轨迹与1248逐位一致。
+1/2/3m/s停止请求1s后速度峰仍.08654/.46711/1.00101m/s，不授停车资格。
+随后唯一`static_recall1280_maximum_queue001`由controller2462125/worker2462126
+补跑42cm原22案例，139份执行源冻结，0新PPO；完成前不修改生产代码。
+
+暂存v5生产集成已完成11项CPU检查，4项AST检查确认原生step/update/save_checkpoint不变。
+另准备teacher系数.02→0的4096环境计划，5项合同CPU检查通过；只有actor类型、
+冻结静站参考及teacher三个计划字段变化，0额外预热。队列/原生状态核查器已准备，
+尚未采纳或启动。静站分支冻结也会冻结零命令刹车反馈，因此这轮仅用于隔离并优化
+运动误差；停车目标仍未解决，后续需独立改进，不能据此进入长训或部署。
 
 ## 1264封存至1280启动过程（历史记录）
 
