@@ -127,6 +127,10 @@ def extend_wheel_authority_parent(parent, actor, critic, optimizer, old_actor_na
     from wheeled_algo.static_feedback import KIND as PARENT_KIND
     if type(actor.mlp) is not WheelAuthorityActor or parent['infos']['actor_adaptation'] != PARENT_KIND:
         raise ValueError('Wheel authority requires the explicit v5 identity extension')
+    if any(torch.count_nonzero(p.detach()).item() for p in actor.mlp.wheel_authority[2].parameters()):
+        raise ValueError('Identity extension requires a zero-output final layer')
+    if not torch.equal(actor.mlp.authority_bound.detach().cpu(), torch.tensor([6., 6.])):
+        raise ValueError('Identity extension requires the fixed wheel bound')
     transformed = deepcopy(parent)
     old, new = parent['actor_state_dict'], deepcopy(actor.state_dict())
     extras = set(new)-set(old)
