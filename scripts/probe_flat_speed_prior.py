@@ -36,10 +36,14 @@ def main():
         help="Explicit 200 Hz time contract for zero-PPO replay of saved weights")
     parser.add_argument("--case-names",nargs='+',help="Explicit diagnostic subset; never qualifies a release")
     parser.add_argument("--inference-backend",choices=('torch_cuda','onnx_cpu_single'),default='torch_cuda')
+    parser.add_argument('--parallel-onnx-arms', action='store_true',
+        help='Run independent single-frame ONNX sessions concurrently, joining before each physical step')
     parser.add_argument("--replicas",type=int,choices=(2,4),default=2)
     parser.add_argument("--seconds", type=float)
     parser.add_argument("--seed", type=int, default=191119)
     args = parser.parse_args()
+    if args.parallel_onnx_arms and args.inference_backend != 'onnx_cpu_single':
+        raise ValueError('Concurrent arms require the single-frame ONNX backend')
     if args.inference_backend!='torch_cuda' and (args.mode!='checkpoint_compare' or args.include_reference_teacher):
         raise ValueError('Single-frame ONNX replay requires sealed checkpoint arms')
     if args.motion_sequences and not args.envelope:
@@ -195,6 +199,7 @@ def main():
         case_names=list(selected),full_envelope=args.envelope and args.case_names is None,horizon_seconds=horizon,
         seed=seed,
         inference_backend=args.inference_backend,
+        parallel_onnx_arms=args.parallel_onnx_arms,
         additional_motion_sequences=args.motion_sequences,
         reference_scope='straight_high_reverse_only'if args.reverse_reference_only else'checkpoint',
         static_preflight=static, qualified=False, checkpoint_saved=False)
@@ -206,7 +211,7 @@ def main():
     policy_sources=[ROOT/'src/wheeled_algo'/name for name in (
         'command_residual.py','guarded_feedback_residual.py','separated_feedback.py',
         'low_demand_feedback.py','static_feedback.py','wheel_authority.py','static_grip.py',
-        'speed_reference.py','intent_speed_reference.py','motion_state_residual.py','directional_motion.py')]
+        'speed_reference.py','intent_speed_reference.py','motion_state_residual.py','directional_motion.py','directional_runtime.py','single_frame_inference.py')]
     report['code_sha256'].update({str(p.relative_to(ROOT)):digest(p)for p in policy_sources})
     evaluation_sources=[ROOT/'scripts/flat_rmcs_command_reference.py']+[
         ROOT/'src/wheeled_tasks/chassis'/name for name in ('eval_env.py','episode_metrics.py',
@@ -214,6 +219,8 @@ def main():
     if policy_plan:
         evaluation_sources.extend(ROOT/'src/wheeled_tasks/chassis'/name for name in (
             'flat_policy_rate.py','flat_base_continuation.py','flat_clock_transition.py','control_contract.py','preflight.py'))
+        if policy_plan['schema'] == 'flat-base-finetune-plan-v19':
+            evaluation_sources.append(ROOT/'src/wheeled_tasks/chassis/directional_motion_plan.py')
     if args.reverse_reference_only:
         evaluation_sources.append(ROOT/'src/wheeled_algo/reverse_reference_scope.py')
     if args.mode in ('coupled_reference','braking_reference'):
@@ -235,7 +242,7 @@ def main():
         print(json.dumps(dict(status=report['status'],num_envs=count,cases=len(settings['cases']),gains=gains)))
         return 0
     (args.output / "report.json").write_bytes(encode(report))
-    app, env = None, None
+    app, env, single_frame_inference = None, None, None
     start = time.monotonic()
     try:
         from isaaclab.app import AppLauncher
@@ -270,6 +277,10 @@ def main():
             for index,path in paths.items():
                 checkpoint = torch.load(path,map_location='cpu',weights_only=True)
                 actors[index] = mean_from_checkpoint(checkpoint,ROOT/'models/wheel_leg_flat_base_20261018/source.onnx').to('cuda:0').eval()
+                if args.inference_backend == 'onnx_cpu_single':
+                    from wheeled_algo.directional_runtime import preserve_directional_graph
+                    actors[index] = preserve_directional_graph(actors[index], ROOT/'models/wheel_leg_flat_base_20261018/source.onnx',
+                        checkpoint['infos'].get('directional_motion', {}).get('checkpoint'))
                 if args.reverse_reference_only and index!=0:
                     from wheeled_algo.reverse_reference_scope import ReverseReferenceScope
                     actors[index]=ReverseReferenceScope(actor,actors[index]).to('cuda:0').eval()
@@ -277,6 +288,7 @@ def main():
                 report['checkpoint_comparison'][str(index)] = dict(role=role,
                     path=str(path),sha256=digest(path),successful_updates=checkpoint['infos']['successful_updates_total'],
                     actor_updates=checkpoint['infos']['actor_updates_total'],
+                    saved_weights_clock_hz=checkpoint['infos'].get('policy_hz', 50),
                     supervised_head_fit=checkpoint['infos'].get('supervised_head_fit'))
             if args.include_reference_teacher:
                 index=len(actors)
@@ -302,6 +314,8 @@ def main():
                 runtimes[index]=ort.InferenceSession(str(model),sess_options=options,providers=['CPUExecutionProvider'])
                 report['inference_models'][str(index)]=dict(path=str(model),sha256=digest(model),batch_size=1,
                     provider='CPUExecutionProvider',intra_op_threads=1,inter_op_threads=1)
+            from wheeled_algo.single_frame_inference import SingleFrameInference
+            single_frame_inference = SingleFrameInference(runtimes, args.parallel_onnx_arms)
         env = FixedCaseEnv(config, manifest, control, ROOT, stage_name="speed", num_envs=count,
             device="cuda:0", seed=seed, level=1., run_role="quick")
         reference = install_reference(env, config["rmcs_command_reference_replay"])
@@ -343,14 +357,13 @@ def main():
                 policy = obs["policy"]
                 if actors:
                     actions = torch.zeros(count,6,device=env.device)
-                    for index,mean in actors.items():
-                        ids=actor_lanes[index]
-                        if runtimes:
-                            frames=policy[ids].cpu().numpy()
-                            values=np.concatenate([runtimes[index].run(None,{'obs':frame[None]})[0]for frame in frames],axis=0)
-                            actions[ids]=torch.from_numpy(values).to(env.device)
-                        else:
-                            actions[ids]=mean(policy[ids])
+                    if single_frame_inference is not None:
+                        frames = {index: policy[ids].cpu().numpy() for index, ids in actor_lanes.items()}
+                        for index, values in single_frame_inference.run(frames).items():
+                            actions[actor_lanes[index]]=torch.from_numpy(values).to(env.device)
+                    else:
+                        for index, mean in actors.items():
+                            actions[actor_lanes[index]]=mean(policy[actor_lanes[index]])
                 elif args.mode == "wheel_error":
                     actions = correct(policy, actor(policy), gain)
                 elif args.mode == "state_reference":
@@ -407,6 +420,8 @@ def main():
     finally:
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
         (args.output / "report.json").write_bytes(encode(report))
+        if single_frame_inference is not None:
+            single_frame_inference.close()
         if env is not None:
             env.close()
         if app is not None:

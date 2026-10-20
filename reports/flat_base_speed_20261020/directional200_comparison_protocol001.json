@@ -1,0 +1,30 @@
+{
+  "schema": "flat-directional200-comparison-protocol-v1",
+  "status": "frozen_before_heldout",
+  "seed": 191339,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "seconds": 32,
+  "replicas": 4,
+  "heights_m": [
+    0.305,
+    0.42
+  ],
+  "ground_friction": [
+    0.2,
+    0.5
+  ],
+  "source_preparation_sha256": "79739a26f85b7361510b82825bb40788b2264072dc6d598bc72c8976b8c57166",
+  "inference_backend": "onnx_cpu_single",
+  "cases": "unchanged original 22-case envelope plus positive/negative yaw start-stop",
+  "compare": {
+    "parent": "runs/flat_base_20261019/pilot029_static_grip1338/model_001338.pt",
+    "initialized": "runs/flat_base_20261020/pilot034_directional200_1346/initial_state.pt",
+    "trained": "runs/flat_base_20261020/pilot034_directional200_1346/model_001346.pt",
+    "variant_1": "runs/flat_base_20261020/pilot034_directional200_1346/model_001342.pt"
+  },
+  "analysis": "report complete episode denominators, conditional MAE, missing post-warmup frames, per-condition direction/height/friction, lost original low checks, closures and native termination reasons",
+  "qualification": false,
+  "selection_does_not_grant_release": true,
+  "new_optimizer_updates": 0
+}

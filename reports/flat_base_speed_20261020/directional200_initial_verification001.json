@@ -1,0 +1,41 @@
+{
+  "initial_state_sha256": "6b308a41b7fd3a1b320f2fc56e2418c602a934745cce1f1e02eb6f70abb55e33",
+  "old_actor_and_std_exact": true,
+  "existing_critic_exact": true,
+  "full_restore": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true,
+    "cpu_sampling_rng": true,
+    "cuda_sampling_rng": true,
+    "environment_rng_before_new_reset": true
+  },
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "declaration": {
+    "kind": "original-static-grip-with-directional-motion-v12",
+    "parent_sha256": "e07adbb5a3c2c086d9cbcb38e97b3be5f09ddd4114e749d14db391d62c3c51d1",
+    "trainable_parameters": 1656,
+    "banks": [
+      "forward",
+      "reverse",
+      "yaw_positive",
+      "yaw_negative"
+    ],
+    "features": "tanh(64 frozen features * .1), four tanh request/encoder/gyro features",
+    "gate": "high command or moving stop; quiet and low moving commands retain the parent function",
+    "references": "straight high translation only; gyro turns remain on the original controller",
+    "raw_action_bounds": [
+      0.15000000596046448,
+      0.15000000596046448,
+      0.15000000596046448,
+      0.15000000596046448,
+      0.800000011920929,
+      0.800000011920929
+    ],
+    "preservation_scope": "identical inputs outside active gate; native trajectory retention still required"
+  },
+  "restoration_reference": "Declared extension of 200Hz parent; learned old tensors unchanged; new zero bank plus reference function change",
+  "new_optimizer_updates": 0,
+  "behavior_qualified": false
+}
