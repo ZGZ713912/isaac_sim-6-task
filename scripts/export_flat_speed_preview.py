@@ -48,6 +48,8 @@ def main():
     if digest(source)!=info['flat_base_source_onnx_sha256']:
         raise ValueError('Original actor source changed')
     actor=mean_from_checkpoint(state,source).eval()
+    from wheeled_algo.directional_runtime import preserve_directional_graph
+    actor=preserve_directional_graph(actor,source,info.get('directional_motion',{}).get('checkpoint'))
     if report.get('reference_scope')=='straight_high_reverse_only':
         from wheeled_algo.reverse_reference_scope import ReverseReferenceScope
         parent_path=Path(report['checkpoint_comparison']['0']['path'])

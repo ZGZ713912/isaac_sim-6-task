@@ -150,6 +150,7 @@ def main():
     from wheeled_algo.speed_reference import KIND as SPEED_REFERENCE_KIND
     from wheeled_algo.intent_speed_reference import KIND as INTENT_SPEED_KIND
     from wheeled_algo.motion_state_residual import KIND as MOTION_STATE_KIND
+    from wheeled_algo.directional_motion import KIND as DIRECTIONAL_KIND
     from wheeled_tasks.chassis.flat_base_continuation import read_plan, digest, encode
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -192,7 +193,9 @@ def main():
     _, recovered = recover_actor(source)
     mean = {k: v for k, v in state["actor_state_dict"].items() if k.startswith("mlp.")}
     actor = mean_from_checkpoint(state, source)
-    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND, GRIP_KIND, MOTION_GRIP_KIND, SPEED_REFERENCE_KIND, INTENT_SPEED_KIND,MOTION_STATE_KIND):
+    from wheeled_algo.directional_runtime import preserve_directional_graph
+    actor = preserve_directional_graph(actor, source, info.get('directional_motion', {}).get('checkpoint'))
+    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND, GRIP_KIND, MOTION_GRIP_KIND, SPEED_REFERENCE_KIND, INTENT_SPEED_KIND,MOTION_STATE_KIND,DIRECTIONAL_KIND):
         graph = actor.export_graph(source)
     else:
         graph = onnx.load(str(source))

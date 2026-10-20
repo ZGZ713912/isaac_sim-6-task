@@ -163,3 +163,49 @@ def test_directional_plan_refuses_clock_material_or_budget_tampering(tmp_path):
         path.write_bytes(encode(broken))
         with pytest.raises(ValueError, match='undeclared'):
             read_plan(root, path)
+
+
+def test_composed_runtime_keeps_parent_onnx_exact_outside_motion_gate(means, tmp_path):
+    from wheeled_algo.directional_runtime import PreservedDirectionalRuntime
+    parent = means[1]
+    child = DirectionalMotionActor(parent, 'a' * 64)
+    with torch.no_grad():
+        child.motion_banks.weight.normal_(0, .001)
+    source = tmp_path / 'source.onnx'
+    write_source(source, SimpleNamespace(mlp=parent.command.base))
+    options = ort.SessionOptions()
+    options.intra_op_num_threads = options.inter_op_num_threads = 1
+    original = ort.InferenceSession(parent.export_graph(source).SerializeToString(), sess_options=options,
+        providers=['CPUExecutionProvider'])
+    composed = PreservedDirectionalRuntime(parent, child)
+    runtime = ort.InferenceSession(composed.export_graph(source).SerializeToString(), sess_options=options,
+        providers=['CPUExecutionProvider'])
+    obs = observations()
+    actual = runtime.run(None, {'obs': obs.numpy()})[0]
+    baseline = original.run(None, {'obs': obs.numpy()})[0]
+    off = child.motion_gate(obs).flatten() == 0
+    np.testing.assert_array_equal(actual[off], baseline[off])
+    np.testing.assert_allclose(actual, composed(obs).detach().numpy(), atol=2e-5, rtol=2e-5)
+
+
+def test_concurrent_single_frame_arms_match_sequential_bitwise(means, tmp_path):
+    from wheeled_algo.single_frame_inference import SingleFrameInference
+    parent = means[1]
+    source = tmp_path / 'source.onnx'
+    write_source(source, SimpleNamespace(mlp=parent.command.base))
+    options = ort.SessionOptions()
+    options.intra_op_num_threads = options.inter_op_num_threads = 1
+    graph = parent.export_graph(source).SerializeToString()
+    sessions = {i: ort.InferenceSession(graph, sess_options=options, providers=['CPUExecutionProvider']) for i in range(4)}
+    frames = {i: observations()[:32].numpy() for i in range(4)}
+    serial = SingleFrameInference(sessions)
+    concurrent = SingleFrameInference(sessions, parallel=True)
+    try:
+        expected, actual = serial.run(frames), concurrent.run(frames)
+        for index in sessions:
+            np.testing.assert_array_equal(expected[index], actual[index])
+        with pytest.raises(ValueError, match='Each independent'):
+            concurrent.run({0: frames[0]})
+    finally:
+        serial.close()
+        concurrent.close()
