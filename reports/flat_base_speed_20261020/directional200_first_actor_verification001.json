@@ -1,0 +1,41 @@
+{
+  "schema": "flat-directional200-first-actor-audit-v1",
+  "checkpoint_sha256": "09a3ac986d942f215931c8f0517cf91dfda2bba1bd527013589536d106628e4e",
+  "successful_updates_total": 1341,
+  "new_optimizer_updates": 3,
+  "new_actor_updates": 1,
+  "new_critic_only_updates": 2,
+  "changed_actor_state_names": [
+    "mlp.motion_banks.weight",
+    "mlp.motion_banks.bias"
+  ],
+  "old_actor_and_std_exact": true,
+  "bank_weight_delta_max": 0.00113559456076473,
+  "bank_bias_delta_max": 0.00037502372288145125,
+  "last_losses": {
+    "value": 124.57106335957845,
+    "surrogate": -0.00027183215570403263,
+    "entropy": -16.05972671508789,
+    "teacher": 6.682461698849996,
+    "teacher_action_rmse": 0.13248772422472635,
+    "teacher_fraction": 0.09282366745173931,
+    "approx_policy_kl": 0.0017437398255929863,
+    "policy_clip_fraction": 0.009335623976464072,
+    "actor_gradient_norm": 0.6308613469203314,
+    "critic_gradient_norm": 568.8629379272461,
+    "actor_learning_rate": 0.00010000000000000003,
+    "critic_learning_rate": 0.0005000000000000001,
+    "motion_trust_kl": 0.00324349501170218,
+    "motion_trust_scale": 1.0,
+    "motion_trust_backtracks": 0.0
+  },
+  "full_restore": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true,
+    "cpu_sampling_rng": true,
+    "cuda_sampling_rng": true,
+    "environment_rng_before_new_reset": true
+  },
+  "behavior_qualified": false
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "flat-directional200-comparison-protocol-v1",
+  "status": "frozen_before_heldout",
+  "seed": 191339,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "seconds": 32,
+  "replicas": 4,
+  "heights_m": [
+    0.305,
+    0.42
+  ],
+  "ground_friction": [
+    0.2,
+    0.5
+  ],
+  "source_preparation_sha256": "79739a26f85b7361510b82825bb40788b2264072dc6d598bc72c8976b8c57166",
+  "inference_backend": "onnx_cpu_single",
+  "cases": "unchanged original 22-case envelope plus positive/negative yaw start-stop",
+  "compare": {
+    "parent": "runs/flat_base_20261019/pilot029_static_grip1338/model_001338.pt",
+    "initialized": "runs/flat_base_20261020/pilot034_directional200_1346/initial_state.pt",
+    "trained": "runs/flat_base_20261020/pilot034_directional200_1346/model_001346.pt",
+    "variant_1": "runs/flat_base_20261020/pilot034_directional200_1346/model_001342.pt"
+  },
+  "analysis": "report complete episode denominators, conditional MAE, missing post-warmup frames, per-condition direction/height/friction, lost original low checks, closures and native termination reasons",
+  "qualification": false,
+  "selection_does_not_grant_release": true,
+  "new_optimizer_updates": 0,
+  "supersedes_protocol_sha256": "08402a1113f48b9fe3be3e59643f0598cc1bb99d394feef3dee0121dd3cbeb41",
+  "parallel_onnx_arms": true,
+  "execution_change": "Independent sessions compute batch-one actions concurrently; all complete before the same physical step. CPU equality verified; scenario/seed/criteria/checkpoint roles unchanged.",
+  "inference_source_sha256": {
+    "scripts/probe_flat_speed_prior.py": "a5f9221b226886463ec1e2ac0702c636b3d9acf1c3bcc2030f3b80df0f7a89db",
+    "src/wheeled_algo/single_frame_inference.py": "d2165bf7aefe98bd220cd8d1cb5af2ab1e1af9ea6fdbea06ba50bc25762105a4",
+    "src/wheeled_algo/directional_runtime.py": "61e864bf207677f182909ab17a25c2cfe7e83d4c471917279816b61376b10c04"
+  }
+}

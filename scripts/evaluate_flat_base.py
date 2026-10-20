@@ -238,12 +238,14 @@ def main():
                 ROOT / "src/wheeled_algo/command_residual.py", ROOT / "src/wheeled_algo/guarded_feedback_residual.py",
                 ROOT / "src/wheeled_algo/separated_feedback.py", ROOT / "src/wheeled_algo/low_demand_feedback.py", ROOT / "src/wheeled_algo/static_feedback.py", ROOT / "src/wheeled_algo/wheel_authority.py",
                 ROOT / "src/wheeled_algo/static_grip.py"]
-    if plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11'):
+    if plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11','original-static-grip-with-directional-motion-v12'):
         sources.append(ROOT / 'src/wheeled_algo/speed_reference.py')
         if plan['actor_adaptation']!='original-static-grip-with-reachable-speed-reference-v9':
             sources.append(ROOT/'src/wheeled_algo/intent_speed_reference.py')
         if plan['actor_adaptation']=='original-intent-speed-with-motion-state-residual-v11':
             sources.append(ROOT/'src/wheeled_algo/motion_state_residual.py')
+        if plan['actor_adaptation']=='original-static-grip-with-directional-motion-v12':
+            sources.extend(ROOT/'src/wheeled_algo'/name for name in ('directional_motion.py', 'motion_state_residual.py'))
     if args.reward_audit:
         sources.append(ROOT / "scripts/flat_reward_audit.py")
     if reference_contract is not None:
