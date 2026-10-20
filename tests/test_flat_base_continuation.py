@@ -81,6 +81,47 @@ def test_evaluation_replica_count_is_fixed(tmp_path):
         write_bundle(ROOT, tmp_path / "bad", 64, evaluation=True)
 
 
+@pytest.mark.parametrize("evaluation", (False, True))
+def test_latest_ground_range_reaches_both_train_and_evaluation_contracts(tmp_path, evaluation):
+    plan_file = "contracts/flat_base_finetune_ground_0p2_0p5_v1.json"
+    count = 32 if evaluation else 4096
+    config, seed = write_bundle(ROOT, tmp_path / "config", count, evaluation=evaluation, plan_file=plan_file)
+    material = config["contact_material"]
+    assert material["ground_static_friction_range"] == [.2, .5]
+    assert material["ground_dynamic_friction_range"] == [.2, .5]
+    assert material["wheel_static_friction"] == material["wheel_dynamic_friction"] == .1
+    assert "ground_sampling_bands" not in material
+    receipt = design_preflight(config, load_chassis_control(ROOT / config["control_math_source"]),
+        ROOT, stage="speed", role="quick" if evaluation else "train", num_envs=count, seed=seed)
+    assert receipt["status"] == "static_passed"
+
+
+@pytest.mark.parametrize("stage", ["low", "random"])
+@pytest.mark.parametrize("evaluation", [False, True])
+def test_separate_friction_stage_has_an_independent_contract_without_changing_the_policy_clock(tmp_path, stage, evaluation):
+    plan_file = f"contracts/flat_base_finetune_{stage}_friction_v1.json"
+    count = 32 if evaluation else 4096
+    config, seed = write_bundle(ROOT, tmp_path / "config", count, evaluation=evaluation, plan_file=plan_file)
+    control = load_chassis_control(ROOT / config["control_math_source"])
+    receipt = design_preflight(config, control, ROOT, stage="speed", role="quick" if evaluation else "train",
+        num_envs=count, seed=seed)
+    assert receipt["status"] == "static_passed"
+    assert (config["policy_dt"], config["physics_dt"]) == (.02, .001)
+    material = config["contact_material"]
+    assert material["wheel_static_friction"] == material["wheel_dynamic_friction"] == .1
+    assert material["combine_mode"] == "average" and not config["contact_domain"]["enabled"]
+    if stage == "random":
+        assert [band["range"] for band in material["ground_sampling_bands"]] == [[.1, .1], [.2, .3], [.3, .4]]
+    else:
+        assert material["ground_static_friction_range"] == [.2, .3]
+    assert "material-" in config["evaluation"]["protocol_id"]
+    bad = deepcopy(config)
+    bad["contact_material"]["wheel_static_friction"] = .5
+    with pytest.raises(ValueError, match="Preflight rejected"):
+        design_preflight(bad, control, ROOT, stage="speed", role="quick" if evaluation else "train",
+            num_envs=count, seed=seed)
+
+
 def test_birth_sampling_keeps_moving_population_and_each_height_total():
     from collections import Counter
     from wheeled_tasks.chassis.flat_base_continuation import read_plan

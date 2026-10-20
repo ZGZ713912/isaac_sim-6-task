@@ -347,6 +347,8 @@ def main():
     parser.add_argument("--manifest-sha256", default=DEFAULT_MANIFEST_SHA256)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--flat-only", action="store_true")
+    parser.add_argument("--with-shell-support-geometry", action="store_true",
+                        help="Include base-link collision vertices for rejecting impossible wheel-supported poses")
     parser.add_argument("--curriculum-simple-tops", action="store_true",
                         help="Build v2 by preserving v1 poses and adding simple staircase-top resets")
     parser.add_argument("--source-profiles", type=Path, default=ROOT / "contracts/v6_recovery_profiles_v1.json")
@@ -361,6 +363,12 @@ def main():
     builder = RecoveryProfileBuilder(args.asset, args.manifest_sha256)
     result = (builder.build_curriculum_profiles(args.source_profiles) if args.curriculum_simple_tops
               else builder.build(not args.flat_only))
+    if args.with_shell_support_geometry:
+        rows = builder.collision_bounds(builder.nominal, np.eye(3))
+        vertices = np.unique(np.concatenate([row["points"] for row in rows if row["body"] == "base_link"]), axis=0)
+        result["shell_support_geometry"] = dict(frame="base_link", body="base_link",
+            vertices_b_m=vertices.tolist(), model_spec_sha256=result["model_spec_sha256"],
+            source="sealed collision geometry; no terrain or simulator contact input")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     print(json.dumps({"output": str(args.output), "sha256": digest(args.output),

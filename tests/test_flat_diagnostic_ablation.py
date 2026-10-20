@@ -47,13 +47,15 @@ def test_parent_command_preserves_trained_feedback():
         diagnostic_ablation(current, "parent_command")
 
 
-def test_full_is_exact_and_other_architectures_reject():
+def test_full_is_exact_for_both_architectures_and_real_ablation_rejects_parent():
     parent, current = means()
-    before = deepcopy(current.state_dict())
-    diagnostic_ablation(current, "full")
-    assert all(torch.equal(v, before[n]) for n, v in current.state_dict().items())
-    with pytest.raises(ValueError, match="guarded feedback"):
-        diagnostic_ablation(parent, "full")
+    for mean in (parent, current):
+        before = deepcopy(mean.state_dict())
+        assert diagnostic_ablation(mean, "full") is mean
+        assert all(torch.equal(v, before[n]) for n, v in mean.state_dict().items())
+    for variant in ("feedback_off", "parent_command", "tracking_gate"):
+        with pytest.raises(ValueError, match="guarded feedback"):
+            diagnostic_ablation(parent, variant)
 
 
 def test_tracking_gate_diagnostic_changes_function_without_changing_weights():
