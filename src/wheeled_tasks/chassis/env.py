@@ -30,7 +30,13 @@ class ChassisEnv:
 
     def __init__(self, config, manifest, control, root: Path, *, stage_name, num_envs,
                  device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0,
-                 integrated_design_preflight=None):
+                 integrated_design_preflight=None, render_use_fabric=None):
+        render_options = {}
+        if render_use_fabric is not None:
+            if type(render_use_fabric) is not bool or run_role != "playback" or num_envs != 1:
+                raise ValueError("Display transport overrides require single-robot playback")
+            # Select the display transport before PhysX initializes its writers.
+            render_options["use_fabric"] = render_use_fabric
         if config.get("integrated_runtime_candidate", {}).get("static_recipe_preflight"):
             raise ValueError("Static joint recipe cannot construct a native environment")
         if (config.get("scut_heading_command", {}).get("enabled")
@@ -118,7 +124,7 @@ class ChassisEnv:
         self.level = level
         self.sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(
             dt=self.dt, device=device, render_interval=self.decimation,
-            enable_scene_query_support=config.get("enable_scene_queries", False)))
+            enable_scene_query_support=config.get("enable_scene_queries", False), **render_options))
         import carb.settings
         carb.settings.get_settings().set_bool("/physics/disableContactProcessing", False)
         if config.get("dense_tracking", {}).get("enabled"):

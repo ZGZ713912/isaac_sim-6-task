@@ -125,6 +125,9 @@ class TeacherAnchoredPPO(PPO):
             actor_gradient_norm = nn.utils.clip_grad_norm_(self.actor.parameters(), self.max_grad_norm)
             critic_gradient_norm = nn.utils.clip_grad_norm_(self.critic.parameters(), self.max_grad_norm)
             self.optimizer.step()
+            project = getattr(getattr(self.actor, 'mlp', None), 'project_parameters_', None)
+            if project is not None and any(p.requires_grad for p in self.actor.parameters()):
+                project()
             values_to_log = dict(zip(totals, (value_loss, surrogate_loss, entropy.mean(), anchor, rmse, fraction,
                 approx_policy_kl, policy_clip_fraction, actor_gradient_norm, critic_gradient_norm,
                 self.optimizer.param_groups[0]["lr"], self.optimizer.param_groups[-1]["lr"]), strict=True))

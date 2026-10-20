@@ -27,7 +27,8 @@ def prepare_flat_gui_experience(output):
         raise ValueError("Review the installed IsaacLab GUI experience before adapting it")
     text = text.replace(dependency, "# Force overlays use USD BasisCurves; debug_draw is not required.")
     # This installed renderer and PhysX expose different Fabric interface versions.
-    # Use Kit's USD scene delegate for this single-robot GUI.
+    # Use Kit's USD scene delegate for this single-robot GUI. The suite also
+    # constructs its physics context with use_fabric=False to keep links live.
     text = text.replace("app.useFabricSceneDelegate = true", "app.useFabricSceneDelegate = false")
     text = text.replace("rtx.hydra.readTransformsFromFabricInRenderDelegate = true",
                         "rtx.hydra.readTransformsFromFabricInRenderDelegate = false")
@@ -57,8 +58,9 @@ def prepare_flat_playback(root, contract_path, output, scenario):
     root, contract_path, output = Path(root), Path(contract_path), Path(output)
     source, manifest = preflight(contract_path)
     keys = ("physics_dt", "policy_dt", "actor_dim", "critic_dim", "action_dim", "history_length")
-    if tuple(source[key] for key in keys) != (.001, .02, 35, 83, 6, 1):
-        raise ValueError("Flat continuation requires its 1000/50 Hz, 35/83/6 contract")
+    if (source['policy_dt'] not in (.02,.005) or
+            tuple(source[key] for key in keys) != (.001, source['policy_dt'], 35, 83, 6, 1)):
+        raise ValueError("Flat continuation requires its declared 1000 Hz physics, 50/200 Hz policy and 35/83/6 contract")
     binding = source["design_preflight"]
     design_path = root / binding["file"]
     if digest(design_path) != binding["sha256"]:

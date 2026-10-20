@@ -49,7 +49,8 @@ def install_reference(env, contract, *, diagnostic_training_clock=False):
         raise ValueError("The 200 Hz reference comparison requires an explicit diagnostic-only contract")
     expected_dt = .005 if diagnostic_training_clock else .001
     if (not env.cfg.get("flat_base_continuation") or not env.cfg.get("evaluation_exact_cases")
-            or env.cfg["policy_dt"] != .02 or env.cfg["physics_dt"] != expected_dt
+            or env.cfg["policy_dt"] not in (.02, .005) or env.cfg["physics_dt"] != expected_dt
+            or contract["policy_hz"] != round(1 / env.cfg["policy_dt"])
             or any(c.get("terrain") != "flat" or c.get("task") != "survive" for c in env.cases.values())):
         raise ValueError("RMCS reference replay has an undeclared policy/feedback clock or non-flat case")
     reference = RmcsFlatCommandReference(env.num_envs, env.device, contract)

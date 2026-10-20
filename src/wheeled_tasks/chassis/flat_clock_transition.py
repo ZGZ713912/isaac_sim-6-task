@@ -5,12 +5,19 @@ from pathlib import Path
 
 
 def validate_flat_clock(root, plan):
-    """Original plans stay200Hz; v15 and its v16/v17 derivatives use1000Hz."""
+    """Authenticate legacy clocks and the explicit 200 Hz policy version."""
     root = Path(root)
     timing = json.loads((root / plan['control_file']).read_text())['timing']
-    if plan['policy_dt'] != .02:
-        raise ValueError('Flat policy must remain50Hz')
-    if plan['physics_dt'] == .005:
+    if plan['schema'] == 'flat-base-finetune-plan-v18':
+        from .flat_policy_rate import CONTROL
+        if plan['control_file'] != CONTROL:
+            raise ValueError('200 Hz policy requires its explicit control source')
+        expected = dict(physics_dt=.001, policy_dt=.005, pc_control_dt=.001, decimation=5)
+        if (plan['physics_dt'], plan['policy_dt']) != (.001, .005):
+            raise ValueError('v18 requires a 200 Hz policy and 1000 Hz physics')
+    elif plan['policy_dt'] != .02:
+        raise ValueError('Legacy flat plans must retain their saved 50 Hz policy')
+    elif plan['physics_dt'] == .005:
         expected = dict(physics_dt=.005, policy_dt=.02, pc_control_dt=.005, decimation=4)
     elif plan['physics_dt'] == .001 and plan['schema'] in ('flat-base-finetune-plan-v15', 'flat-base-finetune-plan-v16', 'flat-base-finetune-plan-v17'):
         if (plan['control_file'] != 'contracts/v6_wheel_response_control_v1.json' or

@@ -219,18 +219,30 @@ def main(gui_experience_factory=None):
         record_app_state("after_environment_import")
         torch.set_num_threads(4)
         writer = SummaryWriter(str(args.output))
+        use_usd_display = report.get("gui_experience", {}).get("render_transport") == "usd"
         env = FixedCaseEnv(config, manifest, control, ROOT, stage_name=config["enabled_stages"][0],
-            num_envs=1, device=args.device, seed=seed, level=1., run_role="playback")
+            num_envs=1, device=args.device, seed=seed, level=1., run_role="playback",
+            **({"render_use_fabric": False} if use_usd_display else {}))
         # Interactive playback keeps native failure guards; timeout is user-owned.
         # These lifecycle overrides are explicit in the report and never graded.
         env.max_episode_length = 2**40
         env.episode_limits.fill_(env.max_episode_length)
         report["interactive_timeout_override_ticks"] = env.max_episode_length
         report["startup_report"] = env.startup_report
-        if report.get("gui_experience", {}).get("render_transport") == "usd":
-            env.sim.set_setting("/physics/updateToUsd", True)
+        if use_usd_display:
+            import omni.kit.app
+            # A USD Hydra delegate must use a non-Fabric physics transport too.
+            # Merely enabling updateToUsd after startup leaves articulation visuals stale.
             report["gui_physics_transform_sync"] = "USD"
-        carb.settings.get_settings().set_bool("/physics/fabricUpdateTransformations", True)
+            report["gui_render_settings"] = dict(
+                use_fabric=env.sim.cfg.use_fabric,
+                update_to_usd=env.sim.get_setting("/physics/updateToUsd"),
+                fabric_extension_enabled=omni.kit.app.get_app().get_extension_manager().is_extension_enabled("omni.physx.fabric"))
+            if (report["gui_render_settings"]["use_fabric"]
+                    or not report["gui_render_settings"]["update_to_usd"]
+                    or report["gui_render_settings"]["fabric_extension_enabled"]):
+                raise RuntimeError("USD playback display transport was not initialized consistently")
+        carb.settings.get_settings().set_bool("/physics/fabricUpdateTransformations", not use_usd_display)
         carb.settings.get_settings().set_bool("/app/file/ignoreUnsavedOnExit", True)
         observations = env.reset_suite()
         view = None if args.headless else SuiteView(env, args)

@@ -113,6 +113,12 @@ def profile_command(time, command, profile):
     elif kind == "height":
         low, high = profile.get("height_range_m", [.29, .32])
         result[:, 2] = (low + high) / 2 + (high - low) / 2 * torch.sin(math.tau * time / 6.)
+    elif profile.get('yaw_start_stop_segment_seconds') is not None:
+        seconds=profile['yaw_start_stop_segment_seconds']
+        if kind!='rotate' or not math.isfinite(seconds) or seconds<=0.:
+            raise ValueError('Yaw start-stop requires a finite rotate-only segment')
+        segment=torch.floor(time/seconds).long()%4
+        result[:,1]*=torch.where(segment==0,1.,torch.where(segment==2,-1.,0.))
     elif kind == "start_stop":
         segment = torch.floor(time / profile.get("segment_seconds", 3.)).long() % 4
         result[:, 0] *= torch.where(segment == 0, 1., torch.where(segment == 2, -1., 0.))
@@ -616,7 +622,7 @@ class SkillCommands:
             elif kind in ("height", "height_pulse"):
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.commands[ids, 2] = cmd[:, 2]
-            if kind in ("start_stop", "weave", "velocity_curve"):
+            if kind in ("start_stop", "weave", "velocity_curve") or spec.get('yaw_start_stop_segment_seconds') is not None:
                 time = elapsed[ids] - self.start_stop_delay[ids]
                 cmd = profile_command(time.clamp_min(0.), self.command_base[ids], spec)
                 cmd[time < 0., :2] = 0.

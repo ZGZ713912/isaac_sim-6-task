@@ -186,6 +186,38 @@ def mean_from_checkpoint(checkpoint, source):
     from .wheel_authority import WheelAuthorityActor, KIND as WHEEL_KIND
     from .static_grip import StaticGripActor, KIND as GRIP_KIND
     from .motion_grip import MotionGripActor, KIND as MOTION_GRIP_KIND
+    from .speed_reference import SpeedReferenceActor, KIND as SPEED_REFERENCE_KIND
+    from .intent_speed_reference import IntentSpeedReferenceActor, KIND as INTENT_SPEED_KIND
+    from .motion_state_residual import MotionStateResidualActor, KIND as MOTION_STATE_KIND
+    if kind in (SPEED_REFERENCE_KIND,INTENT_SPEED_KIND,MOTION_STATE_KIND):
+        from pathlib import Path
+        import hashlib
+        settings = checkpoint['infos'].get('speed_reference')
+        root = Path(__file__).resolve().parents[2]
+        required={'checkpoint', 'sha256', 'margin_m_s', 'lean_gain_rad_per_m_s'}
+        if kind in (INTENT_SPEED_KIND,MOTION_STATE_KIND):
+            required.add('encoder_gain')
+        if not isinstance(settings, dict) or set(settings) != required:
+            raise ValueError('Speed reference requires the declared authenticated v7 parent and initialization')
+        path = root / settings['checkpoint']
+        if hashlib.sha256(path.read_bytes()).hexdigest() != settings['sha256']:
+            raise ValueError('Speed-reference parent checkpoint changed')
+        parent = torch.load(path, map_location='cpu', weights_only=True)
+        actor_class={INTENT_SPEED_KIND:IntentSpeedReferenceActor,MOTION_STATE_KIND:MotionStateResidualActor}.get(kind,SpeedReferenceActor)
+        extra={'encoder_gain':settings['encoder_gain']}if kind in (INTENT_SPEED_KIND,MOTION_STATE_KIND)else {}
+        mean = actor_class(mean_from_checkpoint(parent, source), settings['sha256'],
+            settings['margin_m_s'], settings['lean_gain_rad_per_m_s'],**extra)
+        mean.load_state_dict({n.removeprefix('mlp.'): value for n, value in checkpoint['actor_state_dict'].items()
+                              if n.startswith('mlp.')}, strict=True)
+        if kind==MOTION_STATE_KIND:
+            motion=checkpoint['infos'].get('motion_state_parent')
+            if not isinstance(motion,dict)or set(motion)!={'checkpoint','sha256'}or hashlib.sha256((root/motion['checkpoint']).read_bytes()).hexdigest()!=motion['sha256']:
+                raise ValueError('Motion-state parent changed')
+            preceding=torch.load(root/motion['checkpoint'],map_location='cpu',weights_only=True)
+            if preceding['infos']['actor_adaptation']!=INTENT_SPEED_KIND or any(not torch.equal(v,checkpoint['actor_state_dict'][n])for n,v in preceding['actor_state_dict'].items()):
+                raise ValueError('Frozen v10 weights or std changed')
+        mean.verify_original_from_source_full(source)
+        return mean.eval()
     if kind == MOTION_GRIP_KIND:
         from pathlib import Path
         import hashlib
