@@ -216,7 +216,7 @@ def main():
     sources = list((ROOT / "src/wheeled_tasks/chassis").glob("*.py"))
     sources += [Path(__file__), ROOT / "src/wheeled_algo/onnx_actor_import.py",
                 ROOT / "src/wheeled_algo/command_residual.py", ROOT / "src/wheeled_algo/guarded_feedback_residual.py",
-                ROOT / "src/wheeled_algo/separated_feedback.py", ROOT / "src/wheeled_algo/low_demand_feedback.py", ROOT / "src/wheeled_algo/static_feedback.py"]
+                ROOT / "src/wheeled_algo/separated_feedback.py", ROOT / "src/wheeled_algo/low_demand_feedback.py", ROOT / "src/wheeled_algo/static_feedback.py", ROOT / "src/wheeled_algo/wheel_authority.py"]
     if args.reward_audit:
         sources.append(ROOT / "scripts/flat_reward_audit.py")
     if reference_contract is not None:

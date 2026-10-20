@@ -68,10 +68,10 @@ def read_plan(root, plan_file=PLAN):
     if plan.get("feedback_training_scope") and plan.get("actor_adaptation") not in (
             "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
             "original-command-and-separated-tracking-feedback-residual-v3",
-            "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5"):
+            "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
         raise ValueError("Feedback-only scope requires the declared feedback architecture")
     recall = plan.get("static_feedback_recall")
-    if plan.get("actor_adaptation") == "original-command-and-static-recall-feedback-residual-v5":
+    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
         if (not isinstance(recall, dict) or set(recall) != {"checkpoint", "sha256"}
                 or not isinstance(recall["checkpoint"], str)
                 or digest(root / recall["checkpoint"]) != recall["sha256"]):
@@ -126,7 +126,8 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
         if (plan["actor_adaptation"] not in ("original-feedback-command-residual-v1",
                 "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
                 "original-command-and-separated-tracking-feedback-residual-v3",
-                "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5")
+                "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5",
+                "original-static-feedback-and-wheel-authority-residual-v6")
                 or plan.get("actor_output_layer_only")):
             raise ValueError("Unsupported or conflicting flat actor adaptation")
         values["actor_adaptation"] = plan["actor_adaptation"]
