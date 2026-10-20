@@ -1,0 +1,76 @@
+{
+  "schema": "flat-base-rmcs-export-v1",
+  "model_sha256": "9cc82fd9355458305d372cd5b0299c9f35ae0d58ce81f05a94bdd7f66ee9f874",
+  "source_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "checkpoint_sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+  "successful_updates_total": 1338,
+  "actor_updates_total": 1156,
+  "actor_adaptation": "original-wheel-authority-with-static-grip-adaptation-v7",
+  "active_branch_actor_updates": 44,
+  "feedback_branch_actor_updates": 778,
+  "local_count_semantics": "all local trial branches; original training count remains unknown",
+  "consumed_optimizer_updates_total": 1339,
+  "evaluation_sha256": "16abc2fa1deefc0063e80b21c03f92cbcc87807058c4851cfb641661d23108b3",
+  "behavior_passed": true,
+  "evaluated_case_names": [
+    "stand_230mm",
+    "stand_305mm",
+    "stand_430mm",
+    "forward_05",
+    "backward_05",
+    "rotate_1",
+    "rotate_1_reverse",
+    "start_stop_05"
+  ],
+  "input_shape": [
+    "batch",
+    35
+  ],
+  "output_shape": [
+    "batch",
+    6
+  ],
+  "layout_sha256": "233158e1836f56a0393ceb2c5342cd6d9ba46fdac43b8074247bfac6c4f87d61",
+  "source_rmcs_yaml_sha256": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063",
+  "source_loader_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/cpp/flat_base_rmcs_check.cpp": "9c0f6e99222d464e560c82b5741068ef3e1581551429e681cee1f4522d6913fb",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/onnx_runtime.cpp": "bec2b53639e93d1b50946e7e40912f77c8b3f2013d444866c37e088063a5fcf6",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/policy_model.cpp": "27c0f87fd1c4b8839fb7d4720dd424cf5a196cbf7a20394c1cc8b539376df9a4"
+  },
+  "verification_samples": 2560,
+  "pytorch_onnx_max_abs_error": 1.1920928955078125e-06,
+  "rmcs_cpp_python_ort_max_abs_error": 6.258487701416016e-07,
+  "negative_contract_tests": {
+    "wrong_obs_size": {
+      "rejected": true,
+      "error": "model input 'obs' has 35 observations; vehicle configuration requires 34"
+    },
+    "wrong_model_spec": {
+      "rejected": true,
+      "error": "wheel_leg_v7 model_spec_sha256 does not match the deployed paired-107 contract"
+    },
+    "wrong_winding": {
+      "rejected": true,
+      "error": "model leg_winding_version metadata does not match the configured target contract"
+    }
+  },
+  "deployment_interface_verified": true,
+  "behavior_qualified": false,
+  "export_kind": "intermediate",
+  "release_evaluation_receipts": null,
+  "release_evidence_sha256": null,
+  "packaged_command_limits": {
+    "vx_m_s": 3.0,
+    "yaw_rad_s": 4.0,
+    "height_m": [
+      0.23,
+      0.42
+    ]
+  },
+  "physical_robot_tested": false,
+  "hardware_motion_started": false,
+  "training_plan_file": "reports/flat_base_continuation_20261019/static_grip_candidate002/plan.json",
+  "training_plan_sha256": "b4ca48289519ab748b2b8130ee93799a4a7a711760e411e68d43af7fe7d767fc",
+  "training_physics_hz": 1000,
+  "control_timing_scope": "50Hz actor; 1000Hz training; frozen200Hz baseline and1000Hz deployment cohorts required for behavior qualification"
+}

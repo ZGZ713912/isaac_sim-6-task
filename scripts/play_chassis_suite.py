@@ -124,7 +124,7 @@ def sample_state(env, diagnostic, requested, applied, acceleration, sim_time, vi
     return sample, poses
 
 
-def main():
+def main(gui_experience_factory=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--onnx", type=Path, default=ROOT / "models/v6_recovery_candidate_38000_20261008/policy.onnx")
     parser.add_argument("--contract", type=Path)
@@ -134,6 +134,7 @@ def main():
     parser.add_argument("--preflight-only", action="store_true", help="CPU identity/design preparation; no native scene")
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--seconds", type=float, default=10., help="Bounded headless simulation duration")
+    parser.add_argument("--gui-seconds", type=float, help="Optional GUI wall time after scene startup; default runs until closed")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cpu")
     parser.add_argument("--view", choices=("whole", "left"), default="whole")
     parser.add_argument("--keyboard-vx-acceleration", type=float, default=6.)
@@ -149,6 +150,8 @@ def main():
         return 0
     if not args.onnx.is_file() or not math.isfinite(args.seconds) or not 0 < args.seconds <= 300:
         parser.error("Existing ONNX and positive bounded headless duration required")
+    if args.gui_seconds is not None and (args.headless or not math.isfinite(args.gui_seconds) or not 0 < args.gui_seconds <= 300):
+        parser.error("gui-seconds requires GUI mode and a duration in (0, 300]")
     if not (.1 <= args.keyboard_vx_acceleration <= 20 and .1 <= args.keyboard_yaw_acceleration <= 60):
         parser.error("Keyboard acceleration is outside the existing GUI limits")
     if not (math.isfinite(args.initial_vx) and abs(args.initial_vx) <= 3
@@ -184,18 +187,36 @@ def main():
         applied_command_slew=config["command_slew"], command_timing="slew_once_before_refreshed_actor_observation",
         manual_jump_events=[], samples=[])
     write_json(args.output / "report.json", report)
-    print(f"Scenario: {SCENARIOS[args.scenario]}\nOutput: {args.output}\nQualification: null", flush=True)
+    print(f"Scenario: {SCENARIOS[args.scenario]}\nPolicy: {args.onnx.resolve()}\n"
+          f"SHA-256: {report['policy_sha256']}\n"
+          f"Successful updates: {metadata.get('successful_updates_total', 'see model metadata')}\n"
+          f"Output: {args.output}\nQualification: null", flush=True)
     if args.preflight_only:
         return 0
     launcher, env, view, writer = None, None, None, None
     try:
         from isaaclab.app import AppLauncher
+        if not args.headless and gui_experience_factory is not None:
+            report["gui_experience"] = gui_experience_factory(args.output)
+            write_json(args.output / "report.json", report)
         launcher = AppLauncher(dict(headless=args.headless, device=args.device, enable_cameras=False,
+            **({"experience": report["gui_experience"]["file"]} if "gui_experience" in report else {}),
             **({"visualizer": ["kit"]} if not args.headless else {})))
+        def record_app_state(phase):
+            import omni.kit.app
+            app = omni.kit.app.get_app()
+            state = dict(phase=phase, launcher_running=launcher.app.is_running(),
+                kit_running=app.is_running(), kit_module=omni.kit.app.__file__,
+                kit_type=str(type(app)))
+            report.setdefault("native_app_states", []).append(state)
+            write_json(args.output / "report.json", report)
+            print("Native app state: " + json.dumps(state), flush=True)
+        record_app_state("after_launcher")
         import carb.settings
         import torch
         from torch.utils.tensorboard import SummaryWriter
         from wheeled_tasks.chassis.eval_env import FixedCaseEnv
+        record_app_state("after_environment_import")
         torch.set_num_threads(4)
         writer = SummaryWriter(str(args.output))
         env = FixedCaseEnv(config, manifest, control, ROOT, stage_name=config["enabled_stages"][0],
@@ -206,15 +227,25 @@ def main():
         env.episode_limits.fill_(env.max_episode_length)
         report["interactive_timeout_override_ticks"] = env.max_episode_length
         report["startup_report"] = env.startup_report
+        if report.get("gui_experience", {}).get("render_transport") == "usd":
+            env.sim.set_setting("/physics/updateToUsd", True)
+            report["gui_physics_transform_sync"] = "USD"
         carb.settings.get_settings().set_bool("/physics/fabricUpdateTransformations", True)
         carb.settings.get_settings().set_bool("/app/file/ignoreUnsavedOnExit", True)
         observations = env.reset_suite()
         view = None if args.headless else SuiteView(env, args)
+        if view is not None:
+            report["gui_initialized"] = True
+            report["keyboard_subscription_active"] = view.keyboard_subscription is not None
+            print(f"GUI ready: {view.policy_label} | WASD / height / SPACE stop", flush=True)
         applied = env.commands.clone()
         sim_time, ticks, last_save, last_overlay, last_render = 0., 0, 0., 0., 0.
         sample, poses, jump_active, scheduled_sent = None, None, False, False
+        gui_deadline = time.monotonic() + args.gui_seconds if args.gui_seconds is not None else None
+        report["gui_time_limit_s"] = args.gui_seconds
         report["status"] = "running"
-        while launcher.app.is_running() and (not args.headless or sim_time < args.seconds):
+        while (launcher.app.is_running() and (not args.headless or sim_time < args.seconds)
+               and (gui_deadline is None or time.monotonic() < gui_deadline)):
             wall = time.monotonic()
             if env.sim.is_stopped():
                 report["status"] = "timeline_stopped"
@@ -285,7 +316,7 @@ def main():
                     launcher.app.update()
                 last_render = wall
                 # Capture the visible startup even if a first episode failed.
-                if sample is not None and not (args.output / "viewport.png").exists():
+                if sample is not None and ticks >= 25 and not (args.output / "viewport.png").exists():
                     from omni.kit.viewport.utility import capture_viewport_to_file, get_active_viewport
                     capture_viewport_to_file(get_active_viewport(), str(args.output / "viewport.png"))
             if time.monotonic() - last_save > .5 and sample is not None:
@@ -297,7 +328,7 @@ def main():
             if view:
                 time.sleep(max(0., env.policy_dt - (time.monotonic() - wall)))
         if report["status"] == "running":
-            report["status"] = "completed" if args.headless else "window_closed"
+            report["status"] = "completed" if args.headless or gui_deadline is not None else "window_closed"
     except Exception:
         report.update(status="failed", error=traceback.format_exc())
         traceback.print_exc()

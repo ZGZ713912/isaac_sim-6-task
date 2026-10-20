@@ -351,21 +351,25 @@ def main():
                                        "original-command-and-continuous-low-feedback-residual-v4",
                                        "original-command-and-static-recall-feedback-residual-v5",
                                        "original-static-feedback-and-wheel-authority-residual-v6",
-                                       "original-wheel-authority-with-static-grip-adaptation-v7"):
+                                       "original-wheel-authority-with-static-grip-adaptation-v7",
+                                       "original-static-grip-with-motion-feedback-adaptation-v8"):
         sources.append(ROOT / "src/wheeled_algo/guarded_feedback_residual.py")
     if plan.get("actor_adaptation") in ("original-command-and-separated-tracking-feedback-residual-v3",
                                          "original-command-and-continuous-low-feedback-residual-v4",
                                        "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6",
-                                       "original-wheel-authority-with-static-grip-adaptation-v7"):
+                                       "original-wheel-authority-with-static-grip-adaptation-v7",
+                                       "original-static-grip-with-motion-feedback-adaptation-v8"):
         sources.append(ROOT / "src/wheeled_algo/separated_feedback.py")
-    if plan.get("actor_adaptation") in ("original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
+    if plan.get("actor_adaptation") in ("original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7", "original-static-grip-with-motion-feedback-adaptation-v8"):
         sources.append(ROOT / "src/wheeled_algo/low_demand_feedback.py")
-    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
+    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7", "original-static-grip-with-motion-feedback-adaptation-v8"):
         sources.append(ROOT / "src/wheeled_algo/static_feedback.py")
-    if plan.get("actor_adaptation") in ("original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
+    if plan.get("actor_adaptation") in ("original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7", "original-static-grip-with-motion-feedback-adaptation-v8"):
         sources.append(ROOT / "src/wheeled_algo/wheel_authority.py")
-    if plan.get("actor_adaptation") == "original-wheel-authority-with-static-grip-adaptation-v7":
+    if plan.get("actor_adaptation") in ("original-wheel-authority-with-static-grip-adaptation-v7", "original-static-grip-with-motion-feedback-adaptation-v8"):
         sources.append(ROOT / "src/wheeled_algo/static_grip.py")
+    if plan.get('actor_adaptation') == 'original-static-grip-with-motion-feedback-adaptation-v8':
+        sources.append(ROOT / 'src/wheeled_algo/motion_grip.py')
     if plan.get("training_command_reference"):
         sources.append(ROOT / "scripts/flat_rmcs_command_reference.py")
     report["source_sha256"] = {str(p.relative_to(ROOT)): digest(p) for p in sources}
@@ -433,12 +437,14 @@ def main():
                           "original-command-and-continuous-low-feedback-residual-v4",
                           "original-command-and-static-recall-feedback-residual-v5",
                           "original-static-feedback-and-wheel-authority-residual-v6",
-                          "original-wheel-authority-with-static-grip-adaptation-v7")
+                          "original-wheel-authority-with-static-grip-adaptation-v7",
+                          "original-static-grip-with-motion-feedback-adaptation-v8")
         separated_feedback = plan.get("actor_adaptation") in feedback_kinds[2:]
         low_demand_feedback = plan.get("actor_adaptation") in feedback_kinds[3:]
         static_feedback = plan.get("actor_adaptation") in feedback_kinds[4:]
         wheel_authority = plan.get("actor_adaptation") in feedback_kinds[5:]
         static_grip = plan.get("actor_adaptation") == feedback_kinds[6]
+        motion_grip = plan.get('actor_adaptation') == feedback_kinds[7]
         feedback_residual = plan.get("actor_adaptation") in feedback_kinds
         command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds)
         if plan.get("actor_adaptation") and not command_residual:
@@ -510,6 +516,19 @@ def main():
                     from functools import partial
                     configure_command_residual_training = partial(configure_command_residual_training,
                         train_command=plan.get("feedback_training_scope") != "feedback_only")
+                if motion_grip:
+                    from wheeled_algo.motion_grip import MotionGripActor, configure_motion_grip_training
+                    settings = plan['motion_grip_parent']
+                    parent_path = ROOT / settings['checkpoint']
+                    if digest(parent_path) != settings['sha256']:
+                        raise ValueError('Motion grip adapted-static reference changed')
+                    reference_state = torch.load(parent_path, map_location='cpu', weights_only=True)
+                    if reference_state['infos'].get('actor_adaptation') != feedback_kinds[6]:
+                        raise ValueError('Motion grip reference must be an authenticated v7 parent')
+                    reference_mean = mean_from_checkpoint(reference_state, ROOT / plan['actor_bundle'] / 'source.onnx')
+                    runner.alg.actor.mlp = MotionGripActor(reference_mean, settings['sha256']).to(args.device)
+                    configure_command_residual_training = configure_motion_grip_training
+                    report['motion_grip_parent'] = deepcopy(settings)
             report["command_residual_invariant"] = runner.alg.actor.mlp.verify_original(teacher)
         # Independent rates let the fresh value network catch up without large
         # changes to the already useful actor. Both groups use native Adam/PPO.
@@ -537,7 +556,7 @@ def main():
                            "critic_position_anchor", "critic_dim", "actor_output_layer_only", "actor_adaptation",
                            "learning_rate", "training_command_reference", "feedback_training_scope", "command_branch_restore",
                            "physics_dt", "control_file", "control_sha256", "moving_velocity_cost_scale", "static_feedback_recall",
-                           "allowed_num_envs", "default_num_envs", "contact_material"}
+                           "allowed_num_envs", "default_num_envs", "contact_material", "motion_grip_parent"}
                 if (revision.get("schema") != "flat-training-plan-revision-v1"
                         or revision["parent_checkpoint_sha256"] != digest(args.resume)
                         or revision["old_plan_sha256"] != info["plan_sha256"]
@@ -617,6 +636,18 @@ def main():
                 for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
                             "post_split_actor_updates", "inherited_shared_feedback_updates"):
                     report[key] = info[key]
+            elif motion_grip and info.get('actor_adaptation') == feedback_kinds[6]:
+                if not migration or digest(args.resume) != plan['motion_grip_parent']['sha256']:
+                    raise ValueError('Motion grip trainability requires the exact v7 parent and a forward plan migration')
+                report['motion_grip_revision'] = dict(before=info['actor_adaptation'],
+                    after=plan['actor_adaptation'], initial_mean_is_identity=True,
+                    weights_Adam_std_critic_RNG_consumption='parent_exact',
+                    trainable_actor_branches=['feedback', 'fast_feedback', 'wheel_authority'],
+                    frozen_actor_branches=['command', 'static_feedback', 'std'])
+                report['motion_grip_actor_updates'] = 0
+                for key in ('active_branch_actor_updates', 'feedback_branch_actor_updates',
+                            'post_split_actor_updates', 'inherited_shared_feedback_updates', 'static_grip_actor_updates'):
+                    report[key] = info[key]
             elif static_grip and info.get("actor_adaptation") == feedback_kinds[5]:
                 if not migration:
                     raise ValueError("Static grip trainability requires an explicit forward plan migration")
@@ -672,6 +703,11 @@ def main():
                 report["active_branch_actor_updates"] = 0
             elif command_residual:
                 report["active_branch_actor_updates"] = info["active_branch_actor_updates"]
+                if motion_grip:
+                    if info['motion_grip_parent'] != plan['motion_grip_parent']:
+                        raise ValueError('Motion grip continuation changes its frozen adapted-static reference')
+                    report['motion_grip_actor_updates'] = info['motion_grip_actor_updates']
+                    report['static_grip_actor_updates'] = info['static_grip_actor_updates']
                 if static_grip:
                     report["static_grip_actor_updates"] = info["static_grip_actor_updates"]
                 if feedback_residual:
@@ -850,6 +886,8 @@ def main():
                 report["feedback_branch_actor_updates"] += int(enabled)
             if static_grip:
                 report["static_grip_actor_updates"] += int(enabled)
+            if motion_grip:
+                report['motion_grip_actor_updates'] += int(enabled)
             if separated_feedback:
                 report["post_split_actor_updates"] += int(enabled)
             report["critic_warmup_remaining"] = max(0, report["critic_warmup_remaining"] - int(not enabled))
@@ -882,6 +920,8 @@ def main():
                     writer.add_scalar("FlatTransfer/post_split_actor_updates", report["post_split_actor_updates"], report["successful_updates_total"])
                 if static_grip:
                     writer.add_scalar("FlatTransfer/static_grip_actor_updates", report["static_grip_actor_updates"], report["successful_updates_total"])
+                if motion_grip:
+                    writer.add_scalar('FlatTransfer/motion_grip_actor_updates', report['motion_grip_actor_updates'], report['successful_updates_total'])
                 writer.add_scalar("FlatTransfer/actor_mean_max_change_from_block_start", report["actor_mean_max_change_from_block_start"], report["successful_updates_total"])
                 if hasattr(env, "diagnostic_reward_stats"):
                     for name, value in env.diagnostic_reward_metrics().items():
