@@ -50,6 +50,7 @@ class PolicyView:
         from pxr import Gf, Sdf, UsdGeom, UsdLux, UsdShade
         from preview_v5_springs import BenchView
         self.env, self.args = env, args
+        self.available_jump_heights = getattr(args, "available_jump_heights", (.06, .10))
         self.paused = False
         self.reset_requested = False
         self.jump_requested = None
@@ -100,7 +101,8 @@ class PolicyView:
         self.window = ui.Window("GROUND POLICY / ACTUAL EFFORT", width=580, height=860)
         with self.window.frame:
             with ui.VStack(spacing=7):
-                ui.Label("W/S forward/back | A/D yaw | Q/E or T/G height\nJ jump 6cm | K jump 10cm | SPACE stop | P pause | R reset\nClick the viewport for keyboard focus.", word_wrap=True)
+                jump_hint = "J jump 6cm | K jump 10cm | " if self.available_jump_heights else ""
+                ui.Label("W/S forward/back | A/D yaw | Q/E or T/G height\n" + jump_hint + "SPACE stop | P pause | R reset\nClick the viewport for keyboard focus.", word_wrap=True)
                 self.info = ui.Label("Initializing", height=310, word_wrap=True)
                 ui.Label(f"Contract height command range: {self.height_range[0]:.2f}-{self.height_range[1]:.2f} m (candidate)")
                 self.height = ui.FloatSlider(min=self.height_range[0], max=self.height_range[1])
@@ -145,9 +147,10 @@ class PolicyView:
                 with ui.HStack(height=28):
                     ui.Button("Pause / resume", clicked_fn=self.toggle_pause)
                     ui.Button("Reset to 0.305 m", clicked_fn=self.request_reset)
-                with ui.HStack(height=28):
-                    ui.Button("J: request 6cm jump", clicked_fn=lambda: self.request_jump(.06))
-                    ui.Button("K: request 10cm jump", clicked_fn=lambda: self.request_jump(.10))
+                if self.available_jump_heights:
+                    with ui.HStack(height=28):
+                        ui.Button("J: request 6cm jump", clicked_fn=lambda: self.request_jump(.06))
+                        ui.Button("K: request 10cm jump", clicked_fn=lambda: self.request_jump(.10))
                 limits = env.manifest["knee_inner_limits_deg"]
                 spring_mm = env.model_spec["spring_binding"]["L_spring_slide"]["full_extension_pin_distance_m"] * 1000
                 ui.Label(f"Knee {limits[0]:g}-{limits[1]:g} deg; spring pin length {spring_mm:.1f} mm.\nCandidate policy; failure pauses in place.", word_wrap=True)
@@ -178,7 +181,7 @@ class PolicyView:
         return name not in self.teleop.MOTION_KEYS | {"SPACE", "P", "R", "J", "K"}
 
     def request_jump(self, height):
-        if not self.paused:
+        if not self.paused and height in self.available_jump_heights:
             self.jump_requested = height
             self.auto.model.set_value(False)
 

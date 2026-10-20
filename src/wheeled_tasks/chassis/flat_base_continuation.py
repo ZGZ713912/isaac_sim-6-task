@@ -80,16 +80,26 @@ def read_plan(root, plan_file=PLAN):
     if plan.get("feedback_training_scope") and plan.get("actor_adaptation") not in (
             "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
             "original-command-and-separated-tracking-feedback-residual-v3",
-            "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
+            "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
+            "original-static-grip-with-motion-feedback-adaptation-v8"):
         raise ValueError("Feedback-only scope requires the declared feedback architecture")
     recall = plan.get("static_feedback_recall")
-    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
+    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
+            "original-static-grip-with-motion-feedback-adaptation-v8"):
         if (not isinstance(recall, dict) or set(recall) != {"checkpoint", "sha256"}
                 or not isinstance(recall["checkpoint"], str)
                 or digest(root / recall["checkpoint"]) != recall["sha256"]):
             raise ValueError("Static feedback requires the exact declared recalled checkpoint")
     elif recall is not None:
         raise ValueError("Static feedback checkpoint is only valid for the declared v5 architecture")
+    motion_parent = plan.get('motion_grip_parent')
+    if plan.get('actor_adaptation') == 'original-static-grip-with-motion-feedback-adaptation-v8':
+        if (not isinstance(motion_parent, dict) or set(motion_parent) != {'checkpoint', 'sha256'}
+                or not isinstance(motion_parent['checkpoint'], str)
+                or digest(root / motion_parent['checkpoint']) != motion_parent['sha256']):
+            raise ValueError('Motion grip requires its exact declared v7 parent checkpoint')
+    elif motion_parent is not None:
+        raise ValueError('Motion grip parent is only valid for the declared v8 adaptation')
     return plan
 
 
@@ -140,12 +150,15 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
                 "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
                 "original-command-and-separated-tracking-feedback-residual-v3",
                 "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5",
-                "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7")
+                "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
+                "original-static-grip-with-motion-feedback-adaptation-v8")
                 or plan.get("actor_output_layer_only")):
             raise ValueError("Unsupported or conflicting flat actor adaptation")
         values["actor_adaptation"] = plan["actor_adaptation"]
     if plan.get("static_feedback_recall") and not evaluation:
         values["static_feedback_recall"] = deepcopy(plan["static_feedback_recall"])
+    if plan.get('motion_grip_parent') and not evaluation:
+        values['motion_grip_parent'] = deepcopy(plan['motion_grip_parent'])
     if plan.get("training_command_reference") and not evaluation:
         values["flat_rmcs_command_training"] = deepcopy(plan["training_command_reference"])
     return values

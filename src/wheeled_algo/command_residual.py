@@ -185,6 +185,26 @@ def mean_from_checkpoint(checkpoint, source):
     from .static_feedback import StaticFeedbackActor, KIND as STATIC_KIND
     from .wheel_authority import WheelAuthorityActor, KIND as WHEEL_KIND
     from .static_grip import StaticGripActor, KIND as GRIP_KIND
+    from .motion_grip import MotionGripActor, KIND as MOTION_GRIP_KIND
+    if kind == MOTION_GRIP_KIND:
+        from pathlib import Path
+        import hashlib
+        settings = checkpoint['infos'].get('motion_grip_parent')
+        root = Path(__file__).resolve().parents[2]
+        if (not isinstance(settings, dict) or set(settings) != {'checkpoint', 'sha256'}
+                or not isinstance(settings['checkpoint'], str)):
+            raise ValueError('Motion grip requires the declared authenticated v7 parent')
+        path = root / settings['checkpoint']
+        if hashlib.sha256(path.read_bytes()).hexdigest() != settings['sha256']:
+            raise ValueError('Motion grip parent checkpoint changed')
+        parent = torch.load(path, map_location='cpu', weights_only=True)
+        if parent['infos'].get('actor_adaptation') != GRIP_KIND:
+            raise ValueError('Motion grip parent must be the declared v7 checkpoint')
+        mean = MotionGripActor(mean_from_checkpoint(parent, source), settings['sha256'])
+        mean.load_state_dict({n.removeprefix('mlp.'): value
+            for n, value in checkpoint['actor_state_dict'].items() if n.startswith('mlp.')}, strict=True)
+        mean.verify_original_from_source_full(source)
+        return mean.eval()
     if kind not in (None, KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND, GRIP_KIND):
         raise ValueError("Unknown checkpoint actor adaptation")
     original, _ = recover_actor(source)
