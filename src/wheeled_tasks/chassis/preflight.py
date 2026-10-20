@@ -130,6 +130,22 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         row["invocation"]["num_envs"] = len(names) * projected["episodes_per_case"]
     response_declared = ("actuator_response" in config or "actuator_response" in expected
                          or "response_migration" in config)
+    if "contact_material" in config or "contact_material" in expected:
+        settings = config.get("contact_material")
+        if (not isinstance(settings, dict) or type(settings.get("enabled")) is not bool):
+            errors.append("contract.contact_material: explicit enabled/disabled settings required")
+        elif settings["enabled"]:
+            from .contact_material import ContactMaterialDomain
+            try:
+                ContactMaterialDomain(1, settings, seed)
+            except (ValueError, TypeError, KeyError) as error:
+                errors.append(str(error))
+            if config.get("contact_domain", {}).get("enabled"):
+                errors.append("contract.contact_material: cannot stack with the legacy contact domain")
+        _compare(settings, expected.get("contact_material", _MISSING), "design.contact_material", errors)
+        _compare(_at(settings, "enabled"), _at(row, "runtime.modules.contact_material"),
+                 "design.runtime.modules.contact_material", errors)
+        _compare(settings, _at(row, "runtime.contact_material"), "design.runtime.contact_material", errors)
     if response_declared:
         from .actuator_response import validate_actuator_response
         for key in ("actuator_response", "actuator_response_evidence", "response_migration"):
@@ -190,6 +206,13 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append("design.recovery_training: explicit full settings required")
         _compare(True, _at(row, "runtime.modules.recovery_training"),
                  "design.runtime.modules.recovery_training", errors)
+        if "script_schema" in config.get("recovery_training", {}):
+            from .slow_recovery import runtime_expectation
+            try:
+                _compare(runtime_expectation(config["recovery_training"]), _at(row, "runtime.slow_recovery"),
+                         "design.runtime.slow_recovery", errors)
+            except (ValueError, TypeError, KeyError) as error:
+                errors.append(str(error))
         prefix = config.get("recovery_training", {}).get("prefix_curriculum")
         if prefix is not None or _at(row, "runtime.recovery_prefix_curriculum") is not _MISSING:
             from .recovery_prefix_curriculum import runtime_expectation

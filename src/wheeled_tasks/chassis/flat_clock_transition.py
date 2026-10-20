@@ -5,14 +5,14 @@ from pathlib import Path
 
 
 def validate_flat_clock(root, plan):
-    """Original plans stay200Hz; v15 and its reward-only v16 use1000Hz."""
+    """Original plans stay200Hz; v15 and its v16/v17 derivatives use1000Hz."""
     root = Path(root)
     timing = json.loads((root / plan['control_file']).read_text())['timing']
     if plan['policy_dt'] != .02:
         raise ValueError('Flat policy must remain50Hz')
     if plan['physics_dt'] == .005:
         expected = dict(physics_dt=.005, policy_dt=.02, pc_control_dt=.005, decimation=4)
-    elif plan['physics_dt'] == .001 and plan['schema'] in ('flat-base-finetune-plan-v15', 'flat-base-finetune-plan-v16'):
+    elif plan['physics_dt'] == .001 and plan['schema'] in ('flat-base-finetune-plan-v15', 'flat-base-finetune-plan-v16', 'flat-base-finetune-plan-v17'):
         if (plan['control_file'] != 'contracts/v6_wheel_response_control_v1.json' or
                 plan['control_sha256'] != 'cc30b2b0572999224c8feb79ffa7afb3df1b8a28800bca4a153663b9ea8d4bf8'):
             raise ValueError('1000Hz flat training requires its exact authenticated control source')

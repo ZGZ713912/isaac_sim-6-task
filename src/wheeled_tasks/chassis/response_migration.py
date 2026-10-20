@@ -224,7 +224,10 @@ def validate_recovery_configuration(settings, root=None):
                 "controller": "encoder_imu_recovery_fsm", "action_history": "effective_reference"}
     if not isinstance(settings, dict) or any(settings.get(k) != v for k, v in required.items()):
         raise ValueError("Recovery requires the frozen physical prelude, clocks and pure-RL learning mask")
-    if settings.get("wheel_balance") != {"enabled": True, "pitch_kp_nm_rad": 8.,
+    if "script_schema" in settings:
+        from .slow_recovery import validate_settings
+        validate_settings(settings)
+    elif settings.get("wheel_balance") != {"enabled": True, "pitch_kp_nm_rad": 8.,
             "pitch_kd_nm_s_rad": 1.5, "wheel_damping_nm_s_rad": .2,
             "prepare_tilt_limit_deg": 55., "capture_tilt_limit_deg": 85.}:
         raise ValueError("Recovery script wheel capture must use its explicit frozen gains and tilt bounds")
