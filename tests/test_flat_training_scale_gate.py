@@ -48,3 +48,35 @@ def test_evidence_from_another_candidate_or_clock_cannot_open_large_training(fie
     envelope[field] = value
     with pytest.raises(ValueError, match="exact checkpoint"):
         validate_large_block_evidence(pilot, envelope, baseline, "candidate", "source")
+
+
+def test_low_friction_gate_requires_all_three_replays_to_use_the_selected_material():
+    import hashlib
+    import json
+    from wheeled_tasks.chassis.flat_base_continuation import encode
+    root = Path(__file__).resolve().parents[1]
+    material = json.loads((root / "contracts/flat_base_finetune_low_friction_v1.json").read_text())["contact_material"]
+    suffix = "-material-" + hashlib.sha256(encode(material)).hexdigest()[:12]
+    pilot, envelope, baseline = evidence()
+    for report in (pilot, envelope, baseline):
+        report["settings"]["protocol_id"] += suffix
+    assert validate_large_block_evidence(pilot, envelope, baseline, "candidate", "source",
+        contact_material=material)["no_lost_baseline_checks"]
+    baseline["settings"]["protocol_id"] = "envelope"
+    with pytest.raises(ValueError, match="wheel and ground material"):
+        validate_large_block_evidence(pilot, envelope, baseline, "candidate", "source", contact_material=material)
+
+
+def test_randomized_stage_cannot_reuse_low_friction_acceptance_evidence():
+    import hashlib
+    import json
+    from wheeled_tasks.chassis.flat_base_continuation import encode
+    root = Path(__file__).resolve().parents[1]
+    low, randomized = (json.loads((root / name).read_text())["contact_material"] for name in (
+        "contracts/flat_base_finetune_low_friction_v1.json", "contracts/flat_base_finetune_random_friction_v1.json"))
+    reports = evidence()
+    suffix = "-material-" + hashlib.sha256(encode(low)).hexdigest()[:12]
+    for report in reports:
+        report["settings"]["protocol_id"] += suffix
+    with pytest.raises(ValueError, match="wheel and ground material"):
+        validate_large_block_evidence(*reports, "candidate", "source", contact_material=randomized)

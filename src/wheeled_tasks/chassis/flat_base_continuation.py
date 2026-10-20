@@ -25,7 +25,7 @@ def digest(path):
 def read_plan(root, plan_file=PLAN):
     root = Path(root)
     plan = json.loads((root / plan_file).read_text())
-    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)):
+    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)):
         raise ValueError("Unknown flat actor transfer plan")
     for name in ("source_worker", "source_design", "control"):
         if digest(root / plan[name + "_file"]) != plan[name + "_sha256"]:
@@ -45,11 +45,23 @@ def read_plan(root, plan_file=PLAN):
     from .flat_clock_transition import validate_flat_clock
     validate_flat_clock(root, plan)
     velocity_scale = plan.get("moving_velocity_cost_scale")
-    if plan["schema"] == "flat-base-finetune-plan-v16":
+    if plan["schema"] in ("flat-base-finetune-plan-v16", "flat-base-finetune-plan-v17"):
         if type(velocity_scale) not in (int, float) or not math.isfinite(velocity_scale) or not 1. < velocity_scale <= 10.:
-            raise ValueError("v16 requires a finite moving velocity cost scale in (1,10]")
+            raise ValueError("v16/v17 require a finite moving velocity cost scale in (1,10]")
     elif velocity_scale is not None:
         raise ValueError("Moving velocity cost scaling requires the explicit v16 plan")
+    contact_material = plan.get("contact_material", {"enabled": False})
+    if not isinstance(contact_material, dict) or type(contact_material.get("enabled", False)) is not bool:
+        raise ValueError("contact_material must be an explicit enabled/disabled mapping")
+    if contact_material.get("enabled"):
+        if plan["schema"] != "flat-base-finetune-plan-v17":
+            raise ValueError("Separate contact materials require the explicit v17 plan")
+        from .contact_material import ContactMaterialDomain
+        # Validate with the native sampler's isolated generator; this does not
+        # consume the environment or learner RNG.
+        ContactMaterialDomain(1, contact_material, plan["seed"])
+    elif plan["schema"] == "flat-base-finetune-plan-v17":
+        raise ValueError("v17 requires enabled separate wheel and ground materials")
     if abs(sum(group["fraction"] for group in plan["train_groups"]) - 1.) > 1e-10:
         raise ValueError("Flat training population must sum to one")
     names = [g["name"] for g in plan["train_groups"]]
@@ -68,10 +80,10 @@ def read_plan(root, plan_file=PLAN):
     if plan.get("feedback_training_scope") and plan.get("actor_adaptation") not in (
             "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
             "original-command-and-separated-tracking-feedback-residual-v3",
-            "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
+            "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
         raise ValueError("Feedback-only scope requires the declared feedback architecture")
     recall = plan.get("static_feedback_recall")
-    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
+    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
         if (not isinstance(recall, dict) or set(recall) != {"checkpoint", "sha256"}
                 or not isinstance(recall["checkpoint"], str)
                 or digest(root / recall["checkpoint"]) != recall["sha256"]):
@@ -103,7 +115,8 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
             vx_max=plan.get("vx_max", .5), yaw_max=plan.get("yaw_max", 1.), push_max=0., terrain=["flat"])],
         usb_transport={"enabled": False}, command_transport={"enabled": False},
         signal_perturbations={"enabled": False}, dynamics_randomization={"enabled": False},
-        contact_domain={"enabled": False}, step_assist={"enabled": False},
+        contact_domain={"enabled": False}, contact_material=deepcopy(plan.get("contact_material", {"enabled": False})),
+        step_assist={"enabled": False},
         new_asset_curriculum={"enabled": False}, jump_assist={"enabled": False},
         observation_noise_enabled=False, mass_randomization_enabled=False, diagnostic_trace=evaluation,
         response_migration="flat_base_paired107_actor_transfer_v1", evaluation_exact_cases=evaluation,
@@ -127,7 +140,7 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
                 "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
                 "original-command-and-separated-tracking-feedback-residual-v3",
                 "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5",
-                "original-static-feedback-and-wheel-authority-residual-v6")
+                "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7")
                 or plan.get("actor_output_layer_only")):
             raise ValueError("Unsupported or conflicting flat actor adaptation")
         values["actor_adaptation"] = plan["actor_adaptation"]
@@ -172,6 +185,9 @@ def write_bundle(root, directory, num_envs, *, evaluation=False, seed=None, plan
         protect_anchor_cases=False, stable_case_layout=False, episode_seconds=16.,
         cases=[deepcopy(next(case for case in source["evaluation"]["cases"] if case["name"] == name))
                for name in plan["pilot_case_names"]])
+    if plan.get("contact_material", {}).get("enabled"):
+        material_id = hashlib.sha256(encode(plan["contact_material"])).hexdigest()[:12]
+        settings["protocol_id"] += "-material-" + material_id
     for case in settings["cases"]:
         case.update({key: plan["acceptance"][key] for key in ("survival_rate_min", "height_mae_m_max",
                     "velocity_mae_m_s_max", "yaw_mae_rad_s_max")})
@@ -204,8 +220,11 @@ def write_bundle(root, directory, num_envs, *, evaluation=False, seed=None, plan
         precision_tracking=True, actuator_response=deepcopy(worker["actuator_response"]),
         locomotion_quality_rewards=quality,
         modules=dict(usb_transport=False, command_transport=False, signal_perturbations=False,
-            dynamics_randomization=False, contact_domain=False, step_assist=False, actuator_response=True,
+            dynamics_randomization=False, contact_domain=False,
+            contact_material=bool(plan.get("contact_material", {}).get("enabled", False)),
+            step_assist=False, actuator_response=True,
             stand_still_lin_vel="stand_still_lin_vel" in quality, locomotion_posture_floor="locomotion_posture" in quality))
+    row["runtime"]["contact_material"] = deepcopy(worker["contact_material"])
     role = "quick" if evaluation else "train"
     design = dict(schema="chassis-design-expectations-v1", status="frozen", scope="flat_base_paired107_actor_transfer",
         review_basis=dict(plan_file=str(plan_file), plan_sha256=digest(root / plan_file),

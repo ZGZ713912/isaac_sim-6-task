@@ -36,9 +36,11 @@ def rig(tmp_path):
         robot=NS(joint_names=names, data=NS(joint_pos=NS(torch=nominal.clone()),
             root_link_lin_vel_w=NS(torch=torch.zeros(2, 3)),
             root_link_pose_w=NS(torch=torch.tensor([[0., 0., .305, 0., 0., 0., 1.]]).repeat(2, 1)))))
-    table = {"control_joint_names": manifest["control_joint_names"],
+    table = {"control_joint_names": manifest["control_joint_names"], "model_spec_sha256": "0" * 64,
         "asset_manifest_sha256": cfg["asset_manifest_sha256"], "axis_signs": [1., 1., -1., -1.],
         "wheel_axis_signs": [1., -1.],
+        "shell_support_geometry": {"frame": "base_link", "body": "base_link", "model_spec_sha256": "0" * 64,
+            "vertices_b_m": [[x, y, z] for x in (-.28, .28) for y in (-.1, .1) for z in (-.17, .08)]},
         "prepare_reference": {"geometry_control6_rad": v5.nominal.tolist(),
             "pd_control6_rad": v5.nominal.tolist(), "hold_torque_nm": [0.] * 6, "kp": 160.},
         "targets": {name: {"control6_rad": v5.nominal.tolist()} for name in ("nominal", "fold", "thrust", "support")},

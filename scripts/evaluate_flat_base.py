@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -18,6 +19,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 def diagnostic_ablation(mean, variant, parent=None):
     """Read-only counterfactual means; these never become training checkpoints."""
+    if variant == "full":
+        return mean
     from wheeled_algo.command_residual import CommandResidualActor
     from wheeled_algo.guarded_feedback_residual import GuardedFeedbackActor
     if type(mean) is not GuardedFeedbackActor:
@@ -33,13 +36,14 @@ def diagnostic_ablation(mean, variant, parent=None):
         if mean.tracking_gate:
             raise ValueError("Tracking-gate diagnostic requires the legacy parent gate")
         mean.tracking_gate = True
-    elif variant != "full":
+    else:
         raise ValueError("Unknown diagnostic ablation")
     return mean
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--plan", default="contracts/flat_base_finetune_v1.json")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--seed", type=int)
@@ -81,10 +85,10 @@ def main():
     from wheeled_tasks.chassis.preflight import design_preflight
     from train_chassis import preflight
 
-    plan = read_plan(ROOT)
+    plan = read_plan(ROOT, args.plan)
     args.output = args.output.resolve()
     args.output.mkdir(parents=True, exist_ok=False)
-    config, seed = write_bundle(ROOT, args.output / "config", 32, evaluation=True, seed=args.seed)
+    config, seed = write_bundle(ROOT, args.output / "config", 32, evaluation=True, seed=args.seed, plan_file=args.plan)
     if args.envelope:
         names = [*plan["pilot_case_names"], "forward_1", "backward_1", "forward_2", "backward_2",
                  "forward_3", "backward_3", "rotate_4", "rotate_4_reverse", "curve_low", "curve_low_reverse",
@@ -192,13 +196,24 @@ def main():
         design_path.write_bytes(encode(design))
         config["design_preflight"]["sha256"] = digest(design_path)
         (args.output / "config/contract.json").write_bytes(encode(config))
+    if plan.get("contact_material", {}).get("enabled"):
+        material_id = hashlib.sha256(encode(plan["contact_material"])).hexdigest()[:12]
+        suffix = "-material-" + material_id
+        if not config["evaluation"]["protocol_id"].endswith(suffix):
+            design_path = args.output / "config/design.json"
+            design = json.loads(design_path.read_text())
+            config["evaluation"]["protocol_id"] += suffix
+            design["stages"]["speed"]["roles"]["quick"]["contract"]["evaluation"] = config["evaluation"]
+            design_path.write_bytes(encode(design))
+            config["design_preflight"]["sha256"] = digest(design_path)
+            (args.output / "config/contract.json").write_bytes(encode(config))
     _, manifest = preflight(args.output / "config/contract.json")
     control = load_chassis_control(ROOT / config["control_math_source"])
     count = config["target_num_envs"]
     static = design_preflight(config, control, ROOT, stage="speed", role="quick", num_envs=count, seed=seed)
     report = dict(schema="flat-base-behavior-evaluation-v1", status="starting", seed=seed,
         started_at=datetime.now(timezone.utc).isoformat(), new_optimizer_updates=0,
-        source_onnx_sha256=plan["source_onnx_sha256"], plan_sha256=digest(ROOT / "contracts/flat_base_finetune_v1.json"),
+        source_onnx_sha256=plan["source_onnx_sha256"], plan_file=args.plan, plan_sha256=digest(ROOT / args.plan),
         asset_manifest_sha256=config["asset_manifest_sha256"], model_spec_sha256=plan["model_spec_sha256"],
         contract_sha256=digest(args.output / "config/contract.json"), static_preflight=static,
         settings=config["evaluation"], policy_hz=50, physics_hz=round(1 / config["physics_dt"]),
@@ -216,7 +231,8 @@ def main():
     sources = list((ROOT / "src/wheeled_tasks/chassis").glob("*.py"))
     sources += [Path(__file__), ROOT / "src/wheeled_algo/onnx_actor_import.py",
                 ROOT / "src/wheeled_algo/command_residual.py", ROOT / "src/wheeled_algo/guarded_feedback_residual.py",
-                ROOT / "src/wheeled_algo/separated_feedback.py", ROOT / "src/wheeled_algo/low_demand_feedback.py", ROOT / "src/wheeled_algo/static_feedback.py", ROOT / "src/wheeled_algo/wheel_authority.py"]
+                ROOT / "src/wheeled_algo/separated_feedback.py", ROOT / "src/wheeled_algo/low_demand_feedback.py", ROOT / "src/wheeled_algo/static_feedback.py", ROOT / "src/wheeled_algo/wheel_authority.py",
+                ROOT / "src/wheeled_algo/static_grip.py"]
     if args.reward_audit:
         sources.append(ROOT / "scripts/flat_reward_audit.py")
     if reference_contract is not None:

@@ -51,18 +51,22 @@ class StaticFeedbackActor(LowDemandFeedbackActor):
         for parameter in self.static_feedback.parameters():
             parameter.grad = None
 
-    def verify_original(self, original):
-        result = super().verify_original(original)
+    def static_feedback_contract(self):
+        """The historical v5/v6 controller retains its exact recalled tensors."""
         if any(not torch.equal(v.detach().cpu(), self._expected_static[n])
                for n,v in self.static_feedback.state_dict().items()):
             raise ValueError('Frozen recalled static feedback changed')
-        result['separated_feedback']['kind'] = KIND
-        result['static_feedback_recall'] = dict(checkpoint_sha256=self.recalled_sha256,
+        return dict(checkpoint_sha256=self.recalled_sha256,
             static_parameters=sum(p.numel() for p in self.static_feedback.parameters()),
             static_trainable=False, moving_full_vx_m_s=.1, moving_full_yaw_rad_s=.2,
             stationary_action_function='exact_recalled_feedback_and_same_command_branch',
             moving_action_function='exact_v4_at_full_moving_endpoint',
             stopping='zero-command braking also uses recalled feedback; native replay required')
+
+    def verify_original(self, original):
+        result = super().verify_original(original)
+        result['separated_feedback']['kind'] = KIND
+        result['static_feedback_recall'] = self.static_feedback_contract()
         return result
 
     def export_graph(self, source):

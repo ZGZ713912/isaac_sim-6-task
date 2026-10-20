@@ -7,7 +7,7 @@ import pytest
 import torch
 
 from test_recovery_training_integration import rig
-from wheeled_tasks.chassis.recovery import RecoveryPhase
+from wheeled_tasks.chassis.recovery import RecoveryPhase, RecoveryRoute
 from wheeled_tasks.chassis.recovery_training import RecoveryTraining
 
 
@@ -198,6 +198,29 @@ def test_wheel_balance_is_limited_to_sensor_supported_script_capture(rig, phase,
     assert recovery.wheel_balance_active[0].item() is expected
 
 
+@pytest.mark.parametrize("route,direction", [(RecoveryRoute.ORBIT_POSITIVE, 1.),
+                                             (RecoveryRoute.ORBIT_NEGATIVE, -1.)])
+@pytest.mark.parametrize("phase,speed", [(RecoveryPhase.ORBIT, 1.5), (RecoveryPhase.THRUST, .8)])
+def test_opt_in_wheel_assist_uses_both_route_signs_and_a_bounded_ramp(rig, route, direction, phase, speed):
+    _, recovery = rig
+    recovery.release_finished[:] = True
+    recovery.wheel_balance["orbit_assist_enabled"] = True
+    recovery.fsm.phase[0] = phase
+    recovery.fsm.route[0] = route
+    recovery.fsm.phase_ticks[0] = 25  # 125 ms of the declared 250 ms ramp.
+    gravity = torch.tensor([[math.sin(.6), 0., -math.cos(.6)]]).repeat(2, 1)
+    recovery._update_wheel_targets(gravity, torch.zeros(2, 3), torch.zeros(2, 6),
+        torch.zeros(2, dtype=torch.bool), recovery.fsm.phase.clone())
+    expected = direction * recovery.wheel_axis_signs * speed * .5
+    torch.testing.assert_close(recovery.fsm.script_targets[0, [2, 5]], expected)
+    assert recovery.wheel_assist_active.tolist() == [True, False]
+    gravity[0] = torch.tensor([0., 0., 1.])
+    recovery._update_wheel_targets(gravity, torch.zeros(2, 3), torch.zeros(2, 6),
+        torch.ones(2, dtype=torch.bool), recovery.fsm.phase.clone())
+    assert not recovery.wheel_assist_active[0]
+    assert recovery.fsm.script_targets[0, [2, 5]].eq(0.).all()
+
+
 def test_blend_retains_last_wheel_reference_but_drops_it_on_lost_support(rig):
     _, recovery = rig
     recovery.release_finished[:] = True
@@ -273,6 +296,23 @@ def test_signed_motor_axes_are_independent_of_unoriented_collision_cylinders(rig
     _, recovery = rig
     assert recovery.geometry.wheel_axles_b[:, 1].gt(0.).all()
     torch.testing.assert_close(recovery.wheel_axis_signs, torch.tensor([1., -1.]))
+
+
+def test_wheel_assistance_can_use_the_first_supported_contact_beyond_horizontal(rig):
+    _, recovery = rig
+    recovery.release_finished[:] = True
+    recovery.wheel_balance.update(orbit_assist_enabled=True, assist_tilt_limit_deg=120.,
+        assist_requires_support=True)
+    recovery.fsm.phase[:] = RecoveryPhase.ORBIT
+    recovery.fsm.route[:] = RecoveryRoute.ORBIT_POSITIVE
+    recovery.fsm.phase_ticks[:] = 100
+    angle = math.radians(105.)
+    gravity = torch.tensor([[math.sin(angle), 0., -math.cos(angle)]]).repeat(2, 1)
+    recovery._update_wheel_targets(gravity, torch.zeros(2, 3), torch.zeros(2, 6),
+        torch.tensor([True, False]), recovery.fsm.phase.clone())
+    assert recovery.wheel_assist_active.tolist() == [True, False]
+    torch.testing.assert_close(recovery.fsm.script_targets[0, [2, 5]], torch.tensor([1.5, -1.5]))
+    assert recovery.fsm.script_targets[1, [2, 5]].eq(0.).all()
 
 
 def test_native_pd_held_target_does_not_receive_a_wrap_torque_impulse(rig):

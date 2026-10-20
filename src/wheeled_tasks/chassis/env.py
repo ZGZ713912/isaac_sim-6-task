@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import torch
@@ -190,7 +191,21 @@ class ChassisEnv:
                 cases = {c["name"]: c for c in config["evaluation"]["cases"]}
                 profiles = [cases[name].get("contact_profile") for name in groups]
             self.contact_domain = ContactDomain(num_envs, config["contact_domain"], seed, profiles)
-        combine = "multiply" if self.contact_domain is not None else "average"
+        self.contact_material = None
+        if config.get("contact_material", {}).get("enabled"):
+            if self.contact_domain is not None:
+                raise ValueError("Separate contact materials cannot be combined with the legacy contact domain")
+            from .contact_material import ContactMaterialDomain
+            profiles = None
+            if config.get("evaluation_exact_cases"):
+                cases = {c["name"]: c for c in config["evaluation"]["cases"]}
+                candidate = [cases[name].get("contact_material_profile") for name in groups]
+                if all(profile is not None for profile in candidate):
+                    profiles = candidate
+            self.contact_material = ContactMaterialDomain(num_envs, config["contact_material"], seed,
+                device=device, profiles=profiles)
+        combine = (self.contact_material.mode if self.contact_material is not None
+                   else ("multiply" if self.contact_domain is not None else "average"))
         for i, kind in enumerate(kinds):
             # A single line of 4096 corridors reaches tens of kilometres and
             # loses millimetre precision in float32 world-space constraints.
@@ -231,6 +246,12 @@ class ChassisEnv:
             if self.contact_domain is not None:
                 surfaces = self.contact_domain.surfaces(surfaces, i)
                 self.surfaces[-1] = surfaces
+            elif self.contact_material is not None:
+                # The material-domain coefficient is authored directly on the
+                # terrain.  It is no longer the legacy effective-0.5 value.
+                ground = float(self.contact_material.ground_static[i])
+                surfaces = [replace(surface, friction=ground) for surface in surfaces]
+                self.surfaces[-1] = surfaces
             if config.get("flat_triangle_mesh") and kind in ("flat", "jump"):
                 mesh = UsdGeom.Mesh.Define(self.sim.stage, path + "/Terrain/surface_0/geometry/mesh")
                 points, indices = corridor_mesh(half_length, floor_width)
@@ -242,8 +263,12 @@ class ChassisEnv:
                 UsdPhysics.CollisionAPI.Apply(mesh.GetPrim()).CreateCollisionEnabledAttr(True)
                 UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr("none")
                 material_path = path + "/Terrain/Material"
-                material_cfg = sim_utils.RigidBodyMaterialCfg(static_friction=surfaces[0].friction,
-                    dynamic_friction=surfaces[0].friction, restitution=0., friction_combine_mode=combine)
+                static_mu = (float(self.contact_material.ground_static[i])
+                             if self.contact_material is not None else surfaces[0].friction)
+                dynamic_mu = (float(self.contact_material.ground_dynamic[i])
+                              if self.contact_material is not None else surfaces[0].friction)
+                material_cfg = sim_utils.RigidBodyMaterialCfg(static_friction=static_mu,
+                    dynamic_friction=dynamic_mu, restitution=0., friction_combine_mode=combine)
                 material_cfg.func(material_path, material_cfg)
                 sim_utils.bind_physics_material(str(mesh.GetPath()), material_path)
                 continue
@@ -254,11 +279,18 @@ class ChassisEnv:
                 size, position, quat = surface.box(width=floor_width if kind in ("flat", "jump") else 4., solid_bottom=bottom)
                 if config.get("playback_open_ground"):
                     size = (size[0], 80., size[2])
-                # Both robot and default material are 0.5; average combine yields the requested mu.
-                mu = surface.friction if self.contact_domain is not None else 2 * surface.friction - 0.5
+                # Legacy scenes convert an effective 0.5 contact request into a
+                # material paired with the unit robot.  Separate material
+                # scenes author the sampled ground coefficient directly.
+                if self.contact_material is not None:
+                    static_mu = float(self.contact_material.ground_static[i])
+                    dynamic_mu = float(self.contact_material.ground_dynamic[i])
+                else:
+                    static_mu = dynamic_mu = (surface.friction if self.contact_domain is not None
+                                              else 2 * surface.friction - 0.5)
                 cfg = sim_utils.CuboidCfg(size=size, collision_props=sim_utils.CollisionPropertiesCfg(),
-                    physics_material=sim_utils.RigidBodyMaterialCfg(static_friction=mu,
-                        dynamic_friction=mu, restitution=0., friction_combine_mode=combine))
+                    physics_material=sim_utils.RigidBodyMaterialCfg(static_friction=static_mu,
+                        dynamic_friction=dynamic_mu, restitution=0., friction_combine_mode=combine))
                 # Surface.box uses USD's scalar-first quaternion; Isaac Lab 3
                 # spawners take scalar-last quaternions.
                 cfg.func(path + f"/Terrain/surface_{j}", cfg, translation=position,
@@ -312,10 +344,21 @@ class ChassisEnv:
             actuators=actuators,
             soft_joint_pos_limit_factor=1.)
         self.robot = Articulation(robot_cfg)
-        robot_mu = 1. if self.contact_domain is not None else .5
-        material = sim_utils.RigidBodyMaterialCfg(static_friction=robot_mu, dynamic_friction=robot_mu,
-            restitution=0., friction_combine_mode=combine)
+        if self.contact_material is not None:
+            robot_mu_static = self.contact_material.body_static
+            robot_mu_dynamic = self.contact_material.body_dynamic
+            wheel_material = sim_utils.RigidBodyMaterialCfg(
+                static_friction=self.contact_material.wheel_static,
+                dynamic_friction=self.contact_material.wheel_dynamic,
+                restitution=0., friction_combine_mode=combine)
+        else:
+            robot_mu_static = robot_mu_dynamic = 1. if self.contact_domain is not None else .5
+            wheel_material = None
+        material = sim_utils.RigidBodyMaterialCfg(static_friction=robot_mu_static,
+            dynamic_friction=robot_mu_dynamic, restitution=0., friction_combine_mode=combine)
         material.func("/World/RobotMaterial", material)
+        if wheel_material is not None:
+            wheel_material.func("/World/WheelMaterial", wheel_material)
         loop_count = 0
         for prim in self.sim.stage.Traverse():
             if "/Robot/" not in str(prim.GetPath()):
@@ -323,7 +366,9 @@ class ChassisEnv:
             if prim.HasAPI(UsdPhysics.RigidBodyAPI):
                 PhysxSchema.PhysxContactReportAPI.Apply(prim).CreateThresholdAttr().Set(0.)
             if prim.HasAPI(UsdPhysics.CollisionAPI):
-                sim_utils.bind_physics_material(str(prim.GetPath()), "/World/RobotMaterial")
+                path = str(prim.GetPath())
+                wheel = wheel_material is not None and any(f"/{name}/" in path for name in ("L_link3", "R_link3"))
+                sim_utils.bind_physics_material(path, "/World/WheelMaterial" if wheel else "/World/RobotMaterial")
             if prim.IsA(UsdPhysics.SphericalJoint):
                 joint = UsdPhysics.SphericalJoint(prim)
                 if not joint.GetExcludeFromArticulationAttr().Get():
@@ -363,9 +408,18 @@ class ChassisEnv:
         self.surface_mu = torch.zeros(num_envs, max_surfaces, device=device)
         for i, surfaces in enumerate(self.surfaces):
             self.surface_mu[i, :len(surfaces)] = torch.tensor([s.friction for s in surfaces], device=device)
+        if self.contact_material is not None:
+            # The privileged critic has always received an effective wheel
+            # contact coefficient, not the newly separated ground material.
+            effective, _ = self.contact_material.effective(self.surface_mu)
+            self.surface_mu = torch.where(surface_valid, effective, 0.)
         self.platform_delta = torch.tensor(
             [s[-1].height(2.) - s[0].height(-1.5) for s in self.surfaces], device=device)
         self.env_paths = [p.split("/Robot")[0] for p in paths]
+        contact_material_readback = None
+        if self.contact_material is not None:
+            self.contact_material.reorder(order)
+            contact_material_readback = self.contact_material.verify_native(self.sim.stage, self.robot, self.env_paths)
         body_paths = [p + "/Robot/" + n for p in self.env_paths for n in self.robot.body_names]
         filters = [[p + f"/Terrain/surface_{j}/geometry/mesh" for j in range(len(self.surfaces[i]))]
                    for i, p in enumerate(self.env_paths) for _ in self.robot.body_names]
@@ -455,6 +509,16 @@ class ChassisEnv:
             self.startup_report["dynamics_randomization"] = self.dynamics_randomization.summary()
         if self.contact_domain is not None:
             self.startup_report["contact_domain"] = self.contact_domain.summary()
+        if self.contact_material is not None:
+            report = self.contact_material.summary()
+            report["wheel_body_names"] = ["L_link3", "R_link3"]
+            report["ground_material_first_environment"] = {
+                "static_friction": float(self.contact_material.ground_static[0]),
+                "dynamic_friction": float(self.contact_material.ground_dynamic[0])}
+            report["material_bindings"] = {
+                "body": "/World/RobotMaterial", "wheel": "/World/WheelMaterial"}
+            report["native_readback"] = contact_material_readback
+            self.startup_report["contact_material"] = report
         scene = self.sim.stage.GetPrimAtPath(self.sim.cfg.physics_prim_path)
         self.startup_report.update(physics_device=str(device),
             gpu_dynamics_enabled=bool(scene.GetAttribute("physxScene:enableGPUDynamics").Get()),
@@ -838,6 +902,9 @@ class ChassisEnv:
                     "contact_domain": self.contact_domain is not None,
                     "step_assist": self.step_assist is not None},
                 "precision_tracking": self.references is not None and bool(config["precision_tracking"])}
+            if "contact_material" in config:
+                actual["modules"]["contact_material"] = self.contact_material is not None
+                actual["contact_material"] = dict(config["contact_material"])
             if "action_difference_reference_dt" in config:
                 actual["action_difference_reference_dt"] = self.action_difference_reference_dt
             if config.get("new_asset_curriculum", {}).get("enabled"):
@@ -876,6 +943,10 @@ class ChassisEnv:
                 actual["recovery_pose_curriculum"] = (dict(self.recovery.pose_curriculum.settings)
                     if self.recovery.pose_curriculum is not None else None)
                 actual["recovery_complete_started_blend"] = self.recovery.fsm.config["complete_started_blend"]
+                if "script_schema" in config["recovery_training"]:
+                    from .slow_recovery import native_runtime_binding
+                    actual["slow_recovery"] = native_runtime_binding(self.recovery)
+                    self.startup_report["slow_recovery"] = actual["slow_recovery"]
                 if "prefix_curriculum" in config["recovery_training"]:
                     from .recovery_prefix_curriculum import runtime_expectation
                     prefix = self.recovery.pose_curriculum
@@ -2077,6 +2148,11 @@ class ChassisEnv:
             if task is not None and task.has_tasks:
                 extras["log"].update({"/task/" + name: value.float().mean()
                     for name, value in task.diagnostics().items() if value.dtype == torch.bool or "count" in name})
+        if self.recovery is not None and self.recovery.settings.get("script_schema"):
+            extras["log"].update({
+                "/recovery/wheel_assist_active_fraction": self.recovery.wheel_assist_active.float().mean(),
+                "/recovery/wheel_balance_active_fraction": self.recovery.wheel_balance_active.float().mean(),
+                "/recovery/wheel_velocity_target_abs_rad_s": self.recovery.fsm.script_targets[:, (2, 5)].abs().mean()})
         if raw_margin_risk is not None:
             extras["log"]["/mechanics/working_margin_raw_max"] = raw_margin_risk.max()
         if self.performance_curriculum is not None:

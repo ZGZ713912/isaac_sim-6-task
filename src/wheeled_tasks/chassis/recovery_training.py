@@ -13,7 +13,7 @@ import torch
 
 from .mechanism_observer import ClosedChainHeightModel
 from .continuous_encoders import ContinuousEncoderAngles
-from .recovery import RecoveryFSM, RecoveryPhase
+from .recovery import RecoveryFSM, RecoveryPhase, RecoveryRoute
 from .recovery_observer import SimulatedImu, WheelSupportProbe
 from .step_trigger import estimate_height_if_grounded
 from .training_schedule import stage_actor_updates
@@ -34,6 +34,21 @@ class RecoveryTraining:
         self.env, self.settings = env, dict(settings)
         table = read_frozen(root, settings, "profiles")
         self.geometry = ClosedChainHeightModel(read_frozen(root, settings, "height_lookup"), env.device)
+        self.shell_support_guard = dict(settings.get("shell_support_guard", {"enabled": False}))
+        self.shell_vertices = None
+        if self.shell_support_guard.get("enabled"):
+            if (set(self.shell_support_guard) != {"enabled", "penetration_tolerance_m"}
+                    or self.shell_support_guard["enabled"] is not True
+                    or not 0. <= self.shell_support_guard["penetration_tolerance_m"] <= .003):
+                raise ValueError("Shell support guard requires an explicit tolerance of at most 3 mm")
+            shell = table.get("shell_support_geometry", {})
+            vertices = torch.as_tensor(shell.get("vertices_b_m", []), dtype=torch.float32, device=env.device)
+            if (shell.get("frame") != "base_link" or shell.get("body") != "base_link"
+                    or shell.get("model_spec_sha256") != table.get("model_spec_sha256")
+                    or vertices.ndim != 2 or vertices.shape[1] != 3 or len(vertices) < 4
+                    or not torch.isfinite(vertices).all()):
+                raise ValueError("Shell support guard requires authenticated base-link collision vertices")
+            self.shell_vertices = vertices
         relative_limits = torch.stack([side["delta_rad"][[0, -1]] for side in self.geometry.sides])
         self.encoders = ContinuousEncoderAngles(env.num_envs, env.device, relative_limits)
         self.reference_dt = settings.get("reference_dt", .005)
@@ -61,15 +76,28 @@ class RecoveryTraining:
         targets[0] = targets[3] = command_q
         self.fsm = RecoveryFSM(env.num_envs, env.device, cfg, *targets, table["axis_signs"])
         self.wheel_balance = {"enabled": False, "pitch_kp_nm_rad": 8., "pitch_kd_nm_s_rad": 1.5,
-            "wheel_damping_nm_s_rad": .2, "prepare_tilt_limit_deg": 55., "capture_tilt_limit_deg": 85.}
+            "wheel_damping_nm_s_rad": .2, "prepare_tilt_limit_deg": 55., "capture_tilt_limit_deg": 85.,
+            "orbit_assist_enabled": False, "orbit_assist_speed_rad_s": 1.5,
+            "thrust_assist_speed_rad_s": .8, "assist_tilt_limit_deg": 85.,
+            "assist_ramp_seconds": .25, "assist_requires_support": False, "effort_limit_nm": None}
         balance = settings.get("wheel_balance", {})
         if set(balance) - self.wheel_balance.keys():
             raise ValueError("Unknown recovery wheel-balance configuration")
         self.wheel_balance.update(balance)
-        if (type(self.wheel_balance["enabled"]) is not bool
-                or any(not math.isfinite(value) or value <= 0. for key, value in self.wheel_balance.items() if key != "enabled")
+        boolean_options = ("enabled", "orbit_assist_enabled", "assist_requires_support")
+        if (any(type(self.wheel_balance[key]) is not bool for key in boolean_options)
+                or any(not math.isfinite(value) or value <= 0. for key, value in self.wheel_balance.items()
+                        if key not in (*boolean_options, "effort_limit_nm"))
                 or not 0. < self.wheel_balance["prepare_tilt_limit_deg"] <= self.wheel_balance["capture_tilt_limit_deg"] < 90.):
             raise ValueError("Invalid recovery wheel-balance gains or support angles")
+        if not self.wheel_balance["capture_tilt_limit_deg"] <= self.wheel_balance["assist_tilt_limit_deg"] < 150.:
+            raise ValueError("Recovery wheel assist tilt limit must cover capture and remain below 150 degrees")
+        if self.wheel_balance["assist_tilt_limit_deg"] >= 90. and not self.wheel_balance["assist_requires_support"]:
+            raise ValueError("Wheel assistance beyond horizontal requires sensor-estimated support")
+        effort_limit = self.wheel_balance["effort_limit_nm"]
+        if effort_limit is not None and (type(effort_limit) not in (float, int)
+                or not math.isfinite(effort_limit) or not 0. < effort_limit <= 4.5):
+            raise ValueError("Recovery wheel effort limit must be positive and at most the native 4.5 Nm")
         # A collision cylinder's axis is unoriented: both meshes may use +Y
         # while the right motor's joint axis is -Y. The signed motor axes come
         # from the frozen profile builder's model-spec FK, not collision axes.
@@ -137,9 +165,12 @@ class RecoveryTraining:
         self.wheel_probe_torque = torch.zeros(n, 2, device=d)
         self.observed_height = torch.zeros(n, device=d)
         self.observed_support = torch.zeros(n, dtype=torch.bool, device=d)
+        self.shell_minimum_height = torch.zeros(n, device=d)
+        self.support_geometrically_possible = torch.ones(n, dtype=torch.bool, device=d)
         self.learning_mask = torch.ones(n, dtype=torch.bool, device=d)
         self.policy_motion_hold = torch.zeros(n, dtype=torch.bool, device=d)
         self.wheel_balance_active = torch.zeros(n, dtype=torch.bool, device=d)
+        self.wheel_assist_active = torch.zeros(n, dtype=torch.bool, device=d)
         self.goal_platform = self.required_platform_height == 0.
 
     @property
@@ -195,7 +226,7 @@ class RecoveryTraining:
         self.fsm.reset(ids, self.encoders.q, self.enabled & (self.initial_release == 0.))
         for name in ("elapsed", "true_stable_seconds", "true_stable_peak", "followup_seconds",
                      "ever_blended", "handover_count", "true_success", "wheel_probe_torque", "motion_release_observed",
-                     "wheel_balance_active", "premature_release"):
+                     "wheel_balance_active", "wheel_assist_active", "premature_release"):
             getattr(self, name)[ids] = 0
         self.release_finished[ids] = ~self.enabled[ids] | (self.initial_release[ids] == 0.)
         self.goal_platform[ids] = self.required_platform_height[ids] == 0.
@@ -259,6 +290,7 @@ class RecoveryTraining:
                      & ((height[:, 0] - height[:, 1]).abs() < .035)
                      & (acceleration.norm(dim=-1) > 6.) & (acceleration.norm(dim=-1) < 16.)
                      & (gyro.norm(dim=-1) < 8.))
+        plausible &= self.shell_support_possible(gravity, self.observed_height)
         confirmed = self.probe.observe(dq[:, [2, 5]], gyro, plausible)
         self.observed_support = plausible
         body_clear = (confirmed | self.fsm.blending | self.fsm.pure_rl) & plausible & (height.amin(-1) > .27)
@@ -275,6 +307,18 @@ class RecoveryTraining:
             self.enabled & self.fsm.scripted & self.release_finished & plausible, confirmed)
         self.reference_tick += 1
 
+    def shell_support_possible(self, gravity, height_if_wheels_grounded):
+        """Reject wheel support that would put known shell geometry below ground.
+
+        This is a necessary geometry condition, not proof of contact. It uses
+        body-frame gravity and FK only, with no simulator height or contacts.
+        """
+        if self.shell_vertices is not None:
+            self.shell_minimum_height = (gravity @ self.shell_vertices.T).amax(-1)
+            self.support_geometrically_possible = (height_if_wheels_grounded >= self.shell_minimum_height
+                - self.shell_support_guard["penetration_tolerance_m"])
+        return self.support_geometrically_possible
+
     def _update_wheel_targets(self, gravity, gyro, dq, support, previous_phase):
         """200 Hz sensor-only pitch stabilization through the existing wheel P loop.
 
@@ -285,6 +329,8 @@ class RecoveryTraining:
         wheels, settings = list(self.env.v5.WHEELS), self.wheel_balance
         tilt = torch.acos((-gravity[:, 2]).clamp(-1., 1.))
         pitch = torch.atan2(gravity[:, 0], -gravity[:, 2])
+        orbiting = self.fsm.phase == int(RecoveryPhase.ORBIT)
+        thrusting = self.fsm.phase == int(RecoveryPhase.THRUST)
         capture = self.fsm.phase == int(RecoveryPhase.CAPTURE)
         preparing = self.fsm.phase == int(RecoveryPhase.PREPARE)
         entered_blend = self.fsm.blending & (previous_phase == int(RecoveryPhase.PREPARE))
@@ -299,7 +345,21 @@ class RecoveryTraining:
         retained = self.fsm.blending & self.wheel_balance_active & support & (tilt < limit)
         desired = torch.where(retained[:, None], self.fsm.script_targets[:, wheels], 0.)
         desired = torch.where(eligible[:, None], target, desired)
+        assist_limit = math.radians(settings["assist_tilt_limit_deg"])
+        assist = (self.enabled & self.release_finished & settings["orbit_assist_enabled"]
+                  & (orbiting | thrusting) & (tilt < assist_limit))
+        if settings["assist_requires_support"]:
+            assist &= support
+        route_direction = torch.where(
+            self.fsm.route == int(RecoveryRoute.ORBIT_POSITIVE), 1., -1.)
+        assist_speed = torch.where(thrusting, tilt.new_tensor(settings["thrust_assist_speed_rad_s"]),
+                                   tilt.new_tensor(settings["orbit_assist_speed_rad_s"]))
+        ramp = (self.fsm.phase_ticks.to(tilt.dtype) * self.reference_dt
+                / settings["assist_ramp_seconds"]).clamp(0., 1.)
+        assist_target = route_direction[:, None] * self.wheel_axis_signs * assist_speed[:, None] * ramp[:, None]
+        desired = torch.where(assist[:, None], assist_target, desired)
         self.wheel_balance_active = eligible | retained
+        self.wheel_assist_active = assist
         self.fsm.script_targets[:, wheels] = desired
 
     def torque(self, q, dq, rl_torque):
@@ -314,6 +374,9 @@ class RecoveryTraining:
                                       - env.v5.settings["leg_kd"] * dq[:, leg_ids])
         script_request[:, wheel_ids] = (env.v5.wheel_prior["kd"] * (self.fsm.script_targets[:, wheel_ids] - dq[:, wheel_ids])
                                         + self.wheel_probe_torque)
+        if self.wheel_balance["effort_limit_nm"] is not None:
+            limit = self.wheel_balance["effort_limit_nm"]
+            script_request[:, wheel_ids] = script_request[:, wheel_ids].clamp(-limit, limit)
         script_request *= self.release_finished[:, None]
         bound = env.v5.current_motor_bounds
         script_torque = script_request.clamp(min=-bound, max=bound)
@@ -398,7 +461,10 @@ class RecoveryTraining:
             "recovery_script_seconds": torch.minimum(self.elapsed, self.initial_release + self.fsm.age_ticks * self.reference_dt),
             "recovery_observed_height": self.observed_height.clone(),
             "recovery_observed_support": self.observed_support.clone(),
+            "recovery_shell_minimum_height": self.shell_minimum_height.clone(),
+            "recovery_support_geometrically_possible": self.support_geometrically_possible.clone(),
             "recovery_continuous_q": self.encoders.q.clone(),
             "recovery_leg_target_error_rad": leg_error.clone(),
             "recovery_wheel_balance_active": self.wheel_balance_active.clone(),
+            "recovery_wheel_assist_active": self.wheel_assist_active.clone(),
             "recovery_wheel_velocity_target": self.fsm.script_targets[:, list(self.env.v5.WHEELS)].clone()}

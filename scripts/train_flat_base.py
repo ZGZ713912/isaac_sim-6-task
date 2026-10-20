@@ -228,9 +228,18 @@ def probe_population_capacity(runner, env, plan, report, torch):
 
 
 def validate_large_block_evidence(pilot, envelope, baseline, checkpoint_sha256, source_onnx_sha256,
-                                  training_physics_hz=200):
+                                  training_physics_hz=200, contact_material=None):
     """Allow scale-up only after basic accuracy and broad skill preservation."""
     from compare_flat_base import compare
+    expected_protocol = "flat-base-paired107-fixed-v1"
+    if contact_material and contact_material.get("enabled"):
+        import hashlib
+        from wheeled_tasks.chassis.flat_base_continuation import encode
+        suffix = "-material-" + hashlib.sha256(encode(contact_material)).hexdigest()[:12]
+        expected_protocol += suffix
+        if any(not report.get("settings", {}).get("protocol_id", "").endswith(suffix)
+               for report in (pilot, envelope, baseline)):
+            raise ValueError("Large-block evidence must use the selected wheel and ground material contract")
     for evidence in (pilot, envelope):
         if (evidence.get("status") != "evaluated" or evidence.get("checkpoint_sha256") != checkpoint_sha256
                 or evidence.get("source_onnx_sha256") != source_onnx_sha256
@@ -238,7 +247,7 @@ def validate_large_block_evidence(pilot, envelope, baseline, checkpoint_sha256, 
             raise ValueError("Large-block evidence must evaluate this exact checkpoint at the training clock")
     basic = {"stand_230mm", "stand_305mm", "stand_430mm", "forward_05", "backward_05", "rotate_1",
              "rotate_1_reverse", "start_stop_05"}
-    if (pilot.get("settings", {}).get("protocol_id") != "flat-base-paired107-fixed-v1"
+    if (pilot.get("settings", {}).get("protocol_id") != expected_protocol
             or set(pilot["result"]["cases"]) != basic or not pilot["result"]["passed"]):
         raise ValueError("The exact candidate has not passed the eight basic behavior targets")
     required = {f"{direction}_{speed}" for direction in ("forward", "backward") for speed in ("1", "2", "3")}
@@ -300,7 +309,8 @@ def main():
         try:
             validate_large_block_evidence(json.loads(args.qualified_pilot.read_text()),
                 json.loads(args.qualified_envelope.read_text()), json.loads(args.baseline_envelope.read_text()),
-                digest(args.resume), plan["source_onnx_sha256"], round(1 / plan["physics_dt"]))
+                digest(args.resume), plan["source_onnx_sha256"], round(1 / plan["physics_dt"]),
+                contact_material=plan.get("contact_material"))
         except ValueError as error:
             parser.error(str(error))
     args.output = args.output.resolve()
@@ -340,18 +350,22 @@ def main():
                                        "original-command-and-separated-tracking-feedback-residual-v3",
                                        "original-command-and-continuous-low-feedback-residual-v4",
                                        "original-command-and-static-recall-feedback-residual-v5",
-                                       "original-static-feedback-and-wheel-authority-residual-v6"):
+                                       "original-static-feedback-and-wheel-authority-residual-v6",
+                                       "original-wheel-authority-with-static-grip-adaptation-v7"):
         sources.append(ROOT / "src/wheeled_algo/guarded_feedback_residual.py")
     if plan.get("actor_adaptation") in ("original-command-and-separated-tracking-feedback-residual-v3",
                                          "original-command-and-continuous-low-feedback-residual-v4",
-                                       "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
+                                       "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6",
+                                       "original-wheel-authority-with-static-grip-adaptation-v7"):
         sources.append(ROOT / "src/wheeled_algo/separated_feedback.py")
-    if plan.get("actor_adaptation") in ("original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
+    if plan.get("actor_adaptation") in ("original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
         sources.append(ROOT / "src/wheeled_algo/low_demand_feedback.py")
-    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
+    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
         sources.append(ROOT / "src/wheeled_algo/static_feedback.py")
-    if plan.get("actor_adaptation") == "original-static-feedback-and-wheel-authority-residual-v6":
+    if plan.get("actor_adaptation") in ("original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7"):
         sources.append(ROOT / "src/wheeled_algo/wheel_authority.py")
+    if plan.get("actor_adaptation") == "original-wheel-authority-with-static-grip-adaptation-v7":
+        sources.append(ROOT / "src/wheeled_algo/static_grip.py")
     if plan.get("training_command_reference"):
         sources.append(ROOT / "scripts/flat_rmcs_command_reference.py")
     report["source_sha256"] = {str(p.relative_to(ROOT)): digest(p) for p in sources}
@@ -418,11 +432,13 @@ def main():
                           "original-command-and-separated-tracking-feedback-residual-v3",
                           "original-command-and-continuous-low-feedback-residual-v4",
                           "original-command-and-static-recall-feedback-residual-v5",
-                          "original-static-feedback-and-wheel-authority-residual-v6")
+                          "original-static-feedback-and-wheel-authority-residual-v6",
+                          "original-wheel-authority-with-static-grip-adaptation-v7")
         separated_feedback = plan.get("actor_adaptation") in feedback_kinds[2:]
         low_demand_feedback = plan.get("actor_adaptation") in feedback_kinds[3:]
         static_feedback = plan.get("actor_adaptation") in feedback_kinds[4:]
-        wheel_authority = plan.get("actor_adaptation") == feedback_kinds[5]
+        wheel_authority = plan.get("actor_adaptation") in feedback_kinds[5:]
+        static_grip = plan.get("actor_adaptation") == feedback_kinds[6]
         feedback_residual = plan.get("actor_adaptation") in feedback_kinds
         command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds)
         if plan.get("actor_adaptation") and not command_residual:
@@ -484,6 +500,12 @@ def main():
                                 old_actor_names = list(dict(runner.alg.actor.named_parameters()))
                                 runner.alg.actor.mlp = WheelAuthorityActor(runner.alg.actor.mlp).to(args.device)
                                 configure_command_residual_training = configure_wheel_authority_training
+                                if static_grip:
+                                    if seed_state["infos"].get("actor_adaptation") not in feedback_kinds[5:]:
+                                        raise ValueError("Static grip requires the exact v6 or own v7 parent")
+                                    from wheeled_algo.static_grip import StaticGripActor, configure_static_grip_training
+                                    runner.alg.actor.mlp = StaticGripActor(runner.alg.actor.mlp).to(args.device)
+                                    configure_command_residual_training = configure_static_grip_training
                 else:
                     from functools import partial
                     configure_command_residual_training = partial(configure_command_residual_training,
@@ -515,7 +537,7 @@ def main():
                            "critic_position_anchor", "critic_dim", "actor_output_layer_only", "actor_adaptation",
                            "learning_rate", "training_command_reference", "feedback_training_scope", "command_branch_restore",
                            "physics_dt", "control_file", "control_sha256", "moving_velocity_cost_scale", "static_feedback_recall",
-                           "allowed_num_envs", "default_num_envs"}
+                           "allowed_num_envs", "default_num_envs", "contact_material"}
                 if (revision.get("schema") != "flat-training-plan-revision-v1"
                         or revision["parent_checkpoint_sha256"] != digest(args.resume)
                         or revision["old_plan_sha256"] != info["plan_sha256"]
@@ -595,6 +617,17 @@ def main():
                 for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
                             "post_split_actor_updates", "inherited_shared_feedback_updates"):
                     report[key] = info[key]
+            elif static_grip and info.get("actor_adaptation") == feedback_kinds[5]:
+                if not migration:
+                    raise ValueError("Static grip trainability requires an explicit forward plan migration")
+                report["static_grip_revision"] = dict(before=info["actor_adaptation"],
+                    after=plan["actor_adaptation"], initial_mean_is_identity=True,
+                    weights_Adam_std_critic_RNG_consumption="parent_exact",
+                    trainable_actor_branch="static_feedback", other_actor_branches="frozen")
+                report["static_grip_actor_updates"] = 0
+                for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
+                            "post_split_actor_updates", "inherited_shared_feedback_updates"):
+                    report[key] = info[key]
             elif wheel_authority and info.get("actor_adaptation") == feedback_kinds[4]:
                 if not migration:
                     raise ValueError("Wheel authority requires a declared identity-extension migration")
@@ -639,6 +672,8 @@ def main():
                 report["active_branch_actor_updates"] = 0
             elif command_residual:
                 report["active_branch_actor_updates"] = info["active_branch_actor_updates"]
+                if static_grip:
+                    report["static_grip_actor_updates"] = info["static_grip_actor_updates"]
                 if feedback_residual:
                     report["feedback_branch_actor_updates"] = info["feedback_branch_actor_updates"]
                 if separated_feedback:
@@ -813,6 +848,8 @@ def main():
                 report["active_branch_actor_updates"] += int(enabled)
             if feedback_residual:
                 report["feedback_branch_actor_updates"] += int(enabled)
+            if static_grip:
+                report["static_grip_actor_updates"] += int(enabled)
             if separated_feedback:
                 report["post_split_actor_updates"] += int(enabled)
             report["critic_warmup_remaining"] = max(0, report["critic_warmup_remaining"] - int(not enabled))
@@ -843,6 +880,8 @@ def main():
                     writer.add_scalar("FlatTransfer/feedback_branch_actor_updates", report["feedback_branch_actor_updates"], report["successful_updates_total"])
                 if separated_feedback:
                     writer.add_scalar("FlatTransfer/post_split_actor_updates", report["post_split_actor_updates"], report["successful_updates_total"])
+                if static_grip:
+                    writer.add_scalar("FlatTransfer/static_grip_actor_updates", report["static_grip_actor_updates"], report["successful_updates_total"])
                 writer.add_scalar("FlatTransfer/actor_mean_max_change_from_block_start", report["actor_mean_max_change_from_block_start"], report["successful_updates_total"])
                 if hasattr(env, "diagnostic_reward_stats"):
                     for name, value in env.diagnostic_reward_metrics().items():

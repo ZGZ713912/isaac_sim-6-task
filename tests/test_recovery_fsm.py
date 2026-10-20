@@ -54,6 +54,34 @@ def test_pose_based_routes_use_only_gravity_and_estimated_height():
     assert fsm.phase.tolist() == [P.PREPARE, P.FOLD, P.FOLD, P.FOLD, P.FOLD, P.FOLD]
 
 
+@pytest.mark.parametrize("direction", [-1., 1.])
+def test_contact_extension_preserves_the_completed_orbit_in_both_directions(direction):
+    fsm = make(config={"thrust_preserve_orbit_winding": True,
+        "orbit_thrust_min_angle_rad": .35, "orbit_thrust_tilt_max_rad": math.radians(115.),
+        "thrust_speed_rad_s": .6})
+    fsm.phase[:] = P.ORBIT
+    fsm.route[:] = R.ORBIT_POSITIVE if direction > 0 else R.ORBIT_NEGATIVE
+    reference = fsm.fold + direction * (2 * math.tau + 3.8) / fsm.axis_signs
+    fsm.script_targets[:, fsm.LEG_IDS] = reference
+    fsm.orbit_start[:] = reference - direction * 3.8 / fsm.axis_signs
+    fsm.orbit_angle[:] = 3.8
+    q = fsm.script_targets.clone()
+    fsm.continuous_q.copy_(q)
+    fsm.last_raw_q.copy_(q)
+    update(fsm, q=q, pitch=direction * math.radians(105.), height=.24)
+    assert fsm.phase.item() == P.THRUST
+    contact = fsm.script_targets[:, fsm.LEG_IDS].clone()
+    aligned = fsm.thrust - direction * math.radians(105.) / fsm.axis_signs
+    expected = contact + fsm.paired_delta(aligned[None], contact)
+    torch.testing.assert_close(fsm.thrust_anchor, expected, atol=1e-6, rtol=0.)
+    # Contact selects a gravity-aligned extension on the existing winding;
+    # the next tick retains the slow extension bound.
+    update(fsm, pitch=direction * math.radians(105.), height=.24)
+    step = fsm.script_targets[:, fsm.LEG_IDS] - contact
+    assert step.abs().max() <= .6 * .005 + 1e-6
+    assert fsm.script_targets[:, [0, 1]].sign().eq(direction).all()
+
+
 def test_fold_reference_is_synchronized_and_speed_bounded():
     folded = NOMINAL.clone()
     folded[list(fsm_ids := RecoveryFSM.LEG_IDS)] += torch.tensor([1., 2., -1., -2.])
@@ -141,6 +169,69 @@ def test_orbit_contact_enters_thrust_then_capture_then_prepare():
     assert (fsm.script_targets - before).abs().max() <= .02001
     update(fsm, pitch=.1, height=.305, support=True)
     assert fsm.phase.item() == P.PREPARE
+
+
+@pytest.mark.parametrize("direction", [-1, 1])
+def test_slow_sagittal_sequence_pauses_folded_then_rotates_selected_direction(direction):
+    fsm = make(config={"sagittal_plant_before_orbit": True, "plant_requires_support": False,
+        "plant_dwell_seconds": .12, "fold_speed_rad_s": .8, "stand_speed_rad_s": .6,
+        "thrust_speed_rad_s": .6, "orbit_speed_rad_s": 1.2,
+        "capture_speed_rad_s": .8, "orbit_thrust_min_angle_rad": .35,
+        "orbit_thrust_tilt_max_rad": math.radians(80.)})
+    kwargs = dict(pitch=direction * math.radians(120.), height=.1, support=False)
+    until_phase(fsm, P.PLANT, **kwargs)
+    assert fsm.route.item() == (R.ORBIT_POSITIVE if direction > 0 else R.ORBIT_NEGATIVE)
+    compact = fsm.script_targets[:, fsm.LEG_IDS].clone()
+    for _ in range(23):
+        update(fsm, **kwargs)
+        assert fsm.phase.item() == P.PLANT
+        torch.testing.assert_close(fsm.script_targets[:, fsm.LEG_IDS], compact)
+    update(fsm, **kwargs)
+    assert fsm.phase.item() == P.ORBIT
+    for _ in range(100):
+        before = fsm.script_targets[:, fsm.LEG_IDS].clone()
+        update(fsm, **kwargs)
+        step = (fsm.script_targets[:, fsm.LEG_IDS] - before) * torch.tensor(SIGNS)
+        assert (step * direction >= -1e-6).all()
+        assert step.abs().max() <= 1.2 * .005 + 1e-6
+    # A supported pose inside the declared tilt gate can stop rotation before
+    # the legacy 3.7 rad threshold; standing has its own lower speed bound.
+    update(fsm, pitch=direction * math.radians(60.), height=.3, support=True)
+    assert fsm.phase.item() == P.THRUST and fsm.orbit_angle.item() < 3.7
+    before = fsm.script_targets.clone()
+    update(fsm, pitch=direction * math.radians(50.), height=.3, support=True)
+    assert fsm.phase.item() == P.CAPTURE
+    assert (fsm.script_targets - before).abs().max() <= .6 * .005 + 1e-6
+
+
+def test_legacy_prepare_and_push_speeds_still_cover_the_original_phases():
+    fsm = make(config={"prepare_speed_rad_s": .7, "push_speed_rad_s": 2.5})
+    assert fsm.config["fold_speed_rad_s"] == .7
+    assert fsm.config["stand_speed_rad_s"] == fsm.config["thrust_speed_rad_s"] == 2.5
+
+
+def test_low_grip_capture_does_not_lower_the_extended_leg_at_a_large_body_tilt():
+    fsm = make(config={"thrust_capture_tilt_max_rad": math.radians(25.)})
+    fsm.phase[:] = P.THRUST
+    update(fsm, pitch=math.radians(45.), height=.305)
+    assert fsm.phase.item() == P.THRUST
+    update(fsm, pitch=math.radians(20.), height=.305)
+    assert fsm.phase.item() == P.CAPTURE
+
+
+def test_slow_extension_does_not_slow_the_whole_leg_attitude_compensation():
+    fsm = make(config={"stand_speed_rad_s": .5, "separate_upright_rotation_from_extension": True,
+        "upright_rotation_speed_rad_s": 3.})
+    fsm.phase[:] = P.PREPARE
+    before = fsm.script_targets[:, fsm.LEG_IDS].clone()
+    update(fsm, pitch=.4, height=.305)
+    step = (fsm.script_targets[:, fsm.LEG_IDS] - before).reshape(1, 2, 2)
+    rotation = step.mean(-1)
+    extension = (step[:, :, 1] - step[:, :, 0]) / 2
+    torch.testing.assert_close(rotation.abs().amax(), torch.tensor(3. * .005), atol=1e-6, rtol=0.)
+    assert extension.abs().max() <= .5 * .005 + 1e-6
+    assert extension.abs().max() > 0
+    assert step.abs().max() <= (3. + .5) * .005 + 1e-6
 
 
 def test_handover_requires_sensor_stability_support_and_clear_chassis():

@@ -51,9 +51,16 @@ class RecoveryFSM:
     LEG_SPEED_MAX_RAD_S = 2.
     DEFAULTS = {
         "dt": .005, "blend_seconds": .2, "stable_seconds": 1., "max_script_seconds": 8.,
-        "prepare_speed_rad_s": 1., "push_speed_rad_s": 4., "orbit_speed_rad_s": 4.,
+        "fold_speed_rad_s": 1., "prepare_speed_rad_s": 1., "push_speed_rad_s": 4.,
+        "stand_speed_rad_s": 4., "thrust_speed_rad_s": 4., "orbit_speed_rad_s": 4.,
         "capture_speed_rad_s": 4., "side_speed_rad_s": 6., "side_angle_rad": math.pi / 2,
         "plant_angle_rad": math.radians(20.), "orbit_turns": 1.,
+        "sagittal_plant_before_orbit": False, "plant_dwell_seconds": .06,
+        "plant_requires_support": True,
+        "thrust_preserve_orbit_winding": False,
+        "separate_upright_rotation_from_extension": False, "upright_rotation_speed_rad_s": 3.,
+        "orbit_thrust_min_angle_rad": 3.7, "orbit_thrust_tilt_max_rad": math.radians(145.),
+        "thrust_capture_tilt_max_rad": math.radians(65.),
         "handover_height_min": .27, "handover_height_max": .36,
         "handover_tilt_rad": math.radians(8.), "handover_gyro_max": .75,
         "reroute_tilt_rad": math.radians(70.), "reroute_support_lost_seconds": .15,
@@ -68,11 +75,25 @@ class RecoveryFSM:
         if unknown:
             raise ValueError(f"Unknown recovery configuration: {sorted(unknown)}")
         self.config = self.DEFAULTS | config
+        # Existing contracts used prepare_speed for folding/planting and push
+        # speed for standing/thrust. Keep those defaults when no separate
+        # stage speed is declared by the new recovery recipe.
+        for key in ("fold_speed_rad_s",):
+            if key not in config:
+                self.config[key] = self.config["prepare_speed_rad_s"]
+        for key in ("stand_speed_rad_s", "thrust_speed_rad_s"):
+            if key not in config:
+                self.config[key] = self.config["push_speed_rad_s"]
         if any(not math.isfinite(v) or v <= 0. for k, v in self.config.items()
-               if k not in ("max_reroutes", "complete_started_blend")):
+               if k not in ("max_reroutes", "complete_started_blend", "sagittal_plant_before_orbit",
+                            "plant_requires_support", "thrust_preserve_orbit_winding",
+                            "separate_upright_rotation_from_extension")):
             raise ValueError("Recovery parameters must be positive and finite")
-        if type(self.config["complete_started_blend"]) is not bool:
-            raise ValueError("Recovery complete_started_blend must be a boolean")
+        if any(type(self.config[key]) is not bool for key in ("complete_started_blend",
+                                                               "sagittal_plant_before_orbit",
+                                                               "plant_requires_support", "thrust_preserve_orbit_winding",
+                                                               "separate_upright_rotation_from_extension")):
+            raise ValueError("Recovery boolean options must be booleans")
         if type(self.config["max_reroutes"]) is not int or self.config["max_reroutes"] not in (0, 1):
             raise ValueError("Recovery permits at most one unsupported-pose reroute")
         self.dt = self.config["dt"]
@@ -242,6 +263,13 @@ class RecoveryFSM:
         plant_offset = (-pitch - self.config["plant_angle_rad"] * pitch.sign()).clamp(-2.2, 2.2)
         goal[planting] = self.fold
         sagittal_plant = planting & (gravity[:, 1].abs() < .5)
+        orbit_routes = ((self.route == int(RecoveryRoute.ORBIT_POSITIVE))
+                        | (self.route == int(RecoveryRoute.ORBIT_NEGATIVE)))
+        if self.config["sagittal_plant_before_orbit"]:
+            # For a prone sagittal start, PLANT is a pause in the compact pose.
+            # Applying the old upright plant offset here would rotate against
+            # the selected orbit and spend the entire slow-motion budget.
+            sagittal_plant &= ~orbit_routes
         goal[sagittal_plant] += plant_offset[sagittal_plant, None] / self.axis_signs
         direction = torch.where(self.route == int(RecoveryRoute.ORBIT_POSITIVE), 1., -1.)
         self.orbit_angle += orbiting * self.config["orbit_speed_rad_s"] * self.dt
@@ -257,19 +285,41 @@ class RecoveryFSM:
         directed = orbiting | thrusting | side
         delta[directed] = (goal - reference)[directed]
         speed = elapsed.new_full(elapsed.shape, self.config["prepare_speed_rad_s"])
-        speed[preparing | thrusting] = self.config["push_speed_rad_s"]
+        speed[folding] = self.config["fold_speed_rad_s"]
+        speed[preparing] = self.config["stand_speed_rad_s"]
+        speed[thrusting] = self.config["thrust_speed_rad_s"]
         speed[capturing] = self.config["capture_speed_rad_s"]
         speed[orbiting] = self.config["orbit_speed_rad_s"]
         speed[side] = self.config["side_speed_rad_s"]
         # One fraction for all four roots preserves the intended coupled path.
         fraction = (speed * self.dt / delta.abs().amax(-1).clamp_min(1e-6)).clamp_max(1.)
         stepping = self.scripted | self.blending
-        reference = reference + delta * fraction[:, None] * stepping[:, None]
-        self.script_targets[:, self.LEG_IDS] = reference
         remaining = delta.abs().amax(-1) * (1. - fraction)
+        if self.config["separate_upright_rotation_from_extension"]:
+            # Whole-leg orientation follows body pitch while the hip/auxiliary
+            # difference controls extension. Slowing both with one fraction
+            # makes the stance lag the IMU rotation and can throw the body
+            # through vertical before the legs can catch it.
+            pairs = delta.reshape(self.count, 2, 2)
+            common = pairs.mean(-1)
+            half_span = (pairs[:, :, 1] - pairs[:, :, 0]) / 2
+            rotation_fraction = (self.config["upright_rotation_speed_rad_s"] * self.dt
+                / common.abs().amax(-1).clamp_min(1e-6)).clamp_max(1.)
+            extension_fraction = (speed * self.dt / half_span.abs().amax(-1).clamp_min(1e-6)).clamp_max(1.)
+            turn = common * rotation_fraction[:, None]
+            extension_step = half_span * extension_fraction[:, None]
+            split_step = torch.stack((turn - extension_step, turn + extension_step), -1).reshape_as(delta)
+            split = preparing | capturing | thrusting
+            step = torch.where(split[:, None], split_step, delta * fraction[:, None])
+            remaining = torch.where(split, (delta - step).abs().amax(-1), remaining)
+            reference = reference + step * stepping[:, None]
+        else:
+            reference = reference + delta * fraction[:, None] * stepping[:, None]
+        self.script_targets[:, self.LEG_IDS] = reference
         measured_error = self.paired_delta(reference, self.continuous_q[:, self.LEG_IDS]).abs().amax(-1)
         folded = folding & (remaining < .02) & (measured_error < .2) & (elapsed >= .3)
-        orbit_start = folded & ((self.route == int(RecoveryRoute.ORBIT_POSITIVE)) | (self.route == int(RecoveryRoute.ORBIT_NEGATIVE)))
+        orbit_start = (folded & orbit_routes if not self.config["sagittal_plant_before_orbit"]
+                       else torch.zeros_like(folded))
         self.orbit_start[orbit_start] = reference[orbit_start]
         self.orbit_angle[orbit_start] = 0.
         self._enter(orbit_start, RecoveryPhase.ORBIT)
@@ -286,16 +336,38 @@ class RecoveryFSM:
         self._enter(converted & near_upright, RecoveryPhase.PREPARE)
         self._enter(converted & ~near_upright, RecoveryPhase.FOLD)
         self._fail(side & ~converted & (elapsed >= 2 * side_duration + .4), 2)
-        self.plant_ticks = torch.where(planting & support, self.plant_ticks + 1, 0)
-        planted = planting & (remaining < .15) & (measured_error < .2) & (self.plant_ticks >= self._ticks(.06))
-        self._enter(planted, RecoveryPhase.PREPARE)
+        plant_supported = support if self.config["plant_requires_support"] else torch.ones_like(support)
+        plant_settled = (remaining < .15) & (measured_error < .2)
+        if self.config["sagittal_plant_before_orbit"]:
+            plant_supported = plant_supported & (~orbit_routes | plant_settled)
+        self.plant_ticks = torch.where(planting & plant_supported, self.plant_ticks + 1, 0)
+        planted = (planting & (remaining < .15) & (measured_error < .2)
+                   & (self.plant_ticks >= self._ticks(self.config["plant_dwell_seconds"])))
+        orbit_after_plant = (planted & orbit_routes if self.config["sagittal_plant_before_orbit"]
+                             else torch.zeros_like(planted))
+        self.orbit_start[orbit_after_plant] = reference[orbit_after_plant]
+        self.orbit_angle[orbit_after_plant] = 0.
+        self._enter(orbit_after_plant, RecoveryPhase.ORBIT)
+        self._enter(planted & ~orbit_after_plant, RecoveryPhase.PREPARE)
         self._fail(planting & ~planted & (elapsed >= 2.5), 3)
-        orbit_contact = orbiting & support & (tilt < math.radians(145.)) & (estimated_height > .12) & (self.orbit_angle > 3.7)
-        self.thrust_anchor[orbit_contact] = (reference + self.paired_delta(self.thrust.expand_as(reference), reference))[orbit_contact]
+        orbit_contact = (orbiting & support & (tilt < self.config["orbit_thrust_tilt_max_rad"])
+                         & (estimated_height > .12)
+                         & (self.orbit_angle > self.config["orbit_thrust_min_angle_rad"]))
+        if self.config["thrust_preserve_orbit_winding"]:
+            # Select the standing extension aligned with world gravity, on
+            # the nearest equivalent hip/auxiliary winding. A body-relative
+            # absolute target can command an extra half turn; keeping only the
+            # contact orientation can instead leave one route inverted.
+            aligned_thrust = self.thrust - pitch[:, None] / self.axis_signs
+            thrust_goal = reference + self.paired_delta(aligned_thrust, reference)
+        else:
+            thrust_goal = reference + self.paired_delta(self.thrust.expand_as(reference), reference)
+        self.thrust_anchor[orbit_contact] = thrust_goal[orbit_contact]
         self.plant_pitch[orbit_contact] = self.continuous_pitch[orbit_contact]
         self._enter(orbit_contact, RecoveryPhase.THRUST)
         captured = (orbiting & (tilt < math.radians(30.)) & (estimated_height > .22) & support)
-        captured |= thrusting & (tilt < math.radians(65.)) & (estimated_height > .24) & (gyro.norm(dim=-1) < 8.) & support
+        captured |= (thrusting & (tilt < self.config["thrust_capture_tilt_max_rad"])
+                     & (estimated_height > .24) & (gyro.norm(dim=-1) < 8.) & support)
         self._enter(captured, RecoveryPhase.CAPTURE)
         self._fail(orbiting & ~orbit_contact & ~captured & (self.orbit_angle >= math.tau * self.config["orbit_turns"]), 4)
         self._enter(capturing & (tilt < math.radians(20.)) & support & (estimated_height > .22)
