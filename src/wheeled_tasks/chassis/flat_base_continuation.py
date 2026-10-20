@@ -25,7 +25,7 @@ def digest(path):
 def read_plan(root, plan_file=PLAN):
     root = Path(root)
     plan = json.loads((root / plan_file).read_text())
-    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in range(1, 19)):
+    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in range(1, 20)):
         raise ValueError("Unknown flat actor transfer plan")
     for name in ("source_worker", "source_design", "control"):
         if digest(root / plan[name + "_file"]) != plan[name + "_sha256"]:
@@ -39,12 +39,15 @@ def read_plan(root, plan_file=PLAN):
         raise ValueError("Matched asset CPU validation is missing or belongs to another bundle")
     if digest(root / plan["actor_bundle"] / "source.onnx") != plan["source_onnx_sha256"]:
         raise ValueError("Original flat actor changed")
-    policy_dt = .005 if plan["schema"] == "flat-base-finetune-plan-v18" else .02
+    policy_dt = .005 if plan["schema"] in ("flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19") else .02
     if (plan["policy_dt"], plan["leg_target_winding"], plan["flat_context"]) != (
             policy_dt, "paired_branch107_v1", [1, 0, 0, 0, 0, 0, 0]):
         raise ValueError("Flat transfer changed its declared policy clock or paired-107 interface")
     from .flat_clock_transition import validate_flat_clock
     validate_flat_clock(root, plan)
+    if plan['schema'] == 'flat-base-finetune-plan-v19':
+        from .directional_motion_plan import validate_directional_plan
+        validate_directional_plan(root, plan)
     if plan["schema"] == "flat-base-finetune-plan-v18":
         from .flat_policy_rate import validate_policy_rate_transition
         parent_file = plan["policy_rate_transition"]["parent_plan_file"]
@@ -54,7 +57,7 @@ def read_plan(root, plan_file=PLAN):
         parent = read_plan(root, parent_file)
         validate_policy_rate_transition(root, parent, plan, parent["control_sha256"])
     velocity_scale = plan.get("moving_velocity_cost_scale")
-    if plan["schema"] in ("flat-base-finetune-plan-v16", "flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18"):
+    if plan["schema"] in ("flat-base-finetune-plan-v16", "flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19"):
         if type(velocity_scale) not in (int, float) or not math.isfinite(velocity_scale) or not 1. < velocity_scale <= 10.:
             raise ValueError("v16/v17/v18 require a finite moving velocity cost scale in (1,10]")
     elif velocity_scale is not None:
@@ -63,7 +66,7 @@ def read_plan(root, plan_file=PLAN):
     if not isinstance(contact_material, dict) or type(contact_material.get("enabled", False)) is not bool:
         raise ValueError("contact_material must be an explicit enabled/disabled mapping")
     if contact_material.get("enabled"):
-        if plan["schema"] not in ("flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18"):
+        if plan["schema"] not in ("flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19"):
             raise ValueError("Separate contact materials require the explicit v17 plan")
         from .contact_material import ContactMaterialDomain
         # Validate with the native sampler's isolated generator; this does not
@@ -81,7 +84,7 @@ def read_plan(root, plan_file=PLAN):
             raise ValueError("Group horizon must name an existing group within the global episode limit")
     for group in plan['train_groups']:
         spec=group.get('skill',{});seconds=spec.get('yaw_start_stop_segment_seconds')
-        if seconds is not None and (plan.get('actor_adaptation')!='original-intent-speed-with-motion-state-residual-v11'
+        if seconds is not None and (plan.get('actor_adaptation') not in ('original-intent-speed-with-motion-state-residual-v11', 'original-static-grip-with-directional-motion-v12')
                 or spec.get('kind')!='rotate'or spec['command'][0]!=0.
                 or type(seconds)not in (int,float)or not math.isfinite(seconds)or seconds<=0.
                 or seconds*4>plan.get('group_episode_seconds',{}).get(group['name'],plan['episode_seconds'])):
@@ -97,11 +100,11 @@ def read_plan(root, plan_file=PLAN):
             "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
             "original-command-and-separated-tracking-feedback-residual-v3",
             "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
-            "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11"):
+            "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11", "original-static-grip-with-directional-motion-v12"):
         raise ValueError("Feedback-only scope requires the declared feedback architecture")
     recall = plan.get("static_feedback_recall")
     if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
-            "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11"):
+            "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11", "original-static-grip-with-directional-motion-v12"):
         if (not isinstance(recall, dict) or set(recall) != {"checkpoint", "sha256"}
                 or not isinstance(recall["checkpoint"], str)
                 or digest(root / recall["checkpoint"]) != recall["sha256"]):
@@ -188,7 +191,7 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
                 "original-command-and-separated-tracking-feedback-residual-v3",
                 "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5",
                 "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
-                "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11")
+                "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11", "original-static-grip-with-directional-motion-v12")
                 or plan.get("actor_output_layer_only")):
             raise ValueError("Unsupported or conflicting flat actor adaptation")
         values["actor_adaptation"] = plan["actor_adaptation"]

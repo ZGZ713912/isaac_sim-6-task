@@ -351,6 +351,8 @@ def main():
                 ROOT / "src/wheeled_tasks/agents/v40_ppo_cfg.py", ROOT / "src/wheeled_algo/flat_optimizer_rates.py"]
     if plan.get("teacher_anchor"):
         sources.append(ROOT / "src/wheeled_algo/anchored_ppo.py")
+    if plan.get('motion_trust_region'):
+        sources.append(ROOT / 'src/wheeled_algo/motion_trust_region.py')
     if plan.get("critic_position_anchor"):
         sources.append(ROOT / "src/wheeled_algo/critic_input_extension.py")
     if plan.get("actor_output_layer_only"):
@@ -383,7 +385,7 @@ def main():
         sources.append(ROOT / "src/wheeled_algo/static_grip.py")
     if plan.get('actor_adaptation') == 'original-static-grip-with-motion-feedback-adaptation-v8':
         sources.append(ROOT / 'src/wheeled_algo/motion_grip.py')
-    if plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11'):
+    if plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11','original-static-grip-with-directional-motion-v12'):
         sources.extend(ROOT / 'src/wheeled_algo' / name for name in (
             'guarded_feedback_residual.py', 'separated_feedback.py', 'low_demand_feedback.py',
             'static_feedback.py', 'wheel_authority.py', 'static_grip.py', 'speed_reference.py'))
@@ -391,6 +393,8 @@ def main():
             sources.append(ROOT/'src/wheeled_algo/intent_speed_reference.py')
         if plan['actor_adaptation']=='original-intent-speed-with-motion-state-residual-v11':
             sources.append(ROOT/'src/wheeled_algo/motion_state_residual.py')
+        if plan['actor_adaptation']=='original-static-grip-with-directional-motion-v12':
+            sources.extend(ROOT/'src/wheeled_algo'/name for name in ('motion_state_residual.py', 'directional_motion.py'))
     if plan.get("training_command_reference"):
         sources.append(ROOT / "scripts/flat_rmcs_command_reference.py")
     report["source_sha256"] = {str(p.relative_to(ROOT)): digest(p) for p in sources}
@@ -473,10 +477,11 @@ def main():
         wheel_authority = plan.get("actor_adaptation") in feedback_kinds[5:]
         static_grip = plan.get("actor_adaptation") == feedback_kinds[6]
         motion_grip = plan.get('actor_adaptation') == feedback_kinds[7]
+        directional = plan.get('actor_adaptation') == 'original-static-grip-with-directional-motion-v12'
         motion_state=plan.get('actor_adaptation')=='original-intent-speed-with-motion-state-residual-v11'
         speed_reference = plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11')
-        feedback_residual = plan.get("actor_adaptation") in feedback_kinds or speed_reference
-        command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds) or speed_reference
+        feedback_residual = plan.get("actor_adaptation") in feedback_kinds or speed_reference or directional
+        command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds) or speed_reference or directional
         if plan.get("actor_adaptation") and not command_residual:
             raise ValueError("Unsupported actor adaptation")
         if command_residual:
@@ -486,7 +491,7 @@ def main():
                                                       make_command_residual_parent)
             old_actor_names = list(dict(runner.alg.actor.named_parameters()))
             runner.alg.actor.mlp = CommandResidualActor(teacher).to(args.device)
-            if feedback_residual and not speed_reference:
+            if feedback_residual and not speed_reference and not directional:
                 from wheeled_algo.guarded_feedback_residual import (GuardedFeedbackActor, extend_feedback_parent,
                     configure_guarded_feedback_training as configure_command_residual_training)
                 old_actor_names = list(dict(runner.alg.actor.named_parameters()))
@@ -590,6 +595,20 @@ def main():
                     settings['margin_m_s'], settings['lean_gain_rad_per_m_s'],
                     **({'encoder_gain':settings['encoder_gain']}if intent_speed else {})).to(args.device)
                 report['speed_reference'] = deepcopy(settings)
+            if directional:
+                from wheeled_algo.command_residual import mean_from_checkpoint
+                from wheeled_algo.directional_motion import (DirectionalMotionActor,
+                    configure_directional_training as configure_command_residual_training, extend_directional_parent)
+                settings = plan['directional_motion']
+                path = ROOT / settings['checkpoint']
+                if digest(path) != settings['sha256']:
+                    raise ValueError('Directional motion parent changed')
+                parent_mean = mean_from_checkpoint(torch.load(path, map_location='cpu', weights_only=True),
+                    ROOT / plan['actor_bundle'] / 'source.onnx').to(args.device)
+                runner.alg.actor.mlp = parent_mean
+                old_actor_names = list(dict(runner.alg.actor.named_parameters()))
+                runner.alg.actor.mlp = DirectionalMotionActor(parent_mean, settings['sha256']).to(args.device)
+                report['directional_motion'] = deepcopy(settings)
             report["command_residual_invariant"] = runner.alg.actor.mlp.verify_original(teacher)
         # Independent rates let the fresh value network catch up without large
         # changes to the already useful actor. Both groups use native Adam/PPO.
@@ -618,7 +637,8 @@ def main():
                            "learning_rate", "training_command_reference", "feedback_training_scope", "command_branch_restore",
                            "physics_dt", "control_file", "control_sha256", "moving_velocity_cost_scale", "static_feedback_recall",
                            "allowed_num_envs", "default_num_envs", "contact_material", "motion_grip_parent", "speed_reference", "motion_state_parent", "checkpoint_interval",
-                           "policy_dt", "gamma", "lam", "num_steps_per_env", "policy_rate_transition"}
+                           "policy_dt", "gamma", "lam", "num_steps_per_env", "policy_rate_transition",
+                           "directional_motion", "motion_trust_region", "first_block_updates"}
                 if (revision.get("schema") != "flat-training-plan-revision-v1"
                         or revision["parent_checkpoint_sha256"] != digest(args.resume)
                         or revision["old_plan_sha256"] != info["plan_sha256"]
@@ -703,6 +723,15 @@ def main():
                     gate_contract=runner.alg.actor.mlp.verify_original(teacher)["low_demand_gate"])
                 for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
                             "post_split_actor_updates", "inherited_shared_feedback_updates"):
+                    report[key] = info[key]
+            elif directional and info.get('actor_adaptation') == feedback_kinds[6]:
+                if not migration or digest(args.resume) != plan['directional_motion']['sha256']:
+                    raise ValueError('Directional motion requires its exact 200 Hz v7 parent')
+                checkpoint, report['directional_motion_extension'] = extend_directional_parent(
+                    checkpoint, runner.alg.actor, runner.alg.critic, runner.alg.optimizer, old_actor_names)
+                report['directional_motion_actor_updates'] = 0
+                for key in ('active_branch_actor_updates', 'feedback_branch_actor_updates',
+                            'post_split_actor_updates', 'inherited_shared_feedback_updates', 'static_grip_actor_updates'):
                     report[key] = info[key]
             elif motion_state and info.get('actor_adaptation')=='original-static-grip-with-intent-speed-reference-v10':
                 if not migration or digest(args.resume)!=plan['motion_state_parent']['sha256']:
@@ -790,6 +819,11 @@ def main():
                 report["active_branch_actor_updates"] = 0
             elif command_residual:
                 report["active_branch_actor_updates"] = info["active_branch_actor_updates"]
+                if directional:
+                    if info['directional_motion'] != plan['directional_motion']:
+                        raise ValueError('Directional continuation changed its parent')
+                    report['directional_motion_actor_updates'] = info['directional_motion_actor_updates']
+                    report['static_grip_actor_updates'] = info['static_grip_actor_updates']
                 if speed_reference:
                     if info['speed_reference'] != plan['speed_reference']:
                         raise ValueError('Speed-reference continuation changed its parent or initialization')
@@ -920,6 +954,9 @@ def main():
             report["actor_trainability"] = configure_command_residual_training(runner.alg.actor,
                 enabled=report["critic_warmup_remaining"] == 0)
             report["frozen_actor_state_names"] = report["actor_trainability"]["frozen_state_names"]
+        if plan.get('motion_trust_region'):
+            runner.alg.configure_motion_trust_region(**plan['motion_trust_region'])
+            report['motion_trust_region'] = deepcopy(plan['motion_trust_region'])
         original_update = runner.alg.update
         original_step = env.step
         behavior_sums = torch.zeros(args.num_envs, 5, dtype=torch.float64, device=args.device)
@@ -985,6 +1022,8 @@ def main():
                 report["static_grip_actor_updates"] += int(enabled)
             if motion_grip:
                 report['motion_grip_actor_updates'] += int(enabled)
+            if directional:
+                report['directional_motion_actor_updates'] += int(enabled)
             if speed_reference:
                 report['speed_reference_actor_updates'] += int(enabled)
                 if motion_state:report['motion_state_actor_updates']+=int(enabled)

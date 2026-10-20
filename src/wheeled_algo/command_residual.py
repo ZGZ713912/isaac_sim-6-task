@@ -189,6 +189,26 @@ def mean_from_checkpoint(checkpoint, source):
     from .speed_reference import SpeedReferenceActor, KIND as SPEED_REFERENCE_KIND
     from .intent_speed_reference import IntentSpeedReferenceActor, KIND as INTENT_SPEED_KIND
     from .motion_state_residual import MotionStateResidualActor, KIND as MOTION_STATE_KIND
+    from .directional_motion import DirectionalMotionActor, KIND as DIRECTIONAL_KIND
+    if kind == DIRECTIONAL_KIND:
+        from pathlib import Path
+        import hashlib
+        settings = checkpoint['infos'].get('directional_motion')
+        root = Path(__file__).resolve().parents[2]
+        if not isinstance(settings, dict) or set(settings) != {'checkpoint', 'sha256', 'base_plan_file', 'base_plan_sha256'}:
+            raise ValueError('Directional motion requires its authenticated parent and 200 Hz plan')
+        path = root / settings['checkpoint']
+        if hashlib.sha256(path.read_bytes()).hexdigest() != settings['sha256']:
+            raise ValueError('Directional parent checkpoint changed')
+        preceding = torch.load(path, map_location='cpu', weights_only=True)
+        mean = DirectionalMotionActor(mean_from_checkpoint(preceding, source), settings['sha256'])
+        mean.load_state_dict({n.removeprefix('mlp.'): value for n, value in checkpoint['actor_state_dict'].items()
+                              if n.startswith('mlp.')}, strict=True)
+        if any(not torch.equal(value, checkpoint['actor_state_dict'][name])
+               for name, value in preceding['actor_state_dict'].items()):
+            raise ValueError('Frozen directional parent weights or std changed')
+        mean.verify_original_from_source_full(source)
+        return mean.eval()
     if kind in (SPEED_REFERENCE_KIND,INTENT_SPEED_KIND,MOTION_STATE_KIND):
         from pathlib import Path
         import hashlib
