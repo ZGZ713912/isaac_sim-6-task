@@ -44,6 +44,11 @@ from rsl_rl.algorithms import PPO
 
 
 class TeacherAnchoredPPO(PPO):
+    def configure_motion_trust_region(self, *, max_kl, max_backtracks):
+        from .motion_trust_region import MotionTrustRegion
+        MotionTrustRegion(self.actor, self.optimizer, max_kl, max_backtracks)
+        self.motion_trust_region = dict(max_kl=max_kl, max_backtracks=max_backtracks)
+
     def configure_teacher(self, teacher, *, coefficient, action_scales, min_vx, min_yaw, min_visible_wheel_error_m_s=None):
         if version("rsl-rl-lib") != "5.5.1":
             raise ValueError("The teacher update is pinned to RSL-RL 5.5.1")
@@ -96,6 +101,8 @@ class TeacherAnchoredPPO(PPO):
         totals = dict(value=0., surrogate=0., entropy=0., teacher=0., teacher_action_rmse=0., teacher_fraction=0.,
             approx_policy_kl=0., policy_clip_fraction=0., actor_gradient_norm=0., critic_gradient_norm=0.,
             actor_learning_rate=0., critic_learning_rate=0.)
+        trust_totals = dict(kl=0., scale=0., backtracks=0.)
+        trust_config = getattr(self, 'motion_trust_region', None)
         for batch in self.storage.mini_batch_generator(self.num_mini_batches, self.num_learning_epochs):
             if self.normalize_advantage_per_mini_batch:
                 with torch.no_grad():
@@ -124,10 +131,18 @@ class TeacherAnchoredPPO(PPO):
             loss.backward()
             actor_gradient_norm = nn.utils.clip_grad_norm_(self.actor.parameters(), self.max_grad_norm)
             critic_gradient_norm = nn.utils.clip_grad_norm_(self.critic.parameters(), self.max_grad_norm)
+            trust = None
+            if trust_config is not None:
+                from .motion_trust_region import MotionTrustRegion
+                trust = MotionTrustRegion(self.actor, self.optimizer, **trust_config)
             self.optimizer.step()
             project = getattr(getattr(self.actor, 'mlp', None), 'project_parameters_', None)
             if project is not None and any(p.requires_grad for p in self.actor.parameters()):
                 project()
+            if trust is not None:
+                measured = trust.project(batch.observations['policy'], batch.old_distribution_params)
+                for key in trust_totals:
+                    trust_totals[key] += measured[key]
             values_to_log = dict(zip(totals, (value_loss, surrogate_loss, entropy.mean(), anchor, rmse, fraction,
                 approx_policy_kl, policy_clip_fraction, actor_gradient_norm, critic_gradient_norm,
                 self.optimizer.param_groups[0]["lr"], self.optimizer.param_groups[-1]["lr"]), strict=True))
@@ -138,4 +153,7 @@ class TeacherAnchoredPPO(PPO):
         self.critic.update_normalization(obs)
         self.storage.clear()
         count = self.num_learning_epochs * self.num_mini_batches
-        return {key: value / count for key, value in totals.items()}
+        result = {key: value / count for key, value in totals.items()}
+        if trust_config is not None:
+            result.update({'motion_trust_' + key: value / count for key, value in trust_totals.items()})
+        return result

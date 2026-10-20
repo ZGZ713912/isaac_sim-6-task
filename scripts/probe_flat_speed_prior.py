@@ -164,7 +164,7 @@ def main():
         from wheeled_tasks.chassis.flat_base_continuation import read_plan
         from wheeled_tasks.chassis.flat_policy_rate import SCHEMA, command_reference_at_policy_rate
         policy_plan=read_plan(ROOT,args.policy_plan)
-        if policy_plan['schema']!=SCHEMA or args.mode!='checkpoint_compare':
+        if policy_plan['schema'] not in (SCHEMA, 'flat-base-finetune-plan-v19') or args.mode!='checkpoint_compare':
             raise ValueError('Policy-rate replay requires the explicit 200 Hz plan and sealed checkpoint arms')
         timing=json.loads((ROOT/policy_plan['control_file']).read_text())['timing']
         for mapping in (config,row['contract']):
@@ -206,7 +206,7 @@ def main():
     policy_sources=[ROOT/'src/wheeled_algo'/name for name in (
         'command_residual.py','guarded_feedback_residual.py','separated_feedback.py',
         'low_demand_feedback.py','static_feedback.py','wheel_authority.py','static_grip.py',
-        'speed_reference.py','intent_speed_reference.py','motion_state_residual.py')]
+        'speed_reference.py','intent_speed_reference.py','motion_state_residual.py','directional_motion.py')]
     report['code_sha256'].update({str(p.relative_to(ROOT)):digest(p)for p in policy_sources})
     evaluation_sources=[ROOT/'scripts/flat_rmcs_command_reference.py']+[
         ROOT/'src/wheeled_tasks/chassis'/name for name in ('eval_env.py','episode_metrics.py',
