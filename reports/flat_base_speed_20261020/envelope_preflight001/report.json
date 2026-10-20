@@ -1,0 +1,194 @@
+{
+  "status": "static_passed_scene_not_run",
+  "started_at": "2026-10-20T09:42:02.612901+00:00",
+  "diagnostic_only": true,
+  "qualification_eligible": false,
+  "new_optimizer_updates": 0,
+  "checkpoint_sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+  "source_contract_sha256": "0aa530c8659859249646989d1a7b0dc96e8379906fa091ebd9d3bd4a97e7b677",
+  "code_sha256": {
+    "scripts/probe_flat_speed_prior.py": "a4582995c75329a5585b41ee5b6934338cd9520aa252ebb8f2e993959030e0ee",
+    "scripts/flat_speed_prior.py": "f731f82659abcd28021d264f589286c01817a1342959e1545cd49cb7d70a4703",
+    "src/wheeled_tasks/chassis/env.py": "fe04ef0e9bc9954ca74dfae5a351e27352915de59c14c90821b00e8d49e5b6e8",
+    "src/wheeled_algo/command_residual.py": "0fee4df91df5348f1093fcff3bc4bde347e11b858c6389899e517a3474765496",
+    "src/wheeled_algo/guarded_feedback_residual.py": "833c3a05a0427f9ca223f259cdfeade9780188b64fbe1197196c7056e2806b5f",
+    "src/wheeled_algo/separated_feedback.py": "8c986223613bb8c07c758464a70d54664e6f01c49ae23482408123d5dafdd886",
+    "src/wheeled_algo/low_demand_feedback.py": "d6770af0b3d0604ccccd7cbb8a73e5992e6108ec5e3a46006da0569b512593d1",
+    "src/wheeled_algo/static_feedback.py": "d1d3bd834faeee925cd5b7fb2032882f4e20fb86ece9c6553f19572828bab2f4",
+    "src/wheeled_algo/wheel_authority.py": "7f396abd18bc3c5d54210e1e76642443d90b2476f160b553bad29ed753690cc4",
+    "src/wheeled_algo/static_grip.py": "84abe3195548a454e1169b495d0faedc28e7f11b38c25d4f918d00bf4ce5fab3",
+    "src/wheeled_algo/speed_reference.py": "5f82f4ede749108426899ba1641b55cdf69fea72e052a2b00e0b4497c7eb52fe",
+    "src/wheeled_algo/intent_speed_reference.py": "2f1fd8225b147ce432378054fc347e07df0649cbf0222a36cf5336de085fa816"
+  },
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "policy_hz": 50,
+  "physics_hz": 1000,
+  "gains": [
+    0.0,
+    2.0
+  ],
+  "heights": [
+    0.305,
+    0.42
+  ],
+  "ground_friction": [
+    0.2,
+    0.5
+  ],
+  "replicas": 4,
+  "probe_mode": "checkpoint_compare",
+  "case_names": [
+    "stand_230mm",
+    "stand_305mm",
+    "stand_430mm",
+    "forward_05",
+    "backward_05",
+    "rotate_1",
+    "rotate_1_reverse",
+    "start_stop_05",
+    "forward_1",
+    "backward_1",
+    "forward_2",
+    "backward_2",
+    "forward_3",
+    "backward_3",
+    "rotate_4",
+    "rotate_4_reverse",
+    "curve_low",
+    "curve_low_reverse",
+    "height_scan",
+    "start_stop_1",
+    "start_stop_2",
+    "start_stop_3"
+  ],
+  "full_envelope": true,
+  "horizon_seconds": 32.0,
+  "seed": 191219,
+  "static_preflight": {
+    "status": "static_passed",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_speed_20261020/envelope_preflight001/design.json",
+    "stage": "speed",
+    "role": "quick",
+    "seed": 191219,
+    "block_index": 0,
+    "num_envs": 704,
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "runtime_expected": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.001,
+      "decimation": 20,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "seed": 191219,
+      "action_difference_reference_dt": 0.02,
+      "precision_tracking": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "contact_material": true,
+        "step_assist": false,
+        "actuator_response": true,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true
+      },
+      "contact_material": {
+        "enabled": true,
+        "combine_mode": "average",
+        "ground_static_friction_range": [
+          0.2,
+          0.5
+        ],
+        "ground_dynamic_friction_range": [
+          0.2,
+          0.5
+        ],
+        "wheel_static_friction": 0.1,
+        "wheel_dynamic_friction": 0.1,
+        "body_static_friction": 0.25,
+        "body_dynamic_friction": 0.25
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "design_sha256": "bccf6f21d4d4b0478a6dd15281c87b9efe53ffb6ca7ec1a226fb16b6166c4f5a",
+    "environment_stage": "speed"
+  },
+  "qualified": false,
+  "checkpoint_saved": false,
+  "num_envs": 704
+}

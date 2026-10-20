@@ -1,4 +1,4 @@
-"""Matched 50 Hz actor-transfer experiments with an independent design source."""
+"""Matched flat actor-transfer experiments with authenticated policy clocks."""
 from __future__ import annotations
 
 from copy import deepcopy
@@ -7,7 +7,7 @@ import json
 import math
 from pathlib import Path
 
-PLAN = "contracts/flat_base_finetune_v1.json"
+PLAN = "contracts/flat_base_finetune_200hz_v1.json"
 DROP = ("task_campaign", "integrated_production", "design_preflight", "budget_spec_file", "budget_spec_sha256",
         "step_jump_task", "actor_reserved_frame30", "recovery_training", "nonstandard_start", "release_stop",
         "locomotion_difficulty", "ordinary_posture_curriculum", "signal_delay", "landing_tracking",
@@ -25,7 +25,7 @@ def digest(path):
 def read_plan(root, plan_file=PLAN):
     root = Path(root)
     plan = json.loads((root / plan_file).read_text())
-    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)):
+    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in range(1, 19)):
         raise ValueError("Unknown flat actor transfer plan")
     for name in ("source_worker", "source_design", "control"):
         if digest(root / plan[name + "_file"]) != plan[name + "_sha256"]:
@@ -39,22 +39,31 @@ def read_plan(root, plan_file=PLAN):
         raise ValueError("Matched asset CPU validation is missing or belongs to another bundle")
     if digest(root / plan["actor_bundle"] / "source.onnx") != plan["source_onnx_sha256"]:
         raise ValueError("Original flat actor changed")
+    policy_dt = .005 if plan["schema"] == "flat-base-finetune-plan-v18" else .02
     if (plan["policy_dt"], plan["leg_target_winding"], plan["flat_context"]) != (
-            .02, "paired_branch107_v1", [1, 0, 0, 0, 0, 0, 0]):
-        raise ValueError("Flat transfer changed its declared50Hz paired-107 interface")
+            policy_dt, "paired_branch107_v1", [1, 0, 0, 0, 0, 0, 0]):
+        raise ValueError("Flat transfer changed its declared policy clock or paired-107 interface")
     from .flat_clock_transition import validate_flat_clock
     validate_flat_clock(root, plan)
+    if plan["schema"] == "flat-base-finetune-plan-v18":
+        from .flat_policy_rate import validate_policy_rate_transition
+        parent_file = plan["policy_rate_transition"]["parent_plan_file"]
+        parent_raw = json.loads((root / parent_file).read_text())
+        if parent_raw.get("policy_dt") != .02:
+            raise ValueError("200 Hz migration requires an independently saved 50 Hz parent")
+        parent = read_plan(root, parent_file)
+        validate_policy_rate_transition(root, parent, plan, parent["control_sha256"])
     velocity_scale = plan.get("moving_velocity_cost_scale")
-    if plan["schema"] in ("flat-base-finetune-plan-v16", "flat-base-finetune-plan-v17"):
+    if plan["schema"] in ("flat-base-finetune-plan-v16", "flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18"):
         if type(velocity_scale) not in (int, float) or not math.isfinite(velocity_scale) or not 1. < velocity_scale <= 10.:
-            raise ValueError("v16/v17 require a finite moving velocity cost scale in (1,10]")
+            raise ValueError("v16/v17/v18 require a finite moving velocity cost scale in (1,10]")
     elif velocity_scale is not None:
         raise ValueError("Moving velocity cost scaling requires the explicit v16 plan")
     contact_material = plan.get("contact_material", {"enabled": False})
     if not isinstance(contact_material, dict) or type(contact_material.get("enabled", False)) is not bool:
         raise ValueError("contact_material must be an explicit enabled/disabled mapping")
     if contact_material.get("enabled"):
-        if plan["schema"] != "flat-base-finetune-plan-v17":
+        if plan["schema"] not in ("flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18"):
             raise ValueError("Separate contact materials require the explicit v17 plan")
         from .contact_material import ContactMaterialDomain
         # Validate with the native sampler's isolated generator; this does not
@@ -70,6 +79,13 @@ def read_plan(root, plan_file=PLAN):
     for name, seconds in plan.get("group_episode_seconds", {}).items():
         if name not in names or not .5 <= seconds <= plan["episode_seconds"]:
             raise ValueError("Group horizon must name an existing group within the global episode limit")
+    for group in plan['train_groups']:
+        spec=group.get('skill',{});seconds=spec.get('yaw_start_stop_segment_seconds')
+        if seconds is not None and (plan.get('actor_adaptation')!='original-intent-speed-with-motion-state-residual-v11'
+                or spec.get('kind')!='rotate'or spec['command'][0]!=0.
+                or type(seconds)not in (int,float)or not math.isfinite(seconds)or seconds<=0.
+                or seconds*4>plan.get('group_episode_seconds',{}).get(group['name'],plan['episode_seconds'])):
+            raise ValueError('Yaw start-stop requires its declared v11 rotate-only complete cycle')
     stationary = plan.get("stationary_tracking", {})
     if stationary.get("position_cost") == "capped_square":
         floor = stationary["position_weight"] * stationary["position_cost_cap"] * plan["policy_dt"] / (1. - plan["gamma"])
@@ -81,11 +97,11 @@ def read_plan(root, plan_file=PLAN):
             "original-command-and-gated-feedback-residual-v1", "original-command-and-tracking-feedback-residual-v2",
             "original-command-and-separated-tracking-feedback-residual-v3",
             "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
-            "original-static-grip-with-motion-feedback-adaptation-v8"):
+            "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11"):
         raise ValueError("Feedback-only scope requires the declared feedback architecture")
     recall = plan.get("static_feedback_recall")
     if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
-            "original-static-grip-with-motion-feedback-adaptation-v8"):
+            "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11"):
         if (not isinstance(recall, dict) or set(recall) != {"checkpoint", "sha256"}
                 or not isinstance(recall["checkpoint"], str)
                 or digest(root / recall["checkpoint"]) != recall["sha256"]):
@@ -100,6 +116,27 @@ def read_plan(root, plan_file=PLAN):
             raise ValueError('Motion grip requires its exact declared v7 parent checkpoint')
     elif motion_parent is not None:
         raise ValueError('Motion grip parent is only valid for the declared v8 adaptation')
+    reference = plan.get('speed_reference')
+    if plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11'):
+        intent=plan['actor_adaptation']!='original-static-grip-with-reachable-speed-reference-v9'
+        required={'checkpoint','sha256','margin_m_s','lean_gain_rad_per_m_s'}|({'encoder_gain'}if intent else set())
+        bounds=[(.05,1.2),(.05,1.2),(.005,.5),(.005,.5)]if intent else [(.05,1.2)]*4
+        if (not isinstance(reference, dict) or set(reference) != required
+                or digest(root / reference['checkpoint']) != reference['sha256']
+                or len(reference['margin_m_s']) != 4 or len(reference['lean_gain_rad_per_m_s']) != 2
+                or any(type(x) not in (int,float) or not math.isfinite(x) or not lo<=x<=hi for x,(lo,hi) in zip(reference['margin_m_s'],bounds,strict=True))
+                or (intent and (type(reference['encoder_gain'])not in (int,float) or not math.isfinite(reference['encoder_gain']) or not 0.<=reference['encoder_gain']<=.6))
+                or any(type(x) not in (int,float) or not math.isfinite(x) or abs(x) > .04 for x in reference['lean_gain_rad_per_m_s'])):
+            raise ValueError('Speed reference requires its authenticated v7 parent and bounded initialization')
+    elif reference is not None:
+        raise ValueError('Speed reference requires the declared v9 adaptation')
+    motion=plan.get('motion_state_parent')
+    if plan.get('actor_adaptation')=='original-intent-speed-with-motion-state-residual-v11':
+        if (not isinstance(motion,dict)or set(motion)!={'checkpoint','sha256'}
+                or digest(root/motion['checkpoint'])!=motion['sha256']):
+            raise ValueError('Motion-state residual requires its exact v10 parent')
+    elif motion is not None:
+        raise ValueError('Motion-state parent is only valid for v11')
     return plan
 
 
@@ -151,7 +188,7 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
                 "original-command-and-separated-tracking-feedback-residual-v3",
                 "original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5",
                 "original-static-feedback-and-wheel-authority-residual-v6", "original-wheel-authority-with-static-grip-adaptation-v7",
-                "original-static-grip-with-motion-feedback-adaptation-v8")
+                "original-static-grip-with-motion-feedback-adaptation-v8", "original-static-grip-with-reachable-speed-reference-v9", "original-static-grip-with-intent-speed-reference-v10", "original-intent-speed-with-motion-state-residual-v11")
                 or plan.get("actor_output_layer_only")):
             raise ValueError("Unsupported or conflicting flat actor adaptation")
         values["actor_adaptation"] = plan["actor_adaptation"]
@@ -159,6 +196,11 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
         values["static_feedback_recall"] = deepcopy(plan["static_feedback_recall"])
     if plan.get('motion_grip_parent') and not evaluation:
         values['motion_grip_parent'] = deepcopy(plan['motion_grip_parent'])
+    if plan.get('speed_reference') and not evaluation:
+        values['actor_adaptation'] = plan['actor_adaptation']
+        values['speed_reference'] = deepcopy(plan['speed_reference'])
+    if plan.get('motion_state_parent')and not evaluation:
+        values['motion_state_parent']=deepcopy(plan['motion_state_parent'])
     if plan.get("training_command_reference") and not evaluation:
         values["flat_rmcs_command_training"] = deepcopy(plan["training_command_reference"])
     return values

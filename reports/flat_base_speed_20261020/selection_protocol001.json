@@ -1,0 +1,51 @@
+{
+  "schema": "flat-speed-short-checkpoint-selection-v1",
+  "status": "frozen_before_heldout",
+  "seed": 191199,
+  "comparison_roles": [
+    "parent",
+    "initialized",
+    "trained",
+    "variant_1"
+  ],
+  "variant_1": "first actor update, checkpoint 1341",
+  "trained": "six actor updates, checkpoint 1346",
+  "requirements": [
+    "No lost low-command parent checks in the paired test",
+    "Report all requested episodes; missing post-warmup data is unsupported",
+    "Require both high translation directions and both yaw directions to complete every episode"
+  ],
+  "ranking": [
+    "Fewest lost parent low checks",
+    "Most complete high translation and yaw episodes",
+    "Lowest maximum normalized high-case tracking MAE across both directions and four height/friction conditions",
+    "Earliest actor update when scores differ by less than 2 percent"
+  ],
+  "high_cases": [
+    "forward_2",
+    "backward_2",
+    "forward_3",
+    "backward_3",
+    "rotate_4",
+    "rotate_4_reverse"
+  ],
+  "scales": {
+    "translation_mae_m_s": 0.05,
+    "yaw_mae_rad_s": 0.1
+  },
+  "confirmation": {
+    "seed": 191219,
+    "horizon_seconds": 32,
+    "cases": 22,
+    "replicas": 4,
+    "ground_friction": [
+      0.2,
+      0.5
+    ],
+    "heights": [
+      0.305,
+      0.42
+    ]
+  },
+  "qualified": false
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "flat-speed-motion-state-comparison-protocol-v1",
+  "status": "frozen_before_v11_actor_updates",
+  "seed": 191279,
+  "horizon_seconds": 32,
+  "replicas": 4,
+  "heights_m": [
+    0.305,
+    0.42
+  ],
+  "ground_friction": [
+    0.2,
+    0.5
+  ],
+  "wheel_friction": 0.1,
+  "policy_hz": 50,
+  "physics_hz": 1000,
+  "inference": {
+    "provider": "CPUExecutionProvider",
+    "batch_size": 1,
+    "intra_op_threads": 1,
+    "inter_op_threads": 1
+  },
+  "cases": "Original 22 unchanged plus positive/negative rotation-stop sequences, eight seconds per phase",
+  "arms": [
+    "original1338",
+    "v11 initial identity extension of v10 initial",
+    "v11 after four actor updates",
+    "v11 after two actor updates"
+  ],
+  "comparison_order": [
+    "Preserve passing original low-control checks; any loss bars adoption as completed solution",
+    "Compare full-horizon counts separately for +3,-3,+4yaw,-4yaw and translation/rotation stops",
+    "Compare actual measured body MAE against external commands, never encoder-only speed",
+    "Unsupported post-warmup MAE stays null, never zero",
+    "Within 2 percent worst normalized high-error difference prefer fewer actor updates"
+  ],
+  "qualified": false,
+  "hardware_admitted": false,
+  "new_optimizer_updates": 0,
+  "training_preparation_sha256": "3f12914de19cdb48055ed9f2a8ceb99cf128e3d5135771fe53bc9a60d6653d9b",
+  "prior_negative_confirmation_sha256": "d72605195ee720f89ecd7aadc4c54f6171bef2610c0e2b995215a7e66963b976"
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "flat-policy200-capacity-verification-v1",
+  "status": "passed_no_optimizer_writes",
+  "finished_at": "2026-10-20T12:30:55.417373+00:00",
+  "progress_sha256": "7dfb4764853aceead5f46a0b24ec0cd58e10ddc3f13ff59751913d1d1ded78b1",
+  "parent_checkpoint_sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+  "initial_state_sha256": "e07adbb5a3c2c086d9cbcb38e97b3be5f09ddd4114e749d14db391d62c3c51d1",
+  "source_files_verified": 125,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "observed_substep_audit": {
+    "policy_steps": 384,
+    "physics_steps": 1920,
+    "target_decodes": 1,
+    "pd_updates": 5,
+    "feedback_refreshes": 5,
+    "physics_dt": 0.001,
+    "policy_dt": 0.005
+  },
+  "full_restore": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true,
+    "cpu_sampling_rng": true,
+    "cuda_sampling_rng": true,
+    "environment_rng_before_new_reset": true
+  },
+  "pending_critic_and_learning_counters_preserved": true,
+  "actor_backward_executed": true,
+  "capacity": {
+    "passed": true,
+    "checks": {
+      "actor_state_dict_exact": true,
+      "critic_state_dict_exact": true,
+      "optimizer_state_dict_exact": true,
+      "all_native_minibatch_backward_passes": true,
+      "finite_native_losses": true
+    },
+    "num_envs": 4096,
+    "rollout_steps": 384,
+    "native_policy_frames": 1572864,
+    "optimizer_writes": 0,
+    "blocked_optimizer_writes": 12,
+    "collection_s": 156.97033097303938,
+    "backward_s": 2.0430380290490575,
+    "policy_frames_per_collection_s": 10020.135590273738,
+    "torch_peak_allocated_bytes": 3735956992,
+    "torch_peak_reserved_bytes": 4301258752,
+    "losses": {
+      "value": 257.5906524658203,
+      "surrogate": -4.154571797698736e-09,
+      "entropy": -16.05972671508789,
+      "teacher": 0.28551509231328964,
+      "teacher_action_rmse": 0.023419363889843225,
+      "teacher_fraction": 0.08624712936580181,
+      "approx_policy_kl": 8.831307685142065e-09,
+      "policy_clip_fraction": 0.0,
+      "actor_gradient_norm": 0.1085790004581213,
+      "critic_gradient_norm": 2384.0413208007812,
+      "actor_learning_rate": 0.00010000000000000003,
+      "critic_learning_rate": 0.0005000000000000001
+    },
+    "scope": "Capacity only; unchanged parent weights and Adam; isolated RNG; no learning checkpoint or behavior qualification"
+  },
+  "new_optimizer_updates": 0,
+  "behavior_qualified": false
+}

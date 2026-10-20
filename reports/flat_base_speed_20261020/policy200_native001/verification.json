@@ -1,0 +1,44 @@
+{
+  "schema": "flat-policy200-native-verification-v1",
+  "status": "clock_execution_verified_behavior_incomplete",
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "seconds": 12,
+  "policy_ticks": 2400,
+  "physical_steps": 12000,
+  "actual_control_audit": {
+    "policy_steps": 2400,
+    "physics_steps": 12000,
+    "target_decodes": 1,
+    "pd_updates": 5,
+    "feedback_refreshes": 5,
+    "physics_dt": 0.001,
+    "policy_dt": 0.005
+  },
+  "report_sha256": "752ecabc1ae81a9fee56b624aa8e91afe470f871f23261497bcbfbd763a20e1c",
+  "traces_sha256": "7a207d527dd4ec9b0fe5df667030c0f4fc5642302cbc0a6881f813fb9fe91027",
+  "new_optimizer_updates": 0,
+  "full_episodes": {
+    "parent": 52,
+    "trained": 50
+  },
+  "episodes_per_arm": 64,
+  "case_subset": [
+    "stand_305mm",
+    "forward_05",
+    "backward_05",
+    "forward_3",
+    "backward_3",
+    "rotate_4",
+    "rotate_4_reverse",
+    "start_stop_3"
+  ],
+  "qualification_eligible": false,
+  "behavior_qualified": false,
+  "scope": "frequency migration smoke; two replicas, first 12 seconds; no complete reverse-stop cycle",
+  "limitations": [
+    "high reverse reference still misses target",
+    "low friction high-speed cold launch can terminate",
+    "different horizon, seed and layout from 50 Hz tests; no causal matched speedup claim"
+  ]
+}
