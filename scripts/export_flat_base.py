@@ -42,10 +42,11 @@ def validate_release(primary, manifest, plan, checkpoint_sha, root=ROOT):
         raise ValueError("Release evidence lacks the authenticated packaged maximum height")
     catalogue = json.loads((ROOT / plan["source_worker_file"]).read_text())["evaluation"]["cases"]
     commands = {case["name"]: case["command"] for case in catalogue}
-    cohorts = [("training_basic", primary, 200, plan["evaluation_seed"], basic)]
+    training_hz = round(1. / plan["physics_dt"])
+    cohorts = [("training_basic", primary, training_hz, plan["evaluation_seed"], basic)]
     receipts = {}
     for name, hz, seed, cases in (
-            ("training_envelope", 200, plan["evaluation_seed"], extended),
+            ("training_envelope", training_hz, plan["evaluation_seed"], extended),
             ("deployment_basic", 1000, plan["evaluation_seed"], basic),
             ("deployment_envelope", 1000, plan["evaluation_seed"], extended),
             ("confirmation_envelope", 1000, plan["confirmation_seed"], extended),
@@ -143,6 +144,7 @@ def main():
     from wheeled_algo.separated_feedback import KIND as SEPARATED_KIND
     from wheeled_algo.low_demand_feedback import KIND as LOW_DEMAND_KIND
     from wheeled_algo.static_feedback import KIND as STATIC_KIND
+    from wheeled_algo.wheel_authority import KIND as WHEEL_KIND
     from wheeled_tasks.chassis.flat_base_continuation import read_plan, digest, encode
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -150,7 +152,7 @@ def main():
     parser.add_argument("--evaluation", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--release-evidence", type=Path,
-                        help="Exact passing 200/1000Hz and RMCS-reference development/heldout evidence; otherwise intermediate")
+                        help="Exact passing checkpoint-training/deployment clocks and RMCS-reference development/heldout evidence; otherwise intermediate")
     parser.add_argument("--rmcs", type=Path, default=Path("/home/noir/Documents/workspace/RMCS"))
     args = parser.parse_args()
     state = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
@@ -184,7 +186,7 @@ def main():
     _, recovered = recover_actor(source)
     mean = {k: v for k, v in state["actor_state_dict"].items() if k.startswith("mlp.")}
     actor = mean_from_checkpoint(state, source)
-    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND):
+    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND):
         graph = actor.export_graph(source)
     else:
         graph = onnx.load(str(source))

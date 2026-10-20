@@ -1,0 +1,52 @@
+{
+  "schema": "flat-wheel-from1280-native-audit-v1",
+  "passed": true,
+  "checks": {
+    "exact_composed1280_parent": true,
+    "complete_actor_critic_Adam_and_sampling_rng_exact": true,
+    "all_six_native_restore_checks": true,
+    "lifetime_counters_exact_at_entry": true,
+    "own_v6_kind": true,
+    "exact_declared_execution_sources": true,
+    "exact_plan": true,
+    "teacher_stays_zero": true,
+    "only_new_wheel_head_has_learning_scope": true,
+    "new_wheel_head_has_no_inherited_Adam": true,
+    "static_head_has_no_Adam": true,
+    "zero_wheel_final_layer": true,
+    "static_reference_exact": true,
+    "unchanged_population_clocks_control_reference": true,
+    "no_new_critic_warmup": true,
+    "unchanged_behavior_logging_contracts": true,
+    "1281_frozen_actor_state_and_buffers_exact": true,
+    "1281_frozen_Adam_exact": true,
+    "1281_all_four_wheel_tensors_learned": true,
+    "1281_exactly994_trainable_parameters": true,
+    "1281_critic_learned": true,
+    "1281_twelve_Adam_steps_per_update": true,
+    "1281_cumulative_counters_exact": true,
+    "1281_unchanged_rates_and_finite_losses": true,
+    "1281_unchanged_trial_contracts": true
+  },
+  "parent_checkpoint_sha256": "c662d6ddd3c7d2ac92b0dad6bc734e5b06f0846e9115ad040bced637697d5a2b",
+  "initial_state_sha256": "e9bf82215253e6e2520f169df6142dc8590f35ce8f2f3bde39cf141671055f93",
+  "adoption_sha256": "e75955e63729c2a2e008bf57e315b40ff09e5b3646a1b8c0a28cafb3c80e9529",
+  "milestones": {
+    "1281": {
+      "checkpoint_sha256": "6b9ec4f57ed95aceab7927ad5e3058330fea923598bdb2119f6eb37104150087",
+      "checks": {
+        "frozen_actor_state_and_buffers_exact": true,
+        "frozen_Adam_exact": true,
+        "all_four_wheel_tensors_learned": true,
+        "exactly994_trainable_parameters": true,
+        "critic_learned": true,
+        "twelve_Adam_steps_per_update": true,
+        "cumulative_counters_exact": true,
+        "unchanged_rates_and_finite_losses": true,
+        "unchanged_trial_contracts": true
+      }
+    }
+  },
+  "new_optimizer_updates": 0,
+  "scope": "Read-only state/learning audit; full-horizon fixed native replays decide behavior."
+}

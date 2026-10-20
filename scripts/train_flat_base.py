@@ -339,16 +339,19 @@ def main():
                                        "original-command-and-tracking-feedback-residual-v2",
                                        "original-command-and-separated-tracking-feedback-residual-v3",
                                        "original-command-and-continuous-low-feedback-residual-v4",
-                                       "original-command-and-static-recall-feedback-residual-v5"):
+                                       "original-command-and-static-recall-feedback-residual-v5",
+                                       "original-static-feedback-and-wheel-authority-residual-v6"):
         sources.append(ROOT / "src/wheeled_algo/guarded_feedback_residual.py")
     if plan.get("actor_adaptation") in ("original-command-and-separated-tracking-feedback-residual-v3",
                                          "original-command-and-continuous-low-feedback-residual-v4",
-                                       "original-command-and-static-recall-feedback-residual-v5"):
+                                       "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
         sources.append(ROOT / "src/wheeled_algo/separated_feedback.py")
-    if plan.get("actor_adaptation") in ("original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5"):
+    if plan.get("actor_adaptation") in ("original-command-and-continuous-low-feedback-residual-v4", "original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
         sources.append(ROOT / "src/wheeled_algo/low_demand_feedback.py")
-    if plan.get("actor_adaptation") == "original-command-and-static-recall-feedback-residual-v5":
+    if plan.get("actor_adaptation") in ("original-command-and-static-recall-feedback-residual-v5", "original-static-feedback-and-wheel-authority-residual-v6"):
         sources.append(ROOT / "src/wheeled_algo/static_feedback.py")
+    if plan.get("actor_adaptation") == "original-static-feedback-and-wheel-authority-residual-v6":
+        sources.append(ROOT / "src/wheeled_algo/wheel_authority.py")
     if plan.get("training_command_reference"):
         sources.append(ROOT / "scripts/flat_rmcs_command_reference.py")
     report["source_sha256"] = {str(p.relative_to(ROOT)): digest(p) for p in sources}
@@ -414,10 +417,12 @@ def main():
                           "original-command-and-tracking-feedback-residual-v2",
                           "original-command-and-separated-tracking-feedback-residual-v3",
                           "original-command-and-continuous-low-feedback-residual-v4",
-                          "original-command-and-static-recall-feedback-residual-v5")
+                          "original-command-and-static-recall-feedback-residual-v5",
+                          "original-static-feedback-and-wheel-authority-residual-v6")
         separated_feedback = plan.get("actor_adaptation") in feedback_kinds[2:]
         low_demand_feedback = plan.get("actor_adaptation") in feedback_kinds[3:]
-        static_feedback = plan.get("actor_adaptation") == feedback_kinds[4]
+        static_feedback = plan.get("actor_adaptation") in feedback_kinds[4:]
+        wheel_authority = plan.get("actor_adaptation") == feedback_kinds[5]
         feedback_residual = plan.get("actor_adaptation") in feedback_kinds
         command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds)
         if plan.get("actor_adaptation") and not command_residual:
@@ -458,7 +463,7 @@ def main():
                                 raise ValueError("Static feedback only extends v4 or resumes its own v5 state")
                             runner.alg.actor.mlp.load_state_dict({n.removeprefix("mlp."):v
                                 for n,v in seed_state["actor_state_dict"].items()
-                                if n.startswith("mlp.") and not n.startswith("mlp.static_feedback.")},strict=True)
+                                if n.startswith("mlp.") and not n.startswith(("mlp.static_feedback.","mlp.wheel_authority.")) and n != "mlp.authority_bound"},strict=True)
                             settings = plan["static_feedback_recall"]
                             static_path = ROOT / settings["checkpoint"]
                             if digest(static_path) != settings["sha256"]:
@@ -471,6 +476,14 @@ def main():
                             runner.alg.actor.mlp = StaticFeedbackActor(runner.alg.actor.mlp, recalled, settings["sha256"]).to(args.device)
                             configure_command_residual_training = configure_static_feedback_training
                             report["static_feedback_recall"] = deepcopy(settings)
+                            if wheel_authority:
+                                from wheeled_algo.wheel_authority import (WheelAuthorityActor,
+                                    configure_wheel_authority_training, extend_wheel_authority_parent)
+                                if seed_state["infos"].get("actor_adaptation") not in feedback_kinds[4:]:
+                                    raise ValueError("Wheel authority requires the explicit v5 or own v6 parent")
+                                old_actor_names = list(dict(runner.alg.actor.named_parameters()))
+                                runner.alg.actor.mlp = WheelAuthorityActor(runner.alg.actor.mlp).to(args.device)
+                                configure_command_residual_training = configure_wheel_authority_training
                 else:
                     from functools import partial
                     configure_command_residual_training = partial(configure_command_residual_training,
@@ -582,6 +595,14 @@ def main():
                 for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
                             "post_split_actor_updates", "inherited_shared_feedback_updates"):
                     report[key] = info[key]
+            elif wheel_authority and info.get("actor_adaptation") == feedback_kinds[4]:
+                if not migration:
+                    raise ValueError("Wheel authority requires a declared identity-extension migration")
+                checkpoint, report["wheel_authority_extension"] = extend_wheel_authority_parent(
+                    checkpoint, runner.alg.actor, runner.alg.critic, runner.alg.optimizer, old_actor_names)
+                for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
+                            "post_split_actor_updates", "inherited_shared_feedback_updates"):
+                    report[key] = info[key]
             elif static_feedback and info.get("actor_adaptation") == feedback_kinds[3]:
                 if not migration:
                     raise ValueError("Static feedback composition requires an explicit forward plan migration")
@@ -682,6 +703,10 @@ def main():
                 report.update(initialization="declared_static_snapshot_composition_with_exact_moving_parent",
                     restore_verification_reference="declared_static_extension_with_retained_existing_Adam",
                     resumption_semantics="existing v4 weights/Adam/std/critic/RNG/counters retained; new frozen static head from declared snapshot; fresh physical reset")
+            if report.get("wheel_authority_extension"):
+                report.update(initialization="exact_parent_function_with_zero_wheel_authority_head",
+                    restore_verification_reference="declared_zero_extended_parent_with_existing_Adam_retained",
+                    resumption_semantics="all parent actor/std/critic/Adam/RNG/counters retained; new zero wheel head/no Adam; fresh physical reset")
             env.stage_actor_update = report["actor_updates_total"]
             env.global_actor_update = report["actor_updates_total"]
             env.training_transitions = report["training_transitions_total"]
