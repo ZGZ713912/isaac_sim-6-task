@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="2.025" timestamp="2026-10-20T12:50:42.987621+08:00" hostname="ZGZ"><testcase classname="tests.test_motion_grip_candidate" name="test_identity_retains_existing_parameter_order_and_function" time="0.046"><failure message="assert False&#10; +  where False = &lt;built-in method equal of type object at 0x7fae03d3e180&gt;(tensor([[-0.0343, -0.0360, -0.3115,  0.0232,  0.1685,  0.0552],\n        [-0.1133, -0.1459, -0.2713, -0.0619,  0.0934, ...650,  0.0284, -0.0450],\n        [-0.0675,  0.0100,  0.0176, -0.0590,  0.0146,  0.0703]],\n       grad_fn=&lt;AddBackward0&gt;), tensor([[ 0.0762, -0.0404, -0.3805, -0.0310,  0.1667,  0.0748],\n        [-0.0602, -0.1293, -0.1202, -0.0598,  0.0853, ...527,  0.0579,  0.0140],\n        [-0.1352,  0.0310,  0.1079, -0.0367,  0.1172,  0.0795]],\n       grad_fn=&lt;AddBackward0&gt;))&#10; +    where &lt;built-in method equal of type object at 0x7fae03d3e180&gt; = torch.equal&#10; +    and   tensor([[-0.0343, -0.0360, -0.3115,  0.0232,  0.1685,  0.0552],\n        [-0.1133, -0.1459, -0.2713, -0.0619,  0.0934, ...650,  0.0284, -0.0450],\n        [-0.0675,  0.0100,  0.0176, -0.0590,  0.0146,  0.0703]],\n       grad_fn=&lt;AddBackward0&gt;) = StaticGripActor(\n  (command): CommandResidualActor(\n    (base): Sequential(\n      (0): Linear(in_features=35, out_feat...8, out_features=32, bias=True)\n    (1): ELU(alpha=1.0)\n    (2): Linear(in_features=32, out_features=2, bias=True)\n  )\n)(tensor([[-3.0000,  0.0000,  0.0000,  ..., -1.0905,  0.5575,  0.7561],\n        [-2.9531,  0.0000,  0.0000,  ...,  0.182...0000,  3.9370,  ...,  0.7153, -0.0611, -1.5303],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.9114,  0.2729, -0.2787]]))&#10; +      where tensor([[-3.0000,  0.0000,  0.0000,  ..., -1.0905,  0.5575,  0.7561],\n        [-2.9531,  0.0000,  0.0000,  ...,  0.182...0000,  3.9370,  ...,  0.7153, -0.0611, -1.5303],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.9114,  0.2729, -0.2787]]) = observations()&#10; +    and   tensor([[ 0.0762, -0.0404, -0.3805, -0.0310,  0.1667,  0.0748],\n        [-0.0602, -0.1293, -0.1202, -0.0598,  0.0853, ...527,  0.0579,  0.0140],\n        [-0.1352,  0.0310,  0.1079, -0.0367,  0.1172,  0.0795]],\n       grad_fn=&lt;AddBackward0&gt;) = MotionGripActor(\n  (command): CommandResidualActor(\n    (base): Sequential(\n      (0): Linear(in_features=35, out_feat...8, out_features=32, bias=True)\n    (1): ELU(alpha=1.0)\n    (2): Linear(in_features=32, out_features=2, bias=True)\n  )\n)(tensor([[-3.0000,  0.0000,  0.0000,  ..., -0.4709, -0.3733,  0.7554],\n        [-2.9531,  0.0000,  0.0000,  ..., -0.401...0000,  3.9370,  ..., -0.2464,  0.0063, -0.6079],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.1839, -1.6086, -0.9521]]))&#10; +      where tensor([[-3.0000,  0.0000,  0.0000,  ..., -0.4709, -0.3733,  0.7554],\n        [-2.9531,  0.0000,  0.0000,  ..., -0.401...0000,  3.9370,  ..., -0.2464,  0.0063, -0.6079],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.1839, -1.6086, -0.9521]]) = observations()">means = (WheelAuthorityActor(
+  (command): CommandResidualActor(
+    (base): Sequential(
+      (0): Linear(in_features=35, out...t_features=2, bias=True)
+  )
+), PosixPath('/tmp/pytest-of-noir/pytest-94/test_identity_retains_existing0/recalled.pt'))
+
+    def test_identity_retains_existing_parameter_order_and_function(means):
+        parent, child = motion(means)
+        assert list(parent.state_dict()) == list(child.state_dict())
+        assert list(dict(parent.named_parameters())) == list(dict(child.named_parameters()))
+        assert all(torch.equal(value, child.state_dict()[name]) for name, value in parent.state_dict().items())
+&gt;       assert torch.equal(parent(observations()), child(observations()))
+E       assert False
+E        +  where False = &lt;built-in method equal of type object at 0x7fae03d3e180&gt;(tensor([[-0.0343, -0.0360, -0.3115,  0.0232,  0.1685,  0.0552],\n        [-0.1133, -0.1459, -0.2713, -0.0619,  0.0934, ...650,  0.0284, -0.0450],\n        [-0.0675,  0.0100,  0.0176, -0.0590,  0.0146,  0.0703]],\n       grad_fn=&lt;AddBackward0&gt;), tensor([[ 0.0762, -0.0404, -0.3805, -0.0310,  0.1667,  0.0748],\n        [-0.0602, -0.1293, -0.1202, -0.0598,  0.0853, ...527,  0.0579,  0.0140],\n        [-0.1352,  0.0310,  0.1079, -0.0367,  0.1172,  0.0795]],\n       grad_fn=&lt;AddBackward0&gt;))
+E        +    where &lt;built-in method equal of type object at 0x7fae03d3e180&gt; = torch.equal
+E        +    and   tensor([[-0.0343, -0.0360, -0.3115,  0.0232,  0.1685,  0.0552],\n        [-0.1133, -0.1459, -0.2713, -0.0619,  0.0934, ...650,  0.0284, -0.0450],\n        [-0.0675,  0.0100,  0.0176, -0.0590,  0.0146,  0.0703]],\n       grad_fn=&lt;AddBackward0&gt;) = StaticGripActor(\n  (command): CommandResidualActor(\n    (base): Sequential(\n      (0): Linear(in_features=35, out_feat...8, out_features=32, bias=True)\n    (1): ELU(alpha=1.0)\n    (2): Linear(in_features=32, out_features=2, bias=True)\n  )\n)(tensor([[-3.0000,  0.0000,  0.0000,  ..., -1.0905,  0.5575,  0.7561],\n        [-2.9531,  0.0000,  0.0000,  ...,  0.182...0000,  3.9370,  ...,  0.7153, -0.0611, -1.5303],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.9114,  0.2729, -0.2787]]))
+E        +      where tensor([[-3.0000,  0.0000,  0.0000,  ..., -1.0905,  0.5575,  0.7561],\n        [-2.9531,  0.0000,  0.0000,  ...,  0.182...0000,  3.9370,  ...,  0.7153, -0.0611, -1.5303],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.9114,  0.2729, -0.2787]]) = observations()
+E        +    and   tensor([[ 0.0762, -0.0404, -0.3805, -0.0310,  0.1667,  0.0748],\n        [-0.0602, -0.1293, -0.1202, -0.0598,  0.0853, ...527,  0.0579,  0.0140],\n        [-0.1352,  0.0310,  0.1079, -0.0367,  0.1172,  0.0795]],\n       grad_fn=&lt;AddBackward0&gt;) = MotionGripActor(\n  (command): CommandResidualActor(\n    (base): Sequential(\n      (0): Linear(in_features=35, out_feat...8, out_features=32, bias=True)\n    (1): ELU(alpha=1.0)\n    (2): Linear(in_features=32, out_features=2, bias=True)\n  )\n)(tensor([[-3.0000,  0.0000,  0.0000,  ..., -0.4709, -0.3733,  0.7554],\n        [-2.9531,  0.0000,  0.0000,  ..., -0.401...0000,  3.9370,  ..., -0.2464,  0.0063, -0.6079],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.1839, -1.6086, -0.9521]]))
+E        +      where tensor([[-3.0000,  0.0000,  0.0000,  ..., -0.4709, -0.3733,  0.7554],\n        [-2.9531,  0.0000,  0.0000,  ..., -0.401...0000,  3.9370,  ..., -0.2464,  0.0063, -0.6079],\n        [ 0.0000,  0.0000,  4.0000,  ..., -0.1839, -1.6086, -0.9521]]) = observations()
+
+tests/test_motion_grip_candidate.py:36: AssertionError</failure></testcase><testcase classname="tests.test_motion_grip_candidate" name="test_gradient_updates_motion_heads_and_preserves_stable_static_function" time="0.966"><failure message="assert False&#10; +  where False = all(&lt;generator object test_gradient_updates_motion_heads_and_preserves_stable_static_function.&lt;locals&gt;.&lt;genexpr&gt; at 0x7fadb4bac2e0&gt;)">means = (WheelAuthorityActor(
+  (command): CommandResidualActor(
+    (base): Sequential(
+      (0): Linear(in_features=35, out...t_features=2, bias=True)
+  )
+), PosixPath('/tmp/pytest-of-noir/pytest-94/test_gradient_updates_motion_h0/recalled.pt'))
+
+    def test_gradient_updates_motion_heads_and_preserves_stable_static_function(means):
+        parent, child = motion(means)
+        actor = nn.Module()
+        actor.mlp = child
+        actor.register_parameter('std', nn.Parameter(torch.full((6,), .04)))
+        proof = proposal.configure_motion_grip_training(actor, True)
+        assert proof['trainable_parameters'] == 1126 * 2 + 994
+        assert len(proof['trainable_names']) == 12
+        obs = observations()
+        static = torch.randn(64, 35)
+        static[:, :3] = 0.
+        static[:, 20:22] = .1
+        before = deepcopy(actor.state_dict())
+        optimizer = torch.optim.Adam(actor.parameters(), lr=.0001)
+        output = child(obs).detach()
+        (child(obs) - output - .02).square().mean().backward()
+&gt;       assert all(p.grad is not None and p.grad.count_nonzero() for name, p in actor.named_parameters()
+                   if name in proof['trainable_names'])
+E       assert False
+E        +  where False = all(&lt;generator object test_gradient_updates_motion_heads_and_preserves_stable_static_function.&lt;locals&gt;.&lt;genexpr&gt; at 0x7fadb4bac2e0&gt;)
+
+tests/test_motion_grip_candidate.py:55: AssertionError</failure></testcase><testcase classname="tests.test_motion_grip_candidate" name="test_export_matches_adapted_motion_and_preserves_static_reference" time="0.051" /><testcase classname="tests.test_motion_grip_candidate" name="test_rejects_other_parent_and_undeclared_command_training" time="0.012" /></testsuite></testsuites>

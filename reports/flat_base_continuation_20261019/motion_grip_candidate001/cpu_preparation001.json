@@ -1,0 +1,59 @@
+{
+  "schema": "flat-motion-grip-cpu-proposal-v1",
+  "status": "cpu_prepared_not_adopted",
+  "recorded_at": "2026-10-20T04:54:01.966399+00:00",
+  "parent_checkpoint_sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+  "proposal_file": "reports/flat_base_continuation_20261019/motion_grip_candidate001/proposed_motion_grip.py",
+  "proposal_sha256": "dc9cfd04e211d7cf006df023c6b5071c2fe0682edcded5751fc425c517da3584",
+  "test_report_sha256": "a4cf482e25b067ee766ad2b23127baa100f96cd749f6f0fdf46400d6c6138c3d",
+  "changed_plan_fields": [
+    "actor_adaptation",
+    "motion_grip_parent",
+    "training_scope"
+  ],
+  "proposed_plan_sha256": "e8700d5bac2d4bdc0888a9a5fe7657ef147261d307e9518b225734f49ad7f4ff",
+  "actual_input_probe": {
+    "trace_sha256": "68d7ca17d8e0087825c6f545fb6fa975ddfc0ad967888e86425e4962ef867b03",
+    "frames": 4096,
+    "entry_function_equal": true,
+    "parameter_order_equal": true,
+    "trainable_parameters": 3246,
+    "gradient_norms": {
+      "feedback.0.weight": 0.00014107840252108872,
+      "feedback.0.bias": 4.7629870095988736e-05,
+      "feedback.2.weight": 0.002234341576695442,
+      "feedback.2.bias": 0.0006279211374931037,
+      "fast_feedback.0.weight": 8.687136869411916e-05,
+      "fast_feedback.0.bias": 2.6372430511401035e-05,
+      "fast_feedback.2.weight": 0.0023028452415019274,
+      "fast_feedback.2.bias": 0.0006165319937281311,
+      "wheel_authority.0.weight": 0.0001678246189840138,
+      "wheel_authority.0.bias": 5.3266794566297904e-05,
+      "wheel_authority.2.weight": 0.0018189147813245654,
+      "wheel_authority.2.bias": 0.0016386732459068298
+    },
+    "scope": "Squared-output CPU gradient probe only; not PPO or evidence of behavioral improvement"
+  },
+  "proposed_bounded_pilot": {
+    "critic_updates": 2,
+    "actor_updates": 8,
+    "final_successful_update": 1348,
+    "population": 4096,
+    "actor_learning_rate": 0.0001,
+    "policy_hz": 50,
+    "physics_hz": 1000
+  },
+  "frozen": "original and command branches, adapted static head, std and their existing Adam slots",
+  "source_adopted": false,
+  "native_training_started": false,
+  "new_optimizer_updates": 0,
+  "full_training_admitted": false,
+  "qualified": false,
+  "prerequisites": [
+    "Seal all four in-flight1338 replay cohorts before changing source",
+    "Integrate authenticated parent loading and explicit trainer/plan/export routes",
+    "Pass complete CPU routes and native initial/first-critic/first-actor state verification",
+    "Evaluate actual post-PPO behavior before any further update block"
+  ],
+  "reader_sha256": "30c0e76b975ebf197ccb31b166ea151bebe1c87c02ab887b5ca0b1f94814358f"
+}

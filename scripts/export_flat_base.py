@@ -146,6 +146,7 @@ def main():
     from wheeled_algo.static_feedback import KIND as STATIC_KIND
     from wheeled_algo.wheel_authority import KIND as WHEEL_KIND
     from wheeled_algo.static_grip import KIND as GRIP_KIND
+    from wheeled_algo.motion_grip import KIND as MOTION_GRIP_KIND
     from wheeled_tasks.chassis.flat_base_continuation import read_plan, digest, encode
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -187,7 +188,7 @@ def main():
     _, recovered = recover_actor(source)
     mean = {k: v for k, v in state["actor_state_dict"].items() if k.startswith("mlp.")}
     actor = mean_from_checkpoint(state, source)
-    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND, GRIP_KIND):
+    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND, GRIP_KIND, MOTION_GRIP_KIND):
         graph = actor.export_graph(source)
     else:
         graph = onnx.load(str(source))

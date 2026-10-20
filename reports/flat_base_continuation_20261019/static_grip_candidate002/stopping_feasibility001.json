@@ -1,0 +1,86 @@
+{
+  "schema": "flat-ground025-conditional-stopping-feasibility-v1",
+  "recorded_at": "2026-10-20T04:35:19.941181+00:00",
+  "plan_sha256": "6a706d34419907e4af5ab5d6273c47175354e151b8aa29c89bd4fcb42d077390",
+  "source_worker_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+  "wheel_dynamic_mu": 0.1,
+  "ground_dynamic_mu_range": [
+    0.2,
+    0.5
+  ],
+  "effective_dynamic_mu_range": [
+    0.15000000000000002,
+    0.3
+  ],
+  "assumed_gravity_m_s2": 9.81,
+  "assumptions": [
+    "ideal Coulomb longitudinal traction",
+    "total wheel normal force equals mass*g",
+    "no useful additional braking force",
+    "initial actual speed equals requested cruise speed",
+    "no vertical transient or body contact"
+  ],
+  "uncertainty": "PhysX solver, vertical load transients, rolling resistance and actual approach speed are not measured by this calculation.",
+  "cases": {
+    "start_stop_1": {
+      "request_speed_m_s": 1.0,
+      "settle_seconds": 1.0,
+      "settled_speed_threshold_m_s": 0.03,
+      "ideal_acceleration_limit_m_s2": [
+        1.4715000000000003,
+        2.943
+      ],
+      "ideal_time_to_threshold_s": [
+        0.6591913013931361,
+        0.3295956506965681
+      ],
+      "ideal_residual_speed_after_settle_m_s": [
+        0.0,
+        0.0
+      ],
+      "ideal_required_effective_mu": 0.09887869520897043
+    },
+    "start_stop_2": {
+      "request_speed_m_s": 2.0,
+      "settle_seconds": 1.0,
+      "settled_speed_threshold_m_s": 0.03,
+      "ideal_acceleration_limit_m_s2": [
+        1.4715000000000003,
+        2.943
+      ],
+      "ideal_time_to_threshold_s": [
+        1.3387699626231735,
+        0.6693849813115867
+      ],
+      "ideal_residual_speed_after_settle_m_s": [
+        0.5284999999999997,
+        0.0
+      ],
+      "ideal_required_effective_mu": 0.20081549439347604
+    },
+    "start_stop_3": {
+      "request_speed_m_s": 3.0,
+      "settle_seconds": 1.0,
+      "settled_speed_threshold_m_s": 0.03,
+      "ideal_acceleration_limit_m_s2": [
+        1.4715000000000003,
+        2.943
+      ],
+      "ideal_time_to_threshold_s": [
+        2.018348623853211,
+        1.0091743119266054
+      ],
+      "ideal_residual_speed_after_settle_m_s": [
+        1.5284999999999997,
+        0.05699999999999994
+      ],
+      "ideal_required_effective_mu": 0.30275229357798167
+    }
+  },
+  "native_trajectory_verified": false,
+  "acceptance_changed": false,
+  "new_optimizer_updates": 0,
+  "qualified": false,
+  "scope": "A conditional plausibility check to interpret completed native stop traces; not proof of impossibility or an excuse for a failed test.",
+  "reader_sha256": "a291260522a8340fa26ecc9d320b832ff9ac0e184a12b8bd33fd15a90c563db4"
+}

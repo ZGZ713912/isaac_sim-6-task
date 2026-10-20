@@ -1,0 +1,806 @@
+Scenario: Flat ground / WASD, speed and height
+Policy: /home/noir/Documents/workspace/isaac_wheeled_rl_train/models/flat_static_grip1338_20261020/policy.onnx
+SHA-256: 9cc82fd9355458305d372cd5b0299c9f35ae0d58ce81f05a94bdd7f66ee9f874
+Successful updates: 1338
+Output: /home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_play1338_20261020/gui001
+Qualification: null
+Loading user config located at: '/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/data/Kit/IsaacLab/3.0/user.config.json'
+2026-10-20T06:07:38Z [0ms] [Warning] [omni.ext.plugin] [ext: isaaclab_visualizers] Extensions config 'extension.toml' doesn't exist '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers' or '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/config'
+[0.018s] Failed to solve some dependencies locally, syncing with extension registry...
+2026-10-20T06:07:38Z [2ms] [Warning] [omni.ext.plugin] [ext: isaaclab_visualizers] Extensions config 'extension.toml' doesn't exist '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers' or '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/config'
+[0.019s] [ext: omni.kit.async_engine-0.0.3] startup
+[0.021s] [ext: omni.client.lib-1.1.1] startup
+[0.033s] [ext: omni.kit.registry.nucleus-0.0.0] startup
+[4.338s] Pulling extension: `carb.windowing.plugins-1.0.1` from the registry.
+[8.185s] Extension: `carb.windowing.plugins-1.0.1` was installed.
+[8.185s] Pulling extension: `omni.kit.renderer.init-1.0.1` from the registry.
+[8.957s] Extension: `omni.kit.renderer.init-1.0.1` was installed.
+[8.957s] Pulling extension: `omni.kit.pipapi-0.0.0` from the registry.
+[9.808s] Extension: `omni.kit.pipapi-0.0.0` was installed.
+[9.808s] Pulling extension: `omni.kit.test-2.0.7` from the registry.
+[11.016s] Extension: `omni.kit.test-2.0.7` was installed.
+[11.016s] Pulling extension: `omni.materialx.libs-1.0.9` from the registry.
+[13.611s] Extension: `omni.materialx.libs-1.0.9` was installed.
+[13.611s] Pulling extension: `omni.pip.compute-1.9.0` from the registry.
+[42.662s] Extension: `omni.pip.compute-1.9.0` was installed.
+[42.662s] Pulling extension: `omni.appwindow-1.2.2` from the registry.
+[45.949s] Extension: `omni.appwindow-1.2.2` was installed.
+[45.949s] Pulling extension: `omni.kit.renderer.core-1.2.2` from the registry.
+[48.197s] Extension: `omni.kit.renderer.core-1.2.2` was installed.
+[48.197s] Pulling extension: `omni.kit.renderer.capture-2.0.1` from the registry.
+[49.538s] Extension: `omni.kit.renderer.capture-2.0.1` was installed.
+[49.538s] Pulling extension: `omni.kit.renderer.imgui-2.0.6` from the registry.
+[53.721s] Extension: `omni.kit.renderer.imgui-2.0.6` was installed.
+[53.721s] Pulling extension: `omni.ui-3.1.3` from the registry.
+[58.549s] Extension: `omni.ui-3.1.3` was installed.
+[58.549s] Pulling extension: `omni.kit.mainwindow-1.0.3` from the registry.
+[59.214s] Extension: `omni.kit.mainwindow-1.0.3` was installed.
+[59.214s] Pulling extension: `omni.uiaudio-1.0.0` from the registry.
+[61.297s] Extension: `omni.uiaudio-1.0.0` was installed.
+[61.297s] Pulling extension: `omni.kit.uiapp-0.0.0` from the registry.
+[62.001s] Extension: `omni.kit.uiapp-0.0.0` was installed.
+[62.001s] Pulling extension: `omni.usd.schema.geospatial-0.0.1` from the registry.
+[63.932s] Extension: `omni.usd.schema.geospatial-0.0.1` was installed.
+[63.932s] Pulling extension: `omni.usd.schema.omnigraph-1.0.1` from the registry.
+[65.150s] Extension: `omni.usd.schema.omnigraph-1.0.1` was installed.
+[65.150s] Pulling extension: `omni.usd.schema.semantics-0.0.0` from the registry.
+[66.176s] Extension: `omni.usd.schema.semantics-0.0.0` was installed.
+[66.176s] Pulling extension: `omni.hydra.scene_delegate-0.3.5` from the registry.
+[67.488s] Extension: `omni.hydra.scene_delegate-0.3.5` was installed.
+[67.488s] Pulling extension: `omni.inspect-1.0.2` from the registry.
+[70.827s] Extension: `omni.inspect-1.0.2` was installed.
+[70.827s] Pulling extension: `omni.kit.window.popup_dialog-2.0.25` from the registry.
+[72.215s] Extension: `omni.kit.window.popup_dialog-2.0.25` was installed.
+[72.215s] Pulling extension: `omni.kit.widget.nucleus_connector-2.3.1` from the registry.
+[73.259s] Extension: `omni.kit.widget.nucleus_connector-2.3.1` was installed.
+[73.259s] Pulling extension: `omni.graph.core-3.1.2` from the registry.
+[75.095s] Extension: `omni.graph.core-3.1.2` was installed.
+[75.095s] Pulling extension: `omni.kit.notification_manager-1.0.11` from the registry.
+[76.250s] Extension: `omni.kit.notification_manager-1.0.11` was installed.
+[76.250s] Pulling extension: `omni.kit.menu.core-1.2.0` from the registry.
+[77.058s] Extension: `omni.kit.menu.core-1.2.0` was installed.
+[77.058s] Pulling extension: `omni.kit.menu.utils-2.2.3` from the registry.
+[78.303s] Extension: `omni.kit.menu.utils-2.2.3` was installed.
+[78.303s] Pulling extension: `omni.kit.asset_converter-6.0.5` from the registry.
+[84.238s] Extension: `omni.kit.asset_converter-6.0.5` was installed.
+[84.238s] Pulling extension: `omni.pip.cloud-1.5.3` from the registry.
+[94.150s] Extension: `omni.pip.cloud-1.5.3` was installed.
+[94.150s] Pulling extension: `omni.usd.schema.omni_lens_distortion-1.0.0` from the registry.
+[95.028s] Extension: `omni.usd.schema.omni_lens_distortion-1.0.0` was installed.
+[95.028s] Pulling extension: `omni.usd.schema.omni_projectors-1.0.0` from the registry.
+[95.876s] Extension: `omni.usd.schema.omni_projectors-1.0.0` was installed.
+[95.876s] Pulling extension: `omni.usd.schema.omni_sensors-0.0.0` from the registry.
+[97.026s] Extension: `omni.usd.schema.omni_sensors-0.0.0` was installed.
+[97.026s] Pulling extension: `omni.usd.schema.omniscripting-1.0.1` from the registry.
+[98.768s] Extension: `omni.usd.schema.omniscripting-1.0.1` was installed.
+[98.768s] Pulling extension: `omni.usd.schema.physical_lighting-0.1.0` from the registry.
+[100.001s] Extension: `omni.usd.schema.physical_lighting-0.1.0` was installed.
+[100.001s] Pulling extension: `omni.usd.schema.render_settings.rtx-1.0.2` from the registry.
+[102.193s] Extension: `omni.usd.schema.render_settings.rtx-1.0.2` was installed.
+[102.193s] Pulling extension: `omni.usd.schema.usd_particle_field-1.0.0` from the registry.
+[103.589s] Extension: `omni.usd.schema.usd_particle_field-1.0.0` was installed.
+[103.589s] Pulling extension: `omni.kit.clipboard-1.1.1` from the registry.
+[104.500s] Extension: `omni.kit.clipboard-1.1.1` was installed.
+[104.500s] Pulling extension: `omni.kit.widget.context_menu-1.4.0` from the registry.
+[105.856s] Extension: `omni.kit.widget.context_menu-1.4.0` was installed.
+[105.856s] Pulling extension: `omni.kit.context_menu-1.9.0` from the registry.
+[107.304s] Extension: `omni.kit.context_menu-1.9.0` was installed.
+[107.304s] Pulling extension: `omni.kit.helper.file_utils-0.1.10` from the registry.
+[109.277s] Extension: `omni.kit.helper.file_utils-0.1.10` was installed.
+[109.277s] Pulling extension: `omni.kit.hotkeys.core-1.3.12` from the registry.
+[110.072s] Extension: `omni.kit.hotkeys.core-1.3.12` was installed.
+[110.072s] Pulling extension: `omni.kit.widget.path_field-2.0.13` from the registry.
+[111.324s] Extension: `omni.kit.widget.path_field-2.0.13` was installed.
+[111.324s] Pulling extension: `omni.kit.widget.browser_bar-2.0.10` from the registry.
+[112.414s] Extension: `omni.kit.widget.browser_bar-2.0.10` was installed.
+[112.414s] Pulling extension: `omni.kit.widget.filebrowser-2.13.4` from the registry.
+[114.397s] Extension: `omni.kit.widget.filebrowser-2.13.4` was installed.
+[114.397s] Pulling extension: `omni.kit.widget.options_menu-1.1.6` from the registry.
+[115.760s] Extension: `omni.kit.widget.options_menu-1.1.6` was installed.
+[115.760s] Pulling extension: `omni.kit.widget.filter-1.1.5` from the registry.
+[116.550s] Extension: `omni.kit.widget.filter-1.1.5` was installed.
+[116.551s] Pulling extension: `omni.kit.widget.options_button-1.0.3` from the registry.
+[117.233s] Extension: `omni.kit.widget.options_button-1.0.3` was installed.
+[117.233s] Pulling extension: `omni.kit.widget.prompt-1.0.7` from the registry.
+[118.129s] Extension: `omni.kit.widget.prompt-1.0.7` was installed.
+[118.129s] Pulling extension: `omni.kit.widget.searchfield-1.1.8` from the registry.
+[118.840s] Extension: `omni.kit.widget.searchfield-1.1.8` was installed.
+[118.840s] Pulling extension: `omni.ui.scene-2.0.1` from the registry.
+[122.537s] Extension: `omni.ui.scene-2.0.1` was installed.
+[122.537s] Pulling extension: `omni.kit.window.filepicker-2.15.5` from the registry.
+[124.750s] Extension: `omni.kit.window.filepicker-2.15.5` was installed.
+[124.750s] Pulling extension: `omni.kit.window.file_exporter-1.0.36` from the registry.
+[126.052s] Extension: `omni.kit.window.file_exporter-1.0.36` was installed.
+[126.052s] Pulling extension: `omni.kit.widget.stage-4.3.0` from the registry.
+[127.702s] Extension: `omni.kit.widget.stage-4.3.0` was installed.
+[127.702s] Pulling extension: `omni.kit.window.content_browser_registry-0.0.6` from the registry.
+[128.533s] Extension: `omni.kit.window.content_browser_registry-0.0.6` was installed.
+[128.533s] Pulling extension: `omni.kit.window.drop_support-1.0.8` from the registry.
+[129.309s] Extension: `omni.kit.window.drop_support-1.0.8` was installed.
+[129.309s] Pulling extension: `omni.kit.window.file_importer-1.1.21` from the registry.
+[130.520s] Extension: `omni.kit.window.file_importer-1.1.21` was installed.
+[130.520s] Pulling extension: `omni.kit.window.file-2.0.10` from the registry.
+[131.480s] Extension: `omni.kit.window.file-2.0.10` was installed.
+[131.480s] Pulling extension: `omni.kit.window.content_browser-3.1.8` from the registry.
+[136.144s] Extension: `omni.kit.window.content_browser-3.1.8` was installed.
+[136.144s] Pulling extension: `omni.kit.widget.layers-1.9.2` from the registry.
+[137.610s] Extension: `omni.kit.widget.layers-1.9.2` was installed.
+[137.610s] Pulling extension: `omni.scene.optimizer.core-110.1.0` from the registry.
+[196.794s] Extension: `omni.scene.optimizer.core-110.1.0` was installed.
+[196.794s] Pulling extension: `omni.kit.material.library-3.1.2` from the registry.
+[198.229s] Extension: `omni.kit.material.library-3.1.2` was installed.
+[198.229s] Pulling extension: `omni.hydra.engine.stats-1.0.5` from the registry.
+[200.435s] Extension: `omni.hydra.engine.stats-1.0.5` was installed.
+[200.435s] Pulling extension: `omni.hydra.rtx.shadercache.vulkan-1.0.0` from the registry.
+[349.925s] Extension: `omni.hydra.rtx.shadercache.vulkan-1.0.0` was installed.
+[349.925s] Pulling extension: `omni.index.libs-387500.3473.0` from the registry.
+[361.233s] Extension: `omni.index.libs-387500.3473.0` was installed.
+[361.233s] Pulling extension: `omni.index-1.0.1` from the registry.
+[362.126s] Extension: `omni.index-1.0.1` was installed.
+[362.126s] Pulling extension: `omni.ujitso.client-0.0.0` from the registry.
+[362.642s] Extension: `omni.ujitso.client-0.0.0` was installed.
+[362.642s] Pulling extension: `omni.usd.schema.playback-1.0.0` from the registry.
+[363.695s] Extension: `omni.usd.schema.playback-1.0.0` was installed.
+[363.695s] Pulling extension: `omni.volume-0.5.2` from the registry.
+[365.665s] Extension: `omni.volume-0.5.2` was installed.
+[365.665s] Pulling extension: `omni.hydra.rtx-1.0.3` from the registry.
+[422.698s] Extension: `omni.hydra.rtx-1.0.3` was installed.
+[422.698s] Pulling extension: `omni.kit.hydra_texture-1.6.0` from the registry.
+[423.473s] Extension: `omni.kit.hydra_texture-1.6.0` was installed.
+[423.473s] Pulling extension: `omni.kit.raycast.query-1.2.0` from the registry.
+[424.387s] Extension: `omni.kit.raycast.query-1.2.0` was installed.
+[424.387s] Pulling extension: `omni.kit.viewport.legacy_gizmos-1.0.24` from the registry.
+[430.056s] Extension: `omni.kit.viewport.legacy_gizmos-1.0.24` was installed.
+[430.056s] Pulling extension: `omni.kit.viewport.registry-104.0.6` from the registry.
+[437.318s] Extension: `omni.kit.viewport.registry-104.0.6` was installed.
+[437.318s] Pulling extension: `omni.kit.viewport.scene_camera_model-1.0.7` from the registry.
+[440.095s] Extension: `omni.kit.viewport.scene_camera_model-1.0.7` was installed.
+[440.095s] Pulling extension: `omni.kit.widget.viewport-109.2.0` from the registry.
+[440.986s] Extension: `omni.kit.widget.viewport-109.2.0` was installed.
+[440.986s] Pulling extension: `omni.kit.viewport.window-109.0.2` from the registry.
+[442.012s] Extension: `omni.kit.viewport.window-109.0.2` was installed.
+[442.012s] Pulling extension: `omni.kit.viewport.utility-2.0.1` from the registry.
+[442.439s] Extension: `omni.kit.viewport.utility-2.0.1` was installed.
+[442.439s] Pulling extension: `omni.graph.tools-1.81.0` from the registry.
+[443.244s] Extension: `omni.graph.tools-1.81.0` was installed.
+[443.244s] Pulling extension: `omni.graph-1.142.5` from the registry.
+[445.040s] Extension: `omni.graph-1.142.5` was installed.
+[445.040s] Pulling extension: `omni.graph.action_core-1.1.9` from the registry.
+[445.804s] Extension: `omni.graph.action_core-1.1.9` was installed.
+[445.804s] Pulling extension: `omni.graph.action_nodes_core-2.11.0` from the registry.
+[446.869s] Extension: `omni.graph.action_nodes_core-2.11.0` was installed.
+[446.869s] Pulling extension: `omni.graph.action_nodes-2.11.0` from the registry.
+[447.542s] Extension: `omni.graph.action_nodes-2.11.0` was installed.
+[447.542s] Pulling extension: `omni.graph.action-2.10.2` from the registry.
+[448.262s] Extension: `omni.graph.action-2.10.2` was installed.
+[448.262s] Pulling extension: `omni.graph.image.core-0.6.1` from the registry.
+[449.048s] Extension: `omni.graph.image.core-0.6.1` was installed.
+[449.048s] Pulling extension: `omni.graph.image.nodes-1.3.1` from the registry.
+[449.822s] Extension: `omni.graph.image.nodes-1.3.1` was installed.
+[449.822s] Pulling extension: `omni.graph.nodes_core-2.11.0` from the registry.
+[452.958s] Extension: `omni.graph.nodes_core-2.11.0` was installed.
+[452.958s] Pulling extension: `omni.graph.nodes-2.12.0` from the registry.
+[454.055s] Extension: `omni.graph.nodes-2.12.0` was installed.
+[454.055s] Pulling extension: `omni.kit.property.adapter.core-1.1.1` from the registry.
+[454.473s] Extension: `omni.kit.property.adapter.core-1.1.1` was installed.
+[454.473s] Pulling extension: `omni.kit.property.adapter.usd-1.0.5` from the registry.
+[454.889s] Extension: `omni.kit.property.adapter.usd-1.0.5` was installed.
+[454.889s] Pulling extension: `omni.kit.widget.highlight_label-1.0.3` from the registry.
+[455.310s] Extension: `omni.kit.widget.highlight_label-1.0.3` was installed.
+[455.310s] Pulling extension: `omni.kit.window.property-1.15.1` from the registry.
+[455.960s] Extension: `omni.kit.window.property-1.15.1` was installed.
+[455.960s] Pulling extension: `omni.kit.property.usd-4.8.1` from the registry.
+[456.965s] Extension: `omni.kit.property.usd-4.8.1` was installed.
+[456.965s] Pulling extension: `omni.kit.widget.text_editor-1.1.1` from the registry.
+[457.704s] Extension: `omni.kit.widget.text_editor-1.1.1` was installed.
+[457.704s] Pulling extension: `omni.graph.scriptnode-2.10.2` from the registry.
+[458.454s] Extension: `omni.graph.scriptnode-2.10.2` was installed.
+[458.454s] Pulling extension: `omni.kit.widget.searchable_combobox-1.0.7` from the registry.
+[459.121s] Extension: `omni.kit.widget.searchable_combobox-1.0.7` was installed.
+[459.121s] Pulling extension: `omni.kit.widget.settings-2.0.0` from the registry.
+[459.767s] Extension: `omni.kit.widget.settings-2.0.0` was installed.
+[459.767s] Pulling extension: `omni.kit.window.preferences-1.8.3` from the registry.
+[460.468s] Extension: `omni.kit.window.preferences-1.8.3` was installed.
+[460.468s] Pulling extension: `omni.kit.viewport.menubar.core-107.2.2` from the registry.
+[461.393s] Extension: `omni.kit.viewport.menubar.core-107.2.2` was installed.
+[461.393s] Pulling extension: `omni.syntheticdata-0.6.15` from the registry.
+[467.127s] Extension: `omni.syntheticdata-0.6.15` was installed.
+[467.127s] Pulling extension: `omni.replicator.nv-1.1.1` from the registry.
+[469.066s] Extension: `omni.replicator.nv-1.1.1` was installed.
+[469.066s] Pulling extension: `omni.videoencoding-0.2.1` from the registry.
+[469.740s] Extension: `omni.videoencoding-0.2.1` was installed.
+[469.740s] Pulling extension: `omni.replicator.core-1.13.27` from the registry.
+[481.281s] Extension: `omni.replicator.core-1.13.27` was installed.
+[481.281s] Pulling extension: `omni.kit.manipulator.viewport-107.0.1` from the registry.
+[481.723s] Extension: `omni.kit.manipulator.viewport-107.0.1` was installed.
+[481.723s] Pulling extension: `omni.graph.visualization.nodes-2.1.4` from the registry.
+[482.798s] Extension: `omni.graph.visualization.nodes-2.1.4` was installed.
+[482.798s] Pulling extension: `omni.kit.window.extensions-1.5.7` from the registry.
+[484.174s] Extension: `omni.kit.window.extensions-1.5.7` was installed.
+[484.174s] Pulling extension: `omni.kit.widget.zoombar-1.0.7` from the registry.
+[485.150s] Extension: `omni.kit.widget.zoombar-1.0.7` was installed.
+[485.150s] Pulling extension: `omni.kit.browser.core-2.4.0` from the registry.
+[486.107s] Extension: `omni.kit.browser.core-2.4.0` was installed.
+[486.107s] Pulling extension: `omni.kit.browser.folder.core-2.1.1` from the registry.
+[486.833s] Extension: `omni.kit.browser.folder.core-2.1.1` was installed.
+[486.833s] Pulling extension: `omni.kit.widget.stage_icons-1.0.8` from the registry.
+[487.572s] Extension: `omni.kit.widget.stage_icons-1.0.8` was installed.
+[487.572s] Pulling extension: `omni.kit.window.stage-2.6.1` from the registry.
+[488.449s] Extension: `omni.kit.window.stage-2.6.1` was installed.
+[488.449s] Pulling extension: `omni.kit.menu.stage-1.2.7` from the registry.
+[489.211s] Extension: `omni.kit.menu.stage-1.2.7` was installed.
+[489.211s] Pulling extension: `omni.kit.usd.collect-3.0.5` from the registry.
+[493.504s] Extension: `omni.kit.usd.collect-3.0.5` was installed.
+[493.504s] Pulling extension: `omni.kit.tool.collect-2.2.19` from the registry.
+[494.239s] Extension: `omni.kit.tool.collect-2.2.19` was installed.
+[494.239s] Pulling extension: `omni.behavior.scripting.core-110.1.0` from the registry.
+[495.607s] Extension: `omni.behavior.scripting.core-110.1.0` was installed.
+[495.607s] Pulling extension: `omni.sensors.net-1.0.1` from the registry.
+[496.356s] Extension: `omni.sensors.net-1.0.1` was installed.
+[496.356s] Pulling extension: `omni.sensors.nv.common-3.0.0` from the registry.
+[529.513s] Extension: `omni.sensors.nv.common-3.0.0` was installed.
+[529.513s] Pulling extension: `omni.sensors.nv.materials-2.0.0` from the registry.
+[531.780s] Extension: `omni.sensors.nv.materials-2.0.0` was installed.
+[531.780s] Pulling extension: `omni.sensors.nv.acoustic-3.0.0` from the registry.
+[532.780s] Extension: `omni.sensors.nv.acoustic-3.0.0` was installed.
+[532.780s] Pulling extension: `omni.sensors.nv.ids-2.0.1` from the registry.
+[533.474s] Extension: `omni.sensors.nv.ids-2.0.1` was installed.
+[533.474s] Pulling extension: `omni.sensors.nv.lidar-3.0.0` from the registry.
+[535.242s] Extension: `omni.sensors.nv.lidar-3.0.0` was installed.
+[535.242s] Pulling extension: `omni.sensors.nv.radar-3.0.0` from the registry.
+[537.444s] Extension: `omni.sensors.nv.radar-3.0.0` was installed.
+[537.444s] Pulling extension: `omni.anim.curve.core-1.6.0` from the registry.
+[541.441s] Extension: `omni.anim.curve.core-1.6.0` was installed.
+[541.441s] Pulling extension: `omni.asset_validator.core-1.19.3` from the registry.
+[542.494s] Extension: `omni.asset_validator.core-1.19.3` was installed.
+[542.495s] Pulling extension: `omni.debugdraw-0.1.4` from the registry.
+[543.160s] Extension: `omni.debugdraw-0.1.4` was installed.
+[543.160s] Pulling extension: `omni.graph.ui_nodes-2.11.1` from the registry.
+[543.944s] Extension: `omni.graph.ui_nodes-2.11.1` was installed.
+[543.945s] Pulling extension: `omni.hydra.scene_api-0.1.3` from the registry.
+[544.570s] Extension: `omni.hydra.scene_api-0.1.3` was installed.
+[544.570s] Pulling extension: `omni.kit.manipulator.camera-110.0.0` from the registry.
+[545.202s] Extension: `omni.kit.manipulator.camera-110.0.0` was installed.
+[545.202s] Pulling extension: `omni.kit.manipulator.selector-1.1.4` from the registry.
+[545.855s] Extension: `omni.kit.manipulator.selector-1.1.4` was installed.
+[545.856s] Pulling extension: `omni.kit.manipulator.transform-107.0.0` from the registry.
+[546.551s] Extension: `omni.kit.manipulator.transform-107.0.0` was installed.
+[546.551s] Pulling extension: `omni.kit.widget.toolbar-2.1.0` from the registry.
+[547.413s] Extension: `omni.kit.widget.toolbar-2.1.0` was installed.
+[547.413s] Pulling extension: `omni.kit.manipulator.tool.snap-1.5.14` from the registry.
+[548.026s] Extension: `omni.kit.manipulator.tool.snap-1.5.14` was installed.
+[548.026s] Pulling extension: `omni.kit.viewport.manipulator.transform-107.0.4` from the registry.
+[548.457s] Extension: `omni.kit.viewport.manipulator.transform-107.0.4` was installed.
+[548.458s] Pulling extension: `omni.kit.manipulator.prim.core-108.0.2` from the registry.
+[550.487s] Extension: `omni.kit.manipulator.prim.core-108.0.2` was installed.
+[550.487s] Pulling extension: `omni.kit.manipulator.prim.usd-107.0.3` from the registry.
+[551.232s] Extension: `omni.kit.manipulator.prim.usd-107.0.3` was installed.
+[551.232s] Pulling extension: `omni.kit.manipulator.prim-108.0.0` from the registry.
+[552.082s] Extension: `omni.kit.manipulator.prim-108.0.0` was installed.
+[552.083s] Pulling extension: `omni.kit.manipulator.selection-109.0.1` from the registry.
+[553.433s] Extension: `omni.kit.manipulator.selection-109.0.1` was installed.
+[553.433s] Pulling extension: `omni.kit.menu.create-2.0.2` from the registry.
+[553.900s] Extension: `omni.kit.menu.create-2.0.2` was installed.
+[553.900s] Pulling extension: `omni.kit.property.audio-1.0.16` from the registry.
+[554.859s] Extension: `omni.kit.property.audio-1.0.16` was installed.
+[554.859s] Pulling extension: `omni.kit.property.camera-1.0.14` from the registry.
+[555.579s] Extension: `omni.kit.property.camera-1.0.14` was installed.
+[555.579s] Pulling extension: `omni.kit.property.geometry-2.1.2` from the registry.
+[556.298s] Extension: `omni.kit.property.geometry-2.1.2` was installed.
+[556.298s] Pulling extension: `omni.kit.property.light-1.0.14` from the registry.
+[557.067s] Extension: `omni.kit.property.light-1.0.14` was installed.
+[557.067s] Pulling extension: `omni.kit.property.material-1.14.2` from the registry.
+[557.894s] Extension: `omni.kit.property.material-1.14.2` was installed.
+[557.894s] Pulling extension: `omni.kit.property.render-1.2.2` from the registry.
+[558.535s] Extension: `omni.kit.property.render-1.2.2` was installed.
+[558.535s] Pulling extension: `omni.kit.property.transform-1.6.9` from the registry.
+[559.311s] Extension: `omni.kit.property.transform-1.6.9` was installed.
+[559.311s] Pulling extension: `omni.kit.property.bundle-1.5.1` from the registry.
+[560.027s] Extension: `omni.kit.property.bundle-1.5.1` was installed.
+[560.027s] Pulling extension: `omni.kit.viewport.actions-107.0.2` from the registry.
+[560.483s] Extension: `omni.kit.viewport.actions-107.0.2` was installed.
+[560.483s] Pulling extension: `omni.kit.viewport.menubar.display-107.1.3` from the registry.
+[561.185s] Extension: `omni.kit.viewport.menubar.display-107.1.3` was installed.
+[561.185s] Pulling extension: `omni.physx.commands-110.1.11` from the registry.
+[562.421s] Extension: `omni.physx.commands-110.1.11` was installed.
+[562.421s] Pulling extension: `omni.usdphysics.ui-110.1.11` from the registry.
+[563.950s] Extension: `omni.usdphysics.ui-110.1.11` was installed.
+[563.950s] Pulling extension: `omni.physx.ui-110.1.11` from the registry.
+[566.111s] Extension: `omni.physx.ui-110.1.11` was installed.
+[566.111s] Pulling extension: `omni.kit.property.physics-110.1.11` from the registry.
+[567.586s] Extension: `omni.kit.property.physics-110.1.11` was installed.
+[567.586s] Pulling extension: `omni.kit.stagerecorder.core-110.0.14` from the registry.
+[569.597s] Extension: `omni.kit.stagerecorder.core-110.0.14` was installed.
+[569.597s] Pulling extension: `omni.kit.stagerecorder.ui-110.0.2` from the registry.
+[571.098s] Extension: `omni.kit.stagerecorder.ui-110.0.2` was installed.
+[571.098s] Pulling extension: `omni.kit.stagerecorder.bundle-110.0.2` from the registry.
+[572.653s] Extension: `omni.kit.stagerecorder.bundle-110.0.2` was installed.
+[572.653s] Pulling extension: `omni.kit.usdz_export-1.1.0` from the registry.
+[573.886s] Extension: `omni.kit.usdz_export-1.1.0` was installed.
+[573.886s] Pulling extension: `omni.kit.tool.asset_importer-6.0.4` from the registry.
+[574.601s] Extension: `omni.kit.tool.asset_importer-6.0.4` was installed.
+[574.601s] Pulling extension: `omni.kit.ui.actions-1.0.5` from the registry.
+[575.058s] Extension: `omni.kit.ui.actions-1.0.5` was installed.
+[575.058s] Pulling extension: `omni.ui_query-1.1.10` from the registry.
+[575.486s] Extension: `omni.ui_query-1.1.10` was installed.
+[575.486s] Pulling extension: `omni.kit.ui_test-1.4.4` from the registry.
+[575.916s] Extension: `omni.kit.ui_test-1.4.4` was installed.
+[575.916s] Pulling extension: `omni.kit.viewport.menubar.camera-107.0.10` from the registry.
+[577.126s] Extension: `omni.kit.viewport.menubar.camera-107.0.10` was installed.
+[577.126s] Pulling extension: `omni.kit.viewport.menubar.lighting-107.3.2` from the registry.
+[578.258s] Extension: `omni.kit.viewport.menubar.lighting-107.3.2` was installed.
+[578.258s] Pulling extension: `omni.kit.viewport.menubar.render-107.0.10` from the registry.
+[578.919s] Extension: `omni.kit.viewport.menubar.render-107.0.10` was installed.
+[578.919s] Pulling extension: `omni.kit.viewport.menubar.settings-110.0.1` from the registry.
+[579.760s] Extension: `omni.kit.viewport.menubar.settings-110.0.1` was installed.
+[579.760s] Pulling extension: `omni.kit.window.console-1.1.8` from the registry.
+[580.438s] Extension: `omni.kit.window.console-1.1.8` was installed.
+[580.438s] Pulling extension: `omni.kit.window.script_editor-2.0.7` from the registry.
+[581.134s] Extension: `omni.kit.window.script_editor-2.0.7` was installed.
+[581.134s] Pulling extension: `omni.kit.window.status_bar-0.1.11` from the registry.
+[581.817s] Extension: `omni.kit.window.status_bar-0.1.11` was installed.
+[581.817s] Pulling extension: `omni.kit.window.toolbar-3.0.3` from the registry.
+[582.484s] Extension: `omni.kit.window.toolbar-3.0.3` was installed.
+[582.484s] Pulling extension: `omni.ocio-0.1.1` from the registry.
+[583.245s] Extension: `omni.ocio-0.1.1` was installed.
+[583.245s] Pulling extension: `omni.physics.isaacsimready-110.1.11` from the registry.
+[584.743s] Extension: `omni.physics.isaacsimready-110.1.11` was installed.
+[584.743s] Pulling extension: `omni.physics.physx.ui-110.1.11` from the registry.
+[585.980s] Extension: `omni.physics.physx.ui-110.1.11` was installed.
+[585.980s] Pulling extension: `omni.physics.ui-110.1.11` from the registry.
+[587.229s] Extension: `omni.physics.ui-110.1.11` was installed.
+[587.229s] Pulling extension: `omni.physx.asset_validator-110.1.11` from the registry.
+[588.522s] Extension: `omni.physx.asset_validator-110.1.11` was installed.
+[588.522s] Pulling extension: `omni.physx.demos-110.1.11` from the registry.
+[592.902s] Extension: `omni.physx.demos-110.1.11` was installed.
+[592.902s] Pulling extension: `omni.physx.vehicle-110.1.11` from the registry.
+[594.521s] Extension: `omni.physx.vehicle-110.1.11` was installed.
+[594.521s] Pulling extension: `omni.physx.camera-110.1.11` from the registry.
+[595.790s] Extension: `omni.physx.camera-110.1.11` was installed.
+[595.790s] Pulling extension: `omni.physx.cct-110.1.11` from the registry.
+[597.457s] Extension: `omni.physx.cct-110.1.11` was installed.
+[597.457s] Pulling extension: `omni.physx.graph-110.1.11` from the registry.
+[601.612s] Extension: `omni.physx.graph-110.1.11` was installed.
+[601.612s] Pulling extension: `omni.physx.supportui-110.1.11` from the registry.
+[610.465s] Extension: `omni.physx.supportui-110.1.11` was installed.
+[610.466s] Pulling extension: `omni.physx.bundle-110.1.11` from the registry.
+[611.879s] Extension: `omni.physx.bundle-110.1.11` was installed.
+[611.879s] Pulling extension: `omni.replicator.replicator_yaml-2.0.12` from the registry.
+[614.018s] Extension: `omni.replicator.replicator_yaml-2.0.12` was installed.
+[614.018s] Pulling extension: `omni.rtx.window.settings-0.8.0` from the registry.
+[614.667s] Extension: `omni.rtx.window.settings-0.8.0` was installed.
+[614.667s] Pulling extension: `omni.rtx.settings.core-0.7.0` from the registry.
+[615.322s] Extension: `omni.rtx.settings.core-0.7.0` was installed.
+[615.322s] Pulling extension: `semantics.schema.editor-2.0.2` from the registry.
+[616.149s] Extension: `semantics.schema.editor-2.0.2` was installed.
+[616.149s] Pulling extension: `semantics.schema.property-2.0.2` from the registry.
+[617.345s] Extension: `semantics.schema.property-2.0.2` was installed.
+[617.345s] Pulling extension: `omni.kit.menu.common-2.0.2` from the registry.
+[617.765s] Extension: `omni.kit.menu.coWARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1792477076.100159 3941227 descriptor_database.cc:633] File already exists in database: grpc/health/v1/health.proto
+W0000 00:00:1792477076.100204 3941227 message.cc:301] Protobuf GeneratedMessageFactory: File is already registered: grpc/health/v1/health.proto
+mmon-2.0.2` was installed.
+2026-10-20T06:17:56Z [617,784ms] [Warning] [omni.ext.plugin] [ext: isaaclab_visualizers] Extensions config 'extension.toml' doesn't exist '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers' or '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/config'
+[617.819s] [ext: omni.assets.plugins-0.0.0] startup
+[617.835s] [ext: omni.blobkey-1.1.2] startup
+[617.836s] [ext: omni.client-1.3.0] startup
+[617.837s] [ext: omni.protobuf.lib-1.0.0] startup
+[617.850s] [ext: omni.grpc.lib-1.0.0] startup
+[617.877s] [ext: omni.metrics.core-0.0.3] startup
+[617.878s] [ext: omni.datastore-0.0.0] startup
+[617.880s] [ext: omni.gpu_foundation.shadercache.vulkan-1.0.0] startup
+[618.419s] [ext: omni.hsscclient-1.1.4] startup
+[618.424s] [ext: omni.stats-1.0.1] startup
+[618.426s] [ext: omni.ujitso.default-1.0.0] startup
+[618.432s] [ext: omni.gpu_foundation-0.0.0] startup
+[618.736s] [ext: carb.windowing.plugins-1.0.1] startup
+2026-10-20T06:17:57Z [619,107ms] [Warning] [carb.windowing-glfw.gamepad] Joystick with unknown remapping detected (will be ignored):    Flow2@Lofree System Control [030000008d3800000200000011010000]
+2026-10-20T06:17:57Z [619,107ms] [Warning] [carb.windowing-glfw.gamepad] Joystick with unknown remapping detected (will be ignored):    Flow2@Lofree Consumer Control [030000008d3800000200000011010000]
+2026-10-20T06:17:57Z [619,107ms] [Warning] [carb.windowing-glfw.gamepad] Joystick with unknown remapping detected (will be ignored):  Magic Trackpad [05000000ac0500000e03000060010000]
+2026-10-20T06:17:57Z [619,108ms] [Warning] [carb.windowing-glfw.gamepad] Joystick with unknown remapping detected (will be ignored):  YJX-CHIP MCHOSE G3 A Consumer Control [03000000a5a800005522000010010000]
+2026-10-20T06:17:57Z [619,108ms] [Warning] [carb.windowing-glfw.gamepad] Joystick with unknown remapping detected (will be ignored):  YJX-CHIP MCHOSE G3 A [03000000a5a800005522000010010000]
+2026-10-20T06:17:57Z [619,108ms] [Warning] [carb.windowing-glfw.gamepad] Joystick with unknown remapping detected (will be ignored):  YJX-CHIP MCHOSE G3 A Keyboard [03000000a5a800005522000010010000]
+2026-10-20T06:17:57Z [619,108ms] [Warning] [carb.windowing-glfw.gamepad] Joystick with unknown remapping detected (will be ignored):  YJX-CHIP MCHOSE G3 A [03000000a5a800005522000010010000]
+[619.125s] [ext: omni.kit.renderer.init-1.0.1] startup
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.119.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4060 Ti       | Yes: 0 |     | 16626   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2803      | 05ecf4f4.. |
+|     |                                  |        |     |            | 1         |            |
+|=============================================================================================|
+| OS:  arch, Version: 0.22042.3173096136, Kernel: 6.18.1-arch1-2
+| XServer Vendor: The X.Org Foundation, XServer Version: 12401013 (1.24.1.13)
+| Processor: 12th Gen Intel(R) Core(TM) i5-12600KF
+| Bare Metal Cores: 10 | Bare Metal Logical Cores: 20
+| Available Cores:  16 
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31898 | Free Memory: 12831
+| Total Page/Swap (MB): 48716 | Free Page/Swap: 30326
+|---------------------------------------------------------------------------------------------|
+2026-10-20T06:17:58Z [619,916ms] [Warning] [omni.rtx] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+[620.473s] [ext: omni.kit.pipapi-0.0.0] startup
+[620.500s] [ext: omni.kit.telemetry-0.5.2] startup
+[620.547s] [ext: omni.kit.loop-isaac-1.6.0] startup
+[620.551s] [ext: omni.kit.test-2.0.7] startup
+[620.905s] [ext: omni.materialx.libs-1.0.9] startup
+[620.941s] [ext: omni.gpucompute.plugins-0.0.0] startup
+[620.950s] [ext: omni.usd.config-1.0.7] startup
+[620.980s] [ext: omni.usd.libs-1.0.3] startup
+[621.291s] [ext: omni.iray.libs-0.0.1] startup
+[621.449s] [ext: omni.mdl-57.0.3] startup
+[621.478s] [ext: omni.mdl.neuraylib-0.2.20] startup
+[621.484s] [ext: omni.kit.usd.mdl-1.1.9] startup
+[621.659s] [ext: omni.pip.compute-1.9.0] startup
+[621.660s] [ext: omni.appwindow-1.2.2] startup
+[621.671s] [ext: omni.kit.renderer.core-1.2.2] startup
+[621.942s] [ext: omni.kit.renderer.capture-2.0.1] startup
+[621.948s] [ext: omni.kit.renderer.imgui-2.0.6] startup
+[622.158s] [ext: omni.ui-3.1.3] startup
+[622.181s] [ext: omni.kit.mainwindow-1.0.3] startup
+[622.184s] [ext: carb.audio-0.1.0] startup
+[622.194s] [ext: omni.uiaudio-1.0.0] startup
+[622.196s] [ext: omni.kit.uiapp-0.0.0] startup
+[622.196s] [ext: omni.usd.schema.metrics.assembler-110.1.1] startup
+[622.200s] [ext: omni.usd.schema.anim-0.0.1] startup
+[622.229s] [ext: omni.usd.schema.audio-0.0.1] startup
+[622.234s] [ext: omni.usd.schema.geospatial-0.0.1] startup
+[622.239s] [ext: omni.usd.schema.omnigraph-1.0.1] startup
+[622.249s] [ext: omni.usd.schema.semantics-0.0.0] startup
+[622.253s] [ext: omni.activity.core-1.0.3] startup
+[622.256s] [ext: omni.cubric-0.1.0] startup
+[622.259s] [ext: omni.graph.exec-0.9.6] startup
+[622.260s] [ext: omni.usd_resolver-1.0.0] startup
+[622.267s] [ext: omni.usd.core-1.8.3] startup
+[622.271s] [ext: omni.hydra.scene_delegate-0.3.5] startup
+[622.279s] [ext: usdrt.scenegraph-7.6.3] startup
+[622.322s] [ext: omni.hydra.usdrt_delegate-7.5.2] startup
+[622.334s] [ext: omni.inspect-1.0.2] startup
+[622.339s] [ext: omni.kit.actions.core-1.0.0] startup
+[622.344s] [ext: omni.kit.audiodeviceenum-1.0.2] startup
+[622.348s] [ext: omni.kit.commands-1.5.0] startup
+[622.353s] [ext: omni.kit.exec.core-0.13.5] startup
+[622.355s] [ext: omni.kit.usd_undo-0.1.8] startup
+[622.356s] [ext: omni.kit.window.popup_dialog-2.0.25] startup
+[622.368s] [ext: omni.kit.widget.nucleus_connector-2.3.1] startup
+[622.382s] [ext: omni.timeline-1.1.0] startup
+[622.386s] [ext: omni.usd-1.15.2] startup
+[622.461s] [ext: omni.graph.core-3.1.2] startup
+[622.469s] [ext: omni.kit.notification_manager-1.0.11] startup
+[622.474s] [ext: isaacsim.core.deprecation_manager-0.4.2] startup
+[622.477s] [ext: omni.usd.schema.mujoco-1.1.0] startup
+[622.479s] [ext: omni.usd.schema.newton-1.2.0] startup
+[622.481s] [ext: omni.usd.schema.physx-110.1.11] startup
+[622.524s] [ext: omni.kit.menu.core-1.2.0] startup
+[622.527s] [ext: omni.kit.menu.utils-2.2.3] startup
+[622.558s] [ext: omni.kit.usd.layers-2.6.1] startup
+[622.574s] [ext: omni.kit.primitive.mesh-1.1.0] startup
+[622.578s] [ext: omni.kit.stage_template.core-1.1.22] startup
+[622.579s] [ext: omni.kit.stage_templates-2.0.2] startup
+[622.582s] [ext: omni.usd.metrics.assembler-110.1.2] startup
+[622.586s] [ext: isaacsim.core.experimental.utils-0.17.1] startup
+[622.588s] [ext: omni.convexdecomposition-110.1.11] startup
+[622.593s] [ext: omni.physics-110.1.11] startup
+[622.598s] [ext: omni.physx.gpu-110.1.11] startup
+[622.598s] [ext: omni.physx.foundation-110.1.11] startup
+[622.609s] [ext: omni.usdphysics-110.1.11] startup
+[622.614s] [ext: omni.physx.cooking-110.1.11] startup
+[622.622s] [ext: omni.physx-110.1.11] startup
+[622.633s] [ext: omni.physics.physx-110.1.11] startup
+[622.636s] [ext: omni.physics.stageupdate-110.1.11] startup
+[622.639s] [ext: omni.physics.tensors-110.1.11] startup
+[622.653s] [ext: omni.physx.tensors-110.1.11] startup
+[622.659s] [ext: omni.usdex.libs-2.3.0] startup
+[622.674s] [ext: isaacsim.core.simulation_manager-1.15.4] startup
+2026-10-20T06:18:01Z [622,888ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred
+2026-10-20T06:18:01Z [622,888ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred
+[622.905s] [ext: isaacsim.core.experimental.primdata-0.3.2] startup
+[622.909s] [ext: isaacsim.robot.schema-6.3.6] startup
+[622.916s] [ext: isaacsim.robot_motion.schema-0.2.0] startup
+[622.918s] [ext: omni.kit.asset_converter-6.0.5] startup
+2026-10-20T06:18:01Z [622,906ms] [Warning] [asset_converter_native_bindings._bootstrap] A different OpenUSD (pxr) build was already imported from /home/noir/.local/share/ov/data/exts/v2/omni.usd.schema.audio-78e893d5e748e383/pxr before usd-convert-asset loaded. The host pxr bindings will remain in use rather than reloading the bundled OpenUSD at /home/noir/.local/share/ov/data/exts/v2/omni.kit.asset_converter-6.0.5+110.1.1.lx64.r.cp312.u7f4/asset_converter_native_bindings/libs/lib/python/pxr, /home/noir/.local/share/ov/data/exts/v2/omni.kit.asset_converter-6.0.5+110.1.1.lx64.r.cp312.u7f4/asset_converter_native_bindings/libs/python/pxr. Mixing USD builds in one process can cause ABI and singleton conflicts; prefer importing usd_convert_asset first, or run the converter in a separate process/venv when mixing unrelated USD builds.
+[623.000s] [ext: omni.pip.cloud-1.5.3] startup
+[623.006s] [ext: omni.usd.schema.omni_lens_distortion-1.0.0] startup
+[623.008s] [ext: omni.usd.schema.omni_projectors-1.0.0] startup
+[623.008s] [ext: omni.usd.schema.omni_sensors-0.0.0] startup
+[623.024s] [ext: omni.usd.schema.omniscripting-1.0.1] startup
+[623.031s] [ext: omni.usd.schema.physical_lighting-0.1.0] startup
+[623.037s] [ext: omni.usd.schema.render_settings.rtx-1.0.2] startup
+[623.044s] [ext: omni.usd.schema.usd_particle_field-1.0.0] startup
+[623.045s] [ext: omni.kit.clipboard-1.1.1] startup
+[623.046s] [ext: omni.kit.widget.context_menu-1.4.0] startup
+[623.051s] [ext: omni.kit.context_menu-1.9.0] startup
+[623.059s] [ext: omni.kit.helper.file_utils-0.1.10] startup
+[623.064s] [ext: omni.kit.hotkeys.core-1.3.12] startup
+[623.065s] [ext: omni.kit.widget.path_field-2.0.13] startup
+[623.069s] [ext: omni.kit.widget.browser_bar-2.0.10] startup
+[623.072s] [ext: omni.kit.widget.filebrowser-2.13.4] startup
+[623.096s] [ext: omni.kit.widget.options_menu-1.1.6] startup
+[623.110s] [ext: omni.kit.widget.filter-1.1.5] startup
+[623.112s] [ext: omni.kit.widget.options_button-1.0.3] startup
+[623.113s] [ext: omni.kit.widget.prompt-1.0.7] startup
+[623.116s] [ext: omni.kit.widget.searchfield-1.1.8] startup
+[623.120s] [ext: omni.ui.scene-2.0.1] startup
+[623.131s] [ext: omni.kit.window.filepicker-2.15.5] startup
+[623.209s] [ext: omni.kit.window.file_exporter-1.0.36] startup
+[623.215s] [ext: omni.kit.widget.stage-4.3.0] startup
+[623.258s] [ext: omni.kit.window.content_browser_registry-0.0.6] startup
+[623.260s] [ext: omni.kit.window.drop_support-1.0.8] startup
+[623.261s] [ext: omni.kit.window.file_importer-1.1.21] startup
+[623.265s] [ext: omni.kit.window.file-2.0.10] startup
+[623.279s] [ext: omni.kit.window.content_browser-3.1.8] startup
+[623.299s] [ext: omni.kit.widget.layers-1.9.2] startup
+[623.345s] [ext: isaaclab-6.1.14] startup
+[625.173s] [ext: isaaclab_contrib-0.4.4] startup
+[625.173s] [ext: isaacsim.core.version-2.1.0] startup
+[625.174s] [ext: isaacsim.app.about-2.3.0] startup
+[625.187s] [ext: isaacsim.asset.transformer-1.2.3] startup
+[625.193s] [ext: omni.scene.optimizer.core-110.1.0] startup
+[625.321s] [ext: isaacsim.asset.importer.utils-1.8.0] startup
+[625.328s] [ext: omni.kit.material.library-3.1.2] startup
+[625.357s] [ext: isaacsim.asset.transformer.rules-1.7.8] startup
+[625.383s] [ext: isaacsim.asset.importer.mjcf-3.10.0] startup
+[625.389s] [ext: isaacsim.asset.importer.urdf-3.11.0] startup
+[625.400s] [ext: isaacsim.core.cloner-1.7.2] startup
+[625.403s] [ext: isaacsim.test.docstring-1.3.1] startup
+[625.418s] [ext: isaacsim.core.experimental.prims-1.8.8] startup
+[625.456s] [ext: isaacsim.core.experimental.materials-0.7.0] startup
+[625.467s] [ext: isaacsim.core.experimental.objects-0.8.0] startup
+[625.611s] [ext: omni.hydra.engine.stats-1.0.5] startup
+[625.615s] [ext: omni.hydra.rtx.shadercache.vulkan-1.0.0] startup
+[625.616s] [ext: omni.index.libs-387500.3473.0] startup
+[625.616s] [ext: omni.index-1.0.1] startup
+[625.617s] [ext: omni.ujitso.client-0.0.0] startup
+[625.617s] [ext: omni.usd.schema.playback-1.0.0] startup
+[625.620s] [ext: omni.volume-0.5.2] startup
+[625.625s] [ext: omni.hydra.rtx-1.0.3] startup
+2026-10-20T06:18:03Z [625,623ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+[625.657s] [ext: omni.kit.hydra_texture-1.6.0] startup
+[625.661s] [ext: omni.kit.raycast.query-1.2.0] startup
+[625.666s] [ext: omni.kit.viewport.legacy_gizmos-1.0.24] startup
+[625.669s] [ext: omni.kit.viewport.registry-104.0.6] startup
+[625.670s] [ext: omni.kit.viewport.scene_camera_model-1.0.7] startup
+[625.674s] [ext: omni.kit.widget.viewport-109.2.0] startup
+[625.692s] [ext: omni.kit.viewport.window-109.0.2] startup
+[625.730s] [ext: omni.kit.viewport.utility-2.0.1] startup
+[625.734s] [ext: isaacsim.core.rendering_manager-0.4.2] startup
+[625.752s] [ext: isaacsim.storage.native-1.9.2] startup
+[625.755s] [ext: omni.graph.tools-1.81.0] startup
+[625.853s] [ext: omni.graph-1.142.5] startup
+[625.947s] [ext: omni.graph.action_core-1.1.9] startup
+[625.951s] [ext: omni.graph.action_nodes_core-2.11.0] startup
+[625.956s] [ext: omni.graph.action_nodes-2.11.0] startup
+[626.039s] [ext: omni.graph.action-2.10.2] startup
+[626.041s] [ext: omni.graph.image.core-0.6.1] startup
+[626.042s] [ext: omni.graph.image.nodes-1.3.1] startup
+[626.042s] [ext: omni.graph.nodes_core-2.11.0] startup
+[626.048s] [ext: omni.graph.nodes-2.12.0] startup
+[626.055s] [ext: omni.kit.property.adapter.core-1.1.1] startup
+[626.058s] [ext: omni.kit.property.adapter.usd-1.0.5] startup
+[626.061s] [ext: omni.kit.widget.highlight_label-1.0.3] startup
+[626.063s] [ext: omni.kit.window.property-1.15.1] startup
+[626.132s] [ext: omni.kit.property.usd-4.8.1] startup
+[626.194s] [ext: omni.kit.widget.text_editor-1.1.1] startup
+[626.196s] [ext: omni.graph.scriptnode-2.10.2] startup
+[626.210s] [ext: omni.kit.widget.searchable_combobox-1.0.7] startup
+[626.214s] [ext: omni.kit.widget.settings-2.0.0] startup
+[626.223s] [ext: omni.kit.window.preferences-1.8.3] startup
+[626.248s] [ext: omni.kit.viewport.menubar.core-107.2.2] startup
+[626.285s] [ext: omni.syntheticdata-0.6.15] startup
+[626.332s] [ext: omni.replicator.nv-1.1.1] startup
+[626.341s] [ext: omni.videoencoding-0.2.1] startup
+[626.346s] [ext: omni.replicator.core-1.13.27] startup
+2026-10-20T06:18:04Z [626,384ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-10-20T06:18:06Z [628,291ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+[628.669s] [ext: isaacsim.core.nodes-5.10.4] startup
+[629.596s] [ext: isaacsim.core.throttling-2.3.3] startup
+[629.617s] [ext: omni.kit.manipulator.viewport-107.0.1] startup
+[629.620s] [ext: omni.graph.visualization.nodes-2.1.4] startup
+[631.223s] [ext: omni.kit.window.extensions-1.5.7] startup
+[631.255s] [ext: isaacsim.gui.components-1.8.4] startup
+[631.310s] [ext: isaacsim.examples.base-1.3.1] startup
+[631.314s] [ext: omni.kit.widget.zoombar-1.0.7] startup
+[631.317s] [ext: omni.kit.browser.core-2.4.0] startup
+[631.332s] [ext: omni.kit.browser.folder.core-2.1.1] startup
+[631.362s] [ext: omni.kit.widget.stage_icons-1.0.8] startup
+[631.364s] [ext: omni.kit.window.stage-2.6.1] startup
+[631.369s] [ext: omni.kit.menu.stage-1.2.7] startup
+[631.373s] [ext: omni.kit.usd.collect-3.0.5] startup
+[631.385s] [ext: omni.kit.tool.collect-2.2.19] startup
+[631.394s] [ext: isaacsim.examples.browser-0.3.1] startup
+[631.401s] [ext: isaacsim.gui.property-1.6.2] startup
+[631.418s] [ext: omni.behavior.scripting.core-110.1.0] startup
+[631.429s] [ext: isaacsim.replicator.behavior-1.5.3] startup
+[631.431s] [ext: isaacsim.robot.policy.examples-5.2.11] startup
+[631.494s] [ext: isaacsim.sensors.experimental.physics-3.0.1] startup
+[631.516s] [ext: omni.sensors.net-1.0.1] startup
+[631.519s] [ext: omni.sensors.nv.common-3.0.0] startup
+[631.532s] [ext: omni.sensors.nv.materials-2.0.0] startup
+[631.536s] [ext: omni.sensors.nv.acoustic-3.0.0] startup
+[631.539s] [ext: omni.sensors.nv.ids-2.0.1] startup
+[631.542s] [ext: omni.sensors.nv.lidar-3.0.0] startup
+[631.547s] [ext: omni.sensors.nv.radar-3.0.0] startup
+[631.550s] [ext: isaacsim.sensors.experimental.rtx-1.4.3] startup
+[632.029s] [ext: isaacsim.simulation_app-2.18.3] startup
+[632.030s] [ext: omni.anim.curve.core-1.6.0] startup
+[632.055s] [ext: omni.asset_validator.core-1.19.3] startup
+[632.197s] [ext: omni.debugdraw-0.1.4] startup
+[632.201s] [ext: omni.graph.ui_nodes-2.11.1] startup
+[632.311s] [ext: omni.hydra.scene_api-0.1.3] startup
+[632.317s] [ext: omni.kit.manipulator.camera-110.0.0] startup
+[632.335s] [ext: omni.kit.manipulator.selector-1.1.4] startup
+[632.338s] [ext: omni.kit.manipulator.transform-107.0.0] startup
+[632.354s] [ext: omni.kit.widget.toolbar-2.1.0] startup
+[632.378s] [ext: omni.kit.manipulator.tool.snap-1.5.14] startup
+[632.391s] [ext: omni.kit.viewport.manipulator.transform-107.0.4] startup
+[632.395s] [ext: omni.kit.manipulator.prim.core-108.0.2] startup
+[632.415s] [ext: omni.kit.manipulator.prim.usd-107.0.3] startup
+[632.419s] [ext: omni.kit.manipulator.prim-108.0.0] startup
+[632.419s] [ext: omni.kit.manipulator.selection-109.0.1] startup
+[632.422s] [ext: omni.kit.menu.create-2.0.2] startup
+[632.426s] [ext: omni.kit.property.audio-1.0.16] startup
+[632.457s] [ext: omni.kit.property.camera-1.0.14] startup
+[632.460s] [ext: omni.kit.property.geometry-2.1.2] startup
+[632.469s] [ext: omni.kit.property.light-1.0.14] startup
+2026-10-20T06:18:10Z [632,683ms] [Warning] [omni.usd] Encountered USD Warnings but USD Diagnostics are currently muted. To view USD Warnings, please set the '/persistent/app/usd/muteUsdDiagnostics' setting to false in Preferences page.
+[632.710s] [ext: omni.kit.property.material-1.14.2] startup
+[632.734s] [ext: omni.kit.property.render-1.2.2] startup
+[632.736s] [ext: omni.kit.property.transform-1.6.9] startup
+[632.754s] [ext: omni.kit.property.bundle-1.5.1] startup
+[632.758s] [ext: omni.kit.viewport.actions-107.0.2] startup
+[632.765s] [ext: omni.kit.viewport.menubar.display-107.1.3] startup
+[632.769s] [ext: omni.physx.commands-110.1.11] startup
+[632.784s] [ext: omni.usdphysics.ui-110.1.11] startup
+[632.834s] [ext: omni.physx.ui-110.1.11] startup
+[632.891s] [ext: omni.kit.property.physics-110.1.11] startup
+[632.934s] [ext: omni.kit.stagerecorder.core-110.0.14] startup
+[632.939s] [ext: omni.kit.stagerecorder.ui-110.0.2] startup
+[632.949s] [ext: omni.kit.stagerecorder.bundle-110.0.2] startup
+[632.949s] [ext: omni.kit.usdz_export-1.1.0] startup
+[632.954s] [ext: omni.kit.tool.asset_importer-6.0.4] startup
+[632.971s] [ext: omni.kit.ui.actions-1.0.5] startup
+[632.975s] [ext: omni.ui_query-1.1.10] startup
+[632.978s] [ext: omni.kit.ui_test-1.4.4] startup
+[632.984s] [ext: omni.kit.viewport.menubar.camera-107.0.10] startup
+[632.999s] [ext: omni.kit.viewport.menubar.lighting-107.3.2] startup
+[633.010s] [ext: omni.kit.viewport.menubar.render-107.0.10] startup
+[633.019s] [ext: omni.kit.viewport.menubar.settings-110.0.1] startup
+[633.033s] [ext: omni.kit.window.console-1.1.8] startup
+[633.041s] [ext: omni.kit.window.script_editor-2.0.7] startup
+[633.051s] [ext: omni.kit.window.status_bar-0.1.11] startup
+[633.055s] [ext: omni.kit.window.toolbar-3.0.3] startup
+[633.058s] [ext: omni.ocio-0.1.1] startup
+[633.061s] [ext: omni.physics.isaacsimready-110.1.11] startup
+[633.075s] [ext: omni.physics.physx.ui-110.1.11] startup
+[633.110s] [ext: omni.physics.ui-110.1.11] startup
+[633.121s] [ext: omni.physx.asset_validator-110.1.11] startup
+[633.138s] [ext: omni.physx.demos-110.1.11] startup
+[633.217s] [ext: omni.physx.vehicle-110.1.11] startup
+[633.274s] [ext: omni.physx.camera-110.1.11] startup
+[633.287s] [ext: omni.physx.cct-110.1.11] startup
+[633.323s] [ext: omni.physx.graph-110.1.11] startup
+[633.465s] [ext: omni.physx.supportui-110.1.11] startup
+[633.492s] [ext: omni.physx.bundle-110.1.11] startup
+[633.492s] [ext: omni.replicator.replicator_yaml-2.0.12] startup
+[633.513s] [ext: omni.rtx.window.settings-0.8.0] startup
+[633.527s] [ext: omni.rtx.settings.core-0.7.0] startup
+[633.542s] [ext: omni.usd.metrics.assembler.ui-110.1.2] startup
+[633.556s] [ext: semantics.schema.editWarning: Possible version incompatibility. Attempting to load omni::fabric::IStageReaderWriter with version v0.16 against v0.14.
+or-2.0.2] startup
+[633.565s] [ext: semantics.schema.property-2.0.2] startup
+[633.569s] [ext: isaaclab_assets-0.3.4] startup
+[633.787s] [ext: isaaclab_tasks-1.10.9] startup
+[633.819s] [ext: isaaclab_mimic-1.3.3] startup
+[633.819s] [ext: isaaclab_newton-0.13.6] startup
+[633.820s] [ext: isaaclab_physx-1.1.3] startup
+[633.820s] [ext: isaaclab_rl-0.5.5] startup
+[633.821s] [ext: omni.kit.menu.common-2.0.2] startup
+[633.823s] [ext: flat_gui-3.0.0] startup
+[633.826s] Simulation App Starting
+2026-10-20T06:18:12Z [633,908ms] [Warning] [omni.ext.plugin] [ext: isaaclab_visualizers] Extensions config 'extension.toml' doesn't exist '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers' or '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/config'
+2026-10-20T06:18:53Z [675,089ms] [Warning] [rtx.hydra] RenderDelegate : Warning /rtx/hydra/readTransformsFromFabricInRenderDelegate and geometry streaming are enabled together but this can cause issues with dynamic objects not streaming correctly due to problems in the transform update.
+[955.661s] Simulation App Startup Complete
+[956.583s] app ready
+[ISAACLAB] AppLauncher initialization complete
+2026-10-20T06:23:45Z [966,796ms] [Warning] [isaaclab_physx.physics.physx_manager] TGS solver with enable_external_forces_every_iteration=False may cause noisy velocities.
+[966.888s] Pulling extension: `omni.kit.pip_archive-0.0.0` from the registry.
+2026-10-20T06:23:55Z [976,893ms] [Warning] [omni.client.python] Detected a blocking function. This will cause hitches or hangs in the UI. Please switch to the async version:
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_flat_base.py", line 141, in <module>
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_flat_base.py", line 137, in main
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_chassis_suite.py", line 211, in main
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/eval_env.py", line 18, in __init__
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py", line 119, in __init__
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab/isaaclab/sim/simulation_context.py", line 177, in __init__
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab_physx/isaaclab_physx/physics/physx_manager.py", line 296, in initialize
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab_physx/isaaclab_physx/physics/physx_manager.py", line 685, in _load_fabric
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/common.py", line 78, in wrap
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/registry_provider.py", line 578, in pull_extension
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/registry_provider.py", line 619, in _pull_extension_async
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/registry_provider.py", line 687, in _pull_extension_async_impl
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/omni_client_utils.py", line 54, in wrapper
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/common.py", line 78, in wrap
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/omni_client_utils.py", line 248, in omni_client_copy
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.client.lib/omni/client/impl/__init__.py", line 362, in copy
+
+[996.024s] Extension: `omni.kit.pip_archive-0.0.0` was installed.
+[996.025s] Pulling extension: `omni.warp.core-1.16.1` from the registry.
+2026-10-20T06:24:24Z [1,006,011ms] [Warning] [omni.client.python] Detected a blocking function. This will cause hitches or hangs in the UI. Please switch to the async version:
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_flat_base.py", line 141, in <module>
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_flat_base.py", line 137, in main
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_chassis_suite.py", line 211, in main
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/eval_env.py", line 18, in __init__
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py", line 119, in __init__
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab/isaaclab/sim/simulation_context.py", line 177, in __init__
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab_physx/isaaclab_physx/physics/physx_manager.py", line 296, in initialize
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab_physx/isaaclab_physx/physics/physx_manager.py", line 685, in _load_fabric
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/common.py", line 78, in wrap
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/registry_provider.py", line 578, in pull_extension
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/registry_provider.py", line 619, in _pull_extension_async
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/registry_provider.py", line 687, in _pull_extension_async_impl
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/omni_client_utils.py", line 54, in wrapper
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/common.py", line 78, in wrap
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.kit.registry.nucleus/omni/kit/registry/nucleus/utils/omni_client_utils.py", line 248, in omni_client_copy
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/extscore/omni.client.lib/omni/client/impl/__init__.py", line 362, in copy
+
+[omni.kit.registry.nucleus] [tid: 140388474238784] downloading: 'https://d4i3qtqj3r0z5.cloudfront.net/omni.kit.pip_archive-79306dedf2ccec43.zip' -> '/tmp/tmp2uvfyu8z/omni.kit.pip_archive-0.0.0+6312fa25.lx64.cp312.zip'...
+[omni.kit.registry.nucleus] [tid: 140388474238784] unpacking: /tmp/tmp2uvfyu8z/omni.kit.pip_archive-0.0.0+6312fa25.lx64.cp312.zip -> /home/noir/.local/share/ov/data/exts/v2/omni.kit.pip_archive-79306dedf2ccec43
+[omni.kit.registry.nucleus] [tid: 140388474238784] creating a link: /home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/data/Kit/IsaacLab/3.0/exts/3/omni.kit.pip_archive-0.0.0+6312fa25.lx64.cp312 -> /home/noir/.local/share/ov/data/exts/v2/omni.kit.pip_archive-79306dedf2ccec43
+[omni.kit.registry.nucleus] [tid: 140388474238784] downloading: 'https://d4i3qtqj3r0z5.cloudfront.net/omni.warp.core-1.16.1%2Blx64.zip' -> '/tmp/tmp8jr9rf2x/omni.warp.core-1.16.1+lx64.zip'...
+[omni.kit.registry.nucleus] [tid: 140388474238784] unpacking: /tmp/tmp8jr9rf2x/omni.warp.core-1.16.1+lx64.zip -> /home/noir/.local/share/ov/data/exts/v2/omni.warp.core-1.16.1+lx64
+[omni.kit.registry.nucleus] [tid: 140388474238784] creating a link: /home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/data/Kit/IsaacLab/3.0/exts/3/omni.warp.core-1.16.1+lx64 -> /home/noir/.local/share/ov/data/exts/v2/omni.warp.core-1.16.1+lx64
+[INFO]: Registered backend 'physx' for factory Articulation.
+[INFO]: Simulation parameters for joints in /World/envs/env_.*/Robot:
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                    Simulation Joint Information (Prim path: /World/envs/env_.*/Robot)                                                   |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+| Index | Name           | Stiffness | Damping | Armature | Static Friction | Dynamic Friction | Viscous Friction |   Position Limits   | Velocity Limits | Effort Limits |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+|   0   | L_joint1       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   1   | R_joint1       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   2   | LL_joint1      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   3   | RR_joint1      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   4   | L_joint2       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.086, 1.083]   |     1.0e+09     |    100.000    |
+|   5   | R_jonit2       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-1.083, 0.086]   |     1.0e+09     |    100.000    |
+|   6   | LL_joint2      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   7   | RR_joint2      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   8   | L_joint3       |   0.000   |  0.000  |  0.004   |      0.050      |      0.050       |      0.001       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     4.500     |
+|   9   | LLL_joint2     |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   10  | R_joint3       |   0.000   |  0.000  |  0.004   |      0.070      |      0.070       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     4.500     |
+|   11  | RRR_joint2     |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   12  | LL_joint3      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   13  | RR_joint3      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   14  | L_spring_slide |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.010, 0.070]   |     100.000     |    1.0e+03    |
+|   15  | R_spring_slide |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.010, 0.070]   |     100.000     |    1.0e+03    |
+|   16  | LL_link4       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   17  | RR_joint4      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+[INFO]: Registered backend 'kit' for factory Visualizer.
+Traceback (most recent call last):
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab/isaaclab/sim/simulation_context.py", line 632, in initialize_visualizers
+    visualizer.initialize(self._scene_data_provider)
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/isaaclab_visualizers/kit/kit_visualizer.py", line 104, in initialize
+    self._ensure_simulation_app()
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/isaaclab_visualizers/kit/kit_visualizer.py", line 247, in _ensure_simulation_app
+    raise RuntimeError("[KitVisualizer] Isaac Sim app is not running.")
+RuntimeError: [KitVisualizer] Isaac Sim app is not running.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_chassis_suite.py", line 211, in main
+    env = FixedCaseEnv(config, manifest, control, ROOT, stage_name=config["enabled_stages"][0],
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/eval_env.py", line 18, in __init__
+    super().__init__(config, *args, **kwargs)
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py", line 379, in __init__
+    self.sim.reset()
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab/isaaclab/sim/simulation_context.py", line 725, in reset
+    self.initialize_visualizers()
+  File "/home/noir/IsaacLab-3.0-beta2/source/isaaclab/isaaclab/sim/simulation_context.py", line 636, in initialize_visualizers
+    raise RuntimeError(
+RuntimeError: Visualizer 'kit' was explicitly requested but failed to create or initialize: [KitVisualizer] Isaac Sim app is not running.
