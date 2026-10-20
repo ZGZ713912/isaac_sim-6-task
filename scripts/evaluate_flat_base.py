@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure the recovered 50 Hz paired-107 actor in matched native physics."""
+"""Measure the paired-107 actor at its declared policy and physical clocks."""
 from __future__ import annotations
 
 import argparse
@@ -43,11 +43,11 @@ def diagnostic_ablation(mean, variant, parent=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--plan", default="contracts/flat_base_finetune_v1.json")
+    parser.add_argument("--plan", default="contracts/flat_base_finetune_200hz_v1.json")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--seed", type=int)
-    parser.add_argument("--deployment-pd", action="store_true", help="Separate 1000 Hz feedback-PD replay; actor stays 50 Hz")
+    parser.add_argument("--deployment-pd", action="store_true", help="Separate 1000 Hz feedback-PD replay; policy retains its declared frequency")
     parser.add_argument("--rmcs-command-reference", action="store_true",
                         help="Additional ordinary-RL replay of direct planar commands, heading hold and bounded height reference")
     parser.add_argument("--packaged-default-height", action="store_true",
@@ -120,7 +120,11 @@ def main():
     reference_contract = None
     if args.rmcs_command_reference:
         from flat_rmcs_command_reference import read_reference_contract, PROTOCOL_FIXED, PROTOCOL_ENVELOPE
-        reference_contract = read_reference_contract(args.rmcs)
+        from wheeled_tasks.chassis.flat_policy_rate import command_reference_at_policy_rate
+        if plan.get('policy_rate_transition'):
+            reference_contract = plan['training_command_reference']['contract']
+        else:
+            reference_contract = command_reference_at_policy_rate(read_reference_contract(args.rmcs),round(1/plan['policy_dt']))
         design_path = args.output / "config/design.json"
         design = json.loads(design_path.read_text())
         row = design["stages"]["speed"]["roles"]["quick"]
@@ -136,15 +140,16 @@ def main():
     if args.deployment_pd:
         # Independently frozen deployment timing source. This creates another
         # evaluation contract; it never changes a training checkpoint's clock.
-        reference = ROOT / "contracts/v6_wheel_response_control_v1.json"
-        expected_sha = "cc30b2b0572999224c8feb79ffa7afb3df1b8a28800bca4a153663b9ea8d4bf8"
+        control_file = (plan['control_file'] if plan['policy_dt']==.005 else "contracts/v6_wheel_response_control_v1.json")
+        reference = ROOT / control_file
+        expected_sha = (plan['control_sha256'] if plan['policy_dt']==.005 else "cc30b2b0572999224c8feb79ffa7afb3df1b8a28800bca4a153663b9ea8d4bf8")
         if digest(reference) != expected_sha:
             raise ValueError("Frozen 1000 Hz deployment control source changed")
         design_path = args.output / "config/design.json"
         design = json.loads(design_path.read_text())
         row = design["stages"]["speed"]["roles"]["quick"]
         for mapping in (config, row["contract"]):
-            mapping.update(physics_dt=.001, control_math_source="contracts/v6_wheel_response_control_v1.json",
+            mapping.update(physics_dt=.001, control_math_source=control_file,
                 control_math_sha256=expected_sha)
         reference_data = json.loads(reference.read_text())
         row["control"]["timing"] = reference_data["timing"]
@@ -216,7 +221,7 @@ def main():
         source_onnx_sha256=plan["source_onnx_sha256"], plan_file=args.plan, plan_sha256=digest(ROOT / args.plan),
         asset_manifest_sha256=config["asset_manifest_sha256"], model_spec_sha256=plan["model_spec_sha256"],
         contract_sha256=digest(args.output / "config/contract.json"), static_preflight=static,
-        settings=config["evaluation"], policy_hz=50, physics_hz=round(1 / config["physics_dt"]),
+        settings=config["evaluation"], policy_hz=round(1/config['policy_dt']), physics_hz=round(1 / config["physics_dt"]),
         scope="extended_flat_command_envelope" if args.envelope else "eight_case_first_episode_diagnostic",
         hardware_deployment_ready=False)
     if reference_contract is not None:
@@ -233,6 +238,12 @@ def main():
                 ROOT / "src/wheeled_algo/command_residual.py", ROOT / "src/wheeled_algo/guarded_feedback_residual.py",
                 ROOT / "src/wheeled_algo/separated_feedback.py", ROOT / "src/wheeled_algo/low_demand_feedback.py", ROOT / "src/wheeled_algo/static_feedback.py", ROOT / "src/wheeled_algo/wheel_authority.py",
                 ROOT / "src/wheeled_algo/static_grip.py"]
+    if plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11'):
+        sources.append(ROOT / 'src/wheeled_algo/speed_reference.py')
+        if plan['actor_adaptation']!='original-static-grip-with-reachable-speed-reference-v9':
+            sources.append(ROOT/'src/wheeled_algo/intent_speed_reference.py')
+        if plan['actor_adaptation']=='original-intent-speed-with-motion-state-residual-v11':
+            sources.append(ROOT/'src/wheeled_algo/motion_state_residual.py')
     if args.reward_audit:
         sources.append(ROOT / "scripts/flat_reward_audit.py")
     if reference_contract is not None:
@@ -250,7 +261,7 @@ def main():
     if args.preflight_only:
         report["status"] = "static_preflight_passed"
         (args.output / "evaluation.json").write_bytes(encode(report))
-        print("FLAT_STATIC_PREFLIGHT", json.dumps(dict(num_envs=count, policy_hz=50,
+        print("FLAT_STATIC_PREFLIGHT", json.dumps(dict(num_envs=count, policy_hz=report['policy_hz'],
             physics_hz=report["physics_hz"], case_count=len(config["evaluation"]["cases"]))))
         return 0
     launcher, env = None, None

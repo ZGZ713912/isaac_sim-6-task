@@ -1,4 +1,4 @@
-"""Shared 50 Hz RMCS command math for flat training and deployment replay."""
+"""Shared command math using the declared flat policy clock."""
 from __future__ import annotations
 
 import torch
@@ -70,10 +70,11 @@ def install_training_reference(env, settings):
     physics, observations, rewards, the population, or the sampled amplitudes.
     """
     if (not env.cfg.get("flat_base_continuation") or env.cfg.get("evaluation_exact_cases")
-            or env.policy_dt != .02 or env.cfg["physics_dt"] not in (.005,.001)
+            or env.policy_dt not in (.02, .005) or env.cfg["physics_dt"] not in (.005,.001)
+            or settings["contract"]["policy_hz"] != round(1 / env.policy_dt)
             or not env.cfg.get("command_slew") or env.skills is None
             or settings["moving_direct_fraction"] != .5 or settings["standing_direct_fraction"] != 1.):
-        raise ValueError("Training RMCS reference requires the declared mixed50Hz flat pilot at200/1000Hz physics")
+        raise ValueError("Training RMCS reference and the declared flat policy/physics clocks disagree")
     allowed = {"stand", "forward", "backward", "rotate", "curve", "start_stop"}
     direct = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
     population = {}
@@ -103,7 +104,7 @@ def install_training_reference(env, settings):
 
     env.reset, env.get_observations = reset, observations
     env.rmcs_training_reference, env.rmcs_direct_lanes = reference, direct
-    return dict(schema="flat-mixed-rmcs-command-training-v1", policy_hz=50, physics_hz=round(1 / env.cfg["physics_dt"]),
+    return dict(schema="flat-mixed-rmcs-command-training-v1", policy_hz=round(1 / env.policy_dt), physics_hz=round(1 / env.cfg["physics_dt"]),
         contract=settings["contract"], population=population,
         direct_lanes=int(direct.sum()), ramped_lanes=int((~direct).sum()),
         sampling="all standing lanes; alternating members of every moving group; no RNG consumed")

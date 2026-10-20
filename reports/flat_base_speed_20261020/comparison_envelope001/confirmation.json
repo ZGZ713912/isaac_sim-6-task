@@ -1,0 +1,100 @@
+{
+  "schema": "flat-speed-long-confirmation-v1",
+  "status": "rejected_as_complete_speed_solution",
+  "qualified": false,
+  "full_training_admitted": false,
+  "seed": 191219,
+  "horizon_seconds": 32,
+  "replicas": 4,
+  "summary": {
+    "parent": {
+      "full_episodes": 223,
+      "requested_episodes": 352,
+      "cases_passing_all_checks": 18,
+      "total_cases": 88
+    },
+    "trained": {
+      "full_episodes": 264,
+      "requested_episodes": 352,
+      "cases_passing_all_checks": 17,
+      "total_cases": 88
+    },
+    "variant_1": {
+      "full_episodes": 268,
+      "requested_episodes": 352,
+      "cases_passing_all_checks": 15,
+      "total_cases": 88
+    }
+  },
+  "lost_low_parent_checks": [
+    {
+      "case": "h0.305_mu0.2_stand_430mm",
+      "check": "survival"
+    },
+    {
+      "case": "h0.305_mu0.2_stand_430mm",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.305_mu0.2_height_scan",
+      "check": "survival"
+    },
+    {
+      "case": "h0.305_mu0.2_height_scan",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.42_mu0.2_stand_230mm",
+      "check": "survival"
+    },
+    {
+      "case": "h0.42_mu0.2_stand_230mm",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.42_mu0.2_stand_230mm",
+      "check": "stand_drift"
+    },
+    {
+      "case": "h0.42_mu0.2_stand_305mm",
+      "check": "survival"
+    },
+    {
+      "case": "h0.42_mu0.2_stand_305mm",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.42_mu0.2_stand_305mm",
+      "check": "stand_drift"
+    },
+    {
+      "case": "h0.42_mu0.2_height_scan",
+      "check": "survival"
+    },
+    {
+      "case": "h0.42_mu0.2_height_scan",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.42_mu0.5_rotate_1_reverse",
+      "check": "yaw"
+    }
+  ],
+  "lost_parent_complete_cases": [
+    "h0.305_mu0.2_stand_430mm",
+    "h0.305_mu0.2_height_scan",
+    "h0.42_mu0.2_stand_230mm",
+    "h0.42_mu0.2_stand_305mm",
+    "h0.42_mu0.2_height_scan",
+    "h0.42_mu0.5_start_stop_3"
+  ],
+  "findings": [
+    "v10 initialization improves total completion but fails full precision/retention",
+    "High reverse steady body speed remains about -2.50m/s at .42m height",
+    "Several positive/negative yaw trials settle below the requested 4rad/s, unlike the earlier two-replica seed",
+    "Start-stop3 reaches lateral boundary in several surviving births; early nonwheel-contact cases remain",
+    "Short-seed error values do not describe the wider independent seed"
+  ],
+  "next_causal_hypothesis": "Separate yaw wheel increments from the translation balance component; add reverse lean only after aligned rolling",
+  "new_optimizer_updates": 0
+}

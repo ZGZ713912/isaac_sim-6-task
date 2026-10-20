@@ -1,0 +1,4218 @@
+{
+  "schema": "flat-speed-checkpoint-comparison-analysis-v1",
+  "source_sha256": "b89eec38c92e60ed12cdd079e86c47df369ff8e7b3f8ec7e742be6b02f1fd4bf",
+  "qualified": false,
+  "full_training_admitted": false,
+  "new_optimizer_updates": 0,
+  "scoring": "True external command and measured body velocity; unsupported MAE is null; survival is separate",
+  "seed": 191199,
+  "target_role": "trained",
+  "arms": {
+    "0": {
+      "role": "parent",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261019/pilot029_static_grip1338/model_001338.pt",
+      "sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+      "successful_updates": 1338,
+      "actor_updates": 1156,
+      "supervised_head_fit": null
+    },
+    "1": {
+      "role": "initialized",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261020/pilot032_intent1346/initial_state.pt",
+      "sha256": "71b55c321d8dbccd1c676456870985833ff25f64bb339725d700340118bb4b17",
+      "successful_updates": 1338,
+      "actor_updates": 1156,
+      "supervised_head_fit": null
+    },
+    "2": {
+      "role": "trained",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261020/pilot032_intent1346/model_001346.pt",
+      "sha256": "e94c503acd2660096136417b0a2aaf8b1d7b6d2430c15fd9f3c587f7a2042880",
+      "successful_updates": 1346,
+      "actor_updates": 1162,
+      "supervised_head_fit": null
+    },
+    "3": {
+      "role": "variant_1",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261020/pilot032_intent1346/model_001341.pt",
+      "sha256": "79ac1c79c208b4d469b3fc8dfb7557629e642c2e16a9bc836bfa11a4a7ef27d2",
+      "successful_updates": 1341,
+      "actor_updates": 1157,
+      "supervised_head_fit": null
+    }
+  },
+  "summaries": {
+    "parent": {
+      "full_episodes": 65,
+      "requested_episodes": 88,
+      "cases_passing_all_checks": 17,
+      "total_cases": 44,
+      "cases": {
+        "stand_305mm": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0035299854250126117,
+          "mean_case_yaw_mae_rad_s": 0.003266076895341996,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.3196759223937988
+        },
+        "forward_05": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.03312149393372238,
+          "mean_case_yaw_mae_rad_s": 0.008398634403699817,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.1232649087905884
+        },
+        "backward_05": {
+          "full_episodes": 5,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 1,
+          "worst_tilt_deg": 1.2816109657287598
+        },
+        "rotate_1": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0058002279441871,
+          "mean_case_yaw_mae_rad_s": 0.03296639479696751,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 0.9400360584259033
+        },
+        "rotate_1_reverse": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.005373257641986129,
+          "mean_case_yaw_mae_rad_s": 0.02821574438363314,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.2805417776107788
+        },
+        "forward_2": {
+          "full_episodes": 4,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 2,
+          "worst_tilt_deg": 1.1909117698669434
+        },
+        "backward_2": {
+          "full_episodes": 6,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 1,
+          "worst_tilt_deg": 2.16365122795105
+        },
+        "forward_3": {
+          "full_episodes": 4,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 2,
+          "worst_tilt_deg": 2.0202293395996094
+        },
+        "backward_3": {
+          "full_episodes": 6,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 1,
+          "worst_tilt_deg": 2.085628032684326
+        },
+        "rotate_4": {
+          "full_episodes": 6,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 1,
+          "worst_tilt_deg": 1.3241169452667236
+        },
+        "rotate_4_reverse": {
+          "full_episodes": 4,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 2,
+          "worst_tilt_deg": 1.7003083229064941
+        }
+      }
+    },
+    "initialized": {
+      "full_episodes": 83,
+      "requested_episodes": 88,
+      "cases_passing_all_checks": 20,
+      "total_cases": 44,
+      "cases": {
+        "stand_305mm": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0032978181457036728,
+          "mean_case_yaw_mae_rad_s": 0.0020924965951883224,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.2934658527374268
+        },
+        "forward_05": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.033298255987465386,
+          "mean_case_yaw_mae_rad_s": 0.007209579369518906,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.1623060703277588
+        },
+        "backward_05": {
+          "full_episodes": 5,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 1,
+          "worst_tilt_deg": 1.219488501548767
+        },
+        "rotate_1": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.005672607931010134,
+          "mean_case_yaw_mae_rad_s": 0.028449226710945366,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.0073596239089966
+        },
+        "rotate_1_reverse": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.006664143954540123,
+          "mean_case_yaw_mae_rad_s": 0.033197244368493556,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.3383755683898926
+        },
+        "forward_2": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.06927015610039235,
+          "mean_case_yaw_mae_rad_s": 0.044974143447825556,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.193537950515747
+        },
+        "backward_2": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.13841124329715968,
+          "mean_case_yaw_mae_rad_s": 0.06782925067469478,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.9126434326171875
+        },
+        "forward_3": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.040615458190441135,
+          "mean_case_yaw_mae_rad_s": 0.0498471247591624,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.6918818950653076
+        },
+        "backward_3": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.30286717347800735,
+          "mean_case_yaw_mae_rad_s": 0.06899377410532907,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.29575777053833
+        },
+        "rotate_4": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.06749093279177032,
+          "mean_case_yaw_mae_rad_s": 0.04139979936182499,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.390720009803772
+        },
+        "rotate_4_reverse": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.08610220599919557,
+          "mean_case_yaw_mae_rad_s": 0.047687060832977295,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.0923736095428467
+        }
+      }
+    },
+    "trained": {
+      "full_episodes": 84,
+      "requested_episodes": 88,
+      "cases_passing_all_checks": 21,
+      "total_cases": 44,
+      "cases": {
+        "stand_305mm": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.003282526129673329,
+          "mean_case_yaw_mae_rad_s": 0.001982365161215398,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.273800253868103
+        },
+        "forward_05": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.03315919931977987,
+          "mean_case_yaw_mae_rad_s": 0.00695113688836841,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.1884446144104004
+        },
+        "backward_05": {
+          "full_episodes": 6,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 1,
+          "worst_tilt_deg": 1.2286009788513184
+        },
+        "rotate_1": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.005600073753694233,
+          "mean_case_yaw_mae_rad_s": 0.027691325861960648,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 0.9767868518829346
+        },
+        "rotate_1_reverse": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.007070813347554577,
+          "mean_case_yaw_mae_rad_s": 0.034589619915932415,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.2808473110198975
+        },
+        "forward_2": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.06846284240484238,
+          "mean_case_yaw_mae_rad_s": 0.04343544291946728,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.2933144569396973
+        },
+        "backward_2": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.13892420772463082,
+          "mean_case_yaw_mae_rad_s": 0.07393062969174935,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.9250860214233398
+        },
+        "forward_3": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.040849457159638405,
+          "mean_case_yaw_mae_rad_s": 0.04870423258984374,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.7425968647003174
+        },
+        "backward_3": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.3045110081881285,
+          "mean_case_yaw_mae_rad_s": 0.060075536596777966,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.3692641258239746
+        },
+        "rotate_4": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0669287920485658,
+          "mean_case_yaw_mae_rad_s": 0.03935707978904247,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.5654807090759277
+        },
+        "rotate_4_reverse": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0856320190493716,
+          "mean_case_yaw_mae_rad_s": 0.03599714025855064,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.0279648303985596
+        }
+      }
+    },
+    "variant_1": {
+      "full_episodes": 83,
+      "requested_episodes": 88,
+      "cases_passing_all_checks": 20,
+      "total_cases": 44,
+      "cases": {
+        "stand_305mm": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0035521789173555618,
+          "mean_case_yaw_mae_rad_s": 0.0031287779450468634,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.3728760480880737
+        },
+        "forward_05": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.03285172526724636,
+          "mean_case_yaw_mae_rad_s": 0.00923330611874917,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.1309040784835815
+        },
+        "backward_05": {
+          "full_episodes": 5,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": null,
+          "mean_case_yaw_mae_rad_s": null,
+          "no_post_warmup_cases": 1,
+          "worst_tilt_deg": 1.23178231716156
+        },
+        "rotate_1": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0057396383742707256,
+          "mean_case_yaw_mae_rad_s": 0.02904680699110031,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 0.9477066993713379
+        },
+        "rotate_1_reverse": {
+          "full_episodes": 7,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.006353161907422873,
+          "mean_case_yaw_mae_rad_s": 0.03353407863527536,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.340859055519104
+        },
+        "forward_2": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.06786847203969956,
+          "mean_case_yaw_mae_rad_s": 0.04469844062583434,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.437766194343567
+        },
+        "backward_2": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.13809118162840606,
+          "mean_case_yaw_mae_rad_s": 0.06880811677081511,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.9016631841659546
+        },
+        "forward_3": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.04049974583089352,
+          "mean_case_yaw_mae_rad_s": 0.050746985950245294,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.696749448776245
+        },
+        "backward_3": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.30323032110929493,
+          "mean_case_yaw_mae_rad_s": 0.06014018748741364,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.2724502086639404
+        },
+        "rotate_4": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.06713135409823735,
+          "mean_case_yaw_mae_rad_s": 0.03913367584347725,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 1.2996538877487183
+        },
+        "rotate_4_reverse": {
+          "full_episodes": 8,
+          "requested_episodes": 8,
+          "mean_case_vx_mae_m_s": 0.0857180989976041,
+          "mean_case_yaw_mae_rad_s": 0.036456061229109764,
+          "no_post_warmup_cases": 0,
+          "worst_tilt_deg": 2.0924670696258545
+        }
+      }
+    }
+  },
+  "conditions": {
+    "h0.305_mu0.2_stand_305mm": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0028480621281562436,
+        "yaw_mae_rad_s": 0.004962812227295217,
+        "height_mae_m": 0.0004173301532864571,
+        "tilt_max_deg": 0.34998589754104614,
+        "closure_gap_max_m": 0.00012207336840219796,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.002855734871122877,
+        "yaw_mae_rad_s": 0.0039186983913282345,
+        "height_mae_m": 0.000419769324362278,
+        "tilt_max_deg": 0.3460501730442047,
+        "closure_gap_max_m": 0.00012302353570703417,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.00282718974991667,
+        "yaw_mae_rad_s": 0.0033596954249173906,
+        "height_mae_m": 0.00041610565036535267,
+        "tilt_max_deg": 0.34886592626571655,
+        "closure_gap_max_m": 0.00012208425323478878,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0028606163629731896,
+        "yaw_mae_rad_s": 0.0038772588174879274,
+        "height_mae_m": 0.0004169095680117607,
+        "tilt_max_deg": 0.3483045995235443,
+        "closure_gap_max_m": 0.0001258271950064227,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_forward_05": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.029099869094789028,
+        "yaw_mae_rad_s": 0.004713440663363144,
+        "height_mae_m": 0.0009710611775517464,
+        "tilt_max_deg": 0.3774237036705017,
+        "closure_gap_max_m": 0.00012582742783706635,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02899464759975672,
+        "yaw_mae_rad_s": 0.004651040133303468,
+        "height_mae_m": 0.000953327864408493,
+        "tilt_max_deg": 0.39316704869270325,
+        "closure_gap_max_m": 0.00012207336840219796,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02875222612172365,
+        "yaw_mae_rad_s": 0.004032883578984184,
+        "height_mae_m": 0.0009646881371736526,
+        "tilt_max_deg": 0.37272852659225464,
+        "closure_gap_max_m": 0.00012207351392135024,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02882321909070015,
+        "yaw_mae_rad_s": 0.004441229002550244,
+        "height_mae_m": 0.0009524739906191826,
+        "tilt_max_deg": 0.37325313687324524,
+        "closure_gap_max_m": 0.00012207977124489844,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_backward_05": {
+      "parent": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.027374478355050087,
+        "yaw_mae_rad_s": 0.015599598889239133,
+        "height_mae_m": 8.820369839668274e-05,
+        "tilt_max_deg": 0.29870715737342834,
+        "closure_gap_max_m": 0.000125828679301776,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.028344327807426455,
+        "yaw_mae_rad_s": 0.02040954367257655,
+        "height_mae_m": 0.00013795822858810424,
+        "tilt_max_deg": 0.312160462141037,
+        "closure_gap_max_m": 9.650689753470942e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.028253381811082362,
+        "yaw_mae_rad_s": 0.019634550620103254,
+        "height_mae_m": 9.148672223091125e-05,
+        "tilt_max_deg": 0.3013159930706024,
+        "closure_gap_max_m": 0.00012207432882860303,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.026914579197764396,
+        "yaw_mae_rad_s": 0.01580539404647425,
+        "height_mae_m": 8.453600108623504e-05,
+        "tilt_max_deg": 0.2783624827861786,
+        "closure_gap_max_m": 9.651479194872081e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_rotate_1": {
+      "parent": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.005027157559525221,
+        "yaw_mae_rad_s": 0.03710256934165955,
+        "height_mae_m": 0.0005535385757684708,
+        "tilt_max_deg": 0.37272852659225464,
+        "closure_gap_max_m": 0.0001303711615037173,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.00433461963199079,
+        "yaw_mae_rad_s": 0.01690789982676506,
+        "height_mae_m": 0.0005232731252908707,
+        "tilt_max_deg": 0.3443496525287628,
+        "closure_gap_max_m": 9.650728316046298e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.0042428498249500995,
+        "yaw_mae_rad_s": 0.017132365852594377,
+        "height_mae_m": 0.0005402541160583497,
+        "tilt_max_deg": 0.34717920422554016,
+        "closure_gap_max_m": 9.415045497007668e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.004483654126815963,
+        "yaw_mae_rad_s": 0.01685961678624153,
+        "height_mae_m": 0.0005161723494529724,
+        "tilt_max_deg": 0.3460501730442047,
+        "closure_gap_max_m": 9.650542779127136e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_rotate_1_reverse": {
+      "parent": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.0012232520720499452,
+        "yaw_mae_rad_s": 0.01702879548072815,
+        "height_mae_m": 0.0003838033229112625,
+        "tilt_max_deg": 0.3505445122718811,
+        "closure_gap_max_m": 0.0001258305856026709,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.005441489686782006,
+        "yaw_mae_rad_s": 0.03305015549063683,
+        "height_mae_m": 0.00037234850227832797,
+        "tilt_max_deg": 0.34206917881965637,
+        "closure_gap_max_m": 9.650560969021171e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.006836542524251854,
+        "yaw_mae_rad_s": 0.042292011976242064,
+        "height_mae_m": 0.00037735894322395326,
+        "tilt_max_deg": 0.3449174463748932,
+        "closure_gap_max_m": 0.00012207032705191523,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 1,
+        "requested_episodes": 2,
+        "frames": 400,
+        "vx_mae_m_s": 0.005493934117257595,
+        "yaw_mae_rad_s": 0.03292684152722359,
+        "height_mae_m": 0.0003848312050104141,
+        "tilt_max_deg": 0.33919697999954224,
+        "closure_gap_max_m": 0.00012207044346723706,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 1,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_forward_2": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 9.650571882957593e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10348194062709809,
+        "yaw_mae_rad_s": 0.0068141579497569185,
+        "height_mae_m": 0.00045917991548776626,
+        "tilt_max_deg": 1.0551761388778687,
+        "closure_gap_max_m": 0.0002446174039505422,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10219028025865555,
+        "yaw_mae_rad_s": 0.005765693672183261,
+        "height_mae_m": 0.0005832749977707863,
+        "tilt_max_deg": 1.0691773891448975,
+        "closure_gap_max_m": 0.000183147843927145,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10210309952497483,
+        "yaw_mae_rad_s": 0.00610212246518131,
+        "height_mae_m": 0.0004845835641026497,
+        "tilt_max_deg": 1.437766194343567,
+        "closure_gap_max_m": 0.00024461830616928637,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_backward_2": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 9.650816355133429e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.04826683923602104,
+        "yaw_mae_rad_s": 0.05597817754140124,
+        "height_mae_m": 0.005431219600141048,
+        "tilt_max_deg": 0.443672776222229,
+        "closure_gap_max_m": 0.00018563146295491606,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.04713443085551262,
+        "yaw_mae_rad_s": 0.08483387504704297,
+        "height_mae_m": 0.005453955829143525,
+        "tilt_max_deg": 0.4873863458633423,
+        "closure_gap_max_m": 0.0002441480755805969,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.04661289021372795,
+        "yaw_mae_rad_s": 0.06930326013243758,
+        "height_mae_m": 0.005413435623049736,
+        "tilt_max_deg": 0.4471870958805084,
+        "closure_gap_max_m": 0.00024604075588285923,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_forward_3": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 9.650841093389317e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.05666031956672669,
+        "yaw_mae_rad_s": 0.015994491982710315,
+        "height_mae_m": 0.0035116796568036082,
+        "tilt_max_deg": 1.0525766611099243,
+        "closure_gap_max_m": 0.00018563304911367595,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.05640252768993378,
+        "yaw_mae_rad_s": 0.016630532956914978,
+        "height_mae_m": 0.0037315456196665765,
+        "tilt_max_deg": 1.0471714735031128,
+        "closure_gap_max_m": 0.00024417496751993895,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.056392314434051516,
+        "yaw_mae_rad_s": 0.01697270524397027,
+        "height_mae_m": 0.003539596274495125,
+        "tilt_max_deg": 1.078471064567566,
+        "closure_gap_max_m": 0.0002446170256007463,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_backward_3": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 9.658399358158931e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09584783405065536,
+        "yaw_mae_rad_s": 0.06529381409811322,
+        "height_mae_m": 0.005078449510037899,
+        "tilt_max_deg": 2.0479397773742676,
+        "closure_gap_max_m": 0.00030555701232515275,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09463527709245682,
+        "yaw_mae_rad_s": 0.04830110048205825,
+        "height_mae_m": 0.005121049024164677,
+        "tilt_max_deg": 1.9336069822311401,
+        "closure_gap_max_m": 0.00024417121312581003,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09718643575906753,
+        "yaw_mae_rad_s": 0.05235290052602068,
+        "height_mae_m": 0.005081670247018337,
+        "tilt_max_deg": 2.1025443077087402,
+        "closure_gap_max_m": 0.00024461757857352495,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_rotate_4": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 0.00012582875206135213,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.025037104793300388,
+        "yaw_mae_rad_s": 0.03052915841341019,
+        "height_mae_m": 0.0033271995931863784,
+        "tilt_max_deg": 1.390720009803772,
+        "closure_gap_max_m": 0.00012302132381591946,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02532955406117253,
+        "yaw_mae_rad_s": 0.04113701641559601,
+        "height_mae_m": 0.0034585200250148774,
+        "tilt_max_deg": 1.5654807090759277,
+        "closure_gap_max_m": 0.00012582728231791407,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.024510634786565788,
+        "yaw_mae_rad_s": 0.030829863846302034,
+        "height_mae_m": 0.003324550427496433,
+        "tilt_max_deg": 1.185312032699585,
+        "closure_gap_max_m": 0.00013037132157478482,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.2_rotate_4_reverse": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 0.00012207223335281014,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.06565055795013905,
+        "yaw_mae_rad_s": 0.031116690933704377,
+        "height_mae_m": 0.0018188055977225305,
+        "tilt_max_deg": 1.2065829038619995,
+        "closure_gap_max_m": 0.00012582923227455467,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.06423057509353385,
+        "yaw_mae_rad_s": 0.03679425239562988,
+        "height_mae_m": 0.001747671291232109,
+        "tilt_max_deg": 1.1199499368667603,
+        "closure_gap_max_m": 0.00012419806444086134,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0641003522835672,
+        "yaw_mae_rad_s": 0.03138317823410034,
+        "height_mae_m": 0.0017937787249684334,
+        "tilt_max_deg": 1.2080416679382324,
+        "closure_gap_max_m": 0.00012582923227455467,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_stand_305mm": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.002822312396443465,
+        "yaw_mae_rad_s": 0.0024580515842762907,
+        "height_mae_m": 0.0004073819518089295,
+        "tilt_max_deg": 0.34149664640426636,
+        "closure_gap_max_m": 0.00012582789349835366,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.00279526139742984,
+        "yaw_mae_rad_s": 0.0016943700427964358,
+        "height_mae_m": 0.00041498493403196334,
+        "tilt_max_deg": 0.35221514105796814,
+        "closure_gap_max_m": 0.00012303372204769403,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0027959231819477282,
+        "yaw_mae_rad_s": 0.0014271232857799988,
+        "height_mae_m": 0.0004121993109583855,
+        "tilt_max_deg": 0.3368816077709198,
+        "closure_gap_max_m": 0.0001525937841506675,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0028202795902006984,
+        "yaw_mae_rad_s": 0.0016521745952582023,
+        "height_mae_m": 0.00041356123983860016,
+        "tilt_max_deg": 0.3449174463748932,
+        "closure_gap_max_m": 0.00012302030518185347,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_forward_05": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.029743520803749562,
+        "yaw_mae_rad_s": 0.003684666834005839,
+        "height_mae_m": 0.0009695896878838539,
+        "tilt_max_deg": 0.39266902208328247,
+        "closure_gap_max_m": 0.00012582809722516686,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.029644165597856046,
+        "yaw_mae_rad_s": 0.0032302698712737767,
+        "height_mae_m": 0.0009702535346150399,
+        "tilt_max_deg": 0.38664302229881287,
+        "closure_gap_max_m": 0.00012208212865516543,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.029520276337862014,
+        "yaw_mae_rad_s": 0.0023799834144983835,
+        "height_mae_m": 0.0009767960011959076,
+        "tilt_max_deg": 0.381548672914505,
+        "closure_gap_max_m": 0.00012213083391543478,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.029631545543670656,
+        "yaw_mae_rad_s": 0.004719283642189111,
+        "height_mae_m": 0.0009782634675502776,
+        "tilt_max_deg": 0.3876538872718811,
+        "closure_gap_max_m": 0.00012207074905745685,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_backward_05": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.027671934738755226,
+        "yaw_mae_rad_s": 0.013311625682981686,
+        "height_mae_m": 0.00010997544974088669,
+        "tilt_max_deg": 0.3409232199192047,
+        "closure_gap_max_m": 0.0001258299598703161,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02753677085042,
+        "yaw_mae_rad_s": 0.011845112708979286,
+        "height_mae_m": 0.0001134495809674263,
+        "tilt_max_deg": 0.32625916600227356,
+        "closure_gap_max_m": 0.0001230324269272387,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02785255528986454,
+        "yaw_mae_rad_s": 0.012770945131196641,
+        "height_mae_m": 0.00010307993739843369,
+        "tilt_max_deg": 0.3549819886684418,
+        "closure_gap_max_m": 0.00012213061563670635,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0275323648378253,
+        "yaw_mae_rad_s": 0.013490505802910776,
+        "height_mae_m": 0.00010185372084379197,
+        "tilt_max_deg": 0.32745644450187683,
+        "closure_gap_max_m": 0.0001258284755749628,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_rotate_1": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.003876902540014271,
+        "yaw_mae_rad_s": 0.024639229625463485,
+        "height_mae_m": 0.0005596456304192543,
+        "tilt_max_deg": 0.35277023911476135,
+        "closure_gap_max_m": 0.00013647915329784155,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.004025077483383939,
+        "yaw_mae_rad_s": 0.01977198548614979,
+        "height_mae_m": 0.000567537546157837,
+        "tilt_max_deg": 0.36153605580329895,
+        "closure_gap_max_m": 0.00012582732597365975,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.004306524361454649,
+        "yaw_mae_rad_s": 0.02292126327753067,
+        "height_mae_m": 0.0005732450261712075,
+        "tilt_max_deg": 0.3679734468460083,
+        "closure_gap_max_m": 9.65053477557376e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0038176999655843247,
+        "yaw_mae_rad_s": 0.024604990780353546,
+        "height_mae_m": 0.0005606040731072426,
+        "tilt_max_deg": 0.3516591489315033,
+        "closure_gap_max_m": 0.00013037155440542847,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_rotate_1_reverse": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.003026960039169353,
+        "yaw_mae_rad_s": 0.02707409165799618,
+        "height_mae_m": 0.00036510609090328216,
+        "tilt_max_deg": 0.3409232199192047,
+        "closure_gap_max_m": 0.00012582754425238818,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0031235644706976017,
+        "yaw_mae_rad_s": 0.022797742635011675,
+        "height_mae_m": 0.0003717301040887833,
+        "tilt_max_deg": 0.33977335691452026,
+        "closure_gap_max_m": 0.00012582761701196432,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0035675471699869376,
+        "yaw_mae_rad_s": 0.026099288687109947,
+        "height_mae_m": 0.0003700515627861023,
+        "tilt_max_deg": 0.3403487503528595,
+        "closure_gap_max_m": 0.00012419806444086134,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0030804252542839094,
+        "yaw_mae_rad_s": 0.02660781837999821,
+        "height_mae_m": 0.00035686641931533816,
+        "tilt_max_deg": 0.3426406979560852,
+        "closure_gap_max_m": 0.0001364792260574177,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_forward_2": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10834708392620086,
+        "yaw_mae_rad_s": 0.004822160040021117,
+        "height_mae_m": 0.0005401923879981041,
+        "tilt_max_deg": 0.5051296949386597,
+        "closure_gap_max_m": 0.00013648033200297505,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10453545600175858,
+        "yaw_mae_rad_s": 0.004937033730584517,
+        "height_mae_m": 0.0004940585792064667,
+        "tilt_max_deg": 1.0330613851547241,
+        "closure_gap_max_m": 0.00012230873107910156,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.1021624407172203,
+        "yaw_mae_rad_s": 0.004851244977853639,
+        "height_mae_m": 0.0006061447784304619,
+        "tilt_max_deg": 1.073743224143982,
+        "closure_gap_max_m": 0.00012232028529979289,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10257780104875565,
+        "yaw_mae_rad_s": 0.005785890397728508,
+        "height_mae_m": 0.000494939498603344,
+        "tilt_max_deg": 1.0644081830978394,
+        "closure_gap_max_m": 0.0001258328411495313,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_backward_2": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.04966938659548759,
+        "yaw_mae_rad_s": 0.02904233824694529,
+        "height_mae_m": 0.005447836443781853,
+        "tilt_max_deg": 0.45756807923316956,
+        "closure_gap_max_m": 0.00012582821364048868,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.04884886682033539,
+        "yaw_mae_rad_s": 0.029137704104650768,
+        "height_mae_m": 0.005474358350038529,
+        "tilt_max_deg": 0.5293412804603577,
+        "closure_gap_max_m": 0.0001220709236804396,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.04833702564239502,
+        "yaw_mae_rad_s": 0.02362573533668183,
+        "height_mae_m": 0.00551816638559103,
+        "tilt_max_deg": 0.5230193734169006,
+        "closure_gap_max_m": 0.0001223175786435604,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.048312025517225264,
+        "yaw_mae_rad_s": 0.02271903583430685,
+        "height_mae_m": 0.005398780144751072,
+        "tilt_max_deg": 0.4558543562889099,
+        "closure_gap_max_m": 0.0001258416596101597,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_forward_3": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.05863869667053223,
+        "yaw_mae_rad_s": 0.016367832515970803,
+        "height_mae_m": 0.0035064806044101714,
+        "tilt_max_deg": 0.8376675844192505,
+        "closure_gap_max_m": 0.00015259106294251978,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0564242759346962,
+        "yaw_mae_rad_s": 0.013571591218715184,
+        "height_mae_m": 0.0035167483612895015,
+        "tilt_max_deg": 1.0273631811141968,
+        "closure_gap_max_m": 0.00012232946755830199,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.05599881678819656,
+        "yaw_mae_rad_s": 0.014802890083665261,
+        "height_mae_m": 0.0036988548561930658,
+        "tilt_max_deg": 1.0129772424697876,
+        "closure_gap_max_m": 0.00012232679000589997,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.05554372549057007,
+        "yaw_mae_rad_s": 0.01692239288240671,
+        "height_mae_m": 0.0035371608659625054,
+        "tilt_max_deg": 1.0364652872085571,
+        "closure_gap_max_m": 0.0001258271950064227,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_backward_3": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09934540063142777,
+        "yaw_mae_rad_s": 0.029614191608852706,
+        "height_mae_m": 0.005115642435848713,
+        "tilt_max_deg": 2.085628032684326,
+        "closure_gap_max_m": 0.0001258299598703161,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10267303973436356,
+        "yaw_mae_rad_s": 0.038600959344184956,
+        "height_mae_m": 0.005153502821922303,
+        "tilt_max_deg": 1.998705267906189,
+        "closure_gap_max_m": 0.00015335333591792732,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09925897866487503,
+        "yaw_mae_rad_s": 0.018960965648293495,
+        "height_mae_m": 0.005185462720692158,
+        "tilt_max_deg": 2.0754690170288086,
+        "closure_gap_max_m": 0.00012231025903020054,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10086793869733811,
+        "yaw_mae_rad_s": 0.02111948250909336,
+        "height_mae_m": 0.005172786898910999,
+        "tilt_max_deg": 1.9844564199447632,
+        "closure_gap_max_m": 0.00012207044346723706,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_rotate_4": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03167255682637915,
+        "yaw_mae_rad_s": 0.027607419788837434,
+        "height_mae_m": 0.0036088520660996436,
+        "tilt_max_deg": 1.1914045810699463,
+        "closure_gap_max_m": 0.00012947560753673315,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03153209484065883,
+        "yaw_mae_rad_s": 0.030017735064029695,
+        "height_mae_m": 0.003609759658575058,
+        "tilt_max_deg": 1.2013819217681885,
+        "closure_gap_max_m": 0.0001230205816682428,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.031205964089022018,
+        "yaw_mae_rad_s": 0.028342820703983307,
+        "height_mae_m": 0.0037259709089994433,
+        "tilt_max_deg": 1.192225694656372,
+        "closure_gap_max_m": 9.43719205679372e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.030817620432935657,
+        "yaw_mae_rad_s": 0.028618428707122803,
+        "height_mae_m": 0.003541930764913559,
+        "tilt_max_deg": 1.217882752418518,
+        "closure_gap_max_m": 0.0001525884581496939,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.305_mu0.5_rotate_4_reverse": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0764220390515402,
+        "yaw_mae_rad_s": 0.029708971977233888,
+        "height_mae_m": 0.0017035822570323944,
+        "tilt_max_deg": 1.0973572731018066,
+        "closure_gap_max_m": 0.00012947744107805192,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.07756480736657977,
+        "yaw_mae_rad_s": 0.030404255092144013,
+        "height_mae_m": 0.0017247914522886276,
+        "tilt_max_deg": 1.0871455669403076,
+        "closure_gap_max_m": 9.918249270413071e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.07706526822410524,
+        "yaw_mae_rad_s": 0.030767265558242798,
+        "height_mae_m": 0.001638452671468258,
+        "tilt_max_deg": 1.0689942836761475,
+        "closure_gap_max_m": 0.00012230855645611882,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0764511118363589,
+        "yaw_mae_rad_s": 0.029850779175758364,
+        "height_mae_m": 0.0016789968311786653,
+        "tilt_max_deg": 1.1127632856369019,
+        "closure_gap_max_m": 0.00012947546201758087,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_stand_305mm": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0047284468344173545,
+        "yaw_mae_rad_s": 0.004058100578081394,
+        "height_mae_m": 0.0008730043098330498,
+        "tilt_max_deg": 1.3196759223937988,
+        "closure_gap_max_m": 0.00012583177885971963,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.003785642240929974,
+        "yaw_mae_rad_s": 0.0015698384468350924,
+        "height_mae_m": 0.0006927910819649696,
+        "tilt_max_deg": 1.2934658527374268,
+        "closure_gap_max_m": 0.00012231346045155078,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0037545910910148452,
+        "yaw_mae_rad_s": 0.0015397650878276182,
+        "height_mae_m": 0.0006840335205197335,
+        "tilt_max_deg": 1.2639299631118774,
+        "closure_gap_max_m": 0.00015258831263054162,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.004711079301982863,
+        "yaw_mae_rad_s": 0.004517992978401253,
+        "height_mae_m": 0.0008682811632752419,
+        "tilt_max_deg": 1.3728760480880737,
+        "closure_gap_max_m": 0.00012582891213241965,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_forward_05": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03513574104756117,
+        "yaw_mae_rad_s": 0.018976665100199172,
+        "height_mae_m": 0.00023838162422180176,
+        "tilt_max_deg": 1.1232649087905884,
+        "closure_gap_max_m": 0.00015560977044515312,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03563279435038567,
+        "yaw_mae_rad_s": 0.016752602088963613,
+        "height_mae_m": 0.00024809759110212327,
+        "tilt_max_deg": 1.0994950532913208,
+        "closure_gap_max_m": 0.00012230873107910156,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03556008085608482,
+        "yaw_mae_rad_s": 0.016048030195524917,
+        "height_mae_m": 0.00023951463401317597,
+        "tilt_max_deg": 1.0183717012405396,
+        "closure_gap_max_m": 0.00012302081449888647,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03479724369943142,
+        "yaw_mae_rad_s": 0.020200671820202843,
+        "height_mae_m": 0.0002452302724123001,
+        "tilt_max_deg": 1.0490384101867676,
+        "closure_gap_max_m": 0.00015258796338457614,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_backward_05": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 9.653675078880042e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 9.281559323426336e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 0.00012231076834723353,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 0.0001100379231502302,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_rotate_1": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007660246734158136,
+        "yaw_mae_rad_s": 0.036748473793268205,
+        "height_mae_m": 0.0006307728961110115,
+        "tilt_max_deg": 0.9400360584259033,
+        "closure_gap_max_m": 0.0001364795898552984,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007114456689741928,
+        "yaw_mae_rad_s": 0.036293637081980704,
+        "height_mae_m": 0.0005991720780730247,
+        "tilt_max_deg": 0.9325121641159058,
+        "closure_gap_max_m": 0.00012302029062993824,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007192944807138702,
+        "yaw_mae_rad_s": 0.03696774512529373,
+        "height_mae_m": 0.0006392571330070496,
+        "tilt_max_deg": 0.9767868518829346,
+        "closure_gap_max_m": 9.650551510276273e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0073239442241902,
+        "yaw_mae_rad_s": 0.03583335377275944,
+        "height_mae_m": 0.00060973159968853,
+        "tilt_max_deg": 0.9477066993713379,
+        "closure_gap_max_m": 0.00013647896412294358,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_rotate_1_reverse": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.009489858038141393,
+        "yaw_mae_rad_s": 0.03638285867869854,
+        "height_mae_m": 0.0016260628774762153,
+        "tilt_max_deg": 1.2805417776107788,
+        "closure_gap_max_m": 0.00015258812345564365,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.010091006636503154,
+        "yaw_mae_rad_s": 0.03808659762144089,
+        "height_mae_m": 0.0016165487468242645,
+        "tilt_max_deg": 1.3383755683898926,
+        "closure_gap_max_m": 0.00012582722411025316,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.010083122102005291,
+        "yaw_mae_rad_s": 0.03881031461060047,
+        "height_mae_m": 0.001624438688158989,
+        "tilt_max_deg": 1.2805417776107788,
+        "closure_gap_max_m": 9.918217256199569e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.009657508716336452,
+        "yaw_mae_rad_s": 0.03763641893863678,
+        "height_mae_m": 0.0016514185070991517,
+        "tilt_max_deg": 1.340859055519104,
+        "closure_gap_max_m": 0.000129475534777157,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_forward_2": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 0.00011003372492268682,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0352209709584713,
+        "yaw_mae_rad_s": 0.07871515658218414,
+        "height_mae_m": 0.001727592945098877,
+        "tilt_max_deg": 1.193537950515747,
+        "closure_gap_max_m": 0.00024425986339338124,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03457221195101738,
+        "yaw_mae_rad_s": 0.07652871553786099,
+        "height_mae_m": 0.0017458369582891466,
+        "tilt_max_deg": 1.2933144569396973,
+        "closure_gap_max_m": 0.00018326698045711964,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03149841487407684,
+        "yaw_mae_rad_s": 0.0779413600312546,
+        "height_mae_m": 0.0017304429039359092,
+        "tilt_max_deg": 1.217882752418518,
+        "closure_gap_max_m": 0.0002441410324536264,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_backward_2": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 1.5669073526561261,
+        "yaw_mae_rad_s": 0.014835046733205673,
+        "height_mae_m": 0.00420566238462925,
+        "tilt_max_deg": 2.16365122795105,
+        "closure_gap_max_m": 0.00012582875206135213,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.22759926661849023,
+        "yaw_mae_rad_s": 0.0870952408760786,
+        "height_mae_m": 0.005931257605552674,
+        "tilt_max_deg": 1.8892732858657837,
+        "closure_gap_max_m": 0.00018374112551100552,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.22981642559170723,
+        "yaw_mae_rad_s": 0.08807825145311654,
+        "height_mae_m": 0.0058780208975076674,
+        "tilt_max_deg": 1.913973093032837,
+        "closure_gap_max_m": 0.0002460407267790288,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.22900602713227272,
+        "yaw_mae_rad_s": 0.08642534889280797,
+        "height_mae_m": 0.005959681607782841,
+        "tilt_max_deg": 1.8858517408370972,
+        "closure_gap_max_m": 0.0002460417163092643,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_forward_3": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 0.00011003372492268682,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.026524032056331637,
+        "yaw_mae_rad_s": 0.07931183029897511,
+        "height_mae_m": 0.010534835234284402,
+        "tilt_max_deg": 2.6775920391082764,
+        "closure_gap_max_m": 0.0002442607656121254,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.027042858004570007,
+        "yaw_mae_rad_s": 0.07630038999021053,
+        "height_mae_m": 0.010545917674899102,
+        "tilt_max_deg": 2.6668972969055176,
+        "closure_gap_max_m": 0.00024461705470457673,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.027375892698764802,
+        "yaw_mae_rad_s": 0.0795052728196606,
+        "height_mae_m": 0.010349456705152988,
+        "tilt_max_deg": 2.69057297706604,
+        "closure_gap_max_m": 0.0002441408869344741,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_backward_3": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 3.3635688319802286,
+        "yaw_mae_rad_s": 0.09978614125400782,
+        "height_mae_m": 0.0029008961096405983,
+        "tilt_max_deg": 2.0232300758361816,
+        "closure_gap_max_m": 0.00012582754425238818,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.5055879282951355,
+        "yaw_mae_rad_s": 0.0806587815983221,
+        "height_mae_m": 0.011020001284778118,
+        "tilt_max_deg": 2.29575777053833,
+        "closure_gap_max_m": 0.0001832673151511699,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.5090845900774003,
+        "yaw_mae_rad_s": 0.08064160719513894,
+        "height_mae_m": 0.01099822074174881,
+        "tilt_max_deg": 2.301717758178711,
+        "closure_gap_max_m": 0.0002446169964969158,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.5067732363939286,
+        "yaw_mae_rad_s": 0.07840069083962589,
+        "height_mae_m": 0.010993400402367116,
+        "tilt_max_deg": 2.2724502086639404,
+        "closure_gap_max_m": 0.0001930109428940341,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_rotate_4": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10376880723051728,
+        "yaw_mae_rad_s": 0.050857145190238956,
+        "height_mae_m": 0.0010386566072702408,
+        "tilt_max_deg": 1.3241169452667236,
+        "closure_gap_max_m": 0.00012582799536176026,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10411793396808207,
+        "yaw_mae_rad_s": 0.05816943407058716,
+        "height_mae_m": 0.0010067716985940934,
+        "tilt_max_deg": 1.3452301025390625,
+        "closure_gap_max_m": 0.00012260563380550593,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10267369775101542,
+        "yaw_mae_rad_s": 0.048597876429557804,
+        "height_mae_m": 0.0010682982951402665,
+        "tilt_max_deg": 1.335448145866394,
+        "closure_gap_max_m": 0.0001230205234605819,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10362222233787179,
+        "yaw_mae_rad_s": 0.054637405872344974,
+        "height_mae_m": 0.0009315350651741028,
+        "tilt_max_deg": 1.2996538877487183,
+        "closure_gap_max_m": 0.00012582736962940544,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.2_rotate_4_reverse": {
+      "parent": {
+        "full_episodes": 0,
+        "requested_episodes": 2,
+        "frames": 0,
+        "vx_mae_m_s": null,
+        "yaw_mae_rad_s": null,
+        "height_mae_m": null,
+        "tilt_max_deg": 0.0,
+        "closure_gap_max_m": 9.281616803491488e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 2,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09706050850450992,
+        "yaw_mae_rad_s": 0.08008383214473724,
+        "height_mae_m": 0.0010408060997724533,
+        "tilt_max_deg": 2.0923736095428467,
+        "closure_gap_max_m": 0.00012495709233917296,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09658691430464388,
+        "yaw_mae_rad_s": 0.041498328745365146,
+        "height_mae_m": 0.0012520008906722069,
+        "tilt_max_deg": 2.0279648303985596,
+        "closure_gap_max_m": 0.00012302029062993824,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.09764192959293723,
+        "yaw_mae_rad_s": 0.04632826894521713,
+        "height_mae_m": 0.0011865423992276191,
+        "tilt_max_deg": 2.0924670696258545,
+        "closure_gap_max_m": 0.0001364787749480456,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_stand_305mm": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.003721120341033384,
+        "yaw_mae_rad_s": 0.001585343191715083,
+        "height_mae_m": 0.0006841949000954628,
+        "tilt_max_deg": 1.2662500143051147,
+        "closure_gap_max_m": 0.0001258305856026709,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0037546340733319995,
+        "yaw_mae_rad_s": 0.0011870794997935264,
+        "height_mae_m": 0.0006837223097681999,
+        "tilt_max_deg": 1.278706669807434,
+        "closure_gap_max_m": 0.00012213071750011295,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0037524004958140724,
+        "yaw_mae_rad_s": 0.001602876846336585,
+        "height_mae_m": 0.0006853675469756127,
+        "tilt_max_deg": 1.273800253868103,
+        "closure_gap_max_m": 0.00015335089119616896,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.003816740414265496,
+        "yaw_mae_rad_s": 0.002467685389040071,
+        "height_mae_m": 0.0006828415766358376,
+        "tilt_max_deg": 1.2811528444290161,
+        "closure_gap_max_m": 0.00012582789349835366,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_forward_05": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03850684478878975,
+        "yaw_mae_rad_s": 0.006219765017231112,
+        "height_mae_m": 0.0002617032825946808,
+        "tilt_max_deg": 1.0529483556747437,
+        "closure_gap_max_m": 0.00012303161201998591,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.0389214164018631,
+        "yaw_mae_rad_s": 0.0042044053845347665,
+        "height_mae_m": 0.00027308836579322817,
+        "tilt_max_deg": 1.1623060703277588,
+        "closure_gap_max_m": 0.0001223084982484579,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.038804213963449005,
+        "yaw_mae_rad_s": 0.005343650364466157,
+        "height_mae_m": 0.0002703777700662613,
+        "tilt_max_deg": 1.1884446144104004,
+        "closure_gap_max_m": 0.00012302090181037784,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.038154892735183236,
+        "yaw_mae_rad_s": 0.007572040010054479,
+        "height_mae_m": 0.00028883274644613265,
+        "tilt_max_deg": 1.1309040784835815,
+        "closure_gap_max_m": 0.00012582905765157193,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_backward_05": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.026428495645523072,
+        "yaw_mae_rad_s": 0.04354924413375556,
+        "height_mae_m": 0.0035772552341222764,
+        "tilt_max_deg": 1.2816109657287598,
+        "closure_gap_max_m": 0.00012582809722516686,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.025835595950484277,
+        "yaw_mae_rad_s": 0.0455844259634614,
+        "height_mae_m": 0.003568187989294529,
+        "tilt_max_deg": 1.219488501548767,
+        "closure_gap_max_m": 0.00015259017527569085,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.026391626410186293,
+        "yaw_mae_rad_s": 0.04232159730512649,
+        "height_mae_m": 0.0035692472383379937,
+        "tilt_max_deg": 1.2286009788513184,
+        "closure_gap_max_m": 0.00012302132381591946,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.026067315004765987,
+        "yaw_mae_rad_s": 0.04382230723509565,
+        "height_mae_m": 0.003566187843680382,
+        "tilt_max_deg": 1.23178231716156,
+        "closure_gap_max_m": 0.00012582732597365975,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_rotate_1": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.00663660494305077,
+        "yaw_mae_rad_s": 0.03337530642747879,
+        "height_mae_m": 0.0006152642890810966,
+        "tilt_max_deg": 0.9245039224624634,
+        "closure_gap_max_m": 0.00012302037794142962,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007216277918923879,
+        "yaw_mae_rad_s": 0.04082338444888592,
+        "height_mae_m": 0.0006371068581938744,
+        "tilt_max_deg": 1.0073596239089966,
+        "closure_gap_max_m": 0.00012230886204633862,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.006657976021233481,
+        "yaw_mae_rad_s": 0.03374392919242382,
+        "height_mae_m": 0.0006266992539167405,
+        "tilt_max_deg": 0.9211111068725586,
+        "closure_gap_max_m": 0.00012207032705191523,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007333255180492416,
+        "yaw_mae_rad_s": 0.03888926662504673,
+        "height_mae_m": 0.000602787472307682,
+        "tilt_max_deg": 0.8886743187904358,
+        "closure_gap_max_m": 0.00016434222925454378,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_rotate_1_reverse": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007752960418583825,
+        "yaw_mae_rad_s": 0.032377231717109684,
+        "height_mae_m": 0.001607477180659771,
+        "tilt_max_deg": 1.2544502019882202,
+        "closure_gap_max_m": 0.00010235922673018649,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.00800051502417773,
+        "yaw_mae_rad_s": 0.03885448172688484,
+        "height_mae_m": 0.001623085103929043,
+        "tilt_max_deg": 1.2877039909362793,
+        "closure_gap_max_m": 9.536754805594683e-05,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007796041593974223,
+        "yaw_mae_rad_s": 0.031156864389777186,
+        "height_mae_m": 0.0016240284964442254,
+        "tilt_max_deg": 1.2808473110198975,
+        "closure_gap_max_m": 0.0001191750488942489,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.007180779541813536,
+        "yaw_mae_rad_s": 0.03696523569524288,
+        "height_mae_m": 0.0016128522902727127,
+        "tilt_max_deg": 1.271801471710205,
+        "closure_gap_max_m": 0.0001303713652305305,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_forward_2": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.04015175983309746,
+        "yaw_mae_rad_s": 0.08993427480570972,
+        "height_mae_m": 0.0017849727347493173,
+        "tilt_max_deg": 1.1909117698669434,
+        "closure_gap_max_m": 0.00012302331742830575,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03384225681424141,
+        "yaw_mae_rad_s": 0.08943022552877665,
+        "height_mae_m": 0.0017615392431616784,
+        "tilt_max_deg": 1.1508007049560547,
+        "closure_gap_max_m": 0.00012213236186653376,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.034926436692476276,
+        "yaw_mae_rad_s": 0.08659611748997122,
+        "height_mae_m": 0.0017753762751817703,
+        "tilt_max_deg": 1.1408958435058594,
+        "closure_gap_max_m": 0.00012302090181037784,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.03529457271099091,
+        "yaw_mae_rad_s": 0.08896438960917294,
+        "height_mae_m": 0.0017282932996749878,
+        "tilt_max_deg": 1.1479064226150513,
+        "closure_gap_max_m": 0.00013648063759319484,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_backward_2": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 1.5507039460539818,
+        "yaw_mae_rad_s": 0.006398373377851385,
+        "height_mae_m": 0.004129252061247825,
+        "tilt_max_deg": 2.022843360900879,
+        "closure_gap_max_m": 0.00012302065442781895,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.22893000051379203,
+        "yaw_mae_rad_s": 0.0991058801766485,
+        "height_mae_m": 0.005941395834088326,
+        "tilt_max_deg": 1.9126434326171875,
+        "closure_gap_max_m": 0.00012208521366119385,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.23040894880890847,
+        "yaw_mae_rad_s": 0.09918465693015606,
+        "height_mae_m": 0.005912521183490753,
+        "tilt_max_deg": 1.9250860214233398,
+        "closure_gap_max_m": 0.00012302496179472655,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.22843378365039826,
+        "yaw_mae_rad_s": 0.09678482222370803,
+        "height_mae_m": 0.005937682464718819,
+        "tilt_max_deg": 1.9016631841659546,
+        "closure_gap_max_m": 0.00012583256466314197,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_forward_3": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02077240079641342,
+        "yaw_mae_rad_s": 0.0889021469047293,
+        "height_mae_m": 0.010312903560698033,
+        "tilt_max_deg": 2.0202293395996094,
+        "closure_gap_max_m": 0.00012302577670197934,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.02285320520401001,
+        "yaw_mae_rad_s": 0.09051058553624898,
+        "height_mae_m": 0.010547718703746796,
+        "tilt_max_deg": 2.6918818950653076,
+        "closure_gap_max_m": 0.0001220744743477553,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.023953626155853273,
+        "yaw_mae_rad_s": 0.08708311732858419,
+        "height_mae_m": 0.010545162446796895,
+        "tilt_max_deg": 2.7425968647003174,
+        "closure_gap_max_m": 0.00015334915951825678,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.022687050700187682,
+        "yaw_mae_rad_s": 0.08958757285494358,
+        "height_mae_m": 0.010492819175124169,
+        "tilt_max_deg": 2.696749448776245,
+        "closure_gap_max_m": 0.00012583036732394248,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_backward_3": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 3.35860226303339,
+        "yaw_mae_rad_s": 0.08949791938997806,
+        "height_mae_m": 0.0028773127496242524,
+        "tilt_max_deg": 2.0290262699127197,
+        "closure_gap_max_m": 0.00012302120740059763,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.5073598918318749,
+        "yaw_mae_rad_s": 0.091421541380696,
+        "height_mae_m": 0.010946838669478893,
+        "tilt_max_deg": 2.272019624710083,
+        "closure_gap_max_m": 0.00012210384011268616,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.5150651869177818,
+        "yaw_mae_rad_s": 0.09239847306162119,
+        "height_mae_m": 0.010916193090379238,
+        "tilt_max_deg": 2.3692641258239746,
+        "closure_gap_max_m": 0.00012582977069541812,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.5080936735868454,
+        "yaw_mae_rad_s": 0.08868767607491464,
+        "height_mae_m": 0.010966895110905171,
+        "tilt_max_deg": 2.1879382133483887,
+        "closure_gap_max_m": 0.00015258793428074569,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_rotate_4": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.1085436992906034,
+        "yaw_mae_rad_s": 0.039630261361598966,
+        "height_mae_m": 0.0011171358451247215,
+        "tilt_max_deg": 1.1955037117004395,
+        "closure_gap_max_m": 0.0001258271950064227,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10927659756503999,
+        "yaw_mae_rad_s": 0.04688286989927292,
+        "height_mae_m": 0.0010986776649951934,
+        "tilt_max_deg": 1.192061424255371,
+        "closure_gap_max_m": 0.00012394259101711214,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10850595229305326,
+        "yaw_mae_rad_s": 0.039350605607032775,
+        "height_mae_m": 0.0011582189425826074,
+        "tilt_max_deg": 1.2057716846466064,
+        "closure_gap_max_m": 0.00012582732597365975,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10957493883557617,
+        "yaw_mae_rad_s": 0.04244900494813919,
+        "height_mae_m": 0.001044037714600563,
+        "tilt_max_deg": 1.2535138130187988,
+        "closure_gap_max_m": 0.00012947511277161539,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    },
+    "h0.42_mu0.5_rotate_4_reverse": {
+      "parent": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10438382386229933,
+        "yaw_mae_rad_s": 0.032055981159210205,
+        "height_mae_m": 0.0010256732255220413,
+        "tilt_max_deg": 1.7003083229064941,
+        "closure_gap_max_m": 0.0001258271950064227,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "initialized": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10413295017555356,
+        "yaw_mae_rad_s": 0.04914346516132355,
+        "height_mae_m": 0.0010152801498770714,
+        "tilt_max_deg": 1.6482951641082764,
+        "closure_gap_max_m": 0.0001224061124958098,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "trained": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10464531857520343,
+        "yaw_mae_rad_s": 0.03492871433496475,
+        "height_mae_m": 0.001058279387652874,
+        "tilt_max_deg": 1.6732759475708008,
+        "closure_gap_max_m": 0.00011003275722032413,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      },
+      "variant_1": {
+        "full_episodes": 2,
+        "requested_episodes": 2,
+        "frames": 800,
+        "vx_mae_m_s": 0.10467900227755308,
+        "yaw_mae_rad_s": 0.03826201856136322,
+        "height_mae_m": 0.0009504128620028496,
+        "tilt_max_deg": 1.614709496498108,
+        "closure_gap_max_m": 0.00013647915329784155,
+        "termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0
+        }
+      }
+    }
+  },
+  "lost_low_parent_checks": [],
+  "lost_parent_complete_cases": []
+}

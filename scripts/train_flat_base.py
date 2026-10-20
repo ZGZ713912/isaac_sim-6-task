@@ -268,13 +268,13 @@ def validate_large_block_evidence(pilot, envelope, baseline, checkpoint_sha256, 
 
 
 def main():
-    from wheeled_tasks.chassis.flat_base_continuation import read_plan, write_bundle, encode, digest
+    from wheeled_tasks.chassis.flat_base_continuation import PLAN, read_plan, write_bundle, encode, digest
     from wheeled_tasks.chassis.control_contract import load_chassis_control
     from wheeled_tasks.chassis.preflight import design_preflight
     from train_chassis import preflight
     plan = read_plan(ROOT)
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--plan", default="contracts/flat_base_finetune_v1.json")
+    parser.add_argument("--plan", default=PLAN)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--updates", type=int, default=plan["first_block_updates"])
     parser.add_argument("--num-envs", type=int, default=None)
@@ -288,6 +288,8 @@ def main():
     parser.add_argument("--baseline-envelope", type=Path, help="Original actor's identical broader replay")
     parser.add_argument("--device", default="cuda:0", choices=("cuda:0", "cpu"))
     parser.add_argument("--capacity-probe", action="store_true", help="Native rollout/backward capacity only, with Adam writes disabled")
+    parser.add_argument("--preflight-only", action="store_true",
+                        help="Freeze the training design and sources without starting a simulator or optimizer")
     args = parser.parse_args()
     plan = read_plan(ROOT, args.plan)
     args.num_envs = plan["default_num_envs"] if args.num_envs is None else args.num_envs
@@ -297,8 +299,18 @@ def main():
         parser.error("Capacity mode requires one isolated CUDA probe with an exact parent")
     if plan.get("training_command_reference"):
         from flat_rmcs_command_reference import read_reference_contract
+        from wheeled_tasks.chassis.flat_policy_rate import command_reference_at_policy_rate
         settings = plan["training_command_reference"]
-        if settings["contract"] != read_reference_contract(settings["rmcs_root"]):
+        if plan.get('policy_rate_transition'):
+            # The frequency-only version inherits the sealed simulation command
+            # math. A separately changing deployment checkout is not its source.
+            saved = read_plan(ROOT,plan['policy_rate_transition']['parent_plan_file'])
+            source_reference = saved['training_command_reference']['contract']
+        else:
+            source_reference = read_reference_contract(settings['rmcs_root'])
+        expected_reference = command_reference_at_policy_rate(
+            source_reference, round(1 / plan["policy_dt"]))
+        if settings["contract"] != expected_reference:
             raise ValueError("Training command reference differs from the inspected RMCS source")
     # Large blocks require a separately recorded successful pilot assessment.
     if not 1 <= args.updates <= plan["update_ceiling"]:
@@ -327,7 +339,8 @@ def main():
         plan_file=args.plan, plan_sha256=digest(ROOT / args.plan),
         asset_manifest_sha256=config["asset_manifest_sha256"], control_math_sha256=config["control_math_sha256"],
         contract_sha256=digest(args.output / "config/contract.json"), static_preflight=static,
-        requested_additional_updates=args.updates, training_release=False, hardware_deployment_ready=False)
+        requested_additional_updates=args.updates, training_release=False, hardware_deployment_ready=False,
+        policy_hz=round(1 / plan["policy_dt"]), physics_hz=round(1 / plan["physics_dt"]))
     report["training_transitions_total"] = 0
     report["training_transition_count_scope"] = "successful inherited rollout frames; discarded optimizer consumption remains separately charged"
     report["prior_discontinued_optimizer_updates"] = plan["prior_discontinued_optimizer_updates"]
@@ -370,6 +383,14 @@ def main():
         sources.append(ROOT / "src/wheeled_algo/static_grip.py")
     if plan.get('actor_adaptation') == 'original-static-grip-with-motion-feedback-adaptation-v8':
         sources.append(ROOT / 'src/wheeled_algo/motion_grip.py')
+    if plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11'):
+        sources.extend(ROOT / 'src/wheeled_algo' / name for name in (
+            'guarded_feedback_residual.py', 'separated_feedback.py', 'low_demand_feedback.py',
+            'static_feedback.py', 'wheel_authority.py', 'static_grip.py', 'speed_reference.py'))
+        if plan['actor_adaptation']!='original-static-grip-with-reachable-speed-reference-v9':
+            sources.append(ROOT/'src/wheeled_algo/intent_speed_reference.py')
+        if plan['actor_adaptation']=='original-intent-speed-with-motion-state-residual-v11':
+            sources.append(ROOT/'src/wheeled_algo/motion_state_residual.py')
     if plan.get("training_command_reference"):
         sources.append(ROOT / "scripts/flat_rmcs_command_reference.py")
     report["source_sha256"] = {str(p.relative_to(ROOT)): digest(p) for p in sources}
@@ -382,6 +403,13 @@ def main():
         temp.write_bytes(encode(report))
         temp.replace(args.output / "progress.json")
     write_report()
+    if args.preflight_only:
+        report.update(status="static_passed_resume_not_executed", new_optimizer_updates=0,
+            environment_started=False, full_state_restore_executed=False)
+        write_report()
+        print(json.dumps(dict(status=report['status'],policy_hz=report['policy_hz'],
+            physics_hz=report['physics_hz'],new_optimizer_updates=0)),flush=True)
+        return 0
     launcher, env, runner = None, None, None
     start = time.monotonic()
     try:
@@ -445,8 +473,10 @@ def main():
         wheel_authority = plan.get("actor_adaptation") in feedback_kinds[5:]
         static_grip = plan.get("actor_adaptation") == feedback_kinds[6]
         motion_grip = plan.get('actor_adaptation') == feedback_kinds[7]
-        feedback_residual = plan.get("actor_adaptation") in feedback_kinds
-        command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds)
+        motion_state=plan.get('actor_adaptation')=='original-intent-speed-with-motion-state-residual-v11'
+        speed_reference = plan.get('actor_adaptation') in ('original-static-grip-with-reachable-speed-reference-v9','original-static-grip-with-intent-speed-reference-v10','original-intent-speed-with-motion-state-residual-v11')
+        feedback_residual = plan.get("actor_adaptation") in feedback_kinds or speed_reference
+        command_residual = plan.get("actor_adaptation") in ("original-feedback-command-residual-v1", *feedback_kinds) or speed_reference
         if plan.get("actor_adaptation") and not command_residual:
             raise ValueError("Unsupported actor adaptation")
         if command_residual:
@@ -456,7 +486,7 @@ def main():
                                                       make_command_residual_parent)
             old_actor_names = list(dict(runner.alg.actor.named_parameters()))
             runner.alg.actor.mlp = CommandResidualActor(teacher).to(args.device)
-            if feedback_residual:
+            if feedback_residual and not speed_reference:
                 from wheeled_algo.guarded_feedback_residual import (GuardedFeedbackActor, extend_feedback_parent,
                     configure_guarded_feedback_training as configure_command_residual_training)
                 old_actor_names = list(dict(runner.alg.actor.named_parameters()))
@@ -529,6 +559,37 @@ def main():
                     runner.alg.actor.mlp = MotionGripActor(reference_mean, settings['sha256']).to(args.device)
                     configure_command_residual_training = configure_motion_grip_training
                     report['motion_grip_parent'] = deepcopy(settings)
+            if speed_reference:
+                from wheeled_algo.command_residual import mean_from_checkpoint
+                from wheeled_algo.speed_reference import (SpeedReferenceActor, extend_speed_reference_parent,
+                    configure_speed_reference_training as configure_command_residual_training)
+                intent_speed=plan['actor_adaptation']!='original-static-grip-with-reachable-speed-reference-v9'
+                if intent_speed:
+                    from wheeled_algo.intent_speed_reference import (IntentSpeedReferenceActor as SpeedReferenceActor,
+                        extend_intent_speed_parent as extend_speed_reference_parent,
+                        configure_intent_speed_training as configure_command_residual_training)
+                if motion_state:
+                    from wheeled_algo.motion_state_residual import (MotionStateResidualActor as SpeedReferenceActor,
+                        extend_motion_state_parent as extend_speed_reference_parent,
+                        configure_motion_state_training as configure_command_residual_training)
+                settings = plan['speed_reference']
+                path = ROOT / settings['checkpoint']
+                if digest(path) != settings['sha256']:
+                    raise ValueError('Speed-reference parent changed')
+                parent_mean = mean_from_checkpoint(torch.load(path, map_location='cpu', weights_only=True),
+                    ROOT / plan['actor_bundle'] / 'source.onnx').to(args.device)
+                runner.alg.actor.mlp = parent_mean
+                old_actor_names = list(dict(runner.alg.actor.named_parameters()))
+                if motion_state:
+                    motion=plan['motion_state_parent'];motion_path=ROOT/motion['checkpoint']
+                    if digest(motion_path)!=motion['sha256']:raise ValueError('Motion-state parent changed')
+                    runner.alg.actor.mlp=mean_from_checkpoint(torch.load(motion_path,map_location='cpu',weights_only=True),ROOT/plan['actor_bundle']/'source.onnx').to(args.device)
+                    old_actor_names=list(dict(runner.alg.actor.named_parameters()))
+                    report['motion_state_parent']=deepcopy(motion)
+                runner.alg.actor.mlp = SpeedReferenceActor(parent_mean, settings['sha256'],
+                    settings['margin_m_s'], settings['lean_gain_rad_per_m_s'],
+                    **({'encoder_gain':settings['encoder_gain']}if intent_speed else {})).to(args.device)
+                report['speed_reference'] = deepcopy(settings)
             report["command_residual_invariant"] = runner.alg.actor.mlp.verify_original(teacher)
         # Independent rates let the fresh value network catch up without large
         # changes to the already useful actor. Both groups use native Adam/PPO.
@@ -556,7 +617,8 @@ def main():
                            "critic_position_anchor", "critic_dim", "actor_output_layer_only", "actor_adaptation",
                            "learning_rate", "training_command_reference", "feedback_training_scope", "command_branch_restore",
                            "physics_dt", "control_file", "control_sha256", "moving_velocity_cost_scale", "static_feedback_recall",
-                           "allowed_num_envs", "default_num_envs", "contact_material", "motion_grip_parent"}
+                           "allowed_num_envs", "default_num_envs", "contact_material", "motion_grip_parent", "speed_reference", "motion_state_parent", "checkpoint_interval",
+                           "policy_dt", "gamma", "lam", "num_steps_per_env", "policy_rate_transition"}
                 if (revision.get("schema") != "flat-training-plan-revision-v1"
                         or revision["parent_checkpoint_sha256"] != digest(args.resume)
                         or revision["old_plan_sha256"] != info["plan_sha256"]
@@ -588,7 +650,13 @@ def main():
                 report["entry_revision_sha256"] = digest(args.resume_entry_revision)
             report["training_transitions_total"] = restored_training_frames(
                 info, old_plan if migration else plan)
-            if info["control_math_sha256"] != report["control_math_sha256"]:
+            if migration and old_plan["policy_dt"] != plan["policy_dt"]:
+                from wheeled_tasks.chassis.flat_policy_rate import validate_policy_rate_transition
+                report["policy_clock_transition"] = validate_policy_rate_transition(
+                    ROOT, old_plan, plan, info["control_math_sha256"])
+            elif migration and set(changed) & {"gamma", "lam", "num_steps_per_env", "policy_rate_transition"}:
+                raise ValueError("Discount, GAE and rollout changes require the declared policy clock migration")
+            elif info["control_math_sha256"] != report["control_math_sha256"]:
                 if not migration:
                     raise ValueError("A changed control hash requires the exact clock plan migration")
                 from wheeled_tasks.chassis.flat_clock_transition import validate_flat_clock_transition
@@ -635,6 +703,25 @@ def main():
                     gate_contract=runner.alg.actor.mlp.verify_original(teacher)["low_demand_gate"])
                 for key in ("active_branch_actor_updates", "feedback_branch_actor_updates",
                             "post_split_actor_updates", "inherited_shared_feedback_updates"):
+                    report[key] = info[key]
+            elif motion_state and info.get('actor_adaptation')=='original-static-grip-with-intent-speed-reference-v10':
+                if not migration or digest(args.resume)!=plan['motion_state_parent']['sha256']:
+                    raise ValueError('Motion-state extension requires its exact v10 parent')
+                checkpoint,report['motion_state_extension']=extend_speed_reference_parent(
+                    checkpoint,runner.alg.actor,runner.alg.critic,runner.alg.optimizer,old_actor_names)
+                report['speed_reference_actor_updates']=0
+                report['motion_state_actor_updates']=0
+                for key in ('active_branch_actor_updates','feedback_branch_actor_updates','post_split_actor_updates',
+                            'inherited_shared_feedback_updates','static_grip_actor_updates'):
+                    report[key]=info[key]
+            elif speed_reference and info.get('actor_adaptation') == feedback_kinds[6]:
+                if not migration or digest(args.resume) != plan['speed_reference']['sha256']:
+                    raise ValueError('Speed reference requires its exact v7 parent and a forward revision')
+                checkpoint, report['speed_reference_extension'] = extend_speed_reference_parent(
+                    checkpoint, runner.alg.actor, runner.alg.critic, runner.alg.optimizer, old_actor_names)
+                report['speed_reference_actor_updates'] = 0
+                for key in ('active_branch_actor_updates', 'feedback_branch_actor_updates',
+                            'post_split_actor_updates', 'inherited_shared_feedback_updates', 'static_grip_actor_updates'):
                     report[key] = info[key]
             elif motion_grip and info.get('actor_adaptation') == feedback_kinds[6]:
                 if not migration or digest(args.resume) != plan['motion_grip_parent']['sha256']:
@@ -703,6 +790,14 @@ def main():
                 report["active_branch_actor_updates"] = 0
             elif command_residual:
                 report["active_branch_actor_updates"] = info["active_branch_actor_updates"]
+                if speed_reference:
+                    if info['speed_reference'] != plan['speed_reference']:
+                        raise ValueError('Speed-reference continuation changed its parent or initialization')
+                    report['speed_reference_actor_updates'] = info['speed_reference_actor_updates']
+                    if motion_state:
+                        if info['motion_state_parent']!=plan['motion_state_parent']:raise ValueError('Motion-state parent changed')
+                        report['motion_state_actor_updates']=info['motion_state_actor_updates']
+                    report['static_grip_actor_updates'] = info['static_grip_actor_updates']
                 if motion_grip:
                     if info['motion_grip_parent'] != plan['motion_grip_parent']:
                         raise ValueError('Motion grip continuation changes its frozen adapted-static reference')
@@ -740,8 +835,10 @@ def main():
                 raise RuntimeError("Continuation failed exact full-state restoration before optimization")
             for key in ("successful_updates_total", "actor_updates_total", "attempted_updates_total", "critic_warmup_remaining"):
                 report[key] = info[key]
-            if migration and not population_changed:
+            if migration and not population_changed and not report.get('policy_clock_transition'):
                 report["critic_warmup_remaining"] += plan.get("additional_critic_warmup_updates", 0)
+            if report.get('policy_clock_transition'):
+                report['policy_clock_transition']['critic_warmup'] = 'saved pending count retained; no historical migration warmup reapplied'
             report.update(initialization="full_actor_critic_std_adam_restore_with_declared_plan_migration" if migration else
                           "full_same_plan_actor_critic_std_adam_restore", parent_checkpoint=str(args.resume.resolve()),
                           parent_checkpoint_sha256=digest(args.resume),
@@ -888,6 +985,9 @@ def main():
                 report["static_grip_actor_updates"] += int(enabled)
             if motion_grip:
                 report['motion_grip_actor_updates'] += int(enabled)
+            if speed_reference:
+                report['speed_reference_actor_updates'] += int(enabled)
+                if motion_state:report['motion_state_actor_updates']+=int(enabled)
             if separated_feedback:
                 report["post_split_actor_updates"] += int(enabled)
             report["critic_warmup_remaining"] = max(0, report["critic_warmup_remaining"] - int(not enabled))
@@ -922,6 +1022,20 @@ def main():
                     writer.add_scalar("FlatTransfer/static_grip_actor_updates", report["static_grip_actor_updates"], report["successful_updates_total"])
                 if motion_grip:
                     writer.add_scalar('FlatTransfer/motion_grip_actor_updates', report['motion_grip_actor_updates'], report['successful_updates_total'])
+                if speed_reference:
+                    writer.add_scalar('FlatTransfer/speed_reference_actor_updates', report['speed_reference_actor_updates'], report['successful_updates_total'])
+                    if motion_state:
+                        writer.add_scalar('FlatTransfer/motion_state_actor_updates',report['motion_state_actor_updates'],report['successful_updates_total'])
+                    for index, name in enumerate(('forward', 'backward', 'yaw_positive', 'yaw_negative')):
+                        lo,hi=(.005,.5)if intent_speed and index>=2 else (.05,1.2)
+                        writer.add_scalar('FlatTransfer/reference_margin_m_s/'+name,
+                            float(runner.alg.actor.mlp.reference_margin[index].detach().clamp(lo,hi)), report['successful_updates_total'])
+                    for index, name in enumerate(('forward', 'backward')):
+                        writer.add_scalar('FlatTransfer/reference_lean_gain_rad_per_m_s/'+name,
+                            float(runner.alg.actor.mlp.reference_lean_gain[index].detach().clamp(-.04,.04)), report['successful_updates_total'])
+                    if intent_speed:
+                        writer.add_scalar('FlatTransfer/encoder_reference_gain',
+                            float(runner.alg.actor.mlp.reference_encoder_gain.detach().clamp(0.,.6)),report['successful_updates_total'])
                 writer.add_scalar("FlatTransfer/actor_mean_max_change_from_block_start", report["actor_mean_max_change_from_block_start"], report["successful_updates_total"])
                 if hasattr(env, "diagnostic_reward_stats"):
                     for name, value in env.diagnostic_reward_metrics().items():

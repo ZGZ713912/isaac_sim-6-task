@@ -1,0 +1,119 @@
+{
+  "schema": "flat-speed-selection-decision-v1",
+  "status": "rejected_as_complete_speed_solution",
+  "policy_hz": 50,
+  "new_optimizer_updates": 0,
+  "behavior_qualified": false,
+  "default_gui_replaced": false,
+  "arm2_is": "zero-PPO initialized reference scoped to high reverse; generic trained role is not a new training count",
+  "report_sha256": "4c8251612db4bb2232184e257c1494c6e2244c43a317a1600454f34020edbe88",
+  "analysis_sha256": "21b66ba91bc678c32e44bd11e26c8438e029b17ae2a3958831a1a8f310261151",
+  "phases_sha256": "6893752493e19964312ed31e3212864e382e763e9493d313794662d18055a239",
+  "summaries": {
+    "parent": {
+      "full_episodes": 241,
+      "requested_episodes": 384,
+      "cases_passing_all_checks": 15,
+      "total_cases": 96
+    },
+    "trained": {
+      "full_episodes": 239,
+      "requested_episodes": 384,
+      "cases_passing_all_checks": 15,
+      "total_cases": 96
+    }
+  },
+  "lost_low_parent_checks": [
+    {
+      "case": "h0.305_mu0.2_stand_230mm",
+      "check": "survival"
+    },
+    {
+      "case": "h0.305_mu0.2_stand_230mm",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.305_mu0.2_stand_305mm",
+      "check": "survival"
+    },
+    {
+      "case": "h0.305_mu0.2_stand_305mm",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.305_mu0.2_stand_430mm",
+      "check": "survival"
+    },
+    {
+      "case": "h0.305_mu0.2_stand_430mm",
+      "check": "tilt"
+    },
+    {
+      "case": "h0.305_mu0.2_start_stop_05",
+      "check": "yaw"
+    },
+    {
+      "case": "h0.305_mu0.2_height_scan",
+      "check": "survival"
+    },
+    {
+      "case": "h0.305_mu0.2_height_scan",
+      "check": "tilt"
+    }
+  ],
+  "high_042_mu05": {
+    "parent": {
+      "h0.42_mu0.5_forward_3": {
+        "frames": 1000,
+        "actual_mean": 2.97943115234375,
+        "target_mean": 3.0,
+        "mae": 0.02057078294456005
+      },
+      "h0.42_mu0.5_backward_3": {
+        "frames": 1000,
+        "actual_mean": 0.35546451807022095,
+        "target_mean": -3.0,
+        "mae": 3.3554646968841553
+      },
+      "h0.42_mu0.5_rotate_4": {
+        "frames": 1000,
+        "actual_mean": 3.9868690967559814,
+        "target_mean": 4.0,
+        "mae": 0.16057294607162476
+      },
+      "h0.42_mu0.5_rotate_4_reverse": {
+        "frames": 1000,
+        "actual_mean": -3.987607955932617,
+        "target_mean": -4.0,
+        "mae": 0.14797690510749817
+      }
+    },
+    "trained": {
+      "h0.42_mu0.5_forward_3": {
+        "frames": 1000,
+        "actual_mean": 2.978774309158325,
+        "target_mean": 3.0,
+        "mae": 0.02124200016260147
+      },
+      "h0.42_mu0.5_backward_3": {
+        "frames": 1000,
+        "actual_mean": -2.4924283027648926,
+        "target_mean": -3.0,
+        "mae": 0.5075716972351074
+      },
+      "h0.42_mu0.5_rotate_4": {
+        "frames": 1000,
+        "actual_mean": 4.00974178314209,
+        "target_mean": 4.0,
+        "mae": 0.14364737272262573
+      },
+      "h0.42_mu0.5_rotate_4_reverse": {
+        "frames": 1000,
+        "actual_mean": -3.9803919792175293,
+        "target_mean": -4.0,
+        "mae": 0.14989684522151947
+      }
+    }
+  },
+  "reason": "Backward body tracking improved but full replay and low-speed retention did not pass; function identity outside scope does not prove identical native trajectories"
+}

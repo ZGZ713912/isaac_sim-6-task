@@ -69,7 +69,7 @@ def validate_release(primary, manifest, plan, checkpoint_sha, root=ROOT):
                 or evaluation.get("source_onnx_sha256") != plan["source_onnx_sha256"]
                 or evaluation.get("asset_manifest_sha256") != plan["asset_manifest_sha256"]
                 or evaluation.get("model_spec_sha256") != plan["model_spec_sha256"]
-                or evaluation.get("policy_hz") != 50 or evaluation.get("physics_hz") != hz
+                or evaluation.get("policy_hz") != round(1/plan['policy_dt']) or evaluation.get("physics_hz") != hz
                 or evaluation.get("seed") != seed or evaluation.get("new_optimizer_updates") != 0):
             raise ValueError(f"Release cohort has a different model, clock or seed: {name}")
         result = evaluation["result"]
@@ -147,6 +147,9 @@ def main():
     from wheeled_algo.wheel_authority import KIND as WHEEL_KIND
     from wheeled_algo.static_grip import KIND as GRIP_KIND
     from wheeled_algo.motion_grip import KIND as MOTION_GRIP_KIND
+    from wheeled_algo.speed_reference import KIND as SPEED_REFERENCE_KIND
+    from wheeled_algo.intent_speed_reference import KIND as INTENT_SPEED_KIND
+    from wheeled_algo.motion_state_residual import KIND as MOTION_STATE_KIND
     from wheeled_tasks.chassis.flat_base_continuation import read_plan, digest, encode
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -166,6 +169,7 @@ def main():
         raise ValueError("Checkpoint does not belong to the matched flat actor lineage")
     evaluation = json.loads(args.evaluation.read_text())
     if (evaluation["status"] != "evaluated" or evaluation["checkpoint_sha256"] != digest(args.checkpoint)
+            or evaluation.get('policy_hz') != round(1/plan['policy_dt'])
             or evaluation["model_spec_sha256"] != plan["model_spec_sha256"]):
         raise ValueError("The exact candidate must have completed a matching behavior evaluation")
     release = None
@@ -188,7 +192,7 @@ def main():
     _, recovered = recover_actor(source)
     mean = {k: v for k, v in state["actor_state_dict"].items() if k.startswith("mlp.")}
     actor = mean_from_checkpoint(state, source)
-    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND, GRIP_KIND, MOTION_GRIP_KIND):
+    if info.get("actor_adaptation") in (KIND, FEEDBACK_KIND, TRACKING_KIND, SEPARATED_KIND, LOW_DEMAND_KIND, STATIC_KIND, WHEEL_KIND, GRIP_KIND, MOTION_GRIP_KIND, SPEED_REFERENCE_KIND, INTENT_SPEED_KIND,MOTION_STATE_KIND):
         graph = actor.export_graph(source)
     else:
         graph = onnx.load(str(source))
@@ -201,14 +205,14 @@ def main():
     parameters = yaml.safe_load(yaml_text)["rl_controller"]["ros__parameters"]
     if (parameters["policy_rate"], parameters["rl_obs_size"], parameters["rl_action_size"],
             parameters["history_length"], parameters["leg_winding_version"], parameters["expected_model_spec_sha256"]) != (
-            50., 35, 6, 1, plan["leg_target_winding"], plan["model_spec_sha256"]):
-        raise ValueError("Current RMCS YAML interface changed")
+            round(1/plan['policy_dt']), 35, 6, 1, plan["leg_target_winding"], plan["model_spec_sha256"]):
+        raise ValueError("RMCS YAML policy rate or interface differs from this checkpoint's runtime contract")
     observation = parameters["observation_terms"]
     action = parameters["action_terms"]
     layout_json = json.dumps(dict(observation=observation, action=action), separators=(",", ":"), sort_keys=True)
     metadata = {item.key: item.value for item in graph.metadata_props}
     metadata.update(leg_winding_version=plan["leg_target_winding"], leg_target_model_spec_sha256=plan["model_spec_sha256"],
-        rmcs_model_spec_sha256=plan["model_spec_sha256"], rmcs_policy_hz="50", rmcs_history_length="1",
+        rmcs_model_spec_sha256=plan["model_spec_sha256"], rmcs_policy_hz=str(round(1/plan['policy_dt'])), rmcs_history_length="1",
         rmcs_obs_frame_size="35", rmcs_obs_clip="100", rmcs_obs_layout=json.dumps(observation, separators=(",", ":")),
         rmcs_actions_layout=json.dumps(action, separators=(",", ":")),
         rmcs_layout_hash=hashlib.sha256(layout_json.encode()).hexdigest(),
@@ -288,8 +292,8 @@ def main():
         packaged_command_limits=dict(vx_m_s=3., yaw_rad_s=4., height_m=[.23, .42]),
         physical_robot_tested=False, hardware_motion_started=False,
         training_plan_file=info["plan_file"], training_plan_sha256=info["plan_sha256"],
-        training_physics_hz=round(1 / plan["physics_dt"]),
-        control_timing_scope=f"50Hz actor; {round(1 / plan['physics_dt'])}Hz training; frozen200Hz baseline and1000Hz deployment cohorts required for behavior qualification")
+        training_policy_hz=round(1/plan['policy_dt']),training_physics_hz=round(1 / plan["physics_dt"]),
+        control_timing_scope=f"{round(1/plan['policy_dt'])}Hz actor; {round(1 / plan['physics_dt'])}Hz physics; matched training/deployment cohorts required for behavior qualification")
     (args.output / "verification.json").write_bytes(encode(report))
     (args.output / "evaluation.json").write_bytes(args.evaluation.read_bytes())
     print(json.dumps(report, indent=2))

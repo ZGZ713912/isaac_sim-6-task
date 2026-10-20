@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="7" time="2.113" timestamp="2026-10-20T15:54:17.472498+08:00" hostname="ZGZ"><testcase classname="tests.test_speed_reference" name="test_six_parameters_have_gradients_without_changing_low_command_function" time="0.650" /><testcase classname="tests.test_speed_reference" name="test_export_dynamic_batch_matches_and_checks_frozen_parent" time="0.196" /><testcase classname="tests.test_speed_reference" name="test_real_rsl_adam_is_remapped_by_owner_and_new_slots_are_empty" time="0.146" /><testcase classname="tests.test_speed_reference" name="test_native_cpu_ppo_has_finite_loss_and_preserves_parent[False]" time="0.054"><failure message="RuntimeError: The size of tensor a (6) must match the size of tensor b (35) at non-singleton dimension 1">means = (WheelAuthorityActor(
+  (command): CommandResidualActor(
+    (base): Sequential(
+      (0): Linear(in_features=35, out..._features=2, bias=True)
+  )
+), PosixPath('/tmp/pytest-of-noir/pytest-103/test_native_cpu_ppo_has_finite0/recalled.pt'))
+enabled = False
+
+    @pytest.mark.parametrize('enabled',[False, True])
+    def test_native_cpu_ppo_has_finite_loss_and_preserves_parent(means, enabled):
+        from rsl_rl.storage import RolloutStorage
+        from wheeled_algo.anchored_ppo import TeacherAnchoredPPO
+        mean=SpeedReferenceActor(means[1],'a'*64,[.15,.3,.05,.05],[-.005,-.005])
+        obs,actor,critic=rsl_models(mean)
+        obs['policy'][:,0]=torch.tensor([3.,-3.,0.,0.]*2)
+        obs['policy'][:,2]=torch.tensor([0.,0.,4.,-4.]*2)
+        obs['policy'][:,6:10]=torch.tensor([0.,0.,0.,-1.])
+        obs['policy'][:,20:22]=0.
+        alg=TeacherAnchoredPPO(actor,critic,RolloutStorage('rl',8,4,obs,[6]),num_learning_epochs=2,
+            num_mini_batches=2,learning_rate=1e-4,schedule='fixed',use_clipped_value_loss=False)
+        alg.configure_teacher(nn.Identity(),coefficient=0.,action_scales=[.025]*4+[.04]*2,min_vx=.75,min_yaw=1.5)
+        scope=configure_speed_reference_training(actor,enabled)
+        before=deepcopy(actor.state_dict()); values=deepcopy(critic.state_dict())
+        with torch.no_grad():
+            for _ in range(4):
+                actions=alg.act(obs)
+                alg.process_env_step(obs,-(actions-.1).square().sum(-1),torch.zeros(8),{})
+            alg.compute_returns(obs)
+&gt;       losses=alg.update()
+               ^^^^^^^^^^^^
+
+tests/test_speed_reference.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_algo/anchored_ppo.py:120: in update
+    anchor, rmse, fraction = self.teacher_loss(batch.observations)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;wheeled_algo.anchored_ppo.TeacherAnchoredPPO object at 0x7fcb34f95fa0&gt;
+observations = TensorDict(
+    fields={
+        critic: Tensor(shape=torch.Size([16, 83]), device=cpu, dtype=torch.float32, is_shared...vice=cpu, dtype=torch.float32, is_shared=False)},
+    batch_size=torch.Size([16]),
+    device=cpu,
+    is_shared=False)
+
+    def teacher_loss(self, observations):
+        frame = observations["policy"]
+        selected = self.teacher_selection(frame)
+        # Multiplication by a mask avoids a GPU synchronization / dynamic
+        # shape on every minibatch. It also gives exactly zero low-speed loss.
+        with torch.no_grad():
+            target = self.teacher(frame)
+&gt;       error = self.actor.mlp(frame) - target
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: The size of tensor a (6) must match the size of tensor b (35) at non-singleton dimension 1
+
+src/wheeled_algo/anchored_ppo.py:86: RuntimeError</failure></testcase><testcase classname="tests.test_speed_reference" name="test_native_cpu_ppo_has_finite_loss_and_preserves_parent[True]" time="0.019"><failure message="RuntimeError: The size of tensor a (6) must match the size of tensor b (35) at non-singleton dimension 1">means = (WheelAuthorityActor(
+  (command): CommandResidualActor(
+    (base): Sequential(
+      (0): Linear(in_features=35, out..._features=2, bias=True)
+  )
+), PosixPath('/tmp/pytest-of-noir/pytest-103/test_native_cpu_ppo_has_finite1/recalled.pt'))
+enabled = True
+
+    @pytest.mark.parametrize('enabled',[False, True])
+    def test_native_cpu_ppo_has_finite_loss_and_preserves_parent(means, enabled):
+        from rsl_rl.storage import RolloutStorage
+        from wheeled_algo.anchored_ppo import TeacherAnchoredPPO
+        mean=SpeedReferenceActor(means[1],'a'*64,[.15,.3,.05,.05],[-.005,-.005])
+        obs,actor,critic=rsl_models(mean)
+        obs['policy'][:,0]=torch.tensor([3.,-3.,0.,0.]*2)
+        obs['policy'][:,2]=torch.tensor([0.,0.,4.,-4.]*2)
+        obs['policy'][:,6:10]=torch.tensor([0.,0.,0.,-1.])
+        obs['policy'][:,20:22]=0.
+        alg=TeacherAnchoredPPO(actor,critic,RolloutStorage('rl',8,4,obs,[6]),num_learning_epochs=2,
+            num_mini_batches=2,learning_rate=1e-4,schedule='fixed',use_clipped_value_loss=False)
+        alg.configure_teacher(nn.Identity(),coefficient=0.,action_scales=[.025]*4+[.04]*2,min_vx=.75,min_yaw=1.5)
+        scope=configure_speed_reference_training(actor,enabled)
+        before=deepcopy(actor.state_dict()); values=deepcopy(critic.state_dict())
+        with torch.no_grad():
+            for _ in range(4):
+                actions=alg.act(obs)
+                alg.process_env_step(obs,-(actions-.1).square().sum(-1),torch.zeros(8),{})
+            alg.compute_returns(obs)
+&gt;       losses=alg.update()
+               ^^^^^^^^^^^^
+
+tests/test_speed_reference.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_algo/anchored_ppo.py:120: in update
+    anchor, rmse, fraction = self.teacher_loss(batch.observations)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;wheeled_algo.anchored_ppo.TeacherAnchoredPPO object at 0x7fcb34dd20c0&gt;
+observations = TensorDict(
+    fields={
+        critic: Tensor(shape=torch.Size([16, 83]), device=cpu, dtype=torch.float32, is_shared...vice=cpu, dtype=torch.float32, is_shared=False)},
+    batch_size=torch.Size([16]),
+    device=cpu,
+    is_shared=False)
+
+    def teacher_loss(self, observations):
+        frame = observations["policy"]
+        selected = self.teacher_selection(frame)
+        # Multiplication by a mask avoids a GPU synchronization / dynamic
+        # shape on every minibatch. It also gives exactly zero low-speed loss.
+        with torch.no_grad():
+            target = self.teacher(frame)
+&gt;       error = self.actor.mlp(frame) - target
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       RuntimeError: The size of tensor a (6) must match the size of tensor b (35) at non-singleton dimension 1
+
+src/wheeled_algo/anchored_ppo.py:86: RuntimeError</failure></testcase><testcase classname="tests.test_speed_reference" name="test_plan_reaches_independent_static_preflight_and_preserves_materials[False]" time="0.058" /><testcase classname="tests.test_speed_reference" name="test_plan_reaches_independent_static_preflight_and_preserves_materials[True]" time="0.111" /></testsuite></testsuites>

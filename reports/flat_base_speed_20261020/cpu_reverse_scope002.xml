@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.186" timestamp="2026-10-20T19:48:19.417529+08:00" hostname="ZGZ"><testcase classname="tests.test_reverse_reference_scope" name="test_only_straight_high_reverse_uses_the_reference" time="0.309"><failure message="onnxruntime.capi.onnxruntime_pybind11_state.Fail: [ONNXRuntimeError] : 1 : FAIL : This is an invalid model. Error: two nodes with same node name (reverse_scope.parent.).">means = (WheelAuthorityActor(
+  (command): CommandResidualActor(
+    (base): Sequential(
+      (0): Linear(in_features=35, out..._features=2, bias=True)
+  )
+), PosixPath('/tmp/pytest-of-noir/pytest-112/test_only_straight_high_revers0/recalled.pt'))
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-112/test_only_straight_high_revers0')
+
+    def test_only_straight_high_reverse_uses_the_reference(means,tmp_path):
+        parent=means[1]
+        reference=IntentSpeedReferenceActor(parent,'a'*64,[.15,.3,.02,.02],[-.04,-.01],.5)
+        scoped=ReverseReferenceScope(parent,reference)
+        obs=observations();obs[:5,0]=torch.tensor([3.,-3.,0.,-.5,-3.]);obs[:5,2]=torch.tensor([0.,0.,4.,0.,2.])
+        chosen=(obs[:,:1]&lt;-.75)&amp;(obs[:,2:3].abs()&lt;=1.5)
+        assert torch.equal(scoped(obs),torch.where(chosen,reference(obs),parent(obs)))
+        assert torch.equal(scoped(obs)[~chosen[:,0]],parent(obs)[~chosen[:,0]])
+        assert not any(p.requires_grad for p in scoped.parameters())
+        source=tmp_path/'source.onnx';write_source(source,SimpleNamespace(mlp=parent.command.base))
+        graph=scoped.export_graph(source)
+        options=ort.SessionOptions();options.intra_op_num_threads=options.inter_op_num_threads=1
+&gt;       runtime=ort.InferenceSession(graph.SerializeToString(),sess_options=options,providers=['CPUExecutionProvider'])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_reverse_reference_scope.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../miniconda3/envs/isaacsim6/lib/python3.12/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:683: in __init__
+    self._create_inference_session(providers, provider_options, disabled_optimizers)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;onnxruntime.capi.onnxruntime_inference_collection.InferenceSession object at 0x7f690cdb0b90&gt;
+providers = ['CPUExecutionProvider'], provider_options = [{}]
+disabled_optimizers = None
+
+    def _create_inference_session(self, providers, provider_options, disabled_optimizers=None):
+        available_providers = C.get_available_providers()
+    
+        # Validate that TensorrtExecutionProvider and NvTensorRTRTXExecutionProvider are not both specified
+        if providers:
+            has_tensorrt = any(
+                provider == "TensorrtExecutionProvider"
+                or (isinstance(provider, tuple) and provider[0] == "TensorrtExecutionProvider")
+                for provider in providers
+            )
+            has_tensorrt_rtx = any(
+                provider == "NvTensorRTRTXExecutionProvider"
+                or (isinstance(provider, tuple) and provider[0] == "NvTensorRTRTXExecutionProvider")
+                for provider in providers
+            )
+            if has_tensorrt and has_tensorrt_rtx:
+                raise ValueError(
+                    "Cannot enable both 'TensorrtExecutionProvider' and 'NvTensorRTRTXExecutionProvider' "
+                    "in the same session."
+                )
+        # Tensorrt and TensorRT RTX can fall back to CUDA if it's explicitly assigned. All others fall back to CPU.
+        if "NvTensorRTRTXExecutionProvider" in available_providers:
+            if (
+                providers
+                and any(
+                    provider == "CUDAExecutionProvider"
+                    or (isinstance(provider, tuple) and provider[0] == "CUDAExecutionProvider")
+                    for provider in providers
+                )
+                and any(
+                    provider == "NvTensorRTRTXExecutionProvider"
+                    or (isinstance(provider, tuple) and provider[0] == "NvTensorRTRTXExecutionProvider")
+                    for provider in providers
+                )
+            ):
+                self._fallback_providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+            else:
+                self._fallback_providers = ["CPUExecutionProvider"]
+        elif "TensorrtExecutionProvider" in available_providers:
+            if (
+                providers
+                and any(
+                    provider == "CUDAExecutionProvider"
+                    or (isinstance(provider, tuple) and provider[0] == "CUDAExecutionProvider")
+                    for provider in providers
+                )
+                and any(
+                    provider == "TensorrtExecutionProvider"
+                    or (isinstance(provider, tuple) and provider[0] == "TensorrtExecutionProvider")
+                    for provider in providers
+                )
+            ):
+                self._fallback_providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+            else:
+                self._fallback_providers = ["CPUExecutionProvider"]
+        else:
+            self._fallback_providers = ["CPUExecutionProvider"]
+    
+        # validate providers and provider_options before other initialization
+        providers, provider_options = check_and_normalize_provider_args(
+            providers, provider_options, available_providers
+        )
+    
+        # Print a warning if user passed providers to InferenceSession() but the SessionOptions instance
+        # already has provider information (e.g., via add_provider_for_devices()). The providers specified
+        # here will take precedence.
+        if self._sess_options is not None and (providers or provider_options) and self._sess_options.has_providers():
+            warnings.warn(
+                "Specified 'providers'/'provider_options' when creating InferenceSession but SessionOptions has "
+                "already been configured with providers. InferenceSession will only use the providers "
+                "passed to InferenceSession()."
+            )
+    
+        session_options = self._sess_options if self._sess_options else C.get_default_session_options()
+    
+        self._register_ep_custom_ops(session_options, providers, provider_options, available_providers)
+    
+        if self._model_path:
+            sess = C.InferenceSession(session_options, self._model_path, True, self._read_config_from_model)
+        else:
+&gt;           sess = C.InferenceSession(session_options, self._model_bytes, False, self._read_config_from_model)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           onnxruntime.capi.onnxruntime_pybind11_state.Fail: [ONNXRuntimeError] : 1 : FAIL : This is an invalid model. Error: two nodes with same node name (reverse_scope.parent.).
+
+../../../miniconda3/envs/isaacsim6/lib/python3.12/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:780: Fail</failure></testcase></testsuite></testsuites>

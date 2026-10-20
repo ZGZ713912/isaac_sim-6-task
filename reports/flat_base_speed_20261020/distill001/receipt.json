@@ -1,0 +1,104 @@
+{
+  "schema": "flat-speed-coordinated-distillation-v1",
+  "recorded_at": "2026-10-20T09:07:30.557735+00:00",
+  "source_sha256": "a8e1518480ff4eb995a4ddb4868f27004e0f74a06b7accd9daf8149e76252f35",
+  "prior_source_sha256": "28e8c8e868e8b7a800fc423879bd1b82d9474424b109a4eff5ed7bbfaff7ad1b",
+  "parent_sha256": "b4a3e47e0be3199e9d403fb7b2d8409d1b2e616bc2b02a3b0adbc00d042c0dad",
+  "teacher_parent_sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+  "selection": {
+    "reverse": {
+      "arm": 0.0,
+      "full_episodes": 16,
+      "requested_episodes": 16,
+      "error": 0.22079965330660342
+    },
+    "yaw_positive": {
+      "arm": 1.0,
+      "full_episodes": 8,
+      "requested_episodes": 8,
+      "error": 0.06275614686310292
+    },
+    "yaw_negative": {
+      "arm": 1.0,
+      "full_episodes": 8,
+      "requested_episodes": 8,
+      "error": 0.04673639364540577
+    }
+  },
+  "provenance": [
+    {
+      "directory": "reports/flat_base_speed_20261020/progressive_probe001",
+      "trace_sha256": "0818bff94e2199b71bd50648ca930b23c9b33e2340a546701462ff531eb8435b",
+      "report_sha256": "a06f79f84a20f963c9e050d8f7f5e7c5c56a1b396597b05cae46097deb43e1dc",
+      "frames": 100518
+    },
+    {
+      "directory": "reports/flat_base_speed_20261020/lean_probe003",
+      "trace_sha256": "b5643cd1bd9cb1545d3a497a6e29ac7865bb360d3d28e2bc69d9515b97768d2e",
+      "report_sha256": "c4c33e54b43c94ada4fc95a0b1d0f0c883cf81dc4047fc191576cfafc0898486",
+      "frames": 102713
+    }
+  ],
+  "data_seed": 191119,
+  "excluded_comparison_seeds": [
+    191139,
+    191159
+  ],
+  "selection_policy": "completion count, then external-command error; design data only",
+  "frames": 203231,
+  "linear_solves": 1,
+  "campaign_closed_form_fits": 2,
+  "new_PPO_updates": 0,
+  "target_clipped_fraction": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "optimizer_revision": "clear only speed_residual weight/bias Adam; preserve all other state",
+  "qualified": false,
+  "adopted": false,
+  "candidates": {
+    "0.25": {
+      "path": "reports/flat_base_speed_20261020/distill001/model_001342_distill0.25.pt",
+      "sha256": "02573e2d78e02109ba77990eacfe85a8655a022f3adcb94f87dc7708e68742b8",
+      "teacher_action_rmse_raw": [
+        0.0120626762509346,
+        0.026606258004903793,
+        0.010260283015668392,
+        0.026193715631961823,
+        0.08860297501087189,
+        0.11178767681121826
+      ],
+      "low_function_equal": true
+    },
+    "0.5": {
+      "path": "reports/flat_base_speed_20261020/distill001/model_001342_distill0.5.pt",
+      "sha256": "52e9818aa2dd09cc26c3f60f2ec608ef4beef592a263d2b4fc662414daae3b5a",
+      "teacher_action_rmse_raw": [
+        0.009721561335027218,
+        0.021375812590122223,
+        0.008297442458570004,
+        0.02102835476398468,
+        0.07341469824314117,
+        0.0930451974272728
+      ],
+      "low_function_equal": true
+    },
+    "1.0": {
+      "path": "reports/flat_base_speed_20261020/distill001/model_001342_distill1.pt",
+      "sha256": "77582e6b0aa140bcd3698a20e078838e3f227c2f09643189e1aec533e96e8935",
+      "teacher_action_rmse_raw": [
+        0.007136108353734016,
+        0.0163270290941,
+        0.006029034964740276,
+        0.01599826104938984,
+        0.057880278676748276,
+        0.07379623502492905
+      ],
+      "low_function_equal": true
+    }
+  }
+}

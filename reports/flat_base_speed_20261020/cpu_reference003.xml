@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="7" time="2.046" timestamp="2026-10-20T15:53:33.613276+08:00" hostname="ZGZ"><testcase classname="tests.test_speed_reference" name="test_six_parameters_have_gradients_without_changing_low_command_function" time="0.646" /><testcase classname="tests.test_speed_reference" name="test_export_dynamic_batch_matches_and_checks_frozen_parent" time="0.193" /><testcase classname="tests.test_speed_reference" name="test_real_rsl_adam_is_remapped_by_owner_and_new_slots_are_empty" time="0.150" /><testcase classname="tests.test_speed_reference" name="test_native_cpu_ppo_has_finite_loss_and_preserves_parent[False]" time="0.016"><failure message="AttributeError: 'types.SimpleNamespace' object has no attribute 'to'">means = (WheelAuthorityActor(
+  (command): CommandResidualActor(
+    (base): Sequential(
+      (0): Linear(in_features=35, out..._features=2, bias=True)
+  )
+), PosixPath('/tmp/pytest-of-noir/pytest-102/test_native_cpu_ppo_has_finite0/recalled.pt'))
+enabled = False
+
+    @pytest.mark.parametrize('enabled',[False, True])
+    def test_native_cpu_ppo_has_finite_loss_and_preserves_parent(means, enabled):
+        from rsl_rl.storage import RolloutStorage
+        from wheeled_algo.anchored_ppo import TeacherAnchoredPPO
+        mean=SpeedReferenceActor(means[1],'a'*64,[.15,.3,.05,.05],[-.005,-.005])
+        obs,actor,critic=rsl_models(mean)
+        obs['policy'][:,0]=torch.tensor([3.,-3.,0.,0.]*2)
+        obs['policy'][:,2]=torch.tensor([0.,0.,4.,-4.]*2)
+        obs['policy'][:,6:10]=torch.tensor([0.,0.,0.,-1.])
+        obs['policy'][:,20:22]=0.
+        alg=TeacherAnchoredPPO(actor,critic,RolloutStorage('rl',8,4,obs,[6]),num_learning_epochs=2,
+            num_mini_batches=2,learning_rate=1e-4,schedule='fixed',use_clipped_value_loss=False)
+&gt;       alg.configure_teacher(SimpleNamespace(),coefficient=0.,action_scales=[.025]*4+[.04]*2,min_vx=.75,min_yaw=1.5)
+
+tests/test_speed_reference.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;wheeled_algo.anchored_ppo.TeacherAnchoredPPO object at 0x7f5d988b1670&gt;
+teacher = namespace(), coefficient = 0.0
+action_scales = [0.025, 0.025, 0.025, 0.025, 0.04, 0.04], min_vx = 0.75
+min_yaw = 1.5, min_visible_wheel_error_m_s = None
+
+    def configure_teacher(self, teacher, *, coefficient, action_scales, min_vx, min_yaw, min_visible_wheel_error_m_s=None):
+        if version("rsl-rl-lib") != "5.5.1":
+            raise ValueError("The teacher update is pinned to RSL-RL 5.5.1")
+        if (self.actor.is_recurrent or self.critic.is_recurrent or self.rnd or self.symmetry
+                or self.is_multi_gpu or self.use_mixed_precision or self.schedule != "fixed"
+                or self.actor.obs_normalization or self.actor.obs_groups != ["policy"]):
+            raise ValueError("Teacher PPO supports only the frozen flat feedforward interface")
+        if (not all(math.isfinite(x) for x in (coefficient, min_vx, min_yaw))
+                or coefficient &lt; 0 or min_vx &lt;= 0 or min_yaw &lt;= 0):
+            raise ValueError("Invalid teacher loss settings")
+        if (min_visible_wheel_error_m_s is not None and
+                (type(min_visible_wheel_error_m_s) not in (int, float)
+                 or not math.isfinite(min_visible_wheel_error_m_s) or min_visible_wheel_error_m_s &lt;= 0)):
+            raise ValueError("Visible wheel-error threshold must be finite and positive")
+        scale = torch.tensor(action_scales, dtype=torch.float32, device=self.device)
+        if scale.shape != (6,) or not torch.isfinite(scale).all() or not (scale &gt; 0).all():
+            raise ValueError("Teacher loss requires six finite positive action scales")
+&gt;       self.teacher = teacher.to(self.device).eval().requires_grad_(False)
+                       ^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'to'
+
+src/wheeled_algo/anchored_ppo.py:64: AttributeError</failure></testcase><testcase classname="tests.test_speed_reference" name="test_native_cpu_ppo_has_finite_loss_and_preserves_parent[True]" time="0.012"><failure message="AttributeError: 'types.SimpleNamespace' object has no attribute 'to'">means = (WheelAuthorityActor(
+  (command): CommandResidualActor(
+    (base): Sequential(
+      (0): Linear(in_features=35, out..._features=2, bias=True)
+  )
+), PosixPath('/tmp/pytest-of-noir/pytest-102/test_native_cpu_ppo_has_finite1/recalled.pt'))
+enabled = True
+
+    @pytest.mark.parametrize('enabled',[False, True])
+    def test_native_cpu_ppo_has_finite_loss_and_preserves_parent(means, enabled):
+        from rsl_rl.storage import RolloutStorage
+        from wheeled_algo.anchored_ppo import TeacherAnchoredPPO
+        mean=SpeedReferenceActor(means[1],'a'*64,[.15,.3,.05,.05],[-.005,-.005])
+        obs,actor,critic=rsl_models(mean)
+        obs['policy'][:,0]=torch.tensor([3.,-3.,0.,0.]*2)
+        obs['policy'][:,2]=torch.tensor([0.,0.,4.,-4.]*2)
+        obs['policy'][:,6:10]=torch.tensor([0.,0.,0.,-1.])
+        obs['policy'][:,20:22]=0.
+        alg=TeacherAnchoredPPO(actor,critic,RolloutStorage('rl',8,4,obs,[6]),num_learning_epochs=2,
+            num_mini_batches=2,learning_rate=1e-4,schedule='fixed',use_clipped_value_loss=False)
+&gt;       alg.configure_teacher(SimpleNamespace(),coefficient=0.,action_scales=[.025]*4+[.04]*2,min_vx=.75,min_yaw=1.5)
+
+tests/test_speed_reference.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;wheeled_algo.anchored_ppo.TeacherAnchoredPPO object at 0x7f5d8dcbdd00&gt;
+teacher = namespace(), coefficient = 0.0
+action_scales = [0.025, 0.025, 0.025, 0.025, 0.04, 0.04], min_vx = 0.75
+min_yaw = 1.5, min_visible_wheel_error_m_s = None
+
+    def configure_teacher(self, teacher, *, coefficient, action_scales, min_vx, min_yaw, min_visible_wheel_error_m_s=None):
+        if version("rsl-rl-lib") != "5.5.1":
+            raise ValueError("The teacher update is pinned to RSL-RL 5.5.1")
+        if (self.actor.is_recurrent or self.critic.is_recurrent or self.rnd or self.symmetry
+                or self.is_multi_gpu or self.use_mixed_precision or self.schedule != "fixed"
+                or self.actor.obs_normalization or self.actor.obs_groups != ["policy"]):
+            raise ValueError("Teacher PPO supports only the frozen flat feedforward interface")
+        if (not all(math.isfinite(x) for x in (coefficient, min_vx, min_yaw))
+                or coefficient &lt; 0 or min_vx &lt;= 0 or min_yaw &lt;= 0):
+            raise ValueError("Invalid teacher loss settings")
+        if (min_visible_wheel_error_m_s is not None and
+                (type(min_visible_wheel_error_m_s) not in (int, float)
+                 or not math.isfinite(min_visible_wheel_error_m_s) or min_visible_wheel_error_m_s &lt;= 0)):
+            raise ValueError("Visible wheel-error threshold must be finite and positive")
+        scale = torch.tensor(action_scales, dtype=torch.float32, device=self.device)
+        if scale.shape != (6,) or not torch.isfinite(scale).all() or not (scale &gt; 0).all():
+            raise ValueError("Teacher loss requires six finite positive action scales")
+&gt;       self.teacher = teacher.to(self.device).eval().requires_grad_(False)
+                       ^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'to'
+
+src/wheeled_algo/anchored_ppo.py:64: AttributeError</failure></testcase><testcase classname="tests.test_speed_reference" name="test_plan_reaches_independent_static_preflight_and_preserves_materials[False]" time="0.052" /><testcase classname="tests.test_speed_reference" name="test_plan_reaches_independent_static_preflight_and_preserves_materials[True]" time="0.104" /></testsuite></testsuites>

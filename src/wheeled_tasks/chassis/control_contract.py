@@ -17,10 +17,13 @@ COARSE_SCOPE = {"model": "200hz_feedback_pd_with_1ms_transport_impulse",
 POLICY_200_TIMING = {"physics_dt": .005, "policy_dt": .005, "pc_control_dt": .005, "decimation": 1}
 POLICY_200_SCOPE = {**COARSE_SCOPE, "model": "200hz_policy_and_feedback_pd_with_1ms_transport_impulse",
                     "fresh_feedback_per_policy_step": 1}
+FINE_POLICY_200_TIMING = {"physics_dt": .001, "policy_dt": .005, "pc_control_dt": .001, "decimation": 5}
 
 
 def declared_control_timing(control):
     if "simulation_timing_approximation" not in control:
+        if control.get("control_id") == "flat-base-policy-200hz-control-v1":
+            return dict(FINE_POLICY_200_TIMING)
         return {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
     scope = control["simulation_timing_approximation"]
     if scope == COARSE_SCOPE:
@@ -54,7 +57,7 @@ def validate_chassis_control(control):
     expected = declared_control_timing(control)
     if (control_decimation(timing["physics_dt"], timing["policy_dt"]) != expected["decimation"]
             or timing != expected or (coarse and not research)):
-        raise ValueError("Motor prior requires its declared 1 kHz/50 Hz, 200 Hz/50 Hz or 200 Hz/200 Hz research timing")
+        raise ValueError("Motor prior requires its declared physical, policy and feedback-PD timing")
     leg, wheel = control["actuators"]["leg"], control["actuators"]["wheel"]
     for key, expected in (("kp", 160.), ("kd", 2.5), ("effort_limit", 40.)):
         if leg.get(key) != expected:

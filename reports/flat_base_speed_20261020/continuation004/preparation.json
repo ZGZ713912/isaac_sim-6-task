@@ -1,0 +1,519 @@
+{
+  "status": "prepared",
+  "recorded_at": "2026-10-20T09:28:09.349354+00:00",
+  "qualified": false,
+  "trainable_parameters": 421,
+  "new_optimizer_updates": 0,
+  "probe_sha256": "c4c33e54b43c94ada4fc95a0b1d0f0c883cf81dc4047fc191576cfafc0898486",
+  "selection": {
+    "forward": {
+      "selected_gain": -0.04,
+      "objective": "survival first, then body-vx MAE",
+      "candidates": [
+        {
+          "failed_episodes": 0,
+          "body_vx_mae_m_s": 0.07612276956439018,
+          "gain": 0.0
+        },
+        {
+          "failed_episodes": 0,
+          "body_vx_mae_m_s": 0.06539860524237157,
+          "gain": -0.01
+        },
+        {
+          "failed_episodes": 0,
+          "body_vx_mae_m_s": 0.05953119855374098,
+          "gain": -0.02
+        },
+        {
+          "failed_episodes": 0,
+          "body_vx_mae_m_s": 0.05499888136982918,
+          "gain": -0.04
+        }
+      ]
+    },
+    "backward": {
+      "selected_gain": -0.01,
+      "objective": "survival first, then body-vx MAE",
+      "candidates": [
+        {
+          "failed_episodes": 0,
+          "body_vx_mae_m_s": 0.521927554961294,
+          "gain": 0.0
+        },
+        {
+          "failed_episodes": 0,
+          "body_vx_mae_m_s": 0.35456551661714913,
+          "gain": -0.01
+        },
+        {
+          "failed_episodes": 2,
+          "body_vx_mae_m_s": null,
+          "gain": -0.02
+        },
+        {
+          "failed_episodes": 4,
+          "body_vx_mae_m_s": null,
+          "gain": -0.04
+        }
+      ]
+    },
+    "intent_native_proof": {
+      "path": "reports/flat_base_speed_20261020/traction_probe001/report.json",
+      "sha256": "0fcdd958a91a4320d2193ff920eb27f0fbdfcd0125343d7f520690eb624ade0c",
+      "full_episodes": 48,
+      "requested_episodes": 48,
+      "hard_wheel_budget_adopted": false
+    }
+  },
+  "source_sha256": {
+    "scripts/flat_rmcs_command_reference.py": "766b1954a621e20977ec5ea0917f303212d696bdae56044ed11a09d55c756c52",
+    "scripts/train_flat_base.py": "62316c397be558f2881b598796bd6c68026ba428e0409ccccab35f74ee3648fe",
+    "src/wheeled_algo/anchored_ppo.py": "f7668b2dd82efc40624245c1e2db592d11353dc5f75f2d1d5cf7d2749100f818",
+    "src/wheeled_algo/command_residual.py": "0fee4df91df5348f1093fcff3bc4bde347e11b858c6389899e517a3474765496",
+    "src/wheeled_algo/critic_input_extension.py": "a23ef15711eed0803e413f84945ad9b2ad64f3493c5d896be49f58baffc95618",
+    "src/wheeled_algo/exploration_init.py": "b7bb7c71714adb65aa8758bcf1eff474428514df522ad2acb35548dc756b8b89",
+    "src/wheeled_algo/flat_optimizer_rates.py": "05a20b3d84ddcf88901230355cc95beaad651a13222dc34e8fbfc94e136ceaae",
+    "src/wheeled_algo/guarded_feedback_residual.py": "833c3a05a0427f9ca223f259cdfeade9780188b64fbe1197196c7056e2806b5f",
+    "src/wheeled_algo/intent_speed_reference.py": "2f1fd8225b147ce432378054fc347e07df0649cbf0222a36cf5336de085fa816",
+    "src/wheeled_algo/low_demand_feedback.py": "d6770af0b3d0604ccccd7cbb8a73e5992e6108ec5e3a46006da0569b512593d1",
+    "src/wheeled_algo/onnx_actor_import.py": "e5c57dd0482dc3e0584b8872a779e939fc46a4d46ae3e24495421343b1e7ffe8",
+    "src/wheeled_algo/separated_feedback.py": "8c986223613bb8c07c758464a70d54664e6f01c49ae23482408123d5dafdd886",
+    "src/wheeled_algo/speed_reference.py": "5f82f4ede749108426899ba1641b55cdf69fea72e052a2b00e0b4497c7eb52fe",
+    "src/wheeled_algo/static_feedback.py": "d1d3bd834faeee925cd5b7fb2032882f4e20fb86ece9c6553f19572828bab2f4",
+    "src/wheeled_algo/static_grip.py": "84abe3195548a454e1169b495d0faedc28e7f11b38c25d4f918d00bf4ce5fab3",
+    "src/wheeled_algo/wheel_authority.py": "7f396abd18bc3c5d54210e1e76642443d90b2476f160b553bad29ed753690cc4",
+    "src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f",
+    "src/wheeled_tasks/chassis/__init__.py": "018e3cdee84902478a0ebebdcc830df26f5ef4c9525ba302b95b2e7c43e06039",
+    "src/wheeled_tasks/chassis/actuator_response.py": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57",
+    "src/wheeled_tasks/chassis/adaptive_commands.py": "54351b0afe58de2ffbec10dcd0d1c16bf2377e209b90fd042b6510eb4f87310e",
+    "src/wheeled_tasks/chassis/command_transport.py": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c",
+    "src/wheeled_tasks/chassis/contact_domain.py": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7",
+    "src/wheeled_tasks/chassis/contact_material.py": "862f3a33e659d9dc30132f16e6cb49a5c1fddba6957a5ef8c57c6ddd092bcba7",
+    "src/wheeled_tasks/chassis/continuation.py": "c7681427dafa24d4beaee3eaee406aa76e2835f5cff1b584f533bc33a786716c",
+    "src/wheeled_tasks/chassis/continuous_encoders.py": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+    "src/wheeled_tasks/chassis/control_contract.py": "aeba502c950acac769e1fb71b7194283b4bada7072961e6c00733d8ecc2a40a2",
+    "src/wheeled_tasks/chassis/delay_buffer.py": "2679ba18940a1b7c448fe59454642ec3c0d4e763be59d286d39116210df628b3",
+    "src/wheeled_tasks/chassis/diagnostic_curriculum.py": "2013a17f59c1662fdc258cfae8bca6b70d70500a6b3b6742ed576fc50e544e06",
+    "src/wheeled_tasks/chassis/dynamics.py": "f394eb6a5a00c1321c4c528374c4dd3e158af99695753d5ea9d0fd71fcd668bf",
+    "src/wheeled_tasks/chassis/env.py": "fe04ef0e9bc9954ca74dfae5a351e27352915de59c14c90821b00e8d49e5b6e8",
+    "src/wheeled_tasks/chassis/episode_metrics.py": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511",
+    "src/wheeled_tasks/chassis/eval_env.py": "0e40a0398351cc8bb66faf5d6db939056282867a376fec79af68379a446ed53a",
+    "src/wheeled_tasks/chassis/evaluation.py": "63e9adef92a14266024c93edd56734c3c739c9b2a487b05ee505a85bff57a895",
+    "src/wheeled_tasks/chassis/feedback_transport.py": "9fe9d4372bfeaf6efbc3902cd0e7abbbddb68cb20b7bdcf679bef134a1242613",
+    "src/wheeled_tasks/chassis/feedback_transport_config.py": "4e260eeb6156189359f407f32ccc1695cf3536a7e2efba4f8bac1329addc301d",
+    "src/wheeled_tasks/chassis/flat_base_continuation.py": "068a15e44e72e3d5bc895299900a22195236316fd8b6f4f56cff2cd83f108ef9",
+    "src/wheeled_tasks/chassis/flat_clock_transition.py": "fb344995182ed554710d4b471c8398d0c110fbe2049860d3d3ab7d6f435fac2a",
+    "src/wheeled_tasks/chassis/flat_command_reference.py": "226f73481da87f3c52eab718bbbb7d0ec42d173702604f3ce4ad8f3aeae6fd4e",
+    "src/wheeled_tasks/chassis/full_curriculum.py": "22476c6ffde546eff248993e6bd3e2b70c14c7e6619c22917e7bcbc835d19f9e",
+    "src/wheeled_tasks/chassis/full_tasks.py": "63d9e1e110c92c5094cb90d91c1e5dce4550ea3b601e46cce5b7b8c723972a4d",
+    "src/wheeled_tasks/chassis/gas_spring.py": "b147ff71a3df841eaefe96042ac379e11dd3dcf776645dbdbc4efdb6c16ad502",
+    "src/wheeled_tasks/chassis/graded_locomotion_revision.py": "2ba7f990ac283aa9ca44fbc10efb7f6d8263cfd33abf7355f138936fb0e277e1",
+    "src/wheeled_tasks/chassis/heading_command.py": "cfa95c65c98041c447ac28e0e5682052f3f1c27017a5fd4cd7317095976d8db3",
+    "src/wheeled_tasks/chassis/integrated_completed_speed_revision.py": "174c9568d41571995f14f7294bda2c22acfd74047873f89805761103298c747f",
+    "src/wheeled_tasks/chassis/integrated_curriculum.py": "b0f6277dbf52bdc1b77335af0e6a3788851152d8219245a7013885b2403599c2",
+    "src/wheeled_tasks/chassis/integrated_lineage.py": "ef4eebbe73280e647bf9fb22ef31958984f8e8aa71cda1b1cd961a58b8b9cb92",
+    "src/wheeled_tasks/chassis/integrated_preflight.py": "ed179e1b22e33d2a48776453af62b78aecd4cab58efc9814b592284752d659b4",
+    "src/wheeled_tasks/chassis/integrated_production.py": "44d3db3c9ac225d476aef982a02ca276a5a44c6727db78c1e5c88eb7fc3b0bec",
+    "src/wheeled_tasks/chassis/integrated_runtime.py": "41bbf92cce4fbb68e400beb226d99948e1461a68c4746921dc95d85eb4403255",
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "c844c42778c3f03135775465c5a79c32caa780fd881ad245aba4b71d712f97c4",
+    "src/wheeled_tasks/chassis/integrated_training.py": "1b1cb81ef68716f2a20f7878f36df2e486a41ae6655fcac509aa851de8a0b1ba",
+    "src/wheeled_tasks/chassis/jump_landing.py": "5373e8a7aa2a2a9f1cf7427df27687e095e764353b8734b3401783f718e6f71d",
+    "src/wheeled_tasks/chassis/jump_landing_revision.py": "9a906a996f41c97d2e1cf8c86c200577a2a21e652e5433522f0248099e480ff4",
+    "src/wheeled_tasks/chassis/learning_audit.py": "989c2a4b30c2b60d89b7f6f2ab93f1024324524e389b2c8a3f2bd02be5bab2bc",
+    "src/wheeled_tasks/chassis/local_birth_revision.py": "651ef066b4997608aa8d8212d0f1093d947cb3d8eae82e761356ad666bdfaf3e",
+    "src/wheeled_tasks/chassis/local_command_revision.py": "5793a4f3823f72ab42f0a9a095d3a2902dbb75d5bbd4bdc0c492129a327c08ac",
+    "src/wheeled_tasks/chassis/local_entropy_revision.py": "7d11174fc93ea24a11da4610a0b499784571013c7766eac902ac0402aa110a75",
+    "src/wheeled_tasks/chassis/local_evaluation.py": "83b4f209f13a15803d32e584cf70622ce6a8ce929ab3ee34719c5cf1f4d78dd5",
+    "src/wheeled_tasks/chassis/local_return_revision.py": "8071f232032b6cdf6bb338d986315becfad24bbb43e6f137b6abd97d39e85593",
+    "src/wheeled_tasks/chassis/local_scratch.py": "a311ef788feb87add30fe0fd3107b0da83452adeb9da8096ffbf1b75eee60908",
+    "src/wheeled_tasks/chassis/local_value_revision.py": "1161fcc31da47cfbb2ea965f0d2862cffb71482f9aa9cce6147742a6e9e55822",
+    "src/wheeled_tasks/chassis/locomotion_difficulty.py": "b59d7e6e29084da6abafd40b1d8689c40e98cf669633edf76c9e56948bc32250",
+    "src/wheeled_tasks/chassis/locomotion_quality_revision.py": "a896c95ca34fb039ba8addf7e570380216f6d347ca0ecc64f0acd4479f2491fc",
+    "src/wheeled_tasks/chassis/locomotion_revision.py": "37d0dc94ff2ab70dbaf78b571167138861982390d6c26428cfefff38384dbd9d",
+    "src/wheeled_tasks/chassis/mechanism_observer.py": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+    "src/wheeled_tasks/chassis/motion_limits.py": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+    "src/wheeled_tasks/chassis/motion_rehearsal.py": "d831474a22a352ae9f991d0c6b76ba44643ed57d57137b8404267e4ce53f60da",
+    "src/wheeled_tasks/chassis/nonstandard_start.py": "2864376b8b9882170304e206333e13d372e9a474cb34d3efd8b3757b1ce172a9",
+    "src/wheeled_tasks/chassis/nonstandard_start_revision.py": "07de45f381499fc776dd1147e3eb1e03e88a41c2b3be9f416b93a5b534d2a6c6",
+    "src/wheeled_tasks/chassis/ordinary_large_stair.py": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py": "85f7a9f8a7d78988482f0051438da98f71acef343dd34fe9bd73d5f362d25ce8",
+    "src/wheeled_tasks/chassis/ordinary_posture_revision.py": "644fc5e33dac17ab5e6cd182c11cfe2ffb32b4c4bc555d682b187dd26f077a66",
+    "src/wheeled_tasks/chassis/paired_leg_targets.py": "7d711b122cdedfd0c42e384546921a9e181dc99f05c0a039eb441caa2d794ba4",
+    "src/wheeled_tasks/chassis/pc_communication.py": "64c00e4bb1fc3e580c30bc1ad71f193408db52a4d1cec3b3a92a158e7649249f",
+    "src/wheeled_tasks/chassis/performance_curriculum.py": "bb8af22fb772cf9cc9b9fe06d492c77de6b9b732040330bf2ffc60f96749a976",
+    "src/wheeled_tasks/chassis/playback_command.py": "506d51e0ca2442d55da264e58d8c91a6a2dc3a7ed713f1e675cfec1839019eaf",
+    "src/wheeled_tasks/chassis/policy_transfer.py": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082",
+    "src/wheeled_tasks/chassis/preflight.py": "24a8915abe17c8ff740ef747e5e9e640987d8ab67ffdd2dbc366817a67c0eec6",
+    "src/wheeled_tasks/chassis/ramp_flight.py": "3936f040d272ed1b09c845f546b4b60146f7a47e6a09f46672d44643f4d51123",
+    "src/wheeled_tasks/chassis/recovery.py": "49fa07c4f29621aa60c9c603b5458f63b2013ae7326cdbd50d921e3855142842",
+    "src/wheeled_tasks/chassis/recovery_curriculum.py": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+    "src/wheeled_tasks/chassis/recovery_entropy_revision.py": "23f4372c2a23188decfd2b4a19baf32ba43d71ae65f16b95a4e47897b73665f6",
+    "src/wheeled_tasks/chassis/recovery_observer.py": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "e25a2a89db76fde2dff680a3c76af283989b6377e2a64896de1568a050e40e2c",
+    "src/wheeled_tasks/chassis/recovery_prefix_revision.py": "6716d014d686ff69d660ac4cc02d9b7b2122fbd272ab37d361372363b08bf129",
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972",
+    "src/wheeled_tasks/chassis/recovery_revision.py": "bfaae477e29291a75672a2834dbef83407fbf4b7b987d80d41f863ad4de8260f",
+    "src/wheeled_tasks/chassis/recovery_script_revision.py": "4d59036e4e0f5e7662f56e94976a373de14a1f1f6a562368b51c517f8e1d28f0",
+    "src/wheeled_tasks/chassis/recovery_training.py": "dcae1f616e7d06b8fcd504471b6f7dcdc33b1f24865ecf870a1d475cca702448",
+    "src/wheeled_tasks/chassis/references.py": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+    "src/wheeled_tasks/chassis/release_stop.py": "3399e440e9021257f444e3ab8a527d168ae6e9663b062a3623f01c2df758109c",
+    "src/wheeled_tasks/chassis/remediation.py": "91ca961cbbce3ba418ea38cb756dee6f5dc8b7e9c583553b9ab16a4154334d52",
+    "src/wheeled_tasks/chassis/response_migration.py": "345294ac1a1d3d86580919231cb82b3235271028be1a6ee29fa0531cc9bfc40a",
+    "src/wheeled_tasks/chassis/rewards.py": "f4dc968cb323e50ad894b1715a9865f1202e4663c401e2f68bf64398a1b7818d",
+    "src/wheeled_tasks/chassis/robustness.py": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339",
+    "src/wheeled_tasks/chassis/root_kinematics.py": "0c63be06fc026b0687aa4e9d9fd7dabb009f7c1ab24446244b672928368f610b",
+    "src/wheeled_tasks/chassis/scut_base_tracking.py": "2acce09e0d31184eb191faf592215a67a445573729fbaf0406701c84e9e3bfea",
+    "src/wheeled_tasks/chassis/scut_curriculum_revision.py": "eb3759d600c722345c4e8ffe082b9c8f13dc1e401bf0fd25d2ecadfae5c8b44e",
+    "src/wheeled_tasks/chassis/scut_jump_revision.py": "984643e343a0202b5b0c525f4992aad767222e51f8185945ddbca1d686c44350",
+    "src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+    "src/wheeled_tasks/chassis/scut_reuse_curriculum.py": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+    "src/wheeled_tasks/chassis/scut_terrain_revision.py": "d61a107418694d5a261c18700a847d245e8166f7feb295c6b4d25c379234dc54",
+    "src/wheeled_tasks/chassis/signal_delay.py": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+    "src/wheeled_tasks/chassis/skill_commands.py": "1a4b47cf67490a51b4434fba712f1573320fc0b982d02ef9ddc81da505b3400f",
+    "src/wheeled_tasks/chassis/skill_curriculum.py": "3efc8e18b671e3f5177b4544488b8655a19f46c90695db80d8d0b1fb4c2de446",
+    "src/wheeled_tasks/chassis/slow_recovery.py": "9e9046d2d047c4f044c9548aec7d090f43c33ca0193a0f0551a349638a480f34",
+    "src/wheeled_tasks/chassis/small_stair_revision.py": "6ff1c050195323efe851c38da35a7c3cb8271f9a2696f854cc9058ce21532478",
+    "src/wheeled_tasks/chassis/state_snapshot.py": "e988163a3921ddf83b596412e5ee593a5d6a6a56498c087357b7eb0b93c8e7ff",
+    "src/wheeled_tasks/chassis/step_assist.py": "3f5a4a2d68d99ac98c3f4296ec581d70cde515202be757853d2bf4c73d82c748",
+    "src/wheeled_tasks/chassis/step_climb.py": "e050a749879e1649b7f8508a9fa1ed67e328953ba6fe06debc86401ee91c8694",
+    "src/wheeled_tasks/chassis/step_jump.py": "b4c6c2dbbcc4eed71a6e31f06120cf0fe8e9abb16a5f46a107ebeb35d8b7ff8d",
+    "src/wheeled_tasks/chassis/step_sensors.py": "6ceea4b0096e84b8622adee9312d349bf69fa313bcce2341aaa495ca2169e145",
+    "src/wheeled_tasks/chassis/step_trigger.py": "8419ddb18dc9f75049ca6b56e6907790ee4bbe451d1ba5eedbf210fc74f00188",
+    "src/wheeled_tasks/chassis/task.py": "124caab37c1e220f286ff473e151822cbfa9d980dc3c55db650038cf334303e1",
+    "src/wheeled_tasks/chassis/task_campaign.py": "8472e457a3e50fdb2d06331f95b34eb60e82b74f35aee8f8939049b180c6ac38",
+    "src/wheeled_tasks/chassis/teleop.py": "38b25aff36216b1f3fee0fa32717042f725587ce5259f21373eaf9685aa84fc5",
+    "src/wheeled_tasks/chassis/terrain_rehearsal_revision.py": "07d47967b39a6c8df8df3182a65d955262a7c8f969fd73718c45579c1268c52f",
+    "src/wheeled_tasks/chassis/terrain_runout.py": "ac84d5ac7232250cce281beb09cb16046ba31cc36e9da612a0a7c763d64e0908",
+    "src/wheeled_tasks/chassis/terrain_runout_revision.py": "3877edd3c9a623a5bad9e98c00f5ca170e9accd073626b3ba7599925f3b89147",
+    "src/wheeled_tasks/chassis/terrain_runout_runtime.py": "4db4183cffd3fb65ef47f3c9f79c09af3e26c0dd0fb2ae88cc90687e16c9ef59",
+    "src/wheeled_tasks/chassis/terrain_schedule_revision.py": "fec047ed08df8e12b29598ea8e8479292c6acf7b395a0087d02453e0b77c0093",
+    "src/wheeled_tasks/chassis/torque_monitor.py": "0b28995db19a6f46e2401165ea7f154af8ea947f426fcfd374b7f4d1774555f0",
+    "src/wheeled_tasks/chassis/training_schedule.py": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8",
+    "src/wheeled_tasks/chassis/training_timing.py": "f28bf42c951a2f9ad05ced79c9c9c64121b1c62e239fd8a9eb540969a73264a9",
+    "src/wheeled_tasks/chassis/usb_transport.py": "04487b7c4c9010b5e8ffdbde87b819140b615e8ddde0b84bbd3454b73f406d8c",
+    "src/wheeled_tasks/chassis/v5_control.py": "ffcf4602a5e3deb9948386c52d87be62703b312256d7092aeb71237a16fcc943"
+  },
+  "plan_sha256": "029876a0aecd782e44abc908c97a96f02adacb535cb807908f94d51d7405c1e6",
+  "static_preflight": {
+    "status": "static_passed",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_speed_20261020/continuation004/config4096/design.json",
+    "stage": "speed",
+    "role": "train",
+    "seed": 191019,
+    "block_index": 0,
+    "num_envs": 4096,
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "runtime_expected": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "pc_control_dt": 0.001,
+      "decimation": 20,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "seed": 191019,
+      "action_difference_reference_dt": 0.02,
+      "precision_tracking": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "contact_material": true,
+        "step_assist": false,
+        "actuator_response": true,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true
+      },
+      "contact_material": {
+        "enabled": true,
+        "combine_mode": "average",
+        "ground_static_friction_range": [
+          0.2,
+          0.5
+        ],
+        "ground_dynamic_friction_range": [
+          0.2,
+          0.5
+        ],
+        "wheel_static_friction": 0.1,
+        "wheel_dynamic_friction": 0.1,
+        "body_static_friction": 0.25,
+        "body_dynamic_friction": 0.25
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "design_sha256": "67639f96f74ce5ad562ea76f0a8bc3d30ad31d2a2ffcd136762405127771b3bd",
+    "environment_stage": "speed"
+  },
+  "policy_declaration": {
+    "original_feedback": "exact_source_tensors",
+    "feedback_inputs": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27
+    ],
+    "feedback_parameters": 2252,
+    "feedback_zero_gate": {
+      "low_command_limits": [
+        0.75,
+        1.5
+      ],
+      "wheel_dq_policy_indices": [
+        20,
+        21
+      ],
+      "encoder_scale": 0.1,
+      "wheel_radius_m": 0.06,
+      "wheel_track_m": 0.4373,
+      "max_linear_wheel_error_m_s": 0.015,
+      "full_gate_error_m_s": 0.1,
+      "tracking_gate": "bidirectional_per_wheel_linear"
+    },
+    "bounded_feedback_action_offsets": [
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.5,
+      0.5
+    ],
+    "separated_feedback": {
+      "kind": "original-static-grip-with-intent-speed-reference-v10",
+      "low_endpoint_max_abs_vx_m_s": 0.75,
+      "low_endpoint_max_abs_yaw_rad_s": 1.5,
+      "fast_endpoint_abs_vx_m_s": 1.5,
+      "fast_endpoint_abs_yaw_rad_s": 3.0,
+      "interpolation": "clamp(max(abs(vx)/.75,abs(yaw)/1.5)-1,0,1)",
+      "direct_high_teacher_gradient_to_low_branch": "zero",
+      "native_actor_gradient_clip": "joint; unchanged"
+    },
+    "low_demand_gate": {
+      "version": 1,
+      "expression": "max(previous_tracking_gate,clamp(2-max(abs(vx)/.75,abs(yaw)/1.5),0,1))",
+      "unchanged_static_and_demand_at_least2": true,
+      "parameters_Adam_and_action_bounds": "unchanged",
+      "initial_mean_is_identity": false
+    },
+    "static_feedback_recall": {
+      "checkpoint_sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+      "static_trainable": false,
+      "stationary_action_function": "exact authenticated v7 for identical low-command observations"
+    },
+    "wheel_authority": {
+      "kind": "original-static-feedback-and-wheel-authority-residual-v6",
+      "bounded_raw_wheel_offsets": [
+        6.0,
+        6.0
+      ],
+      "wheel_rad_s_bound": 60.0,
+      "feature_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "head_parameters": 994,
+      "initial_extension": "exact_parent_function; zero final layer",
+      "low_command_invariance": "abs(vx)<=.75 and abs(yaw)<=1.5 with full moving mix, or encoder rim<=.4 at zero command",
+      "high_gate": "clip(max(abs(vx)/.75,abs(yaw)/1.5)-1,0,1)",
+      "braking_gate": "clip((max(abs(obs20),abs(obs21))*.6-.4)/.4,0,1)*(1-moving_mix)",
+      "controller_wheel_clip": "unchanged; final total actions remain clipped by the existing actuator contract"
+    },
+    "speed_reference": {
+      "kind": "original-static-grip-with-intent-speed-reference-v10",
+      "parent_checkpoint_sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+      "trainable_parameters": 421,
+      "order": [
+        "forward",
+        "backward",
+        "yaw_positive",
+        "yaw_negative"
+      ],
+      "margin_m_s": [
+        0.15000000596046448,
+        0.30000001192092896,
+        0.019999999552965164,
+        0.019999999552965164
+      ],
+      "margin_bounds_m_s": [
+        0.05,
+        1.2
+      ],
+      "low_command_exact_limits": [
+        0.75,
+        1.5
+      ],
+      "lean_gain_rad_per_m_s": [
+        -0.03999999910593033,
+        -0.009999999776482582
+      ],
+      "lean_reference_abs_bound_rad": 0.05,
+      "feature_residual": {
+        "feature_source": "frozen 64D features plus four unconditioned request/sensor features",
+        "trainable_parameters": 414,
+        "initial_output": "zero",
+        "raw_action_bounds": [
+          0.3,
+          0.3,
+          0.3,
+          0.3,
+          3.0,
+          3.0
+        ]
+      },
+      "feedback": "wheel encoders and IMU gyro only; no privileged velocity",
+      "scoring": "external true command unchanged; body velocity and survival must be measured",
+      "initial_mean_is_identity": false,
+      "margin_lower_bounds": [
+        0.05,
+        0.05,
+        0.005,
+        0.005
+      ],
+      "margin_upper_bounds": [
+        1.2,
+        1.2,
+        0.5,
+        0.5
+      ],
+      "encoder_gain": 0.5,
+      "encoder_reference": "reverse only; height .32 to .42m; progressive rolling; external high gate",
+      "motion_intent": "external high-command gate selects moving feedback independently of the internal reference",
+      "optimizer_projection": "bounded reference parameters after each enabled actor Adam step"
+    }
+  },
+  "static_and_low_action_equality_frames": 4096,
+  "pilot": {
+    "critic_updates": 2,
+    "actor_updates": 6,
+    "total_optimizer_updates": 8,
+    "num_envs": 4096,
+    "expected_successful_updates": 1346,
+    "expected_actor_updates": 1162,
+    "max_total_new_actor_updates_without_a_new_decision": 8
+  },
+  "prior_excluded_motion_pilot": {
+    "path": "runs/flat_base_20261019/pilot030_motion_grip1348/model_001348.pt",
+    "optimizer_updates": 10,
+    "retained_without_refund": true,
+    "accounting": "other branch consumption; add to branch counters for campaign expenditure"
+  }
+}

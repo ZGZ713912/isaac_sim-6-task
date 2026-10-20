@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/probe_flat_speed_prior.py", line 183, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/probe_flat_speed_prior.py", line 84, in main
+    static = design_preflight(config, control, ROOT, stage="speed", role="quick", seed=seed, num_envs=count)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py", line 519, in design_preflight
+    receipt = validate_design_contract(config, json.loads(contents), control,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py", line 484, in validate_design_contract
+    raise ValueError(f"Preflight rejected ({source}; stage={stage}, role={role}):\n"
+ValueError: Preflight rejected (/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_base_speed_20261020/prior_probe001/design.json; stage=speed, role=quick):
+contract.evaluation.seed: design=191029, effective=191119
