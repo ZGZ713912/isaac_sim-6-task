@@ -1,0 +1,59 @@
+{
+  "schema": "flat-transient-prospective-assessment-v2",
+  "frozen_at": "2026-10-21T10:54:31.785868+00:00",
+  "exploratory_seed": 191129,
+  "confirmation_seeds": [
+    191130,
+    191131
+  ],
+  "exploratory_replicas": 2,
+  "confirmation_replicas": 4,
+  "baseline_checkpoint_sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+  "heights_m": [
+    0.305,
+    0.42
+  ],
+  "ground_material_friction": [
+    0.2,
+    0.5
+  ],
+  "wheel_material_friction": 0.1,
+  "combine": "average",
+  "clocks_hz": {
+    "policy": 200,
+    "physics": 1000
+  },
+  "seconds": 16.0,
+  "transient_phase_seconds": 4.0,
+  "admission": {
+    "all_requested_episodes_complete": true,
+    "closure_gap_max_m": 0.003,
+    "tilt_max_deg": 15.0,
+    "no_lost_retention_or_steady_baseline_checks": true,
+    "retention_error_regression_max": {
+      "vx_m_s": 0.02,
+      "yaw_rad_s": 0.05,
+      "height_m": 0.003
+    },
+    "steady_tracking_error_max": 0.3,
+    "combined_stop_planar_m_s": 0.05,
+    "combined_stop_yaw_rad_s": 0.1,
+    "stop_dwell_s": 0.25,
+    "launch_target_fraction": 0.9,
+    "launch_dwell_s": 0.1,
+    "no_censored_transient_responses": true,
+    "median_response_relative_gain_min": 0.1,
+    "two_distinct_confirmation_seeds": true
+  },
+  "code_sha256": {
+    "scripts/probe_flat_speed_prior.py": "33905bd674612161d7608e3907355a9cd955f9a4ceb940767724b65df9881506",
+    "scripts/flat_transient_metrics.py": "b886c1520c608a452a12a5a866b274c2ff28599cc74d9bec755f73fca5a1ae32",
+    "scripts/analyze_flat_transient.py": "40e605d4a01cf704fb988cafa2b78db819c092512ac256732eb93f00ad60d8ed"
+  },
+  "no_native_evaluation_yet": false,
+  "qualification": false,
+  "hardware_ready": false,
+  "predecessor_sha256": "1060facd87041df80376e4f7366aa5aec6b98706a4c4c678d9c5ed79408384a8",
+  "revision_reason": "Reader caches NPZ diagnostic arrays once; probe accepts explicit v22 training plan. Native commands, metrics and admission thresholds unchanged.",
+  "thresholds_unchanged": true
+}

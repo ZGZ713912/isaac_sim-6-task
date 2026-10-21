@@ -1,0 +1,105 @@
+{
+  "schema": "flat-transient-response-preparation-v1",
+  "recorded_at": "2026-10-21T10:20:21.426011+00:00",
+  "status": "candidate_prepared_cpu_validated_no_training",
+  "new_optimizer_updates": 0,
+  "new_native_scene_runs": 0,
+  "qualification": false,
+  "hardware_deployment_ready": false,
+  "prepared_candidate": "candidate003",
+  "parent_checkpoint_sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+  "plan_sha256": "a5bdfc2661ffd7f265e9cbb398c08c6c10818738b836bbe50e95126aa724cd24",
+  "training_sources_match_preparation": true,
+  "extra_source_sha256": {
+    "scripts/evaluate_flat_base.py": "0f76a8b50d0bc5903a56b06e754587c8caf5b513b517b213613b8f8ca752d496",
+    "scripts/analyze_flat_raw_requests.py": "97631c70f174bf31ea95345618fd250225268dc52bc1e5d51b6e25215916d916",
+    "scripts/prepare_flat_transient_response.py": "7485e4bcdeb9038c051455aff1286db86a65f6b099b57de3acb1bd38b6620660",
+    "src/wheeled_algo/directional_runtime.py": "d4a8f0bbd3a701fffe0b2db40ddff2e65176230d9c40398218d867cddab7fae8",
+    "tests/test_transient_response.py": "efeb6788f5aaf4c4dca04fc08b6a0c4e20c3c2a6438f9f7f0a5d6785b78cb66e"
+  },
+  "response_targets": {
+    "forward_max_m_s": 3.0,
+    "reverse_max_m_s": 2.5,
+    "yaw_max_rad_s": 4.0,
+    "transition_sample_fraction": 0.65,
+    "selection_metrics": [
+      "response_time_s",
+      "stop_distance_m",
+      "overshoot_m_s",
+      "settled_vx_m_s",
+      "settled_yaw_rad_s",
+      "slip_m_s",
+      "pitch_deg",
+      "leg_excursion_rad",
+      "leg_speed_rad_s",
+      "height_error_m",
+      "full_episode_fraction"
+    ],
+    "historical_minus3_requirement": "superseded for future objectives; never regrade old evidence"
+  },
+  "test_receipts": {
+    "cpu_verification_final001.xml": 72,
+    "cpu_contracts001.xml": 77
+  },
+  "distinct_cpu_tests_passed": 149,
+  "tests_excluded_after_recorded_missing_fixture": [
+    {
+      "test": "tests/test_chassis_suite_playback.py::test_current_candidate_onnx_identity_and_abi",
+      "reason": "FileNotFoundError: historical V6 ONNX missing locally",
+      "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/models/v6_recovery_candidate_38000_20261008/policy.onnx",
+      "test_file_unchanged_from_HEAD": true
+    }
+  ],
+  "static_evaluation_preflights": {
+    "envelope_preflight003": {
+      "status": "static_preflight_passed",
+      "cases": 24,
+      "num_envs": 96,
+      "protocol_id": "flat-base-paired107-transient-envelope-v1-material-011d45637313",
+      "contract_sha256": "c5404120e9b2cb01bf88de46c09c9a92500efd59361ea017b6a6c63dec164110"
+    },
+    "rmcs_envelope_preflight001": {
+      "status": "static_preflight_passed",
+      "cases": 24,
+      "num_envs": 96,
+      "protocol_id": "flat-base-paired107-rmcs-reference-envelope-v1-transient-targets-v1-material-011d45637313",
+      "contract_sha256": "ceef52149dc1b8cd3de434bcb30086902624864a57c2f6b9d03a1768bc071a7c"
+    }
+  },
+  "packaged_maximum_height_preflight": {
+    "status": "rejected_before_simulation",
+    "error": "Default height YAML differs from the authenticated RMCS reference",
+    "expected_yaml_sha256": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063",
+    "current_yaml_sha256": "e7849f731bd99f12087e9685d657207acb0408f17f43d37b24ee677ae65e82c3",
+    "rmcs_files_changed_by_this_work": false
+  },
+  "cpu_actual_checkpoint": {
+    "status": "actual_checkpoint_cpu_load_passed",
+    "parent_sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+    "new_optimizer_updates": 0,
+    "native_scene_started": false,
+    "quiet_output_bitwise_equal": true,
+    "learned_directional_weights_bitwise_equal": true,
+    "declared_changed_buffer": "mlp.motion_bound",
+    "initial_mean_is_identity": false,
+    "tested_command_rows": 8,
+    "finite": true,
+    "raw_action_difference_max": 0.0027400553226470947,
+    "semantics": "CPU means only; no RSL full-state native restore or behavior claim"
+  },
+  "gui_onnx_sha256": "a065c4688ff2dc86cde929125cd494af9460a4b307d1ea32f3bf9f0f36786dcf",
+  "gui_onnx_replaced": false,
+  "proposed_first_block": {
+    "optimizer_updates": 8,
+    "critic_only_updates": 2,
+    "actor_updates": 6,
+    "automatic_launch": false
+  },
+  "superseded_preparation_snapshots": [
+    "candidate001",
+    "candidate002",
+    "envelope_preflight001",
+    "envelope_preflight002"
+  ],
+  "behavior_status": "not measured; phase-specific native trajectories and short-pilot evidence pending"
+}

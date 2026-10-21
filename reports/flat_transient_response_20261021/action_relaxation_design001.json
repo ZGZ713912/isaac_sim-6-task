@@ -1,0 +1,55 @@
+{
+  "schema": "flat-action-relaxation-design-v1",
+  "hypothesis": "At 200Hz the direct recurrent action map and abrupt command transitions can amplify joint/encoder/pitch oscillation; convex action relaxation tests this time scale without extra observations or new weights.",
+  "checkpoint": "runs/flat_base_20261021/transient_dwell_pilot002/model_001418.pt",
+  "checkpoint_sha256": "c0de55c1663f03b8d2bbee7e74d4134fee4f37272b6a48776790cf35e8e1a0a8",
+  "evidence": "reports/flat_transient_response_20261021/phase_diagnosis002.json",
+  "evidence_sha256": "bec196bdae30c53ba45a06ac4e66cd7560380e483b83179b77fb30deee08c013",
+  "arms": {
+    "0": "1346 baseline unchanged",
+    "2": "1418 all axes alpha .25",
+    "3": "1418 same-weight control alpha1 exact",
+    "4": "1418 legs alpha.25 wheels1",
+    "5": "1418 legs1 wheels.25"
+  },
+  "request_targets_unchanged": true,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "observation_dim": 35,
+  "action_dim": 6,
+  "previous_applied_policy_order_indices": [
+    22,
+    23,
+    24,
+    25,
+    26,
+    27
+  ],
+  "heights": [
+    0.305,
+    0.42
+  ],
+  "ground_material": [
+    0.2,
+    0.5
+  ],
+  "wheel_material": 0.1,
+  "replicas": 2,
+  "seed": 191129,
+  "full_case_count": 13,
+  "horizon_seconds": 16,
+  "new_optimizer_updates": 0,
+  "long_training_eligible": false,
+  "short_updates_consumed": 72,
+  "short_ceiling": 512,
+  "aggregate_optimizer_consumption": 1447,
+  "source_sha256": {
+    "scripts/probe_flat_action_relaxation.py": "5ad870d6ce620010cbd3dfcb073fc700399edf0996a17cad0805ff989faf5ae9",
+    "scripts/flat_action_relaxation_probe.py": "63690c0396b7a17f0db120307a94177a46aa3b5a33b70bab0c6dbcbf66458548",
+    "scripts/probe_flat_speed_prior.py": "33905bd674612161d7608e3907355a9cd955f9a4ceb940767724b65df9881506",
+    "scripts/analyze_flat_transient.py": "40e605d4a01cf704fb988cafa2b78db819c092512ac256732eb93f00ad60d8ed",
+    "scripts/flat_transient_metrics.py": "b886c1520c608a452a12a5a866b274c2ff28599cc74d9bec755f73fca5a1ae32",
+    "src/wheeled_tasks/chassis/transient_campaign_plan.py": "c609e2ed09c3fc9ee24e46b38310188e7523714bb8f1daa97a4206096318a3e2"
+  },
+  "decision_rule": "Judge complete episodes, low-friction retention, pitch/encoder oscillation and phase responses against identical weights; no loss-based admission, and no direct 5000 admission from diagnostic override."
+}

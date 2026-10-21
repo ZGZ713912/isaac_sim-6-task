@@ -25,6 +25,10 @@ def main():
     parser.add_argument("--mode", choices=("wheel_error", "reachable_reference", "lean_reference", "state_reference", "progressive_reference", "traction_reference", "coupled_reference", "braking_reference", "checkpoint_compare"), default="wheel_error")
     parser.add_argument("--lean-gains", type=float, nargs=4)
     parser.add_argument("--candidate", type=Path)
+    parser.add_argument('--parent-checkpoint', type=Path,
+                        help='Explicit paired baseline; its exact SHA is recorded')
+    parser.add_argument('--transient-response', action='store_true',
+                        help='New asymmetric 3/-2.5m/s response phases; historical protocols stay unchanged')
     parser.add_argument("--candidate-variants", type=Path, nargs="+", default=[])
     parser.add_argument("--include-reference-teacher", action="store_true")
     parser.add_argument("--comparison-indices", type=int, nargs="+")
@@ -58,8 +62,13 @@ def main():
     from wheeled_tasks.chassis.preflight import design_preflight
     args.output = args.output.resolve()
     args.output.mkdir(exist_ok=False, parents=True)
-    parent = ROOT / "runs/flat_base_20261019/pilot029_static_grip1338/model_001338.pt"
-    assert digest(parent) == "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73"
+    parent = (args.parent_checkpoint.resolve() if args.parent_checkpoint else
+              ROOT / "runs/flat_base_20261019/pilot029_static_grip1338/model_001338.pt")
+    if not args.parent_checkpoint:
+        assert digest(parent) == "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73"
+    if args.transient_response and (args.mode != 'checkpoint_compare' or not args.envelope
+                                   or not args.policy_plan or not args.parent_checkpoint):
+        raise ValueError('Transient comparison requires its explicit plan, baseline and checkpoint envelope')
     source = ROOT / "runs/flat_base_20261019/ground025_static1338_maximum_envelope001/config/contract.json"
     original, manifest = preflight(source)
     design = json.loads((ROOT / original["design_preflight"]["file"]).read_text())
@@ -104,6 +113,10 @@ def main():
         if args.motion_sequences:
             selected+=('yaw_start_stop_positive','yaw_start_stop_negative')
         horizon=32.
+        if args.transient_response:
+            from flat_transient_metrics import response_cases
+            selected=tuple(c['name'] for c in response_cases(original['evaluation']['cases']))
+            horizon=16.
     if args.comparison_indices is not None:
         if args.mode!='checkpoint_compare' or args.include_reference_teacher:
             raise ValueError('Select checkpoint arms only without a prototype teacher')
@@ -122,7 +135,10 @@ def main():
     def project(settings):
         settings = deepcopy(settings)
         catalogue = {c["name"]: c for c in settings["cases"]}
-        if args.motion_sequences:
+        if args.transient_response:
+            from flat_transient_metrics import response_cases
+            catalogue={c['name']: c for c in response_cases(settings['cases'])}
+        elif args.motion_sequences:
             for name,source_name in (('yaw_start_stop_positive','rotate_4'),('yaw_start_stop_negative','rotate_4_reverse')):
                 case=deepcopy(catalogue[source_name]);case['name']=name
                 case['skill']['yaw_start_stop_segment_seconds']=8.
@@ -139,13 +155,15 @@ def main():
                             speed_prior_gain=gain, original_case=name)
                         if args.mode in ('coupled_reference','braking_reference')and name=='start_stop_3':
                             case['skill']['segment_seconds']=3.
-                        if not args.envelope or (not name.startswith('stand_')and not case['skill'].get('height_motion')):
+                        if args.transient_response or not args.envelope or (not name.startswith('stand_')and not case['skill'].get('height_motion')):
                             case["command"][2] = height
                             case["skill"]["command"][2] = height
                         cases.append(case)
         settings.update(cases=cases, episode_seconds=horizon, episodes_per_case=replicas,
             seed=seed, warmup_seconds=(settings['warmup_seconds']if args.envelope else 4.), diagnostic_only=True, qualification_eligible=False,
             protocol_id="flat-speed-encoder-prior-paired-diagnostic-v1")
+        if args.transient_response:
+            settings['protocol_id']='flat-transient-paired-response-v1'
         return settings
 
     settings = project(original["evaluation"])
@@ -168,8 +186,12 @@ def main():
         from wheeled_tasks.chassis.flat_base_continuation import read_plan
         from wheeled_tasks.chassis.flat_policy_rate import SCHEMA, command_reference_at_policy_rate
         policy_plan=read_plan(ROOT,args.policy_plan)
-        if policy_plan['schema'] not in (SCHEMA, 'flat-base-finetune-plan-v19') or args.mode!='checkpoint_compare':
+        if policy_plan['schema'] not in (SCHEMA, 'flat-base-finetune-plan-v19', 'flat-base-finetune-plan-v20', 'flat-base-finetune-plan-v21', 'flat-base-finetune-plan-v22', 'flat-base-finetune-plan-v23') or args.mode!='checkpoint_compare':
             raise ValueError('Policy-rate replay requires the explicit 200 Hz plan and sealed checkpoint arms')
+        if bool(policy_plan.get('transient_response')) != args.transient_response:
+            raise ValueError('Transient plans require their distinct response command protocol')
+        if args.transient_response and digest(parent) != policy_plan['transient_response']['sha256']:
+            raise ValueError('Response baseline differs from the user-reviewed checkpoint')
         timing=json.loads((ROOT/policy_plan['control_file']).read_text())['timing']
         for mapping in (config,row['contract']):
             mapping.update(physics_dt=policy_plan['physics_dt'],policy_dt=policy_plan['policy_dt'],
@@ -208,10 +230,17 @@ def main():
             policy_dt=policy_plan['policy_dt'],saved_weights_clock_hz=50,
             behavior_equivalence_verified=False,new_optimizer_updates=0)
     report['diagnostic_case_subset']=args.case_names
+    if args.transient_response:
+        report['transient_response_protocol']=dict(segment_seconds=4.,
+            forward_m_s=3., reverse_m_s=2.5, yaw_rad_s=4.,
+            purpose='response comparison for the authorized local campaign; not hardware qualification')
     policy_sources=[ROOT/'src/wheeled_algo'/name for name in (
         'command_residual.py','guarded_feedback_residual.py','separated_feedback.py',
         'low_demand_feedback.py','static_feedback.py','wheel_authority.py','static_grip.py',
         'speed_reference.py','intent_speed_reference.py','motion_state_residual.py','directional_motion.py','directional_runtime.py','single_frame_inference.py')]
+    if policy_plan and policy_plan.get('transient_leg_feedback'):
+        policy_sources.append(ROOT/'src/wheeled_algo/transient_leg_feedback.py')
+        policy_sources.append(ROOT/'src/wheeled_algo/transient_motion.py')
     report['code_sha256'].update({str(p.relative_to(ROOT)):digest(p)for p in policy_sources})
     evaluation_sources=[ROOT/'scripts/flat_rmcs_command_reference.py']+[
         ROOT/'src/wheeled_tasks/chassis'/name for name in ('eval_env.py','episode_metrics.py',
@@ -221,6 +250,9 @@ def main():
             'flat_policy_rate.py','flat_base_continuation.py','flat_clock_transition.py','control_contract.py','preflight.py'))
         if policy_plan['schema'] == 'flat-base-finetune-plan-v19':
             evaluation_sources.append(ROOT/'src/wheeled_tasks/chassis/directional_motion_plan.py')
+        if policy_plan.get('transient_leg_feedback'):
+            evaluation_sources.extend(ROOT/'src/wheeled_tasks/chassis'/name for name in (
+                'transient_leg_feedback_plan.py', 'transient_dwell_plan.py', 'transient_campaign_plan.py'))
     if args.reverse_reference_only:
         evaluation_sources.append(ROOT/'src/wheeled_algo/reverse_reference_scope.py')
     if args.mode in ('coupled_reference','braking_reference'):
@@ -231,6 +263,11 @@ def main():
             evaluation_sources.append(ROOT/'scripts/flat_speed_braking_probe.py')
             report['braking_coupled_base_arm']=1
     report['code_sha256'].update({str(p.relative_to(ROOT)):digest(p)for p in evaluation_sources})
+    if args.transient_response:
+        report['code_sha256'].update({str(p.relative_to(ROOT)):digest(p) for p in (
+            ROOT/'scripts/flat_transient_metrics.py', ROOT/'src/wheeled_algo/transient_motion.py',
+            ROOT/'src/wheeled_tasks/chassis/transient_response.py',
+            ROOT/'src/wheeled_tasks/chassis/transient_response_plan.py')})
     for relative,sha in report['code_sha256'].items():
         target=args.output/'source'/relative
         target.parent.mkdir(parents=True,exist_ok=True)
@@ -329,6 +366,8 @@ def main():
         alive = torch.ones(count, dtype=torch.bool, device=env.device)
         traces = {key: [] for key in ("active", "observations", "actions", "episode_ticks", "done", "commands",
             "velocity", "omega", "height", "position", "gravity", "gap", "motor_velocity", "motor_effort")}
+        if args.transient_response:
+            traces['motor_position'] = []
         births = env.robot.data.root_link_pose_w.torch.clone()
         birth_joints = env.robot.data.joint_pos.torch.clone()
         # Explicit profile materials and reset_seed_key make paired arms equal

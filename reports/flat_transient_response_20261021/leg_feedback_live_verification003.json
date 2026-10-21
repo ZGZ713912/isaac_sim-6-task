@@ -1,0 +1,64 @@
+{
+  "schema": "flat-transient-live-observation-v1",
+  "observed_at": "2026-10-21T13:02:24.493392+00:00",
+  "phase": "training",
+  "process_identity": {
+    "supervisor": {
+      "pid": 1325924,
+      "start_ticks": 36455544,
+      "argv": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "-B",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_transient_response_20261021/run_leg_feedback_pilot003.py"
+      ],
+      "state": "S"
+    },
+    "worker": {
+      "pid": 1325925,
+      "start_ticks": 36455547,
+      "argv": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "-B",
+        "scripts/train_flat_base.py",
+        "--plan",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_transient_response_20261021/leg_feedback512_002/plan.json",
+        "--resume",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261021/transient_dwell_pilot002/model_001418.pt",
+        "--resume-plan-revision",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_transient_response_20261021/leg_feedback512_002/revision.json",
+        "--output",
+        "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261021/transient_leg_feedback_pilot003",
+        "--updates",
+        "64"
+      ],
+      "state": "S"
+    }
+  },
+  "frozen_source_guard_exact": true,
+  "plan_sha256": "85e0e973ebf105ae191db1bb2bfc4a8a3eebcffa12e95dc1aa542a749e0fe914",
+  "plan_revision_sha256": "aeb0532ce17fc49060c68ff3455517508609c674294af57794b36cb57b625035",
+  "full_restore_verification": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true,
+    "cpu_sampling_rng": true,
+    "cuda_sampling_rng": true,
+    "environment_rng_before_new_reset": true
+  },
+  "completed_updates_in_current_block": 7,
+  "requested_updates_in_current_block": 64,
+  "branch_successful_updates": 1425,
+  "branch_consumed_updates": 1426,
+  "optimizer_updates_this_request": 79,
+  "actor_updates_this_request": 77,
+  "aggregate_successful_local_consumption": 1454,
+  "training_transitions_total": 135856128,
+  "elapsed_s": 383.5702907569939,
+  "actor_mean_max_change_from_block_start": 0.008102952502667904,
+  "optimizer_update_in_flight": true,
+  "behavior_assessment_pending": true,
+  "long5000_started": false,
+  "new_onnx_exported": false,
+  "qualification": false,
+  "hardware_ready": false
+}

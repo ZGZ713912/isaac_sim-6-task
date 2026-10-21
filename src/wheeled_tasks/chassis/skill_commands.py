@@ -121,7 +121,10 @@ def profile_command(time, command, profile):
         result[:,1]*=torch.where(segment==0,1.,torch.where(segment==2,-1.,0.))
     elif kind == "start_stop":
         segment = torch.floor(time / profile.get("segment_seconds", 3.)).long() % 4
-        result[:, 0] *= torch.where(segment == 0, 1., torch.where(segment == 2, -1., 0.))
+        opposite = profile.get('opposite_speed_ratio', 1.)
+        if isinstance(opposite, bool) or not isinstance(opposite, (int, float)) or not math.isfinite(opposite) or not 0. < opposite <= 2.:
+            raise ValueError('Start-stop opposite speed ratio must be finite in (0,2]')
+        result[:, 0] *= torch.where(segment == 0, 1., torch.where(segment == 2, -opposite, 0.))
     elif kind == "velocity_curve":
         segment_seconds = profile["segment_seconds"]
         duration = profile["velocity_transition_seconds"]

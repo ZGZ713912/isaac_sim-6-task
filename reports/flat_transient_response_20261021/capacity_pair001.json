@@ -1,0 +1,109 @@
+{
+  "status": "capacity_pair_complete",
+  "pid": 1221195,
+  "new_optimizer_updates": 0,
+  "stages": [
+    {
+      "population": 512,
+      "report": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261021/transient_capacity512_001/progress.json",
+      "capacity_probe": {
+        "passed": true,
+        "checks": {
+          "actor_state_dict_exact": true,
+          "critic_state_dict_exact": true,
+          "optimizer_state_dict_exact": true,
+          "all_native_minibatch_backward_passes": true,
+          "finite_native_losses": true
+        },
+        "num_envs": 512,
+        "rollout_steps": 384,
+        "native_policy_frames": 196608,
+        "optimizer_writes": 0,
+        "blocked_optimizer_writes": 12,
+        "collection_s": 50.28516390302684,
+        "backward_s": 0.5613097519963048,
+        "policy_frames_per_collection_s": 3909.8609756776686,
+        "torch_peak_allocated_bytes": 496078336,
+        "torch_peak_reserved_bytes": 530579456,
+        "losses": {
+          "value": 40.6067590713501,
+          "surrogate": 7.303606253117323e-08,
+          "entropy": -16.059724807739258,
+          "teacher": 5.438558220863342,
+          "teacher_action_rmse": 0.1195860207080841,
+          "teacher_fraction": 0.3309529721736908,
+          "approx_policy_kl": 9.19681086841706e-09,
+          "policy_clip_fraction": 0.0,
+          "actor_gradient_norm": 1.1744853854179382,
+          "critic_gradient_norm": 949.7264862060547,
+          "actor_learning_rate": 0.00010000000000000003,
+          "critic_learning_rate": 0.0005000000000000001,
+          "motion_trust_kl": 9.529255440288154e-10,
+          "motion_trust_scale": 1.0,
+          "motion_trust_backtracks": 0.0
+        },
+        "scope": "Capacity only; unchanged parent weights and Adam; isolated RNG; no learning checkpoint or behavior qualification"
+      }
+    },
+    {
+      "population": 128,
+      "report": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261021/transient_capacity128_001/progress.json",
+      "capacity_probe": {
+        "passed": true,
+        "checks": {
+          "actor_state_dict_exact": true,
+          "critic_state_dict_exact": true,
+          "optimizer_state_dict_exact": true,
+          "all_native_minibatch_backward_passes": true,
+          "finite_native_losses": true
+        },
+        "num_envs": 128,
+        "rollout_steps": 384,
+        "native_policy_frames": 49152,
+        "optimizer_writes": 0,
+        "blocked_optimizer_writes": 12,
+        "collection_s": 47.7856052609859,
+        "backward_s": 0.21489144797669724,
+        "policy_frames_per_collection_s": 1028.5942750238569,
+        "torch_peak_allocated_bytes": 142348800,
+        "torch_peak_reserved_bytes": 182452224,
+        "losses": {
+          "value": 28.761998653411865,
+          "surrogate": 1.0139774531126022e-07,
+          "entropy": -16.059724807739258,
+          "teacher": 5.262377977371216,
+          "teacher_action_rmse": 0.11708921007812023,
+          "teacher_fraction": 0.290445975959301,
+          "approx_policy_kl": 9.227127062416685e-09,
+          "policy_clip_fraction": 0.0,
+          "actor_gradient_norm": 2.23986753821373,
+          "critic_gradient_norm": 1002.4304809570312,
+          "actor_learning_rate": 0.00010000000000000003,
+          "critic_learning_rate": 0.0005000000000000001,
+          "motion_trust_kl": 7.963593257054313e-10,
+          "motion_trust_scale": 1.0,
+          "motion_trust_backtracks": 0.0
+        },
+        "scope": "Capacity only; unchanged parent weights and Adam; isolated RNG; no learning checkpoint or behavior qualification"
+      }
+    }
+  ],
+  "population": 128,
+  "worker_pid": null,
+  "command": [
+    "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+    "-B",
+    "scripts/train_flat_base.py",
+    "--plan",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_transient_response_20261021/campaign128_001/plan.json",
+    "--resume",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261021/transient_pilot001/model_001354.pt",
+    "--resume-plan-revision",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_transient_response_20261021/campaign128_001/revision.json",
+    "--output",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261021/transient_capacity128_001",
+    "--updates",
+    "1",
+    "--capacity-probe"
+  ]
+}

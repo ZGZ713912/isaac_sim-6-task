@@ -1,0 +1,42 @@
+{
+  "successful_optimizer_updates": 8,
+  "actor_updates": 6,
+  "unchanged_frozen_parameters": true,
+  "banks": [
+    {
+      "bank": "forward",
+      "leg_weights_rms": 0.0005102237919345498,
+      "wheel_weights_rms": 0.0010808759834617376,
+      "bias_max_abs": 0.00047102454118430614
+    },
+    {
+      "bank": "reverse",
+      "leg_weights_rms": 0.000449011247837916,
+      "wheel_weights_rms": 0.00089049938833341,
+      "bias_max_abs": 0.0009885637555271387
+    },
+    {
+      "bank": "yaw_positive",
+      "leg_weights_rms": 0.0007971834857016802,
+      "wheel_weights_rms": 0.0009127816883847117,
+      "bias_max_abs": 0.0003906723577529192
+    },
+    {
+      "bank": "yaw_negative",
+      "leg_weights_rms": 0.0006062799948267639,
+      "wheel_weights_rms": 0.0009028743952512741,
+      "bias_max_abs": 0.0014008497819304466
+    }
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "restore_verification": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true,
+    "cpu_sampling_rng": true,
+    "cuda_sampling_rng": true,
+    "environment_rng_before_new_reset": true
+  },
+  "restore_reference": "parent_with_declared_leg_bound_buffer_change"
+}

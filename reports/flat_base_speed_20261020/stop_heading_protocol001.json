@@ -1,0 +1,44 @@
+{
+  "schema": "flat-stop-heading-diagnostic-protocol-v1",
+  "created_at": "2026-10-20T17:17:00.104907+00:00",
+  "status": "frozen_before_native_intervention",
+  "qualification_eligible": false,
+  "qualified": false,
+  "new_optimizer_updates": 0,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "seed": 191359,
+  "seconds": 32,
+  "replicas": 4,
+  "heights_m": [
+    0.305,
+    0.42
+  ],
+  "ground_friction": [
+    0.2,
+    0.5
+  ],
+  "cases": [
+    "start_stop_3",
+    "stand_430mm"
+  ],
+  "inference_backend": "onnx_cpu_single",
+  "parallel_onnx_arms": true,
+  "arms": {
+    "0": "Original1338 + original command reference",
+    "2": "Six-actor checkpoint + heading retained through zero planar commands",
+    "3": "Identical six-actor checkpoint + original command reference"
+  },
+  "same_weight_sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+  "causal_hypothesis": "A high-height stopping episode accumulated about 1.08rad of integrated yaw before reverse captured its changed heading and exited the transverse boundary. Test retaining the prior straight heading through stops.",
+  "pre_observed_evidence_sha256": "c77d89c0d2f2f1d7c387bc9237da15eec0abc635d8dd3d9a63f15a4d4baec5be",
+  "preflight_sha256": "631f5d84846940f2906c083bb445465d17c54e964fd5df0adc080125f3793224",
+  "cpu_junit_sha256": "ac138412dc3c1c199c5b83b66ff4d20f3307d9c062ad94362d97ac3cc17e86ab",
+  "source_sha256": {
+    "scripts/flat_stop_heading_probe.py": "1ea2bc28f92389245f89eeb0d2eb5038f7e66b6266298c3d813f6ebf5413ec9b",
+    "scripts/probe_flat_stop_heading.py": "390e0e42acdd48cb48309860f4383eb99ef5f7afca5e1d567cc7b3321f2edf93",
+    "tests/test_flat_stop_heading_probe.py": "645d14548d791d3de1d76bffd4d5353e164a44691a87085c8ddb9e2084f5a5e7"
+  },
+  "interpretation": "Matched intervention changes command assembly only, weights/physics/materials/time/thresholds remain fixed. Diagnose completion, yaw excursion and actual raw-request velocity; standing is a negative control. No selection or release from this subset.",
+  "output": "reports/flat_base_speed_20261020/stop_heading_native001"
+}

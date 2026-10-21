@@ -1,0 +1,466 @@
+{
+  "schema": "flat-directional200-behavior-decision-v1",
+  "created_at": "2026-10-20T17:16:01.314232+00:00",
+  "status": "rejected_for_scale_and_deployment",
+  "qualified": false,
+  "hardware_deployment_ready": false,
+  "full_training_admitted": false,
+  "new_optimizer_updates": 0,
+  "already_consumed_v12_optimizer_updates": 8,
+  "already_consumed_v12_actor_updates": 6,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "seed": 191339,
+  "policy_ticks": 6400,
+  "physics_steps": 32000,
+  "requested_episodes_total": 1536,
+  "requested_episodes_per_arm": 384,
+  "arms": {
+    "0": {
+      "role": "parent",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261019/pilot029_static_grip1338/model_001338.pt",
+      "sha256": "39f7f2d364d82905741478fd254c7fdde3d9c101a613cfba1ba79d14a483fd73",
+      "successful_updates": 1338,
+      "actor_updates": 1156,
+      "saved_weights_clock_hz": 50,
+      "supervised_head_fit": null
+    },
+    "1": {
+      "role": "initialized",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261020/pilot034_directional200_1346/initial_state.pt",
+      "sha256": "6b308a41b7fd3a1b320f2fc56e2418c602a934745cce1f1e02eb6f70abb55e33",
+      "successful_updates": 1338,
+      "actor_updates": 1156,
+      "saved_weights_clock_hz": 200,
+      "supervised_head_fit": null
+    },
+    "2": {
+      "role": "trained",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261020/pilot034_directional200_1346/model_001346.pt",
+      "sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+      "successful_updates": 1346,
+      "actor_updates": 1162,
+      "saved_weights_clock_hz": 200,
+      "supervised_head_fit": null
+    },
+    "3": {
+      "role": "variant_1",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261020/pilot034_directional200_1346/model_001342.pt",
+      "sha256": "ab5c4f0bb1c4589921806f28748239f4954d477ec1efed54c0c62a7c122d0c6c",
+      "successful_updates": 1342,
+      "actor_updates": 1158,
+      "saved_weights_clock_hz": 200,
+      "supervised_head_fit": null
+    }
+  },
+  "summaries": {
+    "parent": {
+      "full_episodes": 258,
+      "requested_episodes": 384,
+      "cases_passing_all_checks": 16,
+      "total_cases": 96
+    },
+    "initialized": {
+      "full_episodes": 259,
+      "requested_episodes": 384,
+      "cases_passing_all_checks": 14,
+      "total_cases": 96
+    },
+    "trained": {
+      "full_episodes": 264,
+      "requested_episodes": 384,
+      "cases_passing_all_checks": 11,
+      "total_cases": 96
+    },
+    "variant_1": {
+      "full_episodes": 268,
+      "requested_episodes": 384,
+      "cases_passing_all_checks": 15,
+      "total_cases": 96
+    }
+  },
+  "retention": {
+    "initialized": {
+      "lost_parent_low_checks": [
+        {
+          "case": "h0.305_mu0.2_stand_305mm",
+          "check": "survival"
+        },
+        {
+          "case": "h0.305_mu0.2_stand_305mm",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.305_mu0.2_start_stop_05",
+          "check": "height"
+        },
+        {
+          "case": "h0.305_mu0.2_start_stop_05",
+          "check": "yaw"
+        },
+        {
+          "case": "h0.305_mu0.2_start_stop_05",
+          "check": "settled_stop_speed"
+        },
+        {
+          "case": "h0.305_mu0.2_height_scan",
+          "check": "survival"
+        },
+        {
+          "case": "h0.305_mu0.2_height_scan",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.42_mu0.2_stand_305mm",
+          "check": "survival"
+        },
+        {
+          "case": "h0.42_mu0.2_stand_305mm",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.42_mu0.2_height_scan",
+          "check": "yaw"
+        },
+        {
+          "case": "h0.42_mu0.5_rotate_1_reverse",
+          "check": "velocity"
+        },
+        {
+          "case": "h0.42_mu0.5_start_stop_05",
+          "check": "settled_stop_speed"
+        }
+      ],
+      "lost_parent_fully_complete_conditions": [
+        "h0.305_mu0.2_stand_305mm",
+        "h0.305_mu0.2_rotate_4_reverse",
+        "h0.305_mu0.2_curve_low_reverse",
+        "h0.305_mu0.2_height_scan",
+        "h0.42_mu0.2_stand_305mm",
+        "h0.42_mu0.2_backward_3",
+        "h0.42_mu0.2_rotate_4_reverse",
+        "h0.42_mu0.5_start_stop_2",
+        "h0.42_mu0.5_start_stop_3"
+      ]
+    },
+    "trained": {
+      "lost_parent_low_checks": [
+        {
+          "case": "h0.305_mu0.2_stand_305mm",
+          "check": "survival"
+        },
+        {
+          "case": "h0.305_mu0.2_stand_305mm",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.305_mu0.2_height_scan",
+          "check": "survival"
+        },
+        {
+          "case": "h0.305_mu0.2_height_scan",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.42_mu0.2_stand_305mm",
+          "check": "survival"
+        },
+        {
+          "case": "h0.42_mu0.2_stand_305mm",
+          "check": "yaw"
+        },
+        {
+          "case": "h0.42_mu0.2_stand_305mm",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.42_mu0.2_backward_05",
+          "check": "has_post_warmup_samples"
+        },
+        {
+          "case": "h0.42_mu0.5_stand_305mm",
+          "check": "stand_drift"
+        },
+        {
+          "case": "h0.42_mu0.5_start_stop_05",
+          "check": "settled_stop_speed"
+        }
+      ],
+      "lost_parent_fully_complete_conditions": [
+        "h0.305_mu0.2_stand_305mm",
+        "h0.305_mu0.2_rotate_4_reverse",
+        "h0.305_mu0.2_curve_low_reverse",
+        "h0.305_mu0.2_height_scan",
+        "h0.42_mu0.2_stand_305mm",
+        "h0.42_mu0.2_backward_3",
+        "h0.42_mu0.2_rotate_4_reverse",
+        "h0.42_mu0.5_start_stop_2",
+        "h0.42_mu0.5_start_stop_3"
+      ]
+    },
+    "variant_1": {
+      "lost_parent_low_checks": [
+        {
+          "case": "h0.305_mu0.2_stand_305mm",
+          "check": "survival"
+        },
+        {
+          "case": "h0.305_mu0.2_stand_305mm",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.305_mu0.2_stand_430mm",
+          "check": "yaw"
+        },
+        {
+          "case": "h0.305_mu0.2_start_stop_05",
+          "check": "settled_stop_speed"
+        },
+        {
+          "case": "h0.305_mu0.2_height_scan",
+          "check": "survival"
+        },
+        {
+          "case": "h0.305_mu0.2_height_scan",
+          "check": "tilt"
+        },
+        {
+          "case": "h0.305_mu0.5_rotate_1",
+          "check": "yaw"
+        },
+        {
+          "case": "h0.42_mu0.2_backward_05",
+          "check": "has_post_warmup_samples"
+        },
+        {
+          "case": "h0.42_mu0.5_stand_305mm",
+          "check": "stand_drift"
+        },
+        {
+          "case": "h0.42_mu0.5_rotate_1_reverse",
+          "check": "velocity"
+        }
+      ],
+      "lost_parent_fully_complete_conditions": [
+        "h0.305_mu0.2_stand_305mm",
+        "h0.305_mu0.2_rotate_4_reverse",
+        "h0.305_mu0.2_curve_low_reverse",
+        "h0.305_mu0.2_height_scan",
+        "h0.42_mu0.2_backward_3",
+        "h0.42_mu0.5_start_stop_3"
+      ]
+    }
+  },
+  "high_height_mu05_steady_and_completion": {
+    "parent": {
+      "forward_3": {
+        "frames": 4000,
+        "actual_mean": 2.977928638458252,
+        "requested_mean": 3.0,
+        "issued_mean": 3.0,
+        "raw_mae": 0.022071506828069687,
+        "issued_mae": 0.022071506828069687,
+        "changed_reference_fraction": 0.0
+      },
+      "backward_3": {
+        "frames": 4000,
+        "actual_mean": 0.36532485485076904,
+        "requested_mean": -3.0,
+        "issued_mean": -3.0,
+        "raw_mae": 3.3653247356414795,
+        "issued_mae": 3.3653247356414795,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4": {
+        "frames": 4000,
+        "actual_mean": 3.998406171798706,
+        "requested_mean": 4.0,
+        "issued_mean": 4.0,
+        "raw_mae": 0.1864851713180542,
+        "issued_mae": 0.1864851713180542,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4_reverse": {
+        "frames": 4000,
+        "actual_mean": -3.980226516723633,
+        "requested_mean": -4.0,
+        "issued_mean": -4.0,
+        "raw_mae": 0.08180183172225952,
+        "issued_mae": 0.08180183172225952,
+        "changed_reference_fraction": 0.0
+      },
+      "start_stop_3_full_episodes_mu05": 4,
+      "backward_3_full_episodes_mu02": 4
+    },
+    "initialized": {
+      "forward_3": {
+        "frames": 4000,
+        "actual_mean": 2.9789083003997803,
+        "requested_mean": 3.0,
+        "issued_mean": 3.0,
+        "raw_mae": 0.021091727539896965,
+        "issued_mae": 0.021091727539896965,
+        "changed_reference_fraction": 0.0
+      },
+      "backward_3": {
+        "frames": 4000,
+        "actual_mean": -2.4923322200775146,
+        "requested_mean": -3.0,
+        "issued_mean": -3.0,
+        "raw_mae": 0.5076677203178406,
+        "issued_mae": 0.5076677203178406,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4": {
+        "frames": 4000,
+        "actual_mean": 3.989685535430908,
+        "requested_mean": 4.0,
+        "issued_mean": 4.0,
+        "raw_mae": 0.16237539052963257,
+        "issued_mae": 0.16237539052963257,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4_reverse": {
+        "frames": 4000,
+        "actual_mean": -3.9796037673950195,
+        "requested_mean": -4.0,
+        "issued_mean": -4.0,
+        "raw_mae": 0.20191338658332825,
+        "issued_mae": 0.20191338658332825,
+        "changed_reference_fraction": 0.0
+      },
+      "start_stop_3_full_episodes_mu05": 2,
+      "backward_3_full_episodes_mu02": 0
+    },
+    "trained": {
+      "forward_3": {
+        "frames": 4000,
+        "actual_mean": 2.9798457622528076,
+        "requested_mean": 3.0,
+        "issued_mean": 3.0,
+        "raw_mae": 0.020154206082224846,
+        "issued_mae": 0.020154206082224846,
+        "changed_reference_fraction": 0.0
+      },
+      "backward_3": {
+        "frames": 4000,
+        "actual_mean": -2.4908809661865234,
+        "requested_mean": -3.0,
+        "issued_mean": -3.0,
+        "raw_mae": 0.5091189742088318,
+        "issued_mae": 0.5091189742088318,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4": {
+        "frames": 4000,
+        "actual_mean": 4.01507043838501,
+        "requested_mean": 4.0,
+        "issued_mean": 4.0,
+        "raw_mae": 0.1527436226606369,
+        "issued_mae": 0.1527436226606369,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4_reverse": {
+        "frames": 4000,
+        "actual_mean": -3.9834647178649902,
+        "requested_mean": -4.0,
+        "issued_mean": -4.0,
+        "raw_mae": 0.1232806071639061,
+        "issued_mae": 0.1232806071639061,
+        "changed_reference_fraction": 0.0
+      },
+      "start_stop_3_full_episodes_mu05": 1,
+      "backward_3_full_episodes_mu02": 0
+    },
+    "variant_1": {
+      "forward_3": {
+        "frames": 4000,
+        "actual_mean": 2.979031801223755,
+        "requested_mean": 3.0,
+        "issued_mean": 3.0,
+        "raw_mae": 0.020968222990632057,
+        "issued_mae": 0.020968222990632057,
+        "changed_reference_fraction": 0.0
+      },
+      "backward_3": {
+        "frames": 4000,
+        "actual_mean": -2.4930155277252197,
+        "requested_mean": -3.0,
+        "issued_mean": -3.0,
+        "raw_mae": 0.506984293460846,
+        "issued_mae": 0.506984293460846,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4": {
+        "frames": 4000,
+        "actual_mean": 4.021209239959717,
+        "requested_mean": 4.0,
+        "issued_mean": 4.0,
+        "raw_mae": 0.07367173582315445,
+        "issued_mae": 0.07367173582315445,
+        "changed_reference_fraction": 0.0
+      },
+      "rotate_4_reverse": {
+        "frames": 4000,
+        "actual_mean": -3.964287042617798,
+        "requested_mean": -4.0,
+        "issued_mean": -4.0,
+        "raw_mae": 0.17992566525936127,
+        "issued_mae": 0.17992566525936127,
+        "changed_reference_fraction": 0.0
+      },
+      "start_stop_3_full_episodes_mu05": 0,
+      "backward_3_full_episodes_mu02": 0
+    }
+  },
+  "basic_cuda_torch": {
+    "seed": 107,
+    "passed_cases": 7,
+    "requested_cases": 8,
+    "full_episodes": 32,
+    "requested_episodes": 32,
+    "failed": {
+      "stand_430mm": {
+        "stand_drift_max_m": 0.07364100217819214,
+        "checks": {
+          "all_requested_episodes_accounted": true,
+          "has_post_warmup_samples": true,
+          "survival": true,
+          "height": true,
+          "velocity": true,
+          "yaw": true,
+          "tilt": true,
+          "stand_drift": false,
+          "stand_velocity": true,
+          "mechanics": true
+        }
+      }
+    }
+  },
+  "findings": [
+    "Reverse steady deficit is still about .51m/s; six actor updates show no improvement over initialization in this condition.",
+    "Reverse sign improvement belongs to the zero-PPO reference initialization, not learning.",
+    "More total complete episodes does not offset lost parent low checks and start-stop completion regressions.",
+    "Start-stop losses inspected at high height/mu.5 are transverse boundary exits while upright, not flips or longitudinal runout.",
+    "At reverse steady state measured wheel speed follows the insufficient policy target; wheel torque is far below its cap in this condition.",
+    "High-height stop yaw drift and recaptured reverse heading motivate a separate zero-PPO command-memory diagnosis; no causal intervention result yet."
+  ],
+  "frozen_training_source_file_count": 131,
+  "frozen_training_source_mismatches": [],
+  "artifact_sha256": {
+    "reports/flat_base_speed_20261020/directional200_comparison001/report.json": "54fe505af55f36835ef7e6555cc543036a7bf3d31a6ffea2a6797a16733195cb",
+    "reports/flat_base_speed_20261020/directional200_comparison001/analysis.json": "365c2f6111d9162c701942addb8907e0e95c1442eca770566678e88edba6d6a8",
+    "reports/flat_base_speed_20261020/directional200_comparison001/phases.json": "fc385514dd1b0fe83c39c44953cfdf3eec73d3383e0a8a88b49b227197982607",
+    "reports/flat_base_speed_20261020/directional200_comparison001/raw_requests.json": "c77357bd3069da47950fa0af5ef1d518169d8af02106d46ea0545093095c6bcc",
+    "reports/flat_base_speed_20261020/directional200_final_verification001.json": "dbffacabc8536b42e659fd4869e8e3a6de3e8490de17afe54876363c9fe47d52",
+    "reports/flat_base_speed_20261020/directional200_mechanical_diagnosis001.json": "bf0d6bf5aa281a33d8b520cc47542683edd882d138b98b2f22cdf5f8020d4a51",
+    "reports/flat_base_speed_20261020/directional200_boundary_axis001.json": "663efd01d1d020db79ca860806308c6b66e4e21073f9d013cff8a09e2f4aeda1",
+    "reports/flat_base_speed_20261020/directional200_heading_diagnosis001.json": "c77d89c0d2f2f1d7c387bc9237da15eec0abc635d8dd3d9a63f15a4d4baec5be",
+    "reports/flat_base_speed_20261020/directional200_basic001/evaluation.json": "bef867a64c07422df272c467aac218ab41d0501a6ad4d8769b0aab837965b196"
+  },
+  "limits": [
+    "Diagnostic CPU ONNX comparison cannot grant full qualification.",
+    "Basic CUDA Torch evaluation has a different inference path and population; it does not erase CPU ONNX regressions.",
+    "No candidate was selected as a default GUI model, no larger PPO was started, and no vehicle motion occurred."
+  ]
+}

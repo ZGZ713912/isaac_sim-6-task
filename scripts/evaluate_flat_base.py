@@ -97,6 +97,11 @@ def main():
         settings = config["evaluation"]
         settings["cases"] = [next(c for c in catalogue if c["name"] == name) for name in names]
         settings["protocol_id"] = "flat-base-paired107-envelope-v2"
+        if plan.get('transient_response'):
+            from wheeled_tasks.chassis.transient_response_plan import response_envelope
+            settings['cases'] = response_envelope(settings['cases'])
+            settings['protocol_id'] = 'flat-base-paired107-transient-envelope-v1'
+            names = [case['name'] for case in settings['cases']]
         settings["episode_seconds"] = max(c["episode_seconds"] for c in settings["cases"])
         for case in settings["cases"]:
             for key in ("height_mae_m_max", "velocity_mae_m_s_max", "yaw_mae_rad_s_max"):
@@ -201,9 +206,13 @@ def main():
         design_path.write_bytes(encode(design))
         config["design_preflight"]["sha256"] = digest(design_path)
         (args.output / "config/contract.json").write_bytes(encode(config))
+    protocol_suffixes = []
+    if args.envelope and plan.get('transient_response') and reference_contract is not None:
+        protocol_suffixes.append('-transient-targets-v1')
     if plan.get("contact_material", {}).get("enabled"):
         material_id = hashlib.sha256(encode(plan["contact_material"])).hexdigest()[:12]
-        suffix = "-material-" + material_id
+        protocol_suffixes.append('-material-' + material_id)
+    for suffix in protocol_suffixes:
         if not config["evaluation"]["protocol_id"].endswith(suffix):
             design_path = args.output / "config/design.json"
             design = json.loads(design_path.read_text())
@@ -224,6 +233,10 @@ def main():
         settings=config["evaluation"], policy_hz=round(1/config['policy_dt']), physics_hz=round(1 / config["physics_dt"]),
         scope="extended_flat_command_envelope" if args.envelope else "eight_case_first_episode_diagnostic",
         hardware_deployment_ready=False)
+    if plan.get('transient_response'):
+        report['response_targets'] = plan['response_targets']
+        report['qualification_eligible'] = False
+        report['response_metrics_status'] = 'native traces required; whole-episode MAE is not a response-time grade'
     if reference_contract is not None:
         report["rmcs_command_reference"] = reference_contract
         report["scope"] = "ordinary_rmcs_command_reference_after_takeover_native_flat_simulation"
@@ -246,6 +259,8 @@ def main():
             sources.append(ROOT/'src/wheeled_algo/motion_state_residual.py')
         if plan['actor_adaptation']=='original-static-grip-with-directional-motion-v12':
             sources.extend(ROOT/'src/wheeled_algo'/name for name in ('directional_motion.py', 'motion_state_residual.py'))
+            if plan.get('transient_response'):
+                sources.append(ROOT/'src/wheeled_algo/transient_motion.py')
     if args.reward_audit:
         sources.append(ROOT / "scripts/flat_reward_audit.py")
     if reference_contract is not None:

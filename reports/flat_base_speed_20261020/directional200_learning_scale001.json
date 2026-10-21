@@ -1,0 +1,38 @@
+{
+  "schema": "flat-directional200-learning-scale-diagnostic-v1",
+  "new_optimizer_updates": 0,
+  "qualification_eligible": false,
+  "checkpoint_sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+  "sample_sha256": "590e654cc72bda68c6098b485989c6e8a6e3f6b7913e64f34fe4502b8942a0d4",
+  "samples": 267,
+  "scope": "Post-hoc final native reverse steady observations; diagnostic only, not a training or teacher-fit dataset",
+  "mean_action_delta_same_observations_raw": [
+    0.0004901904030703008,
+    -0.0002912646741606295,
+    2.9895189072703943e-05,
+    -0.0015717566711828113,
+    0.0034255660139024258,
+    -0.0012694852193817496
+  ],
+  "max_abs_action_delta_same_observations_raw": [
+    0.0005600452423095703,
+    0.0003483891487121582,
+    5.137920379638672e-05,
+    0.0015971660614013672,
+    0.0035080909729003906,
+    0.0013442039489746094
+  ],
+  "mean_wheel_target_rolling_delta_m_s": 0.0014085154980421066,
+  "frozen_gaussian_std_raw": [
+    0.013401557691395283,
+    0.010291481390595436,
+    0.012677429243922234,
+    0.010584824718534946,
+    0.03364237770438194,
+    0.034173719584941864
+  ],
+  "independent_one_action_rolling_target_std_m_s": 0.01438640896230936,
+  "std_interpretation": "sqrt(sum(wheel_std^2)) * .3 from the .06m radius and 10rad/s raw-action scale. This is a target perturbation, not measured body-velocity exploration or a causal diagnosis.",
+  "legacy_tag_note": "FlatTransfer/actor_mean_max_change_from_block_start is actually maximum parameter-tensor difference in train_flat_base.py, not measured output-mean difference; do not interpret its .003156 value as an action delta.",
+  "possible_next_hypothesis": "At 200Hz independent small Gaussian samples may provide little persistent excitation for a .51m/s steady deficit. This requires a new version and matched short test; current data do not prove it is the cause."
+}

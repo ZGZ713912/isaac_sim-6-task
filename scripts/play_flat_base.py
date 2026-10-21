@@ -147,6 +147,10 @@ def main():
         def __init__(self, env, args):
             super().__init__(env, args)
             self.auto.model.set_value(False)
+            # Start at the flat policy's full keyboard envelope. The loaded
+            # contract still limits acceleration before each actor observation.
+            self.speed_limit.model.set_value(3.)
+            self.yaw_limit.model.set_value(4.)
 
     suite.prepare_playback = prepare_flat_playback
     suite.validated_session = validated_flat_session

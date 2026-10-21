@@ -1,0 +1,501 @@
+{
+  "schema": "flat-base-finetune-plan-v20",
+  "source_worker_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+  "source_worker_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+  "source_design_file": "contracts/v6_task_campaign_speed_expectations_v18.json",
+  "source_design_sha256": "07040ed673eab2b56594206bfc123b1aef240dd153805e7b4621dc7ec52bf2b7",
+  "actor_bundle": "models/wheel_leg_flat_base_20261018",
+  "source_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+  "asset_directory": "model/纯底盘_v7_flat_base107/urdf",
+  "asset_manifest_sha256": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+  "asset_cpu_evidence": "reports/flat_base_continuation_20261019/asset_cpu.json",
+  "control_file": "contracts/flat_base_200hz_control_v1.json",
+  "control_sha256": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+  "physics_dt": 0.001,
+  "policy_dt": 0.005,
+  "leg_target_winding": "paired_branch107_v1",
+  "flat_context": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "seed": 191019,
+  "evaluation_seed": 191029,
+  "confirmation_seed": 191030,
+  "allowed_num_envs": [
+    4096
+  ],
+  "default_num_envs": 4096,
+  "update_ceiling": 10000,
+  "first_block_updates": 8,
+  "critic_warmup_updates": 20,
+  "num_steps_per_env": 384,
+  "num_learning_epochs": 3,
+  "num_mini_batches": 4,
+  "learning_rate": 0.0001,
+  "critic_learning_rate": 0.0005,
+  "use_clipped_value_loss": false,
+  "gamma": 0.9974905699336811,
+  "lam": 0.9872585449014338,
+  "entropy_coef": 0.0,
+  "initial_std_policy_order": [
+    0.025,
+    0.025,
+    0.025,
+    0.025,
+    0.04,
+    0.04
+  ],
+  "checkpoint_interval": 1,
+  "episode_seconds": 20.0,
+  "acceptance": {
+    "survival_rate_min": 1.0,
+    "velocity_mae_m_s_max": 0.05,
+    "yaw_mae_rad_s_max": 0.1,
+    "height_mae_m_max": 0.01,
+    "stand_drift_m_max": 0.03,
+    "stand_velocity_mae_m_s_max": 0.03,
+    "tilt_max_deg": 15.0,
+    "closure_gap_max_m": 0.003,
+    "warmup_seconds": 1.0
+  },
+  "pilot_case_names": [
+    "stand_230mm",
+    "stand_305mm",
+    "stand_430mm",
+    "forward_05",
+    "backward_05",
+    "rotate_1",
+    "rotate_1_reverse",
+    "start_stop_05"
+  ],
+  "train_groups": [
+    {
+      "name": "stand_low",
+      "fraction": 0.05,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.23
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "stand_mid",
+      "fraction": 0.05,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.305
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "stand_high",
+      "fraction": 0.05,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.43
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "forward_low",
+      "fraction": 0.04,
+      "skill": {
+        "kind": "forward",
+        "command": [
+          0.75,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.13333333333333333,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "backward_low",
+      "fraction": 0.04,
+      "skill": {
+        "kind": "backward",
+        "command": [
+          -0.75,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.13333333333333333,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "forward_edge3",
+      "fraction": 0.06,
+      "skill": {
+        "kind": "forward",
+        "command": [
+          3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "backward_edge3",
+      "fraction": 0.06,
+      "skill": {
+        "kind": "backward",
+        "command": [
+          -2.5,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "start_stop_3_0",
+      "fraction": 0.175,
+      "skill": {
+        "kind": "start_stop",
+        "command": [
+          3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "segment_seconds": 2.5,
+        "acceleration_m_s2": 1.5,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        },
+        "opposite_speed_ratio": 0.8333333333333334
+      }
+    },
+    {
+      "name": "backward_start_stop3",
+      "fraction": 0.175,
+      "skill": {
+        "kind": "start_stop",
+        "command": [
+          -2.5,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "segment_seconds": 2.5,
+        "acceleration_m_s2": 1.5,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        },
+        "sample_amplitude": false,
+        "opposite_speed_ratio": 1.2
+      }
+    },
+    {
+      "name": "yaw_start_stop_positive",
+      "fraction": 0.15,
+      "skill": {
+        "kind": "rotate",
+        "command": [
+          0.0,
+          4.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        },
+        "yaw_start_stop_segment_seconds": 2.5
+      }
+    },
+    {
+      "name": "yaw_start_stop_negative",
+      "fraction": 0.15,
+      "skill": {
+        "kind": "rotate",
+        "command": [
+          0.0,
+          -4.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        },
+        "yaw_start_stop_segment_seconds": 2.5
+      }
+    }
+  ],
+  "training_scope": "leg-assisted rapid launch/brake and bidirectional yaw response; reverse target 2.5m/s",
+  "training_release": false,
+  "hardware_deployment_ready": false,
+  "prior_discontinued_optimizer_updates": 1,
+  "flat_floor_width_m": 8.0,
+  "vx_max": 3.0,
+  "yaw_max": 4.0,
+  "additional_critic_warmup_updates": 2,
+  "group_episode_seconds": {
+    "start_stop_3_0": 10.0,
+    "backward_start_stop3": 10.0,
+    "yaw_start_stop_positive": 10.0,
+    "yaw_start_stop_negative": 10.0
+  },
+  "teacher_anchor": {
+    "coefficient": 0.0,
+    "action_scales": [
+      0.025,
+      0.025,
+      0.025,
+      0.025,
+      0.04,
+      0.04
+    ],
+    "min_vx": 2.5,
+    "min_yaw": 3.0,
+    "sampling": "current_training_observations_only",
+    "teacher_source": "original_source_onnx",
+    "min_visible_wheel_error_m_s": 0.5
+  },
+  "stationary_tracking": {
+    "position_weight": 1.0,
+    "position_band_m": 0.03,
+    "velocity_scale": 1.0,
+    "position_cost": "capped_square",
+    "position_cost_cap": 25.0,
+    "failure_event_cost": 50.0
+  },
+  "critic_position_anchor": true,
+  "critic_dim": 83,
+  "actor_adaptation": "original-static-grip-with-directional-motion-v12",
+  "training_command_reference": {
+    "rmcs_root": "/home/noir/Documents/workspace/RMCS",
+    "contract": {
+      "schema": "flat-rmcs-command-reference-policy-rate-v2",
+      "source_sha256": {
+        "rmcs_rl/src/wheel_leg/observation.cpp": "7e98fc95cd4b198bc3b02790e0c1736267eb448ceb3efd1b94180b01d771376c",
+        "rmcs_rl/src/wheel_leg/policy.hpp": "debb9dda28b911271f4967a7ccab1f7d21cf041c6ed9ab11d0017981624ad5d5",
+        "rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063"
+      },
+      "policy_hz": 200,
+      "physics_hz": 1000,
+      "nominal_height_m": 0.305,
+      "height_command_is_reference": true,
+      "height_reference_rate_max_m_s": 0.6666666666666666,
+      "wheel_radius_m": 0.06,
+      "wheel_track_m": 0.4373,
+      "wheel_speed_limit_rad_s": 90.0,
+      "lateral_acceleration_m_s2": 2.06,
+      "heading_hold_enabled": true,
+      "heading_hold_gain": 5.0,
+      "vx_max_m_s": 3.0,
+      "yaw_rate_max_rad_s": 4.0,
+      "heading_hold_yaw_rate_max_rad_s": 4.0,
+      "envelope_source": "export_flat_base.py packaged YAML caps: vx=3, yaw/heading/spin=4",
+      "planar_slew": "none; next policy tick",
+      "takeover_blending": false,
+      "spinning": false,
+      "scope": "200 Hz native simulation derived from the inspected 50 Hz RMCS command math",
+      "source_policy_hz": 50,
+      "source_scope": "ordinary flat RL command assembly after takeover; native simulation only"
+    },
+    "moving_direct_fraction": 0.5,
+    "standing_direct_fraction": 1.0
+  },
+  "feedback_training_scope": "feedback_only",
+  "command_branch_restore": {
+    "checkpoint": "runs/flat_base_20261019/pilot010/model_000448.pt",
+    "sha256": "334bbee9a258a55d03be273f0c86d356b58ddcca6a8eddd4c1ebb6ad1c1ceaa2",
+    "current_parent_sha256": "f86aa34c16b0de0ee20c7d8ff5b7fb65978672b999c4adea8f71fa29a21382b5"
+  },
+  "moving_velocity_cost_scale": 3.0,
+  "static_feedback_recall": {
+    "checkpoint": "runs/flat_base_20261019/pilot023/model_001248.pt",
+    "sha256": "da285c8ddc1958af6c5e3b232c97bb3729370459235e2d90268738c2b0067d7d"
+  },
+  "parent_composition": {
+    "parent_checkpoint": "runs/flat_base_20261019/pilot025/model_001280.pt",
+    "parent_sha256": "9f8c858099a3f92a25b0f97bab6f9dc4a1d1644ed4497abbe68758263a36401f",
+    "source_actor_adaptation": "original-command-and-continuous-low-feedback-residual-v4",
+    "static_composition": "v3 snapshot exact",
+    "wheel_head": "zero output; 994 trainable parameters"
+  },
+  "contact_material": {
+    "enabled": true,
+    "combine_mode": "average",
+    "ground_static_friction_range": [
+      0.2,
+      0.5
+    ],
+    "ground_dynamic_friction_range": [
+      0.2,
+      0.5
+    ],
+    "wheel_static_friction": 0.1,
+    "wheel_dynamic_friction": 0.1,
+    "body_static_friction": 0.25,
+    "body_dynamic_friction": 0.25
+  },
+  "policy_rate_transition": {
+    "schema": "flat-policy-rate-transition-v1",
+    "parent_plan_file": "reports/flat_base_continuation_20261019/static_grip_candidate002/plan.json",
+    "parent_plan_sha256": "b4ca48289519ab748b2b8130ee93799a4a7a711760e411e68d43af7fe7d767fc",
+    "source_policy_hz": 50,
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "rollout_seconds": 1.92,
+    "discount_and_gae": "exponential physical time",
+    "action_difference_reference_dt": 0.02,
+    "reward_integration": "densities multiplied by policy_dt once; event costs once per event",
+    "command_and_episode_timers": "seconds unchanged",
+    "previous_action_observation_dt": 0.005,
+    "exploration": "saved std retained; 200 Hz sampling has a different temporal correlation",
+    "behavior_equivalence_verified": false
+  },
+  "directional_motion": {
+    "checkpoint": "reports/flat_base_speed_20261020/policy200_capacity002/initial_state.pt",
+    "sha256": "e07adbb5a3c2c086d9cbcb38e97b3be5f09ddd4114e749d14db391d62c3c51d1",
+    "base_plan_file": "reports/flat_base_speed_20261020/policy200_migration003/plan.json",
+    "base_plan_sha256": "8852935e75e39a61d3d0ea62279a80960d1131ef8e87e598925910a182b49612"
+  },
+  "motion_trust_region": {
+    "max_kl": 0.02,
+    "max_backtracks": 12
+  },
+  "transient_response": {
+    "checkpoint": "runs/flat_base_20261020/pilot034_directional200_1346/model_001346.pt",
+    "sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+    "base_plan_file": "reports/flat_base_speed_20261020/directional200_preparation001/plan.json",
+    "base_plan_sha256": "5dfd8f889e3b762d5d1bf69c46441ddfe3805ae119797979f99ae46ad101abf1",
+    "actor": {
+      "version": "leg-assisted-transient-v1",
+      "vx_deadband_m_s": 0.03,
+      "vx_ramp_m_s": 0.12,
+      "yaw_deadband_rad_s": 0.03,
+      "yaw_ramp_rad_s": 0.07,
+      "pitch_deadband_rad": 0.03490658503988659,
+      "pitch_ramp_rad": 0.10471975511965978,
+      "raw_action_bounds": [
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.8,
+        0.8
+      ]
+    },
+    "reward": {
+      "version": "leg-assisted-response-cost-v1",
+      "vx_scale_m_s": 0.5,
+      "yaw_scale_rad_s": 0.5,
+      "pitch_allowance_rad": 0.13962634015954636,
+      "leg_smoothness_scale": 0.5,
+      "response_error_weight": 1.5
+    }
+  },
+  "response_targets": {
+    "forward_max_m_s": 3.0,
+    "reverse_max_m_s": 2.5,
+    "yaw_max_rad_s": 4.0,
+    "transition_sample_fraction": 0.65,
+    "selection_metrics": [
+      "response_time_s",
+      "stop_distance_m",
+      "overshoot_m_s",
+      "settled_vx_m_s",
+      "settled_yaw_rad_s",
+      "slip_m_s",
+      "pitch_deg",
+      "leg_excursion_rad",
+      "leg_speed_rad_s",
+      "height_error_m",
+      "full_episode_fraction"
+    ],
+    "historical_minus3_requirement": "superseded for future objectives; never regrade old evidence"
+  }
+}
