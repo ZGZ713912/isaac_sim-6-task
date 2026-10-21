@@ -186,7 +186,8 @@ class ChassisEnv:
             layout_indices, layout_count = canonical_evaluation_layout(config["evaluation"], num_envs)
         grid = math.ceil(math.sqrt(layout_count))
         floor_width = config.get("flat_floor_width_m", 4.)
-        if not 4. <= floor_width <= 8.:
+        square_getup_ground = config.get("full_rl_square_ground", False)
+        if not 4. <= floor_width <= (128. if square_getup_ground else 8.):
             raise ValueError("Flat collider width must stay within the validated 4-8m tile range")
         half_length = config.get("flat_half_length_m", 44.)
         corridor_spacing = 2 * half_length + 12.
@@ -264,7 +265,11 @@ class ChassisEnv:
                 self.surfaces[-1] = surfaces
             if config.get("flat_triangle_mesh") and kind in ("flat", "jump"):
                 mesh = UsdGeom.Mesh.Define(self.sim.stage, path + "/Terrain/surface_0/geometry/mesh")
-                points, indices = corridor_mesh(half_length, floor_width)
+                if square_getup_ground:
+                    from .getup_ground import flat_patch
+                    points, indices = flat_patch(half_length, floor_width)
+                else:
+                    points, indices = corridor_mesh(half_length, floor_width)
                 mesh.CreatePointsAttr(points)
                 mesh.CreateFaceVertexCountsAttr([3] * (len(indices) // 3))
                 mesh.CreateFaceVertexIndicesAttr(indices)

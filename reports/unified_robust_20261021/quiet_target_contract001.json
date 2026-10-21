@@ -1,0 +1,30 @@
+{
+  "schema": "user-quiet-standing-target-v1",
+  "policy_hz": 200,
+  "slow_fore_aft_sway_acceptable_m": [
+    -0.05,
+    0.05
+  ],
+  "rapid_wheel_or_leg_oscillation": "reduce in the deterministic exported actor and actual native joint motion",
+  "training_only_anchor": true,
+  "actor_input_changed": false,
+  "quiet_next_pilot": {
+    "new_updates_limit": 24,
+    "num_envs": 1024,
+    "rollout_steps": 128,
+    "leg_alpha": 0.12,
+    "wheel_alpha": 0.25,
+    "domain_scale": 0.35,
+    "friction": [
+      0.4,
+      0.5
+    ],
+    "freeze": [
+      "locomotion parent",
+      "recovery head",
+      "motion correction head",
+      "exploration std"
+    ]
+  },
+  "hardware_started_by": "user"
+}

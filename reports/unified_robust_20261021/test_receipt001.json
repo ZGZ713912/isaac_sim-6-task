@@ -1,0 +1,22 @@
+{
+  "schema": "robust-getup-tests-v1",
+  "targeted_passed": 33,
+  "targeted_failed": 0,
+  "targeted_source_sha256": {
+    "tests/test_robust_getup.py": "22186c249d10e17d0b694b69ba5f556042dbe64a4c0fe97a8d19084aa269383e",
+    "tests/test_unified_getup.py": "6ddde824acb625882ab84b7ac439f8d92d5a61da59732e4fd827115d1e932dd7",
+    "tests/test_getup_symmetry.py": "35bd581282cb1692bf5f6ceb37c347e7963bae0ac9390f7cbcbda62430dbad5d",
+    "tests/test_getup_feedback.py": "99ea000fd5e77ff8607e78e605fd2d095db1a727559fda22830143f1a5954226",
+    "tests/test_getup_reward.py": "979f04746768700d6b65f3db67ab5148e97ff03d512c00244842f361b7d86faf",
+    "tests/test_robust_getup_analysis.py": "bfb32f45c677bf59fef122664b969a4135ec50df69f79fc8ee8e9b5fe91496b2"
+  },
+  "existing_regression": {
+    "passed": 244,
+    "failed": 1,
+    "test": "test_installed_official_physx_tensor_api_exposes_readback_properties",
+    "reason": "Existing fixture assumes Isaac tensor API under Python purelib/isaacsim/extscache; standalone native runtime differs."
+  },
+  "native_evidence": "Actual Isaac Sim launch, mass/inertia/COM readback, full torque-zero passive intervals and closed-chain traces recorded per run.",
+  "no_local_tensorboard_server": true,
+  "no_vehicle_motion": true
+}
