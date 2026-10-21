@@ -1,0 +1,34 @@
+{
+  "changed_sources": [
+    "scripts/train_flat_base.py",
+    "src/wheeled_algo/command_residual.py",
+    "src/wheeled_algo/directional_motion.py",
+    "src/wheeled_algo/transient_leg_feedback.py",
+    "src/wheeled_tasks/chassis/flat_base_continuation.py",
+    "src/wheeled_tasks/chassis/flat_clock_transition.py",
+    "src/wheeled_tasks/chassis/transient_campaign_plan.py",
+    "src/wheeled_tasks/chassis/transient_leg_feedback_plan.py"
+  ],
+  "changed_fields": [
+    "schema",
+    "transient_campaign",
+    "transient_leg_feedback"
+  ],
+  "actor_critic_Adam_RNG_counters": "must restore exactly; declared mean function change",
+  "additional_critic_warmup": 0,
+  "status": "actual1418_cpu_mean_verified_no_optimizer",
+  "input_samples": 8192,
+  "full_actor_tensors_exact": true,
+  "critic_optimizer_RNG_counters": "untouched source checkpoint; restored natively on launch",
+  "wheel_actions_bitwise_exact": true,
+  "leg_function_max_abs_difference": 3.1504287719726562,
+  "formula_max_abs_error": 2.384185791015625e-07,
+  "history_indices": [
+    22,
+    26
+  ],
+  "fast_correction_gradient": "separate unit test verifies no .25 attenuation",
+  "limit": "Previous applied actions also contain the preceding learned correction. This is a changed coupled recurrence, not an independent isolated parent filter; equilibrium and behavior require native verification.",
+  "checkpoint_sha256": "c0de55c1663f03b8d2bbee7e74d4134fee4f37272b6a48776790cf35e8e1a0a8",
+  "plan_sha256": "85e0e973ebf105ae191db1bb2bfc4a8a3eebcffa12e95dc1aa542a749e0fe914"
+}

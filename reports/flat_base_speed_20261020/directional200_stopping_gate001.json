@@ -1,0 +1,43 @@
+{
+  "schema": "flat-directional200-stopping-gate-diagnostic-v1",
+  "new_optimizer_updates": 0,
+  "qualification_eligible": false,
+  "source_comparison_sha256": "54fe505af55f36835ef7e6555cc543036a7bf3d31a6ffea2a6797a16733195cb",
+  "window": "10-16s in the first high-height/mu.5 stop; all four lanes completed this window",
+  "rows": [
+    {
+      "lane": 1140,
+      "frames": 1200,
+      "gate_zero_frames": 443,
+      "yaw_error_above_point1_rad_s_frames": 815,
+      "yaw_error_above_point1_and_gate_zero_frames": 290,
+      "mean_abs_yaw_rad_s": 0.13961894810199738
+    },
+    {
+      "lane": 1141,
+      "frames": 1200,
+      "gate_zero_frames": 470,
+      "yaw_error_above_point1_rad_s_frames": 879,
+      "yaw_error_above_point1_and_gate_zero_frames": 310,
+      "mean_abs_yaw_rad_s": 0.1475227028131485
+    },
+    {
+      "lane": 1142,
+      "frames": 1200,
+      "gate_zero_frames": 448,
+      "yaw_error_above_point1_rad_s_frames": 894,
+      "yaw_error_above_point1_and_gate_zero_frames": 304,
+      "mean_abs_yaw_rad_s": 0.154609814286232
+    },
+    {
+      "lane": 1143,
+      "frames": 1200,
+      "gate_zero_frames": 530,
+      "yaw_error_above_point1_rad_s_frames": 0,
+      "yaw_error_above_point1_and_gate_zero_frames": 0,
+      "mean_abs_yaw_rad_s": 0.00762939453125
+    }
+  ],
+  "structural_finding": "At zero requested planar command, when rolling<.15m/s and |gyro_yaw|<.45rad/s, v12 motion_gate is zero, conditioned reference is not selected, and the trainable directional banks have exactly zero action derivative. Yaw error above the .1rad/s criterion can therefore be outside their authority.",
+  "causal_limit": "This proves missing local training authority for these recorded states; it does not prove it is the sole cause of failed start-stop completion or that a lower threshold will preserve standing."
+}

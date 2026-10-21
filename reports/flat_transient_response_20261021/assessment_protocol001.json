@@ -1,0 +1,56 @@
+{
+  "schema": "flat-transient-prospective-assessment-v1",
+  "frozen_at": "2026-10-21T10:54:31.785868+00:00",
+  "exploratory_seed": 191129,
+  "confirmation_seeds": [
+    191130,
+    191131
+  ],
+  "exploratory_replicas": 2,
+  "confirmation_replicas": 4,
+  "baseline_checkpoint_sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+  "heights_m": [
+    0.305,
+    0.42
+  ],
+  "ground_material_friction": [
+    0.2,
+    0.5
+  ],
+  "wheel_material_friction": 0.1,
+  "combine": "average",
+  "clocks_hz": {
+    "policy": 200,
+    "physics": 1000
+  },
+  "seconds": 16.0,
+  "transient_phase_seconds": 4.0,
+  "admission": {
+    "all_requested_episodes_complete": true,
+    "closure_gap_max_m": 0.003,
+    "tilt_max_deg": 15.0,
+    "no_lost_retention_or_steady_baseline_checks": true,
+    "retention_error_regression_max": {
+      "vx_m_s": 0.02,
+      "yaw_rad_s": 0.05,
+      "height_m": 0.003
+    },
+    "steady_tracking_error_max": 0.3,
+    "combined_stop_planar_m_s": 0.05,
+    "combined_stop_yaw_rad_s": 0.1,
+    "stop_dwell_s": 0.25,
+    "launch_target_fraction": 0.9,
+    "launch_dwell_s": 0.1,
+    "no_censored_transient_responses": true,
+    "median_response_relative_gain_min": 0.1,
+    "two_distinct_confirmation_seeds": true
+  },
+  "code_sha256": {
+    "scripts/probe_flat_speed_prior.py": "1648942e08b901d556b73c513bcb14f6ed5e441edb298c88776c344b3a0e2fd1",
+    "scripts/flat_transient_metrics.py": "b886c1520c608a452a12a5a866b274c2ff28599cc74d9bec755f73fca5a1ae32",
+    "scripts/analyze_flat_transient.py": "afc031e75cb45ecec7b3defbefe22059f3a3f61c898f941022f310857f5bf3d3"
+  },
+  "no_native_evaluation_yet": true,
+  "qualification": false,
+  "hardware_ready": false
+}

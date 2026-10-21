@@ -1,0 +1,30 @@
+{
+  "schema": "flat-transient-causal-decision-v1",
+  "native_report_sha256": "19fe87a33b7bc3b4534b95d7357ec604051bd3138a094b527918d67ec8adb2ca",
+  "source_checkpoint": {
+    "role": "variant_2",
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/flat_base_20261021/transient_dwell_pilot002/model_001418.pt",
+    "sha256": "c0de55c1663f03b8d2bbee7e74d4134fee4f37272b6a48776790cf35e8e1a0a8",
+    "successful_updates": 1418,
+    "actor_updates": 1232,
+    "saved_weights_clock_hz": 200,
+    "supervised_head_fit": null
+  },
+  "short_optimizer_updates": 72,
+  "aggregate_consumption": 1447,
+  "new_optimizer_updates_in_diagnostic": 0,
+  "complete_episodes": {
+    "1346": 77,
+    "1418_control": 71,
+    "all_relaxed": 79,
+    "legs_relaxed": 96,
+    "wheels_relaxed": 61
+  },
+  "full_requested_each": 104,
+  "decision": "Do not adopt blanket output relaxation. Test a declared parent-leg feedback relaxation while leaving learned leg corrections and both wheel actions direct, in one 64-update bounded block.",
+  "user_intent": "Rapid coordinated leg/body braking, not minimizing leg motion or forcing smoothness.",
+  "positive_evidence": "Leg-only intervention rescues low-friction yaw and low-speed retention without slowing wheel outputs; unchanged weights and reset samples.",
+  "limits": "Low-friction linear braking still fails and some high-friction stops slow down; no 5000 admission, no deployment qualification. Parent-only relaxation differs from total-leg relaxation by 0.75 times the old learned leg residual, so initialized and trained functions must be compared explicitly.",
+  "short_budget_remaining": 440,
+  "next_requested_optimizer_updates": 64
+}

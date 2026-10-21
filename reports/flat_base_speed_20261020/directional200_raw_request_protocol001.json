@@ -1,0 +1,25 @@
+{
+  "schema": "flat-directional200-raw-request-supplement-v1",
+  "created_at": "2026-10-20T16:38:47.140860+00:00",
+  "timing": "Defined after live survival counts were visible, before full native velocity/phase results; supplementary diagnosis only",
+  "comparison_protocol_sha256": "f116d42946250ec3f75f2493a21998f2d4c22985bcb0bfa86c61c802e9fe7363",
+  "analyzer_sha256": "f698c215ee4cfc0b805b6a538788475e1e88e3178dadbc47e745faa6027a2536",
+  "tests_sha256": "c00ff801de2c485cb5c290f573869989dba4798413e8b94c609e844729460f78",
+  "training_source_changes": 0,
+  "new_optimizer_updates": 0,
+  "old_grading_unchanged": true,
+  "qualified": false,
+  "qualification_eligible": false,
+  "scope": "All four arms and all 96 conditions per arm; raw request reconstructed from the frozen deterministic profile before RMCS heading/lateral projection",
+  "raw_request_time": "(poststep_episode_tick-1)*policy_dt",
+  "metrics": [
+    "issued_reference_MAE",
+    "raw_request_MAE",
+    "body_velocity_mean",
+    "changed_reference_fraction",
+    "complete_episode_denominators",
+    "last_five_seconds_complete_episodes"
+  ],
+  "supplementary_stop_window": "For translational start-stop only: max(1s, abs(request)/(mean(wheel_mu,ground_mu)*9.81)+0.5s) after phase start",
+  "physical_model_limits": "Quasi-static traction estimate, not a safety bound or a new passing threshold"
+}

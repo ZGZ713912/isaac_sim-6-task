@@ -1,0 +1,22 @@
+{
+  "schema": "flat-stop-heading-finalizer-repair-v1",
+  "created_at": "2026-10-20T17:37:57.924222+00:00",
+  "new_optimizer_updates": 0,
+  "qualification_eligible": false,
+  "status": "unit_verified_and_native001_trace_completion_recovered",
+  "problem": "SimulationApp fast shutdown can terminate Python before outer wrapper finally; native001 initial override retains counter0 and lacks final fields. Native report and full traces were written before close.",
+  "change": "Seal through env.close before simulation app shutdown. Analyzer requires authenticated post-hoc completion if the runtime seal is absent.",
+  "native001_lost_runtime_counter": null,
+  "native001_completion_sha256": "b90e7be78b3e156e621d93744ca980f6661c652c7afe2b751b67fc3cbeab29d8",
+  "initial_analysis_failure_log_sha256": "db0e3f1703a3a02ecbc58ea2f6bdd2cae1b8c54b1efc1eb8cefb25edb1d93af3",
+  "completed_analysis_sha256": "96b378076987288789b5f67bcdad8fa1cd63abdb4a3303d702c76159810a99a1",
+  "test_junit_sha256": "30b3808e4f08bdcbb8d16d98aff26c7677df20e6371c992b246cd8855f74aa2e",
+  "changed_source_sha256": {
+    "scripts/probe_flat_stop_heading.py": "e67940ced4368ee25425ed6b098213c3c5f6816f7f4ea403de37554e22db6182",
+    "scripts/analyze_flat_stop_heading.py": "4b7909128fb3cef02984d621e0eb35f90885bcad16362650bc926c550545fd3e",
+    "tests/test_flat_stop_heading_probe.py": "1b5c38092c6512a8889b895dababe58f9c0561f0b0704f21a87dd644719ec8e5"
+  },
+  "new_finalizer_native_replay_performed": false,
+  "behavior_command_math_changed": false,
+  "limits": "Native001 uses its original archived bootstrap. The finalizer fix itself has nine targeted CPU checks, not a new native replay. Original grading/metrics, weights, material and clocks were not changed."
+}

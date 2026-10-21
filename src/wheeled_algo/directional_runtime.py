@@ -15,8 +15,16 @@ from .motion_state_residual import MotionStateResidualActor
 
 
 class MotionSelector(nn.Module):
+    def __init__(self, settings=None):
+        super().__init__()
+        self.settings = deepcopy(settings)
+
     def forward(self, obs):
-        return MotionStateResidualActor.motion_gate(obs) > 0.
+        gate = MotionStateResidualActor.motion_gate(obs)
+        if self.settings is not None:
+            from .transient_motion import transient_gate
+            gate = transient_gate(obs, gate, self.settings)
+        return gate > 0.
 
 
 class PreservedDirectionalRuntime(nn.Module):
@@ -24,11 +32,13 @@ class PreservedDirectionalRuntime(nn.Module):
         super().__init__()
         if type(candidate) is not DirectionalMotionActor:
             raise ValueError('Preserved directional runtime requires the declared v12 mean')
+        if candidate.leg_feedback_settings is not None:
+            raise ValueError('Parent-leg recurrence changes outside the selector; export the declared complete mean')
         self.parent = deepcopy(parent).eval().requires_grad_(False)
         self.candidate = deepcopy(candidate).eval().requires_grad_(False)
 
     def forward(self, obs):
-        return torch.where(MotionSelector()(obs), self.candidate(obs), self.parent(obs))
+        return torch.where(MotionSelector(self.candidate.transient_settings)(obs), self.candidate(obs), self.parent(obs))
 
     def export_graph(self, source):
         import onnx
@@ -36,7 +46,7 @@ class PreservedDirectionalRuntime(nn.Module):
         parent = self.parent.export_graph(source)
         candidate = self.candidate.export_graph(source)
         buffer = io.BytesIO()
-        torch.onnx.export(MotionSelector(), torch.zeros(1, 35), buffer,
+        torch.onnx.export(MotionSelector(self.candidate.transient_settings), torch.zeros(1, 35), buffer,
             input_names=['obs'], output_names=['active'], dynamic_axes={'obs': {0: 'batch'}, 'active': {0: 'batch'}},
             opset_version=17, dynamo=False)
         selector = onnx.load_model_from_string(buffer.getvalue())
@@ -70,7 +80,9 @@ class PreservedDirectionalRuntime(nn.Module):
         del graph.graph.value_info[:]
         metadata = {p.key: p.value for p in candidate.metadata_props}
         metadata['parent_graph_preservation'] = json.dumps(dict(
-            selection='original motion gate > 0', outside_gate='unchanged measured parent ONNX nodes',
+            selection=('transient error/pitch or inherited motion gate > 0'
+                       if self.candidate.transient_settings is not None else 'original motion gate > 0'),
+            outside_gate='unchanged measured parent ONNX nodes',
             numerical_scope='pointwise original graph; native episode retention still required'), separators=(',', ':'))
         helper.set_model_props(graph, metadata)
         onnx.checker.check_model(graph, full_check=True)
@@ -79,6 +91,10 @@ class PreservedDirectionalRuntime(nn.Module):
 
 def preserve_directional_graph(mean, source, parent_file=None):
     if type(mean) is not DirectionalMotionActor:
+        return mean
+    if mean.leg_feedback_settings is not None:
+        # There is no unchanged quiet-parent endpoint for this declared
+        # recurrence change. Its complete mean has its own numerical export.
         return mean
     from pathlib import Path
     from .command_residual import mean_from_checkpoint

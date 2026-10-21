@@ -25,7 +25,7 @@ def digest(path):
 def read_plan(root, plan_file=PLAN):
     root = Path(root)
     plan = json.loads((root / plan_file).read_text())
-    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in range(1, 20)):
+    if plan["schema"] not in tuple(f"flat-base-finetune-plan-v{n}" for n in range(1, 24)):
         raise ValueError("Unknown flat actor transfer plan")
     for name in ("source_worker", "source_design", "control"):
         if digest(root / plan[name + "_file"]) != plan[name + "_sha256"]:
@@ -39,12 +39,24 @@ def read_plan(root, plan_file=PLAN):
         raise ValueError("Matched asset CPU validation is missing or belongs to another bundle")
     if digest(root / plan["actor_bundle"] / "source.onnx") != plan["source_onnx_sha256"]:
         raise ValueError("Original flat actor changed")
-    policy_dt = .005 if plan["schema"] in ("flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19") else .02
+    policy_dt = .005 if plan["schema"] in ("flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19", "flat-base-finetune-plan-v20", "flat-base-finetune-plan-v21", "flat-base-finetune-plan-v22", "flat-base-finetune-plan-v23") else .02
     if (plan["policy_dt"], plan["leg_target_winding"], plan["flat_context"]) != (
             policy_dt, "paired_branch107_v1", [1, 0, 0, 0, 0, 0, 0]):
         raise ValueError("Flat transfer changed its declared policy clock or paired-107 interface")
     from .flat_clock_transition import validate_flat_clock
     validate_flat_clock(root, plan)
+    if plan['schema'] == 'flat-base-finetune-plan-v23':
+        from .transient_leg_feedback_plan import validate_leg_feedback_plan
+        validate_leg_feedback_plan(root, plan)
+    if plan['schema'] == 'flat-base-finetune-plan-v22':
+        from .transient_dwell_plan import validate_dwell_plan
+        validate_dwell_plan(root, plan)
+    if plan['schema'] == 'flat-base-finetune-plan-v21':
+        from .transient_campaign_plan import validate_campaign_plan
+        validate_campaign_plan(root, plan)
+    if plan['schema'] == 'flat-base-finetune-plan-v20':
+        from .transient_response_plan import validate_transient_plan
+        validate_transient_plan(root, plan)
     if plan['schema'] == 'flat-base-finetune-plan-v19':
         from .directional_motion_plan import validate_directional_plan
         validate_directional_plan(root, plan)
@@ -57,7 +69,7 @@ def read_plan(root, plan_file=PLAN):
         parent = read_plan(root, parent_file)
         validate_policy_rate_transition(root, parent, plan, parent["control_sha256"])
     velocity_scale = plan.get("moving_velocity_cost_scale")
-    if plan["schema"] in ("flat-base-finetune-plan-v16", "flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19"):
+    if plan["schema"] in ("flat-base-finetune-plan-v16", "flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19", "flat-base-finetune-plan-v20", "flat-base-finetune-plan-v21", "flat-base-finetune-plan-v22", "flat-base-finetune-plan-v23"):
         if type(velocity_scale) not in (int, float) or not math.isfinite(velocity_scale) or not 1. < velocity_scale <= 10.:
             raise ValueError("v16/v17/v18 require a finite moving velocity cost scale in (1,10]")
     elif velocity_scale is not None:
@@ -66,7 +78,7 @@ def read_plan(root, plan_file=PLAN):
     if not isinstance(contact_material, dict) or type(contact_material.get("enabled", False)) is not bool:
         raise ValueError("contact_material must be an explicit enabled/disabled mapping")
     if contact_material.get("enabled"):
-        if plan["schema"] not in ("flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19"):
+        if plan["schema"] not in ("flat-base-finetune-plan-v17", "flat-base-finetune-plan-v18", "flat-base-finetune-plan-v19", "flat-base-finetune-plan-v20", "flat-base-finetune-plan-v21", "flat-base-finetune-plan-v22", "flat-base-finetune-plan-v23"):
             raise ValueError("Separate contact materials require the explicit v17 plan")
         from .contact_material import ContactMaterialDomain
         # Validate with the native sampler's isolated generator; this does not
@@ -175,6 +187,8 @@ def _changes(plan, num_envs, *, evaluation=False, plan_file=PLAN):
         skill_specs={g["name"]: deepcopy(g["skill"]) for g in plan["train_groups"]})
     if "flat_floor_width_m" in plan and not evaluation:
         values["flat_floor_width_m"] = plan["flat_floor_width_m"]
+    if plan.get("transient_response") and not evaluation:
+        values["transient_response"] = deepcopy(plan["transient_response"]["reward"])
     if plan.get("group_episode_seconds") and not evaluation:
         values["flat_group_episode_seconds"] = deepcopy(plan["group_episode_seconds"])
     if plan.get("stationary_tracking") and not evaluation:
