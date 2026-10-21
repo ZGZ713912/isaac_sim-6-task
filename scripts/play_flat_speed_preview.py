@@ -9,6 +9,16 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 
 
+def package_policy(package, proof):
+    """Resolve the descriptive model name as well as existing policy.onnx packages."""
+    from wheeled_tasks.chassis.flat_base_continuation import digest
+    candidates=[package/'policy.onnx',package/(package.name+'.onnx')]
+    existing=[p for p in candidates if p.is_file()]
+    if not existing or any(digest(p)!=proof['model_sha256'] for p in existing):
+        raise ValueError('Preview package model is missing or differs from its authenticated SHA')
+    return existing[0]
+
+
 def preview_session(policy,contract_path,contract):
     import numpy as np
     import onnxruntime as ort
@@ -53,7 +63,7 @@ def main():
     package=args.package.resolve()
     proof=json.loads((package/'verification.json').read_text())
     import play_flat_base as playback
-    playback.MODEL=package/'policy.onnx'
+    playback.MODEL=package_policy(package,proof)
     playback.CHECKPOINT=Path(proof['checkpoint'])
     playback.CONTRACT=Path(proof['contract'])
     playback.validated_flat_session=preview_session

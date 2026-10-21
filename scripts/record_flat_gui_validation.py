@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-import asyncio
+import ctypes
 from datetime import datetime, timezone
 import json
 import math
@@ -53,6 +53,21 @@ def phase_index(case, tick, policy_dt):
         if elapsed < end - 1e-10:
             return index
     return len(case["phases"]) - 1
+
+
+def copy_capture_image(buffer, buffer_size, width, height):
+    """Copy the callback-owned pixels before the renderer releases its capsule."""
+    from PIL import Image
+    try:
+        raw = memoryview(buffer).tobytes()
+    except TypeError:
+        get_pointer = ctypes.pythonapi.PyCapsule_GetPointer
+        get_pointer.restype = ctypes.c_void_p
+        get_pointer.argtypes = [ctypes.py_object, ctypes.c_char_p]
+        raw = ctypes.string_at(get_pointer(buffer, None), buffer_size)
+    if buffer_size != width * height * 4 or len(raw) != buffer_size:
+        raise ValueError("Expected an 8-bit RGBA viewport capture")
+    return Image.frombytes("RGBA", (width, height), raw).convert("RGB")
 
 
 class GuiRecorder:
@@ -138,23 +153,30 @@ class GuiRecorder:
             self.key(phase["key"], "KEY_PRESS")
 
     def capture(self, sample, poses, terminal_hold=False):
-        from omni.kit.viewport.utility import capture_viewport_to_file
-        from PIL import Image, ImageDraw, ImageFont
+        from omni.kit.viewport.utility import capture_viewport_to_buffer
+        from PIL import ImageDraw, ImageFont
         self.view.update(sample, poses, self.env.model_spec)
-        path = self.output / ".capture.png"
-        path.unlink(missing_ok=True)
-        helper = capture_viewport_to_file(self.viewport, str(path))
-        future = asyncio.ensure_future(helper.wait_for_result())
+        captured = {}
+        def completed(buffer, size, width, height, byte_format):
+            try:
+                captured["image"] = copy_capture_image(buffer, size, width, height)
+            except Exception as error:
+                captured["error"] = error
+        # Scheduling completion is earlier than completion of the pixel transfer.
+        # Wait for the actual buffer callback; never infer pixels from a file future.
+        helper = capture_viewport_to_buffer(self.viewport, completed)
+        physics_before = self.env.control_audit.physics_steps
         for _ in range(90):
             self.env.sim.render()
-            if future.done():
-                future.result()
+            if captured:
                 break
         else:
-            future.cancel()
             raise RuntimeError("Viewport capture did not complete after 90 physics-free renders")
-        with Image.open(path) as source:
-            frame = source.convert("RGB").resize((960, 540))
+        if "error" in captured:
+            raise captured["error"]
+        if self.env.control_audit.physics_steps != physics_before:
+            raise RuntimeError("Recording must not advance physics")
+        frame = captured["image"].resize((960, 540))
         draw = ImageDraw.Draw(frame)
         font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf", 17)
         draw.rectangle((0, 445, 960, 540), fill=(15, 20, 29))
@@ -172,6 +194,8 @@ class GuiRecorder:
             self.encoder.stdin.write(data)
             self.frame_log.write(json.dumps(dict(frame=self.frames, case=self.case["name"],
                 case_tick=self.case_ticks, sim_time_s=self.case_ticks*self.policy_dt,
+                native_policy_steps=self.env.control_audit.policy_steps,
+                native_physics_steps=self.env.control_audit.physics_steps,
                 kind="labelled_terminal_freeze" if terminal_hold else "simulation_frame")) + "\n")
             self.frames += 1
             self.current["frames"] += 1
@@ -180,7 +204,6 @@ class GuiRecorder:
         if terminal_hold:
             frame.save(self.output / f"{self.index:02d}_{self.case['name']}_terminal.png")
         frame.save(self.output / "latest_frame.png")
-        path.unlink(missing_ok=True)
 
     def sample(self, sample, poses, terminal):
         self.case_ticks += 1
