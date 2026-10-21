@@ -1,0 +1,39 @@
+{
+  "schema": "robust-getup-practical-candidate-v1",
+  "evidence": "native simulation; user performs hardware testing",
+  "required_confirmation_seeds": [
+    211131,
+    211132
+  ],
+  "input_shape": [
+    1,
+    35
+  ],
+  "output_shape": [
+    1,
+    6
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "passive_motor_effort_nm": 0.0,
+  "closure_gap_max_m": 0.003,
+  "family_min_complete_rate": {
+    "left": 0.25,
+    "right": 0.25,
+    "inverted": 0.25
+  },
+  "minimum_successful_episodes_per_family": 2,
+  "ordinary_motion_survival_rate_min": 0.85,
+  "ordinary_arc_vx_mae_max_m_s": 0.35,
+  "ordinary_arc_yaw_mae_max_rad_s": 0.5,
+  "stand_survival_rate_min": 0.75,
+  "stand_vx_rms_max_m_s": 0.1,
+  "stand_yaw_rms_max_rad_s": 0.2,
+  "nominal_quiet_hf_target_rms_improvement_fraction": 0.25,
+  "moving_fall_recovery": "at least one real in-episode fall followed by stable recovery and resumed command",
+  "randomized_domains": "separate stress evaluation; disclose failures without hardware qualification",
+  "baseline": "exact 1346 locomotion parent at same seeds, domain draws, cases and physics",
+  "training_scope": "bounded small-update blocks; inspect behavior before each extension",
+  "allow_imperfect": true,
+  "no_hardware_motion": true
+}
