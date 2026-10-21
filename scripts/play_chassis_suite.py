@@ -124,7 +124,7 @@ def sample_state(env, diagnostic, requested, applied, acceleration, sim_time, vi
     return sample, poses
 
 
-def main(gui_experience_factory=None):
+def main(gui_experience_factory=None, recording_controller=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--onnx", type=Path, default=ROOT / "models/v6_recovery_candidate_38000_20261008/policy.onnx")
     parser.add_argument("--contract", type=Path)
@@ -250,14 +250,20 @@ def main(gui_experience_factory=None):
             report["gui_initialized"] = True
             report["keyboard_subscription_active"] = view.keyboard_subscription is not None
             print(f"GUI ready: {view.policy_label} | WASD / height / SPACE stop", flush=True)
+        if recording_controller is not None:
+            if view is None:
+                raise ValueError("GUI recording requires the real keyboard view")
+            recording_controller.start(env, view, report, args)
         applied = env.commands.clone()
         sim_time, ticks, last_save, last_overlay, last_render = 0., 0, 0., 0., 0.
         sample, poses, jump_active, scheduled_sent = None, None, False, False
         gui_deadline = time.monotonic() + args.gui_seconds if args.gui_seconds is not None else None
         report["gui_time_limit_s"] = args.gui_seconds
         report["status"] = "running"
+        playback_wall_start = time.monotonic()
         while (launcher.app.is_running() and (not args.headless or sim_time < args.seconds)
-               and (gui_deadline is None or time.monotonic() < gui_deadline)):
+               and (gui_deadline is None or time.monotonic() < gui_deadline)
+               and (recording_controller is None or not recording_controller.finished)):
             wall = time.monotonic()
             if env.sim.is_stopped():
                 report["status"] = "timeline_stopped"
@@ -294,7 +300,9 @@ def main(gui_experience_factory=None):
                 sample, poses = sample_state(env, extras["diagnostics"], requested, command,
                     acceleration, sim_time, view, inference_ms, jump_active)
                 sample.update(scenario=args.scenario, native_control_before_policy=ownership_before,
-                    actor_observed_command_vx_lateral_yaw_height_times5=actor_command)
+                    actor_observed_command_vx_lateral_yaw_height_times5=actor_command,
+                    playback_wall_s=time.monotonic() - playback_wall_start,
+                    real_time_factor=sim_time / max(1e-9, time.monotonic() - playback_wall_start))
                 if bool(done[0]):
                     diagnostic = extras["diagnostics"]
                     reasons = [name for name, mask in diagnostic["reasons"].items() if bool(mask[0])]
@@ -307,6 +315,8 @@ def main(gui_experience_factory=None):
                     else:
                         report["samples"].append(sample)
                         break
+                if recording_controller is not None:
+                    recording_controller.sample(sample, poses, bool(done[0]))
                 if ticks % 10 == 0:
                     report["samples"].append(sample)
                     report["samples"] = report["samples"][-6000:]
@@ -318,10 +328,10 @@ def main(gui_experience_factory=None):
                         recovery_phase=int(env.recovery.fsm.phase[0]) if env.recovery is not None else -1,
                         recovery_pure_rl=float(sample["native_control"]["pure_rl"])).items():
                         writer.add_scalar("Playback/" + tag, value, ticks)
-            if view and sample is not None and wall - last_overlay >= .1:
+            if view and recording_controller is None and sample is not None and wall - last_overlay >= .1:
                 view.update(sample, poses, env.model_spec)
                 last_overlay = wall
-            if view and wall - last_render >= 1 / 30.:
+            if view and recording_controller is None and wall - last_render >= 1 / 30.:
                 if env.sim.is_playing():
                     env.sim.render()
                 else:
@@ -340,11 +350,20 @@ def main(gui_experience_factory=None):
             if view:
                 time.sleep(max(0., env.policy_dt - (time.monotonic() - wall)))
         if report["status"] == "running":
-            report["status"] = "completed" if args.headless or gui_deadline is not None else "window_closed"
+            report["status"] = "completed" if (args.headless or gui_deadline is not None
+                or recording_controller is not None and recording_controller.finished) else "window_closed"
+        if recording_controller is not None and recording_controller.finished:
+            report["status"] = "completed"
     except Exception:
         report.update(status="failed", error=traceback.format_exc())
         traceback.print_exc()
     finally:
+        if recording_controller is not None:
+            try:
+                recording_controller.close(report)
+            except Exception:
+                report.update(status="failed", recording_error=traceback.format_exc())
+                traceback.print_exc()
         if writer is not None:
             writer.close()
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
