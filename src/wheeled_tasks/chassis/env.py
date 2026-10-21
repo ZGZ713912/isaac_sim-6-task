@@ -97,6 +97,10 @@ class ChassisEnv:
                 self.height_margin = CommandedHeightMargin(reference, device)
         self.dt, self.policy_dt = config["physics_dt"], config["policy_dt"]
         self.action_difference_reference_dt = config.get("action_difference_reference_dt", self.policy_dt)
+        self.transient_response = None
+        if config.get('transient_response'):
+            from .transient_response import TransientResponse
+            self.transient_response = TransientResponse(config['transient_response'], device)
         if (not math.isfinite(self.action_difference_reference_dt) or self.action_difference_reference_dt <= 0):
             raise ValueError("Action-difference reference interval must be finite positive seconds")
         self.passive_landing = None
@@ -1894,6 +1898,9 @@ class ChassisEnv:
                 from .rewards import apply_climb_height_tracking
                 scale = self.step_climb.height_tracking_scale(self.wheel_centers() - self.origins[:, None, :])
                 apply_climb_height_tracking(components, scale)
+            if self.transient_response is not None:
+                self.transient_response.apply(components, velocity, omega, gravity, self.commands,
+                    ordinary, reward_support_tracking.bool() & contact.all(-1), dq)
             reward = torch.stack(list(components.values())).sum(0) * self.policy_dt
             if spin_reward and not self.cfg.get("dense_tracking", {}).get("enabled"):
                 reward += self.skills.spin * velocity_reward * self.policy_dt
@@ -2403,7 +2410,10 @@ class ChassisEnv:
         self.diagnostic_reward_stats.observe(components, masks)
 
     def diagnostic_reward_metrics(self):
-        return self.diagnostic_reward_stats.drain(self.policy_dt)
+        values = self.diagnostic_reward_stats.drain(self.policy_dt)
+        if self.transient_response is not None:
+            values.update(self.transient_response.drain())
+        return values
 
     def summary(self):
         net_max = max(float(wp.to_torch(v.get_net_contact_forces(dt=self.dt)).abs().max()) for _, v in self.contact_views)

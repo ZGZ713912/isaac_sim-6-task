@@ -135,7 +135,14 @@ def restored_training_frames(info, old_plan):
 def validate_population_transition(info, old_plan, new_plan, new_count, revision, new_sources):
     """Authenticate a population-only migration without changing its objective or clocks."""
     changed = {key for key in set(old_plan) | set(new_plan) if old_plan.get(key) != new_plan.get(key)}
-    if changed != {"allowed_num_envs", "default_num_envs"}:
+    campaign = new_plan.get('transient_campaign')
+    allowed = {"allowed_num_envs", "default_num_envs"}
+    if campaign:
+        allowed |= {'schema', 'first_block_updates', 'additional_critic_warmup_updates',
+                    'checkpoint_interval', 'transient_campaign'}
+        if new_plan.get('transient_dwell'):
+            allowed |= {'transient_dwell', 'episode_seconds', 'train_groups', 'group_episode_seconds'}
+    if not {"allowed_num_envs", "default_num_envs"} <= changed or changed - allowed:
         raise ValueError("Population migration can change only the two population plan fields")
     old_count = info["num_envs"]
     if (type(new_count) is not int or new_count <= 0 or new_count == old_count
@@ -145,7 +152,13 @@ def validate_population_transition(info, old_plan, new_plan, new_count, revision
     entry = "scripts/train_flat_base.py"
     source_changes = {name for name in set(info["source_sha256"]) | set(new_sources)
                       if info["source_sha256"].get(name) != new_sources.get(name)}
-    if source_changes != {entry}:
+    allowed_sources = {entry}
+    if campaign:
+        allowed_sources |= {'src/wheeled_tasks/chassis/transient_campaign_plan.py',
+            'src/wheeled_tasks/chassis/flat_base_continuation.py', 'src/wheeled_tasks/chassis/flat_clock_transition.py'}
+        if new_plan.get('transient_dwell'):
+            allowed_sources.add('src/wheeled_tasks/chassis/transient_dwell_plan.py')
+    if not source_changes or source_changes - allowed_sources:
         raise ValueError("Population migration permits only the reviewed trainer entry change")
     expected = dict(schema="flat-training-population-transition-v1", old_num_envs=old_count,
         new_num_envs=new_count, num_steps_per_env=old_plan["num_steps_per_env"],
@@ -297,6 +310,8 @@ def main():
         parser.error("Population is absent from the selected plan")
     if args.capacity_probe and (args.updates != 1 or not args.resume or args.device != "cuda:0"):
         parser.error("Capacity mode requires one isolated CUDA probe with an exact parent")
+    if plan.get('transient_response') and not args.preflight_only and not args.resume:
+        parser.error('Transient response must continue its declared checkpoint with a migration receipt')
     if plan.get("training_command_reference"):
         from flat_rmcs_command_reference import read_reference_contract
         from wheeled_tasks.chassis.flat_policy_rate import command_reference_at_policy_rate
@@ -316,6 +331,8 @@ def main():
     if not 1 <= args.updates <= plan["update_ceiling"]:
         parser.error("Invalid learning block length")
     if args.updates > plan["first_block_updates"]:
+        if plan.get('transient_response'):
+            parser.error('Transient response is a bounded pilot; matched phase-specific response evidence is required before a larger plan')
         if not all((args.resume, args.qualified_pilot, args.qualified_envelope, args.baseline_envelope)):
             parser.error("A larger block requires the candidate's passing pilot and paired full-envelope preservation evidence")
         try:
@@ -353,6 +370,16 @@ def main():
         sources.append(ROOT / "src/wheeled_algo/anchored_ppo.py")
     if plan.get('motion_trust_region'):
         sources.append(ROOT / 'src/wheeled_algo/motion_trust_region.py')
+    if plan.get('transient_response'):
+        sources.append(ROOT / 'src/wheeled_algo/transient_motion.py')
+        report['transient_response'] = deepcopy(plan['transient_response'])
+        report['response_targets'] = deepcopy(plan['response_targets'])
+        report['transient_response_actor_updates'] = 0
+        if plan.get('transient_campaign'):
+            report['transient_campaign'] = deepcopy(plan['transient_campaign'])
+        if plan.get('transient_leg_feedback'):
+            sources.append(ROOT/'src/wheeled_algo/transient_leg_feedback.py')
+            report['transient_leg_feedback'] = deepcopy(plan['transient_leg_feedback'])
     if plan.get("critic_position_anchor"):
         sources.append(ROOT / "src/wheeled_algo/critic_input_extension.py")
     if plan.get("actor_output_layer_only"):
@@ -607,7 +634,10 @@ def main():
                     ROOT / plan['actor_bundle'] / 'source.onnx').to(args.device)
                 runner.alg.actor.mlp = parent_mean
                 old_actor_names = list(dict(runner.alg.actor.named_parameters()))
-                runner.alg.actor.mlp = DirectionalMotionActor(parent_mean, settings['sha256']).to(args.device)
+                transient = plan.get('transient_response')
+                runner.alg.actor.mlp = DirectionalMotionActor(parent_mean, settings['sha256'],
+                    transient_settings=transient['actor'] if transient else None,
+                    leg_feedback_settings=plan['transient_leg_feedback']['actor'] if plan.get('transient_leg_feedback') else None).to(args.device)
                 report['directional_motion'] = deepcopy(settings)
             report["command_residual_invariant"] = runner.alg.actor.mlp.verify_original(teacher)
         # Independent rates let the fresh value network catch up without large
@@ -630,6 +660,8 @@ def main():
                     raise ValueError("Changed training plan requires an exact migration receipt")
                 revision = json.loads(args.resume_plan_revision.read_text())
                 old_plan = read_plan(ROOT, revision["old_plan_file"])
+                if old_plan.get('transient_leg_feedback') and not plan.get('transient_leg_feedback'):
+                    raise ValueError('Continuation cannot silently discard the declared parent-leg recurrence')
                 changed = sorted(key for key in set(old_plan) | set(plan) if old_plan.get(key) != plan.get(key))
                 allowed = {"schema", "train_groups", "training_scope", "flat_floor_width_m", "vx_max", "yaw_max",
                            "teacher_anchor", "group_episode_seconds", "additional_critic_warmup_updates", "stationary_tracking",
@@ -638,7 +670,8 @@ def main():
                            "physics_dt", "control_file", "control_sha256", "moving_velocity_cost_scale", "static_feedback_recall",
                            "allowed_num_envs", "default_num_envs", "contact_material", "motion_grip_parent", "speed_reference", "motion_state_parent", "checkpoint_interval",
                            "policy_dt", "gamma", "lam", "num_steps_per_env", "policy_rate_transition",
-                           "directional_motion", "motion_trust_region", "first_block_updates"}
+                           "directional_motion", "motion_trust_region", "first_block_updates",
+                           "transient_response", "response_targets", "transient_campaign", "transient_dwell", "transient_leg_feedback", "episode_seconds"}
                 if (revision.get("schema") != "flat-training-plan-revision-v1"
                         or revision["parent_checkpoint_sha256"] != digest(args.resume)
                         or revision["old_plan_sha256"] != info["plan_sha256"]
@@ -650,6 +683,10 @@ def main():
                     raise ValueError("Plan migration does not authenticate the exact declared change")
                 report["plan_revision_sha256"] = digest(args.resume_plan_revision)
                 report["changed_plan_fields"] = changed
+                if plan.get('transient_leg_feedback'):
+                    from wheeled_tasks.chassis.transient_leg_feedback_plan import validate_leg_feedback_migration
+                    report['transient_leg_feedback_migration'] = validate_leg_feedback_migration(
+                        info, old_plan, plan, report['source_sha256'])
                 if population_changed:
                     report["population_transition"] = validate_population_transition(
                         info, old_plan, plan, args.num_envs, revision, report["source_sha256"])
@@ -844,6 +881,20 @@ def main():
                 if separated_feedback:
                     report["post_split_actor_updates"] = info["post_split_actor_updates"]
                     report["inherited_shared_feedback_updates"] = info["inherited_shared_feedback_updates"]
+            transient = plan.get('transient_response')
+            if transient and not info.get('transient_response'):
+                if (not migration or digest(args.resume) != transient['sha256']
+                        or old_plan['schema'] != 'flat-base-finetune-plan-v19'):
+                    raise ValueError('Transient response requires its exact declared directional parent')
+                from wheeled_algo.transient_motion import migrate_actor_buffer
+                checkpoint = migrate_actor_buffer(checkpoint, transient['actor'])
+                report['transient_response_migration'] = dict(initial_mean_is_identity=False,
+                    learned_weights_std_critic_Adam_RNG_counters='exact parent',
+                    changed_buffer='mlp.motion_bound', changed_function='error/pitch gate and leg correction bound')
+            elif transient and info.get('transient_response') != transient:
+                raise ValueError('Transient continuation changed its declared settings')
+            elif transient:
+                report['transient_response_actor_updates'] = info['transient_response_actor_updates']
             runner.alg.load(checkpoint, load_cfg=None, strict=True)
             torch.set_rng_state(checkpoint["torch_rng_state"].cpu())
             if torch.cuda.is_available():
@@ -865,6 +916,8 @@ def main():
                 environment_rng_before_new_reset=exact(checkpoint["env_generator_state"], env.generator.get_state()))
             report["full_restore_verification"] = restored
             report["restore_verification_reference"] = "zero_extended_parent" if report.get("critic_input_extension") else "parent"
+            if report.get('transient_response_migration'):
+                report['restore_verification_reference'] = 'parent_with_declared_leg_bound_buffer_change'
             if not all(restored.values()):
                 raise RuntimeError("Continuation failed exact full-state restoration before optimization")
             for key in ("successful_updates_total", "actor_updates_total", "attempted_updates_total", "critic_warmup_remaining"):
@@ -936,6 +989,16 @@ def main():
             if not report["optimizer_after_declared_rate_exact"]:
                 raise RuntimeError("Rate migration changed parent Adam beyond its declared actor learning rate")
         initial_count = report["successful_updates_total"]
+        campaign = plan.get('transient_campaign')
+        if campaign:
+            if migration and digest(args.resume) != campaign['checkpoint_sha256']:
+                raise ValueError('Campaign starts from a different learning parent')
+            if campaign['stage'] == 'pilot' and initial_count + args.updates - campaign['lineage_start_successful_updates'] > campaign['short_update_ceiling']:
+                raise ValueError('Short campaign budget exhausted; preserve consumption before redesign')
+            if campaign['stage'] == 'long5000':
+                stage_parent = torch.load(ROOT/campaign['checkpoint'], map_location='cpu', weights_only=True)['infos']
+                if initial_count + args.updates > stage_parent['successful_updates_total'] + 5000:
+                    raise ValueError('Long stage cannot exceed the authorized additional 5000 updates')
         checkpoint_milestones = {initial_count + 1, initial_count + report["critic_warmup_remaining"],
                                  initial_count + report["critic_warmup_remaining"] + 1}
         report["consumed_optimizer_updates_total"] = plan["prior_discontinued_optimizer_updates"] + initial_count
@@ -1024,6 +1087,8 @@ def main():
                 report['motion_grip_actor_updates'] += int(enabled)
             if directional:
                 report['directional_motion_actor_updates'] += int(enabled)
+                if plan.get('transient_response'):
+                    report['transient_response_actor_updates'] += int(enabled)
             if speed_reference:
                 report['speed_reference_actor_updates'] += int(enabled)
                 if motion_state:report['motion_state_actor_updates']+=int(enabled)

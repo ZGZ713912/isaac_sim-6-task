@@ -8,7 +8,7 @@ def validate_flat_clock(root, plan):
     """Authenticate legacy clocks and the explicit 200 Hz policy version."""
     root = Path(root)
     timing = json.loads((root / plan['control_file']).read_text())['timing']
-    if plan['schema'] in ('flat-base-finetune-plan-v18', 'flat-base-finetune-plan-v19'):
+    if plan['schema'] in ('flat-base-finetune-plan-v18', 'flat-base-finetune-plan-v19', 'flat-base-finetune-plan-v20', 'flat-base-finetune-plan-v21', 'flat-base-finetune-plan-v22', 'flat-base-finetune-plan-v23'):
         from .flat_policy_rate import CONTROL
         if plan['control_file'] != CONTROL:
             raise ValueError('200 Hz policy requires its explicit control source')

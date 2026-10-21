@@ -201,7 +201,11 @@ def mean_from_checkpoint(checkpoint, source):
         if hashlib.sha256(path.read_bytes()).hexdigest() != settings['sha256']:
             raise ValueError('Directional parent checkpoint changed')
         preceding = torch.load(path, map_location='cpu', weights_only=True)
-        mean = DirectionalMotionActor(mean_from_checkpoint(preceding, source), settings['sha256'])
+        transient = checkpoint['infos'].get('transient_response')
+        leg_feedback = checkpoint['infos'].get('transient_leg_feedback')
+        mean = DirectionalMotionActor(mean_from_checkpoint(preceding, source), settings['sha256'],
+            transient_settings=transient['actor'] if transient else None,
+            leg_feedback_settings=leg_feedback['actor'] if leg_feedback else None)
         mean.load_state_dict({n.removeprefix('mlp.'): value for n, value in checkpoint['actor_state_dict'].items()
                               if n.startswith('mlp.')}, strict=True)
         if any(not torch.equal(value, checkpoint['actor_state_dict'][name])

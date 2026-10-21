@@ -20,7 +20,7 @@ KIND = 'original-static-grip-with-directional-motion-v12'
 
 
 class DirectionalMotionActor(StaticGripActor):
-    def __init__(self, parent, parent_sha256):
+    def __init__(self, parent, parent_sha256, *, transient_settings=None, leg_feedback_settings=None):
         if type(parent) is not StaticGripActor or len(parent_sha256) != 64:
             raise ValueError('Directional motion requires its exact v7 parent')
         nn.Module.__init__(self)
@@ -38,6 +38,17 @@ class DirectionalMotionActor(StaticGripActor):
         nn.init.zeros_(self.motion_banks.bias)
         self.register_buffer('motion_bound', torch.tensor([.15] * 4 + [.8] * 2))
         self.register_buffer('motion_feature_scale', torch.tensor(.1))
+        self.transient_settings = None
+        self.leg_feedback_settings = None
+        if transient_settings is not None:
+            from .transient_motion import validate_settings
+            self.transient_settings = validate_settings(transient_settings)
+            self.motion_bound.copy_(self.motion_bound.new_tensor(self.transient_settings['raw_action_bounds']))
+        if leg_feedback_settings is not None:
+            from .transient_leg_feedback import validate_settings
+            if self.transient_settings is None:
+                raise ValueError('Parent-leg feedback requires the declared transient actor')
+            self.leg_feedback_settings = validate_settings(leg_feedback_settings)
         self.set_trainable(True)
 
     @staticmethod
@@ -50,9 +61,12 @@ class DirectionalMotionActor(StaticGripActor):
         translation = vx.abs() / .75 >= yaw.abs() / 1.5
         return torch.where(translation, (vx < 0.).long(), 2 + (yaw < 0.).long())
 
-    @staticmethod
-    def motion_gate(obs):
-        return MotionStateResidualActor.motion_gate(obs)
+    def motion_gate(self, obs):
+        inherited = MotionStateResidualActor.motion_gate(obs)
+        if self.transient_settings is None:
+            return inherited
+        from .transient_motion import transient_gate
+        return transient_gate(obs, inherited, self.transient_settings)
 
     def trust_region_groups(self, obs):
         index = self.bank_index(obs)
@@ -92,6 +106,9 @@ class DirectionalMotionActor(StaticGripActor):
 
     def forward(self, obs):
         parent = self.conditioned_parent(obs)
+        if self.leg_feedback_settings is not None:
+            from .transient_leg_feedback import parent_leg_actions
+            parent = parent_leg_actions(parent, obs, self.leg_feedback_settings)
         features = self.bounded_features(obs)
         banks = self.motion_banks(features).reshape(-1, 4, 6)
         selector = (self.bank_index(obs) == torch.arange(4, device=obs.device)[None, :]).to(obs.dtype)
@@ -114,7 +131,9 @@ class DirectionalMotionActor(StaticGripActor):
         current = self.state_dict()
         if any(not torch.equal(current[n].detach().cpu(), v) for n, v in self._expected_parent.items()):
             raise ValueError('Frozen v7 controller changed')
-        if (not torch.equal(self.motion_bound.cpu(), torch.tensor([.15] * 4 + [.8] * 2))
+        bounds = ([.15] * 4 + [.8] * 2 if self.transient_settings is None
+                  else self.transient_settings['raw_action_bounds'])
+        if (not torch.equal(self.motion_bound.cpu(), torch.tensor(bounds))
                 or self.motion_feature_scale.item() != torch.tensor(.1).item()):
             raise ValueError('Directional feature or action bounds changed')
         result['separated_feedback']['kind'] = KIND
@@ -125,6 +144,14 @@ class DirectionalMotionActor(StaticGripActor):
             references='straight high translation only; gyro turns remain on the original controller',
             raw_action_bounds=self.motion_bound.detach().cpu().tolist(),
             preservation_scope='identical inputs outside active gate; native trajectory retention still required')
+        if self.transient_settings is not None:
+            result['directional_motion'].update(variant=deepcopy(self.transient_settings),
+                gate='inherited motion OR visible velocity/yaw error OR pitch excursion',
+                migration='same learned weights and Adam; declared gate and leg-bound function change')
+        if self.leg_feedback_settings is not None:
+            result['directional_motion'].update(leg_feedback=deepcopy(self.leg_feedback_settings),
+                preservation_scope='same model tensors and direct wheel function; parent leg recurrence changes even outside the learned motion gate; native retention required',
+                fast_leg_correction='bounded learned corrections added directly after parent-leg relaxation, with full gradient; no leg-motion penalty added')
         return result
 
     def export_graph(self, source):

@@ -9,11 +9,29 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 
 
+def validate_comparison(report, response_comparison=False):
+    if (report['status'] != 'evaluated' or report['probe_mode'] != 'checkpoint_compare'
+            or not report['full_envelope'] or report['replicas'] < 4
+            or report.get('qualified') is not False or report.get('diagnostic_inference_override')):
+        raise ValueError('Require completed four-replica simulation comparison')
+    if response_comparison:
+        from flat_transient_metrics import RETENTION, STEADY, TRANSIENT
+        if (not report.get('transient_response_protocol') or report['horizon_seconds'] != 16.
+                or set(report['case_names']) != set(RETENTION + STEADY + TRANSIENT)
+                or report['policy_hz'] != 200 or report['physics_hz'] != 1000
+                or report['heights'] != [.305, .42] or report['ground_friction'] != [.2, .5]):
+            raise ValueError('Require the complete prospective response comparison')
+    elif report['horizon_seconds'] < 32 or report.get('transient_response_protocol'):
+        raise ValueError('Require the historical full-duration comparison or explicit response mode')
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--checkpoint',type=Path,required=True)
     parser.add_argument('--comparison',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--response-comparison', action='store_true',
+        help='Use the distinct complete 16-second four-phase response protocol')
     args=parser.parse_args()
     import numpy as np
     import onnx
@@ -26,10 +44,7 @@ def main():
     checkpoint=args.checkpoint.resolve()
     comparison=args.comparison.resolve()
     report=json.loads((comparison/'report.json').read_text())
-    if (report['status']!='evaluated' or report['probe_mode']!='checkpoint_compare'
-            or not report['full_envelope'] or report['replicas']<4
-            or report['horizon_seconds']<32 or report.get('qualified') is not False):
-        raise ValueError('Require completed full-duration, four-replica simulation comparison')
+    validate_comparison(report, args.response_comparison)
     sha=digest(checkpoint)
     matches=[i for i,a in report['checkpoint_comparison'].items()if a['sha256']==sha]
     if len(matches)!=1:
@@ -113,6 +128,17 @@ def main():
         cases_passing_all_checks=sum(c['passed']for c in cases.values()),total_cases=len(cases),
         behavior_qualified=False,run_scope='interactive_unscored',hardware_deployment_ready=False,
         exporter_sha256=digest(Path(__file__)))
+    if args.response_comparison:
+        proof['response_protocol'] = report['transient_response_protocol']
+        assessment = comparison/'response.json'
+        if assessment.exists():
+            analysis = json.loads(assessment.read_text())
+            if analysis['native_report_sha256'] != digest(comparison/'report.json'):
+                raise ValueError('Response assessment belongs to different native evidence')
+            from flat_transient_metrics import assess_response
+            proof['response_admission'] = assess_response(report, analysis['summaries'],
+                report['checkpoint_comparison'][arm]['role'])
+            proof['response_assessment_sha256'] = digest(assessment)
     (args.output/'verification.json').write_bytes(encode(proof))
     print(json.dumps(proof,indent=2))
 
