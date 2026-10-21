@@ -1,0 +1,1577 @@
+{
+  "status": "failed",
+  "pid": 1455816,
+  "started_at": "2026-10-21T14:15:56.356415+00:00",
+  "scenario": "flat",
+  "scenario_label": "Flat ground / WASD, speed and height",
+  "policy_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/models/flat_directional200_1346_preview_20261020/flat_directional200_1346_preview_20261020.onnx",
+  "policy_sha256": "a065c4688ff2dc86cde929125cd494af9460a4b307d1ea32f3bf9f0f36786dcf",
+  "onnx_metadata": {
+    "onnx_sha256": "a065c4688ff2dc86cde929125cd494af9460a4b307d1ea32f3bf9f0f36786dcf",
+    "contract_sha256": "220ef77aee31090f902265788a3c4d4eb7e37dda0c3226c6acb63a12761892a3",
+    "asset_manifest_sha256": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+    "successful_updates_total": 1346,
+    "actor_updates_total": 1162,
+    "export_verification_sha256": "f40410a74ff5bece3a969fc3bbc390fdc3c3a201f0b22b129f1cbc07b9710cf6",
+    "run_scope": "interactive_unscored",
+    "behavior_qualified": false
+  },
+  "source_contract_sha256": "220ef77aee31090f902265788a3c4d4eb7e37dda0c3226c6acb63a12761892a3",
+  "design_preflight": {
+    "status": "static_passed",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu003/playback_expectations.json",
+    "stage": "speed",
+    "role": "playback",
+    "seed": 191019,
+    "block_index": 0,
+    "num_envs": 1,
+    "physics_dt": 0.001,
+    "policy_dt": 0.005,
+    "decimation": 5,
+    "runtime_expected": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.005,
+      "pc_control_dt": 0.001,
+      "decimation": 5,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "seed": 191019,
+      "action_difference_reference_dt": 0.02,
+      "precision_tracking": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "contact_material": true,
+        "step_assist": false,
+        "actuator_response": true,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true
+      },
+      "contact_material": {
+        "enabled": true,
+        "combine_mode": "average",
+        "ground_static_friction_range": [
+          0.2,
+          0.5
+        ],
+        "ground_dynamic_friction_range": [
+          0.2,
+          0.5
+        ],
+        "wheel_static_friction": 0.1,
+        "wheel_dynamic_friction": 0.1,
+        "body_static_friction": 0.25,
+        "body_dynamic_friction": 0.25
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "design_sha256": "d884623f33d8b7495a6b72c8a808549516567389bf807f465365a4121c431381",
+    "environment_stage": "speed"
+  },
+  "inference_backend": "onnxruntime_cpu",
+  "physics_device": "cpu",
+  "run_scope": "interactive_unscored",
+  "qualification": null,
+  "domain_qualified": null,
+  "optimizer_constructed": false,
+  "formal_updates_consumed": 0,
+  "state_writes_between_resets": 0,
+  "native_recovery": "script_then_torque_blend_then_RL_with_native_motion_release_gate",
+  "applied_command_slew": {
+    "vx_m_s2": 1.5,
+    "yaw_rad_s2": 4.0
+  },
+  "command_timing": "slew_once_before_refreshed_actor_observation",
+  "manual_jump_events": [],
+  "samples": [
+    {
+      "time_s": 0.049999999999999996,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.07499999552965164,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.30000000000000004,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        1.5000001192092896,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.02288379706442356,
+        -0.0015468740602955222,
+        -0.9997369050979614
+      ],
+      "base_quaternion_xyzw": [
+        0.000768519937992096,
+        -0.011442985385656357,
+        -0.0004341304302215576,
+        0.9999341368675232
+      ],
+      "roll_deg": 0.08865260841406913,
+      "pitch_deg": -1.311259491230336,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.34667097497731447,
+      "height_m": 0.31814104318618774,
+      "velocity_m_s": [
+        -0.0005966615863144398,
+        -0.03289825841784477,
+        -0.1490175426006317
+      ],
+      "omega_rad_s": [
+        0.08930981159210205,
+        -0.11813276261091232,
+        -0.009371987544000149
+      ],
+      "position_m": [
+        2.1792016923427582e-05,
+        -0.000537135056219995,
+        0.31814104318618774
+      ],
+      "knee_deg": [
+        67.75321835739317,
+        68.03011251879819
+      ],
+      "compression_mm": [
+        52.17721176147461,
+        51.9408073425293
+      ],
+      "spring_force_n": [
+        347.10955810546875,
+        346.39312744140625
+      ],
+      "motor_effort_nm": [
+        1.7361173629760742,
+        -4.557071208953857,
+        0.15965968370437622,
+        -2.6688942909240723,
+        4.8318634033203125,
+        -0.09199533611536026
+      ],
+      "wheel_force_n": [
+        77.05696868896484,
+        72.29322052001953
+      ],
+      "gap_mm": 0.0003157499577355338,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.07499999552965164,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 0.8251179690123536,
+      "real_time_factor": 0.060597321368991375
+    }
+  ],
+  "gui_experience": {
+    "source_file": "/home/noir/IsaacLab-3.0-beta2/apps/isaaclab.python.kit",
+    "source_sha256": "56bb61ddf2ca9644bdc9d7be6132dfca6d8be61e234865c1307b17590011fcb7",
+    "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu003/flat_gui.kit",
+    "sha256": "1638b879efaa38361071364659b8ef6b3edddc30b4a18428d591eb1bc6151a5d",
+    "omitted_dependency": "isaacsim.util.debug_draw",
+    "installed_experience_modified": false,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "render_transport": "usd"
+  },
+  "native_app_states": [
+    {
+      "phase": "after_launcher",
+      "launcher_running": true,
+      "kit_running": true,
+      "kit_module": "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/kernel/py/omni/kit/app/__init__.py",
+      "kit_type": "<class 'omni.kit.app._app.IApp'>"
+    },
+    {
+      "phase": "after_environment_import",
+      "launcher_running": true,
+      "kit_running": true,
+      "kit_module": "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/kernel/py/omni/kit/app/__init__.py",
+      "kit_type": "<class 'omni.kit.app._app.IApp'>"
+    }
+  ],
+  "interactive_timeout_override_ticks": 1099511627776,
+  "startup_report": {
+    "body_count": 19,
+    "tree_dofs": 18,
+    "loop_constraints": 6,
+    "num_envs": 1,
+    "terrain_families": [
+      "flat"
+    ],
+    "mass_kg_each": [
+      13.886000633239746
+    ],
+    "contact_filters": [
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ]
+    ],
+    "self_collision_enabled": false,
+    "solver_order": [
+      0
+    ],
+    "actuator_response": {
+      "config": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "native_properties_verified": true,
+      "native_first_environment": {
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669807836413383,
+          0.0,
+          0.0,
+          0.0038184537552297115
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "dynamic_friction": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318163968623,
+          0.0,
+          0.0,
+          0.0003429025528021157
+        ]
+      },
+      "functional_probe": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "physics_dt": 0.001,
+        "parameters": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "checks": {
+          "first_step_matches": true,
+          "second_step_matches": true,
+          "selected_reset_zero": true,
+          "other_environment_preserved": true,
+          "response_after_reset_matches": true,
+          "zero_constant_exact_identity": true
+        },
+        "passed": true,
+        "expected_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "expected_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ]
+      }
+    },
+    "contact_material": {
+      "schema": "separate-wheel-body-ground-material-v1",
+      "combine_mode": "average",
+      "sampling": "one_ground_material_per_environment_at_startup",
+      "ground_static_range": [
+        0.2,
+        0.5
+      ],
+      "ground_dynamic_range": [
+        0.2,
+        0.5
+      ],
+      "ground_sampling_bands": null,
+      "ground_static_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "ground_dynamic_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "wheel_static_friction": 0.1,
+      "wheel_dynamic_friction": 0.1,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25,
+      "sampled_ground_static_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "sampled_ground_dynamic_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "effective_wheel_static_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_wheel_dynamic_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_body_static_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "effective_body_dynamic_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "wheel_body_names": [
+        "L_link3",
+        "R_link3"
+      ],
+      "ground_material_first_environment": {
+        "static_friction": 0.4412285387516022,
+        "dynamic_friction": 0.4412285387516022
+      },
+      "material_bindings": {
+        "body": "/World/RobotMaterial",
+        "wheel": "/World/WheelMaterial"
+      },
+      "native_readback": {
+        "usd_collision_bindings_verified": true,
+        "usd_collision_counts": {
+          "wheel": 2,
+          "body": 28,
+          "ground": 11
+        },
+        "physx_robot_shape_coefficients_verified": true,
+        "physx_first_robot_shape_materials": [
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ]
+        ],
+        "physx_ground_coefficients": "USD static collision material bindings verified after scene import"
+      }
+    },
+    "physics_device": "cpu",
+    "gpu_dynamics_enabled": false,
+    "state_tensor_device": "cpu",
+    "scene_group_counts": {
+      "flat": 1
+    },
+    "terrain_collision_paths": [
+      "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+    ],
+    "gas_spring_force_enabled": true,
+    "active_joint_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "control_timing": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.005,
+      "decimation": 5,
+      "pc_control_dt": 0.001,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": {
+        "policy_steps": 16,
+        "physics_steps": 80,
+        "target_decodes": 1,
+        "pd_updates": 5,
+        "feedback_refreshes": 5,
+        "physics_dt": 0.001,
+        "policy_dt": 0.005
+      }
+    },
+    "locomotion_quality_rewards": {
+      "stand_still_lin_vel": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      },
+      "locomotion_posture": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    "design_preflight": {
+      "status": "static_passed",
+      "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu003/playback_expectations.json",
+      "stage": "speed",
+      "role": "playback",
+      "seed": 191019,
+      "block_index": 0,
+      "num_envs": 1,
+      "physics_dt": 0.001,
+      "policy_dt": 0.005,
+      "decimation": 5,
+      "runtime_expected": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.005,
+        "pc_control_dt": 0.001,
+        "decimation": 5,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "seed": 191019,
+        "action_difference_reference_dt": 0.02,
+        "precision_tracking": true,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "locomotion_quality_rewards": {
+          "stand_still_lin_vel": {
+            "version": "scut-flat-linear-velocity-v2",
+            "weight": -2.0,
+            "command_threshold_m_s": 0.1,
+            "exclude_world_reference_motion": true
+          },
+          "locomotion_posture": {
+            "version": "bounded-posture-floor-v1",
+            "pitch_scale_floor": 3.0,
+            "roll_scale_floor": 4.0
+          }
+        },
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "contact_material": true,
+          "step_assist": false,
+          "actuator_response": true,
+          "stand_still_lin_vel": true,
+          "locomotion_posture_floor": true
+        },
+        "contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.2,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.2,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        }
+      },
+      "actuator_response_evidence": {
+        "status": "authenticated",
+        "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+        "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+        "validated_file_count": 4
+      },
+      "design_sha256": "d884623f33d8b7495a6b72c8a808549516567389bf807f465365a4121c431381",
+      "environment_stage": "speed"
+    },
+    "runtime_preflight": {
+      "status": "runtime_configuration_passed",
+      "observed": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.005,
+        "decimation": 5,
+        "pc_control_dt": 0.001,
+        "seed": 191019,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "step_assist": false,
+          "contact_material": true,
+          "actuator_response": true,
+          "stand_still_lin_vel": true,
+          "locomotion_posture_floor": true
+        },
+        "precision_tracking": true,
+        "contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.2,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.2,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        },
+        "action_difference_reference_dt": 0.02,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "locomotion_quality_rewards": {
+          "stand_still_lin_vel": {
+            "version": "scut-flat-linear-velocity-v2",
+            "weight": -2.0,
+            "command_threshold_m_s": 0.1,
+            "exclude_world_reference_motion": true
+          },
+          "locomotion_posture": {
+            "version": "bounded-posture-floor-v1",
+            "pitch_scale_floor": 3.0,
+            "roll_scale_floor": 4.0
+          }
+        }
+      },
+      "functional_transport_precision_randomization_probes": "not_run"
+    }
+  },
+  "gui_physics_transform_sync": "USD",
+  "gui_render_settings": {
+    "use_fabric": false,
+    "update_to_usd": true,
+    "fabric_extension_enabled": false
+  },
+  "gui_initialized": true,
+  "keyboard_subscription_active": true,
+  "video_validation": {
+    "schema": "flat-gui-keyboard-recording-v1",
+    "status": "interrupted",
+    "run_scope": "interactive_unscored",
+    "qualification": false,
+    "hardware_ready": false,
+    "command_source": "scripted KEY_PRESS/KEY_RELEASE callbacks into the existing PolicyView.on_key and KeyboardCommand.advance; not OS key injection",
+    "physics_state_replay": false,
+    "optimizer_updates": 0,
+    "video_speed": "1x simulation time",
+    "terminal_hold_seconds": 1.0,
+    "fps": 25,
+    "cases": [
+      {
+        "name": "forward_05",
+        "requested_seconds": 2.0,
+        "height_target_m": 0.305,
+        "policy_ticks": 16,
+        "simulated_seconds": 0.08,
+        "frames": 1,
+        "terminal": false,
+        "termination_status": null,
+        "peak_abs_pitch_deg": 1.3335630147892055,
+        "peak_abs_roll_deg": 0.30485763437431046,
+        "closure_gap_peak_mm": 0.0009564641914039385,
+        "first_video_frame": 0,
+        "final_vx_m_s": 0.006840287707746029,
+        "final_yaw_rad_s": -0.003170129144564271,
+        "final_height_m": 0.3137863576412201,
+        "real_time_factor": 0.07785751594362167,
+        "video": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu003/00_forward_05_1x.mp4",
+        "video_duration_s": 0.04
+      }
+    ],
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "policy_sha256": "a065c4688ff2dc86cde929125cd494af9460a4b307d1ea32f3bf9f0f36786dcf",
+    "successful_updates_total": 1346,
+    "contact_material": {
+      "schema": "separate-wheel-body-ground-material-v1",
+      "combine_mode": "average",
+      "sampling": "one_ground_material_per_environment_at_startup",
+      "ground_static_range": [
+        0.2,
+        0.5
+      ],
+      "ground_dynamic_range": [
+        0.2,
+        0.5
+      ],
+      "ground_sampling_bands": null,
+      "ground_static_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "ground_dynamic_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "wheel_static_friction": 0.1,
+      "wheel_dynamic_friction": 0.1,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25,
+      "sampled_ground_static_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "sampled_ground_dynamic_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "effective_wheel_static_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_wheel_dynamic_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_body_static_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "effective_body_dynamic_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "wheel_body_names": [
+        "L_link3",
+        "R_link3"
+      ],
+      "ground_material_first_environment": {
+        "static_friction": 0.4412285387516022,
+        "dynamic_friction": 0.4412285387516022
+      },
+      "material_bindings": {
+        "body": "/World/RobotMaterial",
+        "wheel": "/World/WheelMaterial"
+      },
+      "native_readback": {
+        "usd_collision_bindings_verified": true,
+        "usd_collision_counts": {
+          "wheel": 2,
+          "body": 28,
+          "ground": 11
+        },
+        "physx_robot_shape_coefficients_verified": true,
+        "physx_first_robot_shape_materials": [
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ]
+        ],
+        "physx_ground_coefficients": "USD static collision material bindings verified after scene import"
+      }
+    },
+    "keyboard_subscription_active": true,
+    "keyboard_events": [
+      {
+        "case": "forward_05",
+        "case_tick": 0,
+        "input": "SPACE",
+        "type": "KEY_PRESS"
+      },
+      {
+        "case": "forward_05",
+        "case_tick": 0,
+        "input": "W",
+        "type": "KEY_PRESS"
+      }
+    ],
+    "frames": 1,
+    "completed_cases": 0,
+    "updated_at": "2026-10-21T14:16:44.319080+00:00"
+  },
+  "gui_time_limit_s": null,
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/play_chassis_suite.py\", line 319, in main\n    recording_controller.sample(sample, poses, bool(done[0]))\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/record_flat_gui_validation.py\", line 197, in sample\n    self.capture(sample, poses)\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/record_flat_gui_validation.py\", line 156, in capture\n    with Image.open(path) as source:\n         ^^^^^^^^^^^^^^^^\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/PIL/Image.py\", line 3635, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu003/.capture.png'\n",
+  "finished_at": "2026-10-21T14:16:44.319886+00:00"
+}

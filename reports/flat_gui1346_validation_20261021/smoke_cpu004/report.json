@@ -1,0 +1,5788 @@
+{
+  "status": "completed",
+  "pid": 1464493,
+  "started_at": "2026-10-21T14:19:19.303112+00:00",
+  "scenario": "flat",
+  "scenario_label": "Flat ground / WASD, speed and height",
+  "policy_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/models/flat_directional200_1346_preview_20261020/flat_directional200_1346_preview_20261020.onnx",
+  "policy_sha256": "a065c4688ff2dc86cde929125cd494af9460a4b307d1ea32f3bf9f0f36786dcf",
+  "onnx_metadata": {
+    "onnx_sha256": "a065c4688ff2dc86cde929125cd494af9460a4b307d1ea32f3bf9f0f36786dcf",
+    "contract_sha256": "220ef77aee31090f902265788a3c4d4eb7e37dda0c3226c6acb63a12761892a3",
+    "asset_manifest_sha256": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+    "successful_updates_total": 1346,
+    "actor_updates_total": 1162,
+    "export_verification_sha256": "f40410a74ff5bece3a969fc3bbc390fdc3c3a201f0b22b129f1cbc07b9710cf6",
+    "run_scope": "interactive_unscored",
+    "behavior_qualified": false
+  },
+  "source_contract_sha256": "220ef77aee31090f902265788a3c4d4eb7e37dda0c3226c6acb63a12761892a3",
+  "design_preflight": {
+    "status": "static_passed",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu004/playback_expectations.json",
+    "stage": "speed",
+    "role": "playback",
+    "seed": 191019,
+    "block_index": 0,
+    "num_envs": 1,
+    "physics_dt": 0.001,
+    "policy_dt": 0.005,
+    "decimation": 5,
+    "runtime_expected": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.005,
+      "pc_control_dt": 0.001,
+      "decimation": 5,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "seed": 191019,
+      "action_difference_reference_dt": 0.02,
+      "precision_tracking": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "contact_material": true,
+        "step_assist": false,
+        "actuator_response": true,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true
+      },
+      "contact_material": {
+        "enabled": true,
+        "combine_mode": "average",
+        "ground_static_friction_range": [
+          0.2,
+          0.5
+        ],
+        "ground_dynamic_friction_range": [
+          0.2,
+          0.5
+        ],
+        "wheel_static_friction": 0.1,
+        "wheel_dynamic_friction": 0.1,
+        "body_static_friction": 0.25,
+        "body_dynamic_friction": 0.25
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "design_sha256": "d884623f33d8b7495a6b72c8a808549516567389bf807f465365a4121c431381",
+    "environment_stage": "speed"
+  },
+  "inference_backend": "onnxruntime_cpu",
+  "physics_device": "cpu",
+  "run_scope": "interactive_unscored",
+  "qualification": null,
+  "domain_qualified": null,
+  "optimizer_constructed": false,
+  "formal_updates_consumed": 0,
+  "state_writes_between_resets": 0,
+  "native_recovery": "script_then_torque_blend_then_RL_with_native_motion_release_gate",
+  "applied_command_slew": {
+    "vx_m_s2": 1.5,
+    "yaw_rad_s2": 4.0
+  },
+  "command_timing": "slew_once_before_refreshed_actor_observation",
+  "manual_jump_events": [],
+  "samples": [
+    {
+      "time_s": 0.049999999999999996,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.07499999552965164,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.30000000000000004,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        1.5000001192092896,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.02288379706442356,
+        -0.0015468740602955222,
+        -0.9997369050979614
+      ],
+      "base_quaternion_xyzw": [
+        0.000768519937992096,
+        -0.011442985385656357,
+        -0.0004341304302215576,
+        0.9999341368675232
+      ],
+      "roll_deg": 0.08865260841406913,
+      "pitch_deg": -1.311259491230336,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.34148700069636106,
+      "height_m": 0.31814104318618774,
+      "velocity_m_s": [
+        -0.0005966615863144398,
+        -0.03289825841784477,
+        -0.1490175426006317
+      ],
+      "omega_rad_s": [
+        0.08930981159210205,
+        -0.11813276261091232,
+        -0.009371987544000149
+      ],
+      "position_m": [
+        2.1792016923427582e-05,
+        -0.000537135056219995,
+        0.31814104318618774
+      ],
+      "knee_deg": [
+        67.75321835739317,
+        68.03011251879819
+      ],
+      "compression_mm": [
+        52.17721176147461,
+        51.9408073425293
+      ],
+      "spring_force_n": [
+        347.10955810546875,
+        346.39312744140625
+      ],
+      "motor_effort_nm": [
+        1.7361173629760742,
+        -4.557071208953857,
+        0.15965968370437622,
+        -2.6688942909240723,
+        4.8318634033203125,
+        -0.09199533611536026
+      ],
+      "wheel_force_n": [
+        77.05696868896484,
+        72.29322052001953
+      ],
+      "gap_mm": 0.0003157499577355338,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.07499999552965164,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 0.6914627539808862,
+      "real_time_factor": 0.0723104184689134
+    },
+    {
+      "time_s": 0.10000000000000002,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.1499999761581421,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        1.4999985694885254,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.020072732120752335,
+        -0.0073450286872684956,
+        -0.9997719526290894
+      ],
+      "base_quaternion_xyzw": [
+        0.0036684293299913406,
+        -0.010038508102297783,
+        -0.0004278123378753662,
+        0.9999428987503052
+      ],
+      "roll_deg": 0.4209275643867255,
+      "pitch_deg": -1.1501596063102257,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.35400898195803165,
+      "height_m": 0.31107276678085327,
+      "velocity_m_s": [
+        0.014971526339650154,
+        -0.02542051672935486,
+        -0.12898150086402893
+      ],
+      "omega_rad_s": [
+        0.09207359701395035,
+        0.10970795899629593,
+        -0.0006445497274398804
+      ],
+      "position_m": [
+        0.0004818146117031574,
+        -0.0023586926981806755,
+        0.31107276678085327
+      ],
+      "knee_deg": [
+        66.34299944474438,
+        65.63546868635923
+      ],
+      "compression_mm": [
+        53.37575912475586,
+        53.973243713378906
+      ],
+      "spring_force_n": [
+        350.5955810546875,
+        352.33294677734375
+      ],
+      "motor_effort_nm": [
+        3.1369991302490234,
+        -4.168470859527588,
+        0.26414811611175537,
+        -3.025343179702759,
+        3.3877029418945312,
+        -0.15733753144741058
+      ],
+      "wheel_force_n": [
+        68.83967590332031,
+        75.08386993408203
+      ],
+      "gap_mm": 0.0002096779212479305,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.1499999761581421,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 1.1070963309612125,
+      "real_time_factor": 0.09032631366349399
+    },
+    {
+      "time_s": 0.15000000000000005,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.22499990463256836,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        1.4999985694885254,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.01327348779886961,
+        -0.009182858280837536,
+        -0.9998700618743896
+      ],
+      "base_quaternion_xyzw": [
+        0.004588298499584198,
+        -0.006639227271080017,
+        -0.0004940629005432129,
+        0.9999673962593079
+      ],
+      "roll_deg": 0.5261926038728761,
+      "pitch_deg": -0.7605369164410021,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.34753495128825307,
+      "height_m": 0.30584272742271423,
+      "velocity_m_s": [
+        0.04330349713563919,
+        -0.0016777592245489359,
+        -0.08142546564340591
+      ],
+      "omega_rad_s": [
+        0.00402437150478363,
+        0.15409117937088013,
+        -0.0002200534800067544
+      ],
+      "position_m": [
+        0.002006442751735449,
+        -0.002912741620093584,
+        0.30584272742271423
+      ],
+      "knee_deg": [
+        65.12286640424435,
+        64.02027408917107
+      ],
+      "compression_mm": [
+        54.40435791015625,
+        55.326663970947266
+      ],
+      "spring_force_n": [
+        353.6838073730469,
+        356.4952392578125
+      ],
+      "motor_effort_nm": [
+        2.8119468688964844,
+        -3.54557466506958,
+        0.35690560936927795,
+        -3.385195732116699,
+        3.3685710430145264,
+        -0.30993905663490295
+      ],
+      "wheel_force_n": [
+        75.6378173828125,
+        74.48934173583984
+      ],
+      "gap_mm": 0.00017881393432617188,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.22499990463256836,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 1.5403236859710887,
+      "real_time_factor": 0.09738209107611775
+    },
+    {
+      "time_s": 0.2000000000000001,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.29999983310699463,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        1.4999985694885254,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.006492669228464365,
+        -0.008495730347931385,
+        -0.9999436140060425
+      ],
+      "base_quaternion_xyzw": [
+        0.0042461613193154335,
+        -0.0032486869022250175,
+        -0.000543057918548584,
+        0.9999857544898987
+      ],
+      "roll_deg": 0.48678522861541546,
+      "pitch_deg": -0.3720048674313258,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.348657020367682,
+      "height_m": 0.3029109835624695,
+      "velocity_m_s": [
+        0.07569291442632675,
+        0.0072502559050917625,
+        -0.03977828472852707
+      ],
+      "omega_rad_s": [
+        -0.03418741002678871,
+        0.1044086292386055,
+        -0.0027099631261080503
+      ],
+      "position_m": [
+        0.005013762973248959,
+        -0.0026976538356393576,
+        0.3029109835624695
+      ],
+      "knee_deg": [
+        64.3353421778473,
+        63.24812461859572
+      ],
+      "compression_mm": [
+        55.06383514404297,
+        55.96824645996094
+      ],
+      "spring_force_n": [
+        355.7172546386719,
+        358.529052734375
+      ],
+      "motor_effort_nm": [
+        2.6115429401397705,
+        -3.3928301334381104,
+        0.42007583379745483,
+        -4.0745463371276855,
+        3.560433864593506,
+        -0.43841835856437683
+      ],
+      "wheel_force_n": [
+        74.43680572509766,
+        69.20024871826172
+      ],
+      "gap_mm": 0.00013075715799004684,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.29999983310699463,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 1.9305080929771066,
+      "real_time_factor": 0.10359963704104572
+    },
+    {
+      "time_s": 0.2500000000000001,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.3749997615814209,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        1.4999985694885254,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0029682244639843702,
+        -0.007266735192388296,
+        -0.9999693632125854
+      ],
+      "base_quaternion_xyzw": [
+        0.00363257247954607,
+        -0.0014861365780234337,
+        -0.0005540847778320312,
+        0.9999921917915344
+      ],
+      "roll_deg": 0.4163586844663179,
+      "pitch_deg": -0.1700669549793114,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.39768603164702654,
+      "height_m": 0.3018028140068054,
+      "velocity_m_s": [
+        0.10988853871822357,
+        0.006563668604940176,
+        -0.009344829246401787
+      ],
+      "omega_rad_s": [
+        -0.02046368084847927,
+        0.040345557034015656,
+        0.0015696316258981824
+      ],
+      "position_m": [
+        0.009674154222011566,
+        -0.0023276107385754585,
+        0.3018028140068054
+      ],
+      "knee_deg": [
+        64.02164183455237,
+        63.05174984976868
+      ],
+      "compression_mm": [
+        55.32548522949219,
+        56.13078308105469
+      ],
+      "spring_force_n": [
+        356.54547119140625,
+        359.06341552734375
+      ],
+      "motor_effort_nm": [
+        2.698418378829956,
+        -3.5536701679229736,
+        0.43261149525642395,
+        -4.56429386138916,
+        4.043013095855713,
+        -0.43084239959716797
+      ],
+      "wheel_force_n": [
+        75.33627319335938,
+        65.8567123413086
+      ],
+      "gap_mm": 0.00010975390551948294,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.3749997615814209,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 2.4205804759985767,
+      "real_time_factor": 0.10328098804146975
+    },
+    {
+      "time_s": 0.30000000000000016,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.44999969005584717,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        1.4999985694885254,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.002291446551680565,
+        -0.006462929770350456,
+        -0.9999769926071167
+      ],
+      "base_quaternion_xyzw": [
+        0.0032308483496308327,
+        -0.0011475197970867157,
+        -0.0005539655685424805,
+        0.9999940991401672
+      ],
+      "roll_deg": 0.3703019629809297,
+      "pitch_deg": -0.1312902652515834,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.36001100670546293,
+      "height_m": 0.30175790190696716,
+      "velocity_m_s": [
+        0.1470365971326828,
+        0.003677285509184003,
+        0.004038440063595772
+      ],
+      "omega_rad_s": [
+        -0.010770842432975769,
+        0.00974305160343647,
+        0.005465889815241098
+      ],
+      "position_m": [
+        0.016109004616737366,
+        -0.002092433162033558,
+        0.30175790190696716
+      ],
+      "knee_deg": [
+        64.05240329902682,
+        63.164468461641405
+      ],
+      "compression_mm": [
+        55.29990768432617,
+        56.03751754760742
+      ],
+      "spring_force_n": [
+        356.4786376953125,
+        358.77947998046875
+      ],
+      "motor_effort_nm": [
+        2.8296797275543213,
+        -3.9390006065368652,
+        0.433195024728775,
+        -4.656548500061035,
+        4.315528392791748,
+        -0.46898964047431946
+      ],
+      "wheel_force_n": [
+        71.56000518798828,
+        65.13147735595703
+      ],
+      "gap_mm": 0.00019371509552001953,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.44999969005584717,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 2.844147718977183,
+      "real_time_factor": 0.10547972286695194
+    },
+    {
+      "time_s": 0.3500000000000002,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.002006165450438857,
+        -0.006241168361157179,
+        -0.9999786615371704
+      ],
+      "base_quaternion_xyzw": [
+        0.0031201718375086784,
+        -0.0010044220834970474,
+        -0.00042751431465148926,
+        0.9999945759773254
+      ],
+      "roll_deg": 0.3575955937713811,
+      "pitch_deg": -0.11494487315287802,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3736510407179594,
+      "height_m": 0.30203482508659363,
+      "velocity_m_s": [
+        0.18546581268310547,
+        -0.0013480314519256353,
+        0.005234697367995977
+      ],
+      "omega_rad_s": [
+        0.005909878760576248,
+        0.02833600342273712,
+        0.007497700396925211
+      ],
+      "position_m": [
+        0.024444691836833954,
+        -0.002022079424932599,
+        0.30203482508659363
+      ],
+      "knee_deg": [
+        64.2129383577315,
+        63.337130521217446
+      ],
+      "compression_mm": [
+        55.165992736816406,
+        55.89446258544922
+      ],
+      "spring_force_n": [
+        356.069091796875,
+        358.3282775878906
+      ],
+      "motor_effort_nm": [
+        3.1878764629364014,
+        -4.274958610534668,
+        0.5995884537696838,
+        -4.606165885925293,
+        4.340630054473877,
+        -0.5436744689941406
+      ],
+      "wheel_force_n": [
+        69.24668884277344,
+        65.85796356201172
+      ],
+      "gap_mm": 0.0001437015981764489,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 3.458406282996293,
+      "real_time_factor": 0.10120266359811128
+    },
+    {
+      "time_s": 0.40000000000000024,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.00017069047316908836,
+        -0.006456668023020029,
+        -0.9999796152114868
+      ],
+      "base_quaternion_xyzw": [
+        0.003228370100259781,
+        8.460041135549545e-05,
+        -0.0002308487892150879,
+        0.9999948740005493
+      ],
+      "roll_deg": 0.3699422277960616,
+      "pitch_deg": 0.00977983912490719,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.36629801616072655,
+      "height_m": 0.3021259903907776,
+      "velocity_m_s": [
+        0.22490641474723816,
+        0.00039872690103948116,
+        -0.001198326121084392
+      ],
+      "omega_rad_s": [
+        -0.001994828460738063,
+        0.04641143977642059,
+        0.004472268279641867
+      ],
+      "position_m": [
+        0.03471264988183975,
+        -0.0020771275740116835,
+        0.3021259903907776
+      ],
+      "knee_deg": [
+        64.29644937316596,
+        63.39664366700306
+      ],
+      "compression_mm": [
+        55.09629821777344,
+        55.84511184692383
+      ],
+      "spring_force_n": [
+        355.85540771484375,
+        358.1603698730469
+      ],
+      "motor_effort_nm": [
+        3.433016777038574,
+        -4.2124457359313965,
+        0.566390872001648,
+        -4.618978500366211,
+        4.254480361938477,
+        -0.5641486644744873
+      ],
+      "wheel_force_n": [
+        68.41413879394531,
+        67.08036041259766
+      ],
+      "gap_mm": 0.00025156055016850587,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 3.8482299489551224,
+      "real_time_factor": 0.10394387396269752
+    },
+    {
+      "time_s": 0.4500000000000003,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.0027239995542913675,
+        -0.0062225982546806335,
+        -0.9999776482582092
+      ],
+      "base_quaternion_xyzw": [
+        0.003111564554274082,
+        0.0013614408671855927,
+        -0.00018209218978881836,
+        0.9999943971633911
+      ],
+      "roll_deg": 0.3565319849280709,
+      "pitch_deg": 0.15607375866176737,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3865599865093827,
+      "height_m": 0.30192381143569946,
+      "velocity_m_s": [
+        0.26581427454948425,
+        0.002682809019461274,
+        -0.004984110128134489
+      ],
+      "omega_rad_s": [
+        -0.002129606669768691,
+        0.0515662357211113,
+        0.005403618793934584
+      ],
+      "position_m": [
+        0.04700082540512085,
+        -0.0020070173777639866,
+        0.30192381143569946
+      ],
+      "knee_deg": [
+        64.18739174268836,
+        63.35045451274085
+      ],
+      "compression_mm": [
+        55.187294006347656,
+        55.883453369140625
+      ],
+      "spring_force_n": [
+        356.1454162597656,
+        358.2826232910156
+      ],
+      "motor_effort_nm": [
+        3.388169050216675,
+        -4.2064127922058105,
+        0.4591198265552521,
+        -4.601443767547607,
+        4.172891616821289,
+        -0.5567339062690735
+      ],
+      "wheel_force_n": [
+        69.5531234741211,
+        65.21408081054688
+      ],
+      "gap_mm": 0.000736666152079124,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 4.379412318987306,
+      "real_time_factor": 0.10275349684913984
+    },
+    {
+      "time_s": 0.5000000000000003,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.005348587408661842,
+        -0.005539401900023222,
+        -0.9999704957008362
+      ],
+      "base_quaternion_xyzw": [
+        0.0027701351791620255,
+        0.002673884853720665,
+        -0.00015470385551452637,
+        0.9999926090240479
+      ],
+      "roll_deg": 0.31739046783948704,
+      "pitch_deg": 0.3064529024076367,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3700840170495212,
+      "height_m": 0.30158722400665283,
+      "velocity_m_s": [
+        0.30586671829223633,
+        0.006444520782679319,
+        -0.0052238209173083305
+      ],
+      "omega_rad_s": [
+        -0.011452507227659225,
+        0.0522376224398613,
+        0.004588206298649311
+      ],
+      "position_m": [
+        0.061324141919612885,
+        -0.0018041225848719478,
+        0.30158722400665283
+      ],
+      "knee_deg": [
+        63.96504688708964,
+        63.25121869428973
+      ],
+      "compression_mm": [
+        55.37268829345703,
+        55.96565628051758
+      ],
+      "spring_force_n": [
+        356.68243408203125,
+        358.5406494140625
+      ],
+      "motor_effort_nm": [
+        3.2716193199157715,
+        -4.06785249710083,
+        0.4477415382862091,
+        -4.6674628257751465,
+        4.116698265075684,
+        -0.5450340509414673
+      ],
+      "wheel_force_n": [
+        71.86547088623047,
+        66.9512710571289
+      ],
+      "gap_mm": 0.00010745380052412656,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 4.7916900079580955,
+      "real_time_factor": 0.10434730304445448
+    },
+    {
+      "time_s": 0.5500000000000004,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.007127330172806978,
+        -0.0045553529635071754,
+        -0.9999644756317139
+      ],
+      "base_quaternion_xyzw": [
+        0.002278020605444908,
+        0.0035634897649288177,
+        -9.086728096008301e-05,
+        0.9999911189079285
+      ],
+      "roll_deg": 0.26100996573450713,
+      "pitch_deg": 0.40836929297091756,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.36706699756905437,
+      "height_m": 0.3013010323047638,
+      "velocity_m_s": [
+        0.3426489233970642,
+        -0.0031948057003319263,
+        -0.0015640046913176775
+      ],
+      "omega_rad_s": [
+        0.007808590307831764,
+        0.014222371391952038,
+        0.007186615373939276
+      ],
+      "position_m": [
+        0.07756957411766052,
+        -0.0015071192756295204,
+        0.3013010323047638
+      ],
+      "knee_deg": [
+        63.688970640837724,
+        63.14578789426142
+      ],
+      "compression_mm": [
+        55.60235595703125,
+        56.05300521850586
+      ],
+      "spring_force_n": [
+        357.40240478515625,
+        358.80828857421875
+      ],
+      "motor_effort_nm": [
+        3.240192174911499,
+        -4.03508186340332,
+        0.33355551958084106,
+        -4.537956714630127,
+        4.114408493041992,
+        -0.4027762711048126
+      ],
+      "wheel_force_n": [
+        71.98404693603516,
+        68.91365051269531
+      ],
+      "gap_mm": 8.56006536764653e-05,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 5.245524995960295,
+      "real_time_factor": 0.10485126152411951
+    },
+    {
+      "time_s": 0.6000000000000004,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.007544529624283314,
+        -0.004583518486469984,
+        -0.9999616146087646
+      ],
+      "base_quaternion_xyzw": [
+        0.0022919196635484695,
+        0.003772216849029064,
+        -3.6716461181640625e-05,
+        0.9999904036521912
+      ],
+      "roll_deg": 0.2626245063509981,
+      "pitch_deg": 0.4322735562178755,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.532270991243422,
+      "height_m": 0.3012610673904419,
+      "velocity_m_s": [
+        0.3751535713672638,
+        0.00016209941531997174,
+        0.00447262404486537
+      ],
+      "omega_rad_s": [
+        0.008378933183848858,
+        0.005389781203120947,
+        0.005612200126051903
+      ],
+      "position_m": [
+        0.09555098414421082,
+        -0.0015142789343371987,
+        0.3012610673904419
+      ],
+      "knee_deg": [
+        63.54376423417784,
+        63.04826816083927
+      ],
+      "compression_mm": [
+        55.72299575805664,
+        56.13369369506836
+      ],
+      "spring_force_n": [
+        357.778564453125,
+        359.0694274902344
+      ],
+      "motor_effort_nm": [
+        3.303544759750366,
+        -4.034712314605713,
+        0.2993631362915039,
+        -4.538867950439453,
+        4.159388065338135,
+        -0.37857943773269653
+      ],
+      "wheel_force_n": [
+        71.50611877441406,
+        64.68003845214844
+      ],
+      "gap_mm": 0.00017441361421788315,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 5.661687586980406,
+      "real_time_factor": 0.10597545389223317
+    },
+    {
+      "time_s": 0.6500000000000005,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.007108439225703478,
+        -0.004613249097019434,
+        -0.999964714050293
+      ],
+      "base_quaternion_xyzw": [
+        0.0023066289722919464,
+        0.003554261289536953,
+        4.4405460357666016e-06,
+        0.9999911785125732
+      ],
+      "roll_deg": 0.26432715493816045,
+      "pitch_deg": 0.40728674384525176,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.37952797720208764,
+      "height_m": 0.3014514446258545,
+      "velocity_m_s": [
+        0.40259113907814026,
+        -0.0009777290979400277,
+        0.008388455025851727
+      ],
+      "omega_rad_s": [
+        0.002514751860871911,
+        -0.0046408153139054775,
+        0.004026289563626051
+      ],
+      "position_m": [
+        0.11502920836210251,
+        -0.0015215672319754958,
+        0.3014514446258545
+      ],
+      "knee_deg": [
+        63.48013077677542,
+        63.02355312132758
+      ],
+      "compression_mm": [
+        55.775856018066406,
+        56.15413284301758
+      ],
+      "spring_force_n": [
+        357.9486083984375,
+        359.13653564453125
+      ],
+      "motor_effort_nm": [
+        3.2820656299591064,
+        -4.149287223815918,
+        0.2637491226196289,
+        -4.480576992034912,
+        4.175539970397949,
+        -0.3635667860507965
+      ],
+      "wheel_force_n": [
+        71.64852905273438,
+        66.5811996459961
+      ],
+      "gap_mm": 0.00023853496600168,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 6.201347332971636,
+      "real_time_factor": 0.10481592201980994
+    },
+    {
+      "time_s": 0.7000000000000005,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.006242820061743259,
+        -0.004610701464116573,
+        -0.9999704360961914
+      ],
+      "base_quaternion_xyzw": [
+        0.0023052142933011055,
+        0.003121546469628811,
+        4.914402961730957e-05,
+        0.9999926090240479
+      ],
+      "roll_deg": 0.26417967259918784,
+      "pitch_deg": 0.35768936765878284,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.38902898086234927,
+      "height_m": 0.30177992582321167,
+      "velocity_m_s": [
+        0.42490142583847046,
+        0.00032397208269685507,
+        0.010467730462551117
+      ],
+      "omega_rad_s": [
+        0.00167303706984967,
+        -0.024475228041410446,
+        0.004928823094815016
+      ],
+      "position_m": [
+        0.13574948906898499,
+        -0.0015175723237916827,
+        0.30177992582321167
+      ],
+      "knee_deg": [
+        63.460944775396854,
+        63.04462937755894
+      ],
+      "compression_mm": [
+        55.791744232177734,
+        56.136714935302734
+      ],
+      "spring_force_n": [
+        358.0004577636719,
+        359.084716796875
+      ],
+      "motor_effort_nm": [
+        3.3901994228363037,
+        -4.351115703582764,
+        0.2229120284318924,
+        -4.309698104858398,
+        4.096095085144043,
+        -0.29460012912750244
+      ],
+      "wheel_force_n": [
+        69.47943878173828,
+        69.60919189453125
+      ],
+      "gap_mm": 0.00010106459313874439,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 6.636046544008423,
+      "real_time_factor": 0.10548448275560812
+    },
+    {
+      "time_s": 0.7500000000000006,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.005130566190928221,
+        -0.004604197107255459,
+        -0.999976634979248
+      ],
+      "base_quaternion_xyzw": [
+        0.0023019416257739067,
+        0.002565450966358185,
+        6.642937660217285e-05,
+        0.999994158744812
+      ],
+      "roll_deg": 0.2638053619726447,
+      "pitch_deg": 0.29396096251759035,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.37410896038636565,
+      "height_m": 0.30218929052352905,
+      "velocity_m_s": [
+        0.4429294466972351,
+        -2.9109911338309757e-05,
+        0.010175900533795357
+      ],
+      "omega_rad_s": [
+        6.5561835072003305e-06,
+        -0.01657966896891594,
+        0.004627891816198826
+      ],
+      "position_m": [
+        0.15747696161270142,
+        -0.00151331746019423,
+        0.30218929052352905
+      ],
+      "knee_deg": [
+        63.4876747207137,
+        63.10529853286158
+      ],
+      "compression_mm": [
+        55.76957702636719,
+        56.08646774291992
+      ],
+      "spring_force_n": [
+        357.9320983886719,
+        358.92706298828125
+      ],
+      "motor_effort_nm": [
+        3.4901180267333984,
+        -4.383100986480713,
+        0.18942204117774963,
+        -4.420746326446533,
+        4.282233238220215,
+        -0.23345433175563812
+      ],
+      "wheel_force_n": [
+        68.17886352539062,
+        65.86048889160156
+      ],
+      "gap_mm": 0.00021400163063844957,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 6.988524622982368,
+      "real_time_factor": 0.10731877917594308
+    },
+    {
+      "time_s": 0.8000000000000006,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.003948180936276913,
+        -0.00461062416434288,
+        -0.9999821186065674
+      ],
+      "base_quaternion_xyzw": [
+        0.002305183559656143,
+        0.0019742613658308983,
+        7.027387619018555e-05,
+        0.9999955296516418
+      ],
+      "roll_deg": 0.2641721573701428,
+      "pitch_deg": 0.22621456956135025,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.36233599530532956,
+      "height_m": 0.30254215002059937,
+      "velocity_m_s": [
+        0.45677632093429565,
+        0.0003165078815072775,
+        0.008007694035768509
+      ],
+      "omega_rad_s": [
+        7.194009958766401e-05,
+        -0.02488975040614605,
+        0.0028985145036131144
+      ],
+      "position_m": [
+        0.1799946427345276,
+        -0.0015128697268664837,
+        0.30254215002059937
+      ],
+      "knee_deg": [
+        63.50946302416604,
+        63.15509914964744
+      ],
+      "compression_mm": [
+        55.75151443481445,
+        56.0452766418457
+      ],
+      "spring_force_n": [
+        357.8741149902344,
+        358.7978820800781
+      ],
+      "motor_effort_nm": [
+        3.5603408813476562,
+        -4.456202983856201,
+        0.14146672189235687,
+        -4.407081604003906,
+        4.290646553039551,
+        -0.19344522058963776
+      ],
+      "wheel_force_n": [
+        68.9896240234375,
+        65.3422622680664
+      ],
+      "gap_mm": 9.657055954903626e-05,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 7.443777907988988,
+      "real_time_factor": 0.10747229945745138
+    },
+    {
+      "time_s": 0.8500000000000006,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.002629075897857547,
+        -0.0046124509535729885,
+        -0.999985933303833
+      ],
+      "base_quaternion_xyzw": [
+        0.0023061418905854225,
+        0.0013147033751010895,
+        6.970763206481934e-05,
+        0.9999964833259583
+      ],
+      "roll_deg": 0.2642758161928009,
+      "pitch_deg": 0.1506351224665962,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5144989700056612,
+      "height_m": 0.3028155267238617,
+      "velocity_m_s": [
+        0.4673730731010437,
+        0.0007124821422621608,
+        0.006178880110383034
+      ],
+      "omega_rad_s": [
+        -0.008245565928518772,
+        -0.02127820998430252,
+        0.0012686068657785654
+      ],
+      "position_m": [
+        0.20311859250068665,
+        -0.001510807080194354,
+        0.3028155267238617
+      ],
+      "knee_deg": [
+        63.52571545929608,
+        63.19555606764871
+      ],
+      "compression_mm": [
+        55.7380485534668,
+        56.01179122924805
+      ],
+      "spring_force_n": [
+        357.8283386230469,
+        358.69451904296875
+      ],
+      "motor_effort_nm": [
+        3.484957695007324,
+        -4.4334259033203125,
+        0.14358273148536682,
+        -4.34675931930542,
+        4.212313175201416,
+        -0.2016889601945877
+      ],
+      "wheel_force_n": [
+        67.56585693359375,
+        66.94806671142578
+      ],
+      "gap_mm": 0.00016191090423944843,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 7.911522171983961,
+      "real_time_factor": 0.10743822748710602
+    },
+    {
+      "time_s": 0.9000000000000007,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        0.0035772251430898905,
+        -0.004638211335986853,
+        -0.999983549118042
+      ],
+      "base_quaternion_xyzw": [
+        0.0023190369829535484,
+        0.0017887214198708534,
+        4.374980926513672e-05,
+        0.9999958872795105
+      ],
+      "roll_deg": 0.2657524001718778,
+      "pitch_deg": 0.20496019590148776,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3831699723377824,
+      "height_m": 0.30313464999198914,
+      "velocity_m_s": [
+        0.46756336092948914,
+        -0.0023483920376747847,
+        0.004639001563191414
+      ],
+      "omega_rad_s": [
+        0.00685396883636713,
+        -0.07557480037212372,
+        0.0053902361541986465
+      ],
+      "position_m": [
+        0.2265407294034958,
+        -0.001516814110800624,
+        0.30313464999198914
+      ],
+      "knee_deg": [
+        63.521671987307435,
+        63.22964383424896
+      ],
+      "compression_mm": [
+        55.74131774902344,
+        55.983558654785156
+      ],
+      "spring_force_n": [
+        357.8427734375,
+        358.5797119140625
+      ],
+      "motor_effort_nm": [
+        3.2034027576446533,
+        -3.8920083045959473,
+        0.1379304975271225,
+        -4.810801029205322,
+        4.087607383728027,
+        -0.256578266620636
+      ],
+      "wheel_force_n": [
+        68.85070037841797,
+        79.05424499511719
+      ],
+      "gap_mm": 0.0010411903303975123,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 8.32114404096501,
+      "real_time_factor": 0.10815819726752861
+    },
+    {
+      "time_s": 0.9500000000000007,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0005263003404252231,
+        -0.0048559424467384815,
+        -0.999988317489624
+      ],
+      "base_quaternion_xyzw": [
+        0.0024280063807964325,
+        -0.00026289094239473343,
+        0.00010707974433898926,
+        0.999997079372406
+      ],
+      "roll_deg": 0.27822607125037313,
+      "pitch_deg": -0.03015478223239942,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5089379847049713,
+      "height_m": 0.30362585186958313,
+      "velocity_m_s": [
+        0.47051361203193665,
+        0.0032237605191767216,
+        0.010047215037047863
+      ],
+      "omega_rad_s": [
+        -0.009726283140480518,
+        -0.07654130458831787,
+        0.00043831602670252323
+      ],
+      "position_m": [
+        0.2499825656414032,
+        -0.001576511305756867,
+        0.30362585186958313
+      ],
+      "knee_deg": [
+        63.67763935700468,
+        63.35324976765868
+      ],
+      "compression_mm": [
+        55.611846923828125,
+        55.881126403808594
+      ],
+      "spring_force_n": [
+        357.447509765625,
+        358.28948974609375
+      ],
+      "motor_effort_nm": [
+        3.263780117034912,
+        -4.496889591217041,
+        -0.003423214191570878,
+        -4.334994792938232,
+        4.489175796508789,
+        -0.06853065639734268
+      ],
+      "wheel_force_n": [
+        68.40528869628906,
+        65.81388092041016
+      ],
+      "gap_mm": 0.0002269677281674376,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 8.735666661988944,
+      "real_time_factor": 0.1087495633018875
+    },
+    {
+      "time_s": 1.0000000000000007,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0018251545261591673,
+        -0.004759020172059536,
+        -0.9999873638153076
+      ],
+      "base_quaternion_xyzw": [
+        0.002379617653787136,
+        -0.0009123189374804497,
+        0.00010979175567626953,
+        0.9999968409538269
+      ],
+      "roll_deg": 0.2726731574860636,
+      "pitch_deg": -0.10457367238728589,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3648880519904196,
+      "height_m": 0.303986132144928,
+      "velocity_m_s": [
+        0.47406476736068726,
+        -1.829244865803048e-05,
+        0.0013714928645640612
+      ],
+      "omega_rad_s": [
+        -0.0052388631738722324,
+        -0.007270544767379761,
+        0.000808334443718195
+      ],
+      "position_m": [
+        0.273606538772583,
+        -0.001539047691039741,
+        0.303986132144928
+      ],
+      "knee_deg": [
+        63.78065227006681,
+        63.46444353979919
+      ],
+      "compression_mm": [
+        55.52614212036133,
+        55.78889846801758
+      ],
+      "spring_force_n": [
+        357.18035888671875,
+        357.9911804199219
+      ],
+      "motor_effort_nm": [
+        3.5805022716522217,
+        -4.576963901519775,
+        0.07815342396497726,
+        -4.537937164306641,
+        4.496982574462891,
+        -0.12934285402297974
+      ],
+      "wheel_force_n": [
+        66.88965606689453,
+        66.99732971191406
+      ],
+      "gap_mm": 0.00010002941763787021,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 9.076604047964793,
+      "real_time_factor": 0.11017335368184308
+    },
+    {
+      "time_s": 1.0499999999999996,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0018917529378086329,
+        -0.004595647100359201,
+        -0.9999880790710449
+      ],
+      "base_quaternion_xyzw": [
+        0.00229793693870306,
+        -0.0009456202387809753,
+        0.00011271238327026367,
+        0.9999970197677612
+      ],
+      "roll_deg": 0.26331246818234294,
+      "pitch_deg": -0.10838947742327464,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.39432296762242913,
+      "height_m": 0.30393823981285095,
+      "velocity_m_s": [
+        0.4766773283481598,
+        -0.0007115645566955209,
+        -0.003596328664571047
+      ],
+      "omega_rad_s": [
+        0.004572829231619835,
+        0.00394053990021348,
+        0.001895570894703269
+      ],
+      "position_m": [
+        0.29737991094589233,
+        -0.0014740662882104516,
+        0.30393823981285095
+      ],
+      "knee_deg": [
+        63.73945256899329,
+        63.450889029391305
+      ],
+      "compression_mm": [
+        55.560394287109375,
+        55.80012130737305
+      ],
+      "spring_force_n": [
+        357.27642822265625,
+        358.021728515625
+      ],
+      "motor_effort_nm": [
+        3.419334888458252,
+        -4.4834136962890625,
+        0.03904609754681587,
+        -4.5374579429626465,
+        4.4518537521362305,
+        -0.1356102079153061
+      ],
+      "wheel_force_n": [
+        72.99945068359375,
+        66.06315612792969
+      ],
+      "gap_mm": 0.0001281846380152274,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 9.549936580995563,
+      "real_time_factor": 0.10994836601217595
+    },
+    {
+      "time_s": 1.0999999999999985,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0023382403887808323,
+        -0.004609322175383568,
+        -0.9999871253967285
+      ],
+      "base_quaternion_xyzw": [
+        0.0023048007860779762,
+        -0.0011688629165291786,
+        0.00011321902275085449,
+        0.9999967813491821
+      ],
+      "roll_deg": 0.2640962368699045,
+      "pitch_deg": -0.13397136325663933,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5169539945200086,
+      "height_m": 0.30379578471183777,
+      "velocity_m_s": [
+        0.4783738851547241,
+        -5.9753303503384814e-05,
+        -0.0030666356906294823
+      ],
+      "omega_rad_s": [
+        -0.0035379696637392044,
+        -0.005685462150722742,
+        -2.639080776134506e-06
+      ],
+      "position_m": [
+        0.321258544921875,
+        -0.0014727499801665545,
+        0.30379578471183777
+      ],
+      "knee_deg": [
+        63.68204995166121,
+        63.39774503500672
+      ],
+      "compression_mm": [
+        55.60810089111328,
+        55.844200134277344
+      ],
+      "spring_force_n": [
+        357.4253234863281,
+        358.1618957519531
+      ],
+      "motor_effort_nm": [
+        3.327623128890991,
+        -4.299101829528809,
+        0.07951641082763672,
+        -4.276406764984131,
+        4.3744120597839355,
+        -0.09544716030359268
+      ],
+      "wheel_force_n": [
+        70.0880355834961,
+        66.78997039794922
+      ],
+      "gap_mm": 0.00013348812899494078,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 9.896942435996607,
+      "real_time_factor": 0.11114542978890765
+    },
+    {
+      "time_s": 1.1499999999999975,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.002611379837617278,
+        -0.00460847606882453,
+        -0.999985933303833
+      ],
+      "base_quaternion_xyzw": [
+        0.0023043937981128693,
+        -0.0013054339215159416,
+        0.00011304020881652832,
+        0.9999964833259583
+      ],
+      "roll_deg": 0.26404807371012673,
+      "pitch_deg": -0.14962121912697277,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.37301494739949703,
+      "height_m": 0.30373331904411316,
+      "velocity_m_s": [
+        0.47902604937553406,
+        0.00022302467550616711,
+        -0.0014924348797649145
+      ],
+      "omega_rad_s": [
+        -0.0022228944581001997,
+        -0.013435746543109417,
+        0.0003998485626652837
+      ],
+      "position_m": [
+        0.34519708156585693,
+        -0.001467124791815877,
+        0.30373331904411316
+      ],
+      "knee_deg": [
+        63.64720232651581,
+        63.369992268861665
+      ],
+      "compression_mm": [
+        55.63710021972656,
+        55.86722946166992
+      ],
+      "spring_force_n": [
+        357.5166931152344,
+        358.23565673828125
+      ],
+      "motor_effort_nm": [
+        3.347137928009033,
+        -4.348299980163574,
+        0.028506089001893997,
+        -4.296154499053955,
+        4.340908527374268,
+        -0.06208706274628639
+      ],
+      "wheel_force_n": [
+        70.64346313476562,
+        66.58656311035156
+      ],
+      "gap_mm": 0.00015840151945667458,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 10.26781516399933,
+      "real_time_factor": 0.11200045060276842
+    },
+    {
+      "time_s": 1.1999999999999964,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0030622363556176424,
+        -0.004620934836566448,
+        -0.9999852180480957
+      ],
+      "base_quaternion_xyzw": [
+        0.002310648560523987,
+        -0.001530863344669342,
+        0.00011274218559265137,
+        0.9999963045120239
+      ],
+      "roll_deg": 0.2647620927318841,
+      "pitch_deg": -0.17545339091603646,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3478479920886457,
+      "height_m": 0.3037780523300171,
+      "velocity_m_s": [
+        0.4790807366371155,
+        -0.00011131835344713181,
+        0.00010364968329668045
+      ],
+      "omega_rad_s": [
+        -0.0016579796792939305,
+        -0.005777980666607618,
+        0.0013601866085082293
+      ],
+      "position_m": [
+        0.36915212869644165,
+        -0.0014658225700259209,
+        0.3037780523300171
+      ],
+      "knee_deg": [
+        63.65535074219564,
+        63.37840193927725
+      ],
+      "compression_mm": [
+        55.63027572631836,
+        55.86021423339844
+      ],
+      "spring_force_n": [
+        357.4973449707031,
+        358.21527099609375
+      ],
+      "motor_effort_nm": [
+        3.305478096008301,
+        -4.3290629386901855,
+        0.051896099001169205,
+        -4.399698257446289,
+        4.419813632965088,
+        -0.09326419979333878
+      ],
+      "wheel_force_n": [
+        68.91011810302734,
+        66.16500091552734
+      ],
+      "gap_mm": 0.00012467205579014262,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 10.714419265976176,
+      "real_time_factor": 0.11199859639952002
+    },
+    {
+      "time_s": 1.2499999999999953,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0031997805926948786,
+        -0.004613057244569063,
+        -0.9999845027923584
+      ],
+      "base_quaternion_xyzw": [
+        0.002306717447936535,
+        -0.001599636860191822,
+        0.0001125633716583252,
+        0.9999961256980896
+      ],
+      "roll_deg": 0.2643109319573114,
+      "pitch_deg": -0.1833341880781983,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5335609894245863,
+      "height_m": 0.3038501739501953,
+      "velocity_m_s": [
+        0.4786411225795746,
+        -0.00010075622412841767,
+        -0.0005276231095194817
+      ],
+      "omega_rad_s": [
+        0.001979250693693757,
+        -0.005865950137376785,
+        0.0013469309778884053
+      ],
+      "position_m": [
+        0.39309683442115784,
+        -0.0014580253046005964,
+        0.3038501739501953
+      ],
+      "knee_deg": [
+        63.67147852637332,
+        63.39715080854893
+      ],
+      "compression_mm": [
+        55.61693572998047,
+        55.844696044921875
+      ],
+      "spring_force_n": [
+        357.4555358886719,
+        358.16607666015625
+      ],
+      "motor_effort_nm": [
+        3.384044647216797,
+        -4.399831771850586,
+        0.024712372571229935,
+        -4.416747093200684,
+        4.44041109085083,
+        -0.0752231627702713
+      ],
+      "wheel_force_n": [
+        70.01608276367188,
+        65.5011978149414
+      ],
+      "gap_mm": 0.0001497548112183722,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 11.282568969996646,
+      "real_time_factor": 0.11079036201306039
+    },
+    {
+      "time_s": 1.2999999999999943,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.003541991813108325,
+        -0.004603929817676544,
+        -0.9999837875366211
+      ],
+      "base_quaternion_xyzw": [
+        0.0023021725937724113,
+        -0.0017707450315356255,
+        0.00011208653450012207,
+        0.9999959468841553
+      ],
+      "roll_deg": 0.26378816059730087,
+      "pitch_deg": -0.20294147264448853,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3556100418791175,
+      "height_m": 0.3039090931415558,
+      "velocity_m_s": [
+        0.4779989719390869,
+        0.00022365705808624625,
+        -0.000443038996309042
+      ],
+      "omega_rad_s": [
+        -0.0016440064646303654,
+        -0.004194851499050856,
+        0.0007615945069119334
+      ],
+      "position_m": [
+        0.41701221466064453,
+        -0.00145048089325428,
+        0.3039090931415558
+      ],
+      "knee_deg": [
+        63.68687889540441,
+        63.41423652675772
+      ],
+      "compression_mm": [
+        55.60407638549805,
+        55.83055114746094
+      ],
+      "spring_force_n": [
+        357.4158935546875,
+        358.1224365234375
+      ],
+      "motor_effort_nm": [
+        3.347885847091675,
+        -4.401082515716553,
+        0.027844907715916634,
+        -4.440277099609375,
+        4.446160793304443,
+        -0.0788188949227333
+      ],
+      "wheel_force_n": [
+        70.55580139160156,
+        66.90458679199219
+      ],
+      "gap_mm": 0.00019140888696256297,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 11.727071658009663,
+      "real_time_factor": 0.11085460628643523
+    },
+    {
+      "time_s": 1.3499999999999932,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.003753634402528405,
+        -0.004618628416210413,
+        -0.9999823570251465
+      ],
+      "base_quaternion_xyzw": [
+        0.0023095346987247467,
+        -0.0018765665590763092,
+        0.00011208653450012207,
+        0.9999955892562866
+      ],
+      "roll_deg": 0.26463070256162263,
+      "pitch_deg": -0.21506789953519154,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.38233300438150764,
+      "height_m": 0.3039540946483612,
+      "velocity_m_s": [
+        0.4772406816482544,
+        -0.00018925641779787838,
+        -0.0011222034227102995
+      ],
+      "omega_rad_s": [
+        0.007399571593850851,
+        -0.007385964505374432,
+        0.0005504217697307467
+      ],
+      "position_m": [
+        0.4408920705318451,
+        -0.0014500557444989681,
+        0.3039540946483612
+      ],
+      "knee_deg": [
+        63.70040950015021,
+        63.42584955589403
+      ],
+      "compression_mm": [
+        55.592864990234375,
+        55.820865631103516
+      ],
+      "spring_force_n": [
+        357.38067626953125,
+        358.09173583984375
+      ],
+      "motor_effort_nm": [
+        3.4018146991729736,
+        -4.41671085357666,
+        0.04886684566736221,
+        -4.35098934173584,
+        4.404848575592041,
+        -0.07424183189868927
+      ],
+      "wheel_force_n": [
+        69.68206024169922,
+        65.94637298583984
+      ],
+      "gap_mm": 8.940696716308594e-05,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 12.125091073976364,
+      "real_time_factor": 0.11133936377138558
+    },
+    {
+      "time_s": 1.3999999999999921,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.003859741147607565,
+        -0.004609805066138506,
+        -0.9999823570251465
+      ],
+      "base_quaternion_xyzw": [
+        0.002305128611624241,
+        -0.0019296212121844292,
+        0.0001118779182434082,
+        0.9999955892562866
+      ],
+      "roll_deg": 0.2641251636857456,
+      "pitch_deg": -0.22114733152322347,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5983660230413079,
+      "height_m": 0.3039999008178711,
+      "velocity_m_s": [
+        0.4765819311141968,
+        -0.00021265572286210954,
+        -0.0010117001365870237
+      ],
+      "omega_rad_s": [
+        -0.0014716254081577063,
+        0.003348751924932003,
+        0.0019664308056235313
+      ],
+      "position_m": [
+        0.4647369980812073,
+        -0.0014426582492887974,
+        0.3039999008178711
+      ],
+      "knee_deg": [
+        63.71485364269749,
+        63.44021002862399
+      ],
+      "compression_mm": [
+        55.580814361572266,
+        55.808990478515625
+      ],
+      "spring_force_n": [
+        357.3432922363281,
+        358.05438232421875
+      ],
+      "motor_effort_nm": [
+        3.4093236923217773,
+        -4.401995658874512,
+        0.04186677932739258,
+        -4.475417137145996,
+        4.48721170425415,
+        -0.07598705589771271
+      ],
+      "wheel_force_n": [
+        73.07252502441406,
+        65.65809631347656
+      ],
+      "gap_mm": 0.0001467594188397925,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 12.542811802995857,
+      "real_time_factor": 0.11161770930997791
+    },
+    {
+      "time_s": 1.449999999999991,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.00401580473408103,
+        -0.004610633477568626,
+        -0.9999818801879883
+      ],
+      "base_quaternion_xyzw": [
+        0.0023055514320731163,
+        -0.0020076539367437363,
+        0.00011172890663146973,
+        0.9999954700469971
+      ],
+      "roll_deg": 0.26417275396079604,
+      "pitch_deg": -0.23008914927896434,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.38799800677224994,
+      "height_m": 0.3040154278278351,
+      "velocity_m_s": [
+        0.47595110535621643,
+        -0.0003608253609854728,
+        -0.0018172155832871795
+      ],
+      "omega_rad_s": [
+        0.004602006636559963,
+        -0.0031031074468046427,
+        0.001492384122684598
+      ],
+      "position_m": [
+        0.4885476529598236,
+        -0.0014379285275936127,
+        0.3040154278278351
+      ],
+      "knee_deg": [
+        63.72116473749058,
+        63.44495701009714
+      ],
+      "compression_mm": [
+        55.57562255859375,
+        55.80506896972656
+      ],
+      "spring_force_n": [
+        357.32684326171875,
+        358.0416564941406
+      ],
+      "motor_effort_nm": [
+        3.408202886581421,
+        -4.339821815490723,
+        0.05873565748333931,
+        -4.396285533905029,
+        4.455389976501465,
+        -0.06968164443969727
+      ],
+      "wheel_force_n": [
+        69.59272766113281,
+        66.41886901855469
+      ],
+      "gap_mm": 0.00017377590211253846,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 13.024320148979314,
+      "real_time_factor": 0.11133017901067532
+    },
+    {
+      "time_s": 1.49999999999999,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.004018871113657951,
+        -0.004612648393958807,
+        -0.9999818801879883
+      ],
+      "base_quaternion_xyzw": [
+        0.0023065591230988503,
+        -0.0020091868937015533,
+        0.00011172890663146973,
+        0.9999954700469971
+      ],
+      "roll_deg": 0.264288199802624,
+      "pitch_deg": -0.2302648362280278,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.36004401044920087,
+      "height_m": 0.30401507019996643,
+      "velocity_m_s": [
+        0.4754629135131836,
+        0.0001465289096813649,
+        -0.0018229034030809999
+      ],
+      "omega_rad_s": [
+        -0.002677865093573928,
+        0.0012338750530034304,
+        0.0019156394992023706
+      ],
+      "position_m": [
+        0.5123311281204224,
+        -0.001434060395695269,
+        0.30401507019996643
+      ],
+      "knee_deg": [
+        63.72425710563731,
+        63.44591152903365
+      ],
+      "compression_mm": [
+        55.572994232177734,
+        55.804237365722656
+      ],
+      "spring_force_n": [
+        357.3182373046875,
+        358.03936767578125
+      ],
+      "motor_effort_nm": [
+        3.2854387760162354,
+        -4.356042385101318,
+        0.051035214215517044,
+        -4.419733047485352,
+        4.4149250984191895,
+        -0.11226025223731995
+      ],
+      "wheel_force_n": [
+        69.85336303710938,
+        65.99085998535156
+      ],
+      "gap_mm": 0.00012644053981603065,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 13.455203736957628,
+      "real_time_factor": 0.11148102741493822
+    },
+    {
+      "time_s": 1.549999999999989,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.003817859338596463,
+        -0.004605600610375404,
+        -0.9999825954437256
+      ],
+      "base_quaternion_xyzw": [
+        0.00230302382260561,
+        -0.0019086804240942001,
+        0.00011181831359863281,
+        0.9999956488609314
+      ],
+      "roll_deg": 0.2638842040646692,
+      "pitch_deg": -0.21874765123612397,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5407700082287192,
+      "height_m": 0.30398523807525635,
+      "velocity_m_s": [
+        0.47493675351142883,
+        -0.00026740922476164997,
+        -0.002715691924095154
+      ],
+      "omega_rad_s": [
+        -0.013131611980497837,
+        -0.010408454574644566,
+        0.0008081097039394081
+      ],
+      "position_m": [
+        0.5360907316207886,
+        -0.0014270946849137545,
+        0.30398523807525635
+      ],
+      "knee_deg": [
+        63.71269018027789,
+        63.43652001892489
+      ],
+      "compression_mm": [
+        55.582611083984375,
+        55.812076568603516
+      ],
+      "spring_force_n": [
+        357.3476257324219,
+        358.062744140625
+      ],
+      "motor_effort_nm": [
+        3.4326295852661133,
+        -4.257959842681885,
+        0.059250641614198685,
+        -4.475674152374268,
+        4.3231425285339355,
+        -0.11237240582704544
+      ],
+      "wheel_force_n": [
+        67.91131591796875,
+        66.38459014892578
+      ],
+      "gap_mm": 0.0001611807078916172,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 13.867538655002136,
+      "real_time_factor": 0.11177181173312833
+    },
+    {
+      "time_s": 1.5999999999999879,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.004054594784975052,
+        -0.004603831097483635,
+        -0.9999818801879883
+      ],
+      "base_quaternion_xyzw": [
+        0.00230215210467577,
+        -0.0020270496606826782,
+        0.00011157989501953125,
+        0.9999954700469971
+      ],
+      "roll_deg": 0.26378300750228906,
+      "pitch_deg": -0.23231164322205422,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5299469921737909,
+      "height_m": 0.3039695620536804,
+      "velocity_m_s": [
+        0.4745194911956787,
+        -0.00012607668759301305,
+        -0.0018501706654205918
+      ],
+      "omega_rad_s": [
+        0.002377788769081235,
+        -0.007968696765601635,
+        0.0008211975218728185
+      ],
+      "position_m": [
+        0.5598266124725342,
+        -0.0014217935968190432,
+        0.3039695620536804
+      ],
+      "knee_deg": [
+        63.70989663290736,
+        63.43237750919327
+      ],
+      "compression_mm": [
+        55.58492660522461,
+        55.8155403137207
+      ],
+      "spring_force_n": [
+        357.3560791015625,
+        358.0743713378906
+      ],
+      "motor_effort_nm": [
+        3.3798959255218506,
+        -4.395387649536133,
+        0.014657307416200638,
+        -4.370993137359619,
+        4.35289192199707,
+        -0.07993898540735245
+      ],
+      "wheel_force_n": [
+        70.70034790039062,
+        67.221435546875
+      ],
+      "gap_mm": 0.00021126042781816068,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 14.327405605989043,
+      "real_time_factor": 0.11167408537202227
+    },
+    {
+      "time_s": 1.6499999999999868,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.004084787797182798,
+        -0.004604858346283436,
+        -0.999981164932251
+      ],
+      "base_quaternion_xyzw": [
+        0.0023026680573821068,
+        -0.002042146399617195,
+        0.00011160969734191895,
+        0.9999952912330627
+      ],
+      "roll_deg": 0.2638420530570092,
+      "pitch_deg": -0.23404172604329487,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3924080519936979,
+      "height_m": 0.3039979636669159,
+      "velocity_m_s": [
+        0.474258691072464,
+        0.00016895488079171628,
+        -0.001467786612920463
+      ],
+      "omega_rad_s": [
+        0.004239737521857023,
+        0.003955211956053972,
+        0.0005915458896197379
+      ],
+      "position_m": [
+        0.5835444331169128,
+        -0.0014172822702676058,
+        0.3039979636669159
+      ],
+      "knee_deg": [
+        63.72318988857949,
+        63.442423009915075
+      ],
+      "compression_mm": [
+        55.573936462402344,
+        55.807098388671875
+      ],
+      "spring_force_n": [
+        357.32135009765625,
+        358.0487060546875
+      ],
+      "motor_effort_nm": [
+        3.381746768951416,
+        -4.434481143951416,
+        0.029802991077303886,
+        -4.400376319885254,
+        4.482531547546387,
+        -0.05829820781946182
+      ],
+      "wheel_force_n": [
+        69.61002349853516,
+        64.65518951416016
+      ],
+      "gap_mm": 0.00019082797564351495,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 14.81006761098979,
+      "real_time_factor": 0.11141069527339326
+    },
+    {
+      "time_s": 1.6999999999999857,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.004076050128787756,
+        -0.004604457877576351,
+        -0.9999816417694092
+      ],
+      "base_quaternion_xyzw": [
+        0.00230246689170599,
+        -0.002037777565419674,
+        0.00011157989501953125,
+        0.9999954104423523
+      ],
+      "roll_deg": 0.2638189821453199,
+      "pitch_deg": -0.23354098780658675,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.38761203177273273,
+      "height_m": 0.3040105700492859,
+      "velocity_m_s": [
+        0.474257230758667,
+        -5.9769889048766345e-05,
+        -0.001966984709724784
+      ],
+      "omega_rad_s": [
+        -7.05820566508919e-05,
+        0.0037149316631257534,
+        0.0007351047825068235
+      ],
+      "position_m": [
+        0.6072555780410767,
+        -0.0014124807203188539,
+        0.3040105700492859
+      ],
+      "knee_deg": [
+        63.73123072877989,
+        63.44832941599984
+      ],
+      "compression_mm": [
+        55.56727600097656,
+        55.80226516723633
+      ],
+      "spring_force_n": [
+        357.30059814453125,
+        358.03289794921875
+      ],
+      "motor_effort_nm": [
+        3.396817207336426,
+        -4.367372989654541,
+        0.057494547218084335,
+        -4.469025135040283,
+        4.463379859924316,
+        -0.08856554329395294
+      ],
+      "wheel_force_n": [
+        71.34928894042969,
+        66.0980453491211
+      ],
+      "gap_mm": 0.0001519626238177807,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 15.242867564957123,
+      "real_time_factor": 0.11152756619627467
+    },
+    {
+      "time_s": 1.7499999999999847,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0038629290647804737,
+        -0.004603185690939426,
+        -0.9999825954437256
+      ],
+      "base_quaternion_xyzw": [
+        0.0023018186911940575,
+        -0.0019312156364321709,
+        0.00011178851127624512,
+        0.9999956488609314
+      ],
+      "roll_deg": 0.2637458398983885,
+      "pitch_deg": -0.2213299382615054,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3934859996661544,
+      "height_m": 0.30399444699287415,
+      "velocity_m_s": [
+        0.47442689538002014,
+        0.00015791584155522287,
+        -0.002324087079614401
+      ],
+      "omega_rad_s": [
+        0.001806773361749947,
+        0.005978472530841827,
+        0.0028502948116511106
+      ],
+      "position_m": [
+        0.6309728026390076,
+        -0.0014072228223085403,
+        0.30399444699287415
+      ],
+      "knee_deg": [
+        63.72823569082884,
+        63.44469234026681
+      ],
+      "compression_mm": [
+        55.56978225708008,
+        55.80527114868164
+      ],
+      "spring_force_n": [
+        357.3075256347656,
+        358.04205322265625
+      ],
+      "motor_effort_nm": [
+        3.33162522315979,
+        -4.336215019226074,
+        0.06712189316749573,
+        -4.518779754638672,
+        4.388285160064697,
+        -0.1504511833190918
+      ],
+      "wheel_force_n": [
+        70.20398712158203,
+        66.37527465820312
+      ],
+      "gap_mm": 0.00013978528556890524,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 15.619208877964411,
+      "real_time_factor": 0.1120415201494105
+    },
+    {
+      "time_s": 1.7999999999999836,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0038319590967148542,
+        -0.004603721667081118,
+        -0.9999825954437256
+      ],
+      "base_quaternion_xyzw": [
+        0.0023020850494503975,
+        -0.0019157305359840393,
+        0.00011181831359863281,
+        0.9999956488609314
+      ],
+      "roll_deg": 0.2637765489529135,
+      "pitch_deg": -0.2195555034414454,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.38335099816322327,
+      "height_m": 0.30396467447280884,
+      "velocity_m_s": [
+        0.47459876537323,
+        -8.315731247421354e-05,
+        -0.0021401296835392714
+      ],
+      "omega_rad_s": [
+        0.000683488673530519,
+        0.005698689259588718,
+        -0.00012653555313590914
+      ],
+      "position_m": [
+        0.654697060585022,
+        -0.0014026002027094364,
+        0.30396467447280884
+      ],
+      "knee_deg": [
+        63.71836265238359,
+        63.4356047735761
+      ],
+      "compression_mm": [
+        55.577911376953125,
+        55.81283950805664
+      ],
+      "spring_force_n": [
+        357.3333435058594,
+        358.0657043457031
+      ],
+      "motor_effort_nm": [
+        3.421915292739868,
+        -4.446249485015869,
+        0.03695354610681534,
+        -4.466232776641846,
+        4.47248649597168,
+        -0.08196287602186203
+      ],
+      "wheel_force_n": [
+        70.08236694335938,
+        67.9737777709961
+      ],
+      "gap_mm": 0.00010848209086589122,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 16.047773341997527,
+      "real_time_factor": 0.11216508877843426
+    },
+    {
+      "time_s": 1.8499999999999825,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0038695470429956913,
+        -0.004605218302458525,
+        -0.9999821186065674
+      ],
+      "base_quaternion_xyzw": [
+        0.0023028356954455376,
+        -0.0019345246255397797,
+        0.00011181831359863281,
+        0.9999955296516418
+      ],
+      "roll_deg": 0.2638624253377377,
+      "pitch_deg": -0.2217092210391897,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.372566981241107,
+      "height_m": 0.303944855928421,
+      "velocity_m_s": [
+        0.4748639762401581,
+        -0.00016753676754888147,
+        -0.0022763514425605536
+      ],
+      "omega_rad_s": [
+        0.005836957134306431,
+        0.001458085491321981,
+        0.0011201443849131465
+      ],
+      "position_m": [
+        0.6784319281578064,
+        -0.0013980295043438673,
+        0.303944855928421
+      ],
+      "knee_deg": [
+        63.71490828421085,
+        63.43079119775854
+      ],
+      "compression_mm": [
+        55.580810546875,
+        55.81680679321289
+      ],
+      "spring_force_n": [
+        357.3426513671875,
+        358.077880859375
+      ],
+      "motor_effort_nm": [
+        3.3631784915924072,
+        -4.384646415710449,
+        0.0496642142534256,
+        -4.417318820953369,
+        4.461883068084717,
+        -0.08093547821044922
+      ],
+      "wheel_force_n": [
+        70.52424621582031,
+        65.89740753173828
+      ],
+      "gap_mm": 0.00012644053981603065,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 16.534014755976386,
+      "real_time_factor": 0.11189054546927046
+    },
+    {
+      "time_s": 1.8999999999999815,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0035813022404909134,
+        -0.004603673238307238,
+        -0.9999833106994629
+      ],
+      "base_quaternion_xyzw": [
+        0.0023020468652248383,
+        -0.0017904005944728851,
+        0.00011205673217773438,
+        0.9999958276748657
+      ],
+      "roll_deg": 0.26377358553289076,
+      "pitch_deg": -0.2051938763828371,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.37765299202874303,
+      "height_m": 0.3039228022098541,
+      "velocity_m_s": [
+        0.47501498460769653,
+        0.0002350527502130717,
+        -0.0026045730337500572
+      ],
+      "omega_rad_s": [
+        0.0061956834979355335,
+        -0.0011930139735341072,
+        0.0011029255110770464
+      ],
+      "position_m": [
+        0.7021793127059937,
+        -0.0013926965184509754,
+        0.3039228022098541
+      ],
+      "knee_deg": [
+        63.70419000985581,
+        63.42273157453792
+      ],
+      "compression_mm": [
+        55.58975601196289,
+        55.8234977722168
+      ],
+      "spring_force_n": [
+        357.3692626953125,
+        358.098388671875
+      ],
+      "motor_effort_nm": [
+        3.4260356426239014,
+        -4.400160312652588,
+        0.012263775803148746,
+        -4.375850677490234,
+        4.432290554046631,
+        -0.03723907470703125
+      ],
+      "wheel_force_n": [
+        69.94562530517578,
+        65.98954010009766
+      ],
+      "gap_mm": 0.00015840151945667458,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 16.906192898983136,
+      "real_time_factor": 0.11238484757356954
+    },
+    {
+      "time_s": 1.9499999999999804,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0036200766917318106,
+        -0.004604687914252281,
+        -0.9999833106994629
+      ],
+      "base_quaternion_xyzw": [
+        0.002302556298673153,
+        -0.0018097879365086555,
+        0.00011202692985534668,
+        0.9999958276748657
+      ],
+      "roll_deg": 0.2638317219199473,
+      "pitch_deg": -0.20741547255408066,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.3719929954968393,
+      "height_m": 0.3038995862007141,
+      "velocity_m_s": [
+        0.4750249683856964,
+        -2.211709215771407e-05,
+        -0.0018324318807572126
+      ],
+      "omega_rad_s": [
+        -0.00015502440510317683,
+        0.0016141002997756004,
+        -0.00012760412937495857
+      ],
+      "position_m": [
+        0.7259296178817749,
+        -0.0013877612072974443,
+        0.3038995862007141
+      ],
+      "knee_deg": [
+        63.69420085819466,
+        63.41442606450719
+      ],
+      "compression_mm": [
+        55.59804916381836,
+        55.83034896850586
+      ],
+      "spring_force_n": [
+        357.3958740234375,
+        358.12042236328125
+      ],
+      "motor_effort_nm": [
+        3.268214702606201,
+        -4.404147624969482,
+        0.044968415051698685,
+        -4.338829517364502,
+        4.426968574523926,
+        -0.08891716599464417
+      ],
+      "wheel_force_n": [
+        73.48856353759766,
+        65.72892761230469
+      ],
+      "gap_mm": 8.940696716308594e-05,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 17.331946234975476,
+      "real_time_factor": 0.11250899921182751
+    },
+    {
+      "time_s": 1.9999999999999793,
+      "status": "running",
+      "scenario": "flat",
+      "command": [
+        0.5,
+        0.0,
+        0.3050000071525574
+      ],
+      "requested_command": [
+        0.5,
+        0.0,
+        0.305
+      ],
+      "command_acceleration_vx_yaw": [
+        0.0,
+        0.0
+      ],
+      "projected_gravity_b": [
+        -0.0036558553110808134,
+        -0.004603955429047346,
+        -0.9999830722808838
+      ],
+      "base_quaternion_xyzw": [
+        0.002302194945514202,
+        -0.0018276739865541458,
+        0.00011351704597473145,
+        0.999995768070221
+      ],
+      "roll_deg": 0.26378981669101403,
+      "pitch_deg": -0.2094654724340537,
+      "pressed_keys": [
+        "W"
+      ],
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.5183930043131113,
+      "height_m": 0.30391597747802734,
+      "velocity_m_s": [
+        0.47472697496414185,
+        0.00012546070502139628,
+        -0.0011380023788660765
+      ],
+      "omega_rad_s": [
+        -0.0034612095914781094,
+        -0.004820148926228285,
+        -0.0004751974483951926
+      ],
+      "position_m": [
+        0.7496735453605652,
+        -0.0013820624444633722,
+        0.30391597747802734
+      ],
+      "knee_deg": [
+        63.69650263194496,
+        63.41742281000553
+      ],
+      "compression_mm": [
+        55.596160888671875,
+        55.82789611816406
+      ],
+      "spring_force_n": [
+        357.3907775878906,
+        358.1134948730469
+      ],
+      "motor_effort_nm": [
+        3.5271713733673096,
+        -4.379697322845459,
+        0.045996952801942825,
+        -4.4780354499816895,
+        4.401846885681152,
+        -0.06392870098352432
+      ],
+      "wheel_force_n": [
+        71.93091583251953,
+        66.31887817382812
+      ],
+      "gap_mm": 0.0001115100829451876,
+      "native_control": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false,
+      "native_control_before_policy": {
+        "ownership": "ordinary_actor",
+        "phase": "INACTIVE",
+        "motion_released": true,
+        "pure_rl": true,
+        "policy_learning_mask": true,
+        "stable_seconds": 0.0
+      },
+      "actor_observed_command_vx_lateral_yaw_height_times5": [
+        0.5,
+        0.0,
+        0.0,
+        1.5250000953674316
+      ],
+      "playback_wall_s": 17.757013285998255,
+      "real_time_factor": 0.11263154921059687
+    }
+  ],
+  "gui_experience": {
+    "source_file": "/home/noir/IsaacLab-3.0-beta2/apps/isaaclab.python.kit",
+    "source_sha256": "56bb61ddf2ca9644bdc9d7be6132dfca6d8be61e234865c1307b17590011fcb7",
+    "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu004/flat_gui.kit",
+    "sha256": "1638b879efaa38361071364659b8ef6b3edddc30b4a18428d591eb1bc6151a5d",
+    "omitted_dependency": "isaacsim.util.debug_draw",
+    "installed_experience_modified": false,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "render_transport": "usd"
+  },
+  "native_app_states": [
+    {
+      "phase": "after_launcher",
+      "launcher_running": true,
+      "kit_running": true,
+      "kit_module": "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/kernel/py/omni/kit/app/__init__.py",
+      "kit_type": "<class 'omni.kit.app._app.IApp'>"
+    },
+    {
+      "phase": "after_environment_import",
+      "launcher_running": true,
+      "kit_running": true,
+      "kit_module": "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/kernel/py/omni/kit/app/__init__.py",
+      "kit_type": "<class 'omni.kit.app._app.IApp'>"
+    }
+  ],
+  "interactive_timeout_override_ticks": 1099511627776,
+  "startup_report": {
+    "body_count": 19,
+    "tree_dofs": 18,
+    "loop_constraints": 6,
+    "num_envs": 1,
+    "terrain_families": [
+      "flat"
+    ],
+    "mass_kg_each": [
+      13.886000633239746
+    ],
+    "contact_filters": [
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+        "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+      ]
+    ],
+    "self_collision_enabled": false,
+    "solver_order": [
+      0
+    ],
+    "actuator_response": {
+      "config": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "native_properties_verified": true,
+      "native_first_environment": {
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669807836413383,
+          0.0,
+          0.0,
+          0.0038184537552297115
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "dynamic_friction": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318163968623,
+          0.0,
+          0.0,
+          0.0003429025528021157
+        ]
+      },
+      "functional_probe": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "physics_dt": 0.001,
+        "parameters": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "checks": {
+          "first_step_matches": true,
+          "second_step_matches": true,
+          "selected_reset_zero": true,
+          "other_environment_preserved": true,
+          "response_after_reset_matches": true,
+          "zero_constant_exact_identity": true
+        },
+        "passed": true,
+        "expected_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "expected_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ]
+      }
+    },
+    "contact_material": {
+      "schema": "separate-wheel-body-ground-material-v1",
+      "combine_mode": "average",
+      "sampling": "one_ground_material_per_environment_at_startup",
+      "ground_static_range": [
+        0.2,
+        0.5
+      ],
+      "ground_dynamic_range": [
+        0.2,
+        0.5
+      ],
+      "ground_sampling_bands": null,
+      "ground_static_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "ground_dynamic_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "wheel_static_friction": 0.1,
+      "wheel_dynamic_friction": 0.1,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25,
+      "sampled_ground_static_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "sampled_ground_dynamic_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "effective_wheel_static_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_wheel_dynamic_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_body_static_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "effective_body_dynamic_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "wheel_body_names": [
+        "L_link3",
+        "R_link3"
+      ],
+      "ground_material_first_environment": {
+        "static_friction": 0.4412285387516022,
+        "dynamic_friction": 0.4412285387516022
+      },
+      "material_bindings": {
+        "body": "/World/RobotMaterial",
+        "wheel": "/World/WheelMaterial"
+      },
+      "native_readback": {
+        "usd_collision_bindings_verified": true,
+        "usd_collision_counts": {
+          "wheel": 2,
+          "body": 28,
+          "ground": 11
+        },
+        "physx_robot_shape_coefficients_verified": true,
+        "physx_first_robot_shape_materials": [
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ]
+        ],
+        "physx_ground_coefficients": "USD static collision material bindings verified after scene import"
+      }
+    },
+    "physics_device": "cpu",
+    "gpu_dynamics_enabled": false,
+    "state_tensor_device": "cpu",
+    "scene_group_counts": {
+      "flat": 1
+    },
+    "terrain_collision_paths": [
+      "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_1/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_2/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_3/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_4/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_5/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_6/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_7/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_8/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_9/geometry/mesh",
+      "/World/envs/env_0/Terrain/surface_10/geometry/mesh"
+    ],
+    "gas_spring_force_enabled": true,
+    "active_joint_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "control_timing": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.005,
+      "decimation": 5,
+      "pc_control_dt": 0.001,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": {
+        "policy_steps": 400,
+        "physics_steps": 2000,
+        "target_decodes": 1,
+        "pd_updates": 5,
+        "feedback_refreshes": 5,
+        "physics_dt": 0.001,
+        "policy_dt": 0.005
+      }
+    },
+    "locomotion_quality_rewards": {
+      "stand_still_lin_vel": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      },
+      "locomotion_posture": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    "design_preflight": {
+      "status": "static_passed",
+      "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu004/playback_expectations.json",
+      "stage": "speed",
+      "role": "playback",
+      "seed": 191019,
+      "block_index": 0,
+      "num_envs": 1,
+      "physics_dt": 0.001,
+      "policy_dt": 0.005,
+      "decimation": 5,
+      "runtime_expected": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.005,
+        "pc_control_dt": 0.001,
+        "decimation": 5,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "seed": 191019,
+        "action_difference_reference_dt": 0.02,
+        "precision_tracking": true,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "locomotion_quality_rewards": {
+          "stand_still_lin_vel": {
+            "version": "scut-flat-linear-velocity-v2",
+            "weight": -2.0,
+            "command_threshold_m_s": 0.1,
+            "exclude_world_reference_motion": true
+          },
+          "locomotion_posture": {
+            "version": "bounded-posture-floor-v1",
+            "pitch_scale_floor": 3.0,
+            "roll_scale_floor": 4.0
+          }
+        },
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "contact_material": true,
+          "step_assist": false,
+          "actuator_response": true,
+          "stand_still_lin_vel": true,
+          "locomotion_posture_floor": true
+        },
+        "contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.2,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.2,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        }
+      },
+      "actuator_response_evidence": {
+        "status": "authenticated",
+        "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+        "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+        "validated_file_count": 4
+      },
+      "design_sha256": "d884623f33d8b7495a6b72c8a808549516567389bf807f465365a4121c431381",
+      "environment_stage": "speed"
+    },
+    "runtime_preflight": {
+      "status": "runtime_configuration_passed",
+      "observed": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.005,
+        "decimation": 5,
+        "pc_control_dt": 0.001,
+        "seed": 191019,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "step_assist": false,
+          "contact_material": true,
+          "actuator_response": true,
+          "stand_still_lin_vel": true,
+          "locomotion_posture_floor": true
+        },
+        "precision_tracking": true,
+        "contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.2,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.2,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        },
+        "action_difference_reference_dt": 0.02,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "locomotion_quality_rewards": {
+          "stand_still_lin_vel": {
+            "version": "scut-flat-linear-velocity-v2",
+            "weight": -2.0,
+            "command_threshold_m_s": 0.1,
+            "exclude_world_reference_motion": true
+          },
+          "locomotion_posture": {
+            "version": "bounded-posture-floor-v1",
+            "pitch_scale_floor": 3.0,
+            "roll_scale_floor": 4.0
+          }
+        }
+      },
+      "functional_transport_precision_randomization_probes": "not_run"
+    }
+  },
+  "gui_physics_transform_sync": "USD",
+  "gui_render_settings": {
+    "use_fabric": false,
+    "update_to_usd": true,
+    "fabric_extension_enabled": false
+  },
+  "gui_initialized": true,
+  "keyboard_subscription_active": true,
+  "video_validation": {
+    "schema": "flat-gui-keyboard-recording-v1",
+    "status": "completed",
+    "run_scope": "interactive_unscored",
+    "qualification": false,
+    "hardware_ready": false,
+    "command_source": "scripted KEY_PRESS/KEY_RELEASE callbacks into the existing PolicyView.on_key and KeyboardCommand.advance; not OS key injection",
+    "physics_state_replay": false,
+    "optimizer_updates": 0,
+    "video_speed": "1x simulation time",
+    "terminal_hold_seconds": 1.0,
+    "fps": 25,
+    "cases": [
+      {
+        "name": "forward_05",
+        "requested_seconds": 2.0,
+        "height_target_m": 0.305,
+        "policy_ticks": 400,
+        "simulated_seconds": 2.0,
+        "frames": 50,
+        "terminal": false,
+        "termination_status": null,
+        "peak_abs_pitch_deg": 1.3335630147892055,
+        "peak_abs_roll_deg": 0.5265117862216987,
+        "closure_gap_peak_mm": 0.0010411903303975123,
+        "first_video_frame": 0,
+        "final_vx_m_s": 0.47472697496414185,
+        "final_yaw_rad_s": -0.0004751974483951926,
+        "final_height_m": 0.30391597747802734,
+        "real_time_factor": 0.11263154921059687,
+        "video": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/flat_gui1346_validation_20261021/smoke_cpu004/00_forward_05_1x.mp4",
+        "video_duration_s": 2.0
+      }
+    ],
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "policy_sha256": "a065c4688ff2dc86cde929125cd494af9460a4b307d1ea32f3bf9f0f36786dcf",
+    "successful_updates_total": 1346,
+    "contact_material": {
+      "schema": "separate-wheel-body-ground-material-v1",
+      "combine_mode": "average",
+      "sampling": "one_ground_material_per_environment_at_startup",
+      "ground_static_range": [
+        0.2,
+        0.5
+      ],
+      "ground_dynamic_range": [
+        0.2,
+        0.5
+      ],
+      "ground_sampling_bands": null,
+      "ground_static_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "ground_dynamic_friction_per_environment": [
+        0.4412285387516022
+      ],
+      "wheel_static_friction": 0.1,
+      "wheel_dynamic_friction": 0.1,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25,
+      "sampled_ground_static_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "sampled_ground_dynamic_min_max": [
+        0.4412285387516022,
+        0.4412285387516022
+      ],
+      "effective_wheel_static_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_wheel_dynamic_min_max": [
+        0.27061426639556885,
+        0.27061426639556885
+      ],
+      "effective_body_static_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "effective_body_dynamic_min_max": [
+        0.3456142544746399,
+        0.3456142544746399
+      ],
+      "wheel_body_names": [
+        "L_link3",
+        "R_link3"
+      ],
+      "ground_material_first_environment": {
+        "static_friction": 0.4412285387516022,
+        "dynamic_friction": 0.4412285387516022
+      },
+      "material_bindings": {
+        "body": "/World/RobotMaterial",
+        "wheel": "/World/WheelMaterial"
+      },
+      "native_readback": {
+        "usd_collision_bindings_verified": true,
+        "usd_collision_counts": {
+          "wheel": 2,
+          "body": 28,
+          "ground": 11
+        },
+        "physx_robot_shape_coefficients_verified": true,
+        "physx_first_robot_shape_materials": [
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ],
+          [
+            0.25,
+            0.25,
+            0.0
+          ]
+        ],
+        "physx_ground_coefficients": "USD static collision material bindings verified after scene import"
+      }
+    },
+    "keyboard_subscription_active": true,
+    "keyboard_events": [
+      {
+        "case": "forward_05",
+        "case_tick": 0,
+        "input": "SPACE",
+        "type": "KEY_PRESS"
+      },
+      {
+        "case": "forward_05",
+        "case_tick": 0,
+        "input": "W",
+        "type": "KEY_PRESS"
+      }
+    ],
+    "frames": 50,
+    "completed_cases": 1,
+    "updated_at": "2026-10-21T14:19:48.348915+00:00"
+  },
+  "gui_time_limit_s": null,
+  "finished_at": "2026-10-21T14:19:48.349555+00:00"
+}
