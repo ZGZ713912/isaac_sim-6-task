@@ -40,6 +40,52 @@ def test_stationary_wheels_and_legs_both_receive_learning_gradients():
     assert all(p.grad is None for p in actor.parent.parameters())
 
 
+def test_ordinary_straight_motion_can_learn_domain_compensation_on_every_axis():
+    actor = RobustGetupActor(nn.Linear(35, 6), canonical_recovery=True, motion_residual_fraction=.25)
+    obs = observation()
+    obs[:, 0] = 1.
+    actor(obs).sum().backward()
+    assert actor.arc[-1].bias.grad.abs().min() > 0
+    assert all(p.grad is None for p in actor.parent.parameters())
+
+
+def test_new_motion_compensation_cannot_inject_an_unrequested_standing_action():
+    from copy import deepcopy
+    base = RobustGetupActor(nn.Linear(35, 6))
+    with torch.no_grad():
+        base.arc[-1].bias.fill_(.5)
+    adaptive = deepcopy(base)
+    adaptive.motion_residual_fraction = .25
+    obs = observation(8)
+    obs[:, 22:28] = torch.randn(8, 6) * .1
+    torch.testing.assert_close(adaptive(obs), base(obs), rtol=0, atol=0)
+
+
+def test_cyclic_recovery_does_not_change_upright_quiet_actions():
+    from copy import deepcopy
+    original = RobustGetupActor(nn.Linear(35, 6))
+    cyclic = deepcopy(original)
+    cyclic.cyclic_leg_targets = True
+    cyclic.recovery_leg_step = .3
+    cyclic.action_bound[:4].fill_(16.)
+    obs = observation(16)
+    obs[:, 10:14] = torch.randn(16, 4) * .3
+    obs[:, 22:28] = torch.randn(16, 6) * .1
+    torch.testing.assert_close(cyclic(obs), original(obs), rtol=0, atol=0)
+
+
+def test_mild_domains_include_nominal_and_scale_physical_units_consistently():
+    from wheeled_tasks.chassis.robust_getup import rigid_body_domain
+    cfg = settings(domain_scale=.35)
+    assert cfg["motor_strength_range"][0] >= .94
+    assert cfg["pd_feedback_period_ms"] == [1, 2]
+    assert cfg["pd_feedback_delay_ms"] == [0, 1]
+    assert cfg["sensor_delay_policy_ticks"] == [0, 1]
+    mechanics = rigid_body_domain(True, .35)
+    torch.testing.assert_close(torch.tensor(mechanics["base_mass_scale"]), torch.tensor([.965, 1.035]))
+    assert abs(mechanics["base_com_offset_m"]["x"][1] - .0028) < 1e-8
+
+
 def test_native_likelihood_uses_actual_state_dependent_exploration():
     from rsl_rl.modules.distribution import HeteroscedasticGaussianDistribution
     actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)))

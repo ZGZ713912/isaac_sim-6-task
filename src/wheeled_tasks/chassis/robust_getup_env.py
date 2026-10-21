@@ -18,6 +18,9 @@ from .root_kinematics import root_link_linear_velocity, update_robot_data
 from .scut_observation import CONTROL_FROM_POLICY
 from .unified_getup import FAMILIES, classify_gravity, joint_tracking_score, project_commands, stable_standing, push_window
 from .robust_getup import RobustDomain
+from .getup_feedback import GetupFeedback
+from .getup_reward import potential_reward
+from .quiet_standing import QuietStanding
 
 
 class RobustGetupEnv(ChassisEnv):
@@ -75,11 +78,15 @@ class RobustGetupEnv(ChassisEnv):
             settings["wheel_action_clip"], settings["leg_action_clip"], settings["leg_action_clip"], settings["wheel_action_clip"]])
         self.v5.settings = dict(self.v5.settings, action_clip=settings["leg_action_clip"], wheel_action_clip=settings["wheel_action_clip"])
         self.domain = RobustDomain(n, device, settings, kwargs["seed"], self.dt)
+        if self.dynamics_randomization is not None:
+            self.domain.enabled.copy_(self.dynamics_randomization.enabled)
+        self.getup_feedback = GetupFeedback(n, device, self.domain.enabled, settings, self.domain.rng)
         native_efforts = self.v5.motor_efforts
         native_response = self.actuator_response.apply_torque
         native_springs = self.v5.spring_efforts
 
         def motor_efforts(q, dq, legs, wheels):
+            q, dq = self.getup_feedback.observe(q, dq)
             tau = native_efforts(q, dq, legs, wheels)
             indices = list(self.v5.LEGS)
             correction = ((self.domain.kp - 1.) * self.v5.settings["leg_kp"] * (legs - q[:, indices])
@@ -91,6 +98,7 @@ class RobustGetupEnv(ChassisEnv):
         self.actuator_response.apply_torque = lambda tau: native_response(self.domain.apply_torque(tau, self.passive | self.finished))
         self.v5.spring_efforts = lambda position: native_springs(position) * self.domain.spring
         self.previous_effort = torch.zeros(n, 6, device=device)
+        self.quiet_standing = QuietStanding(n, device, self.policy_dt, settings["quiet_sway_m"])
         self.robust_ready = True
         self.unified_ready = True
         self.reset(torch.arange(n, device=device))
@@ -100,6 +108,9 @@ class RobustGetupEnv(ChassisEnv):
             state_writes="episode_reset_only", policy_history="35D single frame with previous action",
             self_collision_scope=self.bank["self_collision_scope"])
         self.startup_report["robust_domains"] = self.domain.summary()
+        self.startup_report["getup_ground"] = dict(tile_face_m=8., half_extent_xy_m=[48., 48.],
+            termination_xy_m=settings["boundary_xy_m"], max_requested_path_12s_m=36.,
+            source="separate tiled flat patches for arbitrary reset heading")
 
     @torch.inference_mode()
     def reset(self, ids):
@@ -124,18 +135,29 @@ class RobustGetupEnv(ChassisEnv):
         else:
             relative = max(0, self.actor_updates - self.getup_cfg["origin_updates"])
             progress = min(1., relative / self.getup_cfg["curriculum_updates"])
-            family = (torch.arange(count, device=self.device) + self.tick) % len(FAMILIES)
+            weights = torch.tensor([0., .1, .1, .2, .2, .3, .1], device=self.device)
+            family = torch.multinomial(weights, count, replacement=True, generator=self.generator)
             # Easy poses dominate initially, but hard side/inverted births have
             # a nonzero quota from the first block. Selection happens at reset.
-            hard = self.random(count) < (.2 + .8 * progress)
+            hard = self.random(count) < (.5 + .5 * progress)
             family = torch.where(hard, family, 1 + (self.random(count) > .5).long())
             for f, pool in enumerate(self.family_pools):
                 selected = (family == f).nonzero().flatten()
                 easy = pool[self.bank_tilt[pool] <= 35]
                 if relative < self.getup_cfg["curriculum_updates"] // 2 and len(easy):
                     pool = easy
+                elif f != 0:
+                    minimum = 150 if f == FAMILIES.index("inverted") else 60
+                    difficult = pool[self.bank_tilt[pool] >= minimum]
+                    if len(difficult):
+                        pool = difficult
                 if len(selected):
                     chosen[selected] = pool[(self.random(len(selected)) * len(pool)).long().clamp_max(len(pool) - 1)]
+                    if f == FAMILIES.index("inverted"):
+                        exact = pool[self.bank_tilt[pool] == 180]
+                        forced = selected[self.random(len(selected)) < .6]
+                        if len(exact) and len(forced):
+                            chosen[forced] = exact[(self.random(len(forced)) * len(exact)).long().clamp_max(len(exact) - 1)]
             upright_pool = self.family_pools[0]
             motion = ~self.recovery_lane[ids]
             chosen[motion] = upright_pool[1]  # aligned 65-degree mechanism, no root tilt
@@ -170,7 +192,8 @@ class RobustGetupEnv(ChassisEnv):
         self.stable_hold[ids] = self.passive_hold[ids] = self.followup_hold[ids] = 0.
         self.recovered_at[ids] = float("nan")
         self.goal_command[ids] = self.pending_command[ids]
-        self.goal_command[ids[self.recovery_lane[ids]], :2] = 0.
+        if self.getup_cfg["hold_motion_during_recovery"]:
+            self.goal_command[ids[self.recovery_lane[ids]], :2] = 0.
         self.commands[ids] = project_commands(self.goal_command[ids], self.getup_cfg)
         self.raw_height[ids] = self.commands[ids, 2]
         self._measured_action_history(ids)
@@ -180,7 +203,10 @@ class RobustGetupEnv(ChassisEnv):
         self.contact_impulse_history[:, ids] = 0.
         self.history.reset(ids)
         if self.robust_ready:
+            self.quiet_standing.reset(ids)
             self.domain.reset(ids, ChassisEnv.get_observations(self)["policy"][ids, 4:22])
+            self.getup_feedback.reset(ids, self.robot.data.joint_pos.torch[ids][:, self.ids],
+                                      self.robot.data.joint_vel.torch[ids][:, self.ids])
             self.previous_effort[ids] = 0.
 
     def get_observations(self):
@@ -189,6 +215,11 @@ class RobustGetupEnv(ChassisEnv):
             frame = observations["policy"].clone()
             frame[:, 4:22] = self.domain.observe(frame[:, 4:22], self.tick)
             observations["policy"] = frame
+            if self.getup_cfg["quiet_critic_anchor"]:
+                xy = self.robot.data.root_link_pose_w.torch[:, :2] - self.origins[:, :2]
+                # All getup patches are flat. Replace the two redundant ground
+                # height channels, explicitly versioned in the task contract.
+                observations["critic"][:, -2:] = (20. * self.quiet_standing.displacement(xy)).clamp(-5., 5.)
         return observations
 
     def _measured_action_history(self, ids):
@@ -197,7 +228,11 @@ class RobustGetupEnv(ChassisEnv):
         self.actions[ids, :] = 0.
         # Indexing twice would update a temporary rather than the real history.
         values = torch.zeros(len(ids), 6, device=self.device)
-        values[:, list(self.v5.LEGS)] = torch.atan2(delta.sin(), delta.cos()) / .25
+        if self.getup_cfg.get("cyclic_leg_targets", False):
+            from wheeled_algo.paired_recovery import paired_offsets
+            values[:, list(self.v5.LEGS)] = paired_offsets(delta) / .25
+        else:
+            values[:, list(self.v5.LEGS)] = torch.atan2(delta.sin(), delta.cos()) / .25
         self.actions[ids] = values
 
     def sample_commands(self, ids):
@@ -215,6 +250,9 @@ class RobustGetupEnv(ChassisEnv):
         yaw[pick < .5] = 0.
         self.pending_command[ids, 0] = vx
         self.pending_command[ids, 1] = yaw
+        if self.getup_cfg["quiet_training"]:
+            stationary = ids[~self.recovery_lane[ids]]
+            self.pending_command[stationary, :2] = 0.
         height_pick = self.random(count)
         self.pending_command[ids, 2] = torch.where(height_pick < .5, .305,
             torch.where(height_pick < .75, .23, .42))
@@ -243,7 +281,8 @@ class RobustGetupEnv(ChassisEnv):
         self.push_force.zero_()
         self.push_torque.zero_()
         self.push_force[:, 0, 1] = pushing * self.push_sign * self.getup_cfg["push_force_n"]
-        self.push_torque[:, 0, 0] = pushing * self.push_sign * self.getup_cfg["push_torque_nm"]
+        self.push_torque[:, 0, 0] = (pushing * self.push_sign * self.getup_cfg["push_torque_nm"]
+                                   * self.getup_cfg["push_torque_direction"])
         for _ in range(self.decimation):
             q = self.robot.data.joint_pos.torch[:, self.ids]
             dq = self.robot.data.joint_vel.torch[:, self.ids]
@@ -295,6 +334,9 @@ class RobustGetupEnv(ChassisEnv):
             (self.passive_hold >= self.getup_cfg["passive_hold_seconds"]) | (elapsed >= self.getup_cfg["passive_max_seconds"]))
         self.settled_family[enable] = classify_gravity(gravity)[enable]
         self.passive[enable] = False
+        # Passive placement impacts are recorded but are not actor failures.
+        # Start the active impact window at enable, with no stale passive force.
+        self.contact_impulse_history[:, enable] = 0.
         self._measured_action_history((~active_interval).nonzero().flatten())
         stable = stable_standing(gravity, omega, height, contact, dq) & ~self.passive
         self.stable_hold = torch.where(stable, self.stable_hold + self.policy_dt, 0.)
@@ -316,38 +358,55 @@ class RobustGetupEnv(ChassisEnv):
                 change = elapsed >= self.sequence_time[:, stage]
                 self.pending_command[change] = self.sequence_command[change, stage]
         self.goal_command.copy_(self.pending_command)
-        self.goal_command[self.recovery_active | self.passive, :2] = 0.
+        if self.getup_cfg["hold_motion_during_recovery"]:
+            self.goal_command[self.recovery_active | self.passive, :2] = 0.
         error_vx = velocity[:, 0] - self.commands[:, 0]
         error_yaw = omega[:, 2] - self.commands[:, 1]
-        tracking = joint_tracking_score(error_vx, error_yaw)
+        stationary_request = (self.commands[:, :2].abs() < .01).all(-1)
+        scored_vx = error_vx
+        if self.getup_cfg["quiet_spectral_cost"]:
+            scored_vx = torch.where(stationary_request, (error_vx.abs() - .12).clamp_min(0.), error_vx)
+        tracking = joint_tracking_score(scored_vx, error_yaw)
         upright = ((-gravity[:, 2] - .5) / .5).clamp(0., 1.)
         followup = (self.ever_recovered & self.released & stable
                     & (error_vx.abs() < .25) & (error_yaw.abs() < .4))
         self.followup_hold = torch.where(followup, self.followup_hold + self.policy_dt, 0.)
         self.followup_success |= self.followup_hold >= self.getup_cfg["followup_seconds"]
         potential = self.potential()
-        progress = 15. * (potential - self.previous_potential).clamp(-.1, .1)
+        gap_bad = gap_peak > self.getup_cfg["closure_gap_m"]
+        impact_bad = (impulse_peak > self.getup_cfg["impact_impulse_limit_ns"]) & active_interval
+        boundary_bad = (local[:, :2].abs() > local.new_tensor(self.getup_cfg["boundary_xy_m"])).any(-1)
+        terminated = mechanical | gap_bad | impact_bad | boundary_bad
+        progress = potential_reward(self.previous_potential, potential, terminated,
+                                    self.getup_cfg["reward_gamma"], self.getup_cfg["reward_potential_gain"])
         self.previous_potential.copy_(potential)
         torque_cost = .0003 * tau.square().mean(-1)
         height_score = torch.exp(-((height - self.commands[:, 2]) / .08).square())
         quiet = ((self.commands[:, :2].abs() < self.commands.new_tensor([.1, .2])).all(-1)
                  & (gravity[:, 2] < -.94) & ~self.passive & ~self.recovery_active)
         effort_delta = (tau - self.previous_effort).square().mean(-1) / 100.
-        action_delta = (self.actions - previous).square().mean(-1)
+        difference = self.actions - previous
+        if self.getup_cfg.get("cyclic_leg_targets", False):
+            from wheeled_algo.paired_recovery import wrap
+            difference[:, list(self.v5.LEGS)] = wrap(difference[:, list(self.v5.LEGS)] * .25) / .25
+        action_delta = difference.square().mean(-1)
         leg_speed = dq[:, list(self.v5.LEGS)].square().mean(-1)
         quiet_cost = quiet * (self.getup_cfg["quiet_action_rate_cost"] * action_delta
             + self.getup_cfg["quiet_motor_speed_cost"] * leg_speed
             + self.getup_cfg["quiet_effort_delta_cost"] * effort_delta)
+        spectral_cost, target_power, velocity_power, quiet_radius = self.quiet_standing.update(
+            quiet, local[:, :2],
+            self.actions * self.actions.new_tensor([.25, .25, 10., .25, .25, 10.]), dq)
+        if self.getup_cfg["quiet_spectral_cost"]:
+            quiet_cost += spectral_cost * (elapsed > 2.)
         self.previous_effort.copy_(tau)
         density = (2. * (1. - gravity[:, 2]) * .5 + upright * (2. * height_score + 4. * tracking)
                    + 2. * contact.float().mean(-1)
                    - .02 * omega.square().sum(-1) - torque_cost
-                   - .002 * (self.actions - previous).square().mean(-1)
+                   - .002 * action_delta
+                   - self.getup_cfg["recovery_leg_speed_cost"] * self.recovery_active * leg_speed
                    - .0002 * (impact_peak - 400.).clamp_min(0.) - .5 * self.recovery_active - quiet_cost)
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
-        gap_bad = gap_peak > self.getup_cfg["closure_gap_m"]
-        impact_bad = impulse_peak > self.getup_cfg["impact_impulse_limit_ns"]
-        terminated = mechanical | gap_bad | impact_bad | (local[:, :2].abs().amax(-1) > 12.)
         timeout = self.episode_length_buf >= self.max_episode_length
         done = terminated | timeout
         reward -= 3. * terminated
@@ -373,6 +432,9 @@ class RobustGetupEnv(ChassisEnv):
             "Quiet/action_delta_rms": action_delta[quiet].mean().sqrt() if quiet.any() else action_delta.new_zeros(()),
             "Quiet/leg_speed_rms_rad_s": leg_speed[quiet].mean().sqrt() if quiet.any() else leg_speed.new_zeros(()),
             "Quiet/effort_delta_rms_nm": (100. * effort_delta[quiet].mean()).sqrt() if quiet.any() else effort_delta.new_zeros(()),
+            "Quiet/fast_target_normalized_power": target_power[quiet].mean() if quiet.any() else target_power.new_zeros(()),
+            "Quiet/fast_velocity_normalized_power": velocity_power[quiet].mean() if quiet.any() else velocity_power.new_zeros(()),
+            "Quiet/position_radius_m": quiet_radius[quiet].mean() if quiet.any() else quiet_radius.new_zeros(()),
             "Robust/domain_fraction": self.domain.enabled.float().mean(),
             "Robust/motor_strength_mean": self.domain.strength.mean(),
             "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * 5.})
@@ -390,12 +452,14 @@ class RobustGetupEnv(ChassisEnv):
                 recovered=self.ever_recovered.clone(), recovered_at=self.recovered_at.clone(),
                 followup_success=self.followup_success.clone(), stable=stable.clone(),
                 done=done.clone(), terminated=terminated.clone(), mechanical=mechanical.clone(),
-                closure_gap=gap_bad.clone(), impact_bad=impact_bad.clone(), time=elapsed.clone(),
+                closure_gap=gap_bad.clone(), impact_bad=impact_bad.clone(), boundary_bad=boundary_bad.clone(), time=elapsed.clone(),
                 local_position=local.clone(), motor_position=q.clone(), wheel_contact=contact.clone())
             info["diagnostics"].update(pushing=pushing.clone(), in_motion_fall=self.in_motion_fall.clone(),
                                        recovered_after_push=self.recovered_after_push.clone())
         if self.fixed_cases is None:
             change = (self.episode_length_buf % round(4. / self.policy_dt) == 0) & ~done
+            if self.getup_cfg["quiet_training"]:
+                change &= self.recovery_lane
             if bool(change.any()):
                 self.sample_commands(change.nonzero().flatten())
             if bool(done.any()):

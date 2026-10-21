@@ -8,24 +8,48 @@ from .unified_getup import settings as getup_settings
 
 def settings(**overrides):
     cfg = getup_settings()
-    cfg.update(version="robust-v2", nominal_fraction=.25, motor_strength_range=[.85, 1.10],
+    cfg.update(version="robust-v2.5", cyclic_leg_targets=True, leg_action_clip=16., recovery_leg_step=.3,
+        recovery_leg_speed_cost=.0005,
+        nominal_fraction=.25, motor_strength_range=[.85, 1.10],
         leg_kp_scale_range=[.9, 1.1], leg_kd_scale_range=[.85, 1.15],
         spring_strength_range=[.92, 1.08], torque_delay_ms=[0, 3], motor_tau_ms=[0., 5.],
         sensor_delay_policy_ticks=[0, 2], encoder_bias_rad=.003, encoder_noise_rad=.001,
         gyro_bias_rad_s=.015, gyro_noise_rad_s=.01, gravity_noise=.004,
         velocity_noise_rad_s=[.05, .25], sensor_noise_scale=1., domains_enabled=True,
         quiet_action_rate_cost=.15, quiet_motor_speed_cost=.025, quiet_effort_delta_cost=.03,
-        quiet_actor_alpha=[.25, .25, .25, .25, .65, .65])
+        quiet_actor_alpha=[.25, .25, .25, .25, .65, .65],
+        arc_fraction_within_motion=.4, boundary_xy_m=[40., 40.], push_torque_direction=-1.,
+        hold_motion_during_recovery=False, canonical_recovery=True, motion_residual_fraction=.25,
+        domain_scale=1., pd_feedback_delay_ms=[0, 3], pd_feedback_period_ms=[1, 5], pd_encoder_bias_rad=.003,
+        reward_gamma=.998, reward_potential_gain=5., push_torque_nm=32., push_duration_seconds=.3,
+        quiet_frozen=False, quiet_training=False, quiet_sway_m=.05,
+        quiet_spectral_cost=False, quiet_critic_anchor=False)
     cfg.update(overrides)
+    scale = cfg["domain_scale"]
+    if not 0. <= scale <= 1.:
+        raise ValueError("Robust domain scale must be in [0,1]")
+    for key in ("motor_strength_range", "leg_kp_scale_range", "leg_kd_scale_range", "spring_strength_range"):
+        cfg[key] = [1. + scale * (v - 1.) for v in cfg[key]]
+    for key in ("encoder_bias_rad", "encoder_noise_rad", "gyro_bias_rad_s", "gyro_noise_rad_s", "gravity_noise", "pd_encoder_bias_rad"):
+        cfg[key] *= scale
+    cfg["velocity_noise_rad_s"] = [v * scale for v in cfg["velocity_noise_rad_s"]]
+    cfg["motor_tau_ms"] = [v * scale for v in cfg["motor_tau_ms"]]
+    for key in ("torque_delay_ms", "sensor_delay_policy_ticks", "pd_feedback_delay_ms"):
+        cfg[key] = [0, round(cfg[key][1] * scale)]
+    cfg["pd_feedback_period_ms"] = [1, max(1, round(1. + scale * (cfg["pd_feedback_period_ms"][1] - 1.)))]
     return cfg
 
 
-def rigid_body_domain(enabled):
-    return dict(enabled=enabled, sampling="startup", enabled_fraction=.75,
+def rigid_body_domain(enabled, scale=1.):
+    cfg = dict(enabled=enabled, sampling="startup", enabled_fraction=.75,
         base_body="base_link", wheel_bodies=["L_link3", "R_link3"],
         base_mass_scale=[.9, 1.1], leg_mass_scale=[.95, 1.05], wheel_mass_scale=[.95, 1.05],
         inertia_scale=[.9, 1.1], base_com_offset_m=dict(x=[-.008, .008], y=[-.005, .005], z=[-.005, .005]),
         source_reference="bounded robustness hypotheses, not identified hardware parameters")
+    for key in ("base_mass_scale", "leg_mass_scale", "wheel_mass_scale", "inertia_scale"):
+        cfg[key] = [1. + scale * (v - 1.) for v in cfg[key]]
+    cfg["base_com_offset_m"] = {axis: [v * scale for v in values] for axis, values in cfg["base_com_offset_m"].items()}
+    return cfg
 
 
 class RobustDomain:

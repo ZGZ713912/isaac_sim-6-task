@@ -7,6 +7,8 @@ import torch
 from torch import nn
 
 from .unified_getup import UnifiedGetupActor
+from .getup_symmetry import canonical_recovery_logits
+from .paired_recovery import paired_offsets
 
 
 KIND = "wheel-leg-robust-getup-v2"
@@ -26,8 +28,15 @@ def quiet_gate(obs):
 
 
 class RobustGetupActor(UnifiedGetupActor):
-    def __init__(self, parent, *, quiet_alpha=(.25, .25, .25, .25, .65, .65)):
+    def __init__(self, parent, *, quiet_alpha=(.25, .25, .25, .25, .65, .65),
+                 canonical_recovery=False, motion_residual_fraction=0.,
+                 cyclic_leg_targets=False, leg_action_clip=13., recovery_leg_step=1.2):
         super().__init__(parent)
+        self.canonical_recovery = canonical_recovery
+        self.motion_residual_fraction = motion_residual_fraction
+        self.cyclic_leg_targets = cyclic_leg_targets
+        self.recovery_leg_step = recovery_leg_step
+        self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
         nn.init.zeros_(self.quiet[-1].bias)
@@ -38,13 +47,20 @@ class RobustGetupActor(UnifiedGetupActor):
         features = torch.tanh(obs * self.feature_scale)
         gate = tilt_gate(obs)
         arc_gate = ((obs[:, :1].abs() - .05) / .2).clamp(0., 1.) * ((obs[:, 2:3].abs() - .05) / .2).clamp(0., 1.)
-        motion = self.parent(obs) + arc_gate * self.arc_bound * torch.tanh(self.arc(features))
+        moving = torch.maximum(obs[:, :1].abs() / .1, obs[:, 2:3].abs() / .2).clamp(0., 1.)
+        residual_gate = arc_gate + self.motion_residual_fraction * (1. - arc_gate) * moving
+        motion = self.parent(obs) + residual_gate * self.arc_bound * torch.tanh(self.arc(features))
         motion = torch.maximum(torch.minimum(motion, self.motion_bound), -self.motion_bound)
         quiet = quiet_gate(obs)
         smoothed = obs[:, 22:28] + self.quiet_alpha * (motion - obs[:, 22:28])
         motion = motion + quiet * (smoothed - motion + self.quiet_bound * torch.tanh(self.quiet(features)))
-        raw = self.recovery(features)
-        legs = (obs[:, 22:26] + 1.2 * torch.tanh(raw[:, :4])).clamp(-13., 13.)
+        raw = (canonical_recovery_logits(self.recovery, obs, self.feature_scale)
+               if self.canonical_recovery else self.recovery(features))
+        legs = obs[:, 22:26] + self.recovery_leg_step * torch.tanh(raw[:, :4])
+        if self.cyclic_leg_targets:
+            legs = paired_offsets(legs * .25, obs[:, 10:14]) / .25
+        else:
+            legs = legs.clamp(-13., 13.)
         fallen = torch.cat((legs, 9. * torch.tanh(raw[:, 4:6])), -1)
         result = motion + gate * (fallen - motion)
         return torch.maximum(torch.minimum(result, self.action_bound), -self.action_bound)
