@@ -79,6 +79,7 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            quiet_velocity_feature_scale=info["settings"].get("quiet_velocity_feature_scale"),
                            quiet_velocity_feature_gain=info["settings"].get("quiet_velocity_feature_gain", 1.),
                            quiet_velocity_feedback=info["settings"].get("quiet_velocity_feedback", False),
+                           quiet_velocity_feedback_mode=info["settings"].get("quiet_velocity_feedback_mode", "all"),
                            quiet_wheel_bound=info["settings"].get("quiet_wheel_bound", .5),
                            stance_aware_recovery=info["settings"].get("stance_aware_recovery", False),
                            recovery_shape_aware=info["settings"].get("recovery_shape_aware", False),

@@ -23,6 +23,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
                                         "quiet_exploration_fraction": .1,
                                         "quiet_velocity_feature_gain": 10.,
                                         "quiet_velocity_feedback": True,
+                                        "quiet_velocity_feedback_mode": "wheels",
                                         "quiet_critic_anchor": True, "quiet_spectral_cost": True,
                                         "standing_support_training": True, "standing_drift_weight": 2.,
                                         "standing_drift_speed_scale_m_s": .01, "quiet_sway_m": .05,
@@ -45,6 +46,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert task["quiet_exploration_fraction"] == .1
     assert task["quiet_velocity_feature_gain"] == 10.
     assert task["quiet_velocity_feedback"]
+    assert task["quiet_velocity_feedback_mode"] == "wheels"
     assert json.loads((args.output / "config/contract.json").read_text())["full_rl_isolated_origins"]
     assert task["standing_support_training"] and task["quiet_critic_anchor"]
     assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
@@ -100,3 +102,4 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert side["quiet_exploration_fraction"] == .1
     assert side["quiet_velocity_feature_gain"] == 10.
     assert side["quiet_velocity_feedback"]
+    assert side["quiet_velocity_feedback_mode"] == "wheels"
