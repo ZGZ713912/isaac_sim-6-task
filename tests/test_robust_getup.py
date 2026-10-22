@@ -12,6 +12,66 @@ def observation(count=1):
     return obs
 
 
+def test_unified_initialization_allows_only_the_declared_new_quiet_heads():
+    import pytest
+    for experts in (False, True):
+        actor = RobustGetupActor(nn.Linear(35, 6), quiet_height_experts=experts)
+        state = {key: value.clone() for key, value in actor.state_dict().items()
+                 if not key.startswith(("quiet.", "quiet_low.", "quiet_high."))
+                 and key not in ("quiet_alpha", "quiet_bound")}
+        actor.initialize_from_unified(state)
+        del state["recovery.0.bias"]
+        with pytest.raises(ValueError, match="Unexpected unified-to-robust"):
+            actor.initialize_from_unified(state)
+
+
+def test_cloned_height_experts_preserve_original_function_exactly():
+    from copy import deepcopy
+    torch.manual_seed(12)
+    old = RobustGetupActor(nn.Linear(35, 6))
+    torch.nn.init.normal_(old.quiet[-1].weight, std=.02)
+    new = deepcopy(old)
+    new.quiet_height_experts = True
+    new.quiet_low, new.quiet_high = deepcopy(old.quiet), deepcopy(old.quiet)
+    obs = observation(256)
+    obs[:, 3] = torch.linspace(.9, 2.25, len(obs))
+    obs[:, 10:28] = torch.randn(256, 18) * .1
+    assert torch.equal(old(obs), new(obs))
+
+
+def test_anchor_height_gradients_reach_only_its_own_quiet_expert():
+    actor = RobustGetupActor(nn.Linear(35, 6), quiet_height_experts=True)
+    for height, name in ((.23, "quiet_low"), (.305, "quiet"), (.42, "quiet_high")):
+        actor.zero_grad(set_to_none=True)
+        obs = observation()
+        obs[:, 3] = height * 5.
+        result = actor.quiet_correction(torch.ones_like(obs), obs)
+        result.sum().backward()
+        for head in ("quiet_low", "quiet", "quiet_high"):
+            grad = getattr(actor, head)[-1].bias.grad
+            assert grad is not None
+            assert bool(grad.abs().sum() > 0) == (head == name)
+
+
+def test_intermediate_height_is_continuous_and_nonquiet_output_is_unchanged():
+    from copy import deepcopy
+    old = RobustGetupActor(nn.Linear(35, 6))
+    new = deepcopy(old)
+    new.quiet_height_experts = True
+    new.quiet_low, new.quiet_high = deepcopy(old.quiet), deepcopy(old.quiet)
+    with torch.no_grad():
+        new.quiet_low[-1].bias.fill_(.3)
+        new.quiet_high[-1].bias.fill_(-.2)
+    obs = observation(6)
+    obs[:, 3] = torch.tensor([1.15, 1.525, 2.1, 1.3375, 1.8125, 1.525])
+    value = new.quiet_correction(torch.ones_like(obs), obs)
+    torch.testing.assert_close(value[3], (value[0] + value[1]) * .5)
+    torch.testing.assert_close(value[4], (value[1] + value[2]) * .5)
+    obs[:3, 0] = 1.
+    obs[3:, 9] = 1.
+    assert torch.equal(old(obs), new(obs))
+
+
 def test_quiet_control_reduces_target_jumps_and_releases_for_motion_and_disturbance():
     parent = nn.Linear(35, 6)
     with torch.no_grad():
