@@ -14,7 +14,8 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     checkpoint = tmp_path / "prior.pt"
     torch.save({"infos": {"settings": {"stance_aware_recovery": True, "recovery_shape_aware": True,
                                         "leg_action_clip": 16., "motion_residual_fraction": .25,
-                                        "quiet_high_leg_prediction_s": .005, "fast_forward_reference": True}}}, checkpoint)
+                                        "quiet_high_leg_prediction_s": .005, "fast_forward_reference": True,
+                                        "fast_forward_reference_range": [1., 1.5]}}}, checkpoint)
     bank = tmp_path / "bank.json"
     bank.write_text("{}")
     args = SimpleNamespace(output=tmp_path / "run", bank=bank, resume=checkpoint, no_domains=False,
@@ -24,6 +25,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     _, task = training.prepare(args)
     assert task["stance_aware_recovery"] and task["recovery_shape_aware"]
     assert task["quiet_high_leg_prediction_s"] == .005 and task["fast_forward_reference"]
+    assert task["fast_forward_reference_range"] == [1., 1.5]
     assert task["standing_support_training"] and task["quiet_critic_anchor"]
     assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
     assert task["sensor_delay_policy_ticks"] == [0, 1]

@@ -20,14 +20,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 
-def fixed_forward_cases(template, speeds, replicas):
+def fixed_forward_cases(template, speeds, replicas, yaws=(0.,)):
     """Independent diagnostic lanes at each requested forward speed."""
     cases = []
     for _ in range(replicas):
         for speed in speeds:
-            case = deepcopy(template)
-            case.update(name=f"forward_speed_{speed:g}", command=[speed, 0., template["command"][2]])
-            cases.append(case)
+            for yaw in yaws:
+                case = deepcopy(template)
+                name = f"forward_speed_{speed:g}" + (f"_yaw_{yaw:g}" if yaw else "")
+                case.update(name=name, command=[speed, yaw, template["command"][2]])
+                cases.append(case)
     return cases
 
 
@@ -55,6 +57,8 @@ def main():
     subset.add_argument("--case-names", nargs="+", help="Explicit diagnostic subset; cannot replace the full acceptance suite")
     subset.add_argument("--forward-speeds", type=float, nargs="+",
                         help="Diagnostic steady forward commands, e.g. 1.5 1.75 2; cannot qualify an export")
+    parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
+                        help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
                         help="Diagnostic counterfactual: override only policy observation delay after the matched reset")
     parser.add_argument("--instant-sensor-group", choices=["imu", "encoders", "leg_encoders", "wheel_velocity"],
@@ -74,6 +78,10 @@ def main():
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
+    if (len(set(args.forward_yaws)) != len(args.forward_yaws)
+            or not all(-4. <= yaw <= 4. for yaw in args.forward_yaws)
+            or (args.forward_yaws != [0.] and not args.forward_speeds)):
+        parser.error("Use distinct yaw rates in [-4,4] together with --forward-speeds")
     if ("reference" in args.variants) != (args.reference_checkpoint is not None):
         parser.error("Use --reference-checkpoint together with the reference variant")
     args.output = args.output.resolve()
@@ -94,7 +102,7 @@ def main():
         known = {c["name"] for c in training.fixed_cases(bank, 35, seeds[0])}
         if len(selected_names) != len(args.case_names) or not selected_names <= known:
             parser.error("Use distinct known fixed-case names")
-    case_count = len(args.forward_speeds) if args.forward_speeds else len(selected_names) if selected_names else 35
+    case_count = len(args.forward_speeds) * len(args.forward_yaws) if args.forward_speeds else len(selected_names) if selected_names else 35
     per_variant = case_count * args.replicas
     count = per_variant * len(args.variants) * len(seeds)
     if len(seeds) > 2 or len(set(seeds)) != len(seeds) or count > 1024:
@@ -137,7 +145,8 @@ def main():
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
                     "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",
-                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference"):
+                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
+                    "fast_forward_reference_range"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
         task_path = args.output / "task_contract.json"
@@ -198,6 +207,7 @@ def main():
             env.evaluation_overrides["fixed_ground_friction"] = args.friction_value
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
+            env.evaluation_overrides["forward_yaws"] = args.forward_yaws
         if args.instant_sensor_group:
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         groups = [(seed, name) for seed in seeds for name in args.variants]
@@ -209,7 +219,7 @@ def main():
             full = training.fixed_cases(env.bank, 35 * args.replicas, seed)
             if args.forward_speeds:
                 template = next(case for case in full if case["name"] == "forward")
-                cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas))
+                cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas, args.forward_yaws))
             else:
                 cases.extend(case for case in full if selected_names is None or case["name"] in selected_names)
         report = training.evaluate(env, BatchMean().cuda(), args.output / "all", torch,
