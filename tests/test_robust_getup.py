@@ -175,6 +175,23 @@ def test_reference_forward_rejects_parent_without_authenticated_original_feedbac
         RobustGetupActor(nn.Linear(35, 6), fast_forward_reference=True)
 
 
+def test_reference_speed_interval_preserves_old_contract_and_allows_explicit_lower_range():
+    from wheeled_algo.robust_getup import fast_forward_reference_gate
+    obs = observation(5)
+    obs[:, 0] = torch.tensor([1., 1.25, 1.5, 1.75, 2.])
+    torch.testing.assert_close(fast_forward_reference_gate(obs)[:, 0], torch.tensor([0., 0., 0., .5, 1.]))
+    actor = RobustGetupActor(ReferenceParent(), fast_forward_reference=True, fast_forward_reference_range=[1., 1.5])
+    torch.testing.assert_close(actor(obs)[:, 0], torch.tensor([.6, .4, .2, .2, .2]))
+    assert actor.fast_forward_reference_range == (1., 1.5)
+
+
+def test_reference_speed_interval_rejects_zero_width_reversed_or_nonfinite_ranges():
+    import pytest
+    for bounds in ([1., 1.], [2., 1.], [-1., 2.], [1., 3.1], [float('nan'), 2.], [1.]):
+        with pytest.raises(ValueError, match="transition"):
+            RobustGetupActor(ReferenceParent(), fast_forward_reference_range=bounds)
+
+
 def test_cyclic_recovery_does_not_change_upright_quiet_actions():
     from copy import deepcopy
     original = RobustGetupActor(nn.Linear(35, 6))
