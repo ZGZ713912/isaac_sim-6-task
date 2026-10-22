@@ -1,0 +1,160 @@
+{
+  "schema": "robust-side-recovery032-results-v1",
+  "checkpoint_sha256": "3d8a476c7059939ee4fe134b83cd85330fd7b1fce5535ca813ac10cfa5f3d55f",
+  "native_report_sha256": "5a4915cc49b40a8391945ab62456320c7456e8fceed03110e156654f6b448272",
+  "trajectory_sha256": "fb880f3ef24b1a532940fd76758e198bba27750bfbfd6dfbb59a502ba7c08b41",
+  "robust_consumed": 737,
+  "selected_base_clock": 441,
+  "matched_initial_physics": {
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "world_origin_m": true,
+    "pose_index": true,
+    "command": true,
+    "initial_obs_exact": true
+  },
+  "actual_settled": {
+    "inverted": {
+      "episodes": 28,
+      "recovered": 24,
+      "recovery_and_motion_success": 7,
+      "practical_recovery_and_motion_success": 19
+    },
+    "right": {
+      "episodes": 8,
+      "recovered": 7,
+      "recovery_and_motion_success": 1,
+      "practical_recovery_and_motion_success": 5
+    },
+    "upright": {
+      "episodes": 8,
+      "recovered": 8,
+      "recovery_and_motion_success": 2,
+      "practical_recovery_and_motion_success": 3
+    },
+    "left": {
+      "episodes": 4,
+      "recovered": 4,
+      "recovery_and_motion_success": 0,
+      "practical_recovery_and_motion_success": 2
+    }
+  },
+  "comparison_previous": {
+    "inverted_rise": [
+      25,
+      28
+    ],
+    "inverted_practical": [
+      19,
+      28
+    ],
+    "right_rise": [
+      3,
+      8
+    ],
+    "right_practical": [
+      2,
+      8
+    ],
+    "left_rise": [
+      3,
+      4
+    ],
+    "left_practical": [
+      2,
+      4
+    ],
+    "moving_fall_practical": [
+      0,
+      8
+    ]
+  },
+  "motion": {
+    "survived": 86,
+    "episodes": 92
+  },
+  "practical_moving_fall_recoveries": 1,
+  "moving_push_episode_count": 8,
+  "standing": {
+    "stand_low": {
+      "full_max_cm": 1.9950367510318756,
+      "steady_max_cm": 1.8274597823619843,
+      "physical_leg_fast_rms_rad": 0.00033863843982821616,
+      "physical_wheel_fast_rms_rad_s": 0.06396840921173348,
+      "running_clearance_max_m": 0.0007860921323299408
+    },
+    "stand": {
+      "full_max_cm": 4.846999421715736,
+      "steady_max_cm": 3.4022755920886993,
+      "physical_leg_fast_rms_rad": 0.0007260517697372186,
+      "physical_wheel_fast_rms_rad_s": 0.12725885989407443,
+      "running_clearance_max_m": 0.0005271881818771362
+    },
+    "stand_high": {
+      "full_max_cm": 6.010543182492256,
+      "steady_max_cm": 8.168777823448181,
+      "physical_leg_fast_rms_rad": 0.0013292573269654414,
+      "physical_wheel_fast_rms_rad_s": 0.28072562169244014,
+      "running_clearance_max_m": 0.0005162432789802551
+    }
+  },
+  "tracking": {
+    "forward": {
+      "vx_mean_m_s": 1.067601501941681,
+      "yaw_mean_rad_s": 0.0027352948673069477,
+      "vx_mae_m_s": 0.06760159321129322,
+      "yaw_mae_rad_s": 0.002761922834906727,
+      "survived": 4,
+      "episodes": 4
+    },
+    "backward": {
+      "vx_mean_m_s": -0.7368878871202469,
+      "yaw_mean_rad_s": 0.027789603918790817,
+      "vx_mae_m_s": 0.013110875617712736,
+      "yaw_mae_rad_s": 0.02826645504683256,
+      "survived": 4,
+      "episodes": 4
+    },
+    "arc_forward_left": {
+      "vx_mean_m_s": 1.0677669942378998,
+      "yaw_mean_rad_s": 0.995849534869194,
+      "vx_mae_m_s": 0.06776692718267441,
+      "yaw_mae_rad_s": 0.025917791877873242,
+      "survived": 4,
+      "episodes": 4
+    },
+    "arc_forward_right": {
+      "vx_mean_m_s": 1.079962819814682,
+      "yaw_mean_rad_s": -0.9288404136896133,
+      "vx_mae_m_s": 0.079962607473135,
+      "yaw_mae_rad_s": 0.07118313759565353,
+      "survived": 4,
+      "episodes": 4
+    },
+    "forward_fast": {
+      "vx_mean_m_s": 3.188388705253601,
+      "yaw_mean_rad_s": -0.002182048905524425,
+      "vx_mae_m_s": 0.18873891979455948,
+      "yaw_mae_rad_s": 0.004401831305585802,
+      "survived": 4,
+      "episodes": 4
+    },
+    "backward_fast": {
+      "vx_mean_m_s": -2.4771540760993958,
+      "yaw_mean_rad_s": 0.03105468349531293,
+      "vx_mae_m_s": 0.024679260328412056,
+      "yaw_mae_rad_s": 0.031083122827112675,
+      "survived": 4,
+      "episodes": 4
+    }
+  },
+  "passive_motor_peak_nm": 0.0,
+  "max_gap_m": 0.0007740885484963655,
+  "practical_definition": "completed episode; last 2 s >=95% stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+  "full_behavior_completed": true,
+  "all_three_standing_5cm": false,
+  "long_training_admitted": false,
+  "hardware_ready": false,
+  "decision": "Retain improved recovery as candidate: right7/8rise and5/8practical, left4/4rise and2/4practical; inverted24/28rise and19/28practical. Strong moving push remains limited1/8. Standing unchanged: high6.01cm full and8.17cm relative3s excursion; do not admit long training yet.",
+  "causal_limit": "Same fixed initial physical states and source-frozen non-recovery tensors; no equal-update old-exposure training control, so do not uniquely attribute improvement to side-family quota."
+}
