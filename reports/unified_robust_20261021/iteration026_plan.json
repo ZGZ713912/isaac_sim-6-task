@@ -1,0 +1,34 @@
+{
+  "schema": "robust-standing-drift-026-plan-v1",
+  "hypothesis": "General 0.5 m/s tracking provides negligible credit for millimetre-per-second creep. A bounded 0.02 m/s objective may improve it without rewarding a fall or changing runtime inputs.",
+  "parent_checkpoint": "runs/unified_robust_20261022/reference_turns022/model_migrated.pt",
+  "parent_sha256": "c414cd6975a835ef56f8713e4308e31e1ccf38e0a46d40fa78a299bf01e4101a",
+  "parent_selected_lineage": 313,
+  "preexisting_robust_consumption": 385,
+  "new_updates_requested": 32,
+  "num_envs": 128,
+  "rollout_policy_steps": 128,
+  "actor_lr": 1e-05,
+  "seed": 211325,
+  "domain_scale": 0.35,
+  "ground_friction_range": [
+    0.3,
+    0.5
+  ],
+  "native_origin_mode": "isolated_overlap_v1",
+  "standing_drift_weight": 2.0,
+  "drift_speed_scale_m_s": 0.02,
+  "position_deadband_m": 0.05,
+  "early_position_cost_weight": 6.0,
+  "frozen_actor_components": [
+    "parent",
+    "arc",
+    "recovery",
+    "std"
+  ],
+  "comparison": "Sibling of024 from same313 actor/critic/Adam/RNG, seed, population, horizon and LR; only bounded drift reward enabled.",
+  "run_started": false,
+  "long_training_admitted": false,
+  "prerequisite": "Complete same-native-layout025 baseline and keep its full behavior receipt.",
+  "hardware_motion": false
+}
