@@ -1,0 +1,33 @@
+{
+  "schema": "robust-low-friction-diagnostic-plan-v1",
+  "optimizer_updates": 0,
+  "native_origin_mode": "isolated_overlap_v1",
+  "cases": [
+    "stand",
+    "stand_low",
+    "stand_high",
+    "left_symmetric",
+    "right_symmetric",
+    "inverted_symmetric",
+    "inverted_asymmetric"
+  ],
+  "replicas": 32,
+  "native_environment_count": 224,
+  "seconds": 12,
+  "ground_friction_range": [
+    0.01,
+    0.5
+  ],
+  "wheel_friction": 0.1,
+  "combine": "average",
+  "effective_wheel_friction_range": [
+    0.055,
+    0.3
+  ],
+  "sensor_actuator_domain_scale": 0.0,
+  "purpose": "Measure observed standing and actual-settled recovery failures versus recorded native coefficient, separately from sensor/motor domains.",
+  "analysis": "Use per-lane native readback and actual settled family. Report sampled pass/fail ranges by height/pose; do not call an unpaired random sweep a universal friction threshold.",
+  "checkpoint": "Select after026 native validation; do not launch concurrently with training.",
+  "run_started": false,
+  "hardware_motion": false
+}
