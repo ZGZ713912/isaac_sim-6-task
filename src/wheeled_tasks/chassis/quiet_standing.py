@@ -22,6 +22,10 @@ def standing_support_cost(clearance_peak, contact_fraction):
     return 2. * torch.log1p(air) + .5 * unloaded
 
 
+def standing_position_cost(radius, sway_m=.05):
+    return torch.log1p(((radius - sway_m).clamp_min(0.) / sway_m).square())
+
+
 class QuietStanding:
     def __init__(self, count, device, dt, sway_m=.05, position_weight=.5):
         self.alpha = dt / (.05 + dt)
@@ -60,9 +64,8 @@ class QuietStanding:
         target_power = (high_target / target_scale).square().mean(-1)
         velocity_power = (high_velocity / velocity_scale).square().mean(-1)
         radius = self.displacement(xy).norm(dim=-1)
-        position_cost = ((radius - self.sway_m).clamp_min(0.) / self.sway_m).square()
         # Saturate the cost gently so an initially noisy standing policy still
         # earns more by balancing than by ending the episode immediately.
         cost = active * (.3 * torch.log1p(target_power) + .05 * torch.log1p(velocity_power)
-                         + self.position_weight * torch.log1p(position_cost))
+                         + self.position_weight * standing_position_cost(radius, self.sway_m))
         return cost, target_power, velocity_power, radius
