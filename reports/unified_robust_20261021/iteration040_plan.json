@@ -1,0 +1,49 @@
+{
+  "schema": "quiet040-bounded-plan-v1",
+  "parent_checkpoint": "runs/unified_robust_20261022/quiet_wheel_memory040/model_migrated.pt",
+  "parent_sha256": "161b5efe92f83e74beefe1205cb8994c3d316a34213275415b27ab047c40b8ea",
+  "baseline_function": "036zero-PPO clean parent extended by zero2x4memory heads; exact old mean/critic/optimizer/RNG; no rejected trained weights",
+  "hypothesis": "Pure instantaneous velocity correction has no persistent compensation at zero speed and reacts to encoder noise; allow learning memory from the existing previous wheel commands while preserving fixed-input leg outputs",
+  "updates": 32,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "seed": 211329,
+  "actor_lr": 0.001,
+  "critic_lr": 0.001,
+  "trainable_actor_parameters": 24,
+  "trainable_scope": "three2x4wheel velocity/previous-command weights and critic; all old actor and base std frozen",
+  "domain_scale": 0.35,
+  "ground_friction": [
+    0.3,
+    0.5
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "validation": {
+    "cpu_tests": 89,
+    "actual_cli_guards": 4,
+    "migration_exact_observations": 15600,
+    "extended_static": "3heights x16repeats,12s,seed211322; matched domain/material/pose/command/origin/firstobs",
+    "before_baseline": "quiet_velocity_baseline036; migration initial deterministic function and constructor RNG exact",
+    "full_suite": "140x12s only after matched static5cm/no>3mm operational clearance and actual3-95Hz nonregression pass",
+    "full_counterpart": "side_confirmation032; nominal fresh two-seed admission remains required",
+    "native_Gaussian": "sample/logprob/entropy/KL checked against encoded std; current frozen std remains above native .003 floor",
+    "equal_budget_counterpart": "039same32updates,LR.001,noise.06/.35,seed211329; old initial model/optimizer/RNG exact, added memory columns zero"
+  },
+  "robust_consumed_before": 897,
+  "robust_consumed_after_full_budget": 929,
+  "parent_clock": 441,
+  "expected_clock": 473,
+  "new_long_training_updates": 0,
+  "long_training_admitted": false,
+  "run_started": false,
+  "quiet_wheel_exploration_fraction": 0.35,
+  "standing_objectives": {
+    "early_position_deadband_m": 0.05,
+    "early_position_weight": 6.0,
+    "drift_weight": 2.0,
+    "drift_speed_scale_m_s": 0.02
+  },
+  "quiet_exploration_fraction": 0.06
+}

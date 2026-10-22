@@ -5,9 +5,11 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import torch
+import pytest
 
 
-def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
+@pytest.mark.parametrize("feedback_mode", ["wheels", "wheel_memory"])
+def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path, feedback_mode):
     root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("robust_profile_training", root / "scripts/train_robust_getup.py")
     training = importlib.util.module_from_spec(spec)
@@ -24,7 +26,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
                                         "quiet_wheel_exploration_fraction": .35,
                                         "quiet_velocity_feature_gain": 10.,
                                         "quiet_velocity_feedback": True,
-                                        "quiet_velocity_feedback_mode": "wheels",
+                                        "quiet_velocity_feedback_mode": feedback_mode,
                                         "quiet_critic_anchor": True, "quiet_spectral_cost": True,
                                         "standing_support_training": True, "standing_drift_weight": 2.,
                                         "standing_drift_speed_scale_m_s": .01, "quiet_sway_m": .05,
@@ -48,7 +50,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert task["quiet_wheel_exploration_fraction"] == .35
     assert task["quiet_velocity_feature_gain"] == 10.
     assert task["quiet_velocity_feedback"]
-    assert task["quiet_velocity_feedback_mode"] == "wheels"
+    assert task["quiet_velocity_feedback_mode"] == feedback_mode
     assert json.loads((args.output / "config/contract.json").read_text())["full_rl_isolated_origins"]
     assert task["standing_support_training"] and task["quiet_critic_anchor"]
     assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
@@ -105,4 +107,4 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert side["quiet_wheel_exploration_fraction"] == .35
     assert side["quiet_velocity_feature_gain"] == 10.
     assert side["quiet_velocity_feedback"]
-    assert side["quiet_velocity_feedback_mode"] == "wheels"
+    assert side["quiet_velocity_feedback_mode"] == feedback_mode
