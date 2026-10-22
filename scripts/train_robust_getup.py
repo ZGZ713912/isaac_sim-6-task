@@ -88,6 +88,9 @@ def prepare(args):
     if getattr(args, "recovery_only", False):
         task.update(version="robust-v2.10-recovery-capture", stance_aware_recovery=True,
                     recovery_shape_aware=True, motion_push_fraction=1.)
+    if getattr(args, "side_recovery_focus", False):
+        task.update(version="robust-v2.21-side-recovery-exposure", motion_fraction=.2,
+                    recovery_family_weights=[0., .05, .05, .35, .35, .15, .05])
     if getattr(args, "episode_seconds", None) is not None:
         task["episode_seconds"] = args.episode_seconds
     # The fixed physics/control source remains pinned. The task overlay is a
@@ -386,6 +389,8 @@ def main():
     parser.add_argument("--arc-only", action="store_true", help="Tune only the shared motion head with extra moderate simultaneous requests")
     parser.add_argument("--recovery-only", action="store_true",
                         help="Tune recovery with bounded world coordinates and more motion disturbances; freeze quiet/motion/std")
+    parser.add_argument("--side-recovery-focus", action="store_true",
+                        help="Recovery-only reset exposure: 70%% side, 15%% inverted, 15%% other falls; retain20%% upright motion births")
     args = parser.parse_args()
     if not (1 <= args.updates <= 256 and 32 <= args.num_envs <= 1024 and 64 <= args.rollout_steps <= 512
             and args.num_envs % 4 == 0 and 2 <= args.eval_seconds <= 12):
@@ -419,6 +424,8 @@ def main():
         parser.error("Arc-only tuning already freezes quiet/recovery/std; choose a single mode")
     if args.recovery_only and (args.arc_only or args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):
         parser.error("Recovery-only tuning already freezes quiet/motion/std; choose a single mode")
+    if args.side_recovery_focus and not args.recovery_only:
+        parser.error("Side recovery exposure requires --recovery-only")
     if args.curriculum_origin < 0:
         parser.error("Curriculum origin must be nonnegative; it does not reset optimizer consumption")
     args.output.mkdir(parents=True, exist_ok=False)
