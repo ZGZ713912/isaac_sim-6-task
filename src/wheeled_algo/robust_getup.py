@@ -64,15 +64,17 @@ class QuietVelocityFeedback(nn.Module):
 
     def __init__(self, mode="all"):
         super().__init__()
-        if mode not in ("all", "wheels"):
-            raise ValueError("Quiet velocity feedback mode must be all or wheels")
+        if mode not in ("all", "wheels", "wheel_memory"):
+            raise ValueError("Quiet velocity feedback mode must be all, wheels or wheel_memory")
         self.mode = mode
-        size = 2 if mode == "wheels" else 6
-        self.weight = nn.Parameter(torch.zeros(size, size))
+        size = 6 if mode == "all" else 2
+        inputs = 4 if mode == "wheel_memory" else size
+        self.weight = nn.Parameter(torch.zeros(size, inputs))
 
     def forward(self, velocity):
-        if self.mode == "wheels":
-            wheels = torch.nn.functional.linear(velocity[:, 4:6], self.weight)
+        if self.mode in ("wheels", "wheel_memory"):
+            end = 8 if self.mode == "wheel_memory" else 6
+            wheels = torch.nn.functional.linear(velocity[:, 4:end], self.weight)
             return torch.cat((torch.zeros_like(velocity[:, :4]), wheels), -1)
         return torch.nn.functional.linear(velocity, self.weight)
 
@@ -123,8 +125,8 @@ class RobustGetupActor(UnifiedGetupActor):
         self.quiet_native_height_anchors = quiet_native_height_anchors
         if quiet_velocity_feedback and not quiet_height_experts:
             raise ValueError("Quiet velocity feedback requires existing three-height experts")
-        if quiet_velocity_feedback_mode not in ("all", "wheels"):
-            raise ValueError("Quiet velocity feedback mode must be all or wheels")
+        if quiet_velocity_feedback_mode not in ("all", "wheels", "wheel_memory"):
+            raise ValueError("Quiet velocity feedback mode must be all, wheels or wheel_memory")
         if quiet_velocity_feedback_mode != "all" and not quiet_velocity_feedback:
             raise ValueError("Wheel-only velocity mode requires explicit quiet velocity feedback")
         self.quiet_velocity_feedback = quiet_velocity_feedback
@@ -155,6 +157,11 @@ class RobustGetupActor(UnifiedGetupActor):
             # This sensor-only path has no bias or position integrator. Its
             # bounded features retain small-signal velocity learning gradients.
             velocity = torch.tanh(obs[:, 16:22] * 10.)
+            if self.quiet_velocity_feedback_mode == "wheel_memory":
+                # The previous two wheel commands already occupy the last two
+                # entries of the deployed previous-action block. They allow
+                # learned command memory without a new observer or hidden state.
+                velocity = torch.cat((velocity, torch.tanh(obs[:, 26:28] * 10.)), -1)
             mid_logits = mid_logits + self.quiet_velocity["mid"](velocity)
         mid = torch.tanh(mid_logits)
         if not self.quiet_height_experts:
