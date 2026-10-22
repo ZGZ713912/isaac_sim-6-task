@@ -36,10 +36,12 @@ def main():
     parser.add_argument("--friction-min", type=float, default=.5)
     parser.add_argument("--deployed-onnx", type=Path, default=ROOT / "models/wheel_leg_flat_base_20261018/source.onnx",
                         help="Exact user-confirmed recovery_candidate source for the deployed comparison")
-    parser.add_argument("--seconds", type=float, default=12., choices=[12., 30., 60.])
+    parser.add_argument("--seconds", type=float, default=12., choices=[4., 12., 30., 60.])
     parser.add_argument("--case-names", nargs="+", help="Explicit diagnostic subset; cannot replace the full acceptance suite")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
                         help="Diagnostic counterfactual: override only policy observation delay after the matched reset")
+    parser.add_argument("--instant-sensor-group", choices=["imu", "encoders", "leg_encoders", "wheel_velocity"],
+                        help="Diagnostic: remove delay from only this sensor group; retain its noise and other delays")
     parser.add_argument("--variants", nargs="+", default=["parent", "robust", "legs_only", "undamped"],
                         choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd", "deployed"])
     args = parser.parse_args()
@@ -78,7 +80,7 @@ def main():
         no_domains=args.domain_scale == 0., domain_scale=args.domain_scale, friction_min=args.friction_min,
         curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65,
         num_envs=count, rollout_steps=128, mode="evaluate", friction="high", seed=args.seed,
-        allow_large_world_coordinates=args.allow_large_world_coordinates, episode_seconds=args.seconds)
+        allow_large_world_coordinates=args.allow_large_world_coordinates, episode_seconds=max(12., args.seconds))
     cfg, task = training.prepare(config_args)
     training.write_json(args.output / "progress.json", dict(status="starting", completed_updates=0,
         seeds=seeds, variants=args.variants, checkpoint_sha256=checkpoint_sha, optimizer_updates=0))
@@ -107,7 +109,7 @@ def main():
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
                     "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",
-                    "quiet_high_common_alpha"):
+                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
         task_path = args.output / "task_contract.json"
@@ -164,6 +166,8 @@ def main():
         env.evaluation_checkpoint = args.checkpoint
         env.evaluation_overrides = ({} if args.sensor_delay_policy_ticks is None else
                                    dict(sensor_delay_policy_ticks=args.sensor_delay_policy_ticks))
+        if args.instant_sensor_group:
+            env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         groups = [(seed, name) for seed in seeds for name in args.variants]
         for index, (_, name) in enumerate(groups):
             if name == "raw_pd":

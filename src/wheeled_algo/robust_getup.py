@@ -50,7 +50,7 @@ class RobustGetupActor(UnifiedGetupActor):
                  cyclic_leg_targets=False, leg_action_clip=13., recovery_leg_step=1.2,
                  smooth_knee_targets=False, recovery_knee_center=(.924544, .924537),
                  quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, stance_aware_recovery=False,
-                 recovery_shape_aware=False, quiet_high_common_alpha=None):
+                 recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -66,6 +66,9 @@ class RobustGetupActor(UnifiedGetupActor):
         if quiet_high_common_alpha is not None and not 0. < quiet_high_common_alpha <= 1.:
             raise ValueError("High-height common-angle interpolation must be in (0,1]")
         self.quiet_high_common_alpha = quiet_high_common_alpha
+        if not 0. <= quiet_high_leg_prediction_s <= .01:
+            raise ValueError("High-height leg prediction must be between 0 and 10 ms")
+        self.quiet_high_leg_prediction_s = quiet_high_leg_prediction_s
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
@@ -79,7 +82,16 @@ class RobustGetupActor(UnifiedGetupActor):
         arc_gate = ((obs[:, :1].abs() - .05) / .2).clamp(0., 1.) * ((obs[:, 2:3].abs() - .05) / .2).clamp(0., 1.)
         moving = torch.maximum(obs[:, :1].abs() / .1, obs[:, 2:3].abs() / .2).clamp(0., 1.)
         residual_gate = arc_gate + self.motion_residual_fraction * (1. - arc_gate) * moving
-        motion = self.parent(obs) + residual_gate * self.arc_bound * torch.tanh(self.arc(features))
+        motion_obs = obs
+        if self.quiet_high_leg_prediction_s:
+            # q is radians and dq is scaled by .1 in the frozen observation
+            # contract. This bounded, causal first-order estimate adds no state
+            # or new sensor. It is confined to an upright high-stance request.
+            prediction_gate = quiet_gate(obs) * ((obs[:, 3:4] / 5. - .35) / .05).clamp(0., 1.)
+            predicted = obs[:, 10:14] + prediction_gate * (10. * self.quiet_high_leg_prediction_s) * obs[:, 16:20]
+            predicted = torch.where(prediction_gate > 0., torch.atan2(predicted.sin(), predicted.cos()), obs[:, 10:14])
+            motion_obs = torch.cat((obs[:, :10], predicted, obs[:, 14:]), -1)
+        motion = self.parent(motion_obs) + residual_gate * self.arc_bound * torch.tanh(self.arc(features))
         motion = torch.maximum(torch.minimum(motion, self.motion_bound), -self.motion_bound)
         quiet = quiet_gate(obs)
         smoothed = obs[:, 22:28] + self.quiet_alpha * (motion - obs[:, 22:28])
@@ -94,8 +106,10 @@ class RobustGetupActor(UnifiedGetupActor):
             extra = high * (self.quiet_high_common_alpha - self.quiet_alpha[:4]) * common
             smoothed = torch.cat((smoothed[:, :4] + extra, smoothed[:, 4:]), -1)
         quiet_features = features
+        if self.quiet_high_leg_prediction_s:
+            quiet_features = torch.tanh(motion_obs * self.feature_scale)
         if self.quiet_velocity_feature_scale is not None:
-            quiet_features = torch.cat((features[:, :16], torch.tanh(obs[:, 16:22] * self.quiet_velocity_feature_scale), features[:, 22:]), -1)
+            quiet_features = torch.cat((quiet_features[:, :16], torch.tanh(obs[:, 16:22] * self.quiet_velocity_feature_scale), quiet_features[:, 22:]), -1)
         motion = motion + quiet * (smoothed - motion + self.quiet_bound * torch.tanh(self.quiet(quiet_features)))
         raw = (canonical_recovery_logits(self.recovery, obs, self.feature_scale)
                if self.canonical_recovery else self.recovery(features))
