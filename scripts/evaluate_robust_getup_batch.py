@@ -153,7 +153,8 @@ def main():
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
                     "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",
                     "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
-                    "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts"):
+                    "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
+                    "quiet_native_height_anchors"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
         task_path = args.output / "task_contract.json"

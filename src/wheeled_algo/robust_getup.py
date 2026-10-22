@@ -67,7 +67,8 @@ class RobustGetupActor(UnifiedGetupActor):
                  quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, stance_aware_recovery=False,
                  recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.,
                  fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.),
-                 fast_forward_reference_yaw_fade=.25, quiet_height_experts=False):
+                 fast_forward_reference_yaw_fade=.25, quiet_height_experts=False,
+                 quiet_native_height_anchors=False):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -97,6 +98,7 @@ class RobustGetupActor(UnifiedGetupActor):
             raise ValueError("Forward reference yaw fade must be in (0,4] or None")
         self.fast_forward_reference_yaw_fade = fast_forward_reference_yaw_fade
         self.quiet_height_experts = quiet_height_experts
+        self.quiet_native_height_anchors = quiet_native_height_anchors
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
@@ -117,10 +119,17 @@ class RobustGetupActor(UnifiedGetupActor):
         # heights only its own expert receives actor gradients. Intermediate
         # requests interpolate continuously; no hidden state or height FSM.
         h = obs[:, 3:4]
-        lo = ((1.525 - h) / .375).clamp(0., 1.)
-        hi = ((h - 1.525) / .575).clamp(0., 1.)
-        lo = torch.where(h <= 1.15, torch.ones_like(lo), lo)
-        hi = torch.where(h >= 2.1, torch.ones_like(hi), hi)
+        if self.quiet_native_height_anchors:
+            # Match the native observation's float32 command * 5 operation.
+            # A rounded literal1.525 differs from float32(.305)*5 by one ULP.
+            anchors = obs.new_tensor([.23, .305, .42]) * 5.
+            lo = ((anchors[1] - h) / (anchors[1] - anchors[0])).clamp(0., 1.)
+            hi = ((h - anchors[1]) / (anchors[2] - anchors[1])).clamp(0., 1.)
+        else:
+            lo = ((1.525 - h) / .375).clamp(0., 1.)
+            hi = ((h - 1.525) / .575).clamp(0., 1.)
+            lo = torch.where(h <= 1.15, torch.ones_like(lo), lo)
+            hi = torch.where(h >= 2.1, torch.ones_like(hi), hi)
         result = mid + lo * (low - mid) + hi * (high - mid)
         return torch.where(lo >= 1., low, torch.where(hi >= 1., high, result))
 

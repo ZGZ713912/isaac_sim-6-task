@@ -99,3 +99,14 @@ def test_slow_creep_has_a_learning_signal_without_erasing_balance_credit():
     cost.sum().backward()
     assert speed.grad[1] > 0. and speed.grad[2] < 0.
     assert torch.isfinite(speed.grad).all()
+
+
+def test_finer_creep_scale_resolves_five_mm_per_second_with_same_bounded_startup_cost():
+    speed = torch.tensor([0., .005, -.005, 1.], requires_grad=True)
+    old, fine = standing_drift_cost(speed), standing_drift_cost(speed, .01)
+    assert fine[0] == old[0] == 0. and fine[1] == fine[2]
+    assert fine[1] > 3.5 * old[1]
+    assert fine[-1] == old[-1] == 1.
+    fine.sum().backward()
+    assert speed.grad[1] > 0. and speed.grad[2] < 0.
+    assert torch.isfinite(speed.grad).all()

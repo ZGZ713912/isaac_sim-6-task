@@ -83,6 +83,7 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            quiet_high_common_alpha=info["settings"].get("quiet_high_common_alpha"),
                            quiet_high_leg_prediction_s=info["settings"].get("quiet_high_leg_prediction_s", 0.),
                            quiet_height_experts=info["settings"].get("quiet_height_experts", False),
+                           quiet_native_height_anchors=info["settings"].get("quiet_native_height_anchors", False),
                            fast_forward_reference=info["settings"].get("fast_forward_reference", False),
                            fast_forward_reference_range=info["settings"].get("fast_forward_reference_range", [1.5, 2.]),
                            fast_forward_reference_yaw_fade=info["settings"].get("fast_forward_reference_yaw_fade", .25))

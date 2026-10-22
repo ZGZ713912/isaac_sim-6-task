@@ -60,7 +60,8 @@ def prepare(args):
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
                     "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
-                    "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts"):
+                    "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
+                    "quiet_native_height_anchors"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
@@ -80,6 +81,9 @@ def prepare(args):
         task.update(version="robust-v2.16-high-standing-only", quiet_height_probabilities=[0., 0., 1.])
     if getattr(args, "standing_drift_objective", False):
         task.update(version="robust-v2.15-standing-drift", standing_drift_weight=2.)
+        if getattr(args, "standing_drift_speed_scale", None) is not None:
+            task.update(version="robust-v2.22-finer-standing-drift",
+                        standing_drift_speed_scale_m_s=args.standing_drift_speed_scale)
     if getattr(args, "focus_recovery_quiet", False):
         task.update(version=task["version"] + "-recovery-quiet", quiet_training=True, motion_fraction=.6,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
@@ -383,6 +387,8 @@ def main():
                         help="Charge the 5 cm position envelope after the first .2 s instead of deferring it with vibration startup")
     parser.add_argument("--standing-drift-objective", action="store_true",
                         help="Opt-in bounded 2 cm/s standing objective in addition to the 5 cm position deadband")
+    parser.add_argument("--standing-drift-speed-scale", type=float,
+                        help="Explicit drift cost scale in m/s, .005...02; requires the standing drift objective")
     parser.add_argument("--high-standing-only", action="store_true",
                         help="Opt-in standing pilot that samples only the 420 mm high request")
     parser.add_argument("--focus-recovery-quiet", action="store_true", help="Tune recovery and quiet standing while freezing parent and arc motion")
@@ -415,6 +421,9 @@ def main():
         parser.error("Early position tuning requires --standing-support-training")
     if args.standing_drift_objective and not (args.standing_support_training and args.early_standing_position):
         parser.error("Standing drift tuning requires support and early-position profiles")
+    if args.standing_drift_speed_scale is not None and (not args.standing_drift_objective
+            or not .005 <= args.standing_drift_speed_scale <= .02):
+        parser.error("Standing drift speed scale requires its objective and must be within .005...02 m/s")
     if args.high_standing_only and not (args.quiet_only and args.standing_support_training
                                         and args.early_standing_position):
         parser.error("High-standing-only tuning requires quiet support and early-position profiles")
@@ -489,6 +498,7 @@ def main():
             quiet_high_common_alpha=task.get("quiet_high_common_alpha"),
             quiet_high_leg_prediction_s=task.get("quiet_high_leg_prediction_s", 0.),
             quiet_height_experts=task.get("quiet_height_experts", False),
+            quiet_native_height_anchors=task.get("quiet_native_height_anchors", False),
             fast_forward_reference=task.get("fast_forward_reference", False),
             fast_forward_reference_range=task.get("fast_forward_reference_range", [1.5, 2.]),
             fast_forward_reference_yaw_fade=task.get("fast_forward_reference_yaw_fade", .25)).to(args.device)
