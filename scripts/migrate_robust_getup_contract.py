@@ -41,6 +41,8 @@ def main():
                         help="Restore only an existing high-height expert and its named Adam moments; retain recovery")
     parser.add_argument("--quiet-velocity-feature-gain", type=float,
                         help="Explicit1...30 post-tanh feature conditioning; inverse-scale quiet weights and named Adam moments")
+    parser.add_argument("--quiet-velocity-feedback", action="store_true",
+                        help="Append three zero-initialized bias-free6x6 encoder-velocity paths; preserve all previous tensors/moments/RNG")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
@@ -73,11 +75,17 @@ def main():
             parser.error("Quiet velocity feature gain must be within1...30")
         if args.quiet_reference or args.high_quiet_reference or args.quiet_height_experts:
             parser.error("Condition existing quiet experts in a separate explicit revision")
+    if args.quiet_velocity_feedback and (args.quiet_reference or args.high_quiet_reference
+            or args.quiet_height_experts or args.quiet_velocity_feature_gain is not None):
+        parser.error("Add zero velocity feedback to existing experts in a separate explicit revision")
     if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
         parser.error("Motion residual fraction must be 0..1")
     if args.fast_forward_reference_range is not None and not 0. <= args.fast_forward_reference_range[0] < args.fast_forward_reference_range[1] <= 3.:
         parser.error("Forward reference transition must be ordered within 0..3 m/s")
     mean, old_info = load_mean(args.checkpoint, migration_source_root=args.checkpoint.parent / "source")
+    if old_info["settings"].get("quiet_velocity_feedback", False) and (args.quiet_reference
+            or args.high_quiet_reference or args.quiet_height_experts):
+        parser.error("Restoring quiet MLPs independently of existing learned velocity feedback is unsupported")
     state = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     original_actor = {k: v.clone() for k, v in state["actor_state_dict"].items()}
     info = deepcopy(old_info)
@@ -112,6 +120,24 @@ def main():
                                 fast_forward_reference_yaw_fade=None)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
+    if args.quiet_velocity_feedback:
+        if not old_info["settings"].get("quiet_height_experts", False) or old_info["settings"].get("quiet_velocity_feedback", False):
+            parser.error("Add velocity feedback once to an existing three-height-expert checkpoint")
+        names = [name for name, p in SensorConditionedMean(mean).named_parameters() if p.requires_grad]
+        group = next(g for g in state["optimizer_state_dict"]["param_groups"] if g["name"] == "actor")
+        if len(names) != len(group["params"]):
+            raise ValueError("Cannot authenticate velocity-feedback actor optimizer order")
+        next_id = max(p for g in state["optimizer_state_dict"]["param_groups"] for p in g["params"]) + 1
+        for name in ("mid", "low", "high"):
+            key = "mlp.mean.quiet_velocity." + name + ".weight"
+            state["actor_state_dict"][key] = state["actor_state_dict"]["mlp.mean.quiet.0.weight"].new_zeros((6, 6))
+            group["params"].append(next_id)
+            next_id += 1
+        info["settings"].update(version="robust-v2.27-quiet-velocity-feedback", quiet_velocity_feedback=True)
+        revision["quiet_velocity_feedback"] = dict(new_parameters=108, initial_weights="zero",
+            input="tanh(physical six encoder velocities in rad/s)", bias=False,
+            optimizer="all old moments retained; only new parameters start with empty Adam state",
+            deterministic_function="preserved; no random initialization draws")
     if args.quiet_velocity_feature_gain is not None:
         if not old_info["settings"].get("quiet_height_experts", False):
             raise ValueError("Quiet velocity conditioning requires existing three-height experts")
@@ -161,6 +187,8 @@ def main():
         if args.low_quiet_reference:
             low_mean, low_info = load_mean(args.low_quiet_reference,
                 migration_source_root=args.low_quiet_reference.parent / "source")
+            if low_info["settings"].get("quiet_velocity_feedback", False):
+                raise ValueError("Copying a quiet MLP without its learned velocity feedback is unsupported")
             low_state = torch.load(args.low_quiet_reference, map_location="cpu", weights_only=False)
             low_names = [name for name, p in SensorConditionedMean(low_mean).named_parameters() if p.requires_grad]
             low_group = next(g for g in low_state["optimizer_state_dict"]["param_groups"] if g["name"] == "actor")
@@ -221,6 +249,8 @@ def main():
     if args.high_quiet_reference:
         reference, ref_info = load_mean(args.high_quiet_reference,
             migration_source_root=args.high_quiet_reference.parent / "source")
+        if ref_info["settings"].get("quiet_velocity_feedback", False):
+            raise ValueError("Copying a high quiet MLP without its learned velocity feedback is unsupported")
         if not info["settings"].get("quiet_height_experts") or not ref_info["settings"].get("quiet_height_experts"):
             raise ValueError("High-height restore requires existing height experts in both checkpoints")
         for key in ("base_checkpoint_sha256", "bank_sha256"):

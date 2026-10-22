@@ -59,6 +59,17 @@ def fast_forward_reference_gate(obs, speed_range=(1.5, 2.), yaw_fade=.25):
     return speed * (1. - obs[:, 2:3].abs() / yaw_fade).clamp(0., 1.)
 
 
+class QuietVelocityFeedback(nn.Module):
+    """Zero-initialized, bias-free learned velocity path; consumes no RNG."""
+
+    def __init__(self):
+        super().__init__()
+        self.weight = nn.Parameter(torch.zeros(6, 6))
+
+    def forward(self, velocity):
+        return torch.nn.functional.linear(velocity, self.weight)
+
+
 class RobustGetupActor(UnifiedGetupActor):
     def __init__(self, parent, *, quiet_alpha=(.25, .25, .25, .25, .65, .65),
                  canonical_recovery=False, motion_residual_fraction=0.,
@@ -68,7 +79,8 @@ class RobustGetupActor(UnifiedGetupActor):
                  recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.,
                  fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.),
                  fast_forward_reference_yaw_fade=.25, quiet_height_experts=False,
-                 quiet_native_height_anchors=False, quiet_velocity_feature_gain=1.):
+                 quiet_native_height_anchors=False, quiet_velocity_feature_gain=1.,
+                 quiet_velocity_feedback=False):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -102,6 +114,9 @@ class RobustGetupActor(UnifiedGetupActor):
         self.fast_forward_reference_yaw_fade = fast_forward_reference_yaw_fade
         self.quiet_height_experts = quiet_height_experts
         self.quiet_native_height_anchors = quiet_native_height_anchors
+        if quiet_velocity_feedback and not quiet_height_experts:
+            raise ValueError("Quiet velocity feedback requires existing three-height experts")
+        self.quiet_velocity_feedback = quiet_velocity_feedback
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
@@ -109,15 +124,33 @@ class RobustGetupActor(UnifiedGetupActor):
         if quiet_height_experts:
             self.quiet_low = deepcopy(self.quiet)
             self.quiet_high = deepcopy(self.quiet)
+        if quiet_velocity_feedback:
+            self.quiet_velocity = nn.ModuleDict({name: QuietVelocityFeedback() for name in ("mid", "low", "high")})
         self.register_buffer("quiet_alpha", torch.tensor(quiet_alpha))
         self.register_buffer("quiet_bound", torch.tensor([.4] * 4 + [quiet_wheel_bound] * 2))
 
+    def freeze_except_quiet_velocity(self):
+        if not self.quiet_velocity_feedback:
+            raise ValueError("Velocity-only learning requires migrated quiet velocity feedback")
+        self.requires_grad_(False)
+        self.quiet_velocity.requires_grad_(True)
+
     def quiet_correction(self, features, obs):
-        mid = torch.tanh(self.quiet(features))
+        mid_logits = self.quiet(features)
+        if self.quiet_velocity_feedback:
+            # Encoder velocity is scaled by .1 in the observation contract.
+            # This sensor-only path has no bias or position integrator. Its
+            # bounded features retain small-signal velocity learning gradients.
+            velocity = torch.tanh(obs[:, 16:22] * 10.)
+            mid_logits = mid_logits + self.quiet_velocity["mid"](velocity)
+        mid = torch.tanh(mid_logits)
         if not self.quiet_height_experts:
             return mid
-        low = torch.tanh(self.quiet_low(features))
-        high = torch.tanh(self.quiet_high(features))
+        low_logits, high_logits = self.quiet_low(features), self.quiet_high(features)
+        if self.quiet_velocity_feedback:
+            low_logits = low_logits + self.quiet_velocity["low"](velocity)
+            high_logits = high_logits + self.quiet_velocity["high"](velocity)
+        low, high = torch.tanh(low_logits), torch.tanh(high_logits)
         # The existing height request is scaled by five. At the three anchor
         # heights only its own expert receives actor gradients. Intermediate
         # requests interpolate continuously; no hidden state or height FSM.
@@ -205,6 +238,8 @@ class RobustGetupActor(UnifiedGetupActor):
         expected = {"quiet.0.weight", "quiet.0.bias", "quiet.2.weight", "quiet.2.bias", "quiet_alpha", "quiet_bound"}
         if self.quiet_height_experts:
             expected.update(key for key in self.state_dict() if key.startswith(("quiet_low.", "quiet_high.")))
+        if self.quiet_velocity_feedback:
+            expected.update(key for key in self.state_dict() if key.startswith("quiet_velocity."))
         if result.unexpected_keys or set(result.missing_keys) != expected:
             raise ValueError("Unexpected unified-to-robust actor migration")
 

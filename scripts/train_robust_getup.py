@@ -61,7 +61,8 @@ def prepare(args):
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
                     "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
-                    "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_velocity_feature_gain"):
+                    "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_velocity_feature_gain",
+                    "quiet_velocity_feedback"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
@@ -394,6 +395,8 @@ def main():
     parser.add_argument("--restore-quiet-checkpoint", type=Path)
     parser.add_argument("--freeze-quiet", action="store_true")
     parser.add_argument("--quiet-only", action="store_true", help="Freeze motion/recovery and tune the quiet head, allowing 5 cm slow sway")
+    parser.add_argument("--quiet-velocity-only", action="store_true",
+                        help="Quiet-only profile: train only migrated bias-free encoder-velocity feedback, keeping existing quiet MLPs fixed")
     parser.add_argument("--standing-support-training", action="store_true",
                         help="Quiet-only profile: persistent request anchor, geometric support cost, 50%% high-height exposure")
     parser.add_argument("--early-standing-position", action="store_true",
@@ -421,7 +424,8 @@ def main():
         parser.error("Quiet action interpolation must be in (0,1]")
     if not (0 < args.quiet_wheel_bound <= 9 and (args.quiet_velocity_feature_scale is None or args.quiet_velocity_feature_scale > 0)):
         parser.error("Quiet wheel correction must be in (0,9] and feature scale positive")
-    if not (0 <= args.domain_scale <= 1 and 1e-5 <= args.actor_lr <= 3e-4
+    actor_lr_max = 3e-3 if args.quiet_velocity_only else 3e-4
+    if not (0 <= args.domain_scale <= 1 and 1e-5 <= args.actor_lr <= actor_lr_max
             and (args.friction_min is None or .2 <= args.friction_min <= .5)):
         parser.error("Use bounded domain scale, friction and actor learning rate")
     if args.actor_variant != "robust" and args.mode != "evaluate":
@@ -430,6 +434,16 @@ def main():
         parser.error("Read-only ablations require --mode evaluate")
     if args.quiet_only and args.freeze_quiet:
         parser.error("Quiet tuning cannot freeze its only trainable mean head")
+    if args.quiet_velocity_only:
+        if not (args.mode == "train" and args.quiet_only and args.standing_support_training and args.early_standing_position
+                and args.standing_drift_objective and args.resume):
+            parser.error("Velocity-only training requires a resumed quiet support/early-position/drift profile")
+        if args.high_standing_only or args.restore_quiet_checkpoint or args.quiet_velocity_feature_scale is not None:
+            parser.error("Velocity-only tuning preserves all three old quiet MLPs and their feature coordinates")
+        import torch
+        prior_velocity = torch.load(args.resume, map_location="cpu", weights_only=False)
+        if not prior_velocity["infos"]["settings"].get("quiet_velocity_feedback", False):
+            parser.error("Velocity-only tuning requires an explicitly migrated velocity-feedback checkpoint")
     if args.standing_support_training and not args.quiet_only:
         parser.error("Standing support tuning requires --quiet-only so existing recovery/motion stay frozen")
     if args.early_standing_position and not args.standing_support_training:
@@ -512,6 +526,7 @@ def main():
             recovery_knee_center=task["recovery_knee_center"],
             quiet_velocity_feature_scale=task["quiet_velocity_feature_scale"], quiet_wheel_bound=task["quiet_wheel_bound"],
             quiet_velocity_feature_gain=task.get("quiet_velocity_feature_gain", 1.),
+            quiet_velocity_feedback=task.get("quiet_velocity_feedback", False),
             stance_aware_recovery=task["stance_aware_recovery"],
             recovery_shape_aware=task["recovery_shape_aware"],
             quiet_high_common_alpha=task.get("quiet_high_common_alpha"),
@@ -586,6 +601,7 @@ def main():
             mean.quiet_bound[4:].fill_(task["quiet_wheel_bound"])
             report["optimizer_learning_rates"] = {group["name"]: group["lr"] for group in runner.alg.optimizer.param_groups}
             quiet_heads = [mean.quiet] + ([mean.quiet_low, mean.quiet_high] if mean.quiet_height_experts else [])
+            velocity_heads = list(mean.quiet_velocity.values()) if mean.quiet_velocity_feedback else []
             if args.restore_quiet_checkpoint:
                 if mean.quiet_height_experts:
                     raise ValueError("Use an explicit height-expert migration to restore a quiet reference")
@@ -618,30 +634,37 @@ def main():
                         purpose="preserve the small-signal initial action while improving quiet-head learning conditioning",
                         optimizer="only rescaled quiet-head moments cleared")
             if args.freeze_quiet:
-                for head in quiet_heads:
+                for head in quiet_heads + velocity_heads:
                     head.requires_grad_(False)
             if args.quiet_only:
                 mean.recovery.requires_grad_(False)
                 mean.arc.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
+                if args.quiet_velocity_only:
+                    mean.freeze_except_quiet_velocity()
                 if args.high_standing_only and mean.quiet_height_experts:
                     mean.quiet.requires_grad_(False)
                     mean.quiet_low.requires_grad_(False)
+                    if mean.quiet_velocity_feedback:
+                        mean.quiet_velocity["mid"].requires_grad_(False)
+                        mean.quiet_velocity["low"].requires_grad_(False)
             if args.focus_recovery_quiet:
                 mean.arc.requires_grad_(False)
             if args.arc_only:
-                for head in quiet_heads:
+                for head in quiet_heads + velocity_heads:
                     head.requires_grad_(False)
                 mean.recovery.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
             if args.recovery_only:
-                for head in quiet_heads:
+                for head in quiet_heads + velocity_heads:
                     head.requires_grad_(False)
                 mean.arc.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
+            quiet_trainable_prefixes = (("quiet_velocity.",) if args.quiet_velocity_only
+                else ("quiet_high.", "quiet_velocity.high.") if args.high_standing_only and mean.quiet_height_experts
+                else ("quiet.", "quiet_low.", "quiet_high.", "quiet_velocity."))
             frozen_motion = ({k: v.detach().clone() for k, v in mean.state_dict().items()
-                              if not k.startswith(("quiet_high.",) if args.high_standing_only and mean.quiet_height_experts
-                                                  else ("quiet.", "quiet_low.", "quiet_high."))}
+                              if not k.startswith(quiet_trainable_prefixes)}
                               if args.quiet_only else None)
             frozen_quiet_std = runner.alg.actor.mlp.log_std.detach().clone() if args.quiet_only else None
             frozen_parent_arc = ({k: v.detach().clone() for k, v in mean.state_dict().items()
@@ -672,6 +695,7 @@ def main():
                     cuda_rng=torch.cuda.get_rng_state_all() if args.device.startswith("cuda") else [],
                     actor_variant=args.actor_variant, migrated_from_sha256=report.get("restored_sha256"),
                     quiet_only_tuning=args.quiet_only,
+                    quiet_velocity_only_tuning=args.quiet_velocity_only,
                     focus_recovery_quiet=args.focus_recovery_quiet,
                     arc_only_tuning=args.arc_only,
                     recovery_only_tuning=args.recovery_only,
