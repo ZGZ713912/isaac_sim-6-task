@@ -173,6 +173,46 @@ def test_high_common_filter_preserves_knee_difference_low_mid_stance_and_motion(
     torch.testing.assert_close(b[2, :4] - a[2, :4], torch.tensor([.6, .6, -.6, -.6]))
 
 
+def test_diagnostic_sensor_group_keeps_other_delay_and_same_noise_draws():
+    from copy import deepcopy
+    domain = RobustDomain(2, "cpu", settings(domain_scale=.35), 15, .001)
+    initial = torch.zeros(2, 18)
+    initial[:, 5] = -1.
+    domain.reset(torch.arange(2), initial)
+    domain.sensor_delay.fill_(1)
+    control = deepcopy(domain)
+    domain.evaluation_immediate_features = list(range(6))
+    sensors = initial.clone()
+    sensors[:, :3] = .2
+    sensors[:, 6:] = .4
+    observed = domain.observe(sensors, 0)
+    reference = control.observe(sensors, 0)
+    torch.testing.assert_close(observed[:, 6:], reference[:, 6:], rtol=0, atol=0)
+    assert observed[0, 0] > .19 and reference[0, 0] == 0.
+    assert torch.equal(domain.rng.get_state(), control.rng.get_state())
+
+
+def test_leg_prediction_uses_frozen_units_and_preserves_other_requests():
+    from copy import deepcopy
+    parent = nn.Linear(35, 6)
+    with torch.no_grad():
+        parent.weight.zero_()
+        parent.bias.zero_()
+        parent.weight[:4, 10:14] = torch.eye(4)
+    base = RobustGetupActor(parent, quiet_alpha=(1.,) * 6)
+    predicted = deepcopy(base)
+    predicted.quiet_high_leg_prediction_s = .005
+    obs = observation(4)
+    obs[:, 3] = torch.tensor([.23, .305, .42, .42]) * 5.
+    obs[:, 10:14] = .1
+    obs[:, 16:20] = .1  # 1 rad/s in the frozen 35D interface.
+    obs[3, 0] = 1.
+    a, b = base(obs), predicted(obs)
+    torch.testing.assert_close(a[[0, 1, 3]], b[[0, 1, 3]], rtol=0, atol=0)
+    torch.testing.assert_close(b[2, :4] - a[2, :4], torch.full((4,), .005))
+    torch.testing.assert_close(a[:, 4:], b[:, 4:], rtol=0, atol=0)
+
+
 def test_native_likelihood_uses_actual_state_dependent_exploration():
     from rsl_rl.modules.distribution import HeteroscedasticGaussianDistribution
     actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)))

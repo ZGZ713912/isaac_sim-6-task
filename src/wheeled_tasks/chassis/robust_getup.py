@@ -28,7 +28,7 @@ def settings(**overrides):
         quiet_spectral_cost=False, quiet_critic_anchor=False,
         quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, arc_tuning_fraction=0.,
         standing_support_training=False, quiet_position_weight=.5, quiet_height_probabilities=[.5, .25, .25],
-        quiet_high_common_alpha=None)
+        quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.)
     cfg.update(overrides)
     scale = cfg["domain_scale"]
     if not 0. <= scale <= 1.:
@@ -119,6 +119,9 @@ class RobustDomain:
             self.sensor_history[self.sensor_cursor].copy_(noisy)
             read = (self.sensor_cursor - self.sensor_delay) % len(self.sensor_history)
             self.observed.copy_(self.sensor_history[read, self.rows])
+            immediate = getattr(self, "evaluation_immediate_features", None)
+            if immediate is not None:
+                self.observed[:, immediate] = noisy[:, immediate]
             self.sensor_cursor = (self.sensor_cursor + 1) % len(self.sensor_history)
             self.last_sensor_tick = tick
         return self.observed

@@ -59,7 +59,7 @@ def prepare(args):
         # including non-tensor authority flags, rather than reset defaults.
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
-                    "recovery_shape_aware", "quiet_high_common_alpha"):
+                    "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
     if getattr(args, "quiet_only", False):
@@ -192,6 +192,10 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
     overrides = getattr(env, "evaluation_overrides", {})
     if "sensor_delay_policy_ticks" in overrides:
         env.domain.sensor_delay.fill_(overrides["sensor_delay_policy_ticks"])
+    if "instant_sensor_group" in overrides:
+        groups = dict(imu=list(range(6)), encoders=list(range(6, 18)),
+                      leg_encoders=list(range(6, 10)) + list(range(12, 16)), wheel_velocity=[16, 17])
+        env.domain.evaluation_immediate_features = groups[overrides["instant_sensor_group"]]
     env.cfg["record_diagnostics"] = True
     alive = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
     snapshots = []
@@ -426,7 +430,8 @@ def main():
             quiet_velocity_feature_scale=task["quiet_velocity_feature_scale"], quiet_wheel_bound=task["quiet_wheel_bound"],
             stance_aware_recovery=task["stance_aware_recovery"],
             recovery_shape_aware=task["recovery_shape_aware"],
-            quiet_high_common_alpha=task.get("quiet_high_common_alpha")).to(args.device)
+            quiet_high_common_alpha=task.get("quiet_high_common_alpha"),
+            quiet_high_leg_prediction_s=task.get("quiet_high_leg_prediction_s", 0.)).to(args.device)
         initialization = torch.load(args.initialize, map_location=args.device, weights_only=False)
         if initialization["infos"]["schema"] != "unified-getup-checkpoint-v1":
             raise ValueError("Initialization must be an authenticated v1 recovery checkpoint")
