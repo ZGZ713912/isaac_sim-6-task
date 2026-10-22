@@ -76,6 +76,8 @@ def prepare(args):
     if getattr(args, "early_standing_position", False):
         task.update(version="robust-v2.14-early-position", quiet_position_weight=0.,
                     standing_early_position_weight=6.)
+    if getattr(args, "high_standing_only", False):
+        task.update(version="robust-v2.16-high-standing-only", quiet_height_probabilities=[0., 0., 1.])
     if getattr(args, "standing_drift_objective", False):
         task.update(version="robust-v2.15-standing-drift", standing_drift_weight=2.)
     if getattr(args, "focus_recovery_quiet", False):
@@ -378,6 +380,8 @@ def main():
                         help="Charge the 5 cm position envelope after the first .2 s instead of deferring it with vibration startup")
     parser.add_argument("--standing-drift-objective", action="store_true",
                         help="Opt-in bounded 2 cm/s standing objective in addition to the 5 cm position deadband")
+    parser.add_argument("--high-standing-only", action="store_true",
+                        help="Opt-in standing pilot that samples only the 420 mm high request")
     parser.add_argument("--focus-recovery-quiet", action="store_true", help="Tune recovery and quiet standing while freezing parent and arc motion")
     parser.add_argument("--arc-only", action="store_true", help="Tune only the shared motion head with extra moderate simultaneous requests")
     parser.add_argument("--recovery-only", action="store_true",
@@ -406,6 +410,9 @@ def main():
         parser.error("Early position tuning requires --standing-support-training")
     if args.standing_drift_objective and not (args.standing_support_training and args.early_standing_position):
         parser.error("Standing drift tuning requires support and early-position profiles")
+    if args.high_standing_only and not (args.quiet_only and args.standing_support_training
+                                        and args.early_standing_position):
+        parser.error("High-standing-only tuning requires quiet support and early-position profiles")
     if args.focus_recovery_quiet and (args.quiet_only or args.freeze_quiet):
         parser.error("Choose a single tuning mode")
     if args.arc_only and (args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):

@@ -49,6 +49,9 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert drift["quiet_sway_m"] == .05
     assert drift["quiet_high_leg_prediction_s"] == .005
     assert drift["fast_forward_reference_yaw_fade"] is None
+    args.high_standing_only = True
+    _, high = training.prepare(args)
+    assert high["quiet_height_probabilities"] == [0., 0., 1.]
     args.friction_min = args.friction_max = .3
     cfg, fixed = training.prepare(args)
     assert fixed["active_friction_range"] == [.3, .3]
