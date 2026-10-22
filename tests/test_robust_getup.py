@@ -33,6 +33,61 @@ def test_large_leg_angles_do_not_trap_recovered_body_in_recovery_head():
     assert quiet_gate(obs)[1] == 0.
 
 
+def test_normal_leg_lean_keeps_balance_authority_and_fallen_states_keep_getup():
+    import math
+    obs = observation(5)
+    obs[:, 9] = torch.tensor([-math.cos(math.radians(40)), -math.cos(math.radians(40)),
+                              0., 1., -1.])
+    obs[1, 10:14] = 2.
+    obs[4, 10:14] = 2.
+    gate = tilt_gate(obs, True).flatten()
+    assert gate[0] == 0.
+    assert 0. < gate[1] < 1.
+    assert gate[2:].tolist() == [1., 1., 0.]
+
+
+def test_stance_gate_retains_parent_during_requested_motion_lean():
+    parent = nn.Linear(35, 6)
+    with torch.no_grad():
+        parent.weight.zero_()
+        parent.bias.fill_(.2)
+    actor = RobustGetupActor(parent, stance_aware_recovery=True)
+    with torch.no_grad():
+        actor.recovery[-1].bias.fill_(1.)
+    obs = observation()
+    obs[:, 0], obs[:, 9] = .7, -.8
+    torch.testing.assert_close(actor(obs), torch.full((1, 6), .2), atol=0, rtol=0)
+
+
+def test_collapsed_knee_does_not_release_recovery_when_common_phase_looks_upright():
+    obs = observation(3)
+    obs[:, 9] = -.8
+    obs[1, 10:14] = torch.tensor([.25, .82, -.21, .20])
+    obs[2, 10:14] = torch.tensor([.1, .12, -.1, -.12])
+    assert tilt_gate(obs, True)[1] == 0.
+    gate = tilt_gate(obs, True, True)
+    assert gate[1] > .3
+    assert gate[0] == gate[2] == 0.
+
+
+def test_shape_aware_recovery_still_releases_at_upright_with_any_knee_shape():
+    obs = observation(4)
+    obs[:, 10:14] = torch.tensor([.25, .82, -.21, .20])
+    assert torch.equal(tilt_gate(obs, True, True), torch.zeros(4, 1))
+
+
+def test_shape_aware_capture_preserves_exact_upright_mean_and_distribution():
+    from copy import deepcopy
+    actor = RobustGetupActor(nn.Linear(35, 6), stance_aware_recovery=True)
+    candidate = deepcopy(actor)
+    candidate.recovery_shape_aware = True
+    obs = observation(8)
+    obs[:, 10:28] = torch.randn(8, 18)
+    torch.testing.assert_close(actor(obs), candidate(obs), rtol=0, atol=0)
+    a, b = SensorConditionedMean(actor), SensorConditionedMean(candidate)
+    torch.testing.assert_close(a(obs), b(obs), rtol=0, atol=0)
+
+
 def test_stationary_wheels_and_legs_both_receive_learning_gradients():
     actor = RobustGetupActor(nn.Linear(35, 6))
     actor(observation()).sum().backward()
@@ -66,12 +121,25 @@ def test_cyclic_recovery_does_not_change_upright_quiet_actions():
     original = RobustGetupActor(nn.Linear(35, 6))
     cyclic = deepcopy(original)
     cyclic.cyclic_leg_targets = True
+    cyclic.smooth_knee_targets = True
     cyclic.recovery_leg_step = .3
     cyclic.action_bound[:4].fill_(16.)
     obs = observation(16)
     obs[:, 10:14] = torch.randn(16, 4) * .3
     obs[:, 22:28] = torch.randn(16, 6) * .1
     torch.testing.assert_close(cyclic(obs), original(obs), rtol=0, atol=0)
+
+
+def test_quiet_feature_changes_leave_requested_motion_bitwise_unchanged():
+    from copy import deepcopy
+    original = RobustGetupActor(nn.Linear(35, 6))
+    improved = deepcopy(original)
+    improved.quiet_velocity_feature_scale = 10.
+    improved.quiet_bound[4:].fill_(2.)
+    obs = observation(8)
+    obs[:, 0] = 1.
+    obs[:, 16:22] = torch.randn(8, 6) * .1
+    torch.testing.assert_close(improved(obs), original(obs), rtol=0, atol=0)
 
 
 def test_mild_domains_include_nominal_and_scale_physical_units_consistently():
@@ -140,6 +208,17 @@ def test_exact_side_and_inverted_cases_remain_held_out_when_bank_expands():
         if case["name"].startswith(("left_", "right_", "inverted_")):
             pose = bank["poses"][case["pose_index"]]
             assert max(abs(pose["roll_deg"]), abs(pose["pitch_deg"])) == (180 if case["name"].startswith("inverted") else 90)
+
+
+def test_moderate_rehearsal_exposes_both_requests_and_all_four_directions():
+    from wheeled_tasks.chassis.arc_rehearsal import moderate_arc_commands
+    draws = torch.tensor([[0., .25, 0., .25], [1., .75, 1., .25],
+                          [0., .25, 1., .75], [1., .75, 0., .75]])
+    requests = moderate_arc_commands(draws)
+    assert set(map(tuple, requests.sign().tolist())) == {(-1.,-1.), (1.,-1.), (-1.,1.), (1.,1.)}
+    torch.testing.assert_close(requests[:, 0].abs(), torch.tensor([.4,1.25,.4,1.25]))
+    torch.testing.assert_close(requests[:, 1].abs(), torch.tensor([.4,1.4,1.4,.4]))
+    assert (requests.prod(-1).abs() <= 2.06).all()
 
 
 def test_getup_square_supports_all_headings_without_long_thin_triangles():
