@@ -52,9 +52,22 @@ def prepare(args):
                     quiet_velocity_feature_scale=getattr(args, "quiet_velocity_feature_scale", None),
                     quiet_wheel_bound=getattr(args, "quiet_wheel_bound", .5),
                     domain_scale=getattr(args, "domain_scale", 1.), quiet_frozen=getattr(args, "freeze_quiet", False))
+    if getattr(args, "resume", None):
+        import torch
+        prior = torch.load(args.resume, map_location="cpu", weights_only=False)["infos"]["settings"]
+        # A reward/exposure pilot must retain the resumed recovery function,
+        # including non-tensor authority flags, rather than reset defaults.
+        for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
+                    "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
+                    "recovery_shape_aware"):
+            if key in prior:
+                task[key] = deepcopy(prior[key])
     if getattr(args, "quiet_only", False):
         task.update(version=task["version"] + "-quiet", quiet_training=True, motion_fraction=.8,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
+    if getattr(args, "standing_support_training", False):
+        task.update(version="robust-v2.11-standing-request-support", standing_support_training=True,
+                    quiet_position_weight=2., quiet_height_probabilities=[.25, .25, .5])
     if getattr(args, "focus_recovery_quiet", False):
         task.update(version=task["version"] + "-recovery-quiet", quiet_training=True, motion_fraction=.6,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
@@ -321,6 +334,8 @@ def main():
     parser.add_argument("--restore-quiet-checkpoint", type=Path)
     parser.add_argument("--freeze-quiet", action="store_true")
     parser.add_argument("--quiet-only", action="store_true", help="Freeze motion/recovery and tune the quiet head, allowing 5 cm slow sway")
+    parser.add_argument("--standing-support-training", action="store_true",
+                        help="Quiet-only profile: persistent request anchor, geometric support cost, 50%% high-height exposure")
     parser.add_argument("--focus-recovery-quiet", action="store_true", help="Tune recovery and quiet standing while freezing parent and arc motion")
     parser.add_argument("--arc-only", action="store_true", help="Tune only the shared motion head with extra moderate simultaneous requests")
     parser.add_argument("--recovery-only", action="store_true",
@@ -343,6 +358,8 @@ def main():
         parser.error("Read-only ablations require --mode evaluate")
     if args.quiet_only and args.freeze_quiet:
         parser.error("Quiet tuning cannot freeze its only trainable mean head")
+    if args.standing_support_training and not args.quiet_only:
+        parser.error("Standing support tuning requires --quiet-only so existing recovery/motion stay frozen")
     if args.focus_recovery_quiet and (args.quiet_only or args.freeze_quiet):
         parser.error("Choose a single tuning mode")
     if args.arc_only and (args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):
@@ -518,6 +535,7 @@ def main():
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
             frozen_motion = ({k: v.detach().clone() for k, v in mean.state_dict().items()
                               if not k.startswith("quiet.")} if args.quiet_only else None)
+            frozen_quiet_std = runner.alg.actor.mlp.log_std.detach().clone() if args.quiet_only else None
             frozen_parent_arc = ({k: v.detach().clone() for k, v in mean.state_dict().items()
                                   if k.startswith(("parent.", "arc."))} if args.focus_recovery_quiet else None)
             frozen_non_arc = ({k: v.detach().clone() for k, v in mean.state_dict().items()
@@ -582,9 +600,11 @@ def main():
                     save(str(args.output / "model_initial.pt"))
                 runner.learn(args.updates, init_at_random_ep_len=False)
                 if frozen_motion is not None:
-                    if any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_motion.items()):
+                    if (any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_motion.items())
+                            or not torch.equal(frozen_quiet_std, runner.alg.actor.mlp.log_std)):
                         raise RuntimeError("Quiet tuning modified a frozen motion/recovery parameter")
                     report["frozen_motion_recovery_unchanged"] = True
+                    report["frozen_quiet_exploration_unchanged"] = True
                 if frozen_parent_arc is not None:
                     if any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_parent_arc.items()):
                         raise RuntimeError("Focused tuning modified frozen parent/arc motion weights")
