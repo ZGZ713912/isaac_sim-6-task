@@ -2,7 +2,8 @@ import math
 
 import torch
 
-from wheeled_tasks.chassis.quiet_standing import QuietStanding, standing_request_mask, standing_support_cost, standing_position_cost
+from wheeled_tasks.chassis.quiet_standing import (QuietStanding, standing_request_mask,
+    standing_support_cost, standing_position_cost, standing_drift_cost)
 
 
 def test_slow_sway_inside_five_cm_has_no_position_cost():
@@ -85,3 +86,16 @@ def test_position_envelope_has_no_price_within_five_cm_and_penalizes_both_direct
     cost = standing_position_cost(xy.norm(dim=-1))
     assert cost[:2].tolist() == [0., 0.]
     assert cost[2] == cost[3] and cost[2] > 0.
+
+
+def test_slow_creep_has_a_learning_signal_without_erasing_balance_credit():
+    speed = torch.tensor([0., .002, -.002, .01, .02, .5, 1000.], requires_grad=True)
+    cost = standing_drift_cost(speed)
+    assert cost[0] == 0. and cost[1] == cost[2]
+    assert 0. < cost[1] < cost[3] < cost[4] < cost[5]
+    assert torch.isfinite(cost).all() and (cost <= 1.).all()
+    # At 2 mm/s this resolves creep far more strongly than 0.5 m/s tracking.
+    assert cost[1] > 100 * (1. - torch.exp(-(speed[1] / .5).square()))
+    cost.sum().backward()
+    assert speed.grad[1] > 0. and speed.grad[2] < 0.
+    assert torch.isfinite(speed.grad).all()
