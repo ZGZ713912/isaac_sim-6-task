@@ -31,3 +31,11 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     _, revised = training.prepare(args)
     assert revised["quiet_position_weight"] == 0.
     assert revised["standing_early_position_weight"] == 6.
+    args.friction_min = args.friction_max = .1
+    cfg, fixed = training.prepare(args)
+    assert fixed["active_friction_range"] == [.1, .1]
+    from wheeled_tasks.chassis.contact_material import ContactMaterialDomain
+    material = ContactMaterialDomain(4, cfg["contact_material"], seed=123)
+    summary = material.summary()
+    assert summary["sampled_ground_static_min_max"] == [float(torch.tensor(.1))] * 2
+    assert summary["effective_wheel_static_min_max"] == [float(torch.tensor(.1))] * 2
