@@ -126,3 +126,13 @@
 在 020 的 1–1.5 m/s 范围保持不变的前提下，只将 `fast_forward_reference_yaw_fade` 从 .25 改为显式 None：高正向请求转弯时继续使用已认证原部署网络的学习反馈，低速/倒车/静站/自起函数保持。仍是单个 35→6 ONNX，所有 actor/critic/Adam 张量不变，34 项核心检查通过。
 
 候选 SHA `c414cd6975a835ef56f8713e4308e31e1ccf38e0a46d40fa78a299bf01e4101a` 的匹配 96×12 s 速度/yaw 矩阵完成，全部存活，原点、初态、材料与域参数逐项与 020 一致。四种 yaw 下，1.5 m/s 平均实速 1.660–1.681、最差单回合 1.647；3 m/s 平均 3.173–3.197、最差 3.148。矩阵全部单回合最大 vx MAE .2182 m/s、yaw MAE .1867 rad/s，原先高速转弯失速/反向消失。该结果只认证所测命令矩阵，近原点的完整恢复/三高度/更长静站仍待核验，不授长训或实车资格。详见 `iteration022_initial.json` / `iteration022_final.json`。
+
+## 023：原点附近独立碰撞世界
+
+新增默认关闭的原生场景模式：使用 Isaac Lab 自带 `cloner.filter_collisions` 为每个完整 Robot/Terrain 层级建立独立碰撞组，将所有环境原点放在零附近；每个环境仍保留原 96 m 方形三角地面及自己的材料，组间不接触。原生初始化逐组检查场景反转过滤、只允许自身组、全部机器人/地面碰撞形状归属；缺项即拒绝。实现依据为本机 Isaac Lab 3.0 beta2 `cloner_utils.py` 及 [NVIDIA collision group 文档](https://docs.omniverse.nvidia.com/kit/docs/omni_physics/108.1/dev_guide/rigid_bodies_articulations/collision.html)。未改变质量、轮地摩擦、PD、力矩帽、碰撞几何、自碰撞开关或保护门槛。
+
+模式绑定到 settings/task contract；续训及评测自动保留，导出比较拒绝不同碰撞隔离模式的配对。当前限 256 环境内，保留默认旧布局以便复现。新记录原生 world velocity，并将其积分与静站位置变化的一致性指标写入 TensorBoard。
+
+实际 49 环境×12 s 名义高位测试完成，49/49 跑满；49 组各有 31 个自有碰撞形状，所有原点为零，所有轨迹与 021 原点 lane 完全相同。完整位移均为 96.612 mm，避免远点量化把漂移伪装成静稳。闭链峰 7.17 µm，位置/速度积分误差折算 0.389 mm/s，低于预设诊断门 .5 mm/s；保留该非零误差，不声称数值精确积分。45 项定向 CPU 检查通过，完整证据 `iteration023_final.json`。
+
+这项修复提高训练和评测的物理可信度，本身没有改善策略。robust 消费保持 353。下一步 `iteration024_plan.json`：128 环境、32 次更新、LR1e-5，仅更新静站头与 critic，保留高速组合修复和自起权重，带 .35 域随机化和地面 .3–.5，在真实可见的漂移上训练早期 5 cm 位置死区与抖动/离地成本。

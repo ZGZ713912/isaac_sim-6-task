@@ -19,6 +19,9 @@ def digest(path):
 
 def verify_native_pairing(candidate, baseline):
     """Require the same physical placement, not just nominal scene settings."""
+    legacy = "spaced_corridors_v1"
+    if candidate.get("native_origin_mode", legacy) != baseline.get("native_origin_mode", legacy):
+        raise ValueError("Candidate and baseline native collision-isolation modes differ")
     lanes, parents = candidate["lanes"], baseline["lanes"]
     if not lanes or len(lanes) != len(parents):
         raise ValueError("Candidate and baseline lane populations differ")

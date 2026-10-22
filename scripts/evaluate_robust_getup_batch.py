@@ -42,6 +42,8 @@ def main():
     parser.add_argument("--seed", type=int, default=211131)
     parser.add_argument("--seeds", type=int, nargs="+")
     parser.add_argument("--replicas", type=int, default=2)
+    parser.add_argument("--isolated-origins", action="store_true", default=None,
+                        help="Explicit native layout: independent collision groups at a common near-zero origin")
     parser.add_argument("--allow-large-world-coordinates", action="store_true",
                         help="Historical diagnostic replay; large-world results cannot qualify an export")
     parser.add_argument("--domain-scale", type=float, default=0.,
@@ -108,12 +110,17 @@ def main():
     if len(seeds) > 2 or len(set(seeds)) != len(seeds) or count > 1024:
         parser.error("Use at most two distinct seeds and 1024 total native environments")
     checkpoint_sha = training.digest(args.checkpoint)
+    if args.isolated_origins is None:
+        import torch
+        saved_settings = torch.load(args.checkpoint, map_location="cpu", weights_only=False)["infos"]["settings"]
+        args.isolated_origins = saved_settings.get("native_origin_mode") == "isolated_overlap_v1"
     config_args = argparse.Namespace(output=args.output, bank=ROOT / "reports/unified_robust_20261021/pose_bank002.json",
         no_domains=args.domain_scale == 0., domain_scale=args.domain_scale,
         friction_min=args.friction_min if args.friction_value is None else args.friction_value,
         friction_max=.5 if args.friction_value is None else args.friction_value,
         curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65,
         num_envs=count, rollout_steps=128, mode="evaluate", friction="high", seed=args.seed,
+        isolated_origins=args.isolated_origins,
         allow_large_world_coordinates=args.allow_large_world_coordinates, episode_seconds=max(12., args.seconds))
     cfg, task = training.prepare(config_args)
     if count < len(cfg["scene_groups"]):
