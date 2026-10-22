@@ -1,0 +1,136 @@
+{
+  "schema": "quiet047-original-event-figure-v1",
+  "figure": "reports/unified_robust_20261021/standing_bias_ablation047.png",
+  "figure_sha256": "6b61c49d509df765d177721887bccc0b7e2914829e626244e7b4cfd155671f26",
+  "sources": [
+    {
+      "label": "Initial quiet",
+      "run": "runs/unified_robust_20261022/quiet_velocity_baseline036",
+      "step": 441,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792695023.ZGZ.462719.0.behavior",
+          "sha256": "5e94126bb0af2a9b427b93acc24a2e79005be3a0c314b4af62868e966d11d674"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792709803.ZGZ.826112.0.standing_segments047",
+          "sha256": "55ef25f9c9820360674bc8cf9fcb449f1ee88d2e5a14b09cc675c85cd98510bb"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792709966.ZGZ.827805.0.standing_segments047",
+          "sha256": "408bc485a35a2360fe9684f311ee112f7264c94151e25951d184996feaaefddb"
+        }
+      ]
+    },
+    {
+      "label": "045: coupled state",
+      "run": "runs/unified_robust_20261022/coupled_state_static045",
+      "step": 473,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/coupled_state_static045/events.out.tfevents.1792709223.ZGZ.814530.0.behavior",
+          "sha256": "8f1c0bd68d6ba336078029e3c570333a10ce81a0e0775666a5efee2c9aa89d34"
+        },
+        {
+          "path": "runs/unified_robust_20261022/coupled_state_static045/events.out.tfevents.1792709804.ZGZ.826112.1.standing_segments047",
+          "sha256": "f28c1d78feb147c1c6a9bcc3042ed2c181b1e7071b1f28caf6e9f6880a5f5e7e"
+        },
+        {
+          "path": "runs/unified_robust_20261022/coupled_state_static045/events.out.tfevents.1792709967.ZGZ.827805.1.standing_segments047",
+          "sha256": "e3ac668cb51dcda63dfb43fa038b33f114f2b8a4947023af3d3ca6ede22aeff7"
+        }
+      ]
+    },
+    {
+      "label": "047: bias removed",
+      "run": "runs/unified_robust_20261022/bias_ablation_static047",
+      "step": 473,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/bias_ablation_static047/events.out.tfevents.1792709859.ZGZ.826721.0.behavior",
+          "sha256": "eac1951ce1c568dd19a3b01122f33c3ae366de92c48ba32e07d2fa674df0764e"
+        },
+        {
+          "path": "runs/unified_robust_20261022/bias_ablation_static047/events.out.tfevents.1792709968.ZGZ.827805.2.standing_segments047",
+          "sha256": "03a30d2c46e8c6517de4ac69f899c2a4aa5051aa1cbc4d3d3db48e5be0ac06d1"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    "full_window/worst_episode_body_xy_max_excursion_m",
+    "body_xy_worst_episode_excursion_m",
+    "leg_motion_fast_rms_rad_3_95",
+    "wheel_motion_fast_rms_rad_s_3_95"
+  ],
+  "plotted_values": [
+    [
+      [
+        33.54179263114929,
+        18.553896248340607,
+        12.094707787036896
+      ],
+      [
+        26.267999410629272,
+        14.466822147369385,
+        12.736031413078308
+      ],
+      [
+        0.2827847783919424,
+        0.661621568724513,
+        1.2038745917379856
+      ],
+      [
+        0.05773825943470001,
+        0.12595055997371674,
+        0.22590185701847076
+      ]
+    ],
+    [
+      [
+        39.11006450653076,
+        12.318503111600876,
+        15.331892669200897
+      ],
+      [
+        30.618029832839966,
+        9.412766993045807,
+        15.88931679725647
+      ],
+      [
+        0.36461499985307455,
+        0.6428973283618689,
+        0.6725905695930123
+      ],
+      [
+        0.06541399657726288,
+        0.11738959699869156,
+        0.1526181846857071
+      ]
+    ],
+    [
+      [
+        36.50141656398773,
+        14.258323609828949,
+        14.721855521202087
+      ],
+      [
+        28.60521376132965,
+        11.011742800474167,
+        15.431320667266846
+      ],
+      [
+        0.3030558582395315,
+        0.7229346665553749,
+        0.6216141628101468
+      ],
+      [
+        0.06181523948907852,
+        0.12898918986320496,
+        0.14411741495132446
+      ]
+    ]
+  ],
+  "paired_static_conditions": true,
+  "data_source": "original RSL-RL run TensorBoard event files; no alternate curve source"
+}

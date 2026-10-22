@@ -1,0 +1,41 @@
+{
+  "schema": "quiet047-affine-bias-ablation-plan-v1",
+  "checkpoint": "runs/unified_robust_20261022/quiet_bias_ablation047/model_ablated.pt",
+  "source_checkpoint_sha256": "cf46e3a91789d030df12f9efb693c14f603e995216d5586adf063184f93718a3",
+  "checkpoint_sha256": "7fa1736d1617e06b553ed02108437ab6691a9bd45ed6af20a1222b6b836498a7",
+  "base_clock": 473,
+  "optimizer_updates": 0,
+  "robust_consumed": 961,
+  "only_changed_actor_parameters": [
+    "mlp.mean.quiet_velocity.mid.bias",
+    "mlp.mean.quiet_velocity.low.bias",
+    "mlp.mean.quiet_velocity.high.bias"
+  ],
+  "reset_only_bias_adam": {
+    "mlp.mean.quiet_velocity.mid.bias": 26,
+    "mlp.mean.quiet_velocity.low.bias": 28,
+    "mlp.mean.quiet_velocity.high.bias": 30
+  },
+  "all_other_actor_critic_adam_groups_rng_exact": true,
+  "numeric": {
+    "observations": 8400,
+    "quiet_inactive_observations": 7481,
+    "quiet_inactive_raw_action_error": 0.0,
+    "maximum_raw_action_change": 0.002787284553050995
+  },
+  "planned_native": {
+    "episodes": 48,
+    "per_height": 16,
+    "seconds": 12.0,
+    "seed": 211322,
+    "domain_scale": 0.35,
+    "ground_friction": [
+      0.3,
+      0.5
+    ],
+    "isolated_origins": true
+  },
+  "full_suite_planned": false,
+  "long_training_admitted": false,
+  "hardware_ready": false
+}

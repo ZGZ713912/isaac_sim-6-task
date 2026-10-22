@@ -1,0 +1,37 @@
+{
+  "schema": "quiet045-final-state-audit-v1",
+  "checkpoint_sha256": "cf46e3a91789d030df12f9efb693c14f603e995216d5586adf063184f93718a3",
+  "all_model_and_adam_finite": true,
+  "frozen_actor_and_std_and_named_adam_exact": true,
+  "frozen_actor_slots": 25,
+  "only_added_actor_changed": [
+    "mlp.mean.quiet_velocity.mid.weight",
+    "mlp.mean.quiet_velocity.mid.bias",
+    "mlp.mean.quiet_velocity.low.weight",
+    "mlp.mean.quiet_velocity.low.bias",
+    "mlp.mean.quiet_velocity.high.weight",
+    "mlp.mean.quiet_velocity.high.bias"
+  ],
+  "critic_changed": [
+    "mlp.0.weight",
+    "mlp.0.bias",
+    "mlp.2.weight",
+    "mlp.2.bias",
+    "mlp.4.weight",
+    "mlp.4.bias",
+    "mlp.6.weight",
+    "mlp.6.bias"
+  ],
+  "added_adam_minibatch_steps": {
+    "mlp.mean.quiet_velocity.mid.weight": 384,
+    "mlp.mean.quiet_velocity.mid.bias": 384,
+    "mlp.mean.quiet_velocity.low.weight": 384,
+    "mlp.mean.quiet_velocity.low.bias": 384,
+    "mlp.mean.quiet_velocity.high.weight": 384,
+    "mlp.mean.quiet_velocity.high.bias": 384
+  },
+  "new_macro_ppo_updates": 32,
+  "base_clock": 473,
+  "robust_consumed": 961,
+  "hardware_ready": false
+}

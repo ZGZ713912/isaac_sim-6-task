@@ -1,0 +1,90 @@
+{
+  "schema": "unified-optimization-20261023-v1",
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "latest_completed_native_processes": {
+    "iteration045_train_process.json": {
+      "pid": 784315,
+      "status": "completed",
+      "native_status": "completed",
+      "returncode": 0
+    },
+    "coupled_state_static045_process.json": {
+      "pid": 804303,
+      "status": "completed",
+      "native_status": "completed",
+      "returncode": 0
+    },
+    "bias_ablation_static047_process.json": {
+      "pid": 821855,
+      "status": "completed",
+      "native_status": "completed",
+      "returncode": 0
+    }
+  },
+  "full_behavior_baseline": "iteration032_final.json",
+  "selective_high_feedback_experiment": "iteration044_final.json",
+  "rejected_candidates": [
+    "045_coupled_state",
+    "047_affine_bias_ablation"
+  ],
+  "actual_accounting": {
+    "latest_pilot_macro_ppo_updates": 32,
+    "latest_pilot_initial_clock": 441,
+    "latest_pilot_final_clock": 473,
+    "robust_experiment_total_consumed_macro_updates": 961,
+    "zero_ppo_bias_ablation_updates": 0,
+    "long_training_new_updates": 0
+  },
+  "full_training_admitted": false,
+  "new_deployment_package_replaced": false,
+  "hardware_ready": false,
+  "remaining_issues": [
+    "Moderate-domain standing tails exceed5cm and some candidates trade vibration for drift",
+    "Moving strong-push recovery/capture remains insufficient in the last full-suite baseline",
+    "Some side/inverted rises do not sustain the strict continuous motion handoff",
+    "Latest rejected static variants have no new full-suite or two-seed admission evidence"
+  ],
+  "evidence": [
+    {
+      "path": "reports/unified_robust_20261021/iteration045_final.json",
+      "sha256": "ebce0c1b4fe49ea450416bdaebbafedddecf77582bffc09facda493dc798cb4c"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration045_initial.json",
+      "sha256": "206eb8e80bb63f098bd924626ddaba1a7f7a8fa94991effbb908c25409af1e7c"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration045_final_state.json",
+      "sha256": "5a908dee353b7ff87f65cc903f9494f425489b24053d138fff704c708e4eb3db"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration045_onnx_diagnostic.json",
+      "sha256": "d499f0d3a1a55140c62dc3f047d74b1edd6372504767143ec89c1c704bc65765"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration047_plan.json",
+      "sha256": "d53edd9a6727767eedd20481fc2795c2a67617e9c9342bc0c3240b6281067ecf"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration047_final.json",
+      "sha256": "13cacc7e2e40f6c99b44f361895c11c6719599a8893adbc6d56728c2d4898fe6"
+    },
+    {
+      "path": "reports/unified_robust_20261021/moving_fall_timing046.json",
+      "sha256": "6159aeb6ae10121c3e0d20ad3c3a2862f9da004a988f9bb22ea0a8aad90ec6d2"
+    },
+    {
+      "path": "reports/unified_robust_20261021/recovery_prediction046_probe.json",
+      "sha256": "5180ca419c7bcb9beb277d06c2773ed22c3de2b4cb9a3851f3a182ff470c89e4"
+    },
+    {
+      "path": "reports/unified_robust_20261021/standing_segments047.json",
+      "sha256": "87f066ce0ef91171390743565899b06395173adb9922eb1c3c5def0244479ccb"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration047_native_action_replay.json",
+      "sha256": "97f7081921b6452e9c4de14f775712a03305cad9dd3db0add483c0ad74c344ce"
+    }
+  ]
+}
