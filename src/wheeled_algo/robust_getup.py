@@ -50,7 +50,7 @@ class RobustGetupActor(UnifiedGetupActor):
                  cyclic_leg_targets=False, leg_action_clip=13., recovery_leg_step=1.2,
                  smooth_knee_targets=False, recovery_knee_center=(.924544, .924537),
                  quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, stance_aware_recovery=False,
-                 recovery_shape_aware=False):
+                 recovery_shape_aware=False, quiet_high_common_alpha=None):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -63,6 +63,9 @@ class RobustGetupActor(UnifiedGetupActor):
         if recovery_shape_aware and not stance_aware_recovery:
             raise ValueError("Knee-shape recovery requires stance-aware authority")
         self.recovery_shape_aware = recovery_shape_aware
+        if quiet_high_common_alpha is not None and not 0. < quiet_high_common_alpha <= 1.:
+            raise ValueError("High-height common-angle interpolation must be in (0,1]")
+        self.quiet_high_common_alpha = quiet_high_common_alpha
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
@@ -80,6 +83,16 @@ class RobustGetupActor(UnifiedGetupActor):
         motion = torch.maximum(torch.minimum(motion, self.motion_bound), -self.motion_bound)
         quiet = quiet_gate(obs)
         smoothed = obs[:, 22:28] + self.quiet_alpha * (motion - obs[:, 22:28])
+        if self.quiet_high_common_alpha is not None:
+            # Separate paired balance rotation from knee opening. At high
+            # stance the extra common-angle filter delay can destabilize the
+            # already delayed IMU/encoder feedback. Keep knee/height smoothing
+            # and the existing low/mid-height policy exactly unchanged.
+            high = ((obs[:, 3:4] / 5. - .35) / .05).clamp(0., 1.)
+            common = (motion[:, :4] - obs[:, 22:26]).unflatten(-1, (2, 2)).mean(-1, keepdim=True)
+            common = common.expand(-1, -1, 2).flatten(-2)
+            extra = high * (self.quiet_high_common_alpha - self.quiet_alpha[:4]) * common
+            smoothed = torch.cat((smoothed[:, :4] + extra, smoothed[:, 4:]), -1)
         quiet_features = features
         if self.quiet_velocity_feature_scale is not None:
             quiet_features = torch.cat((features[:, :16], torch.tanh(obs[:, 16:22] * self.quiet_velocity_feature_scale), features[:, 22:]), -1)
