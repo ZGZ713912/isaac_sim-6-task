@@ -12,6 +12,38 @@ def observation(count=1):
     return obs
 
 
+def test_quiet_velocity_conditioning_preserves_feedback_and_changes_learning_coordinates():
+    from copy import deepcopy
+    import pytest
+    torch.manual_seed(36)
+    base = RobustGetupActor(nn.Linear(35, 6), quiet_height_experts=True, quiet_native_height_anchors=True)
+    for head in (base.quiet, base.quiet_low, base.quiet_high):
+        nn.init.normal_(head[-1].weight, std=.1)
+    new = deepcopy(base)
+    new.quiet_velocity_feature_gain = 10.
+    with torch.no_grad():
+        for head in (new.quiet, new.quiet_low, new.quiet_high):
+            head[0].weight[:, 16:22].div_(10.)
+    obs = observation(768)
+    obs[:, 3] = (torch.tensor([.23, .305, .42]) * 5.).repeat(256)
+    obs[:, 10:28] = torch.randn(768, 18) * .2
+    torch.testing.assert_close(base(obs), new(obs), atol=3e-7, rtol=1e-6)
+    for change in ("moving", "fallen"):
+        x = obs.clone()
+        x[:, 0 if change == "moving" else 9] = 1.
+        assert torch.equal(base(x), new(x))
+    features = torch.randn(128, 35) * .1
+    scaled = features.clone()
+    scaled[:, 16:22] *= 10.
+    base.quiet_high(features).sum().backward()
+    new.quiet_high(scaled).sum().backward()
+    torch.testing.assert_close(new.quiet_high[0].weight.grad[:, 16:22],
+                               base.quiet_high[0].weight.grad[:, 16:22] * 10., atol=2e-6, rtol=2e-5)
+    for invalid in (0., .5, 31., float("nan"), float("inf")):
+        with pytest.raises(ValueError, match="Quiet velocity feature gain"):
+            RobustGetupActor(nn.Linear(35, 6), quiet_velocity_feature_gain=invalid)
+
+
 def test_precision_exploration_changes_only_quiet_variance_and_preserves_the_sampled_likelihood():
     import pytest
     old = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)))

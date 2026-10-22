@@ -68,7 +68,7 @@ class RobustGetupActor(UnifiedGetupActor):
                  recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.,
                  fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.),
                  fast_forward_reference_yaw_fade=.25, quiet_height_experts=False,
-                 quiet_native_height_anchors=False):
+                 quiet_native_height_anchors=False, quiet_velocity_feature_gain=1.):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -77,6 +77,9 @@ class RobustGetupActor(UnifiedGetupActor):
         self.smooth_knee_targets = smooth_knee_targets
         self.recovery_knee_center = recovery_knee_center
         self.quiet_velocity_feature_scale = quiet_velocity_feature_scale
+        if not 1. <= quiet_velocity_feature_gain <= 30.:
+            raise ValueError("Quiet velocity feature gain must be within1...30")
+        self.quiet_velocity_feature_gain = quiet_velocity_feature_gain
         self.stance_aware_recovery = stance_aware_recovery
         if recovery_shape_aware and not stance_aware_recovery:
             raise ValueError("Knee-shape recovery requires stance-aware authority")
@@ -176,6 +179,12 @@ class RobustGetupActor(UnifiedGetupActor):
             quiet_features = torch.tanh(motion_obs * self.feature_scale)
         if self.quiet_velocity_feature_scale is not None:
             quiet_features = torch.cat((quiet_features[:, :16], torch.tanh(obs[:, 16:22] * self.quiet_velocity_feature_scale), quiet_features[:, 22:]), -1)
+        if self.quiet_velocity_feature_gain != 1.:
+            # An explicit migration inversely rescales the first-layer velocity
+            # columns and transforms Adam moments. Initial feedback is retained;
+            # only its learning coordinates change, without saturating a new tanh.
+            quiet_features = torch.cat((quiet_features[:, :16],
+                quiet_features[:, 16:22] * self.quiet_velocity_feature_gain, quiet_features[:, 22:]), -1)
         motion = motion + quiet * (smoothed - motion + self.quiet_bound * self.quiet_correction(quiet_features, obs))
         raw = (canonical_recovery_logits(self.recovery, obs, self.feature_scale)
                if self.canonical_recovery else self.recovery(features))

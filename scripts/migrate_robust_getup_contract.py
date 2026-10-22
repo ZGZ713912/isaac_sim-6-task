@@ -39,6 +39,8 @@ def main():
                         help="Optional authenticated low-height quiet head; requires --quiet-height-experts")
     parser.add_argument("--high-quiet-reference", type=Path,
                         help="Restore only an existing high-height expert and its named Adam moments; retain recovery")
+    parser.add_argument("--quiet-velocity-feature-gain", type=float,
+                        help="Explicit1...30 post-tanh feature conditioning; inverse-scale quiet weights and named Adam moments")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
@@ -66,6 +68,11 @@ def main():
         parser.error("Migrate height experts and restore a quiet reference in separate explicit revisions")
     if args.high_quiet_reference and (args.quiet_reference or args.quiet_height_experts):
         parser.error("Restore an existing high-height expert in a separate explicit revision")
+    if args.quiet_velocity_feature_gain is not None:
+        if not 1. <= args.quiet_velocity_feature_gain <= 30.:
+            parser.error("Quiet velocity feature gain must be within1...30")
+        if args.quiet_reference or args.high_quiet_reference or args.quiet_height_experts:
+            parser.error("Condition existing quiet experts in a separate explicit revision")
     if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
         parser.error("Motion residual fraction must be 0..1")
     if args.fast_forward_reference_range is not None and not 0. <= args.fast_forward_reference_range[0] < args.fast_forward_reference_range[1] <= 3.:
@@ -105,6 +112,33 @@ def main():
                                 fast_forward_reference_yaw_fade=None)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
+    if args.quiet_velocity_feature_gain is not None:
+        if not old_info["settings"].get("quiet_height_experts", False):
+            raise ValueError("Quiet velocity conditioning requires existing three-height experts")
+        old_gain = old_info["settings"].get("quiet_velocity_feature_gain", 1.)
+        ratio = args.quiet_velocity_feature_gain / old_gain
+        names = [name for name, p in SensorConditionedMean(mean).named_parameters() if p.requires_grad]
+        group = next(g for g in state["optimizer_state_dict"]["param_groups"] if g["name"] == "actor")
+        if len(names) != len(group["params"]):
+            raise ValueError("Cannot authenticate conditioned quiet actor optimizer order")
+        ids = dict(zip(names, group["params"], strict=True))
+        for head in ("quiet", "quiet_low", "quiet_high"):
+            name = "mean." + head + ".0.weight"
+            weight = state["actor_state_dict"]["mlp." + name]
+            weight[:, 16:22].div_(ratio)
+            moments = state["optimizer_state_dict"]["state"].get(ids[name], {})
+            for key, factor in (("exp_avg", ratio), ("exp_avg_sq", ratio ** 2), ("max_exp_avg_sq", ratio ** 2)):
+                if key in moments:
+                    if moments[key].shape != weight.shape:
+                        raise ValueError("Conditioned quiet optimizer tensor shape differs")
+                    moments[key][:, 16:22].mul_(factor)
+        info["settings"].update(version="robust-v2.26-quiet-velocity-conditioning",
+                                quiet_velocity_feature_gain=args.quiet_velocity_feature_gain)
+        revision["quiet_velocity_conditioning"] = dict(old_gain=old_gain,
+            new_gain=args.quiet_velocity_feature_gain, weight_ratio=1. / ratio,
+            first_moment_ratio=ratio, second_moment_ratio=ratio ** 2,
+            scope="three quiet first-layer velocity columns only; other tensors, Adam steps and RNG retained",
+            deterministic_function="preserved up to float32 rounding, verify on real observations")
     if args.quiet_exploration_fraction is not None:
         info["settings"].update(version="robust-v2.24-quiet-exploration",
                                 quiet_exploration_fraction=args.quiet_exploration_fraction)
@@ -192,6 +226,8 @@ def main():
         for key in ("base_checkpoint_sha256", "bank_sha256"):
             if info[key] != ref_info[key]:
                 raise ValueError("High-height reference mechanism or locomotion parent differs: " + key)
+        if info["settings"].get("quiet_velocity_feature_gain", 1.) != ref_info["settings"].get("quiet_velocity_feature_gain", 1.):
+            raise ValueError("High-height reference controller contract differs: quiet_velocity_feature_gain")
         for key in ("quiet_actor_alpha", "quiet_velocity_feature_scale", "quiet_wheel_bound",
                     "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_native_height_anchors",
                     "leg_action_clip", "wheel_action_clip", "fast_forward_reference",
@@ -236,6 +272,8 @@ def main():
     allowed = (("mlp.mean.quiet.", "mlp.mean.quiet_alpha", "mlp.mean.quiet_bound") if args.quiet_reference else ())
     if args.high_quiet_reference:
         allowed = ("mlp.mean.quiet_high.",)
+    if args.quiet_velocity_feature_gain is not None:
+        allowed = tuple("mlp.mean." + name + ".0.weight" for name in ("quiet", "quiet_low", "quiet_high"))
     if any(not torch.equal(value, state["actor_state_dict"][key])
            for key, value in original_actor.items() if not key.startswith(allowed)):
         raise ValueError("Migration changed unrelated actor parameters")

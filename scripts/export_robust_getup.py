@@ -77,6 +77,7 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            smooth_knee_targets=info["settings"].get("smooth_knee_targets", False),
                            recovery_knee_center=info["settings"].get("recovery_knee_center", [.924544, .924537]),
                            quiet_velocity_feature_scale=info["settings"].get("quiet_velocity_feature_scale"),
+                           quiet_velocity_feature_gain=info["settings"].get("quiet_velocity_feature_gain", 1.),
                            quiet_wheel_bound=info["settings"].get("quiet_wheel_bound", .5),
                            stance_aware_recovery=info["settings"].get("stance_aware_recovery", False),
                            recovery_shape_aware=info["settings"].get("recovery_shape_aware", False),
