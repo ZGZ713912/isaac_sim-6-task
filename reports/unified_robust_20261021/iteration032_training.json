@@ -1,0 +1,26 @@
+{
+  "schema": "robust-side-recovery032-training-v1",
+  "checkpoint_sha256": "3d8a476c7059939ee4fe134b83cd85330fd7b1fce5535ca813ac10cfa5f3d55f",
+  "new_updates": 64,
+  "selected_base_clock": 441,
+  "robust_consumed": 737,
+  "changed_actor": [
+    "mlp.mean.recovery.0.weight",
+    "mlp.mean.recovery.0.bias",
+    "mlp.mean.recovery.2.weight",
+    "mlp.mean.recovery.2.bias",
+    "mlp.mean.recovery.4.weight",
+    "mlp.mean.recovery.4.bias"
+  ],
+  "all_quiet_motion_logstd_exact": true,
+  "critic_updated": true,
+  "all_parameters_finite": true,
+  "strict_load_valid": true,
+  "full_behavior_verified": false,
+  "native_process_receipt": "iteration032_process.json",
+  "frozen_function_regression": {
+    "real_gate_zero_vectors": 7503,
+    "max_action_difference": 0.0,
+    "scope": "Fixed-input motion/standing states whose unchanged sensor gate gives recovery zero authority; fall and capture outputs intentionally trainable"
+  }
+}
