@@ -20,7 +20,7 @@ from .unified_getup import FAMILIES, classify_gravity, joint_tracking_score, pro
 from .robust_getup import RobustDomain
 from .getup_feedback import GetupFeedback
 from .getup_reward import potential_reward
-from .quiet_standing import QuietStanding, standing_request_mask, standing_support_cost
+from .quiet_standing import QuietStanding, standing_request_mask, standing_support_cost, standing_position_cost
 
 
 class RobustGetupEnv(ChassisEnv):
@@ -446,6 +446,9 @@ class RobustGetupEnv(ChassisEnv):
         support_cost = standing_support_cost(wheel_clearance_peak, wheel_contact_fraction)
         if self.getup_cfg.get("standing_support_training", False):
             quiet_cost += quiet_request * support_cost * (elapsed >= .2)
+        position_cost = standing_position_cost(quiet_radius, self.getup_cfg["quiet_sway_m"])
+        quiet_cost += (quiet_request * (elapsed >= .2) * position_cost
+                       * self.getup_cfg.get("standing_early_position_weight", 0.))
         self.previous_effort.copy_(tau)
         density = (2. * (1. - gravity[:, 2]) * .5 + upright * (2. * height_score + 4. * tracking)
                    + 2. * contact.float().mean(-1)
@@ -492,6 +495,7 @@ class RobustGetupEnv(ChassisEnv):
             "Quiet/position_radius_m": quiet_radius[quiet].mean() if quiet.any() else quiet_radius.new_zeros(()),
             "Standing/request_position_radius_m": quiet_radius[quiet_request].mean() if quiet_request.any() else quiet_radius.new_zeros(()),
             "Standing/support_cost_density": support_cost[quiet_request].mean() if quiet_request.any() else support_cost.new_zeros(()),
+            "Standing/position_deadband_cost_density": position_cost[quiet_request].mean() if quiet_request.any() else position_cost.new_zeros(()),
             "Robust/domain_fraction": self.domain.enabled.float().mean(),
             "Robust/motor_strength_mean": self.domain.strength.mean(),
             "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * 5.})

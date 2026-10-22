@@ -68,6 +68,9 @@ def prepare(args):
     if getattr(args, "standing_support_training", False):
         task.update(version="robust-v2.11-standing-request-support", standing_support_training=True,
                     quiet_position_weight=2., quiet_height_probabilities=[.25, .25, .5])
+    if getattr(args, "early_standing_position", False):
+        task.update(version="robust-v2.14-early-position", quiet_position_weight=0.,
+                    standing_early_position_weight=6.)
     if getattr(args, "focus_recovery_quiet", False):
         task.update(version=task["version"] + "-recovery-quiet", quiet_training=True, motion_fraction=.6,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
@@ -340,6 +343,8 @@ def main():
     parser.add_argument("--quiet-only", action="store_true", help="Freeze motion/recovery and tune the quiet head, allowing 5 cm slow sway")
     parser.add_argument("--standing-support-training", action="store_true",
                         help="Quiet-only profile: persistent request anchor, geometric support cost, 50%% high-height exposure")
+    parser.add_argument("--early-standing-position", action="store_true",
+                        help="Charge the 5 cm position envelope after the first .2 s instead of deferring it with vibration startup")
     parser.add_argument("--focus-recovery-quiet", action="store_true", help="Tune recovery and quiet standing while freezing parent and arc motion")
     parser.add_argument("--arc-only", action="store_true", help="Tune only the shared motion head with extra moderate simultaneous requests")
     parser.add_argument("--recovery-only", action="store_true",
@@ -364,6 +369,8 @@ def main():
         parser.error("Quiet tuning cannot freeze its only trainable mean head")
     if args.standing_support_training and not args.quiet_only:
         parser.error("Standing support tuning requires --quiet-only so existing recovery/motion stay frozen")
+    if args.early_standing_position and not args.standing_support_training:
+        parser.error("Early position tuning requires --standing-support-training")
     if args.focus_recovery_quiet and (args.quiet_only or args.freeze_quiet):
         parser.error("Choose a single tuning mode")
     if args.arc_only and (args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):
