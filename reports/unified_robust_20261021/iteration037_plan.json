@@ -1,0 +1,46 @@
+{
+  "schema": "quiet037-bounded-plan-v1",
+  "parent_checkpoint": "runs/unified_robust_20261022/quiet_velocity_skip037/model_migrated.pt",
+  "parent_sha256": "aac3134ab932b1b810a59131b4b57d0ac8996af55df2983075e426b726de7626",
+  "baseline_function": "036zero-PPO parent with identical existing actor/critic/moments/RNG; no036trained quiet weights",
+  "hypothesis": "036learned almost constant corrections; a bias-free direct velocity path can learn feedback while existing MLP biases remain fixed",
+  "updates": 32,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "seed": 211329,
+  "actor_lr": 0.003,
+  "critic_lr": 0.001,
+  "trainable_actor_parameters": 108,
+  "trainable_scope": "three6x6velocity weights and critic; all existing actor and base std frozen",
+  "domain_scale": 0.35,
+  "ground_friction": [
+    0.3,
+    0.5
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "unchanged_standing_objectives": {
+    "early_position_deadband_m": 0.05,
+    "early_position_weight": 6.0,
+    "drift_weight": 2.0,
+    "drift_speed_scale_m_s": 0.02,
+    "quiet_exploration_fraction": 0.1
+  },
+  "validation": {
+    "cpu_tests": 66,
+    "actual_cli_guards": 5,
+    "migration_exact_observations": 15600,
+    "extended_static": "3heights x16repeats,12s,seed211322; matched domain/material/pose/command/origin/firstobs",
+    "before_baseline": "quiet_velocity_baseline036; migration initial deterministic function and constructor RNG exact",
+    "full_suite": "140x12s only after static5cm/no>3mm operational clearance passes",
+    "full_counterpart": "side_confirmation032; nominal fresh two-seed admission remains required"
+  },
+  "robust_consumed_before": 801,
+  "robust_consumed_after_full_budget": 833,
+  "parent_clock": 441,
+  "expected_clock": 473,
+  "new_long_training_updates": 0,
+  "long_training_admitted": false,
+  "run_started": false
+}
