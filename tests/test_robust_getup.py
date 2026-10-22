@@ -192,6 +192,31 @@ def test_reference_speed_interval_rejects_zero_width_reversed_or_nonfinite_range
             RobustGetupActor(ReferenceParent(), fast_forward_reference_range=bounds)
 
 
+def test_all_yaw_forward_reference_retains_both_requests_and_only_changes_fast_forward():
+    from copy import deepcopy
+    original = RobustGetupActor(ReferenceParent(), fast_forward_reference=True, fast_forward_reference_range=[1., 1.5])
+    revised = deepcopy(original)
+    revised.fast_forward_reference_yaw_fade = None
+    obs = observation(6)
+    obs[0, 0], obs[0, 2] = 3., .5
+    obs[1, 0], obs[1, 2] = 1.5, -1.
+    obs[2, 0], obs[2, 2] = 1.25, .25
+    obs[3, 0], obs[3, 2] = -2.5, 1.
+    obs[4, 2] = 4.
+    before = obs.clone()
+    actual = revised(obs)
+    torch.testing.assert_close(actual[:3, 0], torch.tensor([.2, .2, .4]))
+    torch.testing.assert_close(actual[3:], original(obs)[3:], rtol=0, atol=0)
+    torch.testing.assert_close(obs, before, rtol=0, atol=0)
+
+
+def test_yaw_reference_interval_requires_a_positive_finite_fade_or_explicit_none():
+    import pytest
+    for value in (0., -1., 4.1, float('nan')):
+        with pytest.raises(ValueError, match="yaw fade"):
+            RobustGetupActor(ReferenceParent(), fast_forward_reference_yaw_fade=value)
+
+
 def test_cyclic_recovery_does_not_change_upright_quiet_actions():
     from copy import deepcopy
     original = RobustGetupActor(nn.Linear(35, 6))

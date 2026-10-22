@@ -44,16 +44,18 @@ def quiet_gate(obs):
     return (1. - request).clamp(0., 1.) * tilt * (1. - gyro)
 
 
-def fast_forward_reference_gate(obs, speed_range=(1.5, 2.)):
+def fast_forward_reference_gate(obs, speed_range=(1.5, 2.), yaw_fade=.25):
     """Blend to authenticated original feedback over the declared speed range.
 
-    Reverse, low commands, quiet standing and full mixed turns keep their
-    existing learned controller. The gate uses only the declared requests.
+    Reverse, low commands and quiet standing keep their learned controller.
+    A None yaw fade explicitly retains the reference during mixed commands.
+    The gate uses only the declared requests.
     """
     start, full = speed_range
     speed = ((obs[:, :1] - start) / (full - start)).clamp(0., 1.)
-    straight = (1. - obs[:, 2:3].abs() / .25).clamp(0., 1.)
-    return speed * straight
+    if yaw_fade is None:
+        return speed
+    return speed * (1. - obs[:, 2:3].abs() / yaw_fade).clamp(0., 1.)
 
 
 class RobustGetupActor(UnifiedGetupActor):
@@ -63,7 +65,8 @@ class RobustGetupActor(UnifiedGetupActor):
                  smooth_knee_targets=False, recovery_knee_center=(.924544, .924537),
                  quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, stance_aware_recovery=False,
                  recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.,
-                 fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.)):
+                 fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.),
+                 fast_forward_reference_yaw_fade=.25):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -89,6 +92,9 @@ class RobustGetupActor(UnifiedGetupActor):
                 or not 0. <= fast_forward_reference_range[0] < fast_forward_reference_range[1] <= 3.):
             raise ValueError("Forward reference transition must be ordered within 0..3 m/s")
         self.fast_forward_reference_range = tuple(fast_forward_reference_range)
+        if fast_forward_reference_yaw_fade is not None and not 0. < fast_forward_reference_yaw_fade <= 4.:
+            raise ValueError("Forward reference yaw fade must be in (0,4] or None")
+        self.fast_forward_reference_yaw_fade = fast_forward_reference_yaw_fade
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
@@ -113,7 +119,8 @@ class RobustGetupActor(UnifiedGetupActor):
             motion_obs = torch.cat((obs[:, :10], predicted, obs[:, 14:]), -1)
         motion = self.parent(motion_obs) + residual_gate * self.arc_bound * torch.tanh(self.arc(features))
         if self.fast_forward_reference:
-            reference_gate = fast_forward_reference_gate(obs, self.fast_forward_reference_range)
+            reference_gate = fast_forward_reference_gate(obs, self.fast_forward_reference_range,
+                                                         self.fast_forward_reference_yaw_fade)
             reference = self.parent.command.base(motion_obs)
             blended = motion + reference_gate * (reference - motion)
             # Preserve both endpoints exactly. In particular, high straight

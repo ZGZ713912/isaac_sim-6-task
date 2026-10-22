@@ -33,6 +33,8 @@ def main():
                         help="Use authenticated original feedback for high straight-forward commands")
     parser.add_argument("--fast-forward-reference-range", type=float, nargs=2, metavar=("START", "FULL"),
                         help="Explicit command-speed transition in m/s; old checkpoints retain 1.5..2")
+    parser.add_argument("--fast-forward-reference-all-yaws", action="store_true",
+                        help="Retain original high-forward feedback during turns; old checkpoints retain .25 rad/s yaw fade")
     parser.add_argument("--reason", default="restore paired continuous-feedback PD equivalence across encoder reporting seams")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -71,6 +73,11 @@ def main():
             parser.error("Reference transition requires the reference feedback path")
         info["settings"].update(version="robust-v2.17-reference-range",
                                 fast_forward_reference_range=args.fast_forward_reference_range)
+    if args.fast_forward_reference_all_yaws:
+        if not info["settings"].get("fast_forward_reference", False):
+            parser.error("All-yaw reference requires the reference feedback path")
+        info["settings"].update(version="robust-v2.18-reference-forward-turns",
+                                fast_forward_reference_yaw_fade=None)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
     if args.quiet_reference:
@@ -101,6 +108,7 @@ def main():
     revision["motion_residual_fraction"] = info["settings"].get("motion_residual_fraction", 0.)
     revision["fast_forward_reference"] = info["settings"].get("fast_forward_reference", False)
     revision["fast_forward_reference_range"] = info["settings"].get("fast_forward_reference_range", [1.5, 2.])
+    revision["fast_forward_reference_yaw_fade"] = info["settings"].get("fast_forward_reference_yaw_fade", .25)
     allowed = (("mlp.mean.quiet.", "mlp.mean.quiet_alpha", "mlp.mean.quiet_bound") if args.quiet_reference else ())
     if any(not torch.equal(value, state["actor_state_dict"][key])
            for key, value in original_actor.items() if not key.startswith(allowed)):
