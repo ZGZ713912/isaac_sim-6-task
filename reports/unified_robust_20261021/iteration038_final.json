@@ -1,0 +1,117 @@
+{
+  "schema": "quiet038-expanded-comparison-v1",
+  "pairing": {
+    "name": true,
+    "pose_index": true,
+    "command": true,
+    "recovery": true,
+    "world_origin_m": true,
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "sequence": true,
+    "push": true,
+    "push_sign": true,
+    "first_observation": true,
+    "native_origin_mode": true
+  },
+  "baseline_zero_function_equivalence": "iteration038_migration.json:15600real observations exact; new constructor consumes no extra RNG",
+  "before": {
+    "stand_low": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.3354179263114929,
+      "full_window_within_5cm": 12,
+      "steady_window_max_excursion_m": 0.2626799941062927,
+      "leg_motion_fast_rms_rad_3_95": 0.0002827847757359142,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.05773825775879396,
+      "leg_target_fast_rms_rad_3_95": 0.0003343288109598598,
+      "wheel_target_fast_rms_rad_s_3_95": 0.10502266625115864,
+      "wheel_clearance_after_02s_peak_m": 0.0008349418640136719
+    },
+    "stand": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.18553896248340607,
+      "full_window_within_5cm": 13,
+      "steady_window_max_excursion_m": 0.14466822147369385,
+      "leg_motion_fast_rms_rad_3_95": 0.00066162157733623,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.1259505566183204,
+      "leg_target_fast_rms_rad_3_95": 0.000755489645333765,
+      "wheel_target_fast_rms_rad_s_3_95": 0.1976220383077154,
+      "wheel_clearance_after_02s_peak_m": 0.0005294196307659149
+    },
+    "stand_high": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.12094707787036896,
+      "full_window_within_5cm": 11,
+      "steady_window_max_excursion_m": 0.12736031413078308,
+      "leg_motion_fast_rms_rad_3_95": 0.0012038745695525334,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.22590185687713893,
+      "leg_target_fast_rms_rad_3_95": 0.0012795663769459605,
+      "wheel_target_fast_rms_rad_s_3_95": 0.2948094786201464,
+      "wheel_clearance_after_02s_peak_m": 0.000513274222612381
+    }
+  },
+  "after": {
+    "stand_low": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.3426477015018463,
+      "full_window_within_5cm": 12,
+      "steady_window_max_excursion_m": 0.26604992151260376,
+      "leg_motion_fast_rms_rad_3_95": 0.0003111729893739741,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.062255019238757196,
+      "leg_target_fast_rms_rad_3_95": 0.00036052908644781153,
+      "wheel_target_fast_rms_rad_s_3_95": 0.11253957310037195,
+      "wheel_clearance_after_02s_peak_m": 0.0007570832967758179
+    },
+    "stand": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.18342535197734833,
+      "full_window_within_5cm": 13,
+      "steady_window_max_excursion_m": 0.144552081823349,
+      "leg_motion_fast_rms_rad_3_95": 0.0006472386731117988,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.12234141483672555,
+      "leg_target_fast_rms_rad_3_95": 0.0007380641196218415,
+      "wheel_target_fast_rms_rad_s_3_95": 0.19391910884117608,
+      "wheel_clearance_after_02s_peak_m": 0.0005306936800479889
+    },
+    "stand_high": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.12638188898563385,
+      "full_window_within_5cm": 11,
+      "steady_window_max_excursion_m": 0.13207793235778809,
+      "leg_motion_fast_rms_rad_3_95": 0.0012390190181159801,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.23251559746017036,
+      "leg_target_fast_rms_rad_3_95": 0.0013222631924472146,
+      "wheel_target_fast_rms_rad_s_3_95": 0.3025083982747917,
+      "wheel_clearance_after_02s_peak_m": 0.0005146078765392303
+    }
+  },
+  "static_failures": [
+    "stand_low",
+    "stand",
+    "stand_high"
+  ],
+  "training": {
+    "schema": "quiet-velocity038-training-v1",
+    "new_updates": 32,
+    "base_clock": 473,
+    "robust_consumed": 865,
+    "changed_actor": [
+      "mlp.mean.quiet_velocity.mid.weight",
+      "mlp.mean.quiet_velocity.low.weight",
+      "mlp.mean.quiet_velocity.high.weight"
+    ],
+    "all_existing_actor_and_std_exact": true,
+    "strict_load_valid": true,
+    "full_behavior_verified": false,
+    "checkpoint_sha256": "f02a5fa97ffcce3d37a37ca06ee59df9bb7fef0840a6362d247b64a9e3e1d64c"
+  },
+  "long_training_admitted": false,
+  "full_suite_complete": false,
+  "full_suite_omission_reason": "Inspect static learning before spending a full-suite native evaluation"
+}
