@@ -65,6 +65,8 @@ def main():
                         help="Diagnostic counterfactual: override only policy observation delay after the matched reset")
     parser.add_argument("--instant-sensor-group", choices=["imu", "encoders", "leg_encoders", "wheel_velocity"],
                         help="Diagnostic: remove delay from only this sensor group; retain its noise and other delays")
+    parser.add_argument("--neutralize-bias", choices=["policy_encoder", "policy_gyro", "pd_encoder"],
+                        help="Diagnostic: zero one bias after the seeded reset, retaining all other draws and noise")
     parser.add_argument("--variants", nargs="+", default=["parent", "robust", "legs_only", "undamped"],
                         choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd", "deployed"])
     args = parser.parse_args()
@@ -219,6 +221,8 @@ def main():
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
         if args.instant_sensor_group:
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
+        if args.neutralize_bias:
+            env.evaluation_overrides["neutralize_bias"] = args.neutralize_bias
         groups = [(seed, name) for seed in seeds for name in args.variants]
         for index, (_, name) in enumerate(groups):
             if name == "raw_pd":
