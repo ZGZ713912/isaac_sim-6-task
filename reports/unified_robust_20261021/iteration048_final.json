@@ -1,0 +1,205 @@
+{
+  "schema": "quiet048-command-feedback-results-v1",
+  "baseline": {
+    "stand_low": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.3354179263114929,
+      "full_window_within_5cm": 12,
+      "steady_window_max_excursion_m": 0.2626799941062927,
+      "leg_motion_fast_rms_rad_3_95": 0.0002827847757359142,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.05773825775879396,
+      "leg_target_fast_rms_rad_3_95": 0.0003343288109598598,
+      "wheel_target_fast_rms_rad_s_3_95": 0.10502266625115864,
+      "wheel_clearance_after_02s_peak_m": 0.0008349418640136719
+    },
+    "stand": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.18553896248340607,
+      "full_window_within_5cm": 13,
+      "steady_window_max_excursion_m": 0.14466822147369385,
+      "leg_motion_fast_rms_rad_3_95": 0.00066162157733623,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.1259505566183204,
+      "leg_target_fast_rms_rad_3_95": 0.000755489645333765,
+      "wheel_target_fast_rms_rad_s_3_95": 0.1976220383077154,
+      "wheel_clearance_after_02s_peak_m": 0.0005294196307659149
+    },
+    "stand_high": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.12094707787036896,
+      "full_window_within_5cm": 11,
+      "steady_window_max_excursion_m": 0.12736031413078308,
+      "leg_motion_fast_rms_rad_3_95": 0.0012038745695525334,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.22590185687713893,
+      "leg_target_fast_rms_rad_3_95": 0.0012795663769459605,
+      "wheel_target_fast_rms_rad_s_3_95": 0.2948094786201464,
+      "wheel_clearance_after_02s_peak_m": 0.000513274222612381
+    }
+  },
+  "tests": {
+    "negative": {
+      "gain": -2.0,
+      "paired": {
+        "name": true,
+        "pose_index": true,
+        "command": true,
+        "recovery": true,
+        "world_origin_m": true,
+        "first_reset_domain": true,
+        "material_coefficients": true,
+        "sequence": true,
+        "push": true,
+        "push_sign": true,
+        "first_observation": true,
+        "native_origin_mode": true
+      },
+      "standing": {
+        "stand_low": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 1.5932339429855347,
+          "full_window_within_5cm": 0,
+          "steady_window_max_excursion_m": 1.2216473817825317,
+          "leg_motion_fast_rms_rad_3_95": 0.0002454532116502716,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.06344675082568928,
+          "leg_target_fast_rms_rad_3_95": 0.0002681458252705336,
+          "wheel_target_fast_rms_rad_s_3_95": 0.0981308382558238,
+          "wheel_clearance_after_02s_peak_m": 0.0005303546786308289
+        },
+        "stand": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 1.581405758857727,
+          "full_window_within_5cm": 0,
+          "steady_window_max_excursion_m": 1.1911029815673828,
+          "leg_motion_fast_rms_rad_3_95": 0.01264711091354604,
+          "wheel_motion_fast_rms_rad_s_3_95": 2.604963818290348,
+          "leg_target_fast_rms_rad_3_95": 0.020673730242060345,
+          "wheel_target_fast_rms_rad_s_3_95": 2.9698147401704063,
+          "wheel_clearance_after_02s_peak_m": 0.05167507752776146
+        },
+        "stand_high": {
+          "episodes": 16,
+          "survived": 15,
+          "full_window_max_excursion_m": 2.671562910079956,
+          "full_window_within_5cm": 0,
+          "steady_window_max_excursion_m": 2.0538856983184814,
+          "leg_motion_fast_rms_rad_3_95": 0.005890279228479853,
+          "wheel_motion_fast_rms_rad_s_3_95": 1.1492010783050708,
+          "leg_target_fast_rms_rad_3_95": 0.009024651635865574,
+          "wheel_target_fast_rms_rad_s_3_95": 1.3826521760519264,
+          "wheel_clearance_after_02s_peak_m": 0.13816744089126587
+        }
+      },
+      "evaluation_overrides": {
+        "standing_command_feedback": {
+          "gain": -2.0,
+          "max_request_correction_m_s": 0.15,
+          "velocity_proxy": ".3 * (obs20 - obs21)",
+          "location": "frozen_locomotion_parent_only_original_outer_requests_and_gates_retained"
+        }
+      },
+      "report_sha256": "633896224c21b2dcb9049c0f2c0925c69b66d6a420f3c3d13c0efc6d89729c18",
+      "trajectory_sha256": "c499d66e0807125ad41844ddc7a386456113bc3d62e1c3f1983a3b3e6fbf97f3",
+      "static_failures": [
+        "stand_low: displacement exceeds5cm",
+        "stand_low: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95",
+        "stand: displacement exceeds5cm",
+        "stand: clearance exceeds3mm",
+        "stand: actual vibration regressed leg_motion_fast_rms_rad_3_95",
+        "stand: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95",
+        "stand_high: termination",
+        "stand_high: displacement exceeds5cm",
+        "stand_high: clearance exceeds3mm",
+        "stand_high: actual vibration regressed leg_motion_fast_rms_rad_3_95",
+        "stand_high: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95"
+      ],
+      "candidate_accepted": false
+    },
+    "positive": {
+      "gain": 2.0,
+      "paired": {
+        "name": true,
+        "pose_index": true,
+        "command": true,
+        "recovery": true,
+        "world_origin_m": true,
+        "first_reset_domain": true,
+        "material_coefficients": true,
+        "sequence": true,
+        "push": true,
+        "push_sign": true,
+        "first_observation": true,
+        "native_origin_mode": true
+      },
+      "standing": {
+        "stand_low": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.1945127546787262,
+          "full_window_within_5cm": 1,
+          "steady_window_max_excursion_m": 0.14348962903022766,
+          "leg_motion_fast_rms_rad_3_95": 0.00413279392247073,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.5868711168408844,
+          "leg_target_fast_rms_rad_3_95": 0.004633132978723397,
+          "wheel_target_fast_rms_rad_s_3_95": 0.7202498072959509,
+          "wheel_clearance_after_02s_peak_m": 0.0011015869677066803
+        },
+        "stand": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.16102394461631775,
+          "full_window_within_5cm": 4,
+          "steady_window_max_excursion_m": 0.12077400088310242,
+          "leg_motion_fast_rms_rad_3_95": 0.006207771377492806,
+          "wheel_motion_fast_rms_rad_s_3_95": 1.0950437747584651,
+          "leg_target_fast_rms_rad_3_95": 0.006749842826786765,
+          "wheel_target_fast_rms_rad_s_3_95": 1.2720123185692058,
+          "wheel_clearance_after_02s_peak_m": 0.0010090544819831848
+        },
+        "stand_high": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.26642563939094543,
+          "full_window_within_5cm": 2,
+          "steady_window_max_excursion_m": 0.18711917102336884,
+          "leg_motion_fast_rms_rad_3_95": 0.010242463737798416,
+          "wheel_motion_fast_rms_rad_s_3_95": 1.7529187117050324,
+          "leg_target_fast_rms_rad_3_95": 0.010419895648922258,
+          "wheel_target_fast_rms_rad_s_3_95": 1.9408031289053456,
+          "wheel_clearance_after_02s_peak_m": 0.0008352920413017273
+        }
+      },
+      "evaluation_overrides": {
+        "standing_command_feedback": {
+          "gain": 2.0,
+          "max_request_correction_m_s": 0.15,
+          "velocity_proxy": ".3 * (obs20 - obs21)",
+          "location": "frozen_locomotion_parent_only_original_outer_requests_and_gates_retained"
+        }
+      },
+      "report_sha256": "d4a1599030144a98816663503a6bafda80d056645fb3a264154e1106342c9780",
+      "trajectory_sha256": "5cb7c932e8f35a226458c911222710ebf2941048e783834187ed31b852c88050",
+      "static_failures": [
+        "stand_low: displacement exceeds5cm",
+        "stand_low: actual vibration regressed leg_motion_fast_rms_rad_3_95",
+        "stand_low: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95",
+        "stand: displacement exceeds5cm",
+        "stand: actual vibration regressed leg_motion_fast_rms_rad_3_95",
+        "stand: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95",
+        "stand_high: displacement exceeds5cm",
+        "stand_high: actual vibration regressed leg_motion_fast_rms_rad_3_95",
+        "stand_high: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95"
+      ],
+      "candidate_accepted": false
+    }
+  },
+  "optimizer_updates": 0,
+  "robust_consumed": 961,
+  "long_training_admitted": false,
+  "status": "completed_both_fixed_gains_rejected",
+  "new_policy_delivered": false,
+  "limits": "Two fixed gains on one matched randomized seed; not formal recovery/motion evidence or long-training admission"
+}

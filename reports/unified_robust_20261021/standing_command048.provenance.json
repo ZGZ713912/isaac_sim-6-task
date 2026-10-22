@@ -1,0 +1,123 @@
+{
+  "schema": "quiet048-original-event-figure-v1",
+  "figure": "reports/unified_robust_20261021/standing_command048.png",
+  "figure_sha256": "8c75d3316b307711bc0182bbc4d0fe56ff19eb0dd563f9f457245fbc51a82ca2",
+  "sources": [
+    {
+      "label": "Retained baseline",
+      "run": "runs/unified_robust_20261022/quiet_velocity_baseline036",
+      "step": 441,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792695023.ZGZ.462719.0.behavior",
+          "sha256": "5e94126bb0af2a9b427b93acc24a2e79005be3a0c314b4af62868e966d11d674"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792709803.ZGZ.826112.0.standing_segments047",
+          "sha256": "55ef25f9c9820360674bc8cf9fcb449f1ee88d2e5a14b09cc675c85cd98510bb"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792709966.ZGZ.827805.0.standing_segments047",
+          "sha256": "408bc485a35a2360fe9684f311ee112f7264c94151e25951d184996feaaefddb"
+        }
+      ]
+    },
+    {
+      "label": "Gain -2 (rejected)",
+      "run": "runs/unified_robust_20261022/command_feedback_negative048",
+      "step": 441,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/command_feedback_negative048/events.out.tfevents.1792711651.ZGZ.845630.0.behavior",
+          "sha256": "704668af7ba1e4fc6b741724c7160a425284694e9560583747a2dfee47fb4c30"
+        }
+      ]
+    },
+    {
+      "label": "Gain +2",
+      "run": "runs/unified_robust_20261022/command_feedback_positive048",
+      "step": 441,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/command_feedback_positive048/events.out.tfevents.1792712053.ZGZ.849864.0.behavior",
+          "sha256": "096e67d7a7d83d3ee323e80955bc6b3682d42bbf4ac534d4e6e3c64b65c1b2f5"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    "full_window/worst_episode_body_xy_max_excursion_m",
+    "body_xy_worst_episode_excursion_m",
+    "leg_motion_fast_rms_rad_3_95",
+    "wheel_motion_fast_rms_rad_s_3_95"
+  ],
+  "plotted_values": [
+    [
+      [
+        33.54179263114929,
+        18.553896248340607,
+        12.094707787036896
+      ],
+      [
+        26.267999410629272,
+        14.466822147369385,
+        12.736031413078308
+      ],
+      [
+        0.2827847783919424,
+        0.661621568724513,
+        1.2038745917379856
+      ],
+      [
+        0.05773825943470001,
+        0.12595055997371674,
+        0.22590185701847076
+      ]
+    ],
+    [
+      [
+        159.32339429855347,
+        158.1405758857727,
+        267.1562910079956
+      ],
+      [
+        122.16473817825317,
+        119.11029815673828,
+        205.38856983184814
+      ],
+      [
+        0.2454532077535987,
+        12.647110968828201,
+        5.890279076993465
+      ],
+      [
+        0.06344675272703171,
+        2.604963779449463,
+        1.1492010354995728
+      ]
+    ],
+    [
+      [
+        19.45127546787262,
+        16.102394461631775,
+        26.642563939094543
+      ],
+      [
+        14.348962903022766,
+        12.077400088310242,
+        18.711917102336884
+      ],
+      [
+        4.132793750613928,
+        6.207771599292755,
+        10.242464020848274
+      ],
+      [
+        0.5868710875511169,
+        1.0950437784194946,
+        1.7529187202453613
+      ]
+    ]
+  ],
+  "data_source": "Original TensorBoard event files; logarithmic y axes; no separate curve store"
+}
