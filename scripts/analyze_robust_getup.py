@@ -13,8 +13,8 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def hf_rms(values, dt, min_hz=20.):
-    """RMS in the 20..95 Hz band; only continuous 200 Hz windows qualify."""
+def hf_rms(values, dt, min_hz=20., max_hz=95.):
+    """Band RMS (default 20..95 Hz); continuous 200 Hz windows only."""
     if len(values) < 200 or not .0049 < dt < .0051:
         return None
     values = values.astype(np.float64)
@@ -24,7 +24,7 @@ def hf_rms(values, dt, min_hz=20.):
     window = np.hanning(len(values))[:, None]
     transformed = np.fft.rfft(values * window, axis=0)
     frequency = np.fft.rfftfreq(len(values), dt)
-    selected = (frequency >= min_hz) & (frequency <= 95.)
+    selected = (frequency >= min_hz) & (frequency <= max_hz)
     energy = 2. * (np.abs(transformed[selected]) ** 2).sum(0) / (len(values) * (window ** 2).sum())
     return float(np.sqrt(energy.mean()))
 
@@ -76,7 +76,9 @@ def analyze(directory):
                 leg_target_fast_rms_rad_3_95=hf_rms(action[:, [0, 1, 3, 4]] * .25, dt, 3.),
                 wheel_target_fast_rms_rad_s_3_95=hf_rms(action[:, [2, 5]] * 10., dt, 3.),
                 leg_motion_fast_rms_rad_3_95=hf_rms(q[:, [0, 1, 3, 4]], dt, 3.),
-                wheel_motion_fast_rms_rad_s_3_95=hf_rms(dq[:, [2, 5]], dt, 3.))
+                wheel_motion_fast_rms_rad_s_3_95=hf_rms(dq[:, [2, 5]], dt, 3.),
+                leg_motion_rms_rad_1_3=hf_rms(q[:, [0, 1, 3, 4]], dt, 1., 3.),
+                wheel_motion_rms_rad_s_1_3=hf_rms(dq[:, [2, 5]], dt, 1., 3.))
             if "local_position" in data:
                 xy = data["local_position"][quiet, lane, :2]
                 row["quiet"]["body_xy_max_excursion_m"] = float(np.linalg.norm(xy - xy[:1], axis=-1).max())
@@ -108,6 +110,11 @@ def analyze(directory):
             case["quiet"] = {key: float(np.mean([r[key] for r in quiet if r[key] is not None]))
                              for key in quiet[0]}
             case["quiet"]["episodes_with_valid_windows"] = len(quiet)
+            if "body_xy_max_excursion_m" in quiet[0]:
+                # Keep the historical mean of episode maxima for comparisons,
+                # and expose the actual worst episode for the 5 cm envelope.
+                case["quiet"]["body_xy_worst_episode_excursion_m"] = max(
+                    r["body_xy_max_excursion_m"] for r in quiet)
         cases[name] = case
         for row in rows:
             if row["recovery"]:
@@ -126,7 +133,7 @@ def analyze(directory):
             and row.get("in_motion_fall", False) and row.get("recovered_after_push", False) for row in report["lanes"]),
         practical_definition="completed episode; last 2 s >=95% stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
         max_gap_m=report["max_gap_m"], signal_sampling_hz=200,
-        vibration_scope="20..95 Hz from 200 Hz simulation samples; not a CAN/hardware measurement")
+        vibration_scope="1..3, 3..95 and 20..95 Hz from 200 Hz simulation samples; not a CAN/hardware measurement")
 
 
 def main():

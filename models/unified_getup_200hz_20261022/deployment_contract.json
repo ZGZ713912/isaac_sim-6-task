@@ -1,0 +1,791 @@
+{
+  "schema": "robust-getup-deployment-v2",
+  "model_sha256": "e7643c819aedc7141901ed6ba986e922e8d2646f5551a6c563ce6d5d8f13863a",
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261021/pilot011_capture/model_final.pt",
+  "checkpoint_sha256": "882bdf683c6b682614a31bad8b1d40455296a59f635697534ebe58dc9aeb7653",
+  "actor_dim": 35,
+  "action_dim": 6,
+  "history_length": 1,
+  "policy_hz": 200,
+  "physical_pd_hz": 1000,
+  "deterministic_mean": true,
+  "new_robust_updates": 313,
+  "update_count_scope": "selected lineage; unselected experiments are accounted separately",
+  "model_migration": null,
+  "resumed_from_checkpoint_sha256": "c9e106d66b2e9160e0b95368783b1224da22c6d8bd3f9bc8007e1fa185dd1ef2",
+  "prior_recovery_updates": 16,
+  "prior_locomotion_updates": 1346,
+  "parent_export_pretraining_updates": "unknown",
+  "leg_action_clip": 16.0,
+  "wheel_action_clip": 9.0,
+  "leg_position_scale": 0.25,
+  "wheel_velocity_scale": 10.0,
+  "leg_kp": 160.0,
+  "leg_kd": 2.5,
+  "wheel_kp": 0.6,
+  "leg_winding_version": "paired_branch107_v1",
+  "leg_target_model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+  "policy_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "nominal_model_pos": [
+    -0.42,
+    0.13742282595395358,
+    0.42,
+    -0.1374155762580851,
+    0.0,
+    0.0
+  ],
+  "required_runtime_changes": [
+    "bypass scripted recovery; policy owns all six motors from enable",
+    "allow raw leg actions +/-16 (offsets +/-4 rad); the inspected RMCS policy.hpp/action.cpp still clip raw legs at +/-3",
+    "use the confirmed actual 200 Hz policy clock and matching 5 ms history; do not reuse the inspected legacy 50 Hz compile-time policy period",
+    "a dedicated full-RL entry must allow recovery attitudes beyond the old 45-degree lost-upright guard while retaining actual hardware fault protections",
+    "zero all six motor efforts before enable; retain gas springs",
+    "at first enable seed previous leg actions from paired common-angle-wrapped measured nominal offsets / .25",
+    "use exported actions as the next previous-action observation in policy order",
+    "retain paired_branch107 projection, torque limits and sensor freshness protections",
+    "retain RMCS wind_leg_feedback before paired target decoding and PD; never subtract independently wrapped leg encoder angles",
+    "retain yaw and reduce vx at abs(vx*yaw)>2.06; retain requested motion during recovery"
+  ],
+  "quiet_filter": "inside ONNX, using the previous action; no additional deployment filter",
+  "paired_feedback_winding": true,
+  "observation_layout": [
+    {
+      "start": 0,
+      "count": 3,
+      "value": "body forward/lateral/yaw commands",
+      "scale": 1.0
+    },
+    {
+      "start": 3,
+      "count": 1,
+      "value": "requested body height in metres",
+      "scale": 5.0
+    },
+    {
+      "start": 4,
+      "count": 3,
+      "value": "body angular velocity in rad/s",
+      "scale": 0.5
+    },
+    {
+      "start": 7,
+      "count": 3,
+      "value": "unit projected gravity in body axes",
+      "scale": 1.0
+    },
+    {
+      "start": 10,
+      "count": 4,
+      "value": "atan2(sin(q-nominal),cos(q-nominal)); policy leg order",
+      "scale": 1.0
+    },
+    {
+      "start": 14,
+      "count": 2,
+      "value": "zero wheel position channels",
+      "scale": 1.0
+    },
+    {
+      "start": 16,
+      "count": 6,
+      "value": "motor angular velocity in rad/s; policy order",
+      "scale": 0.1
+    },
+    {
+      "start": 22,
+      "count": 6,
+      "value": "previous exported raw actions; policy order",
+      "scale": 1.0
+    },
+    {
+      "start": 28,
+      "count": 7,
+      "value": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": 1.0
+    }
+  ],
+  "recovery_coordinates": {
+    "smooth_absolute_knee": true,
+    "knee_center_signed_delta_rad": [
+      0.924544,
+      0.924537
+    ],
+    "common_target_lead_max_rad": 0.35,
+    "knee_delta_target_lead_max_rad": 0.15
+  },
+  "stance_aware_recovery": true,
+  "recovery_shape_aware": true,
+  "quiet_review_objective": {
+    "sway_envelope_m": 0.05,
+    "fast_motion_band_hz": [
+      3.0,
+      95.0
+    ],
+    "position_input_to_actor": false,
+    "long_term_position_bound_guaranteed": false
+  },
+  "simulation_limits": {
+    "self_collisions_enabled": false,
+    "randomized_parameters_identified_on_vehicle": false,
+    "evidence_window_seconds": 12.0,
+    "quiet_analysis_window_seconds": [
+      3.0,
+      12.0
+    ]
+  },
+  "training_domain_settings": {
+    "schema": "wheel-leg-unified-getup-v1",
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "actor_dim": 35,
+    "action_dim": 6,
+    "passive_min_seconds": 0.2,
+    "passive_max_seconds": 1.2,
+    "passive_hold_seconds": 0.08,
+    "episode_seconds": 12.0,
+    "stable_seconds": 0.5,
+    "followup_seconds": 2.0,
+    "recovery_timeout_seconds": 9.0,
+    "leg_action_clip": 16.0,
+    "wheel_action_clip": 9.0,
+    "leg_position_scale": 0.25,
+    "closure_gap_m": 0.003,
+    "impact_limit_n": 3500.0,
+    "impact_window_seconds": 0.02,
+    "impact_impulse_limit_ns": 20.0,
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "motion_push_fraction": 1.0,
+    "motion_fraction": 0.4,
+    "arc_fraction_within_motion": 0.4,
+    "lateral_acceleration_m_s2": 2.06,
+    "wheel_radius_m": 0.06,
+    "wheel_track_m": 0.4373,
+    "wheel_speed_limit_rad_s": 90.0,
+    "friction_start": [
+      0.5,
+      0.5
+    ],
+    "friction_final": [
+      0.2,
+      0.5
+    ],
+    "curriculum_updates": 128,
+    "origin_updates": 0,
+    "motor_control": "six_axis_RL_after_zero_effort_settling",
+    "input_source": "IMU_encoders_commands_previous_action",
+    "fallback_script": false,
+    "state_writes": "episode_reset_only",
+    "version": "robust-v2.10-recovery-capture",
+    "stance_aware_recovery": true,
+    "recovery_shape_aware": true,
+    "paired_feedback_winding": true,
+    "cyclic_leg_targets": true,
+    "recovery_leg_step": 0.3,
+    "smooth_knee_targets": true,
+    "recovery_knee_center": [
+      0.924544,
+      0.924537
+    ],
+    "recovery_leg_speed_cost": 0.0005,
+    "nominal_fraction": 0.25,
+    "motor_strength_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kp_scale_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kd_scale_range": [
+      1.0,
+      1.0
+    ],
+    "spring_strength_range": [
+      1.0,
+      1.0
+    ],
+    "torque_delay_ms": [
+      0,
+      0
+    ],
+    "motor_tau_ms": [
+      0.0,
+      0.0
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      0
+    ],
+    "encoder_bias_rad": 0.0,
+    "encoder_noise_rad": 0.0,
+    "gyro_bias_rad_s": 0.0,
+    "gyro_noise_rad_s": 0.0,
+    "gravity_noise": 0.0,
+    "velocity_noise_rad_s": [
+      0.0,
+      0.0
+    ],
+    "sensor_noise_scale": 1.0,
+    "domains_enabled": false,
+    "quiet_action_rate_cost": 0.15,
+    "quiet_motor_speed_cost": 0.025,
+    "quiet_effort_delta_cost": 0.03,
+    "quiet_actor_alpha": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.65,
+      0.65
+    ],
+    "boundary_xy_m": [
+      40.0,
+      40.0
+    ],
+    "push_torque_direction": -1.0,
+    "hold_motion_during_recovery": false,
+    "canonical_recovery": true,
+    "motion_residual_fraction": 0.25,
+    "domain_scale": 0.0,
+    "pd_feedback_delay_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      1
+    ],
+    "pd_encoder_bias_rad": 0.0,
+    "reward_gamma": 0.998,
+    "reward_potential_gain": 5.0,
+    "quiet_frozen": false,
+    "quiet_training": false,
+    "quiet_sway_m": 0.05,
+    "quiet_spectral_cost": false,
+    "quiet_critic_anchor": false,
+    "quiet_velocity_feature_scale": null,
+    "quiet_wheel_bound": 0.5,
+    "arc_tuning_fraction": 0.0,
+    "active_friction_range": [
+      0.5,
+      0.5
+    ]
+  },
+  "source_sha256": {
+    "scripts/build_robust_getup_bank.py": "7fce4c4fde6cacff9b28063b2af8bc94d1f007acdc3c8bb21af5bd89f552ac0e",
+    "scripts/train_robust_getup.py": "cc0958065f6199510c1e24eb8ef31267f04815ebaf3444a946c5231843948592",
+    "src/wheeled_algo/__init__.py": "e1e768e75e9ee328148962a363c76542d8b8e9f58ae24a8abd897cc44a3de9d1",
+    "src/wheeled_algo/anchored_ppo.py": "164724128d176261e7cce2a77c7012c008b3e5b488047682818b82d8013b1fcd",
+    "src/wheeled_algo/chassis_export.py": "cfb38118a32a97839f29abe82c69ae1c6caab9ad9aa708d648a177282d452838",
+    "src/wheeled_algo/command_residual.py": "f94ee68f4820fafd5e4fdabf7c63cf83693d26033344f2bb9239784575883976",
+    "src/wheeled_algo/critic_input_extension.py": "a23ef15711eed0803e413f84945ad9b2ad64f3493c5d896be49f58baffc95618",
+    "src/wheeled_algo/directional_motion.py": "5053590e98ebb3416d3fab376fa319b5f9c11c340dc1aa718a81afb947964534",
+    "src/wheeled_algo/directional_runtime.py": "e657ab616ffcc8f8242fb8471bc22da1386402fbdd9f1b35d29734b26b6103c7",
+    "src/wheeled_algo/exploration_init.py": "b7bb7c71714adb65aa8758bcf1eff474428514df522ad2acb35548dc756b8b89",
+    "src/wheeled_algo/flat_actor_trainability.py": "22134182e03b5926f248c7d502431c88c7f47d391040d20b812226a220a1ed30",
+    "src/wheeled_algo/flat_optimizer_rates.py": "05a20b3d84ddcf88901230355cc95beaad651a13222dc34e8fbfc94e136ceaae",
+    "src/wheeled_algo/getup_symmetry.py": "5f22abfeaa358d6ec298b385b9e698f10026cfca3d835992a8897c57a2ffcffa",
+    "src/wheeled_algo/guarded_feedback_residual.py": "833c3a05a0427f9ca223f259cdfeade9780188b64fbe1197196c7056e2806b5f",
+    "src/wheeled_algo/intent_speed_reference.py": "2f1fd8225b147ce432378054fc347e07df0649cbf0222a36cf5336de085fa816",
+    "src/wheeled_algo/low_demand_feedback.py": "d6770af0b3d0604ccccd7cbb8a73e5992e6108ec5e3a46006da0569b512593d1",
+    "src/wheeled_algo/motion_grip.py": "dc9cfd04e211d7cf006df023c6b5071c2fe0682edcded5751fc425c517da3584",
+    "src/wheeled_algo/motion_state_residual.py": "f154db3c4430e6eb4845cbedeb7260517b9684c41c9e17bd02db08abe1d748e3",
+    "src/wheeled_algo/motion_trust_region.py": "6bedca4817f40b1899952e537fca0629d990d5ff1895e0259565b6d247d45325",
+    "src/wheeled_algo/native_ppo_audit.py": "1858ac27fc271d7c781defa0db0ca7092d124bb142e17a492464d62d1556742a",
+    "src/wheeled_algo/onnx_actor_import.py": "e5c57dd0482dc3e0584b8872a779e939fc46a4d46ae3e24495421343b1e7ffe8",
+    "src/wheeled_algo/paired_recovery.py": "3c45173dbe3a90c34434f84a7489368f022b84cc97657dd4decc4d7cc888ae90",
+    "src/wheeled_algo/recovery_coordinates.py": "e96bce5394431cb9173189d38e2a7dd9401dd09038023d9ec4edf2207ad4303e",
+    "src/wheeled_algo/recovery_rollout.py": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a",
+    "src/wheeled_algo/reverse_reference_scope.py": "ed1752edbb105f44d548398919c9eb6cdadfe9945eed64bde468f9b3383fbf48",
+    "src/wheeled_algo/robust_getup.py": "6acb0ad035a6407aa7ad844fa4b07516a37bb4738615f1e9301b05f9458d1dd5",
+    "src/wheeled_algo/separated_feedback.py": "8c986223613bb8c07c758464a70d54664e6f01c49ae23482408123d5dafdd886",
+    "src/wheeled_algo/single_frame_inference.py": "d2165bf7aefe98bd220cd8d1cb5af2ab1e1af9ea6fdbea06ba50bc25762105a4",
+    "src/wheeled_algo/speed_reference.py": "5f82f4ede749108426899ba1641b55cdf69fea72e052a2b00e0b4497c7eb52fe",
+    "src/wheeled_algo/static_feedback.py": "d1d3bd834faeee925cd5b7fb2032882f4e20fb86ece9c6553f19572828bab2f4",
+    "src/wheeled_algo/static_grip.py": "84abe3195548a454e1169b495d0faedc28e7f11b38c25d4f918d00bf4ce5fab3",
+    "src/wheeled_algo/transient_leg_feedback.py": "97a1a2eb50092b5568909738201af1dd4d8837e6bf044cc671cc6e81e2e708fa",
+    "src/wheeled_algo/transient_motion.py": "a6269f1bf529c340a6243fbab5c3ba98f621e540bcaa8c960ea8af5cc2b2e4f5",
+    "src/wheeled_algo/unified_getup.py": "a6db8de139db9cd9d780d0ba4ffd708832569ea1e56cf08547daa364d8e0de85",
+    "src/wheeled_algo/unified_getup_ablation.py": "446da211221a5d68c2dd6057585be5c22255c3b4205159ace9524f04c552b856",
+    "src/wheeled_algo/v40_export.py": "12a469b9ce9e40c980140bc8821762409c8a420b052adde0ea5da72e6f345251",
+    "src/wheeled_algo/v40_job.py": "b255ab1597e064aaae23e8a2139a9eff1cef3437c24004c996ccd9c6ba94312b",
+    "src/wheeled_algo/v40_metrics.py": "88f8c8aa56ef4368f16018e4790e6ee721378303cae9b652a92a3d5881c21948",
+    "src/wheeled_algo/wheel_authority.py": "7f396abd18bc3c5d54210e1e76642443d90b2476f160b553bad29ed753690cc4",
+    "src/wheeled_tasks/chassis/__init__.py": "018e3cdee84902478a0ebebdcc830df26f5ef4c9525ba302b95b2e7c43e06039",
+    "src/wheeled_tasks/chassis/actuator_response.py": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57",
+    "src/wheeled_tasks/chassis/adaptive_commands.py": "54351b0afe58de2ffbec10dcd0d1c16bf2377e209b90fd042b6510eb4f87310e",
+    "src/wheeled_tasks/chassis/arc_rehearsal.py": "bc0e11c0907a6e5e02821294d9cdddf5a54fe13b19e543d10c22b2d32273ea7a",
+    "src/wheeled_tasks/chassis/command_transport.py": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c",
+    "src/wheeled_tasks/chassis/contact_domain.py": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7",
+    "src/wheeled_tasks/chassis/contact_material.py": "862f3a33e659d9dc30132f16e6cb49a5c1fddba6957a5ef8c57c6ddd092bcba7",
+    "src/wheeled_tasks/chassis/continuation.py": "c7681427dafa24d4beaee3eaee406aa76e2835f5cff1b584f533bc33a786716c",
+    "src/wheeled_tasks/chassis/continuous_encoders.py": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+    "src/wheeled_tasks/chassis/control_contract.py": "4d8728a98eaac12124d5285ebe02cc92b17352677524189896e31d5db519341f",
+    "src/wheeled_tasks/chassis/delay_buffer.py": "2679ba18940a1b7c448fe59454642ec3c0d4e763be59d286d39116210df628b3",
+    "src/wheeled_tasks/chassis/diagnostic_curriculum.py": "2013a17f59c1662fdc258cfae8bca6b70d70500a6b3b6742ed576fc50e544e06",
+    "src/wheeled_tasks/chassis/directional_motion_plan.py": "c0183e859741cb7fd2a623fb73c09ab81cd441fa4a384b3d0dddf3aa1fb2505d",
+    "src/wheeled_tasks/chassis/dynamics.py": "f394eb6a5a00c1321c4c528374c4dd3e158af99695753d5ea9d0fd71fcd668bf",
+    "src/wheeled_tasks/chassis/env.py": "a7cf6e607e1ee70ebd3a5eb7e40803ce95e7830e332f3a45feaedfa01dad1ec3",
+    "src/wheeled_tasks/chassis/episode_metrics.py": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511",
+    "src/wheeled_tasks/chassis/eval_env.py": "0e40a0398351cc8bb66faf5d6db939056282867a376fec79af68379a446ed53a",
+    "src/wheeled_tasks/chassis/evaluation.py": "63e9adef92a14266024c93edd56734c3c739c9b2a487b05ee505a85bff57a895",
+    "src/wheeled_tasks/chassis/feedback_transport.py": "9fe9d4372bfeaf6efbc3902cd0e7abbbddb68cb20b7bdcf679bef134a1242613",
+    "src/wheeled_tasks/chassis/feedback_transport_config.py": "4e260eeb6156189359f407f32ccc1695cf3536a7e2efba4f8bac1329addc301d",
+    "src/wheeled_tasks/chassis/flat_base_continuation.py": "edf5fbaf6f648eb7a9a4da42dedf57a515b6bd0d2fdd5b1482078ead5c5ad7ca",
+    "src/wheeled_tasks/chassis/flat_clock_transition.py": "66c6ddeb90d6772dcc4dc6c83b8efdcfcd7a881a34d59db059ff0ccbe40b1e04",
+    "src/wheeled_tasks/chassis/flat_command_reference.py": "14090b8e27df5dd0b5adf35150d374ddbc0e17103bb91231c63856b6c138dc03",
+    "src/wheeled_tasks/chassis/flat_policy_rate.py": "296d7ecb547c684d9f2ec2f2a5372a0c8d33b4cd5d8f62898d4b16987bb14393",
+    "src/wheeled_tasks/chassis/full_curriculum.py": "22476c6ffde546eff248993e6bd3e2b70c14c7e6619c22917e7bcbc835d19f9e",
+    "src/wheeled_tasks/chassis/full_tasks.py": "63d9e1e110c92c5094cb90d91c1e5dce4550ea3b601e46cce5b7b8c723972a4d",
+    "src/wheeled_tasks/chassis/gas_spring.py": "b147ff71a3df841eaefe96042ac379e11dd3dcf776645dbdbc4efdb6c16ad502",
+    "src/wheeled_tasks/chassis/getup_feedback.py": "026865835d33c5afafd9002056e353f01cc17b29fcbe8f49e1335eb5f67d24c7",
+    "src/wheeled_tasks/chassis/getup_ground.py": "5f600ee86ae008cf74fb6d92a7beac3b9e627cb8630c14dc2d6980a0bbcafe8d",
+    "src/wheeled_tasks/chassis/getup_reward.py": "f83a6101e915bdfc891af55946c9327e7530c7b6df819090c469c16d4f74ced2",
+    "src/wheeled_tasks/chassis/graded_locomotion_revision.py": "2ba7f990ac283aa9ca44fbc10efb7f6d8263cfd33abf7355f138936fb0e277e1",
+    "src/wheeled_tasks/chassis/heading_command.py": "cfa95c65c98041c447ac28e0e5682052f3f1c27017a5fd4cd7317095976d8db3",
+    "src/wheeled_tasks/chassis/integrated_completed_speed_revision.py": "174c9568d41571995f14f7294bda2c22acfd74047873f89805761103298c747f",
+    "src/wheeled_tasks/chassis/integrated_curriculum.py": "b0f6277dbf52bdc1b77335af0e6a3788851152d8219245a7013885b2403599c2",
+    "src/wheeled_tasks/chassis/integrated_lineage.py": "ef4eebbe73280e647bf9fb22ef31958984f8e8aa71cda1b1cd961a58b8b9cb92",
+    "src/wheeled_tasks/chassis/integrated_preflight.py": "ed179e1b22e33d2a48776453af62b78aecd4cab58efc9814b592284752d659b4",
+    "src/wheeled_tasks/chassis/integrated_production.py": "44d3db3c9ac225d476aef982a02ca276a5a44c6727db78c1e5c88eb7fc3b0bec",
+    "src/wheeled_tasks/chassis/integrated_runtime.py": "41bbf92cce4fbb68e400beb226d99948e1461a68c4746921dc95d85eb4403255",
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "c844c42778c3f03135775465c5a79c32caa780fd881ad245aba4b71d712f97c4",
+    "src/wheeled_tasks/chassis/integrated_training.py": "1b1cb81ef68716f2a20f7878f36df2e486a41ae6655fcac509aa851de8a0b1ba",
+    "src/wheeled_tasks/chassis/jump_landing.py": "5373e8a7aa2a2a9f1cf7427df27687e095e764353b8734b3401783f718e6f71d",
+    "src/wheeled_tasks/chassis/jump_landing_revision.py": "9a906a996f41c97d2e1cf8c86c200577a2a21e652e5433522f0248099e480ff4",
+    "src/wheeled_tasks/chassis/learning_audit.py": "989c2a4b30c2b60d89b7f6f2ab93f1024324524e389b2c8a3f2bd02be5bab2bc",
+    "src/wheeled_tasks/chassis/local_birth_revision.py": "651ef066b4997608aa8d8212d0f1093d947cb3d8eae82e761356ad666bdfaf3e",
+    "src/wheeled_tasks/chassis/local_command_revision.py": "5793a4f3823f72ab42f0a9a095d3a2902dbb75d5bbd4bdc0c492129a327c08ac",
+    "src/wheeled_tasks/chassis/local_entropy_revision.py": "7d11174fc93ea24a11da4610a0b499784571013c7766eac902ac0402aa110a75",
+    "src/wheeled_tasks/chassis/local_evaluation.py": "83b4f209f13a15803d32e584cf70622ce6a8ce929ab3ee34719c5cf1f4d78dd5",
+    "src/wheeled_tasks/chassis/local_return_revision.py": "8071f232032b6cdf6bb338d986315becfad24bbb43e6f137b6abd97d39e85593",
+    "src/wheeled_tasks/chassis/local_scratch.py": "a311ef788feb87add30fe0fd3107b0da83452adeb9da8096ffbf1b75eee60908",
+    "src/wheeled_tasks/chassis/local_value_revision.py": "1161fcc31da47cfbb2ea965f0d2862cffb71482f9aa9cce6147742a6e9e55822",
+    "src/wheeled_tasks/chassis/locomotion_difficulty.py": "b59d7e6e29084da6abafd40b1d8689c40e98cf669633edf76c9e56948bc32250",
+    "src/wheeled_tasks/chassis/locomotion_quality_revision.py": "a896c95ca34fb039ba8addf7e570380216f6d347ca0ecc64f0acd4479f2491fc",
+    "src/wheeled_tasks/chassis/locomotion_revision.py": "37d0dc94ff2ab70dbaf78b571167138861982390d6c26428cfefff38384dbd9d",
+    "src/wheeled_tasks/chassis/mechanism_observer.py": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+    "src/wheeled_tasks/chassis/motion_limits.py": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+    "src/wheeled_tasks/chassis/motion_rehearsal.py": "d831474a22a352ae9f991d0c6b76ba44643ed57d57137b8404267e4ce53f60da",
+    "src/wheeled_tasks/chassis/nonstandard_start.py": "2864376b8b9882170304e206333e13d372e9a474cb34d3efd8b3757b1ce172a9",
+    "src/wheeled_tasks/chassis/nonstandard_start_revision.py": "07de45f381499fc776dd1147e3eb1e03e88a41c2b3be9f416b93a5b534d2a6c6",
+    "src/wheeled_tasks/chassis/ordinary_large_stair.py": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py": "85f7a9f8a7d78988482f0051438da98f71acef343dd34fe9bd73d5f362d25ce8",
+    "src/wheeled_tasks/chassis/ordinary_posture_revision.py": "644fc5e33dac17ab5e6cd182c11cfe2ffb32b4c4bc555d682b187dd26f077a66",
+    "src/wheeled_tasks/chassis/paired_feedback.py": "492172df17e5f05428a8b75418bd10cc53d8e1dde39f3a148cca54e013fb993b",
+    "src/wheeled_tasks/chassis/paired_leg_targets.py": "7d711b122cdedfd0c42e384546921a9e181dc99f05c0a039eb441caa2d794ba4",
+    "src/wheeled_tasks/chassis/pc_communication.py": "64c00e4bb1fc3e580c30bc1ad71f193408db52a4d1cec3b3a92a158e7649249f",
+    "src/wheeled_tasks/chassis/performance_curriculum.py": "bb8af22fb772cf9cc9b9fe06d492c77de6b9b732040330bf2ffc60f96749a976",
+    "src/wheeled_tasks/chassis/playback_command.py": "506d51e0ca2442d55da264e58d8c91a6a2dc3a7ed713f1e675cfec1839019eaf",
+    "src/wheeled_tasks/chassis/policy_transfer.py": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082",
+    "src/wheeled_tasks/chassis/preflight.py": "24a8915abe17c8ff740ef747e5e9e640987d8ab67ffdd2dbc366817a67c0eec6",
+    "src/wheeled_tasks/chassis/quiet_standing.py": "c6f5709a1f8089a9d2f552f54abc0fd56e5872bfa2a9a51d24d8a31209ba4448",
+    "src/wheeled_tasks/chassis/ramp_flight.py": "3936f040d272ed1b09c845f546b4b60146f7a47e6a09f46672d44643f4d51123",
+    "src/wheeled_tasks/chassis/recovery.py": "49fa07c4f29621aa60c9c603b5458f63b2013ae7326cdbd50d921e3855142842",
+    "src/wheeled_tasks/chassis/recovery_curriculum.py": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+    "src/wheeled_tasks/chassis/recovery_entropy_revision.py": "23f4372c2a23188decfd2b4a19baf32ba43d71ae65f16b95a4e47897b73665f6",
+    "src/wheeled_tasks/chassis/recovery_observer.py": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "e25a2a89db76fde2dff680a3c76af283989b6377e2a64896de1568a050e40e2c",
+    "src/wheeled_tasks/chassis/recovery_prefix_revision.py": "6716d014d686ff69d660ac4cc02d9b7b2122fbd272ab37d361372363b08bf129",
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972",
+    "src/wheeled_tasks/chassis/recovery_revision.py": "bfaae477e29291a75672a2834dbef83407fbf4b7b987d80d41f863ad4de8260f",
+    "src/wheeled_tasks/chassis/recovery_script_revision.py": "4d59036e4e0f5e7662f56e94976a373de14a1f1f6a562368b51c517f8e1d28f0",
+    "src/wheeled_tasks/chassis/recovery_training.py": "dcae1f616e7d06b8fcd504471b6f7dcdc33b1f24865ecf870a1d475cca702448",
+    "src/wheeled_tasks/chassis/references.py": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+    "src/wheeled_tasks/chassis/release_stop.py": "3399e440e9021257f444e3ab8a527d168ae6e9663b062a3623f01c2df758109c",
+    "src/wheeled_tasks/chassis/remediation.py": "91ca961cbbce3ba418ea38cb756dee6f5dc8b7e9c583553b9ab16a4154334d52",
+    "src/wheeled_tasks/chassis/response_migration.py": "345294ac1a1d3d86580919231cb82b3235271028be1a6ee29fa0531cc9bfc40a",
+    "src/wheeled_tasks/chassis/rewards.py": "f4dc968cb323e50ad894b1715a9865f1202e4663c401e2f68bf64398a1b7818d",
+    "src/wheeled_tasks/chassis/robust_getup.py": "948439caa391ec9c92928b058d4c4169486ac23a2d2af6dab216cbea380a515c",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "9d7d0c24f0b5695680bd9ddd3bb3fb7dba13e1d0565c671f5860ce5d832985d7",
+    "src/wheeled_tasks/chassis/robustness.py": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339",
+    "src/wheeled_tasks/chassis/root_kinematics.py": "0c63be06fc026b0687aa4e9d9fd7dabb009f7c1ab24446244b672928368f610b",
+    "src/wheeled_tasks/chassis/scut_base_tracking.py": "2acce09e0d31184eb191faf592215a67a445573729fbaf0406701c84e9e3bfea",
+    "src/wheeled_tasks/chassis/scut_curriculum_revision.py": "eb3759d600c722345c4e8ffe082b9c8f13dc1e401bf0fd25d2ecadfae5c8b44e",
+    "src/wheeled_tasks/chassis/scut_jump_revision.py": "984643e343a0202b5b0c525f4992aad767222e51f8185945ddbca1d686c44350",
+    "src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+    "src/wheeled_tasks/chassis/scut_reuse_curriculum.py": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+    "src/wheeled_tasks/chassis/scut_terrain_revision.py": "d61a107418694d5a261c18700a847d245e8166f7feb295c6b4d25c379234dc54",
+    "src/wheeled_tasks/chassis/signal_delay.py": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+    "src/wheeled_tasks/chassis/skill_commands.py": "df86738911abbc52e683368c809c9a09977f781d5eb642484bbaf27f20c275ab",
+    "src/wheeled_tasks/chassis/skill_curriculum.py": "3efc8e18b671e3f5177b4544488b8655a19f46c90695db80d8d0b1fb4c2de446",
+    "src/wheeled_tasks/chassis/slow_recovery.py": "9e9046d2d047c4f044c9548aec7d090f43c33ca0193a0f0551a349638a480f34",
+    "src/wheeled_tasks/chassis/small_stair_revision.py": "6ff1c050195323efe851c38da35a7c3cb8271f9a2696f854cc9058ce21532478",
+    "src/wheeled_tasks/chassis/state_snapshot.py": "e988163a3921ddf83b596412e5ee593a5d6a6a56498c087357b7eb0b93c8e7ff",
+    "src/wheeled_tasks/chassis/step_assist.py": "3f5a4a2d68d99ac98c3f4296ec581d70cde515202be757853d2bf4c73d82c748",
+    "src/wheeled_tasks/chassis/step_climb.py": "e050a749879e1649b7f8508a9fa1ed67e328953ba6fe06debc86401ee91c8694",
+    "src/wheeled_tasks/chassis/step_jump.py": "b4c6c2dbbcc4eed71a6e31f06120cf0fe8e9abb16a5f46a107ebeb35d8b7ff8d",
+    "src/wheeled_tasks/chassis/step_sensors.py": "6ceea4b0096e84b8622adee9312d349bf69fa313bcce2341aaa495ca2169e145",
+    "src/wheeled_tasks/chassis/step_trigger.py": "8419ddb18dc9f75049ca6b56e6907790ee4bbe451d1ba5eedbf210fc74f00188",
+    "src/wheeled_tasks/chassis/task.py": "124caab37c1e220f286ff473e151822cbfa9d980dc3c55db650038cf334303e1",
+    "src/wheeled_tasks/chassis/task_campaign.py": "8472e457a3e50fdb2d06331f95b34eb60e82b74f35aee8f8939049b180c6ac38",
+    "src/wheeled_tasks/chassis/teleop.py": "38b25aff36216b1f3fee0fa32717042f725587ce5259f21373eaf9685aa84fc5",
+    "src/wheeled_tasks/chassis/terrain_rehearsal_revision.py": "07d47967b39a6c8df8df3182a65d955262a7c8f969fd73718c45579c1268c52f",
+    "src/wheeled_tasks/chassis/terrain_runout.py": "ac84d5ac7232250cce281beb09cb16046ba31cc36e9da612a0a7c763d64e0908",
+    "src/wheeled_tasks/chassis/terrain_runout_revision.py": "3877edd3c9a623a5bad9e98c00f5ca170e9accd073626b3ba7599925f3b89147",
+    "src/wheeled_tasks/chassis/terrain_runout_runtime.py": "4db4183cffd3fb65ef47f3c9f79c09af3e26c0dd0fb2ae88cc90687e16c9ef59",
+    "src/wheeled_tasks/chassis/terrain_schedule_revision.py": "fec047ed08df8e12b29598ea8e8479292c6acf7b395a0087d02453e0b77c0093",
+    "src/wheeled_tasks/chassis/torque_monitor.py": "0b28995db19a6f46e2401165ea7f154af8ea947f426fcfd374b7f4d1774555f0",
+    "src/wheeled_tasks/chassis/training_schedule.py": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8",
+    "src/wheeled_tasks/chassis/training_timing.py": "f28bf42c951a2f9ad05ced79c9c9c64121b1c62e239fd8a9eb540969a73264a9",
+    "src/wheeled_tasks/chassis/transient_campaign_plan.py": "c609e2ed09c3fc9ee24e46b38310188e7523714bb8f1daa97a4206096318a3e2",
+    "src/wheeled_tasks/chassis/transient_dwell_plan.py": "3ef19fb2375ec290125ed4e162d2216cf43acb36232adbc21cd62a5fc5ae6279",
+    "src/wheeled_tasks/chassis/transient_leg_feedback_plan.py": "e3e49c2a1044010019a7db4ad31baf41dba6cc9ff0e0fcbda7e35b78cb71957a",
+    "src/wheeled_tasks/chassis/transient_response.py": "276892bc536912d2c43bedc9ca619527a48db2d626b9c3b673142faa0b6de3a5",
+    "src/wheeled_tasks/chassis/transient_response_plan.py": "656969785bb46b9e704c35355bacec40ac291598f16a5b4db7ed21158509bb26",
+    "src/wheeled_tasks/chassis/unified_getup.py": "c4e2d57a8604812fa0a1f35884517c01214c4da038e9c65085197904d31f5035",
+    "src/wheeled_tasks/chassis/unified_getup_env.py": "d7c78417e6e1743e24ae02f8eaed5023618a7b0a4f4a5052d14f06c582519ce0",
+    "src/wheeled_tasks/chassis/usb_transport.py": "04487b7c4c9010b5e8ffdbde87b819140b615e8ddde0b84bbd3454b73f406d8c",
+    "src/wheeled_tasks/chassis/v5_control.py": "ffcf4602a5e3deb9948386c52d87be62703b312256d7092aeb71237a16fcc943"
+  },
+  "ort_max_abs_error": 3.337860107421875e-06,
+  "ort_checked_observations": 4096,
+  "cpu_inference_ms": {
+    "samples": 512,
+    "threads": 1,
+    "p50": 0.17464300617575645,
+    "p99": 0.19591935619246212
+  },
+  "exporter_sha256": "caeb9f7fed1a604188184a4bdc4dd976615f35222c3ef5e65d45e1194eb9b604",
+  "acceptance_protocol_sha256": "e018dd9feef44a0889a474b13121277352dd28ce764c6d8be6810c02ad089100",
+  "behavior": {
+    "adequate": true,
+    "failures": [],
+    "comparisons": [
+      {
+        "evaluation": "runs/unified_robust_20261021/confirmation007/211131/robust",
+        "evaluation_sha256": "65ec8b283f42cda265c150070f8691ab8d3d4111301bb5c707a06eb0a35563d5",
+        "baseline": "runs/unified_robust_20261021/confirmation007/211131/parent",
+        "baseline_sha256": "6d0697ef416091560968d28b511a0c053c75bd99f8023db46e9a0261426d86d0",
+        "native_pairing": {
+          "matched_native_origins": true,
+          "max_abs_origin_xy_m": 824.5,
+          "max_abs_support_coordinate_m": 872.5
+        },
+        "mean_quiet_hf_improvement_fraction": 0.7048179874550748,
+        "mean_quiet_3_95_target_improvement_fraction": 0.8705816391441731,
+        "mean_quiet_3_95_physical_improvement_fraction": 0.8799474339373355,
+        "actual_settled_attitudes": {
+          "compound": {
+            "episodes": 9,
+            "recovered": 8,
+            "recovery_and_motion_success": 7,
+            "practical_recovery_and_motion_success": 8
+          },
+          "inverted": {
+            "episodes": 27,
+            "recovered": 24,
+            "recovery_and_motion_success": 9,
+            "practical_recovery_and_motion_success": 24
+          },
+          "right": {
+            "episodes": 8,
+            "recovered": 5,
+            "recovery_and_motion_success": 4,
+            "practical_recovery_and_motion_success": 5
+          },
+          "left": {
+            "episodes": 4,
+            "recovered": 3,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 3
+          }
+        },
+        "exact_180_reset_cases": {
+          "inverted_symmetric": {
+            "episodes": 4,
+            "recovered": 2,
+            "practical_recovery_and_motion_success": 2
+          },
+          "inverted_asymmetric": {
+            "episodes": 4,
+            "recovered": 4,
+            "practical_recovery_and_motion_success": 4
+          }
+        },
+        "ordinary_motion": {
+          "survived": 85,
+          "episodes": 92
+        },
+        "ordinary_arcs": {
+          "arc_forward_left": {
+            "vx_mae_m_s": 0.06924627721309662,
+            "yaw_mae_rad_s": 0.07556940848007798,
+            "both_axes_tracking_fraction": 1.0
+          },
+          "arc_forward_right": {
+            "vx_mae_m_s": 0.0846309345215559,
+            "yaw_mae_rad_s": 0.13284334726631641,
+            "both_axes_tracking_fraction": 1.0
+          },
+          "arc_reverse_left": {
+            "vx_mae_m_s": 0.06795845925807953,
+            "yaw_mae_rad_s": 0.12353866640478373,
+            "both_axes_tracking_fraction": 0.9991254372813594
+          },
+          "arc_reverse_right": {
+            "vx_mae_m_s": 0.07615944370627403,
+            "yaw_mae_rad_s": 0.1396145075559616,
+            "both_axes_tracking_fraction": 1.0
+          }
+        },
+        "quiet_standing": {
+          "stand": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.0017719188472256064,
+            "yaw_rms_rad_s": 0.005864207400009036,
+            "height_mae_m": 0.0003116544758086093,
+            "leg_speed_rms_rad_s": 0.04033102747052908,
+            "wheel_speed_rms_rad_s": 0.17453058063983917,
+            "leg_target_hf_rms_rad": 9.922510685697098e-05,
+            "wheel_target_hf_rms_rad_s": 0.044203299454766476,
+            "leg_effort_hf_rms_nm": 0.06517955712505527,
+            "wheel_effort_hf_rms_nm": 0.02261479563905451,
+            "leg_effort_delta_rms_nm": 0.10264751873910427,
+            "leg_target_fast_rms_rad_3_95": 0.00049727563624635,
+            "wheel_target_fast_rms_rad_s_3_95": 0.11887601603316542,
+            "leg_motion_fast_rms_rad_3_95": 0.0006441641134343469,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.07918048633128766,
+            "leg_motion_rms_rad_1_3": 0.0024080759956662456,
+            "wheel_motion_rms_rad_s_1_3": 0.14373303003874796,
+            "body_xy_max_excursion_m": 0.001012038381304592,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.001556396484375
+          },
+          "stand_low": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.004937074496410787,
+            "yaw_rms_rad_s": 0.00985395337920636,
+            "height_mae_m": 0.0019580975058488548,
+            "leg_speed_rms_rad_s": 0.17251070961356163,
+            "wheel_speed_rms_rad_s": 0.17165726982057095,
+            "leg_target_hf_rms_rad": 0.0003428565795477825,
+            "wheel_target_hf_rms_rad_s": 0.14848033540515676,
+            "leg_effort_hf_rms_nm": 0.3259994991673506,
+            "wheel_effort_hf_rms_nm": 0.06762018368696725,
+            "leg_effort_delta_rms_nm": 0.5387517474591732,
+            "leg_target_fast_rms_rad_3_95": 0.0009188554749243598,
+            "wheel_target_fast_rms_rad_s_3_95": 0.21711153016372192,
+            "leg_motion_fast_rms_rad_3_95": 0.0009177207422545297,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.12461737003406848,
+            "leg_motion_rms_rad_1_3": 0.001632823004624111,
+            "wheel_motion_rms_rad_s_1_3": 0.08049193291244489,
+            "body_xy_max_excursion_m": 0.0008750962297199294,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.0015692090382799506
+          },
+          "stand_high": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.004685115301981568,
+            "yaw_rms_rad_s": 0.0125163779448485,
+            "height_mae_m": 0.0008940941479522735,
+            "leg_speed_rms_rad_s": 0.044476074166595936,
+            "wheel_speed_rms_rad_s": 0.2802620008587837,
+            "leg_target_hf_rms_rad": 0.0001250737962411117,
+            "wheel_target_hf_rms_rad_s": 0.04331306302229029,
+            "leg_effort_hf_rms_nm": 0.04884176666966698,
+            "wheel_effort_hf_rms_nm": 0.020906553208225986,
+            "leg_effort_delta_rms_nm": 0.07369098416529596,
+            "leg_target_fast_rms_rad_3_95": 0.0008881025270860709,
+            "wheel_target_fast_rms_rad_s_3_95": 0.1820160143151292,
+            "leg_motion_fast_rms_rad_3_95": 0.0009058750416632626,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.13051115903270935,
+            "leg_motion_rms_rad_1_3": 0.0034361553510389277,
+            "wheel_motion_rms_rad_s_1_3": 0.2368776249898905,
+            "body_xy_max_excursion_m": 0.01223036868032068,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.03731918707489967
+          }
+        },
+        "actual_moving_fall_recoveries": 1,
+        "max_gap_m": 0.0006323986453935504
+      },
+      {
+        "evaluation": "runs/unified_robust_20261021/confirmation007/211132/robust",
+        "evaluation_sha256": "ae1fb550e06dc2079901cb15b52359bf0f60fa8889524836bfc6362d51c4867a",
+        "baseline": "runs/unified_robust_20261021/confirmation007/211132/parent",
+        "baseline_sha256": "5eb18830ab1c6015954392385e3de8ab1e666c559a8334d268e78b430a27fcf2",
+        "native_pairing": {
+          "matched_native_origins": true,
+          "max_abs_origin_xy_m": 824.5,
+          "max_abs_support_coordinate_m": 872.5
+        },
+        "mean_quiet_hf_improvement_fraction": 0.6910765662449457,
+        "mean_quiet_3_95_target_improvement_fraction": 0.8567007370132732,
+        "mean_quiet_3_95_physical_improvement_fraction": 0.8672965523186856,
+        "actual_settled_attitudes": {
+          "compound": {
+            "episodes": 4,
+            "recovered": 4,
+            "recovery_and_motion_success": 2,
+            "practical_recovery_and_motion_success": 4
+          },
+          "inverted": {
+            "episodes": 23,
+            "recovered": 21,
+            "recovery_and_motion_success": 9,
+            "practical_recovery_and_motion_success": 21
+          },
+          "right": {
+            "episodes": 8,
+            "recovered": 3,
+            "recovery_and_motion_success": 2,
+            "practical_recovery_and_motion_success": 3
+          },
+          "left": {
+            "episodes": 8,
+            "recovered": 6,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 6
+          },
+          "upright": {
+            "episodes": 4,
+            "recovered": 4,
+            "recovery_and_motion_success": 4,
+            "practical_recovery_and_motion_success": 4
+          },
+          "front": {
+            "episodes": 1,
+            "recovered": 0,
+            "recovery_and_motion_success": 0,
+            "practical_recovery_and_motion_success": 0
+          }
+        },
+        "exact_180_reset_cases": {
+          "inverted_symmetric": {
+            "episodes": 4,
+            "recovered": 3,
+            "practical_recovery_and_motion_success": 3
+          },
+          "inverted_asymmetric": {
+            "episodes": 4,
+            "recovered": 3,
+            "practical_recovery_and_motion_success": 3
+          }
+        },
+        "ordinary_motion": {
+          "survived": 85,
+          "episodes": 92
+        },
+        "ordinary_arcs": {
+          "arc_forward_left": {
+            "vx_mae_m_s": 0.06781306490302086,
+            "yaw_mae_rad_s": 0.12639174051582813,
+            "both_axes_tracking_fraction": 0.9997501249375312
+          },
+          "arc_forward_right": {
+            "vx_mae_m_s": 0.08515042439103127,
+            "yaw_mae_rad_s": 0.13933263532817364,
+            "both_axes_tracking_fraction": 0.9996251874062969
+          },
+          "arc_reverse_left": {
+            "vx_mae_m_s": 0.06808095797896385,
+            "yaw_mae_rad_s": 0.12497734185308218,
+            "both_axes_tracking_fraction": 0.999375312343828
+          },
+          "arc_reverse_right": {
+            "vx_mae_m_s": 0.07597637735307217,
+            "yaw_mae_rad_s": 0.13494283705949783,
+            "both_axes_tracking_fraction": 1.0
+          }
+        },
+        "quiet_standing": {
+          "stand": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.0018461796280462295,
+            "yaw_rms_rad_s": 0.0047190422264975496,
+            "height_mae_m": 0.0003033496323041618,
+            "leg_speed_rms_rad_s": 0.04069634806364775,
+            "wheel_speed_rms_rad_s": 0.176873367279768,
+            "leg_target_hf_rms_rad": 8.53585981449695e-05,
+            "wheel_target_hf_rms_rad_s": 0.03987022393866746,
+            "leg_effort_hf_rms_nm": 0.05465102980922064,
+            "wheel_effort_hf_rms_nm": 0.02030436633132917,
+            "leg_effort_delta_rms_nm": 0.0872157895937562,
+            "leg_target_fast_rms_rad_3_95": 0.0004981193110211498,
+            "wheel_target_fast_rms_rad_s_3_95": 0.12387800648236928,
+            "leg_motion_fast_rms_rad_3_95": 0.0006069634436792178,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.08388996505452274,
+            "leg_motion_rms_rad_1_3": 0.002525512381347437,
+            "wheel_motion_rms_rad_s_1_3": 0.15482343363735204,
+            "body_xy_max_excursion_m": 0.004523952899035066,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.01145172119140625
+          },
+          "stand_low": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.004975428688339889,
+            "yaw_rms_rad_s": 0.008460709475912154,
+            "height_mae_m": 0.0019809578952845186,
+            "leg_speed_rms_rad_s": 0.17303704656660557,
+            "wheel_speed_rms_rad_s": 0.17270013503730297,
+            "leg_target_hf_rms_rad": 0.00034568670593060114,
+            "wheel_target_hf_rms_rad_s": 0.14824910905186198,
+            "leg_effort_hf_rms_nm": 0.32345703919078267,
+            "wheel_effort_hf_rms_nm": 0.0675407103103874,
+            "leg_effort_delta_rms_nm": 0.5387954711914062,
+            "leg_target_fast_rms_rad_3_95": 0.000938031100413714,
+            "wheel_target_fast_rms_rad_s_3_95": 0.22142183172196206,
+            "leg_motion_fast_rms_rad_3_95": 0.0009358196560640674,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.12921578021353713,
+            "leg_motion_rms_rad_1_3": 0.0015256198546584876,
+            "wheel_motion_rms_rad_s_1_3": 0.07549253519608506,
+            "body_xy_max_excursion_m": 0.0019248137687100098,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.0032486531417816877
+          },
+          "stand_high": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.004482325166463852,
+            "yaw_rms_rad_s": 0.008827433659462258,
+            "height_mae_m": 0.0008924503345042467,
+            "leg_speed_rms_rad_s": 0.04426770657300949,
+            "wheel_speed_rms_rad_s": 0.2777063399553299,
+            "leg_target_hf_rms_rad": 0.00010337890829204918,
+            "wheel_target_hf_rms_rad_s": 0.03787314282485347,
+            "leg_effort_hf_rms_nm": 0.0538675820265767,
+            "wheel_effort_hf_rms_nm": 0.019866241404624906,
+            "leg_effort_delta_rms_nm": 0.08330423105508089,
+            "leg_target_fast_rms_rad_3_95": 0.0009152684620261288,
+            "wheel_target_fast_rms_rad_s_3_95": 0.18322765647392666,
+            "leg_motion_fast_rms_rad_3_95": 0.000956438040067727,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.13347353161566958,
+            "leg_motion_rms_rad_1_3": 0.003388617009495389,
+            "wheel_motion_rms_rad_s_1_3": 0.23245129825865876,
+            "body_xy_max_excursion_m": 0.0023315566941164434,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.0033591522369533777
+          }
+        },
+        "actual_moving_fall_recoveries": 1,
+        "max_gap_m": 0.0007522932719439268
+      }
+    ]
+  },
+  "evidence_scope": "Isaac Sim; user performs vehicle testing",
+  "hardware_tested": false
+}

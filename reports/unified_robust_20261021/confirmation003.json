@@ -1,0 +1,321 @@
+{
+  "adequate": false,
+  "failures": [
+    "seed 211131 actual left recovery and resumed motion",
+    "seed 211131 arc_forward_left simultaneous tracking",
+    "seed 211131 arc_forward_right simultaneous tracking",
+    "seed 211131 arc_reverse_left simultaneous tracking"
+  ],
+  "comparisons": [
+    {
+      "evaluation": "runs/unified_robust_20261021/confirmation003_retry001/211131/robust",
+      "evaluation_sha256": "9ab311882cfdb658c3f7d74e39d182192746319372650b36b0547bfa153da4a7",
+      "baseline": "runs/unified_robust_20261021/confirmation003_retry001/211131/parent",
+      "baseline_sha256": "5522eb6773c314b9c69018754137b52021486a3759b0a4555ea07a55ac5de088",
+      "mean_quiet_hf_improvement_fraction": 0.717461102808666,
+      "mean_quiet_3_95_target_improvement_fraction": 0.8560495224344029,
+      "mean_quiet_3_95_physical_improvement_fraction": 0.8650853347873979,
+      "actual_settled_attitudes": {
+        "inverted": {
+          "episodes": 24,
+          "recovered": 22,
+          "recovery_and_motion_success": 6,
+          "practical_recovery_and_motion_success": 18
+        },
+        "compound": {
+          "episodes": 8,
+          "recovered": 5,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 5
+        },
+        "right": {
+          "episodes": 8,
+          "recovered": 3,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 3
+        },
+        "upright": {
+          "episodes": 3,
+          "recovered": 3,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 1
+        },
+        "left": {
+          "episodes": 4,
+          "recovered": 3,
+          "recovery_and_motion_success": 1,
+          "practical_recovery_and_motion_success": 1
+        },
+        "front": {
+          "episodes": 1,
+          "recovered": 1,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 1
+        }
+      },
+      "exact_180_reset_cases": {
+        "inverted_symmetric": {
+          "episodes": 4,
+          "recovered": 4,
+          "practical_recovery_and_motion_success": 2
+        },
+        "inverted_asymmetric": {
+          "episodes": 4,
+          "recovered": 3,
+          "practical_recovery_and_motion_success": 1
+        }
+      },
+      "ordinary_motion": {
+        "survived": 86,
+        "episodes": 92
+      },
+      "ordinary_arcs": {
+        "arc_forward_left": {
+          "vx_mae_m_s": 0.10091981384903193,
+          "yaw_mae_rad_s": 0.5345270470716059,
+          "both_axes_tracking_fraction": 0.5825837081459271
+        },
+        "arc_forward_right": {
+          "vx_mae_m_s": 0.06361665297299623,
+          "yaw_mae_rad_s": 0.5461744274944067,
+          "both_axes_tracking_fraction": 0.6128185907046476
+        },
+        "arc_reverse_left": {
+          "vx_mae_m_s": 0.13749347813427448,
+          "yaw_mae_rad_s": 0.5418223636224866,
+          "both_axes_tracking_fraction": 0.5612193903048476
+        },
+        "arc_reverse_right": {
+          "vx_mae_m_s": 0.11159828118979931,
+          "yaw_mae_rad_s": 0.3426528200507164,
+          "both_axes_tracking_fraction": 0.7728635682158921
+        }
+      },
+      "quiet_standing": {
+        "stand": {
+          "frames": 1801.0,
+          "interval_s": 9.005206108093262,
+          "vx_rms_m_s": 0.0018559711461421102,
+          "yaw_rms_rad_s": 0.004259711364284158,
+          "height_mae_m": 0.0003100191825069487,
+          "leg_speed_rms_rad_s": 0.04215104505419731,
+          "wheel_speed_rms_rad_s": 0.18236425891518593,
+          "leg_target_hf_rms_rad": 0.00010009053142130854,
+          "wheel_target_hf_rms_rad_s": 0.04706631261169804,
+          "leg_effort_hf_rms_nm": 0.06604026057783713,
+          "wheel_effort_hf_rms_nm": 0.02396021427455653,
+          "leg_effort_delta_rms_nm": 0.10772478394210339,
+          "leg_target_fast_rms_rad_3_95": 0.0005261945134266557,
+          "wheel_target_fast_rms_rad_s_3_95": 0.12725358679117205,
+          "leg_motion_fast_rms_rad_3_95": 0.0006380985191549042,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.0866567192258266,
+          "leg_motion_rms_rad_1_3": 0.002519143047107503,
+          "wheel_motion_rms_rad_s_1_3": 0.1613764781687323,
+          "body_xy_max_excursion_m": 0.001010585496260319,
+          "episodes_with_valid_windows": 4,
+          "body_xy_worst_episode_excursion_m": 0.0015869140625
+        },
+        "stand_low": {
+          "frames": 1801.0,
+          "interval_s": 9.005206108093262,
+          "vx_rms_m_s": 0.0051569947972893715,
+          "yaw_rms_rad_s": 0.008925594156607985,
+          "height_mae_m": 0.001993575773667544,
+          "leg_speed_rms_rad_s": 0.21334350109100342,
+          "wheel_speed_rms_rad_s": 0.2074127160012722,
+          "leg_target_hf_rms_rad": 0.0004196701851081177,
+          "wheel_target_hf_rms_rad_s": 0.1756415798541905,
+          "leg_effort_hf_rms_nm": 0.38499232158387614,
+          "wheel_effort_hf_rms_nm": 0.07983780497191477,
+          "leg_effort_delta_rms_nm": 0.6661817133426666,
+          "leg_target_fast_rms_rad_3_95": 0.00108523507332877,
+          "wheel_target_fast_rms_rad_s_3_95": 0.25396166999574127,
+          "leg_motion_fast_rms_rad_3_95": 0.0011163027744228136,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.1510077841346051,
+          "leg_motion_rms_rad_1_3": 0.0017584271069831766,
+          "wheel_motion_rms_rad_s_1_3": 0.0918289094442856,
+          "body_xy_max_excursion_m": 0.0020077685767319053,
+          "episodes_with_valid_windows": 4,
+          "body_xy_worst_episode_excursion_m": 0.0026294749695807695
+        },
+        "stand_high": {
+          "frames": 1801.0,
+          "interval_s": 9.005206108093262,
+          "vx_rms_m_s": 0.004787908401340246,
+          "yaw_rms_rad_s": 0.012194971146527678,
+          "height_mae_m": 0.000894768672878854,
+          "leg_speed_rms_rad_s": 0.048490721732378006,
+          "wheel_speed_rms_rad_s": 0.30540359020233154,
+          "leg_target_hf_rms_rad": 0.00013758165366895716,
+          "wheel_target_hf_rms_rad_s": 0.05453749392205062,
+          "leg_effort_hf_rms_nm": 0.06909218648562779,
+          "wheel_effort_hf_rms_nm": 0.027771523117017402,
+          "leg_effort_delta_rms_nm": 0.11010290682315826,
+          "leg_target_fast_rms_rad_3_95": 0.0008651148392539833,
+          "wheel_target_fast_rms_rad_s_3_95": 0.19652368043709467,
+          "leg_motion_fast_rms_rad_3_95": 0.0009287909967917481,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.14315449899439014,
+          "leg_motion_rms_rad_1_3": 0.0035610475454074106,
+          "wheel_motion_rms_rad_s_1_3": 0.257387895036826,
+          "body_xy_max_excursion_m": 0.0021625433873850852,
+          "episodes_with_valid_windows": 4,
+          "body_xy_worst_episode_excursion_m": 0.0030555701814591885
+        }
+      },
+      "actual_moving_fall_recoveries": 2,
+      "max_gap_m": 0.001077735796570778
+    },
+    {
+      "evaluation": "runs/unified_robust_20261021/confirmation003_retry001/211132/robust",
+      "evaluation_sha256": "dbdd06d8e262f38ef035ece040e8e3f2c0c4a9419cb684e63dd4046e34cf80b1",
+      "baseline": "runs/unified_robust_20261021/confirmation003_retry001/211132/parent",
+      "baseline_sha256": "a94bf4bebd3d66c4b524cd9b69d34bb35a019676b8484321388003ea4736b41d",
+      "mean_quiet_hf_improvement_fraction": 0.6366753544742593,
+      "mean_quiet_3_95_target_improvement_fraction": 0.8665175975101382,
+      "mean_quiet_3_95_physical_improvement_fraction": 0.8768691243189659,
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 4,
+          "recovered": 4,
+          "recovery_and_motion_success": 4,
+          "practical_recovery_and_motion_success": 4
+        },
+        "inverted": {
+          "episodes": 24,
+          "recovered": 20,
+          "recovery_and_motion_success": 5,
+          "practical_recovery_and_motion_success": 15
+        },
+        "right": {
+          "episodes": 8,
+          "recovered": 5,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 2
+        },
+        "left": {
+          "episodes": 7,
+          "recovered": 5,
+          "recovery_and_motion_success": 1,
+          "practical_recovery_and_motion_success": 3
+        },
+        "upright": {
+          "episodes": 5,
+          "recovered": 5,
+          "recovery_and_motion_success": 3,
+          "practical_recovery_and_motion_success": 3
+        }
+      },
+      "exact_180_reset_cases": {
+        "inverted_symmetric": {
+          "episodes": 4,
+          "recovered": 1,
+          "practical_recovery_and_motion_success": 1
+        },
+        "inverted_asymmetric": {
+          "episodes": 4,
+          "recovered": 4,
+          "practical_recovery_and_motion_success": 3
+        }
+      },
+      "ordinary_motion": {
+        "survived": 87,
+        "episodes": 92
+      },
+      "ordinary_arcs": {
+        "arc_forward_left": {
+          "vx_mae_m_s": 0.06424799654632807,
+          "yaw_mae_rad_s": 0.30310916155576706,
+          "both_axes_tracking_fraction": 0.7727386306846576
+        },
+        "arc_forward_right": {
+          "vx_mae_m_s": 0.056969222612679005,
+          "yaw_mae_rad_s": 0.3474427815526724,
+          "both_axes_tracking_fraction": 0.8108445777111444
+        },
+        "arc_reverse_left": {
+          "vx_mae_m_s": 0.12569179758429527,
+          "yaw_mae_rad_s": 0.3036052417010069,
+          "both_axes_tracking_fraction": 0.7868565717141429
+        },
+        "arc_reverse_right": {
+          "vx_mae_m_s": 0.106842041015625,
+          "yaw_mae_rad_s": 0.3226599935442209,
+          "both_axes_tracking_fraction": 0.7908545727136431
+        }
+      },
+      "quiet_standing": {
+        "stand": {
+          "frames": 1801.0,
+          "interval_s": 9.005206108093262,
+          "vx_rms_m_s": 0.0017385609971825033,
+          "yaw_rms_rad_s": 0.007151277968659997,
+          "height_mae_m": 0.00031231559842126444,
+          "leg_speed_rms_rad_s": 0.040425876155495644,
+          "wheel_speed_rms_rad_s": 0.17447078973054886,
+          "leg_target_hf_rms_rad": 0.0001065490378390673,
+          "wheel_target_hf_rms_rad_s": 0.0470432085176854,
+          "leg_effort_hf_rms_nm": 0.06285633912162952,
+          "wheel_effort_hf_rms_nm": 0.023010979123779043,
+          "leg_effort_delta_rms_nm": 0.10420084185898304,
+          "leg_target_fast_rms_rad_3_95": 0.00048501970673681246,
+          "wheel_target_fast_rms_rad_s_3_95": 0.12207160264484437,
+          "leg_motion_fast_rms_rad_3_95": 0.000620516635151673,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.081845336314705,
+          "leg_motion_rms_rad_1_3": 0.0025712689571250743,
+          "wheel_motion_rms_rad_s_1_3": 0.15729053414676183,
+          "body_xy_max_excursion_m": 0.0008245606150012463,
+          "episodes_with_valid_windows": 4,
+          "body_xy_worst_episode_excursion_m": 0.00140380859375
+        },
+        "stand_low": {
+          "frames": 1801.0,
+          "interval_s": 9.005206108093262,
+          "vx_rms_m_s": 0.004284716211259365,
+          "yaw_rms_rad_s": 0.011140107293613255,
+          "height_mae_m": 0.0019271616474725306,
+          "leg_speed_rms_rad_s": 0.1760693471878767,
+          "wheel_speed_rms_rad_s": 0.16706238873302937,
+          "leg_target_hf_rms_rad": 0.00034199880542010034,
+          "wheel_target_hf_rms_rad_s": 0.1479135057076174,
+          "leg_effort_hf_rms_nm": 0.3218962853464149,
+          "wheel_effort_hf_rms_nm": 0.0674677235999044,
+          "leg_effort_delta_rms_nm": 0.5544149279594421,
+          "leg_target_fast_rms_rad_3_95": 0.0009482233981975694,
+          "wheel_target_fast_rms_rad_s_3_95": 0.21778808439638064,
+          "leg_motion_fast_rms_rad_3_95": 0.0009484803976120987,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.12492039363988865,
+          "leg_motion_rms_rad_1_3": 0.0015733034553706711,
+          "wheel_motion_rms_rad_s_1_3": 0.08326792945975411,
+          "body_xy_max_excursion_m": 0.0021384216233855113,
+          "episodes_with_valid_windows": 4,
+          "body_xy_worst_episode_excursion_m": 0.005023085977882147
+        },
+        "stand_high": {
+          "frames": 1801.0,
+          "interval_s": 9.005206108093262,
+          "vx_rms_m_s": 0.007334254798479378,
+          "yaw_rms_rad_s": 0.08131062827305868,
+          "height_mae_m": 0.0010196538205491379,
+          "leg_speed_rms_rad_s": 0.09026413317769766,
+          "wheel_speed_rms_rad_s": 0.6009811982512474,
+          "leg_target_hf_rms_rad": 0.00019433049094334407,
+          "wheel_target_hf_rms_rad_s": 0.0657506700359263,
+          "leg_effort_hf_rms_nm": 0.07316550746788375,
+          "wheel_effort_hf_rms_nm": 0.031433210048833427,
+          "leg_effort_delta_rms_nm": 0.11481048678979278,
+          "leg_target_fast_rms_rad_3_95": 0.0012313459564581811,
+          "wheel_target_fast_rms_rad_s_3_95": 0.29186615767757584,
+          "leg_motion_fast_rms_rad_3_95": 0.0011205069065544431,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.2136892003594656,
+          "leg_motion_rms_rad_1_3": 0.0033144578363688763,
+          "wheel_motion_rms_rad_s_1_3": 0.24046721008079192,
+          "body_xy_max_excursion_m": 0.029370015836320817,
+          "episodes_with_valid_windows": 4,
+          "body_xy_worst_episode_excursion_m": 0.04013824462890625
+        }
+      },
+      "actual_moving_fall_recoveries": 1,
+      "max_gap_m": 0.0007115048356354237
+    }
+  ]
+}

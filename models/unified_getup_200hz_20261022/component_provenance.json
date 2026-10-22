@@ -1,0 +1,43 @@
+{
+  "schema": "unified-policy-component-provenance-v1",
+  "candidate": "runs/unified_robust_20261021/pilot011_capture/model_final.pt",
+  "candidate_sha256": "882bdf683c6b682614a31bad8b1d40455296a59f635697534ebe58dc9aeb7653",
+  "components": [
+    {
+      "component": "quiet",
+      "source": "runs/unified_robust_20261021/pilot002/model_final.pt",
+      "source_sha256": "8cca278aac36e51a432339e02cad5b2dc5a9eca4b43045327a7e5410a66f7a01",
+      "source_lineage_updates": 8,
+      "tensors": 4,
+      "bitwise_equal": true
+    },
+    {
+      "component": "recovery",
+      "source": "runs/unified_robust_20261021/pilot011_capture/model_final.pt",
+      "source_sha256": "882bdf683c6b682614a31bad8b1d40455296a59f635697534ebe58dc9aeb7653",
+      "source_lineage_updates": 313,
+      "tensors": 6,
+      "bitwise_equal": true
+    },
+    {
+      "component": "combined_motion",
+      "source": "runs/unified_robust_20261021/pilot010_arc/model_final.pt",
+      "source_sha256": "d3212f17a210f183fdcbe265bba61be1fc3d116889514d105850bd01722d7fab",
+      "source_lineage_updates": 297,
+      "tensors": 6,
+      "bitwise_equal": true
+    }
+  ],
+  "parent": {
+    "checkpoint": "runs/flat_base_20261020/pilot034_directional200_1346/model_001346.pt",
+    "sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+    "known_updates": 1346,
+    "earlier_pretraining": "unknown"
+  },
+  "note": "The selected quiet head is the original 8-update head, not the rejected later 5 cm/spectral-cost pilots. The recovery head received 16 capture updates after lineage 297; arc head stayed at 297. All previous optimizer consumption remains accounted.",
+  "actual_robust_optimizer_updates": 337,
+  "selected_robust_lineage_updates": 313,
+  "prior_recovery_updates": 16,
+  "recovery_authority_revision": "stance_and_knee_shape_v1, initialized by zero-PPO migration and used for the 16 capture updates",
+  "frozen_scope_evidence": "frozen_recovery011.final.json"
+}

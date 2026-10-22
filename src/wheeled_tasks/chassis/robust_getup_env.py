@@ -81,12 +81,20 @@ class RobustGetupEnv(ChassisEnv):
         if self.dynamics_randomization is not None:
             self.domain.enabled.copy_(self.dynamics_randomization.enabled)
         self.getup_feedback = GetupFeedback(n, device, self.domain.enabled, settings, self.domain.rng)
+        self.paired_feedback_enabled = torch.full((n, 1), settings.get("paired_feedback_winding", False),
+                                                  device=device, dtype=torch.bool)
         native_efforts = self.v5.motor_efforts
         native_response = self.actuator_response.apply_torque
         native_springs = self.v5.spring_efforts
 
         def motor_efforts(q, dq, legs, wheels):
             q, dq = self.getup_feedback.observe(q, dq)
+            if settings.get("paired_feedback_winding", False):
+                from .paired_feedback import paired_position_error
+                indices = list(self.v5.LEGS)
+                aligned = legs - paired_position_error(legs, q[:, indices])
+                q = q.clone()
+                q[:, indices] = torch.where(self.paired_feedback_enabled, aligned, q[:, indices])
             tau = native_efforts(q, dq, legs, wheels)
             indices = list(self.v5.LEGS)
             correction = ((self.domain.kp - 1.) * self.v5.settings["leg_kp"] * (legs - q[:, indices])
@@ -250,6 +258,14 @@ class RobustGetupEnv(ChassisEnv):
         yaw[pick < .5] = 0.
         self.pending_command[ids, 0] = vx
         self.pending_command[ids, 1] = yaw
+        if self.getup_cfg.get("arc_tuning_fraction", 0.):
+            from .arc_rehearsal import moderate_arc_commands
+            # Only this opt-in pilot changes command exposure. Its remaining
+            # motion lanes retain the original stand/straight/spin/fast mix.
+            selected = ids[(~self.recovery_lane[ids])
+                           & (self.random(count) < self.getup_cfg["arc_tuning_fraction"])]
+            draws = torch.rand(len(selected), 4, device=self.device, generator=self.generator)
+            self.pending_command[selected, :2] = moderate_arc_commands(draws)
         if self.getup_cfg["quiet_training"]:
             stationary = ids[~self.recovery_lane[ids]]
             self.pending_command[stationary, :2] = 0.
@@ -362,11 +378,7 @@ class RobustGetupEnv(ChassisEnv):
             self.goal_command[self.recovery_active | self.passive, :2] = 0.
         error_vx = velocity[:, 0] - self.commands[:, 0]
         error_yaw = omega[:, 2] - self.commands[:, 1]
-        stationary_request = (self.commands[:, :2].abs() < .01).all(-1)
-        scored_vx = error_vx
-        if self.getup_cfg["quiet_spectral_cost"]:
-            scored_vx = torch.where(stationary_request, (error_vx.abs() - .12).clamp_min(0.), error_vx)
-        tracking = joint_tracking_score(scored_vx, error_yaw)
+        tracking = joint_tracking_score(error_vx, error_yaw)
         upright = ((-gravity[:, 2] - .5) / .5).clamp(0., 1.)
         followup = (self.ever_recovered & self.released & stable
                     & (error_vx.abs() < .25) & (error_yaw.abs() < .4))
@@ -426,6 +438,9 @@ class RobustGetupEnv(ChassisEnv):
                          "UnifiedGetup/in_motion_fall_fraction": self.in_motion_fall.float().mean(),
                          "UnifiedGetup/recovered_after_push_fraction": self.recovered_after_push.float().mean(),
                          "UnifiedGetup/mixed_command_fraction": ((self.commands[:, 0].abs() > .05) & (self.commands[:, 1].abs() > .05)).float().mean(),
+                         "UnifiedGetup/moderate_arc_active_fraction": ((self.commands[:, 0].abs() >= .4)
+                             & (self.commands[:, 0].abs() <= 1.25) & (self.commands[:, 1].abs() >= .4)
+                             & (self.commands[:, 1].abs() <= 1.4) & ~self.passive & ~self.recovery_active).float().mean(),
                          "UnifiedGetup/vx_mae_m_s": error_vx.abs().mean(),
                          "UnifiedGetup/yaw_mae_rad_s": error_yaw.abs().mean()})
         info["log"].update({"Quiet/active_fraction": quiet.float().mean(),
