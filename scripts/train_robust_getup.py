@@ -61,7 +61,7 @@ def prepare(args):
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
                     "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
-                    "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_velocity_feature_gain",
+                    "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_wheel_exploration_fraction", "quiet_velocity_feature_gain",
                     "quiet_velocity_feedback", "quiet_velocity_feedback_mode"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
@@ -568,7 +568,8 @@ def main():
                 init_std=.5, std_type="log", std_range=[.003, .8])
             write_json(args.output / "agent_config.json", runner_cfg)
             runner = OnPolicyRunner(env, runner_cfg, log_dir=str(args.output), device=args.device)
-            runner.alg.actor.mlp = SensorConditionedMean(mean, task.get("quiet_exploration_fraction", .35)).to(args.device)
+            runner.alg.actor.mlp = SensorConditionedMean(mean, task.get("quiet_exploration_fraction", .35),
+                task.get("quiet_wheel_exploration_fraction")).to(args.device)
             if any(p.device != torch.device(args.device) for p in runner.alg.actor.parameters()):
                 raise RuntimeError("Actor parameters must all reside on the policy device")
             runner.alg.critic.load_state_dict(initialization["critic_state_dict"], strict=True)

@@ -64,6 +64,34 @@ def test_precision_exploration_changes_only_quiet_variance_and_preserves_the_sam
     for invalid in (0., -1., float("nan"), float("inf")):
         with pytest.raises(ValueError, match="Quiet exploration fraction"):
             SensorConditionedMean(old.mean, quiet_exploration_fraction=invalid)
+
+
+def test_axis_exploration_preserves_mean_rng_legacy_contract_and_nonquiet_variance():
+    from copy import deepcopy
+    import pytest
+    mean = RobustGetupActor(nn.Linear(35, 6))
+    torch.manual_seed(39)
+    old = SensorConditionedMean(deepcopy(mean), quiet_exploration_fraction=.1)
+    rng = torch.get_rng_state()
+    torch.manual_seed(39)
+    new = SensorConditionedMean(deepcopy(mean), quiet_exploration_fraction=.06,
+                               quiet_wheel_exploration_fraction=.35)
+    assert torch.equal(rng, torch.get_rng_state())
+    new.load_state_dict(old.state_dict(), strict=True)
+    obs = observation(3)
+    obs[1, 0], obs[2, 9] = 1., 1.
+    before, after = old(obs), new(obs)
+    assert torch.equal(before[:, 0], after[:, 0])
+    assert torch.equal(before[1:, 1], after[1:, 1])
+    torch.testing.assert_close(after[0, 1].exp() / before[0, 1].exp(), torch.tensor([.6] * 4 + [3.5] * 2))
+    legacy = SensorConditionedMean(deepcopy(mean), quiet_exploration_fraction=.1,
+                                  quiet_wheel_exploration_fraction=None)
+    legacy.load_state_dict(old.state_dict(), strict=True)
+    assert torch.equal(before, legacy(obs))
+    for invalid in (0., -1., 2., float("nan"), float("inf")):
+        with pytest.raises(ValueError, match="Quiet wheel exploration fraction"):
+            SensorConditionedMean(mean, quiet_wheel_exploration_fraction=invalid)
+
 def test_side_exposure_uses_near_side_births_with_every_actual_bank_leg_shape():
     import json
     from pathlib import Path
@@ -467,8 +495,9 @@ def test_native_likelihood_uses_actual_state_dependent_exploration():
     from rsl_rl.modules.distribution import HeteroscedasticGaussianDistribution
     obs = observation(3)
     obs[1, 0], obs[2, 9] = 1., 1.
-    for fraction in (.35, .1):
-        actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)), quiet_exploration_fraction=fraction)
+    for fraction, wheel_fraction in ((.35, None), (.1, None), (.06, .35)):
+        actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)), quiet_exploration_fraction=fraction,
+                                      quiet_wheel_exploration_fraction=wheel_fraction)
         raw = actor(obs)
         distribution = HeteroscedasticGaussianDistribution(6, std_type="log", std_range=(.003, .8))
         distribution.update(raw)
@@ -476,6 +505,8 @@ def test_native_likelihood_uses_actual_state_dependent_exploration():
         action = distribution.sample()
         expected = torch.distributions.Normal(raw[:, 0], raw[:, 1].exp()).log_prob(action).sum(-1)
         torch.testing.assert_close(distribution.log_prob(action), expected)
+        torch.testing.assert_close(distribution.entropy,
+            torch.distributions.Normal(raw[:, 0], raw[:, 1].exp()).entropy().sum(-1))
         torch.testing.assert_close(distribution.kl_divergence(distribution.params, distribution.params), torch.zeros(3))
 
 

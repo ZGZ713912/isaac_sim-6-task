@@ -263,17 +263,23 @@ class SensorConditionedMean(nn.Module):
 The distribution, stored log-probabilities and PPO all use the same std. Quiet
 standing is not destroyed by the larger exploration needed while overturned.
 """
-    def __init__(self, mean, quiet_exploration_fraction=.35):
+    def __init__(self, mean, quiet_exploration_fraction=.35, quiet_wheel_exploration_fraction=None):
         super().__init__()
         if not 0. < quiet_exploration_fraction <= 1.:
             raise ValueError("Quiet exploration fraction must be finite and in (0,1]")
         self.mean = mean
         self.quiet_exploration_fraction = quiet_exploration_fraction
+        if quiet_wheel_exploration_fraction is not None and not 0. < quiet_wheel_exploration_fraction <= 1.:
+            raise ValueError("Quiet wheel exploration fraction must be finite and in (0,1]")
+        self.quiet_wheel_exploration_fraction = quiet_wheel_exploration_fraction
         self.log_std = nn.Parameter(torch.full((6,), -.6931471805599453))
 
     def forward(self, obs):
         recovery = tilt_gate(obs, self.mean.stance_aware_recovery, self.mean.recovery_shape_aware)
         scale = .12 + .88 * recovery
-        scale = scale * (1. - (1. - self.quiet_exploration_fraction) * quiet_gate(obs))
+        fraction = self.quiet_exploration_fraction
+        if self.quiet_wheel_exploration_fraction is not None:
+            fraction = obs.new_tensor([fraction] * 4 + [self.quiet_wheel_exploration_fraction] * 2)
+        scale = scale * (1. - (1. - fraction) * quiet_gate(obs))
         log_std = self.log_std.clamp(-3., -.22314355) + scale.log()
         return torch.stack((self.mean(obs), log_std.expand(-1, 6)), -2)
