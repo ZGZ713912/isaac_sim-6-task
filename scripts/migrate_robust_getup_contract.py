@@ -45,8 +45,8 @@ def main():
                         help="Explicit1...30 post-tanh feature conditioning; inverse-scale quiet weights and named Adam moments")
     parser.add_argument("--quiet-velocity-feedback", action="store_true",
                         help="Append three zero-initialized bias-free encoder-velocity paths; preserve all previous tensors/moments/RNG")
-    parser.add_argument("--quiet-velocity-feedback-mode", choices=("all", "wheels"),
-                        help="Explicit new-path contract: all six axes (default), or wheel inputs and wheel outputs only")
+    parser.add_argument("--quiet-velocity-feedback-mode", choices=("all", "wheels", "wheel_memory"),
+                        help="Explicit new path: all axes (default), wheels only, or wheel velocities plus existing previous wheel commands")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
@@ -137,19 +137,22 @@ def main():
             raise ValueError("Cannot authenticate velocity-feedback actor optimizer order")
         next_id = max(p for g in state["optimizer_state_dict"]["param_groups"] for p in g["params"]) + 1
         mode = args.quiet_velocity_feedback_mode or "all"
-        size = 2 if mode == "wheels" else 6
+        size = 6 if mode == "all" else 2
+        inputs = 4 if mode == "wheel_memory" else size
         for name in ("mid", "low", "high"):
             key = "mlp.mean.quiet_velocity." + name + ".weight"
-            state["actor_state_dict"][key] = state["actor_state_dict"]["mlp.mean.quiet.0.weight"].new_zeros((size, size))
+            state["actor_state_dict"][key] = state["actor_state_dict"]["mlp.mean.quiet.0.weight"].new_zeros((size, inputs))
             group["params"].append(next_id)
             next_id += 1
-        info["settings"].update(version=("robust-v2.28-quiet-wheel-velocity" if mode == "wheels"
-                                        else "robust-v2.27-quiet-velocity-feedback"),
+        info["settings"].update(version=({"all": "robust-v2.27-quiet-velocity-feedback",
+                                         "wheels": "robust-v2.28-quiet-wheel-velocity",
+                                         "wheel_memory": "robust-v2.30-quiet-wheel-memory"}[mode]),
                                 quiet_velocity_feedback=True, quiet_velocity_feedback_mode=mode)
-        revision["quiet_velocity_feedback"] = dict(new_parameters=3 * size * size, mode=mode, initial_weights="zero",
-            input=("tanh(physical two wheel encoder velocities in rad/s)" if mode == "wheels"
-                   else "tanh(physical six encoder velocities in rad/s)"),
-            output=("two wheel logits; four leg logits exactly unchanged" if mode == "wheels" else "six axis logits"), bias=False,
+        revision["quiet_velocity_feedback"] = dict(new_parameters=3 * size * inputs, mode=mode, initial_weights="zero",
+            input=({"all": "tanh(physical six encoder velocities in rad/s)",
+                    "wheels": "tanh(physical two wheel encoder velocities in rad/s)",
+                    "wheel_memory": "tanh(two wheel encoder velocities) and tanh(previous two wheel raw commands times10); original35D fields only"}[mode]),
+            output=("six axis logits" if mode == "all" else "two wheel logits; four leg logits exactly unchanged"), bias=False,
             optimizer="all old moments retained; only new parameters start with empty Adam state",
             deterministic_function="preserved; no random initialization draws")
     if args.quiet_velocity_feature_gain is not None:
