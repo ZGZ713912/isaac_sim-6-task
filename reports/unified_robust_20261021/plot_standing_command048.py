@@ -14,12 +14,19 @@ REPORTS = Path(__file__).parent
 RUNS = ROOT / "runs/unified_robust_20261022"
 
 
-def main():
-    result = json.loads((REPORTS / "iteration048_final.json").read_text())
-    assert all(all(row["paired"].values()) for row in result["tests"].values())
+def main(iteration=48):
+    result = json.loads((REPORTS / f"iteration{iteration:03d}_final.json").read_text())
+    if iteration == 48:
+        assert all(all(row["paired"].values()) for row in result["tests"].values())
+    else:
+        assert all(result["baseline_pairing"].values()) and all(result["wheel_proxy_pairing"].values())
     sources = [("Retained baseline", "quiet_velocity_baseline036"),
                ("Gain -2 (rejected)", "command_feedback_negative048"),
                ("Gain +2", "command_feedback_positive048")]
+    if iteration == 49:
+        sources = [("Retained baseline", "quiet_velocity_baseline036"),
+                   ("Wheel proxy, gain +2", "command_feedback_positive048"),
+                   ("Rolling estimate, gain +2", "rolling_command_feedback049")]
     metrics = [("full_window/worst_episode_body_xy_max_excursion_m", "Full-window maximum displacement", "cm", 100., 5.),
                ("body_xy_worst_episode_excursion_m", "Steady-window maximum displacement", "cm", 100., 5.),
                ("leg_motion_fast_rms_rad_3_95", "Actual leg motion, 3-95 Hz", "mrad RMS", 1000., None),
@@ -59,16 +66,19 @@ def main():
     fig.legend(handles, labels, loc="outside lower center", ncol=4, frameon=False)
     fig.suptitle("Matched zero-PPO standing command feedback: 16 episodes per height\n"
                  "200 Hz policy / 1 kHz physics; moderate domains; ground friction 0.3-0.5", fontsize=13)
-    path = REPORTS / "standing_command048.png"
+    path = REPORTS / f"standing_command{iteration:03d}.png"
     fig.savefig(path, dpi=160)
     plt.close(fig)
-    receipt = dict(schema="quiet048-original-event-figure-v1", figure=str(path.relative_to(ROOT)),
+    receipt = dict(schema=f"quiet{iteration:03d}-original-event-figure-v1", figure=str(path.relative_to(ROOT)),
         figure_sha256=hashlib.sha256(path.read_bytes()).hexdigest(), sources=provenance,
         metrics=[m[0] for m in metrics], plotted_values=values.tolist(),
         data_source="Original TensorBoard event files; logarithmic y axes; no separate curve store")
-    (REPORTS / "standing_command048.provenance.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    (REPORTS / f"standing_command{iteration:03d}.provenance.json").write_text(json.dumps(receipt, indent=2) + "\n")
     print(path)
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--iteration", type=int, choices=[48, 49], default=48)
+    main(parser.parse_args().iteration)
