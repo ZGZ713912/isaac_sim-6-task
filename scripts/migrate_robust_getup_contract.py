@@ -29,6 +29,10 @@ def main():
     parser.add_argument("--quiet-high-leg-prediction-ms", type=float)
     parser.add_argument("--recovery-leg-step", type=float,
                         help="Diagnostic common-leg increment in raw action per 5 ms; .2 means .05 rad, not a scripted angle")
+    parser.add_argument("--quiet-height-experts", action="store_true",
+                        help="Explicitly clone the quiet head into three continuous height experts, including Adam moments")
+    parser.add_argument("--low-quiet-reference", type=Path,
+                        help="Optional authenticated low-height quiet head; requires --quiet-height-experts")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
@@ -48,6 +52,10 @@ def main():
         parser.error("High-height leg prediction must be 0..10 ms")
     if args.recovery_leg_step is not None and not .05 <= args.recovery_leg_step <= .3:
         parser.error("Recovery common-leg increment must be within .05...3 raw action per policy tick")
+    if args.low_quiet_reference and not args.quiet_height_experts:
+        parser.error("Low-height reference requires explicit quiet height experts")
+    if args.quiet_height_experts and args.quiet_reference:
+        parser.error("Migrate height experts and restore a quiet reference in separate explicit revisions")
     if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
         parser.error("Motion residual fraction must be 0..1")
     if args.fast_forward_reference_range is not None and not 0. <= args.fast_forward_reference_range[0] < args.fast_forward_reference_range[1] <= 3.:
@@ -87,6 +95,54 @@ def main():
                                 fast_forward_reference_yaw_fade=None)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
+    if args.quiet_height_experts:
+        if old_info["settings"].get("quiet_height_experts", False):
+            parser.error("Quiet height experts are already present")
+        names = [name for name, p in SensorConditionedMean(mean).named_parameters() if p.requires_grad]
+        group = next(g for g in state["optimizer_state_dict"]["param_groups"] if g["name"] == "actor")
+        if len(names) != len(group["params"]):
+            raise ValueError("Cannot authenticate original actor optimizer order")
+        original_ids = dict(zip(names, group["params"], strict=True))
+        low_state, low_ids = state, original_ids
+        if args.low_quiet_reference:
+            low_mean, low_info = load_mean(args.low_quiet_reference,
+                migration_source_root=args.low_quiet_reference.parent / "source")
+            low_state = torch.load(args.low_quiet_reference, map_location="cpu", weights_only=False)
+            low_names = [name for name, p in SensorConditionedMean(low_mean).named_parameters() if p.requires_grad]
+            low_group = next(g for g in low_state["optimizer_state_dict"]["param_groups"] if g["name"] == "actor")
+            if len(low_names) != len(low_group["params"]):
+                raise ValueError("Cannot authenticate low-reference actor optimizer order")
+            low_ids = dict(zip(low_names, low_group["params"], strict=True))
+            for key in ("base_checkpoint_sha256", "bank_sha256"):
+                if low_info[key] != old_info[key]:
+                    raise ValueError("Low-height reference mechanism or locomotion parent differs")
+            for key in ("quiet_actor_alpha", "quiet_velocity_feature_scale", "quiet_wheel_bound",
+                        "quiet_high_leg_prediction_s", "recovery_shape_aware", "fast_forward_reference_range",
+                        "fast_forward_reference_yaw_fade"):
+                if low_info["settings"].get(key) != old_info["settings"].get(key):
+                    raise ValueError("Low-height reference controller contract differs: " + key)
+            if any(not torch.equal(value, low_state["actor_state_dict"][key])
+                   for key, value in original_actor.items() if not key.startswith("mlp.mean.quiet.")):
+                raise ValueError("Low-height reference changed a nonquiet actor tensor")
+            revision["low_quiet_reference"] = dict(path=str(args.low_quiet_reference.resolve()),
+                sha256=digest(args.low_quiet_reference))
+        next_id = max(p for g in state["optimizer_state_dict"]["param_groups"] for p in g["params"]) + 1
+        for target_name, source_state, ids in (("quiet_low", low_state, low_ids),
+                                               ("quiet_high", state, original_ids)):
+            for name in names:
+                if not name.startswith("mean.quiet."):
+                    continue
+                target = name.replace("mean.quiet.", "mean." + target_name + ".", 1)
+                state["actor_state_dict"]["mlp." + target] = source_state["actor_state_dict"]["mlp." + name].clone()
+                if ids[name] in source_state["optimizer_state_dict"]["state"]:
+                    state["optimizer_state_dict"]["state"][next_id] = deepcopy(
+                        source_state["optimizer_state_dict"]["state"][ids[name]])
+                group["params"].append(next_id)
+                next_id += 1
+        info["settings"].update(version="robust-v2.20-quiet-height-experts", quiet_height_experts=True)
+        revision["quiet_height_experts"] = dict(anchors_m=[.23, .305, .42],
+            interpolation="continuous existing commanded height; exact expert endpoints",
+            optimizer="old parameter moments retained; low/high moments copied from their authenticated source quiet head")
     if args.quiet_reference:
         reference, ref_info = load_mean(args.quiet_reference, migration_source_root=args.quiet_reference.parent / "source")
         for key in ("quiet_actor_alpha", "quiet_velocity_feature_scale", "quiet_wheel_bound"):

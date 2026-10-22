@@ -60,7 +60,7 @@ def prepare(args):
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
                     "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
-                    "fast_forward_reference_range", "fast_forward_reference_yaw_fade"):
+                    "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
@@ -481,6 +481,7 @@ def main():
             recovery_shape_aware=task["recovery_shape_aware"],
             quiet_high_common_alpha=task.get("quiet_high_common_alpha"),
             quiet_high_leg_prediction_s=task.get("quiet_high_leg_prediction_s", 0.),
+            quiet_height_experts=task.get("quiet_height_experts", False),
             fast_forward_reference=task.get("fast_forward_reference", False),
             fast_forward_reference_range=task.get("fast_forward_reference_range", [1.5, 2.]),
             fast_forward_reference_yaw_fade=task.get("fast_forward_reference_yaw_fade", .25)).to(args.device)
@@ -548,7 +549,10 @@ def main():
             mean.action_bound[:4].fill_(task["leg_action_clip"])
             mean.quiet_bound[4:].fill_(task["quiet_wheel_bound"])
             report["optimizer_learning_rates"] = {group["name"]: group["lr"] for group in runner.alg.optimizer.param_groups}
+            quiet_heads = [mean.quiet] + ([mean.quiet_low, mean.quiet_high] if mean.quiet_height_experts else [])
             if args.restore_quiet_checkpoint:
+                if mean.quiet_height_experts:
+                    raise ValueError("Use an explicit height-expert migration to restore a quiet reference")
                 quiet_state = torch.load(args.restore_quiet_checkpoint, map_location=args.device, weights_only=False)
                 quiet_source_info = quiet_state["infos"]
                 if quiet_state["infos"]["base_checkpoint_sha256"] != digest(PARENT):
@@ -566,33 +570,43 @@ def main():
                 old_bound = previous_quiet.get("quiet_wheel_bound", .5)
                 if old_scale != new_scale or old_bound != task["quiet_wheel_bound"]:
                     with torch.no_grad():
-                        mean.quiet[0].weight[:, 16:22].mul_(old_scale / new_scale)
-                        mean.quiet[-1].weight[4:].mul_(old_bound / task["quiet_wheel_bound"])
-                        mean.quiet[-1].bias[4:].mul_(old_bound / task["quiet_wheel_bound"])
-                    for parameter in mean.quiet.parameters():
-                        runner.alg.optimizer.state.pop(parameter, None)
+                        for head in quiet_heads:
+                            head[0].weight[:, 16:22].mul_(old_scale / new_scale)
+                            head[-1].weight[4:].mul_(old_bound / task["quiet_wheel_bound"])
+                            head[-1].bias[4:].mul_(old_bound / task["quiet_wheel_bound"])
+                    for head in quiet_heads:
+                        for parameter in head.parameters():
+                            runner.alg.optimizer.state.pop(parameter, None)
                     report["quiet_coordinate_migration"] = dict(old_velocity_scale=old_scale, new_velocity_scale=new_scale,
                         old_wheel_bound=old_bound, new_wheel_bound=task["quiet_wheel_bound"],
                         purpose="preserve the small-signal initial action while improving quiet-head learning conditioning",
                         optimizer="only rescaled quiet-head moments cleared")
             if args.freeze_quiet:
-                mean.quiet.requires_grad_(False)
+                for head in quiet_heads:
+                    head.requires_grad_(False)
             if args.quiet_only:
                 mean.recovery.requires_grad_(False)
                 mean.arc.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
+                if args.high_standing_only and mean.quiet_height_experts:
+                    mean.quiet.requires_grad_(False)
+                    mean.quiet_low.requires_grad_(False)
             if args.focus_recovery_quiet:
                 mean.arc.requires_grad_(False)
             if args.arc_only:
-                mean.quiet.requires_grad_(False)
+                for head in quiet_heads:
+                    head.requires_grad_(False)
                 mean.recovery.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
             if args.recovery_only:
-                mean.quiet.requires_grad_(False)
+                for head in quiet_heads:
+                    head.requires_grad_(False)
                 mean.arc.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
             frozen_motion = ({k: v.detach().clone() for k, v in mean.state_dict().items()
-                              if not k.startswith("quiet.")} if args.quiet_only else None)
+                              if not k.startswith(("quiet_high.",) if args.high_standing_only and mean.quiet_height_experts
+                                                  else ("quiet.", "quiet_low.", "quiet_high."))}
+                              if args.quiet_only else None)
             frozen_quiet_std = runner.alg.actor.mlp.log_std.detach().clone() if args.quiet_only else None
             frozen_parent_arc = ({k: v.detach().clone() for k, v in mean.state_dict().items()
                                   if k.startswith(("parent.", "arc."))} if args.focus_recovery_quiet else None)

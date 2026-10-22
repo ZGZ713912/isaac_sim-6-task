@@ -5,6 +5,7 @@ and the previous applied action. No hidden FSM or simulation state is needed.
 """
 import torch
 from torch import nn
+from copy import deepcopy
 
 from .unified_getup import UnifiedGetupActor
 from .getup_symmetry import canonical_recovery_logits
@@ -66,7 +67,7 @@ class RobustGetupActor(UnifiedGetupActor):
                  quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, stance_aware_recovery=False,
                  recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.,
                  fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.),
-                 fast_forward_reference_yaw_fade=.25):
+                 fast_forward_reference_yaw_fade=.25, quiet_height_experts=False):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -95,12 +96,33 @@ class RobustGetupActor(UnifiedGetupActor):
         if fast_forward_reference_yaw_fade is not None and not 0. < fast_forward_reference_yaw_fade <= 4.:
             raise ValueError("Forward reference yaw fade must be in (0,4] or None")
         self.fast_forward_reference_yaw_fade = fast_forward_reference_yaw_fade
+        self.quiet_height_experts = quiet_height_experts
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
         nn.init.zeros_(self.quiet[-1].bias)
+        if quiet_height_experts:
+            self.quiet_low = deepcopy(self.quiet)
+            self.quiet_high = deepcopy(self.quiet)
         self.register_buffer("quiet_alpha", torch.tensor(quiet_alpha))
         self.register_buffer("quiet_bound", torch.tensor([.4] * 4 + [quiet_wheel_bound] * 2))
+
+    def quiet_correction(self, features, obs):
+        mid = torch.tanh(self.quiet(features))
+        if not self.quiet_height_experts:
+            return mid
+        low = torch.tanh(self.quiet_low(features))
+        high = torch.tanh(self.quiet_high(features))
+        # The existing height request is scaled by five. At the three anchor
+        # heights only its own expert receives actor gradients. Intermediate
+        # requests interpolate continuously; no hidden state or height FSM.
+        h = obs[:, 3:4]
+        lo = ((1.525 - h) / .375).clamp(0., 1.)
+        hi = ((h - 1.525) / .575).clamp(0., 1.)
+        lo = torch.where(h <= 1.15, torch.ones_like(lo), lo)
+        hi = torch.where(h >= 2.1, torch.ones_like(hi), hi)
+        result = mid + lo * (low - mid) + hi * (high - mid)
+        return torch.where(lo >= 1., low, torch.where(hi >= 1., high, result))
 
     def forward(self, obs):
         features = torch.tanh(obs * self.feature_scale)
@@ -145,7 +167,7 @@ class RobustGetupActor(UnifiedGetupActor):
             quiet_features = torch.tanh(motion_obs * self.feature_scale)
         if self.quiet_velocity_feature_scale is not None:
             quiet_features = torch.cat((quiet_features[:, :16], torch.tanh(obs[:, 16:22] * self.quiet_velocity_feature_scale), quiet_features[:, 22:]), -1)
-        motion = motion + quiet * (smoothed - motion + self.quiet_bound * torch.tanh(self.quiet(quiet_features)))
+        motion = motion + quiet * (smoothed - motion + self.quiet_bound * self.quiet_correction(quiet_features, obs))
         raw = (canonical_recovery_logits(self.recovery, obs, self.feature_scale)
                if self.canonical_recovery else self.recovery(features))
         legs = obs[:, 22:26] + self.recovery_leg_step * torch.tanh(raw[:, :4])
@@ -162,8 +184,10 @@ class RobustGetupActor(UnifiedGetupActor):
 
     def initialize_from_unified(self, state):
         result = self.load_state_dict(state, strict=False)
-        if result.unexpected_keys or set(result.missing_keys) != {
-                "quiet.0.weight", "quiet.0.bias", "quiet.2.weight", "quiet.2.bias", "quiet_alpha", "quiet_bound"}:
+        expected = {"quiet.0.weight", "quiet.0.bias", "quiet.2.weight", "quiet.2.bias", "quiet_alpha", "quiet_bound"}
+        if self.quiet_height_experts:
+            expected.update(key for key in self.state_dict() if key.startswith(("quiet_low.", "quiet_high.")))
+        if result.unexpected_keys or set(result.missing_keys) != expected:
             raise ValueError("Unexpected unified-to-robust actor migration")
 
 

@@ -30,6 +30,7 @@ def settings(**overrides):
         standing_support_training=False, quiet_position_weight=.5, quiet_height_probabilities=[.5, .25, .25],
         quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0., standing_early_position_weight=0.,
         standing_drift_weight=0.,
+        quiet_height_experts=False,
         fast_forward_reference=False, fast_forward_reference_range=[1.5, 2.],
         fast_forward_reference_yaw_fade=.25, native_origin_mode="spaced_corridors_v1")
     cfg.update(overrides)
