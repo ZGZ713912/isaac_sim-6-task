@@ -20,6 +20,14 @@ def test_high_frequency_measure_keeps_physical_rms_and_rejects_slow_drift():
     assert MODULE.hf_rms(fast[:, None], .025) is None
 
 
+def test_low_band_detects_two_hz_oscillation_without_calling_slow_sway_chatter():
+    time = np.arange(4000) * .005
+    two_hz = 2. * np.sin(2 * np.pi * 2 * time)
+    slow_sway = .05 * np.sin(2 * np.pi * .2 * time)
+    assert abs(MODULE.hf_rms(two_hz[:, None], .005, 1., 3.) - np.sqrt(2)) < .002
+    assert MODULE.hf_rms(slow_sway[:, None], .005, 1., 3.) < 1e-5
+
+
 def test_analysis_refuses_a_changed_trajectory(tmp_path):
     import hashlib
     import json
@@ -67,3 +75,29 @@ def test_practical_endpoint_rejects_missing_translation_instability_and_early_fa
     for kwargs in ({"translation":0.}, {"flicker_every":10}, {"survived":False}):
         endpoint_trace(tmp_path, **kwargs)
         assert MODULE.analyze(tmp_path)["actual_settled_attitudes"]["right"]["practical_recovery_and_motion_success"] == 0
+
+
+def test_standing_envelope_reports_worst_episode_without_cancelling_opposite_drifts(tmp_path):
+    import hashlib
+    import json
+    endpoint_trace(tmp_path)
+    path = tmp_path / "trajectory.npz"
+    data = {key: np.repeat(value, 2, axis=1) for key, value in np.load(path).items()}
+    count = len(data["time"])
+    data["commands"].fill(0.)
+    data["height"] = np.full((count, 2), .305, np.float32)
+    for key in ("motor_position", "motor_velocity", "motor_effort", "actions"):
+        data[key] = np.zeros((count, 2, 6), np.float32)
+    data["local_position"] = np.zeros((count, 2, 3), np.float32)
+    ramp = ((data["time"][:, 0] - 3.) / 9.).clip(0., 1.)
+    data["local_position"][:, 0, 0] = .02 * ramp
+    data["local_position"][:, 1, 0] = -.08 * ramp
+    np.savez(path, **data)
+    report = json.loads((tmp_path / "report.json").read_text())
+    row = report["lanes"][0]
+    report["lanes"] = [dict(row, lane=i, name="stand", recovery=False) for i in range(2)]
+    report["trajectory_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    (tmp_path / "report.json").write_text(json.dumps(report))
+    quiet = MODULE.analyze(tmp_path)["cases"]["stand"]["quiet"]
+    assert abs(quiet["body_xy_max_excursion_m"] - .05) < 1e-5
+    assert abs(quiet["body_xy_worst_episode_excursion_m"] - .08) < 1e-5

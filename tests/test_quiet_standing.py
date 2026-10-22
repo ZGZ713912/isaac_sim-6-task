@@ -14,7 +14,7 @@ def test_slow_sway_inside_five_cm_has_no_position_cost():
     assert cost.item() == 0.
     torch.testing.assert_close(radius, torch.tensor([.04]))
     cost, _, _, _ = state.update(active, torch.tensor([[.06, 0.]]), zeros, zeros)
-    torch.testing.assert_close(cost, torch.tensor([.02]))
+    torch.testing.assert_close(cost, torch.tensor([.5 * math.log1p(.04)]))
 
 
 def test_equal_amplitude_fast_targets_cost_more_than_slow_targets():

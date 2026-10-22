@@ -44,5 +44,8 @@ class QuietStanding:
         velocity_power = (high_velocity / velocity_scale).square().mean(-1)
         radius = self.displacement(xy).norm(dim=-1)
         position_cost = ((radius - self.sway_m).clamp_min(0.) / self.sway_m).square()
-        cost = active * (.2 * target_power + .01 * velocity_power + .5 * position_cost)
+        # Saturate the cost gently so an initially noisy standing policy still
+        # earns more by balancing than by ending the episode immediately.
+        cost = active * (.3 * torch.log1p(target_power) + .05 * torch.log1p(velocity_power)
+                         + .5 * torch.log1p(position_cost))
         return cost, target_power, velocity_power, radius

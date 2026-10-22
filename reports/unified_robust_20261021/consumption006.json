@@ -1,0 +1,94 @@
+{
+  "schema": "robust-bounded-training-consumption-v6",
+  "runs": [
+    {
+      "run": "pilot002",
+      "new_updates": 8,
+      "parent_updates": 0,
+      "lineage_end": 8
+    },
+    {
+      "run": "pilot003",
+      "new_updates": 64,
+      "parent_updates": 8,
+      "lineage_end": 72
+    },
+    {
+      "run": "pilot004",
+      "new_updates": 32,
+      "parent_updates": 72,
+      "lineage_end": 104
+    },
+    {
+      "run": "pilot005",
+      "new_updates": 33,
+      "parent_updates": 104,
+      "lineage_end": 137,
+      "stopped_at_sealed_checkpoint": true
+    },
+    {
+      "run": "pilot006",
+      "new_updates": 32,
+      "parent_updates": 137,
+      "lineage_end": 169
+    },
+    {
+      "run": "pilot007_quiet",
+      "new_updates": 24,
+      "parent_updates": 169,
+      "lineage_end": 193,
+      "selected_for_resume": false
+    },
+    {
+      "run": "pilot008_coordinates",
+      "new_updates": 32,
+      "parent_updates": 169,
+      "lineage_end": 201,
+      "evaluation": "completed; candidate replaced quiet head through authenticated zero-PPO migration"
+    },
+    {
+      "run": "pilot009_paired_motion",
+      "new_updates": 64,
+      "parent_updates": 201,
+      "lineage_end": 265,
+      "evaluation": "completed; 1024 native 12 s episodes",
+      "checkpoint_sha256": "73a28bd081f831cfe17c6de446c06124df3b3009c09b515091ed56f0ed825f03"
+    },
+    {
+      "run": "pilot010_arc",
+      "new_updates": 32,
+      "parent_updates": 265,
+      "lineage_end": 297,
+      "evaluation": "completed: 2 s engineering check only; independent 12 s paired confirmation004 running",
+      "checkpoint_sha256": "d3212f17a210f183fdcbe265bba61be1fc3d116889514d105850bd01722d7fab",
+      "frozen_non_arc_and_std_unchanged": true
+    }
+  ],
+  "actual_robust_optimizer_updates": 321,
+  "current_lineage_robust_updates": 297,
+  "discarded_branch_updates_still_consumed": 24,
+  "prior_recovery_initialization_updates": 16,
+  "known_locomotion_parent_updates": 1346,
+  "earlier_parent_pretraining": "unknown",
+  "native_evaluation_optimizer_updates": 0,
+  "remote_changes": 0,
+  "hardware_motion": 0,
+  "local_tensorboard_servers_started": 0,
+  "zero_optimizer_migrations": [
+    {
+      "candidate": "runs/unified_robust_20261021/paired_candidate003_tilt/model_migrated.pt",
+      "sha256": "71f14a886b99c28fd785f933fc15cf061c8c23615271caca463730bca06de2bf",
+      "source_lineage_updates": 297,
+      "new_updates": 0,
+      "change": "restore tilt-only recovery authority; all actor tensors and quiet mean unchanged"
+    },
+    {
+      "candidate": "runs/unified_robust_20261021/paired_candidate004_shape/model_migrated.pt",
+      "sha256": "c9e106d66b2e9160e0b95368783b1224da22c6d8bd3f9bc8007e1fa185dd1ef2",
+      "source_lineage_updates": 297,
+      "new_updates": 0,
+      "change": "retain stance-aware recovery while knee pair shape remains displaced"
+    }
+  ],
+  "current_evaluation": "confirmation006_candidate; nominal 280 environments; exact-origin parent comparison pending"
+}

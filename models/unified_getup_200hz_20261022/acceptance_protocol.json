@@ -1,0 +1,50 @@
+{
+  "schema": "robust-getup-practical-quiet-review-v3",
+  "evidence": "native simulation; user performs hardware testing",
+  "required_confirmation_seeds": [
+    211131,
+    211132
+  ],
+  "input_shape": [
+    1,
+    35
+  ],
+  "output_shape": [
+    1,
+    6
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "passive_motor_effort_nm": 0.0,
+  "closure_gap_max_m": 0.003,
+  "family_min_complete_rate": {
+    "left": 0.25,
+    "right": 0.25,
+    "inverted": 0.25
+  },
+  "minimum_successful_episodes_per_family": 2,
+  "ordinary_motion_survival_rate_min": 0.85,
+  "ordinary_arc_vx_mae_max_m_s": 0.35,
+  "ordinary_arc_yaw_mae_max_rad_s": 0.5,
+  "stand_survival_rate_min": 0.75,
+  "stand_vx_rms_max_m_s": 0.1,
+  "stand_yaw_rms_max_rad_s": 0.2,
+  "nominal_quiet_hf_target_rms_improvement_fraction": 0.25,
+  "moving_fall_recovery": "at least one real in-episode fall followed by stable recovery and resumed command",
+  "randomized_domains": "separate stress evaluation; disclose failures without hardware qualification",
+  "baseline": "exact 1346 locomotion parent at same seeds, domain draws, cases and physics",
+  "training_scope": "bounded small-update blocks; inspect behavior before each extension",
+  "allow_imperfect": true,
+  "no_hardware_motion": true,
+  "complete_metric": "practical_recovery_and_motion_success",
+  "complete_definition": "completed 12 s episode; last 2 s >=95% frames stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+  "revision_reason": "72-update trajectory audit: 12 recovered lanes remained upright 100%, stable 97.9-99.3%, vx MAE .046-.057 m/s and yaw MAE .029-.165 rad/s; original uninterrupted latch counted only 3.",
+  "previous_protocol": "acceptance_protocol001.json",
+  "preserved_metrics": "Keep original uninterrupted 2 s success counts alongside practical endpoint. This is a metric correction, not a policy improvement.",
+  "confirmation_rule": "Apply the frozen metric to fresh matched two-seed confirmation before export; family rates/minimums and standing/arc/HF limits unchanged.",
+  "quiet_3_95_target_improvement_fraction": 0.25,
+  "quiet_3_95_physical_improvement_fraction": 0.0,
+  "stand_xy_excursion_max_m": 0.05,
+  "user_preference": "200 Hz; allow slow fore-aft sway within about +/-5 cm; reduce rapid wheel/leg oscillation in the exported policy",
+  "additional_metrics_scope": "3..95 Hz target and actual motion, preserving original 20..95 Hz metrics"
+}

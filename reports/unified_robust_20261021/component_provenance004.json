@@ -1,0 +1,41 @@
+{
+  "schema": "unified-policy-component-provenance-v1",
+  "candidate": "runs/unified_robust_20261021/paired_candidate004_shape/model_migrated.pt",
+  "candidate_sha256": "c9e106d66b2e9160e0b95368783b1224da22c6d8bd3f9bc8007e1fa185dd1ef2",
+  "components": [
+    {
+      "component": "quiet",
+      "source": "runs/unified_robust_20261021/pilot002/model_final.pt",
+      "source_sha256": "8cca278aac36e51a432339e02cad5b2dc5a9eca4b43045327a7e5410a66f7a01",
+      "source_lineage_updates": 8,
+      "tensors": 4,
+      "bitwise_equal": true
+    },
+    {
+      "component": "recovery",
+      "source": "runs/unified_robust_20261021/pilot009_paired_motion/model_final.pt",
+      "source_sha256": "73a28bd081f831cfe17c6de446c06124df3b3009c09b515091ed56f0ed825f03",
+      "source_lineage_updates": 265,
+      "tensors": 6,
+      "bitwise_equal": true
+    },
+    {
+      "component": "combined_motion",
+      "source": "runs/unified_robust_20261021/pilot010_arc/model_final.pt",
+      "source_sha256": "d3212f17a210f183fdcbe265bba61be1fc3d116889514d105850bd01722d7fab",
+      "source_lineage_updates": 297,
+      "tensors": 6,
+      "bitwise_equal": true
+    }
+  ],
+  "parent": {
+    "checkpoint": "runs/flat_base_20261020/pilot034_directional200_1346/model_001346.pt",
+    "sha256": "e55569a9b6bdc5f60cabfda232c12ac25cb3ec589de9b15fc9fddc398dc6d576",
+    "known_updates": 1346,
+    "earlier_pretraining": "unknown"
+  },
+  "note": "Quiet weights come from the selected 8-update head. The later 5 cm/fast-spectrum quiet pilots were evaluated and rejected; their optimizer consumption is retained. Recovery authority is an explicit zero-PPO revision.",
+  "actual_robust_optimizer_updates": 321,
+  "selected_robust_lineage_updates": 297,
+  "prior_recovery_updates": 16
+}

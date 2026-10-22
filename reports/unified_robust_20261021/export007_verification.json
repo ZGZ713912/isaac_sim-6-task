@@ -1,0 +1,18 @@
+{
+  "schema": "packaged-onnx-offline-validation-v1",
+  "positive": {
+    "offline_numeric_check": "passed",
+    "vectors": 32,
+    "max_abs_error": 1.430511474609375e-06,
+    "model_sha256": "e7643c819aedc7141901ed6ba986e922e8d2646f5551a6c563ce6d5d8f13863a",
+    "hardware_tested": false
+  },
+  "negative_cases_rejected": {
+    "corrupt_model_sha": "Policy SHA does not match the contract and test vectors",
+    "corrupt_expected_action": "ONNX failed a frozen numeric/range check",
+    "wrong_policy_clock": "Policy metadata and runtime contract differ",
+    "wrong_source_checkpoint": "Policy metadata and runtime contract differ"
+  },
+  "temporary_only_corruptions": true,
+  "hardware_tested": false
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "robust-recovery-only-preservation-v1",
+  "checkpoint": "runs/unified_robust_20261021/pilot011_capture/model_final.pt",
+  "checkpoint_sha256": "882bdf683c6b682614a31bad8b1d40455296a59f635697534ebe58dc9aeb7653",
+  "completed_updates": 313,
+  "new_updates": 16,
+  "all_actor_except_recovery_bitwise_unchanged": true,
+  "exploration_bitwise_unchanged": true,
+  "frozen_adam_rows_bitwise_unchanged": [
+    "log_std",
+    "mean.arc.0.weight",
+    "mean.arc.0.bias",
+    "mean.arc.2.weight",
+    "mean.arc.2.bias",
+    "mean.arc.4.weight",
+    "mean.arc.4.bias",
+    "mean.quiet.0.weight",
+    "mean.quiet.0.bias",
+    "mean.quiet.2.weight",
+    "mean.quiet.2.bias"
+  ],
+  "changed_actor_tensors": [
+    "mlp.mean.recovery.0.weight",
+    "mlp.mean.recovery.0.bias",
+    "mlp.mean.recovery.2.weight",
+    "mlp.mean.recovery.2.bias",
+    "mlp.mean.recovery.4.weight",
+    "mlp.mean.recovery.4.bias"
+  ],
+  "critic_changed": true
+}

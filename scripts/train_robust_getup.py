@@ -39,16 +39,30 @@ def write_json(path, value):
 
 
 def prepare(args):
+    from wheeled_tasks.chassis.getup_ground import require_bounded_world
+    if not getattr(args, "allow_large_world_coordinates", False):
+        require_bounded_world(args.num_envs)
     from wheeled_tasks.chassis.robust_getup import settings, rigid_body_domain
     cfg = json.loads(BASE_CONFIG.read_text())
     design = json.loads(Path(cfg["design_preflight"]["file"]).read_text())
     row = design["stages"]["speed"]["roles"]["train"]
     task = settings(domains_enabled=not args.no_domains, curriculum_updates=args.curriculum_updates,
+                    origin_updates=getattr(args, "curriculum_origin", 0),
                     quiet_actor_alpha=[args.quiet_leg_alpha] * 4 + [args.quiet_wheel_alpha] * 2,
+                    quiet_velocity_feature_scale=getattr(args, "quiet_velocity_feature_scale", None),
+                    quiet_wheel_bound=getattr(args, "quiet_wheel_bound", .5),
                     domain_scale=getattr(args, "domain_scale", 1.), quiet_frozen=getattr(args, "freeze_quiet", False))
     if getattr(args, "quiet_only", False):
-        task.update(version="robust-v2.6-quiet", quiet_training=True, motion_fraction=.8,
+        task.update(version=task["version"] + "-quiet", quiet_training=True, motion_fraction=.8,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
+    if getattr(args, "focus_recovery_quiet", False):
+        task.update(version=task["version"] + "-recovery-quiet", quiet_training=True, motion_fraction=.6,
+                    quiet_spectral_cost=True, quiet_critic_anchor=True)
+    if getattr(args, "arc_only", False):
+        task.update(version=task["version"] + "-arc", motion_fraction=.8, arc_tuning_fraction=.8)
+    if getattr(args, "recovery_only", False):
+        task.update(version="robust-v2.10-recovery-capture", stance_aware_recovery=True,
+                    recovery_shape_aware=True, motion_push_fraction=1.)
     # The fixed physics/control source remains pinned. The task overlay is a
     # separately frozen public contract, not a claim of old-task equivalence.
     changes = dict(target_num_envs=args.num_envs, num_steps_per_env=args.rollout_steps,
@@ -224,7 +238,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
     lanes = []
     for i, case in enumerate(env.fixed_cases):
         n = int(frames[i])
-        lanes.append(dict(case, lane=i, survived=bool(completed[i] & ~terminated[i]), terminated=bool(terminated[i]),
+        lanes.append(dict(case, lane=i, world_origin_m=env.origins[i].detach().cpu().tolist(),
+            survived=bool(completed[i] & ~terminated[i]), terminated=bool(terminated[i]),
             domain_enabled=bool(env.domain.enabled[i]),
             recovered=bool(recovered[i]), followup_success=bool(followed[i]),
             post_settle_family=(FAMILIES[int(family[i])] if family[i] >= 0 else None),
@@ -266,6 +281,8 @@ def main():
     parser.add_argument("--mode", choices=("smoke", "train", "evaluate"), default="train")
     parser.add_argument("--updates", type=int, default=8)
     parser.add_argument("--num-envs", type=int, default=128)
+    parser.add_argument("--allow-large-world-coordinates", action="store_true",
+                        help="Historical diagnostic replay only; allows support beyond +/-1024 m")
     parser.add_argument("--rollout-steps", type=int, default=128)
     parser.add_argument("--seed", type=int, default=211031)
     parser.add_argument("--device", default="cuda:0")
@@ -275,10 +292,14 @@ def main():
     parser.add_argument("--eval-seconds", type=float, default=12.)
     parser.add_argument("--ablation-compare", action="store_true")
     parser.add_argument("--curriculum-updates", type=int, default=128)
+    parser.add_argument("--curriculum-origin", type=int, default=0)
     parser.add_argument("--initialize", type=Path, default=ROOT / "runs/unified_getup_20261021/pilot002/model_final.pt")
     parser.add_argument("--no-domains", action="store_true")
     parser.add_argument("--quiet-leg-alpha", type=float, default=.25)
     parser.add_argument("--quiet-wheel-alpha", type=float, default=.65)
+    parser.add_argument("--quiet-velocity-feature-scale", type=float,
+                        help="Opt-in feature-coordinate experiment; omitted preserves the original .3-scaled dq features")
+    parser.add_argument("--quiet-wheel-bound", type=float, default=.5)
     parser.add_argument("--actor-variant", choices=("robust", "parent", "undamped"), default="robust")
     parser.add_argument("--domain-scale", type=float, default=1.)
     parser.add_argument("--friction-min", type=float)
@@ -286,6 +307,10 @@ def main():
     parser.add_argument("--restore-quiet-checkpoint", type=Path)
     parser.add_argument("--freeze-quiet", action="store_true")
     parser.add_argument("--quiet-only", action="store_true", help="Freeze motion/recovery and tune the quiet head, allowing 5 cm slow sway")
+    parser.add_argument("--focus-recovery-quiet", action="store_true", help="Tune recovery and quiet standing while freezing parent and arc motion")
+    parser.add_argument("--arc-only", action="store_true", help="Tune only the shared motion head with extra moderate simultaneous requests")
+    parser.add_argument("--recovery-only", action="store_true",
+                        help="Tune recovery with bounded world coordinates and more motion disturbances; freeze quiet/motion/std")
     args = parser.parse_args()
     if not (1 <= args.updates <= 256 and 32 <= args.num_envs <= 1024 and 64 <= args.rollout_steps <= 512
             and args.num_envs % 4 == 0 and 2 <= args.eval_seconds <= 12):
@@ -293,6 +318,8 @@ def main():
     args.output, args.bank = args.output.resolve(), args.bank.resolve()
     if not (0 < args.quiet_leg_alpha <= 1 and 0 < args.quiet_wheel_alpha <= 1):
         parser.error("Quiet action interpolation must be in (0,1]")
+    if not (0 < args.quiet_wheel_bound <= 9 and (args.quiet_velocity_feature_scale is None or args.quiet_velocity_feature_scale > 0)):
+        parser.error("Quiet wheel correction must be in (0,9] and feature scale positive")
     if not (0 <= args.domain_scale <= 1 and 1e-5 <= args.actor_lr <= 3e-4
             and (args.friction_min is None or .2 <= args.friction_min <= .5)):
         parser.error("Use bounded domain scale, friction and actor learning rate")
@@ -302,6 +329,14 @@ def main():
         parser.error("Read-only ablations require --mode evaluate")
     if args.quiet_only and args.freeze_quiet:
         parser.error("Quiet tuning cannot freeze its only trainable mean head")
+    if args.focus_recovery_quiet and (args.quiet_only or args.freeze_quiet):
+        parser.error("Choose a single tuning mode")
+    if args.arc_only and (args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):
+        parser.error("Arc-only tuning already freezes quiet/recovery/std; choose a single mode")
+    if args.recovery_only and (args.arc_only or args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):
+        parser.error("Recovery-only tuning already freezes quiet/motion/std; choose a single mode")
+    if args.curriculum_origin < 0:
+        parser.error("Curriculum origin must be nonnegative; it does not reset optimizer consumption")
     args.output.mkdir(parents=True, exist_ok=False)
     cfg, task = prepare(args)
     if args.curriculum_updates != task["curriculum_updates"]:
@@ -355,11 +390,16 @@ def main():
         mean = RobustGetupActor(load_mean(torch), quiet_alpha=task["quiet_actor_alpha"],
             canonical_recovery=task["canonical_recovery"], motion_residual_fraction=task["motion_residual_fraction"],
             cyclic_leg_targets=task["cyclic_leg_targets"], leg_action_clip=task["leg_action_clip"],
-            recovery_leg_step=task["recovery_leg_step"]).to(args.device)
+            recovery_leg_step=task["recovery_leg_step"], smooth_knee_targets=task["smooth_knee_targets"],
+            recovery_knee_center=task["recovery_knee_center"],
+            quiet_velocity_feature_scale=task["quiet_velocity_feature_scale"], quiet_wheel_bound=task["quiet_wheel_bound"],
+            stance_aware_recovery=task["stance_aware_recovery"],
+            recovery_shape_aware=task["recovery_shape_aware"]).to(args.device)
         initialization = torch.load(args.initialize, map_location=args.device, weights_only=False)
         if initialization["infos"]["schema"] != "unified-getup-checkpoint-v1":
             raise ValueError("Initialization must be an authenticated v1 recovery checkpoint")
         mean.initialize_from_unified({k.removeprefix("mlp."): v for k, v in initialization["actor_state_dict"].items() if k.startswith("mlp.")})
+        mean.action_bound[:4].fill_(task["leg_action_clip"])
         env.actor_variant = args.actor_variant
         env.ablation_variants = args.ablation_compare
         report["startup"] = env.startup_report
@@ -394,12 +434,14 @@ def main():
                 dict(params=[p for p in runner.alg.actor.parameters() if p.requires_grad], lr=args.actor_lr, name="actor"),
                 dict(params=runner.alg.critic.parameters(), lr=1e-3, name="critic")])
             parent_updates = 0
+            quiet_source_info = None
             if args.resume:
                 state = torch.load(args.resume, map_location=args.device, weights_only=False)
                 if state["infos"]["schema"] != "robust-getup-checkpoint-v2" or state["infos"]["bank_sha256"] != digest(args.bank):
                     raise ValueError("Resume checkpoint or mechanism bank differs")
                 runner.alg.load(state, load_cfg=None, strict=True)
                 parent_updates = state["infos"]["completed_updates"]
+                quiet_source_info = state["infos"]
                 env.generator.set_state(state["infos"]["environment_rng"].cpu())
                 env.domain.rng.set_state(state["infos"]["domain_rng"].cpu())
                 torch.set_rng_state(state["infos"]["torch_rng"].cpu())
@@ -415,9 +457,11 @@ def main():
             # A revision may enlarge the representation without changing torque
             # limits. Checkpoint buffers must not silently restore the old clip.
             mean.action_bound[:4].fill_(task["leg_action_clip"])
+            mean.quiet_bound[4:].fill_(task["quiet_wheel_bound"])
             report["optimizer_learning_rates"] = {group["name"]: group["lr"] for group in runner.alg.optimizer.param_groups}
             if args.restore_quiet_checkpoint:
                 quiet_state = torch.load(args.restore_quiet_checkpoint, map_location=args.device, weights_only=False)
+                quiet_source_info = quiet_state["infos"]
                 if quiet_state["infos"]["base_checkpoint_sha256"] != digest(PARENT):
                     raise ValueError("Quiet reference belongs to another locomotion parent")
                 mean.quiet.load_state_dict({key.removeprefix("mlp.mean.quiet."): value
@@ -426,14 +470,48 @@ def main():
                     runner.alg.optimizer.state.pop(parameter, None)
                 report["quiet_initialization"] = dict(checkpoint=str(args.restore_quiet_checkpoint.resolve()),
                     sha256=digest(args.restore_quiet_checkpoint), optimizer="only quiet-head Adam moments cleared after weight restore")
+            if quiet_source_info is not None:
+                previous_quiet = quiet_source_info["settings"]
+                old_scale = previous_quiet.get("quiet_velocity_feature_scale") or .3
+                new_scale = task["quiet_velocity_feature_scale"] or .3
+                old_bound = previous_quiet.get("quiet_wheel_bound", .5)
+                if old_scale != new_scale or old_bound != task["quiet_wheel_bound"]:
+                    with torch.no_grad():
+                        mean.quiet[0].weight[:, 16:22].mul_(old_scale / new_scale)
+                        mean.quiet[-1].weight[4:].mul_(old_bound / task["quiet_wheel_bound"])
+                        mean.quiet[-1].bias[4:].mul_(old_bound / task["quiet_wheel_bound"])
+                    for parameter in mean.quiet.parameters():
+                        runner.alg.optimizer.state.pop(parameter, None)
+                    report["quiet_coordinate_migration"] = dict(old_velocity_scale=old_scale, new_velocity_scale=new_scale,
+                        old_wheel_bound=old_bound, new_wheel_bound=task["quiet_wheel_bound"],
+                        purpose="preserve the small-signal initial action while improving quiet-head learning conditioning",
+                        optimizer="only rescaled quiet-head moments cleared")
             if args.freeze_quiet:
                 mean.quiet.requires_grad_(False)
             if args.quiet_only:
                 mean.recovery.requires_grad_(False)
                 mean.arc.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
+            if args.focus_recovery_quiet:
+                mean.arc.requires_grad_(False)
+            if args.arc_only:
+                mean.quiet.requires_grad_(False)
+                mean.recovery.requires_grad_(False)
+                runner.alg.actor.mlp.log_std.requires_grad_(False)
+            if args.recovery_only:
+                mean.quiet.requires_grad_(False)
+                mean.arc.requires_grad_(False)
+                runner.alg.actor.mlp.log_std.requires_grad_(False)
             frozen_motion = ({k: v.detach().clone() for k, v in mean.state_dict().items()
                               if not k.startswith("quiet.")} if args.quiet_only else None)
+            frozen_parent_arc = ({k: v.detach().clone() for k, v in mean.state_dict().items()
+                                  if k.startswith(("parent.", "arc."))} if args.focus_recovery_quiet else None)
+            frozen_non_arc = ({k: v.detach().clone() for k, v in mean.state_dict().items()
+                               if not k.startswith("arc.")} if args.arc_only else None)
+            frozen_arc_std = runner.alg.actor.mlp.log_std.detach().clone() if args.arc_only else None
+            frozen_non_recovery = ({k: v.detach().clone() for k, v in mean.state_dict().items()
+                                    if not k.startswith("recovery.")} if args.recovery_only else None)
+            frozen_recovery_std = runner.alg.actor.mlp.log_std.detach().clone() if args.recovery_only else None
             report["trainable_actor_parameters"] = sum(p.numel() for p in runner.alg.actor.parameters() if p.requires_grad)
             report["parent_updates"] = parent_updates
             report["completed_updates"] = parent_updates
@@ -454,6 +532,9 @@ def main():
                     cuda_rng=torch.cuda.get_rng_state_all() if args.device.startswith("cuda") else [],
                     actor_variant=args.actor_variant, migrated_from_sha256=report.get("restored_sha256"),
                     quiet_only_tuning=args.quiet_only,
+                    focus_recovery_quiet=args.focus_recovery_quiet,
+                    arc_only_tuning=args.arc_only,
+                    recovery_only_tuning=args.recovery_only,
                     hardware_ready=False, prior_parent_updates=1346, initial_policy_training_updates="unknown")
                 original_save(path, infos=info)
 
@@ -483,11 +564,27 @@ def main():
                                                          seed=args.seed + 100, seconds=args.eval_seconds)
             if args.mode == "train":
                 runner.current_learning_iteration = parent_updates
+                if not (args.output / "model_initial.pt").exists():
+                    save(str(args.output / "model_initial.pt"))
                 runner.learn(args.updates, init_at_random_ep_len=False)
                 if frozen_motion is not None:
                     if any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_motion.items()):
                         raise RuntimeError("Quiet tuning modified a frozen motion/recovery parameter")
                     report["frozen_motion_recovery_unchanged"] = True
+                if frozen_parent_arc is not None:
+                    if any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_parent_arc.items()):
+                        raise RuntimeError("Focused tuning modified frozen parent/arc motion weights")
+                    report["frozen_parent_arc_unchanged"] = True
+                if frozen_non_arc is not None:
+                    if (any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_non_arc.items())
+                            or not torch.equal(frozen_arc_std, runner.alg.actor.mlp.log_std)):
+                        raise RuntimeError("Arc tuning changed frozen recovery, quiet, parent or exploration")
+                    report["frozen_non_arc_and_std_unchanged"] = True
+                if frozen_non_recovery is not None:
+                    if (any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_non_recovery.items())
+                            or not torch.equal(frozen_recovery_std, runner.alg.actor.mlp.log_std)):
+                        raise RuntimeError("Recovery tuning changed frozen quiet, motion, parent or exploration")
+                    report["frozen_non_recovery_and_std_unchanged"] = True
                 save(str(args.output / "model_final.pt"))
                 env.evaluation_checkpoint = args.output / "model_final.pt"
             else:

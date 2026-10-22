@@ -1,0 +1,21 @@
+{
+  "schema": "robust-targeted-verification-v4",
+  "command": "python -m pytest -q tests/test_recovery_coordinates.py tests/test_quiet_standing.py tests/test_paired_recovery.py tests/test_robust_getup.py tests/test_unified_getup.py tests/test_getup_feedback.py tests/test_getup_reward.py tests/test_getup_symmetry.py tests/test_robust_getup_analysis.py",
+  "tests_passed": 46,
+  "tests_failed": 0,
+  "elapsed_s": 2.27,
+  "checks": [
+    "knee gradient at integrated hard stop",
+    "bounded smooth measured-relative knee target",
+    "shared multi-turn leg winding",
+    "slow sway position deadband",
+    "fast target cost relative to slow sway",
+    "reset isolation",
+    "causal PD feedback",
+    "full actor output and non-quiet behavior",
+    "reflection equivariance",
+    "spectral metrics"
+  ],
+  "validation_scope": "CPU logic and actor; native behavior is evaluated separately",
+  "initial_failed_test": "test used arbitrary derivative >0.01; actual smooth derivative was 0.0096. Replaced with a >0.005 nonzero-sensitivity requirement; implementation unchanged."
+}

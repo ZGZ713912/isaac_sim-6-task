@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import traceback
 
 os.environ["OMNI_KIT_ACCEPT_EULA"] = "YES"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -22,17 +23,28 @@ sys.path.insert(0, str(ROOT / "src"))
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
+    parser.add_argument("--reference-checkpoint", type=Path,
+                        help="Optional exact initial checkpoint for a no-PPO coordinate-change comparison")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=211131)
     parser.add_argument("--seeds", type=int, nargs="+")
     parser.add_argument("--replicas", type=int, default=2)
+    parser.add_argument("--allow-large-world-coordinates", action="store_true",
+                        help="Historical diagnostic replay; large-world results cannot qualify an export")
+    parser.add_argument("--domain-scale", type=float, default=0.,
+                        help="Independent descriptive stress test; zero is the nominal confirmation")
+    parser.add_argument("--friction-min", type=float, default=.5)
     parser.add_argument("--variants", nargs="+", default=["parent", "robust", "legs_only", "undamped"],
-                        choices=["parent", "robust", "legs_only", "undamped"])
+                        choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd"])
     args = parser.parse_args()
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
     if not 1 <= args.replicas <= 4 or len(set(args.variants)) != len(args.variants):
         parser.error("Use one to four replicas and unique variants")
+    if not 0. <= args.domain_scale <= 1. or not 0. < args.friction_min <= .5:
+        parser.error("Domain scale must be 0..1 and minimum friction in (0,.5]")
+    if ("reference" in args.variants) != (args.reference_checkpoint is not None):
+        parser.error("Use --reference-checkpoint together with the reference variant")
     args.output = args.output.resolve()
     args.checkpoint = args.checkpoint.resolve()
     args.output.mkdir(parents=True, exist_ok=False)
@@ -45,8 +57,10 @@ def main():
         parser.error("Use at most two distinct seeds and 1024 total native environments")
     checkpoint_sha = training.digest(args.checkpoint)
     config_args = argparse.Namespace(output=args.output, bank=ROOT / "reports/unified_robust_20261021/pose_bank002.json",
-        no_domains=True, curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65,
-        num_envs=count, rollout_steps=128, mode="evaluate", friction="high", seed=args.seed)
+        no_domains=args.domain_scale == 0., domain_scale=args.domain_scale, friction_min=args.friction_min,
+        curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65,
+        num_envs=count, rollout_steps=128, mode="evaluate", friction="high", seed=args.seed,
+        allow_large_world_coordinates=args.allow_large_world_coordinates)
     cfg, task = training.prepare(config_args)
     training.write_json(args.output / "progress.json", dict(status="starting", completed_updates=0,
         seeds=seeds, variants=args.variants, checkpoint_sha256=checkpoint_sha, optimizer_updates=0))
@@ -72,10 +86,23 @@ def main():
         torch.set_num_threads(4)
         torch.manual_seed(args.seed)
         verified_mean, verified_info = load_verified_mean(args.checkpoint)
+        for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
+                    "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
+                    "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware"):
+            if key in verified_info["settings"]:
+                task[key] = deepcopy(verified_info["settings"][key])
+        task_path = args.output / "task_contract.json"
+        public_task = json.loads(task_path.read_text())
+        public_task["settings"] = task
+        training.write_json(task_path, public_task)
+        reference_mean = None
+        if args.reference_checkpoint is not None:
+            args.reference_checkpoint = args.reference_checkpoint.resolve()
+            reference_mean, _ = load_verified_mean(args.reference_checkpoint)
         state = {"infos": verified_info}
         models = []
         for name in args.variants:
-            mean = deepcopy(verified_mean).cuda()
+            mean = deepcopy(reference_mean if name == "reference" else verified_mean).cuda()
             if name == "parent":
                 mean = mean.parent
             elif name == "legs_only":
@@ -100,6 +127,9 @@ def main():
         env.actor_variant = "batched_" + "_".join(args.variants)
         env.evaluation_checkpoint = args.checkpoint
         groups = [(seed, name) for seed in seeds for name in args.variants]
+        for index, (_, name) in enumerate(groups):
+            if name == "raw_pd":
+                env.paired_feedback_enabled[index * per_variant:(index + 1) * per_variant] = False
         cases = [case for seed, name in groups for case in training.fixed_cases(env.bank, per_variant, seed)]
         report = training.evaluate(env, BatchMean().cuda(), args.output / "all", torch,
                                    seed=args.seed, seconds=12., cases=cases)
@@ -119,6 +149,10 @@ def main():
                 row["variant"] = name
             split["actor_variant"] = name
             split["seed"] = seed
+            split["paired_feedback_winding"] = name != "raw_pd"
+            if name == "reference":
+                split["checkpoint_sha256"] = training.digest(args.reference_checkpoint)
+                split["checkpoint"] = str(args.reference_checkpoint)
             split["quiet_alpha_override"] = ([.25]*4 + [1.]*2 if name == "legs_only" else [1.]*6 if name == "undamped" else None)
             split["trajectory_sha256"] = training.digest(target / "trajectory.npz")
             recovery = [row for row in split["lanes"] if row["recovery"]]
@@ -137,6 +171,14 @@ def main():
         training.write_json(args.output / "progress.json", dict(status="completed", completed_updates=state["infos"]["completed_updates"],
             checkpoint_sha256=checkpoint_sha, seeds=seeds, variants=args.variants, optimizer_updates=0,
             sources=sources, pairing="Same nominal settings/cases per replica; separate native environments"))
+    except BaseException:
+        # SimulationApp.close may exit the interpreter before Python prints an
+        # unwinding exception. Preserve it before entering native shutdown.
+        error = traceback.format_exc()
+        training.write_json(args.output / "failure.json", dict(status="failed", error=error,
+            checkpoint_sha256=checkpoint_sha, optimizer_updates=0))
+        print(error, file=sys.stderr, flush=True)
+        raise
     finally:
         if env is not None:
             env.close()
