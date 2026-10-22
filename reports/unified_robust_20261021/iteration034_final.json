@@ -1,0 +1,76 @@
+{
+  "schema": "robust-quiet-precision034-results-v1",
+  "checkpoint_sha256": "8c1d26c1adf3045668d9ff7448bdb46d138390b3b6752d77b1bfaf6a1ca6cb15",
+  "native_report_sha256": "9ea017971a62cef6427b0434b4eeb0cffd29631bfac3cd0f3a46cc3611b4fca4",
+  "trajectory_sha256": "a866e190d5fba26fe01cfea21e918cba1cc1b50cb1f986a8849770325bc4fdf0",
+  "robust_consumed": 673,
+  "selected_base_lineage": 505,
+  "matched033": {
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "world_origin_m": true,
+    "pose_index": true,
+    "command": true,
+    "initial_obs_exact": true
+  },
+  "standing": {
+    "stand_low": {
+      "full_max_cm": 1.9950367510318756,
+      "steady_max_cm": 1.8274597823619843,
+      "physical_leg_fast_rms_rad": 0.00033863843982821616,
+      "physical_wheel_fast_rms_rad_s": 0.06396840921173348,
+      "running_clearance_max_m": 0.0007860921323299408
+    },
+    "stand": {
+      "full_max_cm": 4.846999421715736,
+      "steady_max_cm": 3.4022755920886993,
+      "physical_leg_fast_rms_rad": 0.0007260517697372186,
+      "physical_wheel_fast_rms_rad_s": 0.12725885989407443,
+      "running_clearance_max_m": 0.0005271881818771362
+    },
+    "stand_high": {
+      "full_max_cm": 11.53838038444519,
+      "steady_max_cm": 4.399454221129417,
+      "physical_leg_fast_rms_rad": 0.0011718218410974235,
+      "physical_wheel_fast_rms_rad_s": 0.2820437682996887,
+      "running_clearance_max_m": 0.00016203522682189941
+    }
+  },
+  "motion": {
+    "survived": 84,
+    "episodes": 92
+  },
+  "actual_settled": {
+    "inverted": {
+      "episodes": 28,
+      "recovered": 25,
+      "recovery_and_motion_success": 10,
+      "practical_recovery_and_motion_success": 19
+    },
+    "right": {
+      "episodes": 8,
+      "recovered": 3,
+      "recovery_and_motion_success": 0,
+      "practical_recovery_and_motion_success": 2
+    },
+    "upright": {
+      "episodes": 8,
+      "recovered": 8,
+      "recovery_and_motion_success": 3,
+      "practical_recovery_and_motion_success": 3
+    },
+    "left": {
+      "episodes": 4,
+      "recovered": 3,
+      "recovery_and_motion_success": 1,
+      "practical_recovery_and_motion_success": 2
+    }
+  },
+  "practical_moving_fall_recoveries": 0,
+  "full_behavior_completed": true,
+  "all_three_standing_5cm": false,
+  "long_training_admitted": false,
+  "hardware_ready": false,
+  "decision": "Rejected as whole candidate: high steady drift4.40cm improves, but full startup11.54cm regresses. Next side-only pilot starts from native-height-anchor033 zero-PPO state with the better6.01cm startup high head; retain all673 consumed updates.",
+  "causal_limit": "Sequential continuation changes exploration and adds64updates; no paired64update old-noise training control, so improvement cannot be uniquely attributed to sigma."
+}

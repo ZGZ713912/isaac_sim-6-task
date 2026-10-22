@@ -1,0 +1,47 @@
+{
+  "schema": "robust-side-recovery032-native-initial-v1",
+  "exact_restore": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "Adam_moments": true,
+    "environment_rng": true,
+    "domain_rng": true,
+    "torch_rng": true,
+    "cuda_rng": true,
+    "optimizer_groups_only_declared_actor_lr_revision": true
+  },
+  "initial_checkpoint_sha256": "40e854d54aa28e11088b6229b863ea7cda5bb5fe3ab90bd7bea3a8dc52e3fa51",
+  "parent_base_clock": 377,
+  "preexisting_robust_consumption": 673,
+  "new_updates_max": 64,
+  "trainable_actor_parameters": 21894,
+  "optimizer_rates": {
+    "actor": 3e-05,
+    "critic": 0.001
+  },
+  "side_pose_focus": true,
+  "recovery_family_weights": [
+    0.0,
+    0.05,
+    0.05,
+    0.35,
+    0.35,
+    0.15,
+    0.05
+  ],
+  "quiet_height_probabilities": [
+    0.5,
+    0.25,
+    0.25
+  ],
+  "standing_costs_preserved": {
+    "standing_support_training": true,
+    "standing_early_position_weight": 6.0,
+    "standing_drift_weight": 2.0,
+    "standing_drift_speed_scale_m_s": 0.02,
+    "quiet_critic_anchor": true
+  },
+  "quiet_exploration_fraction": 0.35,
+  "frozen": "all3quiet, parent, arc, log_std",
+  "hardware_motion": false
+}

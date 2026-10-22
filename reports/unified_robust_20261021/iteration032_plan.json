@@ -1,8 +1,8 @@
 {
   "schema": "robust-side-recovery032-plan-v1",
   "hypothesis": "Side recovery remains weak even at effective wheel_mu .1...3. Increase side exposure and freeze standing/motion so the recovery actor can improve without another static-height regression.",
-  "run_started": false,
-  "parent_checkpoint": "Choose after031 full validation; preserve selected quiet experts",
+  "run_started": true,
+  "parent_checkpoint": "runs/unified_robust_20261022/side_parent032/model_migrated.pt",
   "new_updates_max": 64,
   "num_envs": 128,
   "rollout_policy_steps": 128,
@@ -50,5 +50,11 @@
   "long_training_admitted": false,
   "hardware_motion": false,
   "side_recovery_birth_focus": true,
-  "critic_semantics": "Preserve parent quiet_critic_anchor plus standing support/spectral/position/drift objective settings. General command/height sampling resumes; all standing heads remain frozen."
+  "critic_semantics": "Preserve parent quiet_critic_anchor plus standing support/spectral/position/drift objective settings. General command/height sampling resumes; all standing heads remain frozen.",
+  "parent_checkpoint_sha256": "512988bcc8234fe0d0cc04c363970bae84496fed6dfecd8dda16ff1c616f0230",
+  "preexisting_robust_consumption": 673,
+  "parent_base_clock": 377,
+  "parent_high_full_window_cm": 6.010543182492256,
+  "zero_update_startup_failure": "iteration032_startup001_failed.json",
+  "training_output": "runs/unified_robust_20261022/pilot020_side_recovery032"
 }
