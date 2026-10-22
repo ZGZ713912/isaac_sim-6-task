@@ -94,7 +94,8 @@ def prepare(args):
                     recovery_shape_aware=True, motion_push_fraction=1.)
     if getattr(args, "side_recovery_focus", False):
         task.update(version="robust-v2.21-side-recovery-exposure", motion_fraction=.2,
-                    recovery_family_weights=[0., .05, .05, .35, .35, .15, .05])
+                    recovery_family_weights=[0., .05, .05, .35, .35, .15, .05],
+                    side_recovery_birth_focus=True)
     if getattr(args, "episode_seconds", None) is not None:
         task["episode_seconds"] = args.episode_seconds
     # The fixed physics/control source remains pinned. The task overlay is a
