@@ -238,6 +238,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         groups = dict(imu=list(range(6)), encoders=list(range(6, 18)),
                       leg_encoders=list(range(6, 10)) + list(range(12, 16)), wheel_velocity=[16, 17])
         env.domain.evaluation_immediate_features = groups[overrides["instant_sensor_group"]]
+    from wheeled_tasks.chassis.evaluation_interventions import neutralize_evaluation_bias
+    bias_intervention = neutralize_evaluation_bias(env, overrides.get("neutralize_bias"))
     env.cfg["record_diagnostics"] = True
     alive = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
     snapshots = []
@@ -352,6 +354,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         checkpoint_sha256=digest(env.evaluation_checkpoint) if getattr(env, "evaluation_checkpoint", None) else None,
         ablation_variants=getattr(env, "ablation_variants", False),
         source_scope="native simulation; no hardware motion", hardware_ready=False)
+    if bias_intervention is not None:
+        report["bias_intervention"] = bias_intervention
     write_json(output / "report.json", report)
     print(json.dumps({k: v for k, v in report.items() if k not in ("lanes", "material")}), flush=True)
     env.fixed_cases = None
