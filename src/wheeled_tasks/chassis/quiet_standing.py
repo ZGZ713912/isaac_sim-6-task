@@ -6,10 +6,27 @@ privileged reward/critic quantities, not an extra runtime standing controller.
 import torch
 
 
+def standing_request_mask(commands, passive, recovery_lane, ever_recovered):
+    """Keep the standing anchor through a disturbance, until the request ends.
+
+    A genuine fallen birth starts paying standing costs only after its first
+    recovery. Motion births cannot erase displacement by leaning or falling.
+    """
+    requested = (commands[:, :2].abs() < commands.new_tensor([.1, .2])).all(-1)
+    return requested & ~passive & (~recovery_lane | ever_recovered)
+
+
+def standing_support_cost(clearance_peak, contact_fraction):
+    air = ((clearance_peak - .003).clamp_min(0.) / .01).square().mean(-1)
+    unloaded = (1. - contact_fraction).mean(-1)
+    return 2. * torch.log1p(air) + .5 * unloaded
+
+
 class QuietStanding:
-    def __init__(self, count, device, dt, sway_m=.05):
+    def __init__(self, count, device, dt, sway_m=.05, position_weight=.5):
         self.alpha = dt / (.05 + dt)
         self.sway_m = sway_m
+        self.position_weight = position_weight
         self.active = torch.zeros(count, device=device, dtype=torch.bool)
         self.anchor = torch.zeros(count, 2, device=device)
         self.target_slow = torch.zeros(count, 6, device=device)
@@ -47,5 +64,5 @@ class QuietStanding:
         # Saturate the cost gently so an initially noisy standing policy still
         # earns more by balancing than by ending the episode immediately.
         cost = active * (.3 * torch.log1p(target_power) + .05 * torch.log1p(velocity_power)
-                         + .5 * torch.log1p(position_cost))
+                         + self.position_weight * torch.log1p(position_cost))
         return cost, target_power, velocity_power, radius

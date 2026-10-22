@@ -2,7 +2,7 @@ import math
 
 import torch
 
-from wheeled_tasks.chassis.quiet_standing import QuietStanding
+from wheeled_tasks.chassis.quiet_standing import QuietStanding, standing_request_mask, standing_support_cost
 
 
 def test_slow_sway_inside_five_cm_has_no_position_cost():
@@ -50,3 +50,31 @@ def test_reset_reanchors_only_selected_environment():
     state.reset(torch.tensor([1]))
     state.update(active, torch.ones(2, 2) * .04, zeros, zeros)
     torch.testing.assert_close(state.displacement(torch.ones(2, 2) * .04), torch.tensor([[.04, .04], [0., 0.]]))
+
+
+def test_standing_anchor_survives_disturbance_but_excludes_initial_fallen_birth():
+    commands = torch.zeros(5, 3)
+    commands[4, 0] = .5
+    passive = torch.tensor([False, False, True, False, False])
+    recovery_birth = torch.tensor([False, True, True, True, False])
+    recovered = torch.tensor([False, False, False, True, False])
+    mask = standing_request_mask(commands, passive, recovery_birth, recovered)
+    assert mask.tolist() == [True, False, False, True, False]
+    state = QuietStanding(5, "cpu", .005, position_weight=2.)
+    zeros = torch.zeros(5, 6)
+    state.update(mask, torch.zeros(5, 2), zeros, zeros)
+    # The request stays active even when the body has tilted; the 8 cm error
+    # must remain visible instead of being erased by a new standing anchor.
+    state.update(mask, torch.full((5, 2), .04), zeros, zeros)
+    cost, _, _, radius = state.update(mask, torch.tensor([[.08, 0.]]).expand(5, -1), zeros, zeros)
+    assert radius[0] > .079
+    assert cost[0] > 0.
+
+
+def test_support_cost_distinguishes_loaded_wheels_unloading_and_geometric_flight():
+    clearance = torch.tensor([[0., 0.], [.001, .001], [.04, .04]])
+    support = torch.tensor([[1., 1.], [.5, .5], [0., 0.]])
+    cost = standing_support_cost(clearance, support)
+    assert cost[0] == 0.
+    assert 0. < cost[1] < cost[2]
+    assert cost[2] > 5.

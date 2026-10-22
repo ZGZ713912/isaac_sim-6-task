@@ -1,0 +1,29 @@
+"""A reward-only standing pilot must preserve the resumed recovery function."""
+import importlib.util
+from pathlib import Path
+from types import SimpleNamespace
+
+import torch
+
+
+def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("robust_profile_training", root / "scripts/train_robust_getup.py")
+    training = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(training)
+    checkpoint = tmp_path / "prior.pt"
+    torch.save({"infos": {"settings": {"stance_aware_recovery": True, "recovery_shape_aware": True,
+                                        "leg_action_clip": 16., "motion_residual_fraction": .25}}}, checkpoint)
+    bank = tmp_path / "bank.json"
+    bank.write_text("{}")
+    args = SimpleNamespace(output=tmp_path / "run", bank=bank, resume=checkpoint, no_domains=False,
+        curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65, domain_scale=.35,
+        quiet_only=True, standing_support_training=True, num_envs=32, rollout_steps=128,
+        mode="train", friction="high", friction_min=.3, seed=123)
+    _, task = training.prepare(args)
+    assert task["stance_aware_recovery"] and task["recovery_shape_aware"]
+    assert task["standing_support_training"] and task["quiet_critic_anchor"]
+    assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
+    assert task["sensor_delay_policy_ticks"] == [0, 1]
+    assert task["quiet_height_probabilities"] == [.25, .25, .5]
+    assert task["quiet_position_weight"] == 2.
