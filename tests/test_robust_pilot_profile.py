@@ -13,7 +13,8 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     spec.loader.exec_module(training)
     checkpoint = tmp_path / "prior.pt"
     torch.save({"infos": {"settings": {"stance_aware_recovery": True, "recovery_shape_aware": True,
-                                        "leg_action_clip": 16., "motion_residual_fraction": .25}}}, checkpoint)
+                                        "leg_action_clip": 16., "motion_residual_fraction": .25,
+                                        "quiet_high_leg_prediction_s": .005, "fast_forward_reference": True}}}, checkpoint)
     bank = tmp_path / "bank.json"
     bank.write_text("{}")
     args = SimpleNamespace(output=tmp_path / "run", bank=bank, resume=checkpoint, no_domains=False,
@@ -22,6 +23,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
         mode="train", friction="high", friction_min=.3, seed=123)
     _, task = training.prepare(args)
     assert task["stance_aware_recovery"] and task["recovery_shape_aware"]
+    assert task["quiet_high_leg_prediction_s"] == .005 and task["fast_forward_reference"]
     assert task["standing_support_training"] and task["quiet_critic_anchor"]
     assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
     assert task["sensor_delay_policy_ticks"] == [0, 1]
@@ -31,11 +33,11 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     _, revised = training.prepare(args)
     assert revised["quiet_position_weight"] == 0.
     assert revised["standing_early_position_weight"] == 6.
-    args.friction_min = args.friction_max = .1
+    args.friction_min = args.friction_max = .3
     cfg, fixed = training.prepare(args)
-    assert fixed["active_friction_range"] == [.1, .1]
+    assert fixed["active_friction_range"] == [.3, .3]
     from wheeled_tasks.chassis.contact_material import ContactMaterialDomain
     material = ContactMaterialDomain(4, cfg["contact_material"], seed=123)
     summary = material.summary()
-    assert summary["sampled_ground_static_min_max"] == [float(torch.tensor(.1))] * 2
-    assert summary["effective_wheel_static_min_max"] == [float(torch.tensor(.1))] * 2
+    assert summary["sampled_ground_static_min_max"] == [float(torch.tensor(.3))] * 2
+    assert summary["effective_wheel_static_min_max"] == [float(torch.tensor(.2))] * 2

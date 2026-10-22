@@ -1,0 +1,42 @@
+{
+  "schema": "robust-iteration-019-final-v1",
+  "checkpoint_sha256": "7fa8147dacdec40f6da5480001a0c91c50220efd49517b5e0c2e9823b44080bc",
+  "optimizer_updates": 0,
+  "robust_actual_consumption": 353,
+  "full_report": "runs/unified_robust_20261022/reference_confirmation019/robust/report.json",
+  "seam_report": "runs/unified_robust_20261022/reference_seam019/robust/report.json",
+  "seam_report_sha256": "1be5744c3389c2fd0b2b040c3e07593428896d98e646bb3f5cf0b73b46468973",
+  "seam_cases": {
+    "1.5": {
+      "episodes": 16,
+      "survived": 16,
+      "vx_mean_m_s": 0.6862213965505362,
+      "vx_min_m_s": -0.10539055615663528,
+      "vx_max_m_s": 1.8228329420089722,
+      "worst_vx_mae_m_s": 1.6053900718688965,
+      "worst_yaw_mae_rad_s": 0.4463046193122864
+    },
+    "1.75": {
+      "episodes": 16,
+      "survived": 16,
+      "vx_mean_m_s": 1.9301090016961098,
+      "vx_min_m_s": 1.9063386917114258,
+      "vx_max_m_s": 1.953882098197937,
+      "worst_vx_mae_m_s": 0.203882098197937,
+      "worst_yaw_mae_rad_s": 0.011112733744084835
+    },
+    "2.0": {
+      "episodes": 16,
+      "survived": 16,
+      "vx_mean_m_s": 2.1881293654441833,
+      "vx_min_m_s": 2.1674845218658447,
+      "vx_max_m_s": 2.2037205696105957,
+      "worst_vx_mae_m_s": 0.20372040569782257,
+      "worst_yaw_mae_rad_s": 0.005795525852590799
+    }
+  },
+  "selection": "hold: high straight endpoint fixed, but 1.5 m/s remains stalled in some delayed lanes",
+  "long_training_admitted": false,
+  "next_hypothesis": "Widen the reference transition from 1.5..2 to 1..1.5 m/s before standing tuning; retain old range as an explicit immutable checkpoint setting.",
+  "hardware_ready": false
+}
