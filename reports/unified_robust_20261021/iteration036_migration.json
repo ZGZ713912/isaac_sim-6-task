@@ -1,0 +1,37 @@
+{
+  "schema": "quiet-velocity036-migration-audit-v1",
+  "checkpoint_sha256": "3d5336b518b1f23c91b6dc9b1aa3f19e81a3112de9c596df86bc7451f78cb7d6",
+  "source_sha256": "3d8a476c7059939ee4fe134b83cd85330fd7b1fce5535ca813ac10cfa5f3d55f",
+  "checks": {
+    "other_actor_exact": true,
+    "critic_exact": true,
+    "optimizer_groups_exact": true,
+    "quiet_weight_transform_exact": true,
+    "quiet_low_weight_transform_exact": true,
+    "quiet_high_weight_transform_exact": true,
+    "full_Adam_coordinate_transform_exact": true,
+    "environment_rng": true,
+    "domain_rng": true,
+    "torch_rng": true,
+    "cuda_rng": true
+  },
+  "real_function_regression": {
+    "full032": {
+      "real_vectors": 8400,
+      "max_action_error": 3.725290298461914e-09,
+      "nonquiet_action_error": 0.0
+    },
+    "expanded035": {
+      "real_vectors": 1440,
+      "max_action_error": 9.313225746154785e-10,
+      "nonquiet_action_error": 0.0
+    }
+  },
+  "optimizer_updates": 0,
+  "base_clock": 441,
+  "robust_consumed": 737,
+  "feature_gain": 10.0,
+  "actor_or_PD_gain_not_changed_at_migration": true,
+  "hardware_motion": false,
+  "long_training_admitted": false
+}
