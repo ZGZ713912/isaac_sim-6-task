@@ -20,7 +20,7 @@ from .unified_getup import FAMILIES, classify_gravity, joint_tracking_score, pro
 from .robust_getup import RobustDomain
 from .getup_feedback import GetupFeedback
 from .getup_reward import potential_reward
-from .quiet_standing import QuietStanding
+from .quiet_standing import QuietStanding, standing_request_mask, standing_support_cost
 
 
 class RobustGetupEnv(ChassisEnv):
@@ -106,7 +106,8 @@ class RobustGetupEnv(ChassisEnv):
         self.actuator_response.apply_torque = lambda tau: native_response(self.domain.apply_torque(tau, self.passive | self.finished))
         self.v5.spring_efforts = lambda position: native_springs(position) * self.domain.spring
         self.previous_effort = torch.zeros(n, 6, device=device)
-        self.quiet_standing = QuietStanding(n, device, self.policy_dt, settings["quiet_sway_m"])
+        self.quiet_standing = QuietStanding(n, device, self.policy_dt, settings["quiet_sway_m"],
+                                           settings.get("quiet_position_weight", .5))
         self.wheel_air_run = torch.zeros(n, 2, device=device)
         self.dual_wheel_air_run = torch.zeros(n, device=device)
         for name in ("L_link3", "R_link3"):
@@ -282,8 +283,9 @@ class RobustGetupEnv(ChassisEnv):
             stationary = ids[~self.recovery_lane[ids]]
             self.pending_command[stationary, :2] = 0.
         height_pick = self.random(count)
-        self.pending_command[ids, 2] = torch.where(height_pick < .5, .305,
-            torch.where(height_pick < .75, .23, .42))
+        mid, low, _ = self.getup_cfg.get("quiet_height_probabilities", [.5, .25, .25])
+        self.pending_command[ids, 2] = torch.where(height_pick < mid, .305,
+            torch.where(height_pick < mid + low, .23, .42))
 
     def potential(self):
         _, _, gravity, height, _, _, _ = self.state()
@@ -434,11 +436,16 @@ class RobustGetupEnv(ChassisEnv):
         quiet_cost = quiet * (self.getup_cfg["quiet_action_rate_cost"] * action_delta
             + self.getup_cfg["quiet_motor_speed_cost"] * leg_speed
             + self.getup_cfg["quiet_effort_delta_cost"] * effort_delta)
+        quiet_request = (standing_request_mask(self.commands, self.passive, self.recovery_lane, self.ever_recovered)
+                         if self.getup_cfg.get("standing_support_training", False) else quiet)
         spectral_cost, target_power, velocity_power, quiet_radius = self.quiet_standing.update(
-            quiet, local[:, :2],
+            quiet_request, local[:, :2],
             self.actions * self.actions.new_tensor([.25, .25, 10., .25, .25, 10.]), dq)
         if self.getup_cfg["quiet_spectral_cost"]:
             quiet_cost += spectral_cost * (elapsed > 2.)
+        support_cost = standing_support_cost(wheel_clearance_peak, wheel_contact_fraction)
+        if self.getup_cfg.get("standing_support_training", False):
+            quiet_cost += quiet_request * support_cost * (elapsed >= .2)
         self.previous_effort.copy_(tau)
         density = (2. * (1. - gravity[:, 2]) * .5 + upright * (2. * height_score + 4. * tracking)
                    + 2. * contact.float().mean(-1)
@@ -483,6 +490,8 @@ class RobustGetupEnv(ChassisEnv):
             "Quiet/fast_target_normalized_power": target_power[quiet].mean() if quiet.any() else target_power.new_zeros(()),
             "Quiet/fast_velocity_normalized_power": velocity_power[quiet].mean() if quiet.any() else velocity_power.new_zeros(()),
             "Quiet/position_radius_m": quiet_radius[quiet].mean() if quiet.any() else quiet_radius.new_zeros(()),
+            "Standing/request_position_radius_m": quiet_radius[quiet_request].mean() if quiet_request.any() else quiet_radius.new_zeros(()),
+            "Standing/support_cost_density": support_cost[quiet_request].mean() if quiet_request.any() else support_cost.new_zeros(()),
             "Robust/domain_fraction": self.domain.enabled.float().mean(),
             "Robust/motor_strength_mean": self.domain.strength.mean(),
             "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * 5.})
