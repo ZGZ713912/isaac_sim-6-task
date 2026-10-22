@@ -29,6 +29,8 @@ def main():
     parser.add_argument("--quiet-high-leg-prediction-ms", type=float)
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
+    parser.add_argument("--fast-forward-reference", action="store_true",
+                        help="Use authenticated original feedback for high straight-forward commands")
     parser.add_argument("--reason", default="restore paired continuous-feedback PD equivalence across encoder reporting seams")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -58,6 +60,8 @@ def main():
     if args.motion_residual_fraction is not None:
         info["settings"].update(version="robust-v2.15-motion-residual",
                                 motion_residual_fraction=args.motion_residual_fraction)
+    if args.fast_forward_reference:
+        info["settings"].update(version="robust-v2.16-reference-forward", fast_forward_reference=True)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
     if args.quiet_reference:
@@ -86,6 +90,7 @@ def main():
     revision["quiet_high_common_alpha"] = info["settings"].get("quiet_high_common_alpha")
     revision["quiet_high_leg_prediction_s"] = info["settings"].get("quiet_high_leg_prediction_s", 0.)
     revision["motion_residual_fraction"] = info["settings"].get("motion_residual_fraction", 0.)
+    revision["fast_forward_reference"] = info["settings"].get("fast_forward_reference", False)
     allowed = (("mlp.mean.quiet.", "mlp.mean.quiet_alpha", "mlp.mean.quiet_bound") if args.quiet_reference else ())
     if any(not torch.equal(value, state["actor_state_dict"][key])
            for key, value in original_actor.items() if not key.startswith(allowed)):
