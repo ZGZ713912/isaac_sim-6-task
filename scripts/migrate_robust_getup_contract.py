@@ -31,6 +31,8 @@ def main():
                         help="Diagnostic common-leg increment in raw action per 5 ms; .2 means .05 rad, not a scripted angle")
     parser.add_argument("--quiet-height-experts", action="store_true",
                         help="Explicitly clone the quiet head into three continuous height experts, including Adam moments")
+    parser.add_argument("--native-height-anchors", action="store_true",
+                        help="Match height expert anchors to native float32(command)*5; requires existing height experts")
     parser.add_argument("--low-quiet-reference", type=Path,
                         help="Optional authenticated low-height quiet head; requires --quiet-height-experts")
     parser.add_argument("--motion-residual-fraction", type=float,
@@ -95,6 +97,11 @@ def main():
                                 fast_forward_reference_yaw_fade=None)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
+    if args.native_height_anchors:
+        if not old_info["settings"].get("quiet_height_experts", False):
+            parser.error("Native height anchors require an existing height-expert checkpoint")
+        info["settings"].update(version="robust-v2.23-native-height-anchors", quiet_native_height_anchors=True)
+        revision["quiet_native_height_anchors"] = True
     if args.quiet_height_experts:
         if old_info["settings"].get("quiet_height_experts", False):
             parser.error("Quiet height experts are already present")

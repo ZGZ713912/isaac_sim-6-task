@@ -450,7 +450,7 @@ class RobustGetupEnv(ChassisEnv):
         position_cost = standing_position_cost(quiet_radius, self.getup_cfg["quiet_sway_m"])
         quiet_cost += (quiet_request * (elapsed >= .2) * position_cost
                        * self.getup_cfg.get("standing_early_position_weight", 0.))
-        drift_cost = standing_drift_cost(velocity[:, 0])
+        drift_cost = standing_drift_cost(velocity[:, 0], self.getup_cfg.get("standing_drift_speed_scale_m_s", .02))
         drift_penalty = (quiet_request * (elapsed >= .2) * drift_cost
                          * self.getup_cfg.get("standing_drift_weight", 0.))
         quiet_cost += drift_penalty
