@@ -1,0 +1,46 @@
+{
+  "schema": "quiet038-bounded-plan-v1",
+  "parent_checkpoint": "runs/unified_robust_20261022/quiet_wheel_velocity038/model_migrated.pt",
+  "parent_sha256": "fb6dfcf8e628269fd04c5e3dfa9e17d92b8ab9e4f66f9a7ee6378440280afaf0",
+  "baseline_function": "036zero-PPO parent with identical existing actor/critic/moments/RNG; no036trained quiet weights",
+  "hypothesis": "037 all-axis velocity path amplified mid/high physical vibration and mid-height wheel lift; restrict only the new path to wheel encoders and wheel outputs, protecting the existing leg function",
+  "updates": 32,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "seed": 211329,
+  "actor_lr": 0.001,
+  "critic_lr": 0.001,
+  "trainable_actor_parameters": 12,
+  "trainable_scope": "three2x2wheel velocity weights and critic; all existing actor and base std frozen",
+  "domain_scale": 0.35,
+  "ground_friction": [
+    0.3,
+    0.5
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "unchanged_standing_objectives": {
+    "early_position_deadband_m": 0.05,
+    "early_position_weight": 6.0,
+    "drift_weight": 2.0,
+    "drift_speed_scale_m_s": 0.02,
+    "quiet_exploration_fraction": 0.1
+  },
+  "validation": {
+    "cpu_tests": 79,
+    "actual_cli_guards": 4,
+    "migration_exact_observations": 15600,
+    "extended_static": "3heights x16repeats,12s,seed211322; matched domain/material/pose/command/origin/firstobs",
+    "before_baseline": "quiet_velocity_baseline036; migration initial deterministic function and constructor RNG exact",
+    "full_suite": "140x12s only after matched static5cm/no>3mm operational clearance and actual3-95Hz nonregression pass",
+    "full_counterpart": "side_confirmation032; nominal fresh two-seed admission remains required"
+  },
+  "robust_consumed_before": 833,
+  "robust_consumed_after_full_budget": 865,
+  "parent_clock": 441,
+  "expected_clock": 473,
+  "new_long_training_updates": 0,
+  "long_training_admitted": false,
+  "run_started": false
+}

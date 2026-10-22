@@ -155,7 +155,7 @@ def main():
                     "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
                     "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_velocity_feature_gain",
-                    "quiet_velocity_feedback"):
+                    "quiet_velocity_feedback", "quiet_velocity_feedback_mode"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
         task_path = args.output / "task_contract.json"
