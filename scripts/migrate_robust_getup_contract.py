@@ -27,6 +27,8 @@ def main():
     parser.add_argument("--shape-aware-recovery", action="store_true")
     parser.add_argument("--quiet-high-common-alpha", type=float)
     parser.add_argument("--quiet-high-leg-prediction-ms", type=float)
+    parser.add_argument("--recovery-leg-step", type=float,
+                        help="Diagnostic common-leg increment in raw action per 5 ms; .2 means .05 rad, not a scripted angle")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
@@ -44,6 +46,8 @@ def main():
         parser.error("High-height common-angle interpolation must be in (0,1]")
     if args.quiet_high_leg_prediction_ms is not None and not 0. <= args.quiet_high_leg_prediction_ms <= 10.:
         parser.error("High-height leg prediction must be 0..10 ms")
+    if args.recovery_leg_step is not None and not .05 <= args.recovery_leg_step <= .3:
+        parser.error("Recovery common-leg increment must be within .05...3 raw action per policy tick")
     if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
         parser.error("Motion residual fraction must be 0..1")
     if args.fast_forward_reference_range is not None and not 0. <= args.fast_forward_reference_range[0] < args.fast_forward_reference_range[1] <= 3.:
@@ -63,6 +67,9 @@ def main():
     if args.quiet_high_leg_prediction_ms is not None:
         info["settings"].update(version="robust-v2.13-high-leg-prediction",
                                 quiet_high_leg_prediction_s=args.quiet_high_leg_prediction_ms * .001)
+    if args.recovery_leg_step is not None:
+        info["settings"].update(version="robust-v2.19-recovery-common-step",
+                                recovery_leg_step=args.recovery_leg_step)
     if args.motion_residual_fraction is not None:
         info["settings"].update(version="robust-v2.15-motion-residual",
                                 motion_residual_fraction=args.motion_residual_fraction)
@@ -105,6 +112,7 @@ def main():
     revision["recovery_shape_aware"] = args.shape_aware_recovery
     revision["quiet_high_common_alpha"] = info["settings"].get("quiet_high_common_alpha")
     revision["quiet_high_leg_prediction_s"] = info["settings"].get("quiet_high_leg_prediction_s", 0.)
+    revision["recovery_leg_step"] = info["settings"]["recovery_leg_step"]
     revision["motion_residual_fraction"] = info["settings"].get("motion_residual_fraction", 0.)
     revision["fast_forward_reference"] = info["settings"].get("fast_forward_reference", False)
     revision["fast_forward_reference_range"] = info["settings"].get("fast_forward_reference_range", [1.5, 2.])
