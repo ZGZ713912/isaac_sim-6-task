@@ -42,7 +42,9 @@ def main():
     parser.add_argument("--quiet-velocity-feature-gain", type=float,
                         help="Explicit1...30 post-tanh feature conditioning; inverse-scale quiet weights and named Adam moments")
     parser.add_argument("--quiet-velocity-feedback", action="store_true",
-                        help="Append three zero-initialized bias-free6x6 encoder-velocity paths; preserve all previous tensors/moments/RNG")
+                        help="Append three zero-initialized bias-free encoder-velocity paths; preserve all previous tensors/moments/RNG")
+    parser.add_argument("--quiet-velocity-feedback-mode", choices=("all", "wheels"),
+                        help="Explicit new-path contract: all six axes (default), or wheel inputs and wheel outputs only")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
@@ -78,6 +80,8 @@ def main():
     if args.quiet_velocity_feedback and (args.quiet_reference or args.high_quiet_reference
             or args.quiet_height_experts or args.quiet_velocity_feature_gain is not None):
         parser.error("Add zero velocity feedback to existing experts in a separate explicit revision")
+    if args.quiet_velocity_feedback_mode is not None and not args.quiet_velocity_feedback:
+        parser.error("Velocity mode requires explicit --quiet-velocity-feedback migration")
     if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
         parser.error("Motion residual fraction must be 0..1")
     if args.fast_forward_reference_range is not None and not 0. <= args.fast_forward_reference_range[0] < args.fast_forward_reference_range[1] <= 3.:
@@ -128,14 +132,20 @@ def main():
         if len(names) != len(group["params"]):
             raise ValueError("Cannot authenticate velocity-feedback actor optimizer order")
         next_id = max(p for g in state["optimizer_state_dict"]["param_groups"] for p in g["params"]) + 1
+        mode = args.quiet_velocity_feedback_mode or "all"
+        size = 2 if mode == "wheels" else 6
         for name in ("mid", "low", "high"):
             key = "mlp.mean.quiet_velocity." + name + ".weight"
-            state["actor_state_dict"][key] = state["actor_state_dict"]["mlp.mean.quiet.0.weight"].new_zeros((6, 6))
+            state["actor_state_dict"][key] = state["actor_state_dict"]["mlp.mean.quiet.0.weight"].new_zeros((size, size))
             group["params"].append(next_id)
             next_id += 1
-        info["settings"].update(version="robust-v2.27-quiet-velocity-feedback", quiet_velocity_feedback=True)
-        revision["quiet_velocity_feedback"] = dict(new_parameters=108, initial_weights="zero",
-            input="tanh(physical six encoder velocities in rad/s)", bias=False,
+        info["settings"].update(version=("robust-v2.28-quiet-wheel-velocity" if mode == "wheels"
+                                        else "robust-v2.27-quiet-velocity-feedback"),
+                                quiet_velocity_feedback=True, quiet_velocity_feedback_mode=mode)
+        revision["quiet_velocity_feedback"] = dict(new_parameters=3 * size * size, mode=mode, initial_weights="zero",
+            input=("tanh(physical two wheel encoder velocities in rad/s)" if mode == "wheels"
+                   else "tanh(physical six encoder velocities in rad/s)"),
+            output=("two wheel logits; four leg logits exactly unchanged" if mode == "wheels" else "six axis logits"), bias=False,
             optimizer="all old moments retained; only new parameters start with empty Adam state",
             deterministic_function="preserved; no random initialization draws")
     if args.quiet_velocity_feature_gain is not None:

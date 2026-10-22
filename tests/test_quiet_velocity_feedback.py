@@ -14,17 +14,19 @@ def states(count=768):
     return obs
 
 
-def actor(enabled):
+def actor(enabled, mode="all"):
     return RobustGetupActor(nn.Linear(35, 6), quiet_height_experts=True,
-                           quiet_native_height_anchors=True, quiet_velocity_feedback=enabled)
+                           quiet_native_height_anchors=True, quiet_velocity_feedback=enabled,
+                           quiet_velocity_feedback_mode=mode)
 
 
-def test_zero_velocity_heads_preserve_rng_weights_and_nonzero_existing_feedback():
+@pytest.mark.parametrize("mode", ["all", "wheels"])
+def test_zero_velocity_heads_preserve_rng_weights_and_nonzero_existing_feedback(mode):
     torch.manual_seed(37)
     old = actor(False)
     rng = torch.get_rng_state()
     torch.manual_seed(37)
-    new = actor(True)
+    new = actor(True, mode)
     assert torch.equal(rng, torch.get_rng_state())
     for head in (old.quiet, old.quiet_low, old.quiet_high):
         nn.init.normal_(head[-1].weight, std=.1)
@@ -36,8 +38,9 @@ def test_zero_velocity_heads_preserve_rng_weights_and_nonzero_existing_feedback(
     assert torch.equal(old(x), new(x))
 
 
-def test_learned_velocity_path_has_no_constant_bias_and_preserves_inactive_regions():
-    old, new = actor(False), actor(True)
+@pytest.mark.parametrize("mode", ["all", "wheels"])
+def test_learned_velocity_path_has_no_constant_bias_and_preserves_inactive_regions(mode):
+    old, new = actor(False), actor(True, mode)
     new.load_state_dict(old.state_dict(), strict=False)
     with torch.no_grad():
         for head in new.quiet_velocity.values():
@@ -52,8 +55,9 @@ def test_learned_velocity_path_has_no_constant_bias_and_preserves_inactive_regio
 
 
 @pytest.mark.parametrize("name,height", [("mid", .305), ("low", .23), ("high", .42)])
-def test_native_height_endpoint_learns_only_its_own_velocity_head(name, height):
-    model = actor(True)
+@pytest.mark.parametrize("mode", ["all", "wheels"])
+def test_native_height_endpoint_learns_only_its_own_velocity_head(name, height, mode):
+    model = actor(True, mode)
     x = states()
     x[:, 3] = torch.tensor(height) * 5.
     x[:, 16:22] = .03
@@ -79,14 +83,51 @@ def test_velocity_feedback_retains_strict_unified_initialization_and_requires_ex
         RobustGetupActor(nn.Linear(35, 6), quiet_velocity_feedback=True)
 
 
-def test_velocity_only_learning_protects_all_existing_motion_recovery_and_quiet_weights():
-    model = actor(True)
+@pytest.mark.parametrize("mode,count", [("all", 108), ("wheels", 12)])
+def test_velocity_only_learning_protects_all_existing_motion_recovery_and_quiet_weights(mode, count):
+    model = actor(True, mode)
     model.freeze_except_quiet_velocity()
     trainable = {name: p for name, p in model.named_parameters() if p.requires_grad}
     assert set(trainable) == {f"quiet_velocity.{name}.weight" for name in ("mid", "low", "high")}
-    assert sum(p.numel() for p in trainable.values()) == 108
+    assert sum(p.numel() for p in trainable.values()) == count
     model(states()).square().sum().backward()
     assert all(p.grad is None for name, p in model.named_parameters() if name not in trainable)
     assert all(p.grad is not None and p.grad.abs().max() > 0 for p in trainable.values())
     with pytest.raises(ValueError, match="migrated quiet velocity"):
         actor(False).freeze_except_quiet_velocity()
+
+
+def test_wheel_path_preserves_fixed_input_leg_actions_and_ignores_leg_velocity():
+    old, new = actor(False), actor(True, "wheels")
+    for head in (old.quiet, old.quiet_low, old.quiet_high):
+        nn.init.normal_(head[-1].weight, std=.1)
+    new.load_state_dict(old.state_dict(), strict=False)
+    with torch.no_grad():
+        for head in new.quiet_velocity.values():
+            head.weight.normal_(std=.2)
+    x = states()
+    before, after = old(x), new(x)
+    assert torch.equal(before[:, :4], after[:, :4])
+    assert (before[:, 4:] - after[:, 4:]).abs().max() > 0
+    velocity = torch.randn(768, 6)
+    changed = velocity.clone()
+    changed[:, :4] += 10.
+    for head in new.quiet_velocity.values():
+        assert torch.equal(head(velocity), head(changed))
+        assert torch.count_nonzero(head(velocity)[:, :4]) == 0
+
+
+def test_mode_is_explicit_and_legacy_all_axis_checkpoint_remains_compatible():
+    with pytest.raises(ValueError, match="requires explicit"):
+        actor(False, "wheels")
+    with pytest.raises(ValueError, match="mode must be"):
+        actor(True, "unrecognized")
+    torch.manual_seed(38)
+    default = actor(True)
+    with torch.no_grad():
+        for head in default.quiet_velocity.values():
+            head.weight.normal_(std=.2)
+    explicit = actor(True, "all")
+    explicit.load_state_dict(default.state_dict(), strict=True)
+    x = states()
+    assert torch.equal(default(x), explicit(x))

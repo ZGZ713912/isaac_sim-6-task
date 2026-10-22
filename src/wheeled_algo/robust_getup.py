@@ -62,11 +62,18 @@ def fast_forward_reference_gate(obs, speed_range=(1.5, 2.), yaw_fade=.25):
 class QuietVelocityFeedback(nn.Module):
     """Zero-initialized, bias-free learned velocity path; consumes no RNG."""
 
-    def __init__(self):
+    def __init__(self, mode="all"):
         super().__init__()
-        self.weight = nn.Parameter(torch.zeros(6, 6))
+        if mode not in ("all", "wheels"):
+            raise ValueError("Quiet velocity feedback mode must be all or wheels")
+        self.mode = mode
+        size = 2 if mode == "wheels" else 6
+        self.weight = nn.Parameter(torch.zeros(size, size))
 
     def forward(self, velocity):
+        if self.mode == "wheels":
+            wheels = torch.nn.functional.linear(velocity[:, 4:6], self.weight)
+            return torch.cat((torch.zeros_like(velocity[:, :4]), wheels), -1)
         return torch.nn.functional.linear(velocity, self.weight)
 
 
@@ -80,7 +87,7 @@ class RobustGetupActor(UnifiedGetupActor):
                  fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.),
                  fast_forward_reference_yaw_fade=.25, quiet_height_experts=False,
                  quiet_native_height_anchors=False, quiet_velocity_feature_gain=1.,
-                 quiet_velocity_feedback=False):
+                 quiet_velocity_feedback=False, quiet_velocity_feedback_mode="all"):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -116,7 +123,12 @@ class RobustGetupActor(UnifiedGetupActor):
         self.quiet_native_height_anchors = quiet_native_height_anchors
         if quiet_velocity_feedback and not quiet_height_experts:
             raise ValueError("Quiet velocity feedback requires existing three-height experts")
+        if quiet_velocity_feedback_mode not in ("all", "wheels"):
+            raise ValueError("Quiet velocity feedback mode must be all or wheels")
+        if quiet_velocity_feedback_mode != "all" and not quiet_velocity_feedback:
+            raise ValueError("Wheel-only velocity mode requires explicit quiet velocity feedback")
         self.quiet_velocity_feedback = quiet_velocity_feedback
+        self.quiet_velocity_feedback_mode = quiet_velocity_feedback_mode
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
@@ -125,7 +137,8 @@ class RobustGetupActor(UnifiedGetupActor):
             self.quiet_low = deepcopy(self.quiet)
             self.quiet_high = deepcopy(self.quiet)
         if quiet_velocity_feedback:
-            self.quiet_velocity = nn.ModuleDict({name: QuietVelocityFeedback() for name in ("mid", "low", "high")})
+            self.quiet_velocity = nn.ModuleDict({name: QuietVelocityFeedback(quiet_velocity_feedback_mode)
+                                                for name in ("mid", "low", "high")})
         self.register_buffer("quiet_alpha", torch.tensor(quiet_alpha))
         self.register_buffer("quiet_bound", torch.tensor([.4] * 4 + [quiet_wheel_bound] * 2))
 
