@@ -8,7 +8,7 @@ import torch
 import pytest
 
 
-@pytest.mark.parametrize("feedback_mode", ["wheels", "wheel_memory"])
+@pytest.mark.parametrize("feedback_mode", ["wheels", "wheel_memory", "coupled_state"])
 def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path, feedback_mode):
     root = Path(__file__).resolve().parents[1]
     spec = importlib.util.spec_from_file_location("robust_profile_training", root / "scripts/train_robust_getup.py")

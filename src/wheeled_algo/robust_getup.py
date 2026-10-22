@@ -60,18 +60,26 @@ def fast_forward_reference_gate(obs, speed_range=(1.5, 2.), yaw_fade=.25):
 
 
 class QuietVelocityFeedback(nn.Module):
-    """Zero-initialized, bias-free learned velocity path; consumes no RNG."""
+    """Zero-initialized feedback paths; legacy velocity modes remain bias-free."""
 
     def __init__(self, mode="all"):
         super().__init__()
-        if mode not in ("all", "wheels", "wheel_memory"):
-            raise ValueError("Quiet velocity feedback mode must be all, wheels or wheel_memory")
+        if mode not in ("all", "wheels", "wheel_memory", "coupled_state"):
+            raise ValueError("Quiet velocity feedback mode must be all, wheels, wheel_memory or coupled_state")
         self.mode = mode
-        size = 6 if mode == "all" else 2
-        inputs = 4 if mode == "wheel_memory" else size
+        size = 4 if mode == "coupled_state" else 6 if mode == "all" else 2
+        inputs = 16 if mode == "coupled_state" else 4 if mode == "wheel_memory" else size
         self.weight = nn.Parameter(torch.zeros(size, inputs))
+        if mode == "coupled_state":
+            self.bias = nn.Parameter(torch.zeros(size))
 
     def forward(self, velocity):
+        if self.mode == "coupled_state":
+            # Same-leg common rotations preserve the paired knee difference.
+            # This additive bounded correction is applied after the old tanh,
+            # so unequal old logits cannot turn it into a knee-opening change.
+            coupled = .5 * torch.tanh(torch.nn.functional.linear(velocity, self.weight, self.bias))
+            return torch.cat((coupled[:, :1].expand(-1, 2), coupled[:, 1:2].expand(-1, 2), coupled[:, 2:]), -1)
         if self.mode in ("wheels", "wheel_memory"):
             end = 8 if self.mode == "wheel_memory" else 6
             wheels = torch.nn.functional.linear(velocity[:, 4:end], self.weight)
@@ -125,8 +133,8 @@ class RobustGetupActor(UnifiedGetupActor):
         self.quiet_native_height_anchors = quiet_native_height_anchors
         if quiet_velocity_feedback and not quiet_height_experts:
             raise ValueError("Quiet velocity feedback requires existing three-height experts")
-        if quiet_velocity_feedback_mode not in ("all", "wheels", "wheel_memory"):
-            raise ValueError("Quiet velocity feedback mode must be all, wheels or wheel_memory")
+        if quiet_velocity_feedback_mode not in ("all", "wheels", "wheel_memory", "coupled_state"):
+            raise ValueError("Quiet velocity feedback mode must be all, wheels, wheel_memory or coupled_state")
         if quiet_velocity_feedback_mode != "all" and not quiet_velocity_feedback:
             raise ValueError("Wheel-only velocity mode requires explicit quiet velocity feedback")
         self.quiet_velocity_feedback = quiet_velocity_feedback
@@ -152,25 +160,38 @@ class RobustGetupActor(UnifiedGetupActor):
 
     def quiet_correction(self, features, obs):
         mid_logits = self.quiet(features)
+        coupled_state = self.quiet_velocity_feedback and self.quiet_velocity_feedback_mode == "coupled_state"
         if self.quiet_velocity_feedback:
             # Encoder velocity is scaled by .1 in the observation contract.
-            # This sensor-only path has no bias or position integrator. Its
-            # bounded features retain small-signal velocity learning gradients.
+            # Legacy velocity modes are bias-free. The coupled-state mode also
+            # sees pose and an affine offset, without a position integrator.
             velocity = torch.tanh(obs[:, 16:22] * 10.)
-            if self.quiet_velocity_feedback_mode == "wheel_memory":
+            if coupled_state:
+                # Existing35D only: gyro, gravity, leg positions, six velocities.
+                # No previous-action column or new recurrent state is read by
+                # this path. A state-dependent bias can retain a DC correction.
+                velocity = torch.cat((torch.tanh(obs[:, 4:7] * 2.), obs[:, 7:10],
+                                      torch.tanh(obs[:, 10:14]), velocity), -1)
+            elif self.quiet_velocity_feedback_mode == "wheel_memory":
                 # The previous two wheel commands already occupy the last two
                 # entries of the deployed previous-action block. They allow
                 # learned command memory without a new observer or hidden state.
                 velocity = torch.cat((velocity, torch.tanh(obs[:, 26:28] * 10.)), -1)
-            mid_logits = mid_logits + self.quiet_velocity["mid"](velocity)
+            if not coupled_state:
+                mid_logits = mid_logits + self.quiet_velocity["mid"](velocity)
         mid = torch.tanh(mid_logits)
+        if coupled_state:
+            mid = mid + self.quiet_velocity["mid"](velocity)
         if not self.quiet_height_experts:
             return mid
         low_logits, high_logits = self.quiet_low(features), self.quiet_high(features)
-        if self.quiet_velocity_feedback:
+        if self.quiet_velocity_feedback and not coupled_state:
             low_logits = low_logits + self.quiet_velocity["low"](velocity)
             high_logits = high_logits + self.quiet_velocity["high"](velocity)
         low, high = torch.tanh(low_logits), torch.tanh(high_logits)
+        if coupled_state:
+            low = low + self.quiet_velocity["low"](velocity)
+            high = high + self.quiet_velocity["high"](velocity)
         # The existing height request is scaled by five. At the three anchor
         # heights only its own expert receives actor gradients. Intermediate
         # requests interpolate continuously; no hidden state or height FSM.
