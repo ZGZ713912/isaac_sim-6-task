@@ -1,0 +1,35 @@
+{
+  "schema": "quiet037-cli-guards-v1",
+  "guards": [
+    {
+      "name": "missing_profile",
+      "returncode": 2,
+      "output_created": false,
+      "last_error": "train_robust_getup.py: error: Velocity-only training requires a resumed quiet support/early-position/drift profile"
+    },
+    {
+      "name": "old_lr_bound",
+      "returncode": 2,
+      "output_created": false,
+      "last_error": "train_robust_getup.py: error: Use bounded domain scale, friction and actor learning rate"
+    },
+    {
+      "name": "missing_migration",
+      "returncode": 2,
+      "output_created": false,
+      "last_error": "train_robust_getup.py: error: Velocity-only tuning requires an explicitly migrated velocity-feedback checkpoint"
+    },
+    {
+      "name": "repeat_migration",
+      "returncode": 2,
+      "output_created": false,
+      "last_error": "migrate_robust_getup_contract.py: error: Add velocity feedback once to an existing three-height-expert checkpoint"
+    },
+    {
+      "name": "partial_high_restore",
+      "returncode": 2,
+      "output_created": false,
+      "last_error": "migrate_robust_getup_contract.py: error: Restoring quiet MLPs independently of existing learned velocity feedback is unsupported"
+    }
+  ]
+}
