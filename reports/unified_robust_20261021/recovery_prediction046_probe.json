@@ -1,0 +1,109 @@
+{
+  "schema": "recovery046-forecast-offline-probe-v1",
+  "lookahead_seconds": 0.05,
+  "source_trajectory_sha256": "fb880f3ef24b1a532940fd76758e198bba27750bfbfd6dfbb59a502ba7c08b41",
+  "checkpoint_sha256": "3d8a476c7059939ee4fe134b83cd85330fd7b1fce5535ca813ac10cfa5f3d55f",
+  "method": "Raise only the severe-tilt branch from forecast gravity; keep the existing phase/shape branch and present authority unchanged",
+  "input": "existing35D measured gyro and gravity only",
+  "additional_state": false,
+  "ordinary_nonpush_active_frames": 201600,
+  "ordinary_nonpush_changed_gate_frames": 0,
+  "ordinary_nonpush_maximum_gate_change": 0.0,
+  "rows": [
+    {
+      "lane": 29,
+      "name": "moving_push_left",
+      "observed_old_gate09_s": 5.34499979019165,
+      "counterfactual_gate09_s": 5.34499979019165,
+      "earlier_gate09_ms": 0.0,
+      "first_both_wheels_no_contact_s": 5.324999809265137,
+      "counterfactual_gate09_before_no_contact_ms": -19.999980926513672,
+      "changed_input_frames": 0
+    },
+    {
+      "lane": 32,
+      "name": "moving_push_right",
+      "observed_old_gate09_s": 5.295000076293945,
+      "counterfactual_gate09_s": 5.284999847412109,
+      "earlier_gate09_ms": 10.000228881835938,
+      "first_both_wheels_no_contact_s": 5.234999656677246,
+      "counterfactual_gate09_before_no_contact_ms": -50.00019073486328,
+      "changed_input_frames": 4
+    },
+    {
+      "lane": 64,
+      "name": "moving_push_left",
+      "observed_old_gate09_s": 5.369999885559082,
+      "counterfactual_gate09_s": 5.369999885559082,
+      "earlier_gate09_ms": 0.0,
+      "first_both_wheels_no_contact_s": 5.34499979019165,
+      "counterfactual_gate09_before_no_contact_ms": -25.00009536743164,
+      "changed_input_frames": 0
+    },
+    {
+      "lane": 67,
+      "name": "moving_push_right",
+      "observed_old_gate09_s": 5.289999961853027,
+      "counterfactual_gate09_s": 5.284999847412109,
+      "earlier_gate09_ms": 5.000114440917969,
+      "first_both_wheels_no_contact_s": 5.230000019073486,
+      "counterfactual_gate09_before_no_contact_ms": -54.99982833862305,
+      "changed_input_frames": 4
+    },
+    {
+      "lane": 99,
+      "name": "moving_push_left",
+      "observed_old_gate09_s": 5.375,
+      "counterfactual_gate09_s": 5.375,
+      "earlier_gate09_ms": 0.0,
+      "first_both_wheels_no_contact_s": 5.159999847412109,
+      "counterfactual_gate09_before_no_contact_ms": -215.00015258789062,
+      "changed_input_frames": 26
+    },
+    {
+      "lane": 102,
+      "name": "moving_push_right",
+      "observed_old_gate09_s": 5.315000057220459,
+      "counterfactual_gate09_s": 5.309999942779541,
+      "earlier_gate09_ms": 5.000114440917969,
+      "first_both_wheels_no_contact_s": 5.255000114440918,
+      "counterfactual_gate09_before_no_contact_ms": -54.99982833862305,
+      "changed_input_frames": 9
+    },
+    {
+      "lane": 134,
+      "name": "moving_push_left",
+      "observed_old_gate09_s": 5.364999771118164,
+      "counterfactual_gate09_s": 5.364999771118164,
+      "earlier_gate09_ms": 0.0,
+      "first_both_wheels_no_contact_s": 5.194999694824219,
+      "counterfactual_gate09_before_no_contact_ms": -170.0000762939453,
+      "changed_input_frames": 0
+    },
+    {
+      "lane": 137,
+      "name": "moving_push_right",
+      "observed_old_gate09_s": 5.299999713897705,
+      "counterfactual_gate09_s": 5.289999961853027,
+      "earlier_gate09_ms": 9.999752044677734,
+      "first_both_wheels_no_contact_s": 5.239999771118164,
+      "counterfactual_gate09_before_no_contact_ms": -50.00019073486328,
+      "changed_input_frames": 4
+    }
+  ],
+  "native_runs": 0,
+  "optimizer_updates": 0,
+  "implementation_scope": "report-only offline forecast; not installed in native actor or deployed model",
+  "limits": "The old trajectory is fixed. Changed authority would change future states; no native recovery improvement or closed-loop equivalence follows.",
+  "hardware_ready": false,
+  "tensorboard": {
+    "run": "runs/unified_robust_20261022/side_confirmation032",
+    "step": 441,
+    "tag_prefix": "Diagnosis/recovery_prediction046/",
+    "scalar_values": {
+      "ordinary_nonpush_changed_gate_frames": 0,
+      "ordinary_nonpush_maximum_gate_change": 0.0,
+      "push_gate09_earlier_max_ms": 10.000228881835938
+    }
+  }
+}
