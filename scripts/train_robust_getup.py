@@ -63,6 +63,8 @@ def prepare(args):
     if getattr(args, "recovery_only", False):
         task.update(version="robust-v2.10-recovery-capture", stance_aware_recovery=True,
                     recovery_shape_aware=True, motion_push_fraction=1.)
+    if getattr(args, "episode_seconds", None) is not None:
+        task["episode_seconds"] = args.episode_seconds
     # The fixed physics/control source remains pinned. The task overlay is a
     # separately frozen public contract, not a claim of old-task equivalence.
     changes = dict(target_num_envs=args.num_envs, num_steps_per_env=args.rollout_steps,
@@ -174,6 +176,9 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
     env.generator.manual_seed(seed)
     env.domain.rng.manual_seed(seed + 83977)
     env.reset(torch.arange(env.num_envs, device=env.device))
+    overrides = getattr(env, "evaluation_overrides", {})
+    if "sensor_delay_policy_ticks" in overrides:
+        env.domain.sensor_delay.fill_(overrides["sensor_delay_policy_ticks"])
     env.cfg["record_diagnostics"] = True
     alive = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
     snapshots = []
@@ -193,6 +198,12 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
     vx_sum, yaw_sum, vx_abs, yaw_abs, frames = [torch.zeros(env.num_envs, device=env.device) for _ in range(5)]
     start = time.monotonic()
     mean.eval()
+    domain_parameters = dict(motor_strength=env.domain.strength.detach().cpu().tolist(),
+        leg_kp_scale=env.domain.kp.detach().cpu().tolist(), leg_kd_scale=env.domain.kd.detach().cpu().tolist(),
+        spring_strength=env.domain.spring.detach().cpu().tolist(), torque_delay_ms=env.domain.torque_delay.detach().cpu().tolist(),
+        sensor_delay_policy_ticks=env.domain.sensor_delay.detach().cpu().tolist(), motor_alpha=env.domain.motor_alpha.detach().cpu().tolist(),
+        sensor_bias=env.domain.bias.detach().cpu().tolist(), pd_feedback_period_ms=env.getup_feedback.period.detach().cpu().tolist(),
+        pd_feedback_delay_ms=env.getup_feedback.delay.detach().cpu().tolist(), pd_encoder_bias_rad=env.getup_feedback.bias.detach().cpu().tolist())
     with torch.inference_mode():
         for tick in range(round(seconds / env.policy_dt)):
             obs = env.get_observations()
@@ -225,6 +236,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
                         "done", "terminated", "enable_event", "settled_family", "recovered", "followup_success",
                         "mechanical", "closure_gap", "impact_bad", "boundary_bad", "local_position", "motor_position", "wheel_contact")
                 keep += ("pushing", "in_motion_fall", "recovered_after_push")
+                keep += ("wheel_clearance", "wheel_clearance_peak", "wheel_contact_fraction")
+                keep += ("wheel_air_run_peak", "dual_wheel_air_run_peak", "wheel_air_seconds")
                 snapshots.append({k: data[k].detach().cpu().numpy() for k in keep}
                                  | {"alive": mask.cpu().numpy(), "observations": obs["policy"].cpu().numpy()})
             alive &= ~done
@@ -241,6 +254,7 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         lanes.append(dict(case, lane=i, world_origin_m=env.origins[i].detach().cpu().tolist(),
             survived=bool(completed[i] & ~terminated[i]), terminated=bool(terminated[i]),
             domain_enabled=bool(env.domain.enabled[i]),
+            first_reset_domain={key: value[i] for key, value in domain_parameters.items()},
             recovered=bool(recovered[i]), followup_success=bool(followed[i]),
             post_settle_family=(FAMILIES[int(family[i])] if family[i] >= 0 else None),
             max_gap_m=float(max_gap[i]), max_impact_n=float(max_impact[i]), passive_motor_peak_nm=float(passive_torque[i]),

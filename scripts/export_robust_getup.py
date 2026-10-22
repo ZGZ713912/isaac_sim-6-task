@@ -101,6 +101,8 @@ def assess(reports, baselines, checkpoint, protocol):
     for evaluation, baseline in zip(reports, baselines, strict=True):
         data = json.loads((evaluation / "report.json").read_text())
         parent = json.loads((baseline / "report.json").read_text())
+        if any(row.get("evaluation_overrides") or row.get("case_subset") for row in (data, parent)):
+            raise ValueError("Diagnostic overrides/subsets cannot qualify a deployment candidate")
         if (data["checkpoint_sha256"] != checkpoint_sha or parent["checkpoint_sha256"] != checkpoint_sha
                 or data["actor_variant"] != "robust"
                 or parent["actor_variant"] != "parent" or data["seed"] != parent["seed"]
