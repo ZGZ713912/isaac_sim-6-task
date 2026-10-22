@@ -17,6 +17,7 @@ def settings(**overrides):
         standing_drift_speed_scale_m_s=.02,
         quiet_native_height_anchors=False,
         quiet_exploration_fraction=.35,
+        quiet_wheel_exploration_fraction=None,
         quiet_velocity_feature_gain=1.,
         quiet_velocity_feedback=False,
         quiet_velocity_feedback_mode="all",
