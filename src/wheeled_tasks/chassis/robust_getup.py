@@ -13,6 +13,7 @@ def settings(**overrides):
         smooth_knee_targets=True, recovery_knee_center=[.924544, .924537],
         recovery_leg_speed_cost=.0005,
         recovery_family_weights=[0., .1, .1, .2, .2, .3, .1],
+        side_recovery_birth_focus=False,
         standing_drift_speed_scale_m_s=.02,
         quiet_native_height_anchors=False,
         nominal_fraction=.25, motor_strength_range=[.85, 1.10],
@@ -50,6 +51,18 @@ def settings(**overrides):
         cfg[key] = [0, round(cfg[key][1] * scale)]
     cfg["pd_feedback_period_ms"] = [1, max(1, round(1. + scale * (cfg["pd_feedback_period_ms"][1] - 1.)))]
     return cfg
+
+
+def focused_side_pose_pool(pool, bank_tilt):
+    """Choose near-side births before zero-effort settling, retaining all leg shapes.
+
+    Births at120/150 degrees roll often settle inverted. Actual settled family must
+    still be measured; this reset filter does not label a pose as a recovery.
+    """
+    selected = pool[(bank_tilt[pool] >= 75.) & (bank_tilt[pool] <= 105.)]
+    if not len(selected):
+        raise ValueError("Side recovery exposure needs feasible75...105 degree poses")
+    return selected
 
 
 def rigid_body_domain(enabled, scale=1.):

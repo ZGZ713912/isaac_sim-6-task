@@ -19,6 +19,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
                                         "fast_forward_reference_range": [1., 1.5],
                                         "fast_forward_reference_yaw_fade": None,
                                         "quiet_height_experts": True,
+                                        "quiet_native_height_anchors": True,
                                         "native_origin_mode": "isolated_overlap_v1"}}}, checkpoint)
     bank = tmp_path / "bank.json"
     bank.write_text("{}")
@@ -33,6 +34,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert task["fast_forward_reference_yaw_fade"] is None
     assert task["native_origin_mode"] == "isolated_overlap_v1"
     assert task["quiet_height_experts"]
+    assert task["quiet_native_height_anchors"]
     assert json.loads((args.output / "config/contract.json").read_text())["full_rl_isolated_origins"]
     assert task["standing_support_training"] and task["quiet_critic_anchor"]
     assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
@@ -74,6 +76,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     _, side = training.prepare(args)
     assert side["recovery_family_weights"] == [0., .05, .05, .35, .35, .15, .05]
     assert side["motion_fraction"] == .2 and side["motion_push_fraction"] == 1.
+    assert side["side_recovery_birth_focus"] and not task["side_recovery_birth_focus"]
     assert side["quiet_height_experts"] and side["quiet_high_leg_prediction_s"] == .005
     assert side["quiet_actor_alpha"] == task["quiet_actor_alpha"]
     assert side["recovery_leg_step"] == task["recovery_leg_step"]
