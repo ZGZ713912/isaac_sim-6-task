@@ -1,0 +1,48 @@
+{
+  "schema": "robust-iteration-018-initial",
+  "optimizer_updates": 0,
+  "robust_actual_consumption": 353,
+  "migration": {
+    "schema": "robust-contract-migration-v1",
+    "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/leg_prediction001/model_migrated.pt",
+    "source_sha256": "015293152643c09299560913ad757edf5d2082b2921a813dc6cf3b415324956b",
+    "optimizer_updates": 0,
+    "reason": "Matched closed-loop ablation of added straight/spin compensation under unchanged observation delay; retain all learned weights and full-arc authority",
+    "stance_aware_recovery": true,
+    "recovery_shape_aware": true,
+    "quiet_high_common_alpha": null,
+    "quiet_high_leg_prediction_s": 0.005,
+    "motion_residual_fraction": 0.0,
+    "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/motion_ablation018/model_migrated.pt",
+    "checkpoint_sha256": "78ca27023cc7e72692e4c3b07d3b3d4fa6cc45a7f755f88fab8557a2ab613503",
+    "completed_updates": 313,
+    "actor_other_than_quiet_unchanged": true,
+    "feedback_winding": "paired_circular_feedback_v1",
+    "hardware_tested": false
+  },
+  "migration_sha256": "5ec6fb1776d15f494ad3c0030d5bca5f770150672472730bf3380d0f5aaaf323",
+  "experiment": {
+    "seed": 211322,
+    "num_envs": 140,
+    "seconds": 12,
+    "domain_scale": 0.35,
+    "ground_friction": [
+      0.3,
+      0.5
+    ],
+    "effective_wheel_friction": [
+      0.2,
+      0.3
+    ],
+    "physical_settings_unchanged": true,
+    "only_actor_function_change": "straight/spin residual fraction .25 to 0; full arc, quiet standing and fallen authority retained"
+  },
+  "validation": {
+    "actor_invariants": "iteration018_tests.log: 52 passed",
+    "initial_material_suite": "iteration018_final_tests.log: 62 passed and one wrong class import in the test",
+    "material_recheck": "iteration018_fixed_tests.log: 12 passed after correcting the test import",
+    "subset_preflight": "subset_preflight018.log: rejected insufficient population before AppLauncher, exit 2"
+  },
+  "selection_status": "pending_native_behavior",
+  "long_training_admitted": false
+}

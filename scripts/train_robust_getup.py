@@ -97,8 +97,11 @@ def prepare(args):
         material["ground_dynamic_friction_range"] = [.5, .5]
     changes["contact_material"] = material
     if getattr(args, "friction_min", None) is not None:
+        friction_max = getattr(args, "friction_max", .5)
+        if not 0. <= args.friction_min <= friction_max <= 1.:
+            raise ValueError("Ground friction bounds must be ordered within [0,1]")
         for key in ("ground_static_friction_range", "ground_dynamic_friction_range"):
-            material[key] = [args.friction_min, .5]
+            material[key] = [args.friction_min, friction_max]
     task["active_friction_range"] = material["ground_static_friction_range"]
     changes["dynamics_randomization"] = rigid_body_domain(task["domains_enabled"], task["domain_scale"])
     # This base contract describes mechanism construction. Task behavior lives
@@ -224,6 +227,15 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         sensor_delay_policy_ticks=env.domain.sensor_delay.detach().cpu().tolist(), motor_alpha=env.domain.motor_alpha.detach().cpu().tolist(),
         sensor_bias=env.domain.bias.detach().cpu().tolist(), pd_feedback_period_ms=env.getup_feedback.period.detach().cpu().tolist(),
         pd_feedback_delay_ms=env.getup_feedback.delay.detach().cpu().tolist(), pd_encoder_bias_rad=env.getup_feedback.bias.detach().cpu().tolist())
+    lane_material = None
+    if env.contact_material is not None:
+        material = env.contact_material
+        wheel_static, _ = material.effective(material.ground_static)
+        _, wheel_dynamic = material.effective(material.ground_dynamic)
+        lane_material = dict(ground_static=material.ground_static.cpu().tolist(),
+            ground_dynamic=material.ground_dynamic.cpu().tolist(),
+            effective_wheel_static=wheel_static.cpu().tolist(),
+            effective_wheel_dynamic=wheel_dynamic.cpu().tolist())
     with torch.inference_mode():
         for tick in range(round(seconds / env.policy_dt)):
             obs = env.get_observations()
@@ -275,6 +287,7 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
             survived=bool(completed[i] & ~terminated[i]), terminated=bool(terminated[i]),
             domain_enabled=bool(env.domain.enabled[i]),
             first_reset_domain={key: value[i] for key, value in domain_parameters.items()},
+            material_coefficients=({key: value[i] for key, value in lane_material.items()} if lane_material else None),
             recovered=bool(recovered[i]), followup_success=bool(followed[i]),
             post_settle_family=(FAMILIES[int(family[i])] if family[i] >= 0 else None),
             max_gap_m=float(max_gap[i]), max_impact_n=float(max_impact[i]), passive_motor_peak_nm=float(passive_torque[i]),

@@ -116,6 +116,24 @@ def test_new_motion_compensation_cannot_inject_an_unrequested_standing_action():
     torch.testing.assert_close(adaptive(obs), base(obs), rtol=0, atol=0)
 
 
+def test_straight_compensation_ablation_preserves_full_arcs_standing_and_fallen_actions():
+    from copy import deepcopy
+    base = RobustGetupActor(nn.Linear(35, 6), motion_residual_fraction=.25)
+    with torch.no_grad():
+        base.arc[-1].bias.fill_(.7)
+    ablated = deepcopy(base)
+    ablated.motion_residual_fraction = 0.
+    obs = observation(6)
+    obs[0, 0] = 3.  # The ablation must actually affect straight motion.
+    obs[1, 2] = 4.
+    obs[2, 0], obs[2, 2] = 1., -1.
+    obs[3, 0], obs[3, 2] = -.75, 1.
+    obs[5, 9], obs[5, 0] = 1., .5
+    current, revised = base(obs), ablated(obs)
+    assert not torch.equal(current[:2], revised[:2])
+    torch.testing.assert_close(current[2:], revised[2:], rtol=0, atol=0)
+
+
 def test_cyclic_recovery_does_not_change_upright_quiet_actions():
     from copy import deepcopy
     original = RobustGetupActor(nn.Linear(35, 6))
