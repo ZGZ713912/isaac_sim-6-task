@@ -31,6 +31,8 @@ def main():
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
                         help="Use authenticated original feedback for high straight-forward commands")
+    parser.add_argument("--fast-forward-reference-range", type=float, nargs=2, metavar=("START", "FULL"),
+                        help="Explicit command-speed transition in m/s; old checkpoints retain 1.5..2")
     parser.add_argument("--reason", default="restore paired continuous-feedback PD equivalence across encoder reporting seams")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -42,6 +44,8 @@ def main():
         parser.error("High-height leg prediction must be 0..10 ms")
     if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
         parser.error("Motion residual fraction must be 0..1")
+    if args.fast_forward_reference_range is not None and not 0. <= args.fast_forward_reference_range[0] < args.fast_forward_reference_range[1] <= 3.:
+        parser.error("Forward reference transition must be ordered within 0..3 m/s")
     mean, old_info = load_mean(args.checkpoint, migration_source_root=args.checkpoint.parent / "source")
     state = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     original_actor = {k: v.clone() for k, v in state["actor_state_dict"].items()}
@@ -62,6 +66,11 @@ def main():
                                 motion_residual_fraction=args.motion_residual_fraction)
     if args.fast_forward_reference:
         info["settings"].update(version="robust-v2.16-reference-forward", fast_forward_reference=True)
+    if args.fast_forward_reference_range is not None:
+        if not info["settings"].get("fast_forward_reference", False):
+            parser.error("Reference transition requires the reference feedback path")
+        info["settings"].update(version="robust-v2.17-reference-range",
+                                fast_forward_reference_range=args.fast_forward_reference_range)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
     if args.quiet_reference:
@@ -91,6 +100,7 @@ def main():
     revision["quiet_high_leg_prediction_s"] = info["settings"].get("quiet_high_leg_prediction_s", 0.)
     revision["motion_residual_fraction"] = info["settings"].get("motion_residual_fraction", 0.)
     revision["fast_forward_reference"] = info["settings"].get("fast_forward_reference", False)
+    revision["fast_forward_reference_range"] = info["settings"].get("fast_forward_reference_range", [1.5, 2.])
     allowed = (("mlp.mean.quiet.", "mlp.mean.quiet_alpha", "mlp.mean.quiet_bound") if args.quiet_reference else ())
     if any(not torch.equal(value, state["actor_state_dict"][key])
            for key, value in original_actor.items() if not key.startswith(allowed)):
