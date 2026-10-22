@@ -1,0 +1,29 @@
+{
+  "schema": "quiet039-final-state-audit-v1",
+  "all_model_and_adam_tensors_finite": true,
+  "frozen_actor_parameter_slots_with_exact_unchanged_adam": 25,
+  "only_added_velocity_weights_changed": [
+    "mlp.mean.quiet_velocity.mid.weight",
+    "mlp.mean.quiet_velocity.low.weight",
+    "mlp.mean.quiet_velocity.high.weight"
+  ],
+  "critic_changed": [
+    "mlp.0.weight",
+    "mlp.0.bias",
+    "mlp.2.weight",
+    "mlp.2.bias",
+    "mlp.4.weight",
+    "mlp.4.bias",
+    "mlp.6.weight",
+    "mlp.6.bias"
+  ],
+  "new_velocity_adam_minibatch_steps": {
+    "mlp.mean.quiet_velocity.mid.weight": 384,
+    "mlp.mean.quiet_velocity.low.weight": 384,
+    "mlp.mean.quiet_velocity.high.weight": 384
+  },
+  "macro_ppo_updates": 32,
+  "base_clock": 473,
+  "robust_consumed": 897,
+  "hardware_ready": false
+}
