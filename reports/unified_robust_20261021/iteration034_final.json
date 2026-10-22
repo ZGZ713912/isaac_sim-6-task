@@ -71,6 +71,12 @@
   "all_three_standing_5cm": false,
   "long_training_admitted": false,
   "hardware_ready": false,
-  "decision": "Rejected as whole candidate: high steady drift4.40cm improves, but full startup11.54cm regresses. Next side-only pilot starts from native-height-anchor033 zero-PPO state with the better6.01cm startup high head; retain all673 consumed updates.",
-  "causal_limit": "Sequential continuation changes exploration and adds64updates; no paired64update old-noise training control, so improvement cannot be uniquely attributed to sigma."
+  "decision": "Rejected as whole candidate: high steady drift4.40cm improves, but full-window displacement11.54cm regresses. Next side-only pilot starts from native-height-anchor033 zero-PPO state with the better6.01cm full-window high head; retain all673 consumed updates.",
+  "causal_limit": "Sequential continuation changes exploration and adds64updates; no paired64update old-noise training control, so improvement cannot be uniquely attributed to sigma.",
+  "phase_clarification": {
+    "worst_high_full_max_time_s": 12.0,
+    "worst_high_first3s_max_cm": 7.1436448097229,
+    "steady_max_is_relative_to_3s_position": true,
+    "diagnostic": "standing_transient035_diagnostic.json"
+  }
 }

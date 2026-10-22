@@ -1,0 +1,19 @@
+{
+  "schema": "standing-velocity-conditioning035-prototype-v1",
+  "source_checkpoint_sha256": "40e854d54aa28e11088b6229b863ea7cda5bb5fe3ab90bd7bea3a8dc52e3fa51",
+  "prototype_only": true,
+  "production_source_changed": false,
+  "optimizer_updates": 0,
+  "real_input_vectors": 8400,
+  "velocity_feature_gain": 10.0,
+  "first_layer_velocity_weights_divided_by_gain": true,
+  "max_hidden_preactivation_error": 1.1920928955078125e-07,
+  "max_raw_head_output_error": 3.725290298461914e-09,
+  "first_layer_gradient_coordinate_relative_error": 3.5395237378665125e-07,
+  "planned_moment_transform": "velocity columns exp_avg*=10 and exp_avg_sq*=100; step and other moments unchanged",
+  "hypothesis": "034 shifted most high standing trajectories toward the same negative displacement. Fine velocity features remain weak: sensor velocity obs*.3 before tanh. Preserve deterministic feedback initially while increasing velocity-column learning sensitivity, rather than another DC-biased continuation.",
+  "native_behavior_verified": false,
+  "run_started": false,
+  "parent_choice": "After032 full validation",
+  "long_training_admitted": false
+}
