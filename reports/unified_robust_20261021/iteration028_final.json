@@ -1,0 +1,1290 @@
+{
+  "schema": "robust-recovery-common-step-028-native-v1",
+  "domain_scale": 0.35,
+  "ground_friction_range": [
+    0.3,
+    0.5
+  ],
+  "seconds": 12,
+  "optimizer_updates": 0,
+  "actor_weights_unchanged": true,
+  "arms": {
+    "robust": {
+      "checkpoint_sha256": "7edcc03b8b47b3de274a876f4efb743f4b72189386daf093fe0289a6e66fd447",
+      "report_sha256": "aca3a7c7cadaaf84ea01f18cb8cbfd1b20426cf4980b5b453f54dc855d3a9eb6",
+      "analysis": {
+        "schema": "robust-getup-behavior-analysis-v2",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/recovery_step_confirmation028/robust",
+        "report_sha256": "aca3a7c7cadaaf84ea01f18cb8cbfd1b20426cf4980b5b453f54dc855d3a9eb6",
+        "checkpoint_sha256": "7edcc03b8b47b3de274a876f4efb743f4b72189386daf093fe0289a6e66fd447",
+        "seed": 211322,
+        "actor_variant": "robust",
+        "motion_episodes": 0,
+        "motion_survived": 0,
+        "actual_settled_attitudes": {
+          "right": {
+            "episodes": 16,
+            "recovered": 10,
+            "recovery_and_motion_success": 6,
+            "practical_recovery_and_motion_success": 9
+          },
+          "upright": {
+            "episodes": 8,
+            "recovered": 8,
+            "recovery_and_motion_success": 7,
+            "practical_recovery_and_motion_success": 7
+          },
+          "left": {
+            "episodes": 8,
+            "recovered": 6,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 5
+          },
+          "inverted": {
+            "episodes": 16,
+            "recovered": 11,
+            "recovery_and_motion_success": 5,
+            "practical_recovery_and_motion_success": 9
+          }
+        },
+        "cases": {
+          "left_symmetric": {
+            "episodes": 8,
+            "survived": 5,
+            "recovered": 4,
+            "recovery_and_motion_success": 4,
+            "practical_recovery_and_motion_success": 4,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.3810440539382398,
+            "vx_mean_m_s": 0.4652334377169609,
+            "yaw_mean_rad_s": -0.9639056026935577,
+            "vx_mae_m_s": 0.03476676484569907,
+            "yaw_mae_rad_s": 0.036094477865844965,
+            "both_axes_tracking_fraction": 0.6465338759191833
+          },
+          "left_asymmetric": {
+            "episodes": 8,
+            "survived": 8,
+            "recovered": 6,
+            "recovery_and_motion_success": 2,
+            "practical_recovery_and_motion_success": 5,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.38935273187235,
+            "vx_mean_m_s": 0.46039187411467236,
+            "yaw_mean_rad_s": 1.0298015475273132,
+            "vx_mae_m_s": 0.039608074662586056,
+            "yaw_mae_rad_s": 0.03361086112757524,
+            "both_axes_tracking_fraction": 0.9940654672663668
+          },
+          "right_symmetric": {
+            "episodes": 8,
+            "survived": 8,
+            "recovered": 8,
+            "recovery_and_motion_success": 7,
+            "practical_recovery_and_motion_success": 7,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.10992336319759488,
+            "vx_mean_m_s": 0.4527026601135731,
+            "yaw_mean_rad_s": -0.9641963690519333,
+            "vx_mae_m_s": 0.04729994758963585,
+            "yaw_mae_rad_s": 0.03931320714764297,
+            "both_axes_tracking_fraction": 0.9923163418290855
+          },
+          "right_asymmetric": {
+            "episodes": 8,
+            "survived": 8,
+            "recovered": 6,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 5,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.36343454848974943,
+            "vx_mean_m_s": 0.45657531420389813,
+            "yaw_mean_rad_s": 1.0255000193913777,
+            "vx_mae_m_s": 0.04342461206639806,
+            "yaw_mae_rad_s": 0.02713807951658964,
+            "both_axes_tracking_fraction": 1.0
+          },
+          "inverted_symmetric": {
+            "episodes": 8,
+            "survived": 6,
+            "recovered": 6,
+            "recovery_and_motion_success": 5,
+            "practical_recovery_and_motion_success": 5,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.3685578121803701,
+            "vx_mean_m_s": 0.4679080545902252,
+            "yaw_mean_rad_s": -0.9630556801954905,
+            "vx_mae_m_s": 0.03209192926685015,
+            "yaw_mae_rad_s": 0.03764950235684713,
+            "both_axes_tracking_fraction": 0.9587706146926536
+          },
+          "inverted_asymmetric": {
+            "episodes": 8,
+            "survived": 5,
+            "recovered": 5,
+            "recovery_and_motion_success": 0,
+            "practical_recovery_and_motion_success": 4,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.3707970317918807,
+            "vx_mean_m_s": 0.4447001338005066,
+            "yaw_mean_rad_s": 1.0309817790985107,
+            "vx_mae_m_s": 0.055300069600343706,
+            "yaw_mae_rad_s": 0.03537982627749443,
+            "both_axes_tracking_fraction": 0.9496251874062971
+          }
+        },
+        "passive_motor_peak_nm": 0.0,
+        "practical_followup_by_lane": [
+          false,
+          false,
+          true,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+          true,
+          true,
+          true,
+          true,
+          false,
+          true,
+          false,
+          true,
+          true,
+          true,
+          false,
+          false,
+          true,
+          false,
+          false,
+          true,
+          true,
+          false,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          false,
+          true,
+          true,
+          false,
+          true,
+          true,
+          false,
+          true,
+          true
+        ],
+        "practical_moving_fall_recoveries": 0,
+        "practical_definition": "completed episode; last 2 s >=95% stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+        "max_gap_m": 0.00038935273187235,
+        "signal_sampling_hz": 200,
+        "vibration_scope": "1..3, 3..95 and 20..95 Hz from 200 Hz simulation samples; not a CAN/hardware measurement"
+      },
+      "lanes": [
+        {
+          "lane": 0,
+          "settled_family": "right",
+          "max_gyro_rad_s": 19.884248733520508,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 1,
+          "settled_family": "right",
+          "max_gyro_rad_s": 17.896942138671875,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 2,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.678547859191895,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 3,
+          "settled_family": "left",
+          "max_gyro_rad_s": 19.914325714111328,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 4,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 27.345497131347656,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 5,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 3.9611194133758545,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 6,
+          "settled_family": "right",
+          "max_gyro_rad_s": 18.138273239135742,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 7,
+          "settled_family": "right",
+          "max_gyro_rad_s": 18.57048225402832,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 8,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 12.793546676635742,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 9,
+          "settled_family": "left",
+          "max_gyro_rad_s": 17.744098663330078,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 10,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 25.813552856445312,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 11,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 4.024783134460449,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 12,
+          "settled_family": "right",
+          "max_gyro_rad_s": 18.087635040283203,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 13,
+          "settled_family": "right",
+          "max_gyro_rad_s": 21.88970184326172,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 14,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 14.697307586669922,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 15,
+          "settled_family": "left",
+          "max_gyro_rad_s": 16.48811149597168,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 16,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 4.037784576416016,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 17,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 28.756940841674805,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 18,
+          "settled_family": "right",
+          "max_gyro_rad_s": 20.137142181396484,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 19,
+          "settled_family": "right",
+          "max_gyro_rad_s": 17.84348487854004,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 20,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 14.629422187805176,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 21,
+          "settled_family": "left",
+          "max_gyro_rad_s": 24.462915420532227,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 22,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 4.768362998962402,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 23,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 4.437777996063232,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 24,
+          "settled_family": "right",
+          "max_gyro_rad_s": 18.829214096069336,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 25,
+          "settled_family": "right",
+          "max_gyro_rad_s": 21.861003875732422,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 26,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.697126388549805,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 27,
+          "settled_family": "left",
+          "max_gyro_rad_s": 22.326501846313477,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 28,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 25.14299964904785,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 29,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 24.540464401245117,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 30,
+          "settled_family": "right",
+          "max_gyro_rad_s": 20.178020477294922,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 31,
+          "settled_family": "right",
+          "max_gyro_rad_s": 19.485794067382812,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 32,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.425222396850586,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 33,
+          "settled_family": "left",
+          "max_gyro_rad_s": 17.968830108642578,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 34,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 28.82908821105957,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 35,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 24.781490325927734,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 36,
+          "settled_family": "right",
+          "max_gyro_rad_s": 19.426668167114258,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 37,
+          "settled_family": "right",
+          "max_gyro_rad_s": 21.82017707824707,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 38,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 17.461339950561523,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 39,
+          "settled_family": "left",
+          "max_gyro_rad_s": 19.667346954345703,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 40,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 28.32567596435547,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 41,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 25.873701095581055,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 42,
+          "settled_family": "right",
+          "max_gyro_rad_s": 22.076662063598633,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 43,
+          "settled_family": "right",
+          "max_gyro_rad_s": 23.26968765258789,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 44,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.083236694335938,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 45,
+          "settled_family": "left",
+          "max_gyro_rad_s": 17.41215705871582,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 46,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 26.80995750427246,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 47,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 29.782066345214844,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        }
+      ]
+    },
+    "reference": {
+      "checkpoint_sha256": "c414cd6975a835ef56f8713e4308e31e1ccf38e0a46d40fa78a299bf01e4101a",
+      "report_sha256": "ca2814da62078ffc066d8a2226a5560d23206441e363f3d900806efc3a3cb3fd",
+      "analysis": {
+        "schema": "robust-getup-behavior-analysis-v2",
+        "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/recovery_step_confirmation028/reference",
+        "report_sha256": "ca2814da62078ffc066d8a2226a5560d23206441e363f3d900806efc3a3cb3fd",
+        "checkpoint_sha256": "c414cd6975a835ef56f8713e4308e31e1ccf38e0a46d40fa78a299bf01e4101a",
+        "seed": 211322,
+        "actor_variant": "reference",
+        "motion_episodes": 0,
+        "motion_survived": 0,
+        "actual_settled_attitudes": {
+          "right": {
+            "episodes": 16,
+            "recovered": 10,
+            "recovery_and_motion_success": 2,
+            "practical_recovery_and_motion_success": 4
+          },
+          "upright": {
+            "episodes": 8,
+            "recovered": 8,
+            "recovery_and_motion_success": 6,
+            "practical_recovery_and_motion_success": 6
+          },
+          "left": {
+            "episodes": 8,
+            "recovered": 6,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 6
+          },
+          "inverted": {
+            "episodes": 16,
+            "recovered": 14,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 9
+          }
+        },
+        "cases": {
+          "left_symmetric": {
+            "episodes": 8,
+            "survived": 7,
+            "recovered": 6,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 1,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.40215285844169557,
+            "vx_mean_m_s": 0.3853306844830513,
+            "yaw_mean_rad_s": -0.9383480548858643,
+            "vx_mae_m_s": 0.11482573176423709,
+            "yaw_mae_rad_s": 0.07215708370010059,
+            "both_axes_tracking_fraction": 0.7661273529901715
+          },
+          "left_asymmetric": {
+            "episodes": 8,
+            "survived": 5,
+            "recovered": 4,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 3,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.157683010911569,
+            "vx_mean_m_s": 0.42426177114248276,
+            "yaw_mean_rad_s": 1.0345658361911774,
+            "vx_mae_m_s": 0.07573799509555101,
+            "yaw_mae_rad_s": 0.042663403786718845,
+            "both_axes_tracking_fraction": 0.9515242378810594
+          },
+          "right_symmetric": {
+            "episodes": 8,
+            "survived": 8,
+            "recovered": 8,
+            "recovery_and_motion_success": 6,
+            "practical_recovery_and_motion_success": 6,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.11881563114002347,
+            "vx_mean_m_s": 0.45798077434301376,
+            "yaw_mean_rad_s": -0.9628127738833427,
+            "vx_mae_m_s": 0.042096734046936035,
+            "yaw_mae_rad_s": 0.03810560330748558,
+            "both_axes_tracking_fraction": 0.9906921539230384
+          },
+          "right_asymmetric": {
+            "episodes": 8,
+            "survived": 6,
+            "recovered": 6,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 6,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.4637862148229033,
+            "vx_mean_m_s": 0.4611213157574336,
+            "yaw_mean_rad_s": 1.0202261010805767,
+            "vx_mae_m_s": 0.0388786339511474,
+            "yaw_mae_rad_s": 0.020227102873226006,
+            "both_axes_tracking_fraction": 0.9808429118773946
+          },
+          "inverted_symmetric": {
+            "episodes": 8,
+            "survived": 7,
+            "recovered": 6,
+            "recovery_and_motion_success": 1,
+            "practical_recovery_and_motion_success": 4,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.28369700885377824,
+            "vx_mean_m_s": 0.4544414281845093,
+            "yaw_mean_rad_s": -0.9609954754511515,
+            "vx_mae_m_s": 0.04556397534906864,
+            "yaw_mae_rad_s": 0.043267893294493355,
+            "both_axes_tracking_fraction": 0.9790818876276147
+          },
+          "inverted_asymmetric": {
+            "episodes": 8,
+            "survived": 8,
+            "recovered": 8,
+            "recovery_and_motion_success": 0,
+            "practical_recovery_and_motion_success": 5,
+            "in_motion_falls": 0,
+            "recovered_after_push": 0,
+            "max_gap_mm": 0.29128443566150963,
+            "vx_mean_m_s": 0.43173499777913094,
+            "yaw_mean_rad_s": 1.0358976870775223,
+            "vx_mae_m_s": 0.06826477497816086,
+            "yaw_mae_rad_s": 0.04214491439051926,
+            "both_axes_tracking_fraction": 0.967328835582209
+          }
+        },
+        "passive_motor_peak_nm": 0.0,
+        "practical_followup_by_lane": [
+          false,
+          false,
+          true,
+          true,
+          true,
+          true,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          false,
+          true,
+          true,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          true,
+          true,
+          true,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          true,
+          true,
+          false,
+          true
+        ],
+        "practical_moving_fall_recoveries": 0,
+        "practical_definition": "completed episode; last 2 s >=95% stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+        "max_gap_m": 0.0004637862148229033,
+        "signal_sampling_hz": 200,
+        "vibration_scope": "1..3, 3..95 and 20..95 Hz from 200 Hz simulation samples; not a CAN/hardware measurement"
+      },
+      "lanes": [
+        {
+          "lane": 0,
+          "settled_family": "right",
+          "max_gyro_rad_s": 16.39743995666504,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 1,
+          "settled_family": "right",
+          "max_gyro_rad_s": 12.878946304321289,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 2,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.010354042053223,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 3,
+          "settled_family": "left",
+          "max_gyro_rad_s": 23.0069522857666,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 4,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 26.589126586914062,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 5,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 22.456838607788086,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 6,
+          "settled_family": "right",
+          "max_gyro_rad_s": 18.016530990600586,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 7,
+          "settled_family": "right",
+          "max_gyro_rad_s": 7.063012599945068,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 8,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.631589889526367,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 9,
+          "settled_family": "left",
+          "max_gyro_rad_s": 11.244200706481934,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 10,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 21.397377014160156,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 11,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 22.054046630859375,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 12,
+          "settled_family": "right",
+          "max_gyro_rad_s": 19.25074577331543,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 13,
+          "settled_family": "right",
+          "max_gyro_rad_s": 19.611068725585938,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 14,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 11.311410903930664,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 15,
+          "settled_family": "left",
+          "max_gyro_rad_s": 7.314359664916992,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 16,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 28.851919174194336,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 17,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 26.77161979675293,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 18,
+          "settled_family": "right",
+          "max_gyro_rad_s": 16.756074905395508,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 19,
+          "settled_family": "right",
+          "max_gyro_rad_s": 12.385091781616211,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 20,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 17.730039596557617,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 21,
+          "settled_family": "left",
+          "max_gyro_rad_s": 6.5734639167785645,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 22,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 29.01799201965332,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 23,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 21.861438751220703,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 24,
+          "settled_family": "right",
+          "max_gyro_rad_s": 19.55173110961914,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 25,
+          "settled_family": "right",
+          "max_gyro_rad_s": 20.190792083740234,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 26,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.823577880859375,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 27,
+          "settled_family": "left",
+          "max_gyro_rad_s": 11.002500534057617,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 28,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 21.165327072143555,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 29,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 21.759777069091797,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 30,
+          "settled_family": "right",
+          "max_gyro_rad_s": 21.097091674804688,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 31,
+          "settled_family": "right",
+          "max_gyro_rad_s": 12.463188171386719,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 32,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 13.642781257629395,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 33,
+          "settled_family": "left",
+          "max_gyro_rad_s": 6.564231872558594,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 34,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 28.350210189819336,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 35,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 24.954023361206055,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 36,
+          "settled_family": "right",
+          "max_gyro_rad_s": 16.657926559448242,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 37,
+          "settled_family": "right",
+          "max_gyro_rad_s": 18.53691864013672,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 38,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 12.458102226257324,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 39,
+          "settled_family": "left",
+          "max_gyro_rad_s": 6.283466815948486,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 40,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 20.31621742248535,
+          "survived": true,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 41,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 25.953187942504883,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 42,
+          "settled_family": "right",
+          "max_gyro_rad_s": 16.828060150146484,
+          "survived": true,
+          "recovered": true,
+          "practical": false,
+          "termination_causes": []
+        },
+        {
+          "lane": 43,
+          "settled_family": "right",
+          "max_gyro_rad_s": 5.7001566886901855,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 44,
+          "settled_family": "upright",
+          "max_gyro_rad_s": 16.802040100097656,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 45,
+          "settled_family": "left",
+          "max_gyro_rad_s": 16.585308074951172,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        },
+        {
+          "lane": 46,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 4.080785274505615,
+          "survived": false,
+          "recovered": false,
+          "practical": false,
+          "termination_causes": [
+            "impact_bad"
+          ]
+        },
+        {
+          "lane": 47,
+          "settled_family": "inverted",
+          "max_gyro_rad_s": 23.4909725189209,
+          "survived": true,
+          "recovered": true,
+          "practical": true,
+          "termination_causes": []
+        }
+      ]
+    }
+  },
+  "pairing_scope": "Same pose templates, commands and native layout; separately sampled per-environment ground and actuator/sensor/rigid-body domains. Descriptive robustness comparison, not exact per-lane causal pairing.",
+  "accepted": false,
+  "decision": "Do not adopt global.2 increment: right-side practical followup improved but inverted rise count regressed. Require nominal fixed-material pairing before attributing a benefit."
+}
