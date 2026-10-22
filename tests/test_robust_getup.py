@@ -134,6 +134,47 @@ def test_straight_compensation_ablation_preserves_full_arcs_standing_and_fallen_
     torch.testing.assert_close(current[2:], revised[2:], rtol=0, atol=0)
 
 
+class ReferenceParent(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.command = nn.Module()
+        self.command.base = nn.Linear(35, 6)
+        with torch.no_grad():
+            self.command.base.weight.zero_()
+            self.command.base.bias.fill_(.2)
+
+    def forward(self, obs):
+        return self.command.base(obs) + .4
+
+
+def test_reference_forward_preserves_low_reverse_turns_and_quiet_actions_exactly():
+    from copy import deepcopy
+    base = RobustGetupActor(ReferenceParent(), motion_residual_fraction=.25)
+    candidate = deepcopy(base)
+    candidate.fast_forward_reference = True
+    obs = observation(6)
+    obs[1, 0], obs[2, 0] = 1., -2.5
+    obs[3, 0], obs[3, 2] = 3., 1.
+    obs[4, 2], obs[5, 0] = -4., 1.5
+    torch.testing.assert_close(base(obs), candidate(obs), rtol=0, atol=0)
+
+
+def test_reference_forward_uses_original_feedback_at_high_speed_and_blends_continuously():
+    actor = RobustGetupActor(ReferenceParent(), fast_forward_reference=True)
+    obs = observation(4)
+    obs[:, 0] = torch.tensor([1.5, 1.75, 2., 3.])
+    actual = actor(obs)
+    torch.testing.assert_close(actual[:, 0], torch.tensor([.6, .4, .2, .2]))
+    torch.testing.assert_close(actual[2:], actor.parent.command.base(obs[2:]), rtol=0, atol=0)
+    assert all(not p.requires_grad for p in actor.parent.parameters())
+
+
+def test_reference_forward_rejects_parent_without_authenticated_original_feedback():
+    import pytest
+    with pytest.raises(ValueError, match="authenticated original feedback"):
+        RobustGetupActor(nn.Linear(35, 6), fast_forward_reference=True)
+
+
 def test_cyclic_recovery_does_not_change_upright_quiet_actions():
     from copy import deepcopy
     original = RobustGetupActor(nn.Linear(35, 6))

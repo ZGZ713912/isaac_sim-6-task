@@ -59,7 +59,7 @@ def prepare(args):
         # including non-tensor authority flags, rather than reset defaults.
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
-                    "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s"):
+                    "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
     if getattr(args, "quiet_only", False):
@@ -451,7 +451,8 @@ def main():
             stance_aware_recovery=task["stance_aware_recovery"],
             recovery_shape_aware=task["recovery_shape_aware"],
             quiet_high_common_alpha=task.get("quiet_high_common_alpha"),
-            quiet_high_leg_prediction_s=task.get("quiet_high_leg_prediction_s", 0.)).to(args.device)
+            quiet_high_leg_prediction_s=task.get("quiet_high_leg_prediction_s", 0.),
+            fast_forward_reference=task.get("fast_forward_reference", False)).to(args.device)
         initialization = torch.load(args.initialize, map_location=args.device, weights_only=False)
         if initialization["infos"]["schema"] != "unified-getup-checkpoint-v1":
             raise ValueError("Initialization must be an authenticated v1 recovery checkpoint")

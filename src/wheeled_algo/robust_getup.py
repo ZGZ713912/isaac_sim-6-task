@@ -44,13 +44,25 @@ def quiet_gate(obs):
     return (1. - request).clamp(0., 1.) * tilt * (1. - gyro)
 
 
+def fast_forward_reference_gate(obs):
+    """Blend to authenticated original feedback for 1.5..2 m/s straight forward.
+
+    Reverse, low commands, quiet standing and full mixed turns keep their
+    existing learned controller. The gate uses only the declared requests.
+    """
+    speed = ((obs[:, :1] - 1.5) / .5).clamp(0., 1.)
+    straight = (1. - obs[:, 2:3].abs() / .25).clamp(0., 1.)
+    return speed * straight
+
+
 class RobustGetupActor(UnifiedGetupActor):
     def __init__(self, parent, *, quiet_alpha=(.25, .25, .25, .25, .65, .65),
                  canonical_recovery=False, motion_residual_fraction=0.,
                  cyclic_leg_targets=False, leg_action_clip=13., recovery_leg_step=1.2,
                  smooth_knee_targets=False, recovery_knee_center=(.924544, .924537),
                  quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, stance_aware_recovery=False,
-                 recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.):
+                 recovery_shape_aware=False, quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.,
+                 fast_forward_reference=False):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -69,6 +81,9 @@ class RobustGetupActor(UnifiedGetupActor):
         if not 0. <= quiet_high_leg_prediction_s <= .01:
             raise ValueError("High-height leg prediction must be between 0 and 10 ms")
         self.quiet_high_leg_prediction_s = quiet_high_leg_prediction_s
+        if fast_forward_reference and not isinstance(getattr(getattr(parent, "command", None), "base", None), nn.Module):
+            raise ValueError("Fast-forward reference requires the authenticated original feedback inside the frozen parent")
+        self.fast_forward_reference = fast_forward_reference
         self.action_bound[:4].fill_(leg_action_clip)
         self.quiet = nn.Sequential(nn.Linear(35, 64), nn.ELU(), nn.Linear(64, 6))
         nn.init.zeros_(self.quiet[-1].weight)
@@ -92,6 +107,14 @@ class RobustGetupActor(UnifiedGetupActor):
             predicted = torch.where(prediction_gate > 0., torch.atan2(predicted.sin(), predicted.cos()), obs[:, 10:14])
             motion_obs = torch.cat((obs[:, :10], predicted, obs[:, 14:]), -1)
         motion = self.parent(motion_obs) + residual_gate * self.arc_bound * torch.tanh(self.arc(features))
+        if self.fast_forward_reference:
+            reference_gate = fast_forward_reference_gate(obs)
+            reference = self.parent.command.base(motion_obs)
+            blended = motion + reference_gate * (reference - motion)
+            # Preserve both endpoints exactly. In particular, high straight
+            # commands use the original feedback function before the same clip.
+            motion = torch.where(reference_gate >= 1., reference,
+                                 torch.where(reference_gate > 0., blended, motion))
         motion = torch.maximum(torch.minimum(motion, self.motion_bound), -self.motion_bound)
         quiet = quiet_gate(obs)
         smoothed = obs[:, 22:28] + self.quiet_alpha * (motion - obs[:, 22:28])

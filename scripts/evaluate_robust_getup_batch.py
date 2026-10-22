@@ -20,6 +20,17 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 
+def fixed_forward_cases(template, speeds, replicas):
+    """Independent diagnostic lanes at each requested forward speed."""
+    cases = []
+    for _ in range(replicas):
+        for speed in speeds:
+            case = deepcopy(template)
+            case.update(name=f"forward_speed_{speed:g}", command=[speed, 0., template["command"][2]])
+            cases.append(case)
+    return cases
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
@@ -40,7 +51,10 @@ def main():
     parser.add_argument("--deployed-onnx", type=Path, default=ROOT / "models/wheel_leg_flat_base_20261018/source.onnx",
                         help="Exact user-confirmed recovery_candidate source for the deployed comparison")
     parser.add_argument("--seconds", type=float, default=12., choices=[4., 12., 30., 60.])
-    parser.add_argument("--case-names", nargs="+", help="Explicit diagnostic subset; cannot replace the full acceptance suite")
+    subset = parser.add_mutually_exclusive_group()
+    subset.add_argument("--case-names", nargs="+", help="Explicit diagnostic subset; cannot replace the full acceptance suite")
+    subset.add_argument("--forward-speeds", type=float, nargs="+",
+                        help="Diagnostic steady forward commands, e.g. 1.5 1.75 2; cannot qualify an export")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
                         help="Diagnostic counterfactual: override only policy observation delay after the matched reset")
     parser.add_argument("--instant-sensor-group", choices=["imu", "encoders", "leg_encoders", "wheel_velocity"],
@@ -50,13 +64,16 @@ def main():
     args = parser.parse_args()
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
-    max_replicas = 64 if args.case_names else 4
+    max_replicas = 64 if args.case_names or args.forward_speeds else 4
     if not 1 <= args.replicas <= max_replicas or len(set(args.variants)) != len(args.variants):
         parser.error("Use 1..4 full-suite replicas or 1..64 diagnostic-subset replicas, and unique variants")
     if not 0. <= args.domain_scale <= 1. or not 0. < args.friction_min <= .5:
         parser.error("Domain scale must be 0..1 and minimum friction in (0,.5]")
     if args.friction_value is not None and not 0. <= args.friction_value <= 1.:
         parser.error("Fixed ground friction must be in [0,1]")
+    if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
+                               or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
+        parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
     if ("reference" in args.variants) != (args.reference_checkpoint is not None):
         parser.error("Use --reference-checkpoint together with the reference variant")
     args.output = args.output.resolve()
@@ -77,7 +94,8 @@ def main():
         known = {c["name"] for c in training.fixed_cases(bank, 35, seeds[0])}
         if len(selected_names) != len(args.case_names) or not selected_names <= known:
             parser.error("Use distinct known fixed-case names")
-    per_variant = (len(selected_names) if selected_names else 35) * args.replicas
+    case_count = len(args.forward_speeds) if args.forward_speeds else len(selected_names) if selected_names else 35
+    per_variant = case_count * args.replicas
     count = per_variant * len(args.variants) * len(seeds)
     if len(seeds) > 2 or len(set(seeds)) != len(seeds) or count > 1024:
         parser.error("Use at most two distinct seeds and 1024 total native environments")
@@ -119,7 +137,7 @@ def main():
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
                     "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",
-                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s"):
+                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
         task_path = args.output / "task_contract.json"
@@ -178,14 +196,22 @@ def main():
                                    dict(sensor_delay_policy_ticks=args.sensor_delay_policy_ticks))
         if args.friction_value is not None:
             env.evaluation_overrides["fixed_ground_friction"] = args.friction_value
+        if args.forward_speeds:
+            env.evaluation_overrides["forward_speeds"] = args.forward_speeds
         if args.instant_sensor_group:
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         groups = [(seed, name) for seed in seeds for name in args.variants]
         for index, (_, name) in enumerate(groups):
             if name == "raw_pd":
                 env.paired_feedback_enabled[index * per_variant:(index + 1) * per_variant] = False
-        cases = [case for seed, name in groups for case in training.fixed_cases(env.bank, 35 * args.replicas, seed)
-                 if selected_names is None or case["name"] in selected_names]
+        cases = []
+        for seed, name in groups:
+            full = training.fixed_cases(env.bank, 35 * args.replicas, seed)
+            if args.forward_speeds:
+                template = next(case for case in full if case["name"] == "forward")
+                cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas))
+            else:
+                cases.extend(case for case in full if selected_names is None or case["name"] in selected_names)
         report = training.evaluate(env, BatchMean().cuda(), args.output / "all", torch,
                                    seed=args.seed, seconds=args.seconds, cases=cases)
         arrays = dict(np.load(args.output / "all/trajectory.npz"))
