@@ -33,7 +33,10 @@ def main():
                         help="Historical diagnostic replay; large-world results cannot qualify an export")
     parser.add_argument("--domain-scale", type=float, default=0.,
                         help="Independent descriptive stress test; zero is the nominal confirmation")
-    parser.add_argument("--friction-min", type=float, default=.5)
+    friction = parser.add_mutually_exclusive_group()
+    friction.add_argument("--friction-min", type=float, default=.5)
+    friction.add_argument("--friction-value", type=float,
+                          help="Diagnostic fixed ground static/dynamic coefficient; effective wheel coefficient is also recorded")
     parser.add_argument("--deployed-onnx", type=Path, default=ROOT / "models/wheel_leg_flat_base_20261018/source.onnx",
                         help="Exact user-confirmed recovery_candidate source for the deployed comparison")
     parser.add_argument("--seconds", type=float, default=12., choices=[4., 12., 30., 60.])
@@ -47,10 +50,13 @@ def main():
     args = parser.parse_args()
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
-    if not 1 <= args.replicas <= 4 or len(set(args.variants)) != len(args.variants):
-        parser.error("Use one to four replicas and unique variants")
+    max_replicas = 64 if args.case_names else 4
+    if not 1 <= args.replicas <= max_replicas or len(set(args.variants)) != len(args.variants):
+        parser.error("Use 1..4 full-suite replicas or 1..64 diagnostic-subset replicas, and unique variants")
     if not 0. <= args.domain_scale <= 1. or not 0. < args.friction_min <= .5:
         parser.error("Domain scale must be 0..1 and minimum friction in (0,.5]")
+    if args.friction_value is not None and not 0. <= args.friction_value <= 1.:
+        parser.error("Fixed ground friction must be in [0,1]")
     if ("reference" in args.variants) != (args.reference_checkpoint is not None):
         parser.error("Use --reference-checkpoint together with the reference variant")
     args.output = args.output.resolve()
@@ -77,11 +83,15 @@ def main():
         parser.error("Use at most two distinct seeds and 1024 total native environments")
     checkpoint_sha = training.digest(args.checkpoint)
     config_args = argparse.Namespace(output=args.output, bank=ROOT / "reports/unified_robust_20261021/pose_bank002.json",
-        no_domains=args.domain_scale == 0., domain_scale=args.domain_scale, friction_min=args.friction_min,
+        no_domains=args.domain_scale == 0., domain_scale=args.domain_scale,
+        friction_min=args.friction_min if args.friction_value is None else args.friction_value,
+        friction_max=.5 if args.friction_value is None else args.friction_value,
         curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65,
         num_envs=count, rollout_steps=128, mode="evaluate", friction="high", seed=args.seed,
         allow_large_world_coordinates=args.allow_large_world_coordinates, episode_seconds=max(12., args.seconds))
     cfg, task = training.prepare(config_args)
+    if count < len(cfg["scene_groups"]):
+        parser.error("Native population must cover every base scene group; increase diagnostic replicas or use the full suite")
     training.write_json(args.output / "progress.json", dict(status="starting", completed_updates=0,
         seeds=seeds, variants=args.variants, checkpoint_sha256=checkpoint_sha, optimizer_updates=0))
     sources = {}
@@ -166,6 +176,8 @@ def main():
         env.evaluation_checkpoint = args.checkpoint
         env.evaluation_overrides = ({} if args.sensor_delay_policy_ticks is None else
                                    dict(sensor_delay_policy_ticks=args.sensor_delay_policy_ticks))
+        if args.friction_value is not None:
+            env.evaluation_overrides["fixed_ground_friction"] = args.friction_value
         if args.instant_sensor_group:
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         groups = [(seed, name) for seed in seeds for name in args.variants]
@@ -192,6 +204,7 @@ def main():
                 row["variant"] = name
             split["actor_variant"] = name
             split["case_subset"] = args.case_names
+            split["fixed_ground_friction"] = args.friction_value
             split["evaluation_overrides"] = env.evaluation_overrides
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"

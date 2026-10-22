@@ -27,6 +27,8 @@ def main():
     parser.add_argument("--shape-aware-recovery", action="store_true")
     parser.add_argument("--quiet-high-common-alpha", type=float)
     parser.add_argument("--quiet-high-leg-prediction-ms", type=float)
+    parser.add_argument("--motion-residual-fraction", type=float,
+                        help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--reason", default="restore paired continuous-feedback PD equivalence across encoder reporting seams")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -36,6 +38,8 @@ def main():
         parser.error("High-height common-angle interpolation must be in (0,1]")
     if args.quiet_high_leg_prediction_ms is not None and not 0. <= args.quiet_high_leg_prediction_ms <= 10.:
         parser.error("High-height leg prediction must be 0..10 ms")
+    if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
+        parser.error("Motion residual fraction must be 0..1")
     mean, old_info = load_mean(args.checkpoint, migration_source_root=args.checkpoint.parent / "source")
     state = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     original_actor = {k: v.clone() for k, v in state["actor_state_dict"].items()}
@@ -51,6 +55,9 @@ def main():
     if args.quiet_high_leg_prediction_ms is not None:
         info["settings"].update(version="robust-v2.13-high-leg-prediction",
                                 quiet_high_leg_prediction_s=args.quiet_high_leg_prediction_ms * .001)
+    if args.motion_residual_fraction is not None:
+        info["settings"].update(version="robust-v2.15-motion-residual",
+                                motion_residual_fraction=args.motion_residual_fraction)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
     if args.quiet_reference:
@@ -78,6 +85,7 @@ def main():
     revision["recovery_shape_aware"] = args.shape_aware_recovery
     revision["quiet_high_common_alpha"] = info["settings"].get("quiet_high_common_alpha")
     revision["quiet_high_leg_prediction_s"] = info["settings"].get("quiet_high_leg_prediction_s", 0.)
+    revision["motion_residual_fraction"] = info["settings"].get("motion_residual_fraction", 0.)
     allowed = (("mlp.mean.quiet.", "mlp.mean.quiet_alpha", "mlp.mean.quiet_bound") if args.quiet_reference else ())
     if any(not torch.equal(value, state["actor_state_dict"][key])
            for key, value in original_actor.items() if not key.startswith(allowed)):
