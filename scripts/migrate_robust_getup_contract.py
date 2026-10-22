@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bind a zero-PPO feedback correction and an authenticated quiet-head restore."""
+"""Bind explicit zero-PPO corrections and authenticated quiet expert restores."""
 import argparse
 from copy import deepcopy
 import hashlib
@@ -37,6 +37,8 @@ def main():
                         help="Explicit training-distribution revision, .05...35; deterministic actor is unchanged")
     parser.add_argument("--low-quiet-reference", type=Path,
                         help="Optional authenticated low-height quiet head; requires --quiet-height-experts")
+    parser.add_argument("--high-quiet-reference", type=Path,
+                        help="Restore only an existing high-height expert and its named Adam moments; retain recovery")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
     parser.add_argument("--fast-forward-reference", action="store_true",
@@ -62,6 +64,8 @@ def main():
         parser.error("Low-height reference requires explicit quiet height experts")
     if args.quiet_height_experts and args.quiet_reference:
         parser.error("Migrate height experts and restore a quiet reference in separate explicit revisions")
+    if args.high_quiet_reference and (args.quiet_reference or args.quiet_height_experts):
+        parser.error("Restore an existing high-height expert in a separate explicit revision")
     if args.motion_residual_fraction is not None and not 0. <= args.motion_residual_fraction <= 1.:
         parser.error("Motion residual fraction must be 0..1")
     if args.fast_forward_reference_range is not None and not 0. <= args.fast_forward_reference_range[0] < args.fast_forward_reference_range[1] <= 3.:
@@ -180,6 +184,46 @@ def main():
         revision["quiet_reference"] = dict(path=str(args.quiet_reference.resolve()), sha256=digest(args.quiet_reference),
                                             restored_feature_and_bound_contract=args.restore_quiet_contract,
                                             optimizer="only quiet-head moments cleared")
+    if args.high_quiet_reference:
+        reference, ref_info = load_mean(args.high_quiet_reference,
+            migration_source_root=args.high_quiet_reference.parent / "source")
+        if not info["settings"].get("quiet_height_experts") or not ref_info["settings"].get("quiet_height_experts"):
+            raise ValueError("High-height restore requires existing height experts in both checkpoints")
+        for key in ("base_checkpoint_sha256", "bank_sha256"):
+            if info[key] != ref_info[key]:
+                raise ValueError("High-height reference mechanism or locomotion parent differs: " + key)
+        for key in ("quiet_actor_alpha", "quiet_velocity_feature_scale", "quiet_wheel_bound",
+                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_native_height_anchors",
+                    "leg_action_clip", "wheel_action_clip", "fast_forward_reference",
+                    "fast_forward_reference_range", "fast_forward_reference_yaw_fade"):
+            if info["settings"].get(key) != ref_info["settings"].get(key):
+                raise ValueError("High-height reference controller contract differs: " + key)
+        ref_state = torch.load(args.high_quiet_reference, map_location="cpu", weights_only=False)
+        id_maps = []
+        for model, checkpoint_state in ((mean, state), (reference, ref_state)):
+            names = [name for name, p in SensorConditionedMean(model).named_parameters() if p.requires_grad]
+            group = next(g for g in checkpoint_state["optimizer_state_dict"]["param_groups"] if g["name"] == "actor")
+            if len(names) != len(group["params"]):
+                raise ValueError("Cannot authenticate high-height actor optimizer parameter order")
+            id_maps.append(dict(zip(names, group["params"], strict=True)))
+        restored = []
+        for name, target_id in id_maps[0].items():
+            if not name.startswith("mean.quiet_high."):
+                continue
+            state["actor_state_dict"]["mlp." + name] = ref_state["actor_state_dict"]["mlp." + name].clone()
+            source_moments = ref_state["optimizer_state_dict"]["state"].get(id_maps[1][name])
+            if source_moments is None:
+                state["optimizer_state_dict"]["state"].pop(target_id, None)
+            else:
+                state["optimizer_state_dict"]["state"][target_id] = deepcopy(source_moments)
+            restored.append(name)
+        if len(restored) != 4:
+            raise ValueError("Expected the four authenticated high-height expert tensors")
+        info["settings"]["version"] = "robust-v2.25-high-quiet-restore"
+        revision["high_quiet_reference"] = dict(path=str(args.high_quiet_reference.resolve()),
+            sha256=digest(args.high_quiet_reference), source_clock=ref_info["completed_updates"],
+            base_clock_retained=info["completed_updates"], optimizer="only high expert moments copied by parameter name",
+            restored_parameters=restored, source_clocks_are_not_added=True)
     revision["stance_aware_recovery"] = args.stance_aware_recovery
     revision["recovery_shape_aware"] = args.shape_aware_recovery
     revision["quiet_high_common_alpha"] = info["settings"].get("quiet_high_common_alpha")
@@ -190,6 +234,8 @@ def main():
     revision["fast_forward_reference_range"] = info["settings"].get("fast_forward_reference_range", [1.5, 2.])
     revision["fast_forward_reference_yaw_fade"] = info["settings"].get("fast_forward_reference_yaw_fade", .25)
     allowed = (("mlp.mean.quiet.", "mlp.mean.quiet_alpha", "mlp.mean.quiet_bound") if args.quiet_reference else ())
+    if args.high_quiet_reference:
+        allowed = ("mlp.mean.quiet_high.",)
     if any(not torch.equal(value, state["actor_state_dict"][key])
            for key, value in original_actor.items() if not key.startswith(allowed)):
         raise ValueError("Migration changed unrelated actor parameters")
