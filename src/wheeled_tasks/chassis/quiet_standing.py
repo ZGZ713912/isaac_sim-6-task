@@ -26,6 +26,16 @@ def standing_position_cost(radius, sway_m=.05):
     return torch.log1p(((radius - sway_m).clamp_min(0.) / sway_m).square())
 
 
+def standing_drift_cost(vx, speed_scale_m_s=.02):
+    """Resolve millimetre-per-second creep while bounding density below one.
+
+    The general locomotion tracking scale is much wider than a useful zero
+    request. A bounded cost retains balancing credit during startup or a push;
+    the separate position deadband still permits slow, small adjustments.
+    """
+    return -torch.expm1(-(vx / speed_scale_m_s).square())
+
+
 class QuietStanding:
     def __init__(self, count, device, dt, sway_m=.05, position_weight=.5):
         self.alpha = dt / (.05 + dt)

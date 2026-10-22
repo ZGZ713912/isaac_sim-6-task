@@ -41,6 +41,14 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     _, revised = training.prepare(args)
     assert revised["quiet_position_weight"] == 0.
     assert revised["standing_early_position_weight"] == 6.
+    assert revised["standing_drift_weight"] == 0.
+    args.standing_drift_objective = True
+    _, drift = training.prepare(args)
+    assert drift["standing_drift_weight"] == 2.
+    assert drift["standing_early_position_weight"] == 6.
+    assert drift["quiet_sway_m"] == .05
+    assert drift["quiet_high_leg_prediction_s"] == .005
+    assert drift["fast_forward_reference_yaw_fade"] is None
     args.friction_min = args.friction_max = .3
     cfg, fixed = training.prepare(args)
     assert fixed["active_friction_range"] == [.3, .3]

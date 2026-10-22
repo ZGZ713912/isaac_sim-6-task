@@ -20,7 +20,8 @@ from .unified_getup import FAMILIES, classify_gravity, joint_tracking_score, pro
 from .robust_getup import RobustDomain
 from .getup_feedback import GetupFeedback
 from .getup_reward import potential_reward
-from .quiet_standing import QuietStanding, standing_request_mask, standing_support_cost, standing_position_cost
+from .quiet_standing import (QuietStanding, standing_request_mask, standing_support_cost,
+                            standing_position_cost, standing_drift_cost)
 
 
 class RobustGetupEnv(ChassisEnv):
@@ -449,6 +450,10 @@ class RobustGetupEnv(ChassisEnv):
         position_cost = standing_position_cost(quiet_radius, self.getup_cfg["quiet_sway_m"])
         quiet_cost += (quiet_request * (elapsed >= .2) * position_cost
                        * self.getup_cfg.get("standing_early_position_weight", 0.))
+        drift_cost = standing_drift_cost(velocity[:, 0])
+        drift_penalty = (quiet_request * (elapsed >= .2) * drift_cost
+                         * self.getup_cfg.get("standing_drift_weight", 0.))
+        quiet_cost += drift_penalty
         self.previous_effort.copy_(tau)
         density = (2. * (1. - gravity[:, 2]) * .5 + upright * (2. * height_score + 4. * tracking)
                    + 2. * contact.float().mean(-1)
@@ -496,6 +501,9 @@ class RobustGetupEnv(ChassisEnv):
             "Standing/request_position_radius_m": quiet_radius[quiet_request].mean() if quiet_request.any() else quiet_radius.new_zeros(()),
             "Standing/support_cost_density": support_cost[quiet_request].mean() if quiet_request.any() else support_cost.new_zeros(()),
             "Standing/position_deadband_cost_density": position_cost[quiet_request].mean() if quiet_request.any() else position_cost.new_zeros(()),
+            "Standing/drift_cost_density": drift_cost[quiet_request].mean() if quiet_request.any() else drift_cost.new_zeros(()),
+            "Standing/drift_paid_density": drift_penalty.mean(),
+            "Standing/request_abs_vx_m_s": velocity[quiet_request, 0].abs().mean() if quiet_request.any() else velocity.new_zeros(()),
             "Robust/domain_fraction": self.domain.enabled.float().mean(),
             "Robust/motor_strength_mean": self.domain.strength.mean(),
             "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * 5.})
