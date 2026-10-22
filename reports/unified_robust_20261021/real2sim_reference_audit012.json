@@ -1,0 +1,74 @@
+{
+  "schema": "recovery-candidate-real2sim-readonly-audit-v1",
+  "reference_path_observed_earlier_this_turn": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/models/wheel_leg/recovery_candidate.onnx",
+  "reference_sha256_observed_earlier_this_turn": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "live_reference_path_status": "missing after concurrent RMCS checkout switched to merge/wheel-leg-rl; no reinitialization or modification attempted",
+  "local_reference_path": "models/wheel_leg_flat_base_20261018/source.onnx",
+  "local_reference_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "imported_source_numeric_observations": 4096,
+  "imported_source_max_abs_error": 5.7220458984375e-06,
+  "parent_frozen_source_eight_tensors_bitwise_equal": true,
+  "parent_adapted_function_max_abs_difference_from_source": 0.6313698291778564,
+  "source_model_metadata": {
+    "leg_winding_version": "paired_branch107_v1",
+    "leg_target_model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997"
+  },
+  "task_policy_hz": 200,
+  "user_confirmed_actual_policy_hz": 200,
+  "physics_feedback_hz": 1000,
+  "control_file": "contracts/flat_base_200hz_control_v1.json",
+  "control_sha256": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+  "actuator_response": {
+    "enabled": true,
+    "schema": "chassis-actuator-response",
+    "version": 1,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "gain": 1.0,
+    "armature": [
+      0.0,
+      0.0,
+      0.0038669808882082915,
+      0.0,
+      0.0,
+      0.003818453742910773
+    ],
+    "frictionloss": [
+      0.0,
+      0.0,
+      0.049507400779663126,
+      0.0,
+      0.0,
+      0.06957712078102896
+    ],
+    "damping": [
+      0.0,
+      0.0,
+      0.0006085318417485766,
+      0.0,
+      0.0,
+      0.0003429025559035852
+    ],
+    "time_constant_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "actuator_response_scope": "Authenticated wheel-output effective inertia and moving resistance only; four leg axes remain nominal priors",
+  "static_preflight_evidence_scope": "Parent 1346 source and runtime metadata authenticated wheel-response files; not a new hardware identification",
+  "previous_runtime_audit_file": "reports/unified_robust_20261021/runtime_readonly004.json",
+  "read_only": true,
+  "rmcs_edits": 0,
+  "hardware_motion": 0,
+  "long_training_admitted": false
+}

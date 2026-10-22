@@ -101,3 +101,52 @@ def test_standing_envelope_reports_worst_episode_without_cancelling_opposite_dri
     quiet = MODULE.analyze(tmp_path)["cases"]["stand"]["quiet"]
     assert abs(quiet["body_xy_max_excursion_m"] - .05) < 1e-5
     assert abs(quiet["body_xy_worst_episode_excursion_m"] - .08) < 1e-5
+
+
+def test_airborne_review_keeps_worst_episode_and_substep_duration(tmp_path):
+    import hashlib
+    import json
+    endpoint_trace(tmp_path)
+    path = tmp_path / "trajectory.npz"
+    data = {key: np.repeat(value, 2, axis=1) for key, value in np.load(path).items()}
+    count = len(data["time"])
+    data["commands"].fill(0.)
+    data["height"] = np.full((count, 2), .305, np.float32)
+    for key in ("motor_position", "motor_velocity", "motor_effort", "actions"):
+        data[key] = np.zeros((count, 2, 6), np.float32)
+    data["wheel_clearance_peak"] = np.zeros((count, 2, 2), np.float32)
+    data["wheel_air_run_peak"] = np.zeros((count, 2, 2), np.float32)
+    data["dual_wheel_air_run_peak"] = np.zeros((count, 2), np.float32)
+    data["wheel_air_seconds"] = np.zeros((count, 2, 2), np.float32)
+    data["wheel_contact_fraction"] = np.ones((count, 2, 2), np.float32)
+    data["wheel_clearance_peak"][900, 1] = .025
+    data["wheel_air_run_peak"][900, 1] = .021
+    data["dual_wheel_air_run_peak"][900, 1] = .017
+    data["wheel_air_seconds"][900, 1] = .004
+    data["wheel_contact_fraction"][900, 1] = .2
+    np.savez(path, **data)
+    report = json.loads((tmp_path / "report.json").read_text())
+    row = report["lanes"][0]
+    report["lanes"] = [dict(row, lane=i, name="stand", recovery=False) for i in range(2)]
+    report["trajectory_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    (tmp_path / "report.json").write_text(json.dumps(report))
+    quiet = MODULE.analyze(tmp_path)["cases"]["stand"]["quiet"]
+    assert abs(quiet["worst_episode_wheel_clearance_peak_m"] - .025) < 1e-7
+    assert abs(quiet["worst_episode_wheel_air_longest_s"] - .021) < 1e-7
+    assert abs(quiet["worst_episode_dual_wheel_air_longest_s"] - .017) < 1e-7
+    assert quiet["wheel_air_fraction"] > 0.
+    assert quiet["both_contact_every_substep_fraction"] < 1.
+
+    # An early failed lane must remain in the full-window denominator even
+    # though it never reaches the historical 3 s vibration window.
+    data["alive"][180:, 1] = False
+    data["wheel_clearance_peak"][100, 1] = .12
+    report["lanes"][1]["survived"] = False
+    np.savez(path, **data)
+    report["trajectory_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    (tmp_path / "report.json").write_text(json.dumps(report))
+    case = MODULE.analyze(tmp_path)["cases"]["stand"]
+    assert case["quiet"]["episodes_with_valid_windows"] == 1
+    assert case["standing_full_window"]["episodes"] == 2
+    assert case["standing_full_window"]["completed"] == 1
+    assert abs(case["standing_full_window"]["worst_episode_wheel_clearance_peak_m"] - .12) < 1e-7

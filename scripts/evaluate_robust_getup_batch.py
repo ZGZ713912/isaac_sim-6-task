@@ -34,8 +34,14 @@ def main():
     parser.add_argument("--domain-scale", type=float, default=0.,
                         help="Independent descriptive stress test; zero is the nominal confirmation")
     parser.add_argument("--friction-min", type=float, default=.5)
+    parser.add_argument("--deployed-onnx", type=Path, default=ROOT / "models/wheel_leg_flat_base_20261018/source.onnx",
+                        help="Exact user-confirmed recovery_candidate source for the deployed comparison")
+    parser.add_argument("--seconds", type=float, default=12., choices=[12., 30., 60.])
+    parser.add_argument("--case-names", nargs="+", help="Explicit diagnostic subset; cannot replace the full acceptance suite")
+    parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
+                        help="Diagnostic counterfactual: override only policy observation delay after the matched reset")
     parser.add_argument("--variants", nargs="+", default=["parent", "robust", "legs_only", "undamped"],
-                        choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd"])
+                        choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd", "deployed"])
     args = parser.parse_args()
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
@@ -47,11 +53,23 @@ def main():
         parser.error("Use --reference-checkpoint together with the reference variant")
     args.output = args.output.resolve()
     args.checkpoint = args.checkpoint.resolve()
+    deployed_sha = None
+    if "deployed" in args.variants:
+        deployed_sha = hashlib.sha256(args.deployed_onnx.read_bytes()).hexdigest()
+        if deployed_sha != "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29":
+            parser.error("Deployed comparison requires the exact user-confirmed recovery_candidate SHA")
     args.output.mkdir(parents=True, exist_ok=False)
     spec = importlib.util.spec_from_file_location("robust_training", ROOT / "scripts/train_robust_getup.py")
     training = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(training)
-    per_variant = 35 * args.replicas
+    selected_names = None
+    if args.case_names:
+        selected_names = set(args.case_names)
+        bank = json.loads((ROOT / "reports/unified_robust_20261021/pose_bank002.json").read_text())
+        known = {c["name"] for c in training.fixed_cases(bank, 35, seeds[0])}
+        if len(selected_names) != len(args.case_names) or not selected_names <= known:
+            parser.error("Use distinct known fixed-case names")
+    per_variant = (len(selected_names) if selected_names else 35) * args.replicas
     count = per_variant * len(args.variants) * len(seeds)
     if len(seeds) > 2 or len(set(seeds)) != len(seeds) or count > 1024:
         parser.error("Use at most two distinct seeds and 1024 total native environments")
@@ -60,7 +78,7 @@ def main():
         no_domains=args.domain_scale == 0., domain_scale=args.domain_scale, friction_min=args.friction_min,
         curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65,
         num_envs=count, rollout_steps=128, mode="evaluate", friction="high", seed=args.seed,
-        allow_large_world_coordinates=args.allow_large_world_coordinates)
+        allow_large_world_coordinates=args.allow_large_world_coordinates, episode_seconds=args.seconds)
     cfg, task = training.prepare(config_args)
     training.write_json(args.output / "progress.json", dict(status="starting", completed_updates=0,
         seeds=seeds, variants=args.variants, checkpoint_sha256=checkpoint_sha, optimizer_updates=0))
@@ -100,9 +118,26 @@ def main():
             args.reference_checkpoint = args.reference_checkpoint.resolve()
             reference_mean, _ = load_verified_mean(args.reference_checkpoint)
         state = {"infos": verified_info}
+        deployed_mean = None
+        if deployed_sha is not None:
+            from wheeled_algo.onnx_actor_import import recover_actor
+            original, _ = recover_actor(args.deployed_onnx)
+
+            class DeployedMean(nn.Module):
+                def __init__(self):
+                    super().__init__()
+                    self.original = original
+                    self.register_buffer("bounds", torch.tensor([3., 3., 3., 3., 9., 9.]))
+
+                def forward(self, obs):
+                    action = self.original(obs)
+                    return torch.maximum(torch.minimum(action, self.bounds), -self.bounds)
+
+            deployed_mean = DeployedMean()
         models = []
         for name in args.variants:
-            mean = deepcopy(reference_mean if name == "reference" else verified_mean).cuda()
+            selected = deployed_mean if name == "deployed" else reference_mean if name == "reference" else verified_mean
+            mean = deepcopy(selected).cuda()
             if name == "parent":
                 mean = mean.parent
             elif name == "legs_only":
@@ -126,13 +161,16 @@ def main():
             bank=config_args.bank, settings=task)
         env.actor_variant = "batched_" + "_".join(args.variants)
         env.evaluation_checkpoint = args.checkpoint
+        env.evaluation_overrides = ({} if args.sensor_delay_policy_ticks is None else
+                                   dict(sensor_delay_policy_ticks=args.sensor_delay_policy_ticks))
         groups = [(seed, name) for seed in seeds for name in args.variants]
         for index, (_, name) in enumerate(groups):
             if name == "raw_pd":
                 env.paired_feedback_enabled[index * per_variant:(index + 1) * per_variant] = False
-        cases = [case for seed, name in groups for case in training.fixed_cases(env.bank, per_variant, seed)]
+        cases = [case for seed, name in groups for case in training.fixed_cases(env.bank, 35 * args.replicas, seed)
+                 if selected_names is None or case["name"] in selected_names]
         report = training.evaluate(env, BatchMean().cuda(), args.output / "all", torch,
-                                   seed=args.seed, seconds=12., cases=cases)
+                                   seed=args.seed, seconds=args.seconds, cases=cases)
         arrays = dict(np.load(args.output / "all/trajectory.npz"))
         for index, (seed, name) in enumerate(groups):
             section = slice(index * per_variant, (index + 1) * per_variant)
@@ -148,8 +186,15 @@ def main():
                 row["lane"] = lane
                 row["variant"] = name
             split["actor_variant"] = name
+            split["case_subset"] = args.case_names
+            split["evaluation_overrides"] = env.evaluation_overrides
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"
+            if name == "deployed":
+                split["source_onnx_sha256"] = deployed_sha
+                split["source_onnx"] = str(args.deployed_onnx.resolve())
+                split["policy_output_postprocess"] = dict(raw_leg_clip=3., raw_wheel_clip=9.,
+                    basis="inspected RMCS action/policy contract; no old recovery script in this baseline")
             if name == "reference":
                 split["checkpoint_sha256"] = training.digest(args.reference_checkpoint)
                 split["checkpoint"] = str(args.reference_checkpoint)

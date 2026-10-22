@@ -1,0 +1,476 @@
+{
+  "schema": "standing-real2sim-diagnostics-v1",
+  "checkpoint_sha256": "882bdf683c6b682614a31bad8b1d40455296a59f635697534ebe58dc9aeb7653",
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "seed": 211322,
+  "native_environments_per_arm": 140,
+  "native_seconds_per_arm": 12,
+  "sensor_actuator_domain_scale": 0.35,
+  "friction_range": [
+    0.3,
+    0.5
+  ],
+  "geometry": "finite cylinders: radius .06 m, width .02500000037 m, local Z axis transformed per physics substep",
+  "air_definition": "geometric bottom clearance > .003 m, measured every 1 ms; force contact >2 N recorded separately",
+  "full_window_keeps_early_failed_lanes": true,
+  "startup_note": "Both arms spawn the same upright pose about 10 mm above the floor; full-window results retain that initial fall. The >=.2 s diagnostic below also exposes subsequent support.",
+  "arms": {
+    "deployed": {
+      "report": "runs/unified_robust_20261022/real2sim_deployed001/deployed/report.json",
+      "report_sha256": "970c40a4f36d2ff5598bd82579ebb53c61f21cc55f62487ceb97b5253e771cab",
+      "trajectory_sha256": "dcec5f8f429201c22bd9b539d7ca7398b2f4d766a2d2d49df68fd927b6ff7576",
+      "motion_survived": 85,
+      "motion_episodes": 92,
+      "source_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+      "standing": {
+        "stand_low": {
+          "full_window": {
+            "episodes": 4,
+            "completed": 4,
+            "shortest_observation_until_s": 12.0,
+            "worst_episode_body_xy_max_excursion_m": 1.695951223373413,
+            "worst_episode_wheel_clearance_peak_m": 0.011570706963539124,
+            "worst_episode_wheel_air_longest_s": 0.060999952256679535,
+            "worst_episode_dual_wheel_air_longest_s": 0.034999996423721313
+          },
+          "quiet": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.0810625497251749,
+            "yaw_rms_rad_s": 0.0948424655944109,
+            "height_mae_m": 0.014475298463366926,
+            "leg_speed_rms_rad_s": 2.05483216047287,
+            "wheel_speed_rms_rad_s": 7.341478571295738,
+            "leg_target_hf_rms_rad": 0.0018577916768536863,
+            "wheel_target_hf_rms_rad_s": 0.27789875990355406,
+            "leg_effort_hf_rms_nm": 0.363048071706426,
+            "wheel_effort_hf_rms_nm": 0.13529013688654656,
+            "leg_effort_delta_rms_nm": 0.7029082477092743,
+            "leg_target_fast_rms_rad_3_95": 0.022317880012161534,
+            "wheel_target_fast_rms_rad_s_3_95": 1.9573207306785947,
+            "leg_motion_fast_rms_rad_3_95": 0.021950828483594167,
+            "wheel_motion_fast_rms_rad_s_3_95": 1.5535262625193282,
+            "leg_motion_rms_rad_1_3": 0.12072638523347509,
+            "wheel_motion_rms_rad_s_1_3": 7.030105521582929,
+            "body_xy_max_excursion_m": 0.4819637699984014,
+            "wheel_clearance_peak_m": 0.00029671937227249146,
+            "wheel_air_longest_s": 0.0,
+            "dual_wheel_air_longest_s": 0.0,
+            "wheel_air_fraction": 0.0,
+            "both_contact_every_substep_fraction": 0.9873681288173237,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 1.3485957384109497,
+            "worst_episode_wheel_clearance_peak_m": 0.0004839003086090088,
+            "worst_episode_wheel_air_longest_s": 0.0,
+            "worst_episode_dual_wheel_air_longest_s": 0.0
+          },
+          "lanes": [
+            {
+              "lane": 13,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0004935748875141144,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 48,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0004839003086090088,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 1
+            },
+            {
+              "lane": 83,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.00029760971665382385,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 118,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.00022494420409202576,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            }
+          ]
+        },
+        "stand": {
+          "full_window": {
+            "episodes": 4,
+            "completed": 4,
+            "shortest_observation_until_s": 12.0,
+            "worst_episode_body_xy_max_excursion_m": 1.4342716932296753,
+            "worst_episode_wheel_clearance_peak_m": 0.009875714778900146,
+            "worst_episode_wheel_air_longest_s": 0.012000001035630703,
+            "worst_episode_dual_wheel_air_longest_s": 0.010000000707805157
+          },
+          "quiet": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.10200793854892254,
+            "yaw_rms_rad_s": 0.02278691530227661,
+            "height_mae_m": 0.003657305845990777,
+            "leg_speed_rms_rad_s": 0.21352777816355228,
+            "wheel_speed_rms_rad_s": 2.072040021419525,
+            "leg_target_hf_rms_rad": 0.0011765187960777928,
+            "wheel_target_hf_rms_rad_s": 0.18705520812533066,
+            "leg_effort_hf_rms_nm": 0.18877964307927508,
+            "wheel_effort_hf_rms_nm": 0.10897937023306034,
+            "leg_effort_delta_rms_nm": 0.2975420132279396,
+            "leg_target_fast_rms_rad_3_95": 0.0020044153939001016,
+            "wheel_target_fast_rms_rad_s_3_95": 0.35246372172174906,
+            "leg_motion_fast_rms_rad_3_95": 0.0015522212924430688,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.27761073601344827,
+            "leg_motion_rms_rad_1_3": 0.00980563634164216,
+            "wheel_motion_rms_rad_s_1_3": 0.8217866523046009,
+            "body_xy_max_excursion_m": 0.9450468868017197,
+            "wheel_clearance_peak_m": 0.000201384536921978,
+            "wheel_air_longest_s": 0.0,
+            "dual_wheel_air_longest_s": 0.0,
+            "wheel_air_fraction": 0.0,
+            "both_contact_every_substep_fraction": 0.9963908939478068,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 1.1019930839538574,
+            "worst_episode_wheel_clearance_peak_m": 0.0004050992429256439,
+            "worst_episode_wheel_air_longest_s": 0.0,
+            "worst_episode_dual_wheel_air_longest_s": 0.0
+          },
+          "lanes": [
+            {
+              "lane": 12,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0004109591245651245,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 47,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.00034380704164505005,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 82,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.00032518431544303894,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 117,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0004050992429256439,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            }
+          ]
+        },
+        "stand_high": {
+          "full_window": {
+            "episodes": 4,
+            "completed": 2,
+            "shortest_observation_until_s": 0.9599999785423279,
+            "worst_episode_body_xy_max_excursion_m": 2.340139627456665,
+            "worst_episode_wheel_clearance_peak_m": 0.12113633751869202,
+            "worst_episode_wheel_air_longest_s": 0.18800020217895508,
+            "worst_episode_dual_wheel_air_longest_s": 0.15100012719631195
+          },
+          "quiet": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.2118697166442871,
+            "yaw_rms_rad_s": 0.25266917794942856,
+            "height_mae_m": 0.0044587962329387665,
+            "leg_speed_rms_rad_s": 1.5627759099006653,
+            "wheel_speed_rms_rad_s": 10.20215368270874,
+            "leg_target_hf_rms_rad": 0.004181100312611297,
+            "wheel_target_hf_rms_rad_s": 0.5886077554872075,
+            "leg_effort_hf_rms_nm": 0.8002889213446426,
+            "wheel_effort_hf_rms_nm": 0.31196039160421085,
+            "leg_effort_delta_rms_nm": 1.1658921837806702,
+            "leg_target_fast_rms_rad_3_95": 0.029245783445844872,
+            "wheel_target_fast_rms_rad_s_3_95": 9.654577060140705,
+            "leg_motion_fast_rms_rad_3_95": 0.029522809122481723,
+            "wheel_motion_fast_rms_rad_s_3_95": 8.457927256067588,
+            "leg_motion_rms_rad_1_3": 0.006846471211147414,
+            "wheel_motion_rms_rad_s_1_3": 0.7042443126529052,
+            "body_xy_max_excursion_m": 1.6780604124069214,
+            "wheel_clearance_peak_m": 0.0004772357642650604,
+            "wheel_air_longest_s": 0.0,
+            "dual_wheel_air_longest_s": 0.0,
+            "wheel_air_fraction": 0.0,
+            "both_contact_every_substep_fraction": 0.9539144919489173,
+            "episodes_with_valid_windows": 2,
+            "body_xy_worst_episode_excursion_m": 1.8950519561767578,
+            "worst_episode_wheel_clearance_peak_m": 0.0007339231669902802,
+            "worst_episode_wheel_air_longest_s": 0.0,
+            "worst_episode_dual_wheel_air_longest_s": 0.0
+          },
+          "lanes": [
+            {
+              "lane": 14,
+              "survived": false,
+              "max_clearance_after_200ms_m": 0.11967621743679047,
+              "longest_air_after_200ms_s": 0.1840001940727234,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 49,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0010969527065753937,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 1
+            },
+            {
+              "lane": 84,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0021908432245254517,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 1
+            },
+            {
+              "lane": 119,
+              "survived": false,
+              "max_clearance_after_200ms_m": 0.12113633751869202,
+              "longest_air_after_200ms_s": 0.18800020217895508,
+              "sensor_delay_policy_ticks": 0
+            }
+          ]
+        }
+      }
+    },
+    "robust": {
+      "report": "runs/unified_robust_20261022/real2sim_robust001/robust/report.json",
+      "report_sha256": "b7005d63417c572f43b31af67f5ee7e2cfa50e4b8bb1cd049f43e5b712c3ef23",
+      "trajectory_sha256": "b40ce311c9a0f1b481387ce4730899f5589b1c57cd5934a49aa7caf3f8e271ec",
+      "motion_survived": 83,
+      "motion_episodes": 92,
+      "source_onnx_sha256": null,
+      "standing": {
+        "stand_low": {
+          "full_window": {
+            "episodes": 4,
+            "completed": 4,
+            "shortest_observation_until_s": 12.0,
+            "worst_episode_body_xy_max_excursion_m": 0.013489632867276669,
+            "worst_episode_wheel_clearance_peak_m": 0.009875498712062836,
+            "worst_episode_wheel_air_longest_s": 0.01400000136345625,
+            "worst_episode_dual_wheel_air_longest_s": 0.013000001199543476
+          },
+          "quiet": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.0052274035988375545,
+            "yaw_rms_rad_s": 0.00871389324311167,
+            "height_mae_m": 0.002712048590183258,
+            "leg_speed_rms_rad_s": 0.18209632486104965,
+            "wheel_speed_rms_rad_s": 0.2013689987361431,
+            "leg_target_hf_rms_rad": 0.0003919930657019847,
+            "wheel_target_hf_rms_rad_s": 0.17431632510834613,
+            "leg_effort_hf_rms_nm": 0.2643954153351128,
+            "wheel_effort_hf_rms_nm": 0.08432131477372162,
+            "leg_effort_delta_rms_nm": 0.43531202524900436,
+            "leg_target_fast_rms_rad_3_95": 0.001110773032029391,
+            "wheel_target_fast_rms_rad_s_3_95": 0.2733141374123593,
+            "leg_motion_fast_rms_rad_3_95": 0.001105967290260817,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.16475337785913063,
+            "leg_motion_rms_rad_1_3": 0.0014921994492481953,
+            "wheel_motion_rms_rad_s_1_3": 0.08355639989389264,
+            "body_xy_max_excursion_m": 0.001438931591110304,
+            "wheel_clearance_peak_m": 0.00026701297610998154,
+            "wheel_air_longest_s": 0.0,
+            "dual_wheel_air_longest_s": 0.0,
+            "wheel_air_fraction": 0.0,
+            "both_contact_every_substep_fraction": 0.9840366463076069,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.0021847260650247335,
+            "worst_episode_wheel_clearance_peak_m": 0.0004388280212879181,
+            "worst_episode_wheel_air_longest_s": 0.0,
+            "worst_episode_dual_wheel_air_longest_s": 0.0
+          },
+          "lanes": [
+            {
+              "lane": 13,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.00022478029131889343,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 48,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0004388280212879181,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 1
+            },
+            {
+              "lane": 83,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0003170296549797058,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 118,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.0002486035227775574,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            }
+          ]
+        },
+        "stand": {
+          "full_window": {
+            "episodes": 4,
+            "completed": 4,
+            "shortest_observation_until_s": 12.0,
+            "worst_episode_body_xy_max_excursion_m": 0.021104633808135986,
+            "worst_episode_wheel_clearance_peak_m": 0.00985504686832428,
+            "worst_episode_wheel_air_longest_s": 0.01100000087171793,
+            "worst_episode_dual_wheel_air_longest_s": 0.00800000037997961
+          },
+          "quiet": {
+            "frames": 1801.0,
+            "interval_s": 9.005206108093262,
+            "vx_rms_m_s": 0.003655455366242677,
+            "yaw_rms_rad_s": 0.004994467104552314,
+            "height_mae_m": 0.0006278468463278841,
+            "leg_speed_rms_rad_s": 0.03734583733603358,
+            "wheel_speed_rms_rad_s": 0.17513588070869446,
+            "leg_target_hf_rms_rad": 0.00020638887297462808,
+            "wheel_target_hf_rms_rad_s": 0.10513735402175245,
+            "leg_effort_hf_rms_nm": 0.05648085234715011,
+            "wheel_effort_hf_rms_nm": 0.05974294443612868,
+            "leg_effort_delta_rms_nm": 0.08194277994334698,
+            "leg_target_fast_rms_rad_3_95": 0.0008496341459921968,
+            "wheel_target_fast_rms_rad_s_3_95": 0.21403393879754865,
+            "leg_motion_fast_rms_rad_3_95": 0.0008742674813509294,
+            "wheel_motion_fast_rms_rad_s_3_95": 0.13322175613377693,
+            "leg_motion_rms_rad_1_3": 0.0015492843139331498,
+            "wheel_motion_rms_rad_s_1_3": 0.10440366189781262,
+            "body_xy_max_excursion_m": 0.0012192032882012427,
+            "wheel_clearance_peak_m": 5.5264681577682495e-06,
+            "wheel_air_longest_s": 0.0,
+            "dual_wheel_air_longest_s": 0.0,
+            "wheel_air_fraction": 0.0,
+            "both_contact_every_substep_fraction": 1.0,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 0.00177001953125,
+            "worst_episode_wheel_clearance_peak_m": 6.146728992462158e-06,
+            "worst_episode_wheel_air_longest_s": 0.0,
+            "worst_episode_dual_wheel_air_longest_s": 0.0
+          },
+          "lanes": [
+            {
+              "lane": 12,
+              "survived": true,
+              "max_clearance_after_200ms_m": 6.146728992462158e-06,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 47,
+              "survived": true,
+              "max_clearance_after_200ms_m": 6.273388862609863e-06,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 82,
+              "survived": true,
+              "max_clearance_after_200ms_m": 6.07222318649292e-06,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 117,
+              "survived": true,
+              "max_clearance_after_200ms_m": 6.921589374542236e-06,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            }
+          ]
+        },
+        "stand_high": {
+          "full_window": {
+            "episodes": 4,
+            "completed": 3,
+            "shortest_observation_until_s": 8.795000076293945,
+            "worst_episode_body_xy_max_excursion_m": 3.8274943828582764,
+            "worst_episode_wheel_clearance_peak_m": 0.1374959647655487,
+            "worst_episode_wheel_air_longest_s": 0.23600029945373535,
+            "worst_episode_dual_wheel_air_longest_s": 0.19600021839141846
+          },
+          "quiet": {
+            "frames": 1640.75,
+            "interval_s": 8.203937768936157,
+            "vx_rms_m_s": 0.25357935891952366,
+            "yaw_rms_rad_s": 0.424054640927352,
+            "height_mae_m": 0.02677791556925513,
+            "leg_speed_rms_rad_s": 2.106568885035813,
+            "wheel_speed_rms_rad_s": 17.324871011078358,
+            "leg_target_hf_rms_rad": 0.009633711522463721,
+            "wheel_target_hf_rms_rad_s": 1.0713172963712152,
+            "leg_effort_hf_rms_nm": 1.7793999234340354,
+            "wheel_effort_hf_rms_nm": 0.2765893785750248,
+            "leg_effort_delta_rms_nm": 2.19150107819587,
+            "leg_target_fast_rms_rad_3_95": 0.06635603522238642,
+            "wheel_target_fast_rms_rad_s_3_95": 9.159240743044244,
+            "leg_motion_fast_rms_rad_3_95": 0.039048115400648814,
+            "wheel_motion_fast_rms_rad_s_3_95": 7.558406933413642,
+            "leg_motion_rms_rad_1_3": 0.12015194018896729,
+            "wheel_motion_rms_rad_s_1_3": 12.848732696226083,
+            "body_xy_max_excursion_m": 1.265567097812891,
+            "wheel_clearance_peak_m": 0.06578627694398165,
+            "wheel_air_longest_s": 0.0970001071691513,
+            "dual_wheel_air_longest_s": 0.08375008031725883,
+            "wheel_air_fraction": 0.08856845062245267,
+            "both_contact_every_substep_fraction": 0.8122749095330181,
+            "episodes_with_valid_windows": 4,
+            "body_xy_worst_episode_excursion_m": 3.8230230808258057,
+            "worst_episode_wheel_clearance_peak_m": 0.13232913613319397,
+            "worst_episode_wheel_air_longest_s": 0.23600029945373535,
+            "worst_episode_dual_wheel_air_longest_s": 0.19600021839141846
+          },
+          "lanes": [
+            {
+              "lane": 14,
+              "survived": true,
+              "max_clearance_after_200ms_m": 8.184462785720825e-06,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            },
+            {
+              "lane": 49,
+              "survived": false,
+              "max_clearance_after_200ms_m": 0.1374959647655487,
+              "longest_air_after_200ms_s": 0.16800016164779663,
+              "sensor_delay_policy_ticks": 1
+            },
+            {
+              "lane": 84,
+              "survived": true,
+              "max_clearance_after_200ms_m": 0.1365031599998474,
+              "longest_air_after_200ms_s": 0.23600029945373535,
+              "sensor_delay_policy_ticks": 1
+            },
+            {
+              "lane": 119,
+              "survived": true,
+              "max_clearance_after_200ms_m": 9.402632713317871e-06,
+              "longest_air_after_200ms_s": 0.0,
+              "sensor_delay_policy_ticks": 0
+            }
+          ]
+        }
+      }
+    }
+  },
+  "optimizer_updates": 0,
+  "long_training_admitted": false,
+  "hardware_motion": 0,
+  "all_lane_origins_and_initial_domains_identical": true
+}

@@ -50,3 +50,19 @@ def test_wrong_native_placement_or_case_is_refused(change):
         b = deepcopy(a)
     with pytest.raises(ValueError):
         MODULE.verify_native_pairing(a, b)
+
+
+@pytest.mark.parametrize("diagnostic", [{"evaluation_overrides": {"sensor_delay_policy_ticks": 0}},
+                                       {"case_subset": ["stand_high"]}])
+def test_diagnostic_counterfactuals_cannot_qualify_export(tmp_path, monkeypatch, diagnostic):
+    import json
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    checkpoint = tmp_path / "model.pt"
+    checkpoint.write_bytes(b"identity-only")
+    candidate, baseline = tmp_path / "candidate", tmp_path / "baseline"
+    candidate.mkdir()
+    baseline.mkdir()
+    (candidate / "report.json").write_text(json.dumps(diagnostic))
+    (baseline / "report.json").write_text("{}")
+    with pytest.raises(ValueError, match="Diagnostic overrides/subsets"):
+        MODULE.assess([candidate] * 2, [baseline] * 2, checkpoint, {})
