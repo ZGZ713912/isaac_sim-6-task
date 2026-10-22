@@ -69,6 +69,8 @@ def main():
                         help="Diagnostic: zero one bias after the seeded reset, retaining all other draws and noise")
     parser.add_argument("--standing-command-feedback-gain", type=float,
                         help="Diagnostic standing-only forward request correction from wheel speed; cannot qualify an export")
+    parser.add_argument("--standing-command-feedback-estimator", choices=["wheel", "rolling"], default="wheel",
+                        help="Diagnostic velocity input: wheel proxy or sealed107 encoder/IMU rolling kinematics")
     parser.add_argument("--variants", nargs="+", default=["parent", "robust", "legs_only", "undamped"],
                         choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd", "deployed"])
     args = parser.parse_args()
@@ -98,6 +100,8 @@ def main():
                 or set(args.case_names or []) != {"stand_low", "stand", "stand_high"}
                 or len(seeds) != 1):
             parser.error("Standing command feedback requires finite gain within +/-8, robust only, one seed, and the three standing cases")
+    elif args.standing_command_feedback_estimator != "wheel":
+        parser.error("The rolling estimate requires an explicit diagnostic command-feedback gain")
     args.output = args.output.resolve()
     args.checkpoint = args.checkpoint.resolve()
     deployed_sha = None
@@ -201,7 +205,14 @@ def main():
             mean = deepcopy(selected).cuda()
             if args.standing_command_feedback_gain is not None:
                 from wheeled_algo.evaluation_command_feedback import StandingCommandFeedbackParent
-                mean.parent = StandingCommandFeedbackParent(mean.parent, args.standing_command_feedback_gain).cuda()
+                estimator = None
+                if args.standing_command_feedback_estimator == "rolling":
+                    from wheeled_algo.rolling_velocity import RollingBaseVelocity
+                    table_path = ROOT / "reports/flat_base_continuation_20261019/low_friction_candidate001/height_lookup.json"
+                    if training.digest(table_path) != "57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69":
+                        raise ValueError("Diagnostic rolling geometry table changed")
+                    estimator = RollingBaseVelocity(json.loads(table_path.read_text()))
+                mean.parent = StandingCommandFeedbackParent(mean.parent, args.standing_command_feedback_gain, estimator).cuda()
             if name == "parent":
                 mean = mean.parent
             elif name == "legs_only":
@@ -239,8 +250,13 @@ def main():
         if args.standing_command_feedback_gain is not None:
             env.evaluation_overrides["standing_command_feedback"] = dict(
                 gain=args.standing_command_feedback_gain, max_request_correction_m_s=.15,
-                velocity_proxy=".3 * (obs20 - obs21)",
+                velocity_estimator=args.standing_command_feedback_estimator,
+                velocity_proxy=".3 * (obs20 - obs21)" if args.standing_command_feedback_estimator == "wheel" else "sealed107_encoder_IMU_rolling_kinematics",
                 location="frozen_locomotion_parent_only_original_outer_requests_and_gates_retained")
+            if args.standing_command_feedback_estimator == "rolling":
+                env.evaluation_overrides["standing_command_feedback"].update(
+                    geometry_table_sha256="57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
+                    model_spec_sha256="0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997")
         groups = [(seed, name) for seed in seeds for name in args.variants]
         for index, (_, name) in enumerate(groups):
             if name == "raw_pd":
