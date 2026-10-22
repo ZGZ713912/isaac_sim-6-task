@@ -1,0 +1,20 @@
+{
+  "schema": "robust-expert-and-side-profile-checks-v1",
+  "height_expert_cpu_tests": {
+    "passed": 53,
+    "log": "iteration031_tests.log"
+  },
+  "side_exposure_cpu_tests": {
+    "passed": 53,
+    "log": "iteration032_tests.log",
+    "overlaps_height_tests": true
+  },
+  "negative_cli": {
+    "command": "--side-recovery-focus without --recovery-only",
+    "exit_code": 2,
+    "app_not_started": true,
+    "output_directory_created": false
+  },
+  "onnx_numeric_receipt": "iteration031_onnx.json",
+  "native_initial_state_receipt": "iteration031_initial.json"
+}
