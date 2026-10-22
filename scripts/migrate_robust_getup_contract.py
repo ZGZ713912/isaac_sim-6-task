@@ -35,6 +35,8 @@ def main():
                         help="Match height expert anchors to native float32(command)*5; requires existing height experts")
     parser.add_argument("--quiet-exploration-fraction", type=float,
                         help="Explicit training-distribution revision, .05...35; deterministic actor is unchanged")
+    parser.add_argument("--quiet-wheel-exploration-fraction", type=float,
+                        help="Explicit wheel-only quiet Gaussian fraction .05...35; old checkpoints keep the shared fraction")
     parser.add_argument("--low-quiet-reference", type=Path,
                         help="Optional authenticated low-height quiet head; requires --quiet-height-experts")
     parser.add_argument("--high-quiet-reference", type=Path,
@@ -66,6 +68,8 @@ def main():
         parser.error("Recovery common-leg increment must be within .05...3 raw action per policy tick")
     if args.quiet_exploration_fraction is not None and not .05 <= args.quiet_exploration_fraction <= .35:
         parser.error("Quiet exploration fraction must be within .05...35")
+    if args.quiet_wheel_exploration_fraction is not None and not .05 <= args.quiet_wheel_exploration_fraction <= .35:
+        parser.error("Quiet wheel exploration fraction must be within .05...35")
     if args.low_quiet_reference and not args.quiet_height_experts:
         parser.error("Low-height reference requires explicit quiet height experts")
     if args.quiet_height_experts and args.quiet_reference:
@@ -179,6 +183,11 @@ def main():
         info["settings"].update(version="robust-v2.24-quiet-exploration",
                                 quiet_exploration_fraction=args.quiet_exploration_fraction)
         revision["quiet_exploration_fraction"] = args.quiet_exploration_fraction
+        revision["deterministic_mean_unchanged"] = True
+    if args.quiet_wheel_exploration_fraction is not None:
+        info["settings"].update(version="robust-v2.29-axis-quiet-exploration",
+                                quiet_wheel_exploration_fraction=args.quiet_wheel_exploration_fraction)
+        revision["quiet_wheel_exploration_fraction"] = args.quiet_wheel_exploration_fraction
         revision["deterministic_mean_unchanged"] = True
     if args.native_height_anchors:
         if not old_info["settings"].get("quiet_height_experts", False):

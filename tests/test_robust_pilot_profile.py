@@ -21,6 +21,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
                                         "quiet_height_experts": True,
                                         "quiet_native_height_anchors": True,
                                         "quiet_exploration_fraction": .1,
+                                        "quiet_wheel_exploration_fraction": .35,
                                         "quiet_velocity_feature_gain": 10.,
                                         "quiet_velocity_feedback": True,
                                         "quiet_velocity_feedback_mode": "wheels",
@@ -44,6 +45,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert task["quiet_height_experts"]
     assert task["quiet_native_height_anchors"]
     assert task["quiet_exploration_fraction"] == .1
+    assert task["quiet_wheel_exploration_fraction"] == .35
     assert task["quiet_velocity_feature_gain"] == 10.
     assert task["quiet_velocity_feedback"]
     assert task["quiet_velocity_feedback_mode"] == "wheels"
@@ -100,6 +102,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert side["quiet_height_probabilities"] == [.5, .25, .25]
     assert not side["quiet_training"]
     assert side["quiet_exploration_fraction"] == .1
+    assert side["quiet_wheel_exploration_fraction"] == .35
     assert side["quiet_velocity_feature_gain"] == 10.
     assert side["quiet_velocity_feedback"]
     assert side["quiet_velocity_feedback_mode"] == "wheels"
