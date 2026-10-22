@@ -1,0 +1,116 @@
+{
+  "schema": "quiet038-original-event-figure-v1",
+  "figure": "reports/unified_robust_20261021/standing_velocity038.png",
+  "figure_sha256": "26c51b03def9127c2cf90da0e656de8234b893ed27b0996f5af3028c513d987c",
+  "sources": [
+    {
+      "label": "Initial quiet",
+      "run": "runs/unified_robust_20261022/quiet_velocity_baseline036",
+      "step": 441,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792695023.ZGZ.462719.0.behavior",
+          "sha256": "5e94126bb0af2a9b427b93acc24a2e79005be3a0c314b4af62868e966d11d674"
+        }
+      ]
+    },
+    {
+      "label": "037: all axes",
+      "run": "runs/unified_robust_20261022/velocity_feedback_static037",
+      "step": 473,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/velocity_feedback_static037/events.out.tfevents.1792700138.ZGZ.581055.0.behavior",
+          "sha256": "f1da94407d9002635a8499d2c7d4b5fd25545d4b2868a5243bd8f50c12e195b1"
+        }
+      ]
+    },
+    {
+      "label": "038: wheels only",
+      "run": "runs/unified_robust_20261022/wheel_velocity_static038",
+      "step": 473,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/wheel_velocity_static038/events.out.tfevents.1792701964.ZGZ.617557.0.behavior",
+          "sha256": "21a785957e053d82b6e3be29e218634e49b541fa24ef7b1abe6159f9aff351fe"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    "full_window/worst_episode_body_xy_max_excursion_m",
+    "body_xy_worst_episode_excursion_m",
+    "leg_motion_fast_rms_rad_3_95",
+    "wheel_motion_fast_rms_rad_s_3_95"
+  ],
+  "plotted_values": [
+    [
+      [
+        33.54179263114929,
+        18.553896248340607,
+        12.094707787036896
+      ],
+      [
+        26.267999410629272,
+        14.466822147369385,
+        12.736031413078308
+      ],
+      [
+        0.2827847783919424,
+        0.661621568724513,
+        1.2038745917379856
+      ],
+      [
+        0.05773825943470001,
+        0.12595055997371674,
+        0.22590185701847076
+      ]
+    ],
+    [
+      [
+        22.424082458019257,
+        26.09431743621826,
+        17.66464412212372
+      ],
+      [
+        14.39393013715744,
+        15.44695794582367,
+        12.588369846343994
+      ],
+      [
+        0.31544119701720774,
+        4.8004514537751675,
+        4.534502048045397
+      ],
+      [
+        0.04939552769064903,
+        0.9489780068397522,
+        0.9199299216270447
+      ]
+    ],
+    [
+      [
+        34.26477015018463,
+        18.342535197734833,
+        12.638188898563385
+      ],
+      [
+        26.604992151260376,
+        14.4552081823349,
+        13.207793235778809
+      ],
+      [
+        0.3111730038654059,
+        0.6472386885434389,
+        1.2390189804136753
+      ],
+      [
+        0.06225501745939255,
+        0.12234141677618027,
+        0.2325156033039093
+      ]
+    ]
+  ],
+  "paired_static_conditions": true,
+  "data_source": "original RSL-RL run TensorBoard event files; no alternate curve source"
+}
