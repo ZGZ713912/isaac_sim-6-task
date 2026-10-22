@@ -1,0 +1,36 @@
+{
+  "schema": "quiet048-command-feedback-plan-v1",
+  "optimizer_updates": 0,
+  "checkpoint": "runs/unified_robust_20261022/quiet_coupled_state045/model_migrated.pt",
+  "checkpoint_sha256": "ddba4b0be7a31fb26264ccd677d5f54bcef0e4a69fd46768f3f4256d6dcf9426",
+  "reference_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "reference_current_path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/models/wheel_leg/recovery_candidate.onnx",
+  "gains": [
+    -2.0,
+    2.0
+  ],
+  "command_delta_bound_m_s": 0.15,
+  "real_cpu_observations": 5760,
+  "clean036_actions_exact": true,
+  "zero_gain_actions_exact": true,
+  "moving_and_fallen_actions_exact": true,
+  "observed_positive_gain_request_delta_max_abs_m_s": 0.15000000596046448,
+  "native": {
+    "seed": 211322,
+    "replicas": 16,
+    "seconds": 12,
+    "domain_scale": 0.35,
+    "ground_friction": [
+      0.3,
+      0.5
+    ],
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "origin": "isolated_overlap_v1",
+    "baseline": "quiet_velocity_baseline036"
+  },
+  "scope": "Frozen locomotion parent receives a corrected forward request; original outer request, quiet/recovery gates and quiet heads retained. Fixed gain diagnostic, not a trained candidate or deployable admission.",
+  "robust_consumed": 961,
+  "long_training_updates": 0,
+  "long_training_admitted": false
+}

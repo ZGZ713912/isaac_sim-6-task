@@ -1,0 +1,28 @@
+{
+  "schema": "real2sim-reference-live048-v1",
+  "source_sha256": {
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/models/wheel_leg/recovery_candidate.onnx": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "d5b4a80e9915ad596fdf0f2e7b97a1f4d8b7377228889ff6de466e4340730c00",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/action.cpp": "0b1fedc03e03bdf0aa8df4e8a2cc7d3556914af1dc10a5b0960cf9ec53e7004b",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/observation.cpp": "36078f0b52d74eb371e6734dccf980a67cc6f6ae736b13b49d8781889c2b9898"
+  },
+  "local_source_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "exact_reference_bytes": true,
+  "onnx_inputs": [
+    "obs"
+  ],
+  "onnx_outputs": [
+    "actions"
+  ],
+  "relevant_metadata": {
+    "leg_winding_version": "paired_branch107_v1",
+    "leg_target_model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997"
+  },
+  "checked_in_yaml_policy_hz": 50.0,
+  "user_confirmed_running_policy_hz": 200,
+  "training_policy_hz": 200,
+  "physics_feedback_hz": 1000,
+  "previous_action_contract": "RMCS process_action_ recovers scaled/clipped raw action into previous_action_; native recovery can supply its effective_action_history. Training retains clipped raw applied targets, passive reset uses measured leg pose.",
+  "scope": "Read-only source/YAML/model inspection. No hardware-rate measurement, physical validation, RMCS edit, or new leg-parameter identification. Checked-in YAML remains50Hz and cannot establish the user running200Hz configuration.",
+  "optimizer_updates": 0
+}

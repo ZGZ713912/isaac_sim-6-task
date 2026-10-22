@@ -67,6 +67,8 @@ def main():
                         help="Diagnostic: remove delay from only this sensor group; retain its noise and other delays")
     parser.add_argument("--neutralize-bias", choices=["policy_encoder", "policy_gyro", "pd_encoder"],
                         help="Diagnostic: zero one bias after the seeded reset, retaining all other draws and noise")
+    parser.add_argument("--standing-command-feedback-gain", type=float,
+                        help="Diagnostic standing-only forward request correction from wheel speed; cannot qualify an export")
     parser.add_argument("--variants", nargs="+", default=["parent", "robust", "legs_only", "undamped"],
                         choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd", "deployed"])
     args = parser.parse_args()
@@ -88,6 +90,14 @@ def main():
         parser.error("Use distinct yaw rates in [-4,4] together with --forward-speeds")
     if ("reference" in args.variants) != (args.reference_checkpoint is not None):
         parser.error("Use --reference-checkpoint together with the reference variant")
+    if args.standing_command_feedback_gain is not None:
+        import math
+        if (not math.isfinite(args.standing_command_feedback_gain)
+                or abs(args.standing_command_feedback_gain) > 8.
+                or args.variants != ["robust"]
+                or set(args.case_names or []) != {"stand_low", "stand", "stand_high"}
+                or len(seeds) != 1):
+            parser.error("Standing command feedback requires finite gain within +/-8, robust only, one seed, and the three standing cases")
     args.output = args.output.resolve()
     args.checkpoint = args.checkpoint.resolve()
     deployed_sha = None
@@ -189,6 +199,9 @@ def main():
         for name in args.variants:
             selected = deployed_mean if name == "deployed" else reference_mean if name == "reference" else verified_mean
             mean = deepcopy(selected).cuda()
+            if args.standing_command_feedback_gain is not None:
+                from wheeled_algo.evaluation_command_feedback import StandingCommandFeedbackParent
+                mean.parent = StandingCommandFeedbackParent(mean.parent, args.standing_command_feedback_gain).cuda()
             if name == "parent":
                 mean = mean.parent
             elif name == "legs_only":
@@ -223,6 +236,11 @@ def main():
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         if args.neutralize_bias:
             env.evaluation_overrides["neutralize_bias"] = args.neutralize_bias
+        if args.standing_command_feedback_gain is not None:
+            env.evaluation_overrides["standing_command_feedback"] = dict(
+                gain=args.standing_command_feedback_gain, max_request_correction_m_s=.15,
+                velocity_proxy=".3 * (obs20 - obs21)",
+                location="frozen_locomotion_parent_only_original_outer_requests_and_gates_retained")
         groups = [(seed, name) for seed in seeds for name in args.variants]
         for index, (_, name) in enumerate(groups):
             if name == "raw_pd":
