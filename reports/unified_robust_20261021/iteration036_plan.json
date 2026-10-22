@@ -1,0 +1,44 @@
+{
+  "schema": "quiet-velocity036-plan-v1",
+  "hypothesis": "Expanded static domains show opposing persistent drift. Preserve initial feedback by exact velocity-feature/weight coordinate compensation, so quiet PPO can learn velocity-dependent correction with better sensitivity; keep improved032 recovery frozen.",
+  "parent_checkpoint": "runs/unified_robust_20261022/quiet_velocity036/model_migrated.pt",
+  "parent_sha256": "3d5336b518b1f23c91b6dc9b1aa3f19e81a3112de9c596df86bc7451f78cb7d6",
+  "preexisting_consumption": 737,
+  "new_updates_max": 64,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "actor_lr": 1e-05,
+  "seed": 211329,
+  "domain_scale": 0.35,
+  "ground_friction_range": [
+    0.3,
+    0.5
+  ],
+  "quiet_velocity_feature_gain": 10.0,
+  "quiet_exploration_fraction": 0.1,
+  "standing_drift_speed_scale_m_s": 0.02,
+  "heights_m": [
+    0.305,
+    0.23,
+    0.42
+  ],
+  "height_probabilities": [
+    0.25,
+    0.25,
+    0.5
+  ],
+  "trainable_actor_parameters": 8082,
+  "trainable_actor": "all three quiet experts",
+  "frozen": [
+    "parent",
+    "arc",
+    "recovery",
+    "log_std"
+  ],
+  "native_origin_mode": "isolated_overlap_v1",
+  "baseline_and_after": "same48 native environments: three heights16replicas each, seed211322, .35DR; both full windows and all failures retained",
+  "full_suite_after": "140x12s fixed suite for getup and motion regression",
+  "run_started": false,
+  "long_training_admitted": false,
+  "hardware_motion": false
+}
