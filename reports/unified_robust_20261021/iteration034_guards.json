@@ -1,0 +1,36 @@
+{
+  "schema": "quiet-exploration034-cli-guards-v1",
+  "cases": [
+    {
+      "args": [
+        "--quiet-exploration-fraction",
+        ".1"
+      ],
+      "returncode": 2,
+      "app_not_started": true,
+      "error": "train_robust_getup.py: error: Quiet exploration revision requires --quiet-only and a fraction within .05...35"
+    },
+    {
+      "args": [
+        "--quiet-only",
+        "--quiet-exploration-fraction",
+        "0"
+      ],
+      "returncode": 2,
+      "app_not_started": true,
+      "error": "train_robust_getup.py: error: Quiet exploration revision requires --quiet-only and a fraction within .05...35"
+    },
+    {
+      "args": [
+        "--quiet-only",
+        "--quiet-exploration-fraction",
+        "nan"
+      ],
+      "returncode": 2,
+      "app_not_started": true,
+      "error": "train_robust_getup.py: error: Quiet exploration revision requires --quiet-only and a fraction within .05...35"
+    }
+  ],
+  "cpu_tests_passed": 57,
+  "native_rsl_sampling_logprob_self_KL_checked_for_both_fractions": true
+}

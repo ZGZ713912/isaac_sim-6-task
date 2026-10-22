@@ -1,0 +1,75 @@
+{
+  "schema": "robust-finer-high-drift033-results-v1",
+  "checkpoint_sha256": "718f8aaf6f4c87393b41aa4fdfa0fd2cbf9d893b279567751a41ed12e088d375",
+  "native_report_sha256": "a30d7c6acd326afbfdb9449b7d412872ec5e0d9bd4c82364744a76260ee8d379",
+  "trajectory_sha256": "ab452aea5e605d3018597b3d91a608868c35c6a736d74e6f20e4beef6c080910",
+  "robust_consumed": 609,
+  "selected_base_lineage": 441,
+  "matched031": {
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "world_origin_m": true,
+    "pose_index": true,
+    "command": true,
+    "initial_obs_exact": true
+  },
+  "standing": {
+    "stand_low": {
+      "full_max_cm": 1.9950367510318756,
+      "steady_max_cm": 1.8274597823619843,
+      "physical_leg_fast_rms_rad": 0.00033863843982821616,
+      "physical_wheel_fast_rms_rad_s": 0.06396840921173348,
+      "running_clearance_max_m": 0.0007860921323299408
+    },
+    "stand": {
+      "full_max_cm": 4.846999421715736,
+      "steady_max_cm": 3.4022755920886993,
+      "physical_leg_fast_rms_rad": 0.0007260517697372186,
+      "physical_wheel_fast_rms_rad_s": 0.12725885989407443,
+      "running_clearance_max_m": 0.0005271881818771362
+    },
+    "stand_high": {
+      "full_max_cm": 8.512486517429352,
+      "steady_max_cm": 5.761711299419403,
+      "physical_leg_fast_rms_rad": 0.001233864120884432,
+      "physical_wheel_fast_rms_rad_s": 0.3024142996042165,
+      "running_clearance_max_m": 0.0004886575043201447
+    }
+  },
+  "motion": {
+    "survived": 84,
+    "episodes": 92
+  },
+  "actual_settled": {
+    "inverted": {
+      "episodes": 28,
+      "recovered": 25,
+      "recovery_and_motion_success": 10,
+      "practical_recovery_and_motion_success": 19
+    },
+    "right": {
+      "episodes": 8,
+      "recovered": 3,
+      "recovery_and_motion_success": 0,
+      "practical_recovery_and_motion_success": 2
+    },
+    "upright": {
+      "episodes": 8,
+      "recovered": 8,
+      "recovery_and_motion_success": 3,
+      "practical_recovery_and_motion_success": 3
+    },
+    "left": {
+      "episodes": 4,
+      "recovered": 3,
+      "recovery_and_motion_success": 1,
+      "practical_recovery_and_motion_success": 2
+    }
+  },
+  "practical_moving_fall_recoveries": 0,
+  "full_behavior_completed": true,
+  "all_three_standing_5cm": false,
+  "long_training_admitted": false,
+  "hardware_ready": false,
+  "decision": "Keep as experimental continuation only. High steady envelope improves8.17to5.76cm but full startup regresses6.01to8.51cm; cannot declare standing solved or admit long training."
+}

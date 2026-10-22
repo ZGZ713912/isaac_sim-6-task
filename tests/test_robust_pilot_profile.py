@@ -20,6 +20,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
                                         "fast_forward_reference_yaw_fade": None,
                                         "quiet_height_experts": True,
                                         "quiet_native_height_anchors": True,
+                                        "quiet_exploration_fraction": .1,
                                         "quiet_critic_anchor": True, "quiet_spectral_cost": True,
                                         "standing_support_training": True, "standing_drift_weight": 2.,
                                         "standing_drift_speed_scale_m_s": .01, "quiet_sway_m": .05,
@@ -39,6 +40,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert task["native_origin_mode"] == "isolated_overlap_v1"
     assert task["quiet_height_experts"]
     assert task["quiet_native_height_anchors"]
+    assert task["quiet_exploration_fraction"] == .1
     assert json.loads((args.output / "config/contract.json").read_text())["full_rl_isolated_origins"]
     assert task["standing_support_training"] and task["quiet_critic_anchor"]
     assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
@@ -91,3 +93,4 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert side["quiet_sway_m"] == .05
     assert side["quiet_height_probabilities"] == [.5, .25, .25]
     assert not side["quiet_training"]
+    assert side["quiet_exploration_fraction"] == .1

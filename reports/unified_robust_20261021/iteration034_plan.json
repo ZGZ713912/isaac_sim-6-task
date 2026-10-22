@@ -1,0 +1,38 @@
+{
+  "schema": "robust-quiet-precision034-plan-v1",
+  "hypothesis": "033 strengthened creep reward but retained a startup/steady tradeoff. Quiet Gaussian target perturbations are several times exported physical oscillation; lower only the upright zero-command exploration fraction to improve fine balance credit.",
+  "source_checkpoint": "runs/unified_robust_20261022/pilot018_finer_high_drift033/model_final.pt",
+  "migrated_checkpoint": "runs/unified_robust_20261022/quiet_precision034/model_migrated.pt",
+  "preexisting_robust_consumption": 609,
+  "new_updates_max": 64,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "actor_lr": 1e-05,
+  "seed": 211325,
+  "domain_scale": 0.35,
+  "ground_friction_range": [
+    0.3,
+    0.5
+  ],
+  "profile": "quiet-only standing-support-training early-standing-position standing-drift-objective high-standing-only standing-drift-speed-scale .01 quiet-exploration-fraction .1",
+  "old_fraction": 0.35,
+  "new_fraction": 0.1,
+  "deterministic_mean_before_training_exact": true,
+  "actual_distribution_uses_sigma_in_sampling_logprob_entropy_and_KL": true,
+  "no_old_rollouts_reused": true,
+  "cost_change": false,
+  "physical_control_change": false,
+  "observation_change": false,
+  "trainable_actor": "2694 high quiet parameters only",
+  "frozen": [
+    "parent",
+    "arc",
+    "recovery",
+    "quiet_mid",
+    "quiet_low",
+    "log_std"
+  ],
+  "run_started": false,
+  "long_training_admitted": false,
+  "hardware_motion": false
+}
