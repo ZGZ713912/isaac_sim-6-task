@@ -1,0 +1,138 @@
+{
+  "schema": "quiet036-reject-after-extended-static-v1",
+  "status": "rejected",
+  "new_updates": 64,
+  "robust_consumed": 801,
+  "extended_pairing": {
+    "name": true,
+    "pose_index": true,
+    "command": true,
+    "recovery": true,
+    "world_origin_m": true,
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "sequence": true,
+    "push": true,
+    "push_sign": true,
+    "first_observation": true,
+    "native_origin_mode": true
+  },
+  "extended_static_before": {
+    "stand_low": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.3354179263114929,
+      "full_window_within_5cm": 12,
+      "steady_window_max_excursion_m": 0.2626799941062927,
+      "leg_motion_fast_rms_rad_3_95": 0.0002827847757359142,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.05773825775879396,
+      "leg_target_fast_rms_rad_3_95": 0.0003343288109598598,
+      "wheel_target_fast_rms_rad_s_3_95": 0.10502266625115864,
+      "wheel_clearance_after_02s_peak_m": 0.0008349418640136719
+    },
+    "stand": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.18553896248340607,
+      "full_window_within_5cm": 13,
+      "steady_window_max_excursion_m": 0.14466822147369385,
+      "leg_motion_fast_rms_rad_3_95": 0.00066162157733623,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.1259505566183204,
+      "leg_target_fast_rms_rad_3_95": 0.000755489645333765,
+      "wheel_target_fast_rms_rad_s_3_95": 0.1976220383077154,
+      "wheel_clearance_after_02s_peak_m": 0.0005294196307659149
+    },
+    "stand_high": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.12094707787036896,
+      "full_window_within_5cm": 11,
+      "steady_window_max_excursion_m": 0.12736031413078308,
+      "leg_motion_fast_rms_rad_3_95": 0.0012038745695525334,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.22590185687713893,
+      "leg_target_fast_rms_rad_3_95": 0.0012795663769459605,
+      "wheel_target_fast_rms_rad_s_3_95": 0.2948094786201464,
+      "wheel_clearance_after_02s_peak_m": 0.000513274222612381
+    }
+  },
+  "extended_static_after": {
+    "stand_low": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.325550377368927,
+      "full_window_within_5cm": 12,
+      "steady_window_max_excursion_m": 0.25684359669685364,
+      "leg_motion_fast_rms_rad_3_95": 0.0004473846785092143,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.08757282210825425,
+      "leg_target_fast_rms_rad_3_95": 0.0005294241068323964,
+      "wheel_target_fast_rms_rad_s_3_95": 0.15872853236649737,
+      "wheel_clearance_after_02s_peak_m": 0.0010059662163257599
+    },
+    "stand": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.16510014235973358,
+      "full_window_within_5cm": 8,
+      "steady_window_max_excursion_m": 0.11179528385400772,
+      "leg_motion_fast_rms_rad_3_95": 0.0006401180743386256,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.1207765197559275,
+      "leg_target_fast_rms_rad_3_95": 0.0007204648032298655,
+      "wheel_target_fast_rms_rad_s_3_95": 0.18978154066868835,
+      "wheel_clearance_after_02s_peak_m": 0.0005228370428085327
+    },
+    "stand_high": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.13420318067073822,
+      "full_window_within_5cm": 11,
+      "steady_window_max_excursion_m": 0.10245160758495331,
+      "leg_motion_fast_rms_rad_3_95": 0.0009769175668157741,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.2000488878926391,
+      "leg_target_fast_rms_rad_3_95": 0.0010502406620302143,
+      "wheel_target_fast_rms_rad_s_3_95": 0.2604563582014623,
+      "wheel_clearance_after_02s_peak_m": 0.0004981197416782379
+    }
+  },
+  "reason": "All three randomized static height cohorts exceed the fixed5cm full-window target; low-height physical vibration also increases",
+  "interrupted_diagnostic": {
+    "pid": 533459,
+    "proc_start_ticks": "2616791",
+    "command": "/home/noir/miniconda3/envs/isaacsim6/bin/python scripts/evaluate_robust_getup_batch.py --checkpoint /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/pilot021_velocity_condition036/model_final.pt --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/velocity_full_confirmation036 --variants robust --replicas 4 --seed 211322 --domain-scale .35 --friction-min .3 --seconds 12 --isolated-origins ",
+    "signal": "SIGTERM",
+    "time": 1792697717.2603028,
+    "purpose": "Stop non-PPO full-suite evaluation of an already rejected candidate",
+    "full_behavior_verified": false,
+    "process_exited": true,
+    "native_returncode": 0,
+    "native_status": "starting",
+    "pipeline_status_preserved": "failed"
+  },
+  "long_training_admitted": false,
+  "deployment_package_replaced": false,
+  "training": {
+    "schema": "quiet-velocity036-training-v1",
+    "new_updates": 64,
+    "base_clock": 505,
+    "robust_consumed": 801,
+    "changed_actor": [
+      "mlp.mean.quiet.0.weight",
+      "mlp.mean.quiet.0.bias",
+      "mlp.mean.quiet.2.weight",
+      "mlp.mean.quiet.2.bias",
+      "mlp.mean.quiet_low.0.weight",
+      "mlp.mean.quiet_low.0.bias",
+      "mlp.mean.quiet_low.2.weight",
+      "mlp.mean.quiet_low.2.bias",
+      "mlp.mean.quiet_high.0.weight",
+      "mlp.mean.quiet_high.0.bias",
+      "mlp.mean.quiet_high.2.weight",
+      "mlp.mean.quiet_high.2.bias"
+    ],
+    "frozen_recovery_motion_std_exact": true,
+    "strict_load_valid": true,
+    "full_behavior_verified": false,
+    "checkpoint_sha256": "44eedbb036aa308a4fbe19344e02ba0a443cf20668e99e32f8b605243ddaa716"
+  },
+  "full_suite_complete": false,
+  "retained_behavior_candidate": "pilot020_side_recovery032; its prior verified full-suite results remain authoritative"
+}
