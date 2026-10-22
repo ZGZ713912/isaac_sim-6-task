@@ -34,6 +34,6 @@ for name, script, args, expected in CASES:
     results.append(result)
     assert process.returncode != 0 and result["expected_error_found"] and result["output_absent"], result
 receipt = dict(cases=results, optimizer_updates=0,
-    preflight_harness_correction="First inline guard expected the numeric LR cap in a generic error message; corrected only the assertion, no training was started")
+    harness_provenance="Uses the corrected038 error-message assertion; no040 harness correction was required")
 (REPORTS / "iteration040_cli_guards.json").write_text(json.dumps(receipt, indent=2) + "\n")
 print(json.dumps(receipt))
