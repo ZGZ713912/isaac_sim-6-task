@@ -53,6 +53,25 @@ def test_anchor_height_gradients_reach_only_its_own_quiet_expert():
             assert bool(grad.abs().sum() > 0) == (head == name)
 
 
+def test_native_float32_height_observations_use_exact_endpoints_and_frozen_gradients():
+    actor = RobustGetupActor(nn.Linear(35, 6), quiet_height_experts=True, quiet_native_height_anchors=True)
+    with torch.no_grad():
+        actor.quiet_low[-1].bias.fill_(.2)
+        actor.quiet_high[-1].bias.fill_(-.3)
+    heights = torch.tensor([.23, .305, .42], dtype=torch.float32) * 5.
+    assert heights[1] != torch.tensor(1.525, dtype=torch.float32)
+    for height, name in zip(heights, ("quiet_low", "quiet", "quiet_high")):
+        obs = observation()
+        obs[:, 3] = height
+        actor.zero_grad(set_to_none=True)
+        features = torch.ones_like(obs)
+        value = actor.quiet_correction(features, obs)
+        assert torch.equal(value, torch.tanh(getattr(actor, name)(features)))
+        value.sum().backward()
+        for head in ("quiet_low", "quiet", "quiet_high"):
+            assert bool(getattr(actor, head)[-1].bias.grad.abs().sum() > 0) == (head == name)
+
+
 def test_intermediate_height_is_continuous_and_nonquiet_output_is_unchanged():
     from copy import deepcopy
     old = RobustGetupActor(nn.Linear(35, 6))

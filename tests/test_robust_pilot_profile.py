@@ -51,6 +51,12 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert drift["quiet_sway_m"] == .05
     assert drift["quiet_high_leg_prediction_s"] == .005
     assert drift["fast_forward_reference_yaw_fade"] is None
+    assert drift["standing_drift_speed_scale_m_s"] == .02
+    args.standing_drift_speed_scale = .01
+    _, fine = training.prepare(args)
+    assert fine["standing_drift_speed_scale_m_s"] == .01
+    assert fine["standing_drift_weight"] == drift["standing_drift_weight"]
+    assert fine["quiet_sway_m"] == drift["quiet_sway_m"]
     args.high_standing_only = True
     _, high = training.prepare(args)
     assert high["quiet_height_probabilities"] == [0., 0., 1.]

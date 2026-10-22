@@ -1,0 +1,35 @@
+{
+  "schema": "robust-finer-high-standing033-plan-v1",
+  "hypothesis": "After height isolation031 the high expert exactly reproduced030 and retained4...9mm/s steady biases. Use bounded1cm/s rather than2cm/s drift scale so5mm/s creep has3.65times the cost, preserving startup cap and5cm position deadband.",
+  "preexisting_robust_consumption": 545,
+  "native_anchor_zero_ppo_fix": true,
+  "source": "031 all weights/moments; explicit float32 native anchor correction",
+  "new_updates_max": 64,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "actor_lr": 1e-05,
+  "seed": 211325,
+  "domain_scale": 0.35,
+  "ground_friction_range": [
+    0.3,
+    0.5
+  ],
+  "profile": "quiet-only standing-support-training early-standing-position standing-drift-objective high-standing-only standing-drift-speed-scale .01",
+  "frozen": [
+    "parent",
+    "arc",
+    "recovery",
+    "std",
+    "quiet_mid",
+    "quiet_low"
+  ],
+  "new_trainable_actor_parameters": 2694,
+  "standing_drift_speed_scale_m_s": 0.01,
+  "standing_drift_weight": 2,
+  "position_deadband_m": 0.05,
+  "run_started": false,
+  "full_behavior_validation_required": true,
+  "long_training_admitted": false,
+  "hardware_motion": false,
+  "side_recovery032_deferred": "Prioritize reaching standing envelope before changing recovery; plan032 remains pending."
+}
