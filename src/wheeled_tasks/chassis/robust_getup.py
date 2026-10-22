@@ -12,6 +12,7 @@ def settings(**overrides):
         paired_feedback_winding=True, cyclic_leg_targets=True, leg_action_clip=16., recovery_leg_step=.3,
         smooth_knee_targets=True, recovery_knee_center=[.924544, .924537],
         recovery_leg_speed_cost=.0005,
+        recovery_family_weights=[0., .1, .1, .2, .2, .3, .1],
         nominal_fraction=.25, motor_strength_range=[.85, 1.10],
         leg_kp_scale_range=[.9, 1.1], leg_kd_scale_range=[.85, 1.15],
         spring_strength_range=[.92, 1.08], torque_delay_ms=[0, 3], motor_tau_ms=[0., 5.],

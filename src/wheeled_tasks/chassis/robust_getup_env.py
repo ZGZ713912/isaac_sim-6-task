@@ -155,7 +155,7 @@ class RobustGetupEnv(ChassisEnv):
         else:
             relative = max(0, self.actor_updates - self.getup_cfg["origin_updates"])
             progress = min(1., relative / self.getup_cfg["curriculum_updates"])
-            weights = torch.tensor([0., .1, .1, .2, .2, .3, .1], device=self.device)
+            weights = torch.tensor(self.getup_cfg.get("recovery_family_weights", [0., .1, .1, .2, .2, .3, .1]), device=self.device)
             family = torch.multinomial(weights, count, replacement=True, generator=self.generator)
             # Easy poses dominate initially, but hard side/inverted births have
             # a nonzero quota from the first block. Selection happens at reset.
