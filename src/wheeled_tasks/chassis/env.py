@@ -187,6 +187,8 @@ class ChassisEnv:
         grid = math.ceil(math.sqrt(layout_count))
         floor_width = config.get("flat_floor_width_m", 4.)
         square_getup_ground = config.get("full_rl_square_ground", False)
+        from .isolated_origins import validate_isolated_origins
+        isolated_getup_origins = validate_isolated_origins(config, num_envs)
         if not 4. <= floor_width <= (128. if square_getup_ground else 8.):
             raise ValueError("Flat collider width must stay within the validated 4-8m tile range")
         half_length = config.get("flat_half_length_m", 44.)
@@ -223,6 +225,8 @@ class ChassisEnv:
             slot = layout_indices[i]
             origin = (((slot % corridor_columns) - (corridor_columns - 1) / 2) * corridor_spacing,
                       ((slot // corridor_columns) - (corridor_rows - 1) / 2) * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((slot % grid) * 10., (slot // grid) * 10., 0.)
+            if isolated_getup_origins:
+                origin = (0., 0., 0.)
             origins.append(origin)
             path = f"/World/envs/env_{i}"
             UsdGeom.Xform.Define(self.sim.stage, path).AddTranslateOp().Set(origin)
@@ -391,6 +395,10 @@ class ChassisEnv:
                 loop_count += 1
         if loop_count != (6 if self.is_v5 else 4) * num_envs:
             raise RuntimeError("Unexpected number of real loop constraints")
+        native_isolation = None
+        if isolated_getup_origins:
+            from .isolated_origins import isolate_native_worlds
+            native_isolation = isolate_native_worlds(self.sim.stage, self.sim.cfg.physics_prim_path, num_envs)
         self.sim.reset()
         if self.contact_domain is not None:
             properties = wp.to_torch(self.robot.root_view.get_material_properties())
@@ -493,6 +501,8 @@ class ChassisEnv:
             "num_envs": num_envs, "terrain_families": self.kinds,
             "mass_kg_each": self.body_mass.sum(-1).cpu().tolist(), "contact_filters": filters,
             "self_collision_enabled": False, "solver_order": order}
+        if native_isolation is not None:
+            self.startup_report["native_environment_isolation"] = native_isolation
         if self.route_runout_settings is not None:
             self.startup_report["terrain_route_runout"] = {
                 **self.route_runout_settings,
