@@ -1,0 +1,43 @@
+{
+  "schema": "robust-finer-drift033-cli-guards-v1",
+  "cases": [
+    {
+      "args": [
+        "--standing-drift-speed-scale",
+        ".01"
+      ],
+      "returncode": 2,
+      "app_not_started": true,
+      "output_created": false,
+      "reason": "train_robust_getup.py: error: Standing drift speed scale requires its objective and must be within .005...02 m/s"
+    },
+    {
+      "args": [
+        "--standing-drift-speed-scale",
+        ".03",
+        "--standing-drift-objective",
+        "--standing-support-training",
+        "--early-standing-position",
+        "--quiet-only"
+      ],
+      "returncode": 2,
+      "app_not_started": true,
+      "output_created": false,
+      "reason": "train_robust_getup.py: error: Standing drift speed scale requires its objective and must be within .005...02 m/s"
+    },
+    {
+      "args": [
+        "--standing-drift-speed-scale",
+        "nan",
+        "--standing-drift-objective",
+        "--standing-support-training",
+        "--early-standing-position",
+        "--quiet-only"
+      ],
+      "returncode": 2,
+      "app_not_started": true,
+      "output_created": false,
+      "reason": "train_robust_getup.py: error: Standing drift speed scale requires its objective and must be within .005...02 m/s"
+    }
+  ]
+}

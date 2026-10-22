@@ -12,6 +12,24 @@ def observation(count=1):
     return obs
 
 
+def test_side_exposure_uses_near_side_births_with_every_actual_bank_leg_shape():
+    import json
+    from pathlib import Path
+    import pytest
+    from wheeled_tasks.chassis.robust_getup import focused_side_pose_pool
+    bank = json.loads((Path(__file__).resolve().parents[1] / "reports/unified_robust_20261021/pose_bank002.json").read_text())
+    poses = bank["poses"]
+    tilt = torch.tensor([max(abs(p["roll_deg"]), abs(p["pitch_deg"])) for p in poses])
+    for family in ("left", "right"):
+        pool = torch.tensor([i for i, p in enumerate(poses) if p["family"] == family])
+        selected = focused_side_pose_pool(pool, tilt).tolist()
+        assert len(selected) == 9
+        assert {poses[i]["leg_shape"] for i in selected} == {poses[i]["leg_shape"] for i in pool.tolist()}
+        assert all(abs(poses[i]["roll_deg"]) == 90 for i in selected)
+    with pytest.raises(ValueError, match="Side recovery exposure needs"):
+        focused_side_pose_pool(torch.tensor([0]), torch.zeros(1))
+
+
 def test_unified_initialization_allows_only_the_declared_new_quiet_heads():
     import pytest
     for experts in (False, True):

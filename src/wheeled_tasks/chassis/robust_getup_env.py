@@ -17,7 +17,7 @@ from .env import ChassisEnv
 from .root_kinematics import root_link_linear_velocity, update_robot_data
 from .scut_observation import CONTROL_FROM_POLICY
 from .unified_getup import FAMILIES, classify_gravity, joint_tracking_score, project_commands, stable_standing, push_window
-from .robust_getup import RobustDomain
+from .robust_getup import RobustDomain, focused_side_pose_pool
 from .getup_feedback import GetupFeedback
 from .getup_reward import potential_reward
 from .quiet_standing import (QuietStanding, standing_request_mask, standing_support_cost,
@@ -171,6 +171,8 @@ class RobustGetupEnv(ChassisEnv):
                     difficult = pool[self.bank_tilt[pool] >= minimum]
                     if len(difficult):
                         pool = difficult
+                if self.getup_cfg.get("side_recovery_birth_focus", False) and f in (FAMILIES.index("left"), FAMILIES.index("right")):
+                    pool = focused_side_pose_pool(self.family_pools[f], self.bank_tilt)
                 if len(selected):
                     chosen[selected] = pool[(self.random(len(selected)) * len(pool)).long().clamp_max(len(pool) - 1)]
                     if f == FAMILIES.index("inverted"):
