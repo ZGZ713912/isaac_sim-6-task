@@ -1,0 +1,52 @@
+{
+  "schema": "robust-side-recovery032-plan-v1",
+  "hypothesis": "Side recovery remains weak even at effective wheel_mu .1...3. Increase side exposure and freeze standing/motion so the recovery actor can improve without another static-height regression.",
+  "run_started": false,
+  "parent_checkpoint": "Choose after031 full validation; preserve selected quiet experts",
+  "new_updates_max": 64,
+  "num_envs": 128,
+  "rollout_policy_steps": 128,
+  "actor_lr": 3e-05,
+  "seed": 211327,
+  "domain_scale": 0.35,
+  "ground_friction_range": [
+    0.3,
+    0.5
+  ],
+  "native_origin_mode": "isolated_overlap_v1",
+  "profile": "recovery-only side-recovery-focus",
+  "birth_fractions": {
+    "upright_motion": 0.2,
+    "recovery": 0.8
+  },
+  "recovery_family_weights": {
+    "upright": 0,
+    "front": 0.05,
+    "back": 0.05,
+    "left": 0.35,
+    "right": 0.35,
+    "inverted": 0.15,
+    "compound": 0.05
+  },
+  "within_pose_diversity": "Existing hard-pose pools, random yaw and asymmetric leg banks retained; exact180 inverted still sampled",
+  "reward_change": false,
+  "action_function_change": false,
+  "passive_motor_torque_nm": 0,
+  "frozen_actor": [
+    "parent",
+    "arc",
+    "quiet_mid",
+    "quiet_low",
+    "quiet_high",
+    "std"
+  ],
+  "followup_command_exposure": "Existing joint linear/angular requests retained during recovery",
+  "required_evidence": [
+    "exact full-state restoration",
+    "frozen actor tensors unchanged",
+    "fresh complete near-origin suite",
+    "actual settled recovery family with all failed denominators"
+  ],
+  "long_training_admitted": false,
+  "hardware_motion": false
+}
