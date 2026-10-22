@@ -1,0 +1,50 @@
+{
+  "schema": "quiet045-bounded-plan-v1",
+  "parent_checkpoint": "runs/unified_robust_20261022/quiet_coupled_state045/model_migrated.pt",
+  "parent_sha256": "ddba4b0be7a31fb26264ccd677d5f54bcef0e4a69fd46768f3f4256d6dcf9426",
+  "baseline_function": "Clean036 zero-PPO parent plus zero coupled state heads; old actor/critic/Adam/RNG exact",
+  "hypothesis": "Wheel-only instantaneous corrections lack coordinated pose-dependent equilibrium adjustment. Read existing IMU/leg pose/velocities and learn bounded common-leg plus wheel corrections without new direct previous-action recurrence.",
+  "updates": 32,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "seed": 211329,
+  "actor_lr": 0.001,
+  "critic_lr": 0.001,
+  "trainable_actor_parameters": 204,
+  "trainable_scope": "Three4x16 affine heads (weights and biases), deterministic same-leg common rotations and two wheels; all old actor/std frozen; critic trainable",
+  "domain_scale": 0.35,
+  "ground_friction": [
+    0.3,
+    0.5
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "validation": {
+    "cpu_tests": 92,
+    "actual_cli_guards": 5,
+    "migration_exact_observations": 15600,
+    "extended_static": "3heights x16repeats,12s,seed211322; matched domain/material/pose/command/origin/firstobs",
+    "before_baseline": "quiet_velocity_baseline036; migration initial deterministic function and constructor RNG exact",
+    "full_suite": "140x12s only after matched static5cm/no>3mm operational clearance and actual3-95Hz nonregression pass",
+    "full_counterpart": "side_confirmation032; nominal fresh two-seed admission remains required",
+    "native_Gaussian": "sample/logprob/entropy/KL checked against encoded std; current frozen std remains above native .003 floor",
+    "equal_budget_counterpart": "039/040 same32updates,seed,LR.001 and noise.06/.35; only shared original actor/optimizer/RNG compared",
+    "function_constraints": "same-leg deterministic knee difference retained away from final safety clips; all inactive outputs exact; no previous-action input in new path"
+  },
+  "robust_consumed_before": 929,
+  "robust_consumed_after_full_budget": 961,
+  "parent_clock": 441,
+  "expected_clock": 473,
+  "new_long_training_updates": 0,
+  "long_training_admitted": false,
+  "run_started": false,
+  "quiet_wheel_exploration_fraction": 0.35,
+  "standing_objectives": {
+    "early_position_deadband_m": 0.05,
+    "early_position_weight": 6.0,
+    "drift_weight": 2.0,
+    "drift_speed_scale_m_s": 0.02
+  },
+  "quiet_exploration_fraction": 0.06
+}

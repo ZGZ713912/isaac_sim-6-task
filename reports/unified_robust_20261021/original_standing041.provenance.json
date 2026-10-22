@@ -1,0 +1,98 @@
+{
+  "schema": "original041-original-event-figure-v1",
+  "figure": "reports/unified_robust_20261021/original_standing041.png",
+  "figure_sha256": "68d6a3cc5361b3141f56b2bc3ff8e0e89eb91a2ee69d73420a840d0912b38f5f",
+  "sources": [
+    {
+      "label": "Original ONNX",
+      "run": "runs/unified_robust_20261022/deployed_static041",
+      "event_step": 473,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/deployed_static041/events.out.tfevents.1792705432.ZGZ.717114.0.behavior",
+          "sha256": "67c146f6f50e8a924fb150288db10d5de9516e9aa52a8835d93f8d51297ce39f"
+        }
+      ]
+    },
+    {
+      "label": "Retained quiet policy",
+      "run": "runs/unified_robust_20261022/quiet_velocity_baseline036",
+      "event_step": 441,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792695023.ZGZ.462719.0.behavior",
+          "sha256": "5e94126bb0af2a9b427b93acc24a2e79005be3a0c314b4af62868e966d11d674"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    "full_window/worst_episode_body_xy_max_excursion_m",
+    "body_xy_worst_episode_excursion_m",
+    "leg_motion_fast_rms_rad_3_95",
+    "wheel_motion_fast_rms_rad_s_3_95"
+  ],
+  "plotted_values": [
+    [
+      [
+        365.34581184387207,
+        135.9691858291626,
+        271.50962352752686
+      ],
+      [
+        286.4158868789673,
+        102.34864950180054,
+        215.02196788787842
+      ],
+      [
+        28.985926881432533,
+        3.465591464191675,
+        5.332707427442074
+      ],
+      [
+        2.3963074684143066,
+        0.846693754196167,
+        1.3768259286880493
+      ]
+    ],
+    [
+      [
+        33.54179263114929,
+        18.553896248340607,
+        12.094707787036896
+      ],
+      [
+        26.267999410629272,
+        14.466822147369385,
+        12.736031413078308
+      ],
+      [
+        0.2827847783919424,
+        0.661621568724513,
+        1.2038745917379856
+      ],
+      [
+        0.05773825943470001,
+        0.12595055997371674,
+        0.22590185701847076
+      ]
+    ]
+  ],
+  "data_source": "original TensorBoard events; no separate curve data source",
+  "scope": "Authenticated original ONNX under the existing native35D/200Hz simulator wrapper, including its original-comparison3raw-leg/9wheel clips; no new hardware or RMCS-path validation",
+  "pairing": {
+    "name": true,
+    "pose_index": true,
+    "command": true,
+    "recovery": true,
+    "world_origin_m": true,
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "sequence": true,
+    "push": true,
+    "push_sign": true,
+    "first_observation": true,
+    "native_origin_mode": true
+  },
+  "new_optimizer_updates": 0
+}

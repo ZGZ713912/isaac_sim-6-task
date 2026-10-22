@@ -399,8 +399,8 @@ def main():
     parser.add_argument("--restore-quiet-checkpoint", type=Path)
     parser.add_argument("--freeze-quiet", action="store_true")
     parser.add_argument("--quiet-only", action="store_true", help="Freeze motion/recovery and tune the quiet head, allowing 5 cm slow sway")
-    parser.add_argument("--quiet-velocity-only", action="store_true",
-                        help="Quiet-only profile: train only migrated bias-free encoder-velocity feedback, keeping existing quiet MLPs fixed")
+    parser.add_argument("--quiet-feedback-only", "--quiet-velocity-only", dest="quiet_velocity_only", action="store_true",
+                        help="Quiet-only profile: train only the explicitly migrated feedback branch, keeping existing quiet MLPs fixed")
     parser.add_argument("--standing-support-training", action="store_true",
                         help="Quiet-only profile: persistent request anchor, geometric support cost, 50%% high-height exposure")
     parser.add_argument("--early-standing-position", action="store_true",

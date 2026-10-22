@@ -1,0 +1,204 @@
+{
+  "schema": "quiet044-selective-native-v1",
+  "selection": {
+    "schema": "quiet044-selective-memory-v1",
+    "source_path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/pilot025_wheel_memory040/model_final.pt",
+    "source_sha256": "a3e1b2f80283c997b8ca87cea9ef7c10e8da31078dbbd13125cc54525ea90581",
+    "source_clock": 473,
+    "retained_base_clock": 441,
+    "selected_actor_parameter": "mlp.mean.quiet_velocity.high.weight",
+    "selected_adam_slot": 35,
+    "optimizer_updates": 0,
+    "scope": "Only high-height feedback weight and its Adam moments selected; clocks are not added; candidate not qualified",
+    "base_sha256": "161b5efe92f83e74beefe1205cb8994c3d316a34213275415b27ab047c40b8ea",
+    "checkpoint": "runs/unified_robust_20261022/quiet_selective_memory044/model_selected.pt",
+    "checkpoint_sha256": "58bd90857a29a8f30cced051623d47fd16f25efc9f77dbae5fdb3aa553a00101",
+    "observations": 23600,
+    "low_mid_exact_samples": 20000,
+    "high_matches040_samples": 3600,
+    "outside_quiet_exact_samples": 12559,
+    "all_other_actor_critic_adam_rng_exact": true,
+    "robust_consumed": 929,
+    "long_training_admitted": false,
+    "native_behavior_verified": false
+  },
+  "pairing": {
+    "name": true,
+    "pose_index": true,
+    "command": true,
+    "recovery": true,
+    "world_origin_m": true,
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "sequence": true,
+    "push": true,
+    "push_sign": true,
+    "first_observation": true,
+    "native_origin_mode": true
+  },
+  "baseline_standing": {
+    "stand_low": {
+      "episodes": 4,
+      "survived": 4,
+      "full_window_max_excursion_m": 0.019950367510318756,
+      "full_window_within_5cm": 4,
+      "steady_window_max_excursion_m": 0.018274597823619843,
+      "leg_motion_fast_rms_rad_3_95": 0.00033863843982821616,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.06396840921173348,
+      "leg_target_fast_rms_rad_3_95": 0.00040744970440032035,
+      "wheel_target_fast_rms_rad_s_3_95": 0.11736521555508282,
+      "wheel_clearance_after_02s_peak_m": 0.0007860921323299408
+    },
+    "stand": {
+      "episodes": 4,
+      "survived": 4,
+      "full_window_max_excursion_m": 0.048469994217157364,
+      "full_window_within_5cm": 4,
+      "steady_window_max_excursion_m": 0.03402275592088699,
+      "leg_motion_fast_rms_rad_3_95": 0.0007260517697372186,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.12725885989407443,
+      "leg_target_fast_rms_rad_3_95": 0.0008299416059797298,
+      "wheel_target_fast_rms_rad_s_3_95": 0.20954125069576895,
+      "wheel_clearance_after_02s_peak_m": 0.0005271881818771362
+    },
+    "stand_high": {
+      "episodes": 4,
+      "survived": 4,
+      "full_window_max_excursion_m": 0.06010543182492256,
+      "full_window_within_5cm": 2,
+      "steady_window_max_excursion_m": 0.08168777823448181,
+      "leg_motion_fast_rms_rad_3_95": 0.0013292573269654414,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.28072562169244014,
+      "leg_target_fast_rms_rad_3_95": 0.001445624734866069,
+      "wheel_target_fast_rms_rad_s_3_95": 0.3646027072350817,
+      "wheel_clearance_after_02s_peak_m": 0.0005162432789802551
+    }
+  },
+  "standing": {
+    "stand_low": {
+      "episodes": 4,
+      "survived": 4,
+      "full_window_max_excursion_m": 0.019729916006326675,
+      "full_window_within_5cm": 4,
+      "steady_window_max_excursion_m": 0.01810167357325554,
+      "leg_motion_fast_rms_rad_3_95": 0.0003598312462128446,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.06519427413228936,
+      "leg_target_fast_rms_rad_3_95": 0.0004304821525876624,
+      "wheel_target_fast_rms_rad_s_3_95": 0.12205045433576656,
+      "wheel_clearance_after_02s_peak_m": 0.0007860921323299408
+    },
+    "stand": {
+      "episodes": 4,
+      "survived": 4,
+      "full_window_max_excursion_m": 0.048422276973724365,
+      "full_window_within_5cm": 4,
+      "steady_window_max_excursion_m": 0.035125892609357834,
+      "leg_motion_fast_rms_rad_3_95": 0.0007797686388557215,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.12709327834885167,
+      "leg_target_fast_rms_rad_3_95": 0.0008716908871723492,
+      "wheel_target_fast_rms_rad_s_3_95": 0.20978101200806307,
+      "wheel_clearance_after_02s_peak_m": 0.00041371583938598633
+    },
+    "stand_high": {
+      "episodes": 4,
+      "survived": 4,
+      "full_window_max_excursion_m": 0.06145789846777916,
+      "full_window_within_5cm": 2,
+      "steady_window_max_excursion_m": 0.07692574709653854,
+      "leg_motion_fast_rms_rad_3_95": 0.0009271771913054562,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.18254707814404839,
+      "leg_target_fast_rms_rad_3_95": 0.0010197709465049477,
+      "wheel_target_fast_rms_rad_s_3_95": 0.24732259216990693,
+      "wheel_clearance_after_02s_peak_m": 0.000510774552822113
+    }
+  },
+  "recovery": {
+    "inverted": {
+      "episodes": 28,
+      "recovered": 24,
+      "recovery_and_motion_success": 7,
+      "practical_recovery_and_motion_success": 19
+    },
+    "right": {
+      "episodes": 8,
+      "recovered": 7,
+      "recovery_and_motion_success": 1,
+      "practical_recovery_and_motion_success": 5
+    },
+    "upright": {
+      "episodes": 8,
+      "recovered": 8,
+      "recovery_and_motion_success": 2,
+      "practical_recovery_and_motion_success": 3
+    },
+    "left": {
+      "episodes": 4,
+      "recovered": 4,
+      "recovery_and_motion_success": 0,
+      "practical_recovery_and_motion_success": 2
+    }
+  },
+  "motion": {
+    "survived": 86,
+    "episodes": 92,
+    "practical_moving_fall_recoveries": 1
+  },
+  "motion_cases": {
+    "forward": {
+      "vx_mean_m_s": 1.067601501941681,
+      "yaw_mean_rad_s": 0.0027352948673069477,
+      "vx_mae_m_s": 0.06760159321129322,
+      "yaw_mae_rad_s": 0.002761922834906727
+    },
+    "arc_forward_left": {
+      "vx_mean_m_s": 1.0677669942378998,
+      "yaw_mean_rad_s": 0.995849534869194,
+      "vx_mae_m_s": 0.06776692718267441,
+      "yaw_mae_rad_s": 0.025917791877873242
+    },
+    "arc_forward_right": {
+      "vx_mean_m_s": 1.079962819814682,
+      "yaw_mean_rad_s": -0.9288404136896133,
+      "vx_mae_m_s": 0.079962607473135,
+      "yaw_mae_rad_s": 0.07118313759565353
+    },
+    "arc_reverse_left": {
+      "vx_mean_m_s": -0.8153983652591705,
+      "yaw_mean_rad_s": 1.0398946106433868,
+      "vx_mae_m_s": 0.06539787445217371,
+      "yaw_mae_rad_s": 0.039894406683743
+    },
+    "arc_reverse_right": {
+      "vx_mean_m_s": -0.8279194980859756,
+      "yaw_mean_rad_s": -0.9256210476160049,
+      "vx_mae_m_s": 0.07791969366371632,
+      "yaw_mae_rad_s": 0.07437929511070251
+    },
+    "arc_fast_left": {
+      "vx_mean_m_s": 0.4101402908563614,
+      "yaw_mean_rad_s": 3.9779337644577026,
+      "vx_mae_m_s": 0.1048598550260067,
+      "yaw_mae_rad_s": 0.024556509219110012
+    },
+    "arc_fast_right": {
+      "vx_mean_m_s": 0.5178482159972191,
+      "yaw_mean_rad_s": -3.939219057559967,
+      "vx_mae_m_s": 0.02925378002692014,
+      "yaw_mae_rad_s": 0.06104339752346277
+    },
+    "forward_fast": {
+      "vx_mean_m_s": 3.188388705253601,
+      "yaw_mean_rad_s": -0.002182048905524425,
+      "vx_mae_m_s": 0.18873891979455948,
+      "yaw_mae_rad_s": 0.004401831305585802
+    }
+  },
+  "passive_motor_peak_nm": 0.0,
+  "closure_peak_m": 0.0007740885484963655,
+  "new_optimizer_updates": 0,
+  "robust_consumed": 929,
+  "native_completed": true,
+  "long_training_admitted": false,
+  "deployment_package_replaced": false,
+  "scope": "Functional retention experiment only. Expanded48-episode static target remains unmet and formal two-seed admission is separate."
+}

@@ -1,0 +1,248 @@
+{
+  "schema": "quiet-bias042-counterfactual-v1",
+  "status": "completed",
+  "started": 1792706271.2927392,
+  "optimizer_updates": 0,
+  "robust_consumed": 929,
+  "long_training_admitted": false,
+  "qualification": false,
+  "intervention_results": {
+    "policy_encoder": {
+      "pairing": {
+        "name": true,
+        "pose_index": true,
+        "command": true,
+        "recovery": true,
+        "world_origin_m": true,
+        "material_coefficients": true,
+        "sequence": true,
+        "push": true,
+        "push_sign": true,
+        "all_other_domain_fields": true,
+        "only_declared_bias_neutralized": true,
+        "first_observation_matches_only_declared_bias_and_delay": true,
+        "native_origin_mode": true
+      },
+      "standing": {
+        "stand_low": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.34326666593551636,
+          "full_window_within_5cm": 12,
+          "steady_window_max_excursion_m": 0.27038976550102234,
+          "leg_motion_fast_rms_rad_3_95": 0.0003035924521767084,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.060400777999655125,
+          "leg_target_fast_rms_rad_3_95": 0.0003559398342948814,
+          "wheel_target_fast_rms_rad_s_3_95": 0.10915770101489128,
+          "wheel_clearance_after_02s_peak_m": 0.0008705630898475647
+        },
+        "stand": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.1568749099969864,
+          "full_window_within_5cm": 12,
+          "steady_window_max_excursion_m": 0.1224464699625969,
+          "leg_motion_fast_rms_rad_3_95": 0.0006694587189242062,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.12571057510995304,
+          "leg_target_fast_rms_rad_3_95": 0.0007577000095272434,
+          "wheel_target_fast_rms_rad_s_3_95": 0.19684983638531284,
+          "wheel_clearance_after_02s_peak_m": 0.0010417960584163666
+        },
+        "stand_high": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.15696296095848083,
+          "full_window_within_5cm": 10,
+          "steady_window_max_excursion_m": 0.1543121337890625,
+          "leg_motion_fast_rms_rad_3_95": 0.001228151110068837,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.22445155933578465,
+          "leg_target_fast_rms_rad_3_95": 0.0013030777184028961,
+          "wheel_target_fast_rms_rad_s_3_95": 0.2938129453242362,
+          "wheel_clearance_after_02s_peak_m": 0.0005138032138347626
+        }
+      },
+      "intervention": {
+        "component": "policy_encoder",
+        "before_max_abs": 0.0010483687510713935,
+        "after_max_abs": 0.0,
+        "application": "after_seeded_reset_before_first_policy_observation",
+        "scope": "evaluation_only_counterfactual_not_deployment_qualification"
+      },
+      "first_observation_exact": false,
+      "trajectory_sha256": "a9f655284565f5e6d0ce8c244f31e221e4b41b23db48b8e8e32457f32758648c"
+    },
+    "policy_gyro": {
+      "pairing": {
+        "name": true,
+        "pose_index": true,
+        "command": true,
+        "recovery": true,
+        "world_origin_m": true,
+        "material_coefficients": true,
+        "sequence": true,
+        "push": true,
+        "push_sign": true,
+        "all_other_domain_fields": true,
+        "only_declared_bias_neutralized": true,
+        "first_observation_matches_only_declared_bias_and_delay": true,
+        "native_origin_mode": true
+      },
+      "standing": {
+        "stand_low": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.3230006992816925,
+          "full_window_within_5cm": 12,
+          "steady_window_max_excursion_m": 0.2528192698955536,
+          "leg_motion_fast_rms_rad_3_95": 0.00027894347882930745,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.05758895822421538,
+          "leg_target_fast_rms_rad_3_95": 0.0003320750537825755,
+          "wheel_target_fast_rms_rad_s_3_95": 0.10544610181768707,
+          "wheel_clearance_after_02s_peak_m": 0.001273028552532196
+        },
+        "stand": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.18862797319889069,
+          "full_window_within_5cm": 12,
+          "steady_window_max_excursion_m": 0.14789573848247528,
+          "leg_motion_fast_rms_rad_3_95": 0.0006375130425485013,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.12294514685193239,
+          "leg_target_fast_rms_rad_3_95": 0.0007332159451941057,
+          "wheel_target_fast_rms_rad_s_3_95": 0.19413856313140074,
+          "wheel_clearance_after_02s_peak_m": 0.0007805190980434418
+        },
+        "stand_high": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.1223631277680397,
+          "full_window_within_5cm": 10,
+          "steady_window_max_excursion_m": 0.12321750819683075,
+          "leg_motion_fast_rms_rad_3_95": 0.0012207632557511726,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.22785686516848377,
+          "leg_target_fast_rms_rad_3_95": 0.0012984970659804412,
+          "wheel_target_fast_rms_rad_s_3_95": 0.29786725536263964,
+          "wheel_clearance_after_02s_peak_m": 0.0005151666700839996
+        }
+      },
+      "intervention": {
+        "component": "policy_gyro",
+        "before_max_abs": 0.0025277601089328527,
+        "after_max_abs": 0.0,
+        "application": "after_seeded_reset_before_first_policy_observation",
+        "scope": "evaluation_only_counterfactual_not_deployment_qualification"
+      },
+      "first_observation_exact": false,
+      "trajectory_sha256": "3bdcb58889d88be77f5a8e54d24b1e3fb7ebc841c55f437abb5fdcbbc5b4b490"
+    },
+    "pd_encoder": {
+      "pairing": {
+        "name": true,
+        "pose_index": true,
+        "command": true,
+        "recovery": true,
+        "world_origin_m": true,
+        "material_coefficients": true,
+        "sequence": true,
+        "push": true,
+        "push_sign": true,
+        "all_other_domain_fields": true,
+        "only_declared_bias_neutralized": true,
+        "first_observation_matches_only_declared_bias_and_delay": true,
+        "native_origin_mode": true
+      },
+      "standing": {
+        "stand_low": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.2844284772872925,
+          "full_window_within_5cm": 12,
+          "steady_window_max_excursion_m": 0.22632107138633728,
+          "leg_motion_fast_rms_rad_3_95": 0.0002468451337634607,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.054117485058486084,
+          "leg_target_fast_rms_rad_3_95": 0.00030060129598556093,
+          "wheel_target_fast_rms_rad_s_3_95": 0.09987870861629737,
+          "wheel_clearance_after_02s_peak_m": 0.000677403062582016
+        },
+        "stand": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.16710394620895386,
+          "full_window_within_5cm": 12,
+          "steady_window_max_excursion_m": 0.1312752068042755,
+          "leg_motion_fast_rms_rad_3_95": 0.0006696670587406006,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.1235608717798758,
+          "leg_target_fast_rms_rad_3_95": 0.0007633381892356162,
+          "wheel_target_fast_rms_rad_s_3_95": 0.19491966730677596,
+          "wheel_clearance_after_02s_peak_m": 0.0005003511905670166
+        },
+        "stand_high": {
+          "episodes": 16,
+          "survived": 16,
+          "full_window_max_excursion_m": 0.15918372571468353,
+          "full_window_within_5cm": 11,
+          "steady_window_max_excursion_m": 0.15708106756210327,
+          "leg_motion_fast_rms_rad_3_95": 0.0011738284330066607,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.21991567421535974,
+          "leg_target_fast_rms_rad_3_95": 0.0012493643029078787,
+          "wheel_target_fast_rms_rad_s_3_95": 0.2872077142757168,
+          "wheel_clearance_after_02s_peak_m": 0.0005178004503250122
+        }
+      },
+      "intervention": {
+        "component": "pd_encoder",
+        "before_max_abs": 0.0010321439476683736,
+        "after_max_abs": 0.0,
+        "application": "after_seeded_reset_before_first_policy_observation",
+        "scope": "evaluation_only_counterfactual_not_deployment_qualification"
+      },
+      "first_observation_exact": true,
+      "trajectory_sha256": "92b732ac2db96eba78eff933e720712b99284aa904fa71380f6a95d5c46bbf35"
+    }
+  },
+  "checkpoint_sha256": "161b5efe92f83e74beefe1205cb8994c3d316a34213275415b27ab047c40b8ea",
+  "baseline": {
+    "stand_low": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.3354179263114929,
+      "full_window_within_5cm": 12,
+      "steady_window_max_excursion_m": 0.2626799941062927,
+      "leg_motion_fast_rms_rad_3_95": 0.0002827847757359142,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.05773825775879396,
+      "leg_target_fast_rms_rad_3_95": 0.0003343288109598598,
+      "wheel_target_fast_rms_rad_s_3_95": 0.10502266625115864,
+      "wheel_clearance_after_02s_peak_m": 0.0008349418640136719
+    },
+    "stand": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.18553896248340607,
+      "full_window_within_5cm": 13,
+      "steady_window_max_excursion_m": 0.14466822147369385,
+      "leg_motion_fast_rms_rad_3_95": 0.00066162157733623,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.1259505566183204,
+      "leg_target_fast_rms_rad_3_95": 0.000755489645333765,
+      "wheel_target_fast_rms_rad_s_3_95": 0.1976220383077154,
+      "wheel_clearance_after_02s_peak_m": 0.0005294196307659149
+    },
+    "stand_high": {
+      "episodes": 16,
+      "survived": 16,
+      "full_window_max_excursion_m": 0.12094707787036896,
+      "full_window_within_5cm": 11,
+      "steady_window_max_excursion_m": 0.12736031413078308,
+      "leg_motion_fast_rms_rad_3_95": 0.0012038745695525334,
+      "wheel_motion_fast_rms_rad_s_3_95": 0.22590185687713893,
+      "leg_target_fast_rms_rad_3_95": 0.0012795663769459605,
+      "wheel_target_fast_rms_rad_s_3_95": 0.2948094786201464,
+      "wheel_clearance_after_02s_peak_m": 0.000513274222612381
+    }
+  },
+  "baseline_mean_equivalence": "040 migration15600real actions exact; all three new2x4weights remain zero",
+  "phase": "all_complete",
+  "reused_completed_native": [
+    "policy_encoder"
+  ],
+  "finished": 1792707089.5943298
+}
