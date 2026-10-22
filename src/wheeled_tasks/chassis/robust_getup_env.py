@@ -505,6 +505,7 @@ class RobustGetupEnv(ChassisEnv):
             info["log"][f"UnifiedGetup/post_settle/{name}_recoveries"] = (first & mask).float().sum()
         if self.cfg.get("record_diagnostics"):
             info["diagnostics"] = dict(velocity=velocity.clone(), omega=omega.clone(), gravity=gravity.clone(),
+                velocity_world=root_link_linear_velocity(self, frame="world").clone(),
                 height=height.clone(), commands=self.commands.clone(), requested_command=self.pending_command.clone(),
                 actions=self.actions.clone(), motor_effort=tau.clone(), motor_velocity=dq.clone(),
                 gap=gap_peak.clone(), impact=impact_peak.clone(), impulse=impulse_peak.clone(), passive=~active_interval,

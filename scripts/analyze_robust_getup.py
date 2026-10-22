@@ -29,6 +29,18 @@ def hf_rms(values, dt, min_hz=20., max_hz=95.):
     return float(np.sqrt(energy.mean()))
 
 
+def position_velocity_consistency(position, velocity_world, time):
+    """Compare world-space translation with independently recorded native velocity."""
+    if len(time) < 2 or not np.all(np.diff(time) > 0.):
+        raise ValueError("Position/velocity consistency requires increasing native timestamps")
+    elapsed = float(time[-1] - time[0])
+    integrated = np.trapezoid(velocity_world[:, :2].astype(np.float64), time.astype(np.float64), axis=0)
+    observed = position[-1, :2].astype(np.float64) - position[0, :2].astype(np.float64)
+    error = float(np.linalg.norm(integrated - observed))
+    return dict(position_velocity_displacement_error_m=error,
+                position_velocity_drift_rate_error_m_s=error / elapsed)
+
+
 def analyze(directory):
     directory = Path(directory)
     report = json.loads((directory / "report.json").read_text())
@@ -95,6 +107,9 @@ def analyze(directory):
             if "local_position" in data:
                 xy = data["local_position"][quiet, lane, :2]
                 row["quiet"]["body_xy_max_excursion_m"] = float(np.linalg.norm(xy - xy[:1], axis=-1).max())
+                if "velocity_world" in data:
+                    row["quiet"].update(position_velocity_consistency(
+                        xy, data["velocity_world"][quiet, lane], time[quiet]))
             if "wheel_clearance_peak" in data:
                 row["quiet"].update(
                     wheel_clearance_peak_m=float(data["wheel_clearance_peak"][quiet, lane].max()),

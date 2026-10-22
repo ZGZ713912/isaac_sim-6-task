@@ -40,7 +40,7 @@ def write_json(path, value):
 
 def prepare(args):
     from wheeled_tasks.chassis.getup_ground import require_bounded_world
-    if not getattr(args, "allow_large_world_coordinates", False):
+    if not getattr(args, "allow_large_world_coordinates", False) and not getattr(args, "isolated_origins", False):
         require_bounded_world(args.num_envs)
     from wheeled_tasks.chassis.robust_getup import settings, rigid_body_domain
     cfg = json.loads(BASE_CONFIG.read_text())
@@ -63,6 +63,10 @@ def prepare(args):
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
+        if prior.get("native_origin_mode") == "isolated_overlap_v1":
+            task["native_origin_mode"] = "isolated_overlap_v1"
+    if getattr(args, "isolated_origins", False):
+        task["native_origin_mode"] = "isolated_overlap_v1"
     if getattr(args, "quiet_only", False):
         task.update(version=task["version"] + "-quiet", quiet_training=True, motion_fraction=.8,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
@@ -88,6 +92,10 @@ def prepare(args):
         ppo_minibatch_samples=args.num_envs * args.rollout_steps // 4,
         episode_seconds=task["episode_seconds"], record_diagnostics=args.mode != "train",
         full_rl_square_ground=True, flat_floor_width_m=96., flat_half_length_m=48.)
+    if task["native_origin_mode"] == "isolated_overlap_v1":
+        from wheeled_tasks.chassis.isolated_origins import validate_isolated_origins
+        changes["full_rl_isolated_origins"] = True
+        validate_isolated_origins(dict(cfg, **changes), args.num_envs)
     if args.friction == "low":
         material = deepcopy(cfg["contact_material"])
         material["ground_static_friction_range"] = [.2, .5]
@@ -133,6 +141,8 @@ def prepare(args):
         locomotion_rehearsal_fraction=task["motion_fraction"], mixed_fraction_within_motion=.4,
         privileged_critic_last_two=("stationary XY displacement / 5 cm" if task["quiet_critic_anchor"] else "flat ground heights"),
         support_half_extent_xy_m=[48., 48.], boundary_xy_m=task["boundary_xy_m"],
+        native_origin_mode=task["native_origin_mode"],
+        mechanism_config_sha256=digest(args.output / "config/contract.json"),
         post_settle_coverage=True, action_range_changed=True,
         hardware_ready=False, source_training_updates_before_parent_export="unknown"))
     return cfg, task
@@ -267,7 +277,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
                 keep = ("time", "gravity", "height", "commands", "requested_command", "velocity", "omega",
                         "actions", "motor_effort", "motor_velocity", "gap", "impact", "impulse", "passive", "stable",
                         "done", "terminated", "enable_event", "settled_family", "recovered", "followup_success",
-                        "mechanical", "closure_gap", "impact_bad", "boundary_bad", "local_position", "motor_position", "wheel_contact")
+                        "mechanical", "closure_gap", "impact_bad", "boundary_bad", "local_position", "motor_position", "wheel_contact",
+                        "velocity_world")
                 keep += ("pushing", "in_motion_fall", "recovered_after_push")
                 keep += ("wheel_clearance", "wheel_clearance_peak", "wheel_contact_fraction")
                 keep += ("wheel_air_run_peak", "dual_wheel_air_run_peak", "wheel_air_seconds")
@@ -309,6 +320,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         passive_motor_peak_nm=float(passive_torque.max()), max_gap_m=float(max_gap.max()),
         max_contact_impulse_ns=float(max_impulse.max()),
         material=env.cfg["contact_material"], trajectory_sha256=digest(output / "trajectory.npz"),
+        native_origin_mode=("isolated_overlap_v1" if env.cfg.get("full_rl_isolated_origins") else "spaced_corridors_v1"),
+        native_environment_isolation=env.startup_report.get("native_environment_isolation"),
         robust_domains=env.domain.summary(), actor_variant=env.actor_variant,
         task_contract_sha256=digest(output.parent / "task_contract.json"),
         checkpoint_sha256=digest(env.evaluation_checkpoint) if getattr(env, "evaluation_checkpoint", None) else None,
@@ -329,6 +342,8 @@ def main():
     parser.add_argument("--mode", choices=("smoke", "train", "evaluate"), default="train")
     parser.add_argument("--updates", type=int, default=8)
     parser.add_argument("--num-envs", type=int, default=128)
+    parser.add_argument("--isolated-origins", action="store_true",
+                        help="Use independent native collision groups at the same near-zero origin; at most 256 environments")
     parser.add_argument("--allow-large-world-coordinates", action="store_true",
                         help="Historical diagnostic replay only; allows support beyond +/-1024 m")
     parser.add_argument("--rollout-steps", type=int, default=128)
