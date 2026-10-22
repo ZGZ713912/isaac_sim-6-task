@@ -12,6 +12,26 @@ def observation(count=1):
     return obs
 
 
+def test_precision_exploration_changes_only_quiet_variance_and_preserves_the_sampled_likelihood():
+    import pytest
+    old = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)))
+    fine = SensorConditionedMean(old.mean, quiet_exploration_fraction=.1)
+    fine.load_state_dict(old.state_dict(), strict=True)
+    obs = observation(3)
+    obs[1, 0] = 1.
+    obs[2, 9] = 1.
+    before, after = old(obs), fine(obs)
+    assert torch.equal(before[:, 0], after[:, 0])
+    assert torch.equal(before[1:, 1], after[1:, 1])
+    torch.testing.assert_close(after[0, 1].exp() / before[0, 1].exp(), torch.full((6,), .1/.35))
+    distribution = torch.distributions.Normal(after[:, 0], after[:, 1].exp())
+    actions = distribution.sample()
+    expected = distribution.log_prob(actions).sum(-1)
+    reconstructed = torch.distributions.Normal(fine(obs)[:, 0], fine(obs)[:, 1].exp()).log_prob(actions).sum(-1)
+    assert torch.equal(expected, reconstructed) and torch.isfinite(expected).all()
+    for invalid in (0., -1., float("nan"), float("inf")):
+        with pytest.raises(ValueError, match="Quiet exploration fraction"):
+            SensorConditionedMean(old.mean, quiet_exploration_fraction=invalid)
 def test_side_exposure_uses_near_side_births_with_every_actual_bank_leg_shape():
     import json
     from pathlib import Path
@@ -413,17 +433,18 @@ def test_leg_prediction_uses_frozen_units_and_preserves_other_requests():
 
 def test_native_likelihood_uses_actual_state_dependent_exploration():
     from rsl_rl.modules.distribution import HeteroscedasticGaussianDistribution
-    actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)))
     obs = observation(3)
     obs[1, 0], obs[2, 9] = 1., 1.
-    raw = actor(obs)
-    distribution = HeteroscedasticGaussianDistribution(6, std_type="log", std_range=(.003, .8))
-    distribution.update(raw)
-    assert distribution.std[0, 0] < distribution.std[1, 0] < distribution.std[2, 0]
-    action = distribution.sample()
-    expected = torch.distributions.Normal(raw[:, 0], raw[:, 1].exp()).log_prob(action).sum(-1)
-    torch.testing.assert_close(distribution.log_prob(action), expected)
-    torch.testing.assert_close(distribution.kl_divergence(distribution.params, distribution.params), torch.zeros(3))
+    for fraction in (.35, .1):
+        actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)), quiet_exploration_fraction=fraction)
+        raw = actor(obs)
+        distribution = HeteroscedasticGaussianDistribution(6, std_type="log", std_range=(.003, .8))
+        distribution.update(raw)
+        assert distribution.std[0, 0] < distribution.std[1, 0] < distribution.std[2, 0]
+        action = distribution.sample()
+        expected = torch.distributions.Normal(raw[:, 0], raw[:, 1].exp()).log_prob(action).sum(-1)
+        torch.testing.assert_close(distribution.log_prob(action), expected)
+        torch.testing.assert_close(distribution.kl_divergence(distribution.params, distribution.params), torch.zeros(3))
 
 
 def test_nominal_domain_is_identity_and_passive_is_zero_even_with_history():

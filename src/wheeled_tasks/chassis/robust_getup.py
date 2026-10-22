@@ -16,6 +16,7 @@ def settings(**overrides):
         side_recovery_birth_focus=False,
         standing_drift_speed_scale_m_s=.02,
         quiet_native_height_anchors=False,
+        quiet_exploration_fraction=.35,
         nominal_fraction=.25, motor_strength_range=[.85, 1.10],
         leg_kp_scale_range=[.9, 1.1], leg_kd_scale_range=[.85, 1.15],
         spring_strength_range=[.92, 1.08], torque_delay_ms=[0, 3], motor_tau_ms=[0., 5.],

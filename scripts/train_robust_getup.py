@@ -61,7 +61,7 @@ def prepare(args):
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
                     "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
-                    "quiet_native_height_anchors"):
+                    "quiet_native_height_anchors", "quiet_exploration_fraction"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
@@ -94,6 +94,8 @@ def prepare(args):
         if getattr(args, "standing_drift_speed_scale", None) is not None:
             task.update(version="robust-v2.22-finer-standing-drift",
                         standing_drift_speed_scale_m_s=args.standing_drift_speed_scale)
+    if getattr(args, "quiet_exploration_fraction", None) is not None:
+        task.update(version="robust-v2.24-quiet-exploration", quiet_exploration_fraction=args.quiet_exploration_fraction)
     if getattr(args, "focus_recovery_quiet", False):
         task.update(version=task["version"] + "-recovery-quiet", quiet_training=True, motion_fraction=.6,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
@@ -400,6 +402,8 @@ def main():
                         help="Opt-in bounded 2 cm/s standing objective in addition to the 5 cm position deadband")
     parser.add_argument("--standing-drift-speed-scale", type=float,
                         help="Explicit drift cost scale in m/s, .005...02; requires the standing drift objective")
+    parser.add_argument("--quiet-exploration-fraction", type=float,
+                        help="Quiet-only exploration multiplier, .05...35; preserves motion/recovery sampling and deterministic mean")
     parser.add_argument("--high-standing-only", action="store_true",
                         help="Opt-in standing pilot that samples only the 420 mm high request")
     parser.add_argument("--focus-recovery-quiet", action="store_true", help="Tune recovery and quiet standing while freezing parent and arc motion")
@@ -435,6 +439,9 @@ def main():
     if args.standing_drift_speed_scale is not None and (not args.standing_drift_objective
             or not .005 <= args.standing_drift_speed_scale <= .02):
         parser.error("Standing drift speed scale requires its objective and must be within .005...02 m/s")
+    if args.quiet_exploration_fraction is not None and (not args.quiet_only
+            or not .05 <= args.quiet_exploration_fraction <= .35):
+        parser.error("Quiet exploration revision requires --quiet-only and a fraction within .05...35")
     if args.high_standing_only and not (args.quiet_only and args.standing_support_training
                                         and args.early_standing_position):
         parser.error("High-standing-only tuning requires quiet support and early-position profiles")
@@ -544,7 +551,7 @@ def main():
                 init_std=.5, std_type="log", std_range=[.003, .8])
             write_json(args.output / "agent_config.json", runner_cfg)
             runner = OnPolicyRunner(env, runner_cfg, log_dir=str(args.output), device=args.device)
-            runner.alg.actor.mlp = SensorConditionedMean(mean).to(args.device)
+            runner.alg.actor.mlp = SensorConditionedMean(mean, task.get("quiet_exploration_fraction", .35)).to(args.device)
             if any(p.device != torch.device(args.device) for p in runner.alg.actor.parameters()):
                 raise RuntimeError("Actor parameters must all reside on the policy device")
             runner.alg.critic.load_state_dict(initialization["critic_state_dict"], strict=True)

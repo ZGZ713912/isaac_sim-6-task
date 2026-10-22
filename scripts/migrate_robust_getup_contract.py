@@ -33,6 +33,8 @@ def main():
                         help="Explicitly clone the quiet head into three continuous height experts, including Adam moments")
     parser.add_argument("--native-height-anchors", action="store_true",
                         help="Match height expert anchors to native float32(command)*5; requires existing height experts")
+    parser.add_argument("--quiet-exploration-fraction", type=float,
+                        help="Explicit training-distribution revision, .05...35; deterministic actor is unchanged")
     parser.add_argument("--low-quiet-reference", type=Path,
                         help="Optional authenticated low-height quiet head; requires --quiet-height-experts")
     parser.add_argument("--motion-residual-fraction", type=float,
@@ -54,6 +56,8 @@ def main():
         parser.error("High-height leg prediction must be 0..10 ms")
     if args.recovery_leg_step is not None and not .05 <= args.recovery_leg_step <= .3:
         parser.error("Recovery common-leg increment must be within .05...3 raw action per policy tick")
+    if args.quiet_exploration_fraction is not None and not .05 <= args.quiet_exploration_fraction <= .35:
+        parser.error("Quiet exploration fraction must be within .05...35")
     if args.low_quiet_reference and not args.quiet_height_experts:
         parser.error("Low-height reference requires explicit quiet height experts")
     if args.quiet_height_experts and args.quiet_reference:
@@ -97,6 +101,11 @@ def main():
                                 fast_forward_reference_yaw_fade=None)
     revision = dict(source_checkpoint=str(args.checkpoint.resolve()), source_sha256=digest(args.checkpoint),
                     optimizer_updates=0, reason=args.reason)
+    if args.quiet_exploration_fraction is not None:
+        info["settings"].update(version="robust-v2.24-quiet-exploration",
+                                quiet_exploration_fraction=args.quiet_exploration_fraction)
+        revision["quiet_exploration_fraction"] = args.quiet_exploration_fraction
+        revision["deterministic_mean_unchanged"] = True
     if args.native_height_anchors:
         if not old_info["settings"].get("quiet_height_experts", False):
             parser.error("Native height anchors require an existing height-expert checkpoint")
