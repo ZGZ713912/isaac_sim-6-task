@@ -55,6 +55,19 @@ def analyze(directory):
             practical = bool(good.mean() >= .95)
         row["practical_followup_success"] = practical
         practical_by_lane[lane] = practical
+        if row["name"].startswith("stand"):
+            full = alive & ~data["passive"][:, lane]
+            if full.any():
+                row["standing_full_window"] = dict(frames=int(full.sum()),
+                    observed_until_s=float(time[full][-1]), survived=row["survived"])
+                if "local_position" in data:
+                    xy = data["local_position"][full, lane, :2]
+                    row["standing_full_window"]["body_xy_max_excursion_m"] = float(np.linalg.norm(xy - xy[:1], axis=-1).max())
+                if "wheel_clearance_peak" in data:
+                    row["standing_full_window"].update(
+                        wheel_clearance_peak_m=float(data["wheel_clearance_peak"][full, lane].max()),
+                        wheel_air_longest_s=float(data["wheel_air_run_peak"][full, lane].max()),
+                        dual_wheel_air_longest_s=float(data["dual_wheel_air_run_peak"][full, lane].max()))
         quiet = (alive & (time >= 3.) & (np.abs(data["commands"][:, lane, :2]).max(-1) < .01))
         if row["name"].startswith("stand") and quiet.sum() >= 200:
             q = data["motor_position"][quiet, lane]
@@ -82,6 +95,13 @@ def analyze(directory):
             if "local_position" in data:
                 xy = data["local_position"][quiet, lane, :2]
                 row["quiet"]["body_xy_max_excursion_m"] = float(np.linalg.norm(xy - xy[:1], axis=-1).max())
+            if "wheel_clearance_peak" in data:
+                row["quiet"].update(
+                    wheel_clearance_peak_m=float(data["wheel_clearance_peak"][quiet, lane].max()),
+                    wheel_air_longest_s=float(data["wheel_air_run_peak"][quiet, lane].max()),
+                    dual_wheel_air_longest_s=float(data["dual_wheel_air_run_peak"][quiet, lane].max()),
+                    wheel_air_fraction=float(data["wheel_air_seconds"][quiet, lane].sum() / (quiet.sum() * dt * 2)),
+                    both_contact_every_substep_fraction=float((data["wheel_contact_fraction"][quiet, lane] == 1.).all(-1).mean()))
         # Report actual integrated tracking errors, not just the terminal pose.
         selected = alive & (time >= 2.) & ~data["passive"][:, lane]
         if selected.any():
@@ -106,6 +126,13 @@ def analyze(directory):
             values = [r[key] for r in rows if r.get(key) is not None]
             case[key] = float(np.mean(values)) if values else None
         quiet = [r["quiet"] for r in rows if "quiet" in r]
+        full = [r["standing_full_window"] for r in rows if "standing_full_window" in r]
+        if full:
+            case["standing_full_window"] = dict(episodes=len(full), completed=sum(r["survived"] for r in full),
+                shortest_observation_until_s=min(r["observed_until_s"] for r in full))
+            for metric in ("body_xy_max_excursion_m", "wheel_clearance_peak_m", "wheel_air_longest_s", "dual_wheel_air_longest_s"):
+                if metric in full[0]:
+                    case["standing_full_window"]["worst_episode_" + metric] = max(r[metric] for r in full)
         if quiet:
             case["quiet"] = {key: float(np.mean([r[key] for r in quiet if r[key] is not None]))
                              for key in quiet[0]}
@@ -115,6 +142,9 @@ def analyze(directory):
                 # and expose the actual worst episode for the 5 cm envelope.
                 case["quiet"]["body_xy_worst_episode_excursion_m"] = max(
                     r["body_xy_max_excursion_m"] for r in quiet)
+            for metric in ("wheel_clearance_peak_m", "wheel_air_longest_s", "dual_wheel_air_longest_s"):
+                if metric in quiet[0]:
+                    case["quiet"]["worst_episode_" + metric] = max(r[metric] for r in quiet)
         cases[name] = case
         for row in rows:
             if row["recovery"]:
@@ -157,6 +187,8 @@ def main():
                         writer.add_scalar(prefix + key, value, step)
                 for key, value in case.get("quiet", {}).items():
                     writer.add_scalar(prefix + key, value, step)
+                for key, value in case.get("standing_full_window", {}).items():
+                    writer.add_scalar(prefix + "full_window/" + key, value, step)
             writer.add_scalar("Behavior/passive_motor_peak_nm", result["passive_motor_peak_nm"], step)
     print(json.dumps({k: v for k, v in result.items() if k not in ("cases", "practical_followup_by_lane")}, ensure_ascii=False, indent=2))
 

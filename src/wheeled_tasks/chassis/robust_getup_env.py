@@ -107,6 +107,16 @@ class RobustGetupEnv(ChassisEnv):
         self.v5.spring_efforts = lambda position: native_springs(position) * self.domain.spring
         self.previous_effort = torch.zeros(n, 6, device=device)
         self.quiet_standing = QuietStanding(n, device, self.policy_dt, settings["quiet_sway_m"])
+        self.wheel_air_run = torch.zeros(n, 2, device=device)
+        self.dual_wheel_air_run = torch.zeros(n, device=device)
+        for name in ("L_link3", "R_link3"):
+            body = next(body for body in self.model_spec["bodies"] if body["name"] == name)
+            collider = body["collisions"][0]
+            if (len(body["collisions"]) != 1 or collider["type"] != "cylinder"
+                    or collider["radius"] != .06
+                    or abs(collider["length"] - .02500000037252903) > 1e-9
+                    or any(collider["origin"][i][j] != float(i == j) for i in range(3) for j in range(3))):
+                raise ValueError("Standing clearance requires the authenticated 107 wheel cylinders")
         self.robust_ready = True
         self.unified_ready = True
         self.reset(torch.arange(n, device=device))
@@ -212,6 +222,8 @@ class RobustGetupEnv(ChassisEnv):
         self.history.reset(ids)
         if self.robust_ready:
             self.quiet_standing.reset(ids)
+            self.wheel_air_run[ids] = 0.
+            self.dual_wheel_air_run[ids] = 0.
             self.domain.reset(ids, ChassisEnv.get_observations(self)["policy"][ids, 4:22])
             self.getup_feedback.reset(ids, self.robot.data.joint_pos.torch[ids][:, self.ids],
                                       self.robot.data.joint_vel.torch[ids][:, self.ids])
@@ -292,6 +304,11 @@ class RobustGetupEnv(ChassisEnv):
         impulse_peak = torch.zeros_like(gap_peak)
         mechanical = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         motor_peak_passive = torch.zeros_like(gap_peak)
+        wheel_clearance_peak = torch.full((self.num_envs, 2), -torch.inf, device=self.device)
+        wheel_contact_fraction = torch.zeros_like(wheel_clearance_peak)
+        wheel_air_run_peak = self.wheel_air_run.clone()
+        dual_wheel_air_run_peak = self.dual_wheel_air_run.clone()
+        wheel_air_seconds = torch.zeros_like(wheel_clearance_peak)
         pushing = push_window(self.episode_length_buf * self.policy_dt, self.push_selected,
                               self.passive, self.finished, self.getup_cfg)
         self.push_force.zero_()
@@ -320,6 +337,17 @@ class RobustGetupEnv(ChassisEnv):
             for ids, view in self.contact_views:
                 matrix = wp.to_torch(view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
+            from .standing_support import wheel_bottom_clearance
+            wheel_pose = self.robot.data.body_link_pose_w.torch[:, self.wheel_ids]
+            wheel_clearance = wheel_bottom_clearance(self.wheel_centers(), wheel_pose[:, :, 3:], self.origins[:, 2:3])
+            wheel_clearance_peak = torch.maximum(wheel_clearance_peak, wheel_clearance)
+            wheel_contact_fraction += (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).float() / self.decimation
+            geometric_air = wheel_clearance > .003
+            self.wheel_air_run = torch.where(geometric_air, self.wheel_air_run + self.dt, 0.)
+            self.dual_wheel_air_run = torch.where(geometric_air.all(-1), self.dual_wheel_air_run + self.dt, 0.)
+            wheel_air_run_peak = torch.maximum(wheel_air_run_peak, self.wheel_air_run)
+            dual_wheel_air_run_peak = torch.maximum(dual_wheel_air_run_peak, self.dual_wheel_air_run)
+            wheel_air_seconds += geometric_air * self.dt
             gap_peak = torch.maximum(gap_peak, self.closure_gap())
             body_force = self.contact_force.norm(dim=-1).amax(-1)
             impact_peak = torch.maximum(impact_peak, body_force)
@@ -443,6 +471,11 @@ class RobustGetupEnv(ChassisEnv):
                              & (self.commands[:, 1].abs() <= 1.4) & ~self.passive & ~self.recovery_active).float().mean(),
                          "UnifiedGetup/vx_mae_m_s": error_vx.abs().mean(),
                          "UnifiedGetup/yaw_mae_rad_s": error_yaw.abs().mean()})
+        standing_request = (self.commands[:, :2].abs() < self.commands.new_tensor([.1, .2])).all(-1) & ~self.passive
+        info["log"].update({
+            "Standing/wheel_clearance_peak_m": wheel_clearance_peak[standing_request].max() if standing_request.any() else gap_peak.new_zeros(()),
+            "Standing/dual_support_fraction": (wheel_contact_fraction[standing_request] == 1.).all(-1).float().mean() if standing_request.any() else gap_peak.new_zeros(()),
+            "Standing/geometric_air_fraction": (wheel_clearance_peak[standing_request] > .003).any(-1).float().mean() if standing_request.any() else gap_peak.new_zeros(())})
         info["log"].update({"Quiet/active_fraction": quiet.float().mean(),
             "Quiet/action_delta_rms": action_delta[quiet].mean().sqrt() if quiet.any() else action_delta.new_zeros(()),
             "Quiet/leg_speed_rms_rad_s": leg_speed[quiet].mean().sqrt() if quiet.any() else leg_speed.new_zeros(()),
@@ -469,6 +502,10 @@ class RobustGetupEnv(ChassisEnv):
                 done=done.clone(), terminated=terminated.clone(), mechanical=mechanical.clone(),
                 closure_gap=gap_bad.clone(), impact_bad=impact_bad.clone(), boundary_bad=boundary_bad.clone(), time=elapsed.clone(),
                 local_position=local.clone(), motor_position=q.clone(), wheel_contact=contact.clone())
+            info["diagnostics"].update(wheel_clearance=wheel_clearance.clone(),
+                wheel_clearance_peak=wheel_clearance_peak.clone(), wheel_contact_fraction=wheel_contact_fraction.clone(),
+                wheel_air_run_peak=wheel_air_run_peak.clone(), dual_wheel_air_run_peak=dual_wheel_air_run_peak.clone(),
+                wheel_air_seconds=wheel_air_seconds.clone())
             info["diagnostics"].update(pushing=pushing.clone(), in_motion_fall=self.in_motion_fall.clone(),
                                        recovered_after_push=self.recovered_after_push.clone())
         if self.fixed_cases is None:
