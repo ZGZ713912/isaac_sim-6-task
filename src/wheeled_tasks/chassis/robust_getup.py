@@ -28,7 +28,7 @@ def settings(**overrides):
         quiet_spectral_cost=False, quiet_critic_anchor=False,
         quiet_velocity_feature_scale=None, quiet_wheel_bound=.5, arc_tuning_fraction=0.,
         standing_support_training=False, quiet_position_weight=.5, quiet_height_probabilities=[.5, .25, .25],
-        quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0.)
+        quiet_high_common_alpha=None, quiet_high_leg_prediction_s=0., standing_early_position_weight=0.)
     cfg.update(overrides)
     scale = cfg["domain_scale"]
     if not 0. <= scale <= 1.:

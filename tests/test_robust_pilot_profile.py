@@ -27,3 +27,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert task["sensor_delay_policy_ticks"] == [0, 1]
     assert task["quiet_height_probabilities"] == [.25, .25, .5]
     assert task["quiet_position_weight"] == 2.
+    args.early_standing_position = True
+    _, revised = training.prepare(args)
+    assert revised["quiet_position_weight"] == 0.
+    assert revised["standing_early_position_weight"] == 6.

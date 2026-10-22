@@ -2,7 +2,7 @@ import math
 
 import torch
 
-from wheeled_tasks.chassis.quiet_standing import QuietStanding, standing_request_mask, standing_support_cost
+from wheeled_tasks.chassis.quiet_standing import QuietStanding, standing_request_mask, standing_support_cost, standing_position_cost
 
 
 def test_slow_sway_inside_five_cm_has_no_position_cost():
@@ -78,3 +78,10 @@ def test_support_cost_distinguishes_loaded_wheels_unloading_and_geometric_flight
     assert cost[0] == 0.
     assert 0. < cost[1] < cost[2]
     assert cost[2] > 5.
+
+
+def test_position_envelope_has_no_price_within_five_cm_and_penalizes_both_directions():
+    xy = torch.tensor([[.04, 0.], [.05, 0.], [.068, 0.], [-.068, 0.]])
+    cost = standing_position_cost(xy.norm(dim=-1))
+    assert cost[:2].tolist() == [0., 0.]
+    assert cost[2] == cost[3] and cost[2] > 0.
