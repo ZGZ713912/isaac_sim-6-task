@@ -1,5 +1,6 @@
 """Three serial, matched, zero-PPO bias counterfactuals on the retained mean."""
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import subprocess
@@ -40,9 +41,17 @@ def match_counterfactual(before, after, component):
         == [{k: v for k, v in x.items() if k != field} for x in changed])
     checks["only_declared_bias_neutralized"] = True
     first_a, first_b = before[3]["observations"][0], after[3]["observations"][0]
-    # Reset histories contain clean measurements. Record rather than conceal
-    # whether the first frame already contains the declared bias intervention.
-    checks["first_observation"] = np.array_equal(first_a, first_b)
+    # Delayed first frames read the clean reset history; immediate frames
+    # include the selected original bias. Only that declared shift may differ.
+    expected_delta = np.zeros_like(first_a)
+    if component != "pd_encoder":
+        columns = slice(10, 14) if component == "policy_encoder" else slice(4, 7)
+        bias_columns = slice(6, 10) if component == "policy_encoder" else slice(0, 3)
+        bias = np.asarray([x["sensor_bias"] for x in original])[:, bias_columns]
+        immediate = np.asarray([x["sensor_delay_policy_ticks"] == 0 for x in original], dtype=float)
+        expected_delta[:, columns] = -immediate[:, None] * bias
+    checks["first_observation_matches_only_declared_bias_and_delay"] = bool(
+        np.allclose(first_b - first_a, expected_delta, rtol=0., atol=1e-8))
     checks["native_origin_mode"] = before[1]["native_origin_mode"] == after[1]["native_origin_mode"]
     if not all(checks.values()):
         raise ValueError("Unexpected counterfactual mismatch: " + str(checks))
@@ -50,6 +59,10 @@ def match_counterfactual(before, after, component):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--reuse-completed", nargs="+", default=[],
+                        choices=["policy_encoder", "policy_gyro", "pd_encoder"])
+    args = parser.parse_args()
     pipeline_path = REPORTS / "iteration042_pipeline.json"
     result = dict(schema="quiet-bias042-counterfactual-v1", status="running", started=time.time(),
         optimizer_updates=0, robust_consumed=929, long_training_admitted=False,
@@ -70,13 +83,24 @@ def main():
                 "--output", str(output), "--variants", "robust", "--replicas", "16", "--seed", "211322",
                 "--domain-scale", ".35", "--friction-min", ".3", "--seconds", "12", "--isolated-origins",
                 "--case-names", "stand_low", "stand", "stand_high", "--neutralize-bias", component]
-            native(name, command, output)
+            if component in args.reuse_completed:
+                sealed = json.loads((REPORTS / (name + "_process.json")).read_text())
+                progress = json.loads((output / "progress.json").read_text())
+                if (sealed["status"] != "completed" or sealed["returncode"] != 0
+                        or sealed["native_status"] != "completed" or sealed["command"] != command
+                        or progress["status"] != "completed"
+                        or progress["checkpoint_sha256"] != result["checkpoint_sha256"]):
+                    raise ValueError("Refuse to reuse incomplete or different native evidence")
+                result.setdefault("reused_completed_native", []).append(component)
+            else:
+                native(name, command, output)
             with (REPORTS / (name + "_analysis.log")).open("w") as log:
                 subprocess.run([sys.executable, "scripts/analyze_robust_getup.py", str(output / "robust"), "--tensorboard"],
                     cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
             evidence = read(name)
             result["intervention_results"][component] = dict(pairing=match_counterfactual(baseline, evidence, component),
                 standing=standing(evidence), intervention=evidence[1]["bias_intervention"],
+                first_observation_exact=bool(np.array_equal(baseline[3]["observations"][0], evidence[3]["observations"][0])),
                 trajectory_sha256=evidence[1]["trajectory_sha256"])
             write(pipeline_path, result)
             print(component, json.dumps(result["intervention_results"][component]), flush=True)
