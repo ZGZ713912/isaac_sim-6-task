@@ -20,6 +20,10 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
                                         "fast_forward_reference_yaw_fade": None,
                                         "quiet_height_experts": True,
                                         "quiet_native_height_anchors": True,
+                                        "quiet_critic_anchor": True, "quiet_spectral_cost": True,
+                                        "standing_support_training": True, "standing_drift_weight": 2.,
+                                        "standing_drift_speed_scale_m_s": .01, "quiet_sway_m": .05,
+                                        "standing_early_position_weight": 6., "quiet_position_weight": 0.,
                                         "native_origin_mode": "isolated_overlap_v1"}}}, checkpoint)
     bank = tmp_path / "bank.json"
     bank.write_text("{}")
@@ -81,3 +85,9 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
     assert side["quiet_actor_alpha"] == task["quiet_actor_alpha"]
     assert side["recovery_leg_step"] == task["recovery_leg_step"]
     assert side["reward_gamma"] == task["reward_gamma"]
+    assert side["quiet_critic_anchor"] and side["quiet_spectral_cost"] and side["standing_support_training"]
+    assert side["standing_drift_weight"] == 2. and side["standing_drift_speed_scale_m_s"] == .01
+    assert side["quiet_position_weight"] == 0. and side["standing_early_position_weight"] == 6.
+    assert side["quiet_sway_m"] == .05
+    assert side["quiet_height_probabilities"] == [.5, .25, .25]
+    assert not side["quiet_training"]

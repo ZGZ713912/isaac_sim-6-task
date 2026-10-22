@@ -66,6 +66,16 @@ def prepare(args):
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
             task["native_origin_mode"] = "isolated_overlap_v1"
+        if getattr(args, "recovery_only", False):
+            # Keep the parent's standing costs and privileged critic channel
+            # meanings. This profile changes exposure and trainable weights,
+            # while command/height sampling returns to the general motion mix.
+            for key in ("quiet_critic_anchor", "quiet_spectral_cost", "standing_support_training",
+                        "quiet_position_weight", "standing_early_position_weight", "standing_drift_weight",
+                        "standing_drift_speed_scale_m_s", "quiet_sway_m", "quiet_action_rate_cost",
+                        "quiet_motor_speed_cost", "quiet_effort_delta_cost"):
+                if key in prior:
+                    task[key] = deepcopy(prior[key])
     if getattr(args, "isolated_origins", False):
         task["native_origin_mode"] = "isolated_overlap_v1"
     if getattr(args, "quiet_only", False):
