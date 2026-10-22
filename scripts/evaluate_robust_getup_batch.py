@@ -106,7 +106,8 @@ def main():
         verified_mean, verified_info = load_verified_mean(args.checkpoint)
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
-                    "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware"):
+                    "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",
+                    "quiet_high_common_alpha"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
         task_path = args.output / "task_contract.json"

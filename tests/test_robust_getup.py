@@ -154,6 +154,25 @@ def test_mild_domains_include_nominal_and_scale_physical_units_consistently():
     assert abs(mechanics["base_com_offset_m"]["x"][1] - .0028) < 1e-8
 
 
+def test_high_common_filter_preserves_knee_difference_low_mid_stance_and_motion():
+    from copy import deepcopy
+    parent = nn.Linear(35, 6)
+    with torch.no_grad():
+        parent.weight.zero_()
+        parent.bias.copy_(torch.tensor([1., 2., -1., -2., .1, -.1]))
+    base = RobustGetupActor(parent)
+    faster = deepcopy(base)
+    faster.quiet_high_common_alpha = .65
+    obs = observation(4)
+    obs[:, 3] = torch.tensor([.23, .305, .42, .42]) * 5.
+    obs[3, 0] = 1.
+    a, b = base(obs), faster(obs)
+    torch.testing.assert_close(a[[0, 1, 3]], b[[0, 1, 3]], rtol=0, atol=0)
+    torch.testing.assert_close(a[:, 4:], b[:, 4:], rtol=0, atol=0)
+    torch.testing.assert_close(b[2, [1, 3]] - b[2, [0, 2]], a[2, [1, 3]] - a[2, [0, 2]])
+    torch.testing.assert_close(b[2, :4] - a[2, :4], torch.tensor([.6, .6, -.6, -.6]))
+
+
 def test_native_likelihood_uses_actual_state_dependent_exploration():
     from rsl_rl.modules.distribution import HeteroscedasticGaussianDistribution
     actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)))
