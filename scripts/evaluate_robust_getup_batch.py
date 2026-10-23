@@ -73,6 +73,13 @@ def scaled_stationary_push(settings, scale):
     return settings
 
 
+def quiet_filter_variants(alphas):
+    if (not 1 <= len(alphas) <= 4 or len(set(alphas)) != len(alphas)
+            or any(not math.isfinite(value) or not .05 <= value <= 1. for value in alphas)):
+        raise ValueError("Use1..4 distinct finite quiet wheel alphas within[.05,1]")
+    return {f"quiet_wheel_alpha_{value:.17g}": value for value in alphas}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
@@ -105,6 +112,8 @@ def main():
                         help="Explicit force/torque scale for stationary-push diagnostics only; default preserves the frozen pusher")
     parser.add_argument("--stationary-push-scales", type=float, nargs="+",
                         help="Diagnostic1..4 strength grid using existing per-case force/torque multiplier")
+    parser.add_argument("--quiet-wheel-output-alphas", type=float, nargs="+",
+                        help="Nominal static diagnostic: filter complete quiet wheel outputs using the applied previous action")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
                         help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
@@ -139,6 +148,19 @@ def main():
             validate_stationary_push_scales(args.stationary_push_scales)
         except ValueError as error:
             parser.error(str(error))
+    alpha_variants = {}
+    if args.quiet_wheel_output_alphas is not None:
+        if (args.variants != ["robust"] or args.domain_scale != 0.
+                or set(args.case_names or []) != {"stand_low", "stand", "stand_high"}
+                or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
+                or args.neutralize_bias or args.standing_command_feedback_gain is not None
+                or args.friction_value is not None or args.friction_min != .5):
+            parser.error("Quiet output grid requires robust-only, nominal domain0, all three static cases and no other intervention")
+        try:
+            alpha_variants = quiet_filter_variants(args.quiet_wheel_output_alphas)
+        except ValueError as error:
+            parser.error(str(error))
+        args.variants = list(alpha_variants)
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -244,6 +266,10 @@ def main():
         task_path = args.output / "task_contract.json"
         public_task = json.loads(task_path.read_text())
         public_task["settings"] = task
+        if alpha_variants:
+            public_task["evaluation_counterfactual"] = dict(
+                kind="whole_quiet_wheel_output_filter_v1", variants=alpha_variants,
+                previous_action_slots=[26, 27], learned_parameters_changed=False)
         training.write_json(task_path, public_task)
         reference_mean = None
         if args.reference_checkpoint is not None:
@@ -290,6 +316,9 @@ def main():
                     or name == "reference" and not getattr(mean, "quiet_velocity_feedback_mode", None) == "standing_displacement"):
                 from wheeled_algo.robust_getup import ZeroStandingPosition
                 mean = ZeroStandingPosition(mean)
+            if name in alpha_variants:
+                from wheeled_algo.evaluation_quiet_output import QuietWheelOutputFilter
+                mean = QuietWheelOutputFilter(mean, alpha_variants[name])
             models.append(mean.eval())
 
         class BatchMean(nn.Module):
@@ -311,6 +340,8 @@ def main():
                                    dict(sensor_delay_policy_ticks=args.sensor_delay_policy_ticks))
         if args.friction_value is not None:
             env.evaluation_overrides["fixed_ground_friction"] = args.friction_value
+        if alpha_variants:
+            env.evaluation_overrides["quiet_wheel_output_alphas"] = args.quiet_wheel_output_alphas
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
@@ -368,6 +399,8 @@ def main():
             split["case_subset"] = args.case_names
             split["fixed_ground_friction"] = args.friction_value
             split["evaluation_overrides"] = env.evaluation_overrides
+            if name in alpha_variants:
+                split["quiet_wheel_output_alpha"] = alpha_variants[name]
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"
             if name == "deployed":
