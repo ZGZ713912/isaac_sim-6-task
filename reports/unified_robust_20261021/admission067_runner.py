@@ -1,4 +1,5 @@
 """Serial fresh nominal confirmation and long standing; no PPO is started here."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -28,15 +29,23 @@ def analyze(directory):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--lifecycle-result", type=Path, default=REPORTS / "iteration065_final.json")
+    args = parser.parse_args()
+    assert args.lifecycle_result.resolve() in {REPORTS.resolve() / name
+        for name in ("iteration065_final.json", "iteration069_final.json")}
     checkpoint = RUNS / "quiet_severe_reference065/model_migrated.pt"
     protocol_path = REPORTS / "acceptance_protocol003.json"
     protocol = json.loads(protocol_path.read_text())
-    lifecycle = json.loads((REPORTS / "iteration065_final.json").read_text())
+    lifecycle = json.loads(args.lifecycle_result.read_text())
+    strong_push = json.loads((REPORTS / "iteration065_final.json").read_text())
     migration = json.loads((REPORTS / "iteration065_migration.json").read_text())
     static = json.loads((REPORTS / "iteration066_final.json").read_text())
     assert lifecycle["native_lifecycle_exercised_and_valid"]
     assert lifecycle["mechanical_gate_passed"]
     assert migration["checkpoint_sha256"] == sha(checkpoint)
+    assert lifecycle["after"]["checkpoint_sha256"] == sha(checkpoint)
+    assert lifecycle["before"]["checkpoint_sha256"] == migration["source_sha256"]
     assert migration["source_sha256"] == static["checkpoint_sha256"]
     assert not static["static_failures"] and static["full_suite_complete"]
     pipeline = dict(schema="reference067-admission-pipeline-v1", status="running", phase="fresh_nominal",
@@ -72,7 +81,9 @@ def main():
         nominal["adequate"] = not nominal["failures"]
         result = dict(schema="reference067-admission-v1", checkpoint_sha256=sha(checkpoint),
             protocol_sha256=sha(protocol_path), nominal=nominal, nominal_full_window=nominal_full_window,
-            lifecycle_result_sha256=sha(REPORTS / "iteration065_final.json"),
+            lifecycle_result=str(args.lifecycle_result), lifecycle_result_sha256=sha(args.lifecycle_result),
+            known_strong_stationary_push_result_sha256=sha(REPORTS / "iteration065_final.json"),
+            known_strong_stationary_push_summary=strong_push["after"]["summary"],
             new_macro_updates=0, robust_consumed=1160, long_training_updates=0,
             full_training_admitted=False, hardware_ready=False, installed_in_rmcs=False)
         write(REPORTS / "admission067_partial.json", result)
