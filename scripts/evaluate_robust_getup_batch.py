@@ -165,6 +165,14 @@ def main():
         torch.set_num_threads(4)
         torch.manual_seed(args.seed)
         verified_mean, verified_info = load_verified_mean(args.checkpoint)
+        if verified_info["settings"].get("quiet_velocity_feedback_mode") == "rolling_velocity":
+            from wheeled_algo.rolling_velocity import frozen_table_path
+            path = frozen_table_path()
+            relative = path.relative_to(ROOT)
+            target = args.output / "source" / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(path.read_bytes())
+            sources[str(relative)] = training.digest(path)
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
                     "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",

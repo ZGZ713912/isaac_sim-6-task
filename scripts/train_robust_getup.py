@@ -492,6 +492,9 @@ def main():
         ROOT / "src/wheeled_algo/recovery_rollout.py", ROOT / "src/wheeled_algo/unified_getup_ablation.py"]
     sources = sorted(set(sources) | set((ROOT / "src/wheeled_tasks/chassis").glob("*.py"))
                      | set((ROOT / "src/wheeled_algo").glob("*.py")))
+    if task.get("quiet_velocity_feedback_mode") == "rolling_velocity":
+        from wheeled_algo.rolling_velocity import frozen_table_path
+        sources.append(frozen_table_path())
     hashes = {}
     for p in sources:
         relative = p.relative_to(ROOT)
@@ -607,6 +610,8 @@ def main():
             mean.quiet_bound[4:].fill_(task["quiet_wheel_bound"])
             report["optimizer_learning_rates"] = {group["name"]: group["lr"] for group in runner.alg.optimizer.param_groups}
             quiet_heads = [mean.quiet] + ([mean.quiet_low, mean.quiet_high] if mean.quiet_height_experts else [])
+            if mean.quiet_velocity_feedback_mode == "rolling_velocity":
+                mean.rolling_velocity.verify_frozen_geometry()
             velocity_heads = list(mean.quiet_velocity.values()) if mean.quiet_velocity_feedback else []
             if args.restore_quiet_checkpoint:
                 if mean.quiet_height_experts:
