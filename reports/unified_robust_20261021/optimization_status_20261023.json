@@ -38,6 +38,12 @@
       "status": "completed",
       "native_status": "completed",
       "returncode": 0
+    },
+    "iteration050_train_process.json": {
+      "pid": 900863,
+      "status": "completed",
+      "native_status": "completed",
+      "returncode": 0
     }
   },
   "full_behavior_baseline": "iteration032_final.json",
@@ -50,10 +56,10 @@
     "049_fixed_rolling_velocity_command_feedback2"
   ],
   "actual_accounting": {
-    "latest_pilot_macro_ppo_updates": 32,
+    "latest_pilot_macro_ppo_updates": 64,
     "latest_pilot_initial_clock": 441,
-    "latest_pilot_final_clock": 473,
-    "robust_experiment_total_consumed_macro_updates": 961,
+    "latest_pilot_final_clock": 505,
+    "robust_experiment_total_consumed_macro_updates": 1025,
     "zero_ppo_bias_ablation_updates": 0,
     "long_training_new_updates": 0,
     "zero_ppo_command_feedback_updates": 0,
@@ -140,6 +146,30 @@
     {
       "path": "reports/unified_robust_20261021/rolling_estimator049_onnx.json",
       "sha256": "9fd1283d1eea0fd2b7278ab210177bb2141ab8310ee98654e6e0d5bef4b643ab"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration050_initial.json",
+      "sha256": "3fc1fcaad42bc9b761f5af9207e2a2bc48620a5ca5f25d2efe0777e8258e151c"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration050_final_state.json",
+      "sha256": "5c3c9b1d7dfc0b0bf5dd72418155cfbd9fc56851c3dd7b013e94f2bb170bb2e8"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration050_onnx_path_check.json",
+      "sha256": "fbf08c661b1289f438d4b894c8ca979f9d72db3a689101315745a0d756c4f1ad"
+    },
+    {
+      "path": "reports/unified_robust_20261021/rolling_observability050.json",
+      "sha256": "a787025d96f9667d68deead9921e483384511392979b5b971f17ef7a8c72b59b"
     }
-  ]
+  ],
+  "active_candidate050": {
+    "status": "extended_static_evaluation_in_progress",
+    "checkpoint_sha256": "e4a9d18332256990c1cdf689b31dcd18d64cf2b98e116c7ca04a0fef4e21dd30",
+    "trainable_actor_values": 12,
+    "old_actor_geometry_std_named_adam_exact": true,
+    "new_full_behavior_evidence": false,
+    "long_training_admitted": false
+  }
 }
