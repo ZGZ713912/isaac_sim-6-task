@@ -76,7 +76,8 @@ def test_double_filter_and_multiple_bands_on_one_actor_rejected():
 
 
 @pytest.mark.parametrize("extra, text", [(["--domain-scale", ".35"], "nominal domain0"),
-    (["--quiet-wheel-output-alphas", ".25"], "only one action-filter")])
+    (["--quiet-wheel-output-alphas", ".25"], "only one action-filter"),
+    (["--quiet-wheel-gyro-release-band", ".05", ".2"], "only one action-filter")])
 def test_invalid_grid_rejected_before_checkpoint_or_native(monkeypatch, capsys, tmp_path, extra, text):
     import sys
     from evaluate_robust_getup_batch import main
