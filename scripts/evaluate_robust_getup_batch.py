@@ -116,6 +116,8 @@ def main():
                         help="Nominal static diagnostic: filter complete quiet wheel outputs using the applied previous action")
     parser.add_argument("--quiet-wheel-position-release-bands", type=float, nargs="+",
                         help="Static diagnostic: alpha.25 baseline plus one or two position-release bands in metres")
+    parser.add_argument("--quiet-wheel-gyro-release-bands", type=float, nargs="+",
+                        help="Nominal static diagnostic: alpha.25 baseline plus one or two roll/pitch gyro-release bands in rad/s")
     parser.add_argument("--early-roll-full-degrees", type=float, nargs="+",
                         help="Nominal dynamic-push diagnostic: original control plus20deg-start recovery authority variants")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
@@ -133,6 +135,10 @@ def main():
     parser.add_argument("--variants", nargs="+", default=["parent", "robust", "legs_only", "undamped"],
                         choices=["parent", "robust", "legs_only", "undamped", "reference", "raw_pd", "paired_pd", "deployed"])
     args = parser.parse_args()
+    if sum(value is not None for value in (args.quiet_wheel_output_alphas,
+            args.quiet_wheel_position_release_bands, args.quiet_wheel_gyro_release_bands,
+            args.early_roll_full_degrees)) > 1:
+        parser.error("Use only one action-filter or recovery-authority diagnostic grid")
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
     max_replicas = 64 if args.case_names or args.forward_speeds or args.stationary_push_cases else 4
@@ -194,6 +200,20 @@ def main():
         except ValueError as error:
             parser.error(str(error))
         args.variants = list(position_variants)
+    gyro_variants = {}
+    if args.quiet_wheel_gyro_release_bands is not None:
+        if (args.variants != ["robust"] or args.domain_scale != 0.
+                or set(args.case_names or []) != {"stand_low", "stand", "stand_high"}
+                or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
+                or args.neutralize_bias or args.standing_command_feedback_gain is not None
+                or args.friction_value is not None or args.friction_min != .5):
+            parser.error("Gyro-release grid requires nominal domain0, robust-only three static cases and no other intervention; randomized comparisons must use equal-index serial jobs")
+        from wheeled_algo.evaluation_gyro_filter import gyro_filter_variants
+        try:
+            gyro_variants = gyro_filter_variants(args.quiet_wheel_gyro_release_bands)
+        except ValueError as error:
+            parser.error(str(error))
+        args.variants = list(gyro_variants)
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -310,6 +330,10 @@ def main():
             public_task["evaluation_counterfactual"] = dict(kind="position_released_quiet_wheel_filter_v1",
                 alpha_min=.25, variants=position_variants, position_slots=[14, 15], scale_per_m=20.,
                 learned_parameters_changed=False, hidden_state_added=False)
+        if gyro_variants:
+            public_task["evaluation_counterfactual"] = dict(kind="gyro_released_quiet_wheel_filter_v1",
+                alpha_min=.25, variants=gyro_variants, gyro_slots=[4, 5], gyro_scale_to_rad_s=2.,
+                learned_parameters_changed=False, hidden_state_added=False)
         training.write_json(task_path, public_task)
         reference_mean = None
         if args.reference_checkpoint is not None:
@@ -365,6 +389,9 @@ def main():
             if name in position_variants:
                 from wheeled_algo.evaluation_position_filter import PositionReleasedWheelFilter
                 mean = PositionReleasedWheelFilter(mean, position_variants[name])
+            if name in gyro_variants:
+                from wheeled_algo.evaluation_gyro_filter import GyroReleasedWheelFilter
+                mean = GyroReleasedWheelFilter(mean, gyro_variants[name])
             models.append(mean.eval())
 
         class BatchMean(nn.Module):
@@ -392,6 +419,8 @@ def main():
             env.evaluation_overrides["early_roll_full_degrees"] = args.early_roll_full_degrees
         if position_variants:
             env.evaluation_overrides["quiet_wheel_position_release_bands"] = args.quiet_wheel_position_release_bands
+        if gyro_variants:
+            env.evaluation_overrides["quiet_wheel_gyro_release_bands"] = args.quiet_wheel_gyro_release_bands
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
@@ -455,6 +484,9 @@ def main():
                 split["early_roll_authority_degrees"] = [20., roll_variants[name]] if name in roll_variants else None
             if position_variants:
                 split["quiet_wheel_position_release_band_m"] = position_variants[name]
+                split["quiet_wheel_output_alpha_min"] = .25
+            if gyro_variants:
+                split["quiet_wheel_gyro_release_band_rad_s"] = gyro_variants[name]
                 split["quiet_wheel_output_alpha_min"] = .25
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"
