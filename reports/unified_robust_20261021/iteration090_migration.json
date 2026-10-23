@@ -1,0 +1,49 @@
+{
+  "schema": "quiet090-zero-PPO-observation-lag-v1",
+  "parent_sha256": "bce79708a7bf1140a0051b9094056c1dcf32f7b7fc819015adabe09a0c3f9e91",
+  "filter_before_seconds": 0.15,
+  "filter_after_seconds": 0.1,
+  "changed_settings": [
+    "version",
+    "standing_position_observation",
+    "standing_position_filter_seconds"
+  ],
+  "reason": "087 worst high lane reaches5.419cm at.63s while its position input lags startup roll",
+  "hypothesis": "Reduce position-input lag while keeping constant wheel filtering and learned feedback intact",
+  "new_macro_updates": 0,
+  "candidate_lineage": 505,
+  "robust_consumed": 1384,
+  "learned_tensor_changes": false,
+  "full_training_admitted": false,
+  "installed_in_rmcs": false,
+  "checkpoint_sha256": "15e1589471720d5201aa31ae570a84576ae5050bebe3c95e122d0c1f1733c6a4",
+  "strict_load_valid": true,
+  "actor_critic_Adam_fourRNG_exact": true,
+  "same_input_actions_exact": 14400,
+  "changed_observations_in_closed_loop_not_yet_tested": true,
+  "observation_contract": {
+    "schema": "wheel-leg-standing-displacement-v3",
+    "policy_hz": 200,
+    "slots": [
+      14,
+      16
+    ],
+    "scale_per_m": 20.0,
+    "filter_seconds": 0.1,
+    "limit_m": 0.25,
+    "source": "continuous_model_wheel_angles_delayed_with_leg_encoders_and_gravity",
+    "capture": "once_after_declared_delay_active_quiet_gate_ge_.999_and_recovery_gate_le_.05",
+    "request": "abs_vx_lt_.1_and_abs_yaw_lt_.2",
+    "reset": "episode_or_RL_entry_or_request_end_or_valid_normalized_gravity_z_gt_-.5",
+    "invalid": "zero_output_preserve_reference",
+    "legacy_network_slots": "forced_zero",
+    "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+    "geometry_table_sha256": "57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
+    "capture_delay_seconds": 0.05,
+    "severe_tilt_reset": {
+      "enabled": true,
+      "normalized_gz_gt": -0.5,
+      "reference_age": "restart_while_severe"
+    }
+  }
+}
