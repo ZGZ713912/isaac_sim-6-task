@@ -1,0 +1,617 @@
+From 795729c1d4e200e635a9fe85b7708241bf62f6ff Mon Sep 17 00:00:00 2001
+From: ZGZ713912 <zgz713912@gmail.com>
+Date: Fri, 23 Oct 2026 18:17:58 +0800
+Subject: [PATCH] Support coherent producer-owned observation frames and
+ contract metadata
+
+---
+ CMakeLists.txt                                |   2 +
+ include/rmcs_rl/policy_config.hpp             |   1 +
+ include/rmcs_rl/rl_bridge/config.hpp          |   1 +
+ .../rl_bridge/observation_frame_gate.hpp      |  40 ++++++
+ include/rmcs_rl/rl_bridge/types.hpp           |   4 +-
+ src/policy/configuration.cpp                  |   2 +
+ src/policy/policy_model.cpp                   |  10 +-
+ src/policy/policy_model.hpp                   |   1 +
+ src/rl_bridge.cpp                             |  41 +++++-
+ src/rl_bridge/config.cpp                      |  11 ++
+ src/rl_bridge/interface_binding.cpp           |   8 ++
+ src/rl_bridge/observation.cpp                 |  15 ++
+ src/rl_bridge/term_parser.cpp                 |  21 ++-
+ test/observation_frame.cpp                    | 130 ++++++++++++++++++
+ test/policy_model_contract.cpp                |   7 +
+ 15 files changed, 284 insertions(+), 10 deletions(-)
+ create mode 100644 include/rmcs_rl/rl_bridge/observation_frame_gate.hpp
+ create mode 100644 test/observation_frame.cpp
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f74e1e3..9dac116 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -77,6 +77,8 @@ if(BUILD_TESTING)
+     find_package(ament_cmake_gtest REQUIRED)
+     ament_add_gtest(policy_model_contract test/policy_model_contract.cpp)
+     target_link_libraries(policy_model_contract rmcs_rl)
++    ament_add_gtest(observation_frame test/observation_frame.cpp)
++    target_link_libraries(observation_frame rmcs_rl)
+ endif()
+ 
+ ament_auto_package(USE_SCOPED_HEADER_INSTALL_DIR)
+diff --git a/include/rmcs_rl/policy_config.hpp b/include/rmcs_rl/policy_config.hpp
+index d0bf330..a28652a 100644
+--- a/include/rmcs_rl/policy_config.hpp
++++ b/include/rmcs_rl/policy_config.hpp
+@@ -20,6 +20,7 @@ struct PolicyConfig {
+     std::string model_type = "auto";
+     std::string expected_model_spec_sha256;
+     std::string expected_leg_winding_version;
++    std::string expected_observation_contract_sha256;
+     std::size_t sequence_length = 0;
+     std::size_t feature_size = 0;
+     std::size_t observation_size = 0;
+diff --git a/include/rmcs_rl/rl_bridge/config.hpp b/include/rmcs_rl/rl_bridge/config.hpp
+index ba2e19c..3ef9f08 100644
+--- a/include/rmcs_rl/rl_bridge/config.hpp
++++ b/include/rmcs_rl/rl_bridge/config.hpp
+@@ -38,6 +38,7 @@ struct BridgeConfig : PolicyIoConfig {
+     std::string reset_path;
+     std::string flat_hold_path;
+     std::string context_path;
++    std::string observation_frame_sequence_path;
+     double inference_timeout = 0.0;
+     std::shared_ptr<PolicyWorker> policy_worker;
+ };
+diff --git a/include/rmcs_rl/rl_bridge/observation_frame_gate.hpp b/include/rmcs_rl/rl_bridge/observation_frame_gate.hpp
+new file mode 100644
+index 0000000..99a03d2
+--- /dev/null
++++ b/include/rmcs_rl/rl_bridge/observation_frame_gate.hpp
+@@ -0,0 +1,40 @@
++#pragma once
++
++#include <cstddef>
++
++namespace rmcs_rl {
++
++// The producer owns frame cadence. Re-reading a frame cannot refresh its age.
++class ObservationFrameGate {
++public:
++    enum class Decision { kWait, kSubmit, kReset };
++
++    Decision observe(std::size_t sequence) {
++        if (blocked_)
++            return Decision::kWait;
++        if (sequence == 0) {
++            const bool had_frame = last_sequence_ != 0;
++            last_sequence_ = 0;
++            return had_frame ? Decision::kReset : Decision::kWait;
++        }
++        if (sequence == last_sequence_)
++            return Decision::kWait;
++        if (sequence < last_sequence_) {
++            blocked_ = true;
++            return Decision::kReset;
++        }
++        last_sequence_ = sequence;
++        return Decision::kSubmit;
++    }
++
++    void reset() {
++        last_sequence_ = 0;
++        blocked_ = false;
++    }
++
++private:
++    std::size_t last_sequence_ = 0;
++    bool blocked_ = false;
++};
++
++} // namespace rmcs_rl
+diff --git a/include/rmcs_rl/rl_bridge/types.hpp b/include/rmcs_rl/rl_bridge/types.hpp
+index bf27477..8ae6c48 100644
+--- a/include/rmcs_rl/rl_bridge/types.hpp
++++ b/include/rmcs_rl/rl_bridge/types.hpp
+@@ -18,7 +18,7 @@ inline constexpr std::size_t kNoSlot = std::numeric_limits<std::size_t>::max();
+ 
+ enum class TermKind { kPath, kJointPos, kJointVel, kJointTorque, kLastAction, kConstant };
+ 
+-enum class Take { kScalar, kComponent, kVector, kGravity };
++enum class Take { kScalar, kComponent, kVector, kGravity, kArray };
+ 
+ enum class Binding {
+     kDouble,
+@@ -28,6 +28,7 @@ enum class Binding {
+     kVector3,
+     kDirectionVector,
+     kQuaternion,
++    kDoubleArray,
+ };
+ 
+ enum class InvalidMode { kNaN, kZero, kHold };
+@@ -88,6 +89,7 @@ struct Slot {
+         rmcs_executor::Component::InputInterface<rmcs_description::BaseLink::DirectionVector>>
+         direction_vector_value;
+     std::unique_ptr<rmcs_executor::Component::InputInterface<Eigen::Quaterniond>> quaternion_value;
++    std::unique_ptr<rmcs_executor::Component::InputInterface<std::vector<double>>> array_value;
+ };
+ 
+ } // namespace rmcs_rl
+diff --git a/src/policy/configuration.cpp b/src/policy/configuration.cpp
+index ecb022f..5e63ff1 100644
+--- a/src/policy/configuration.cpp
++++ b/src/policy/configuration.cpp
+@@ -29,6 +29,8 @@ PolicyConfig load_policy_config(
+         config.expected_model_spec_sha256 =
+             "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997";
+     config.expected_leg_winding_version = string_or(node, "leg_winding_version", "");
++    config.expected_observation_contract_sha256 =
++        string_or(node, "expected_observation_contract_sha256", "");
+     config.expected_policy_rate = number_or(node, "policy_rate", 50.0);
+     config.observation_size = observation_size;
+     config.action_size = action_size;
+diff --git a/src/policy/policy_model.cpp b/src/policy/policy_model.cpp
+index 9e8116a..967bac6 100644
+--- a/src/policy/policy_model.cpp
++++ b/src/policy/policy_model.cpp
+@@ -51,6 +51,11 @@ PolicyModel::PolicyModel(const Config& config)
+               config.action_size, config.extra_input_values}) {
+     info_.path = config.path;
+     info_.model_spec_sha256 = runtime_.info().model_spec_sha256;
++    info_.observation_contract_sha256 =
++        runtime_.metadata("rmcs_observation_contract_sha256").value_or("");
++    if (!config.expected_observation_contract_sha256.empty()
++        && info_.observation_contract_sha256 != config.expected_observation_contract_sha256)
++        throw std::invalid_argument("model observation contract does not match its preprocessor");
+     info_.obs_size = runtime_.input_size();
+     info_.action_size = runtime_.output_size();
+     info_.model_type = runtime_.info().model_type;
+@@ -60,7 +65,10 @@ PolicyModel::PolicyModel(const Config& config)
+     info_.feature_size = runtime_.info().feature_size;
+     if (!std::isfinite(config.expected_policy_rate) || config.expected_policy_rate < 0.0)
+         throw std::invalid_argument("expected policy rate must be finite and non-negative");
+-    if (const auto rate = runtime_.metadata("policy_hz")) {
++    const auto rate = runtime_.metadata("policy_hz");
++    if (!config.expected_observation_contract_sha256.empty() && !rate)
++        throw std::invalid_argument("explicit observation contract requires policy_hz metadata");
++    if (rate) {
+         const double model_rate = parse_number(*rate, "policy_hz");
+         if (model_rate <= 0.0
+             || (config.expected_policy_rate > 0.0
+diff --git a/src/policy/policy_model.hpp b/src/policy/policy_model.hpp
+index 35eaabe..fc65d56 100644
+--- a/src/policy/policy_model.hpp
++++ b/src/policy/policy_model.hpp
+@@ -20,6 +20,7 @@ public:
+     struct Info {
+         std::string path;
+         std::string model_spec_sha256;
++        std::string observation_contract_sha256;
+         std::size_t obs_size = 0;
+         std::size_t action_size = 0;
+         std::string model_type;
+diff --git a/src/rl_bridge.cpp b/src/rl_bridge.cpp
+index 0d89bf0..cc0de1c 100644
+--- a/src/rl_bridge.cpp
++++ b/src/rl_bridge.cpp
+@@ -28,6 +28,7 @@
+ #include <rmcs_rl/rl_bridge/interface_binding.hpp>
+ #include <rmcs_rl/rl_bridge/joint_config.hpp>
+ #include <rmcs_rl/rl_bridge/observation.hpp>
++#include <rmcs_rl/rl_bridge/observation_frame_gate.hpp>
+ #include <rmcs_rl/rl_bridge/types.hpp>
+ #include <rmcs_rl/rl_bridge/utility.hpp>
+ 
+@@ -75,6 +76,15 @@ public:
+         register_output(
+             config.rl_base + "/model_spec_sha256", model_spec_output_,
+             config.policy_worker->info().model_spec_sha256);
++        register_output(
++            config.rl_base + "/observation_contract_sha256", observation_contract_output_,
++            config.policy_worker->info().observation_contract_sha256);
++        register_output(
++            config.rl_base + "/observation_frame_sequence_interface", frame_sequence_path_output_,
++            config.observation_frame_sequence_path);
++        register_output(
++            config.rl_base + "/observation_frame_interface", frame_path_output_,
++            config.observation_frame_sequence_path.empty() ? std::string{} : config.obs_terms.front().path);
+         register_output(config.rl_base + "/performance/inference_us", inference_time_us_, 0.0);
+     }
+ 
+@@ -100,7 +110,8 @@ private:
+     std::vector<std::unique_ptr<OutputInterface<double>>> action_outputs_, contract_outputs_;
+     OutputInterface<double> valid_output_, healthy_output_, action_age_output_, inference_time_us_;
+     OutputInterface<double> policy_rate_output_;
+-    OutputInterface<std::string> model_spec_output_;
++    OutputInterface<std::string> model_spec_output_, observation_contract_output_;
++    OutputInterface<std::string> frame_sequence_path_output_, frame_path_output_;
+     OutputInterface<std::size_t> obs_seq_output_, action_seq_output_, action_context_output_;
+     OutputInterface<std::uint64_t> action_ns_output_;
+     OutputInterface<std::size_t> observation_size_output_, action_size_output_;
+@@ -191,8 +202,18 @@ public:
+             reset_action_state(last_actions_, written_);
+             history_.reset();
+         }
+-        if (enabled && timeline_.due(now, config_.pub_period))
+-            maybe_submit_observation_(now);
++        if (enabled) {
++            if (frame_sequence_slot_ != kNoSlot) {
++                const auto& sequence = slots_[frame_sequence_slot_].size_value;
++                const auto decision = frame_gate_.observe(sequence->ready() ? **sequence : 0);
++                if (decision == ObservationFrameGate::Decision::kSubmit)
++                    maybe_submit_observation_(now);
++                else if (decision == ObservationFrameGate::Decision::kReset)
++                    reset_runtime_(false);
++            } else if (timeline_.due(now, config_.pub_period)) {
++                maybe_submit_observation_(now);
++            }
++        }
+     }
+ 
+ private:
+@@ -271,7 +292,7 @@ private:
+                                            .count());
+ 
+         if (last_valid_ && !valid)
+-            reset_runtime_();
++            reset_runtime_(false);
+         if (valid != last_valid_) {
+             if (valid) {
+                 RCLCPP_INFO(
+@@ -307,6 +328,10 @@ private:
+     }
+ 
+     void bind_control_slots_(const OutputInfoMap& output_map) {
++        if (!config_.observation_frame_sequence_path.empty())
++            frame_sequence_slot_ = acquire_slot(
++                *this, config_.observation_frame_sequence_path, {Binding::kSize}, true, output_map,
++                slots_, "observation frame sequence interface");
+         if (!config_.enable_path.empty())
+             enable_slot_ = acquire_slot(
+                 *this, config_.enable_path, {Binding::kBool, Binding::kDouble}, false, output_map,
+@@ -354,7 +379,7 @@ private:
+                 std::span<const double>{observation_buffer_}, observation_sequence_, generation_,
+                 now, context);
+         } else {
+-            reset_runtime_();
++            reset_runtime_(false);
+             ++obs_invalid_count_;
+             RCLCPP_WARN_THROTTLE(
+                 get_logger(), *get_clock(), 1000,
+@@ -403,7 +428,9 @@ private:
+         }
+     }
+ 
+-    void reset_runtime_() {
++    void reset_runtime_(bool reset_frame_gate = true) {
++        if (reset_frame_gate)
++            frame_gate_.reset();
+         ++generation_;
+         action_ready_ = false;
+         observation_sequence_ = next_observation_sequence_;
+@@ -429,6 +456,7 @@ private:
+     std::size_t reset_slot_ = kNoSlot;
+     std::size_t flat_hold_slot_ = kNoSlot;
+     std::size_t context_slot_ = kNoSlot;
++    std::size_t frame_sequence_slot_ = kNoSlot;
+ 
+     std::vector<double> last_actions_;
+     std::vector<double> written_;
+@@ -436,6 +464,7 @@ private:
+     ActionFeedbackHistory action_feedback_;
+     std::shared_ptr<PolicyWorker> worker_;
+     ObservationTimeline timeline_;
++    ObservationFrameGate frame_gate_;
+     std::vector<double> frame_buffer_;
+     std::vector<double> observation_buffer_;
+     std::vector<double> action_buffer_;
+diff --git a/src/rl_bridge/config.cpp b/src/rl_bridge/config.cpp
+index 883fd73..9dd16bd 100644
+--- a/src/rl_bridge/config.cpp
++++ b/src/rl_bridge/config.cpp
+@@ -124,6 +124,17 @@ BridgeConfig load_bridge_config(rclcpp::Node& node) {
+     config.reset_path = string_or(node, "reset_interface", "");
+     config.flat_hold_path = string_or(node, "flat_hold_interface", "");
+     config.context_path = string_or(node, "context_interface", "");
++    config.observation_frame_sequence_path =
++        string_or(node, "observation_frame_sequence_interface", "");
++    if (!config.observation_frame_sequence_path.empty()) {
++        if (config.history_length != 1 || config.obs_terms.size() != 1)
++            throw std::invalid_argument("RlBridge: external frames require one array and history_length=1");
++        const auto& frame = config.obs_terms.front();
++        if (frame.kind != TermKind::kPath || frame.take != Take::kArray || frame.index != 0
++            || frame.dim != config.obs_frame_size || frame.scale != 1.0 || frame.has_clip
++            || config.history_period.count() != 0)
++            throw std::invalid_argument("RlBridge: external frame must be a complete unscaled array");
++    }
+     config.inference_timeout = number_or(node, "inference_timeout", 2.0 / config.policy_rate);
+     if (!is_finite(config.inference_timeout) || config.inference_timeout <= 0.0)
+         throw std::invalid_argument("RlBridge: inference_timeout must be finite and > 0");
+diff --git a/src/rl_bridge/interface_binding.cpp b/src/rl_bridge/interface_binding.cpp
+index 46ac7ac..d4e0858 100644
+--- a/src/rl_bridge/interface_binding.cpp
++++ b/src/rl_bridge/interface_binding.cpp
+@@ -44,6 +44,7 @@ void bind_observation_terms(
+                     candidates = {Binding::kVector3, Binding::kDirectionVector};
+                     break;
+                 case Take::kGravity: candidates = {Binding::kQuaternion}; break;
++                case Take::kArray: candidates = {Binding::kDoubleArray}; break;
+                 }
+             }
+             term.slot = resolve(term.path, candidates, !term.has_default, "observation term");
+@@ -62,6 +63,7 @@ const char* binding_name(Binding binding) {
+     case Binding::kVector3: return "Eigen::Vector3d";
+     case Binding::kDirectionVector: return "BaseLink::DirectionVector";
+     case Binding::kQuaternion: return "Eigen::Quaterniond";
++    case Binding::kDoubleArray: return "std::vector<double>";
+     }
+     return "unknown";
+ }
+@@ -76,6 +78,7 @@ bool binding_matches_type(Binding binding, const std::type_info& type) {
+     case Binding::kDirectionVector:
+         return type == typeid(rmcs_description::BaseLink::DirectionVector);
+     case Binding::kQuaternion: return type == typeid(Eigen::Quaterniond);
++    case Binding::kDoubleArray: return type == typeid(std::vector<double>);
+     }
+     return false;
+ }
+@@ -157,6 +160,11 @@ std::size_t acquire_slot(
+             std::make_unique<rmcs_executor::Component::InputInterface<Eigen::Quaterniond>>();
+         component.register_input(path, *slot.quaternion_value, required);
+         break;
++    case Binding::kDoubleArray:
++        slot.array_value =
++            std::make_unique<rmcs_executor::Component::InputInterface<std::vector<double>>>();
++        component.register_input(path, *slot.array_value, required);
++        break;
+     }
+     slots.push_back(std::move(slot));
+     return slots.size() - 1;
+diff --git a/src/rl_bridge/observation.cpp b/src/rl_bridge/observation.cpp
+index 59c95a0..36fd8d1 100644
+--- a/src/rl_bridge/observation.cpp
++++ b/src/rl_bridge/observation.cpp
+@@ -30,6 +30,8 @@ bool build_observation(
+     };
+ 
+     for (const auto& term : terms) {
++        if (term.index > obs_size || term.dim > obs_size - term.index)
++            return false;
+         bool ok = true;
+         switch (term.kind) {
+         case TermKind::kPath: {
+@@ -39,6 +41,8 @@ bool build_observation(
+                     term.clip_max, ok);
+                 break;
+             }
++            if (term.slot >= slots.size())
++                return false;
+             const auto& entry = slots[term.slot];
+             if (term.take == Take::kScalar) {
+                 double value = 0.0;
+@@ -77,6 +81,17 @@ bool build_observation(
+                             term.index + i, value[static_cast<Eigen::Index>(i)], term.scale,
+                             term.has_clip, term.clip_min, term.clip_max, ok);
+                 }
++            } else if (term.take == Take::kArray) {
++                if (entry.binding != Binding::kDoubleArray || !entry.array_value
++                    || !entry.array_value->ready())
++                    return false;
++                const auto& values = **entry.array_value;
++                if (values.size() != term.dim)
++                    return false;
++                for (std::size_t i = 0; i < term.dim; ++i)
++                    push(
++                        term.index + i, values[i], term.scale, term.has_clip, term.clip_min,
++                        term.clip_max, ok);
+             } else {
+                 if (!entry.quaternion_value->ready())
+                     return false;
+diff --git a/src/rl_bridge/term_parser.cpp b/src/rl_bridge/term_parser.cpp
+index 723596f..22f619f 100644
+--- a/src/rl_bridge/term_parser.cpp
++++ b/src/rl_bridge/term_parser.cpp
+@@ -186,12 +186,25 @@ ObsTerm parse_obs_term(const std::string& spec, const TermParseContext& context)
+         term.take = Take::kGravity;
+         term.id = "gravity:" + term.path;
+         term.dim = 3;
++    } else if (take == "array") {
++        const auto dimension = tokens.find("dim");
++        if (dimension == tokens.end())
++            throw std::invalid_argument("RlBridge: take=array requires dim= (term '" + spec + "')");
++        const auto count = parse_integer(dimension->second, "array dimension");
++        if (count < 1 || count > 4096)
++            throw std::invalid_argument("RlBridge: array dimension must be in [1, 4096]");
++        term.take = Take::kArray;
++        term.id = "array:" + term.path;
++        term.dim = static_cast<std::size_t>(count);
+     } else {
+         throw std::invalid_argument(
+             "RlBridge: unknown take='" + take
+-            + "' (use x|y|z|vec3|gravity, or omit for scalar) (term '" + spec + "')");
++            + "' (use x|y|z|vec3|gravity|array, or omit for scalar) (term '" + spec + "')");
+     }
+ 
++    if (tokens.contains("dim") && term.take != Take::kArray)
++        throw std::invalid_argument("RlBridge: dim= is only valid with take=array");
++
+     if (!type.empty()) {
+         term.has_binding = true;
+         if (type == "scalar" || type == "double") {
+@@ -208,6 +221,8 @@ ObsTerm parse_obs_term(const std::string& spec, const TermParseContext& context)
+             term.binding = Binding::kDirectionVector;
+         } else if (type == "quaternion") {
+             term.binding = Binding::kQuaternion;
++        } else if (type == "double_array") {
++            term.binding = Binding::kDoubleArray;
+         } else {
+             throw std::invalid_argument(
+                 "RlBridge: unknown type='" + type + "' (term '" + spec + "')");
+@@ -232,10 +247,12 @@ ObsTerm parse_obs_term(const std::string& spec, const TermParseContext& context)
+                 "RlBridge: transform=projected_gravity needs "
+                 "type=quaternion (term '"
+                 + spec + "')");
++        if (term.take == Take::kArray && term.binding != Binding::kDoubleArray)
++            throw std::invalid_argument("RlBridge: take=array requires type=double_array");
+     }
+ 
+     validate_tokens(
+-        tokens, {"path", "take", "transform", "type", "index", "scale", "clip", "default", "name"},
++        tokens, {"path", "take", "transform", "type", "dim", "index", "scale", "clip", "default", "name"},
+         spec);
+     return finish_common(term, tokens, spec);
+ }
+diff --git a/test/observation_frame.cpp b/test/observation_frame.cpp
+new file mode 100644
+index 0000000..46284c4
+--- /dev/null
++++ b/test/observation_frame.cpp
+@@ -0,0 +1,130 @@
++#include <limits>
++#include <memory>
++#include <vector>
++
++#include <gtest/gtest.h>
++#include <rclcpp/rclcpp.hpp>
++#include <rmcs_rl/rl_bridge/config.hpp>
++#include <rmcs_rl/rl_bridge/observation.hpp>
++#include <rmcs_rl/rl_bridge/observation_frame_gate.hpp>
++#include <rmcs_rl/rl_bridge/term_parser.hpp>
++
++namespace {
++using Gate = rmcs_rl::ObservationFrameGate;
++using Decision = Gate::Decision;
++
++TEST(ObservationFrameGate, EachProducerFrameIsSubmittedOnce) {
++    Gate gate;
++    EXPECT_EQ(gate.observe(0), Decision::kWait);
++    EXPECT_EQ(gate.observe(1), Decision::kSubmit);
++    for (int i = 0; i < 100; ++i)
++        EXPECT_EQ(gate.observe(1), Decision::kWait);
++    EXPECT_EQ(gate.observe(9), Decision::kSubmit);
++    EXPECT_EQ(gate.observe(9), Decision::kWait);
++    EXPECT_EQ(gate.observe(0), Decision::kReset);
++    EXPECT_EQ(gate.observe(0), Decision::kWait);
++    EXPECT_EQ(gate.observe(10), Decision::kSubmit);
++}
++
++TEST(ObservationFrameGate, RollbackRequiresExplicitReset) {
++    Gate gate;
++    const auto maximum = std::numeric_limits<std::size_t>::max();
++    EXPECT_EQ(gate.observe(maximum - 1), Decision::kSubmit);
++    EXPECT_EQ(gate.observe(maximum), Decision::kSubmit);
++    EXPECT_EQ(gate.observe(1), Decision::kReset);
++    EXPECT_EQ(gate.observe(0), Decision::kWait);
++    EXPECT_EQ(gate.observe(maximum), Decision::kWait);
++    gate.reset();
++    EXPECT_EQ(gate.observe(1), Decision::kSubmit);
++}
++
++class ObservationFrame : public testing::Test {
++protected:
++    static void SetUpTestSuite() { rclcpp::init(0, nullptr); }
++    static void TearDownTestSuite() { rclcpp::shutdown(); }
++};
++
++TEST_F(ObservationFrame, RejectsMalformedArraySpecification) {
++    rclcpp::Node node{"frame_parser"};
++    const rmcs_rl::JointConfig joints;
++    const rmcs_rl::TermParseContext context{node, joints, 6};
++    for (const auto* text :
++         {"path=/frame take=array", "path=/frame take=array dim=0",
++          "path=/frame take=array dim=4097", "path=/frame take=array dim=35.0",
++          "path=/frame take=array dim=35 type=vec3", "path=/frame take=vec3 dim=35",
++          "path=/frame take=array dim=35 default=0", "path=/frame type=double_array"})
++        EXPECT_THROW(rmcs_rl::parse_obs_term(text, context), std::invalid_argument) << text;
++}
++
++TEST_F(ObservationFrame, CopiesWholeFrameAndRejectsWrongShapeOrNonFiniteInput) {
++    rclcpp::Node node{"frame_copy"};
++    const rmcs_rl::JointConfig joints;
++    auto term = rmcs_rl::parse_obs_term(
++        "path=/frame take=array type=double_array dim=35 index=0", {node, joints, 6});
++    term.slot = 0;
++    std::vector<rmcs_rl::Slot> slots(1);
++    auto& slot = slots.front();
++    slot.binding = rmcs_rl::Binding::kDoubleArray;
++    slot.array_value =
++        std::make_unique<rmcs_executor::Component::InputInterface<std::vector<double>>>();
++    std::vector<double> frame(35);
++    for (std::size_t i = 0; i < frame.size(); ++i)
++        frame[i] = static_cast<double>(i) / 7.0;
++    slot.array_value->bind_directly(frame);
++    std::vector<double> output;
++    ASSERT_TRUE(rmcs_rl::build_observation({term}, slots, {}, 35, output));
++    EXPECT_EQ(output, frame);
++    frame.push_back(0.0);
++    EXPECT_FALSE(rmcs_rl::build_observation({term}, slots, {}, 35, output));
++    frame.resize(35);
++    frame[17] = std::numeric_limits<double>::quiet_NaN();
++    EXPECT_FALSE(rmcs_rl::build_observation({term}, slots, {}, 35, output));
++    frame[17] = std::numeric_limits<double>::infinity();
++    EXPECT_FALSE(rmcs_rl::build_observation({term}, slots, {}, 35, output));
++    frame[17] = 0;
++    EXPECT_FALSE(rmcs_rl::build_observation({term}, slots, {}, 34, output));
++    term.slot = 1;
++    EXPECT_FALSE(rmcs_rl::build_observation({term}, slots, {}, 35, output));
++}
++
++TEST_F(ObservationFrame, RejectsExternalFrameHistoryAndSecondTransform) {
++    const std::vector<std::vector<rclcpp::Parameter>> invalid_overrides{
++        {rclcpp::Parameter{"history_length", 2}},
++        {rclcpp::Parameter{"history_rate", 100.0}},
++        {rclcpp::Parameter{
++            "observation_terms",
++            std::vector<std::string>{"path=/frame take=array dim=35 scale=2"}}},
++        {rclcpp::Parameter{
++            "observation_terms",
++            std::vector<std::string>{"path=/frame take=array dim=35 clip=-1:1"}}},
++        {rclcpp::Parameter{
++            "observation_terms",
++            std::vector<std::string>{"path=/frame take=array dim=34", "path=/extra"}}},
++    };
++    for (const auto& invalid : invalid_overrides) {
++        std::vector<rclcpp::Parameter> parameters{
++            {"action_terms", std::vector<std::string>{"index=0 output=/target"}},
++            {"observation_terms", std::vector<std::string>{"path=/frame take=array dim=35"}},
++            {"observation_frame_sequence_interface", "/frame_sequence"},
++            {"policy_rate", 200.0},
++        };
++        for (const auto& replacement : invalid) {
++            std::erase_if(parameters, [&](const auto& value) {
++                return value.get_name() == replacement.get_name();
++            });
++            parameters.push_back(replacement);
++        }
++        auto options = rclcpp::NodeOptions{}
++                           .automatically_declare_parameters_from_overrides(true)
++                           .parameter_overrides(parameters);
++        rclcpp::Node node{"invalid_frame_contract", options};
++        try {
++            (void)rmcs_rl::load_bridge_config(node);
++            FAIL() << "Accepted invalid external frame configuration";
++        } catch (const std::invalid_argument& error) {
++            EXPECT_NE(std::string{error.what()}.find("external frame"), std::string::npos)
++                << error.what();
++        }
++    }
++}
++} // namespace
+diff --git a/test/policy_model_contract.cpp b/test/policy_model_contract.cpp
+index f8bb833..6f875aa 100644
+--- a/test/policy_model_contract.cpp
++++ b/test/policy_model_contract.cpp
+@@ -62,4 +62,11 @@ TEST(WheelLegPolicyContract, RejectsDifferentObservationHistory) {
+     config.observation_size = 70;
+     EXPECT_THROW(rmcs_rl::PolicyModel{config}, std::invalid_argument);
+ }
++
++TEST(WheelLegPolicyContract, RejectsMissingStandingObservationContract) {
++    auto config = configuration();
++    config.expected_observation_contract_sha256 =
++        "db0fc6121c73121dcd39eef0524ecfeab4b3aa69aa7f5700d4205499af2402a9";
++    EXPECT_THROW(rmcs_rl::PolicyModel{config}, std::invalid_argument);
++}
+ } // namespace
+-- 
+2.56.0
+

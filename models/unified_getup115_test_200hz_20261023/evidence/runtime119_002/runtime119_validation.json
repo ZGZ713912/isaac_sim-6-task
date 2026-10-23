@@ -1,0 +1,126 @@
+{
+  "schema": "unified119-trial-offline-validation-v1",
+  "model_sha256": "48d4880f2b928512be54bea0e4b24f09fc3c47057c3c36dba87066ab34d7e443",
+  "portable_verifier": {
+    "status": "offline_check_passed",
+    "model_sha256": "48d4880f2b928512be54bea0e4b24f09fc3c47057c3c36dba87066ab34d7e443",
+    "observation_contract_sha256": "db0fc6121c73121dcd39eef0524ecfeab4b3aa69aa7f5700d4205499af2402a9",
+    "vectors": 256,
+    "maximum_raw_action_error": 1.9073486328125e-06,
+    "hardware_tested": false,
+    "behavior_qualified": false
+  },
+  "negative_configurations": [
+    {
+      "name": "50Hz",
+      "rejected": true,
+      "reason": "Runtime configuration differs"
+    },
+    {
+      "name": "missing_observation_hash",
+      "rejected": true,
+      "reason": "Runtime configuration differs"
+    },
+    {
+      "name": "wrong_history",
+      "rejected": true,
+      "reason": "Runtime configuration differs"
+    },
+    {
+      "name": "old_zero_slot_route",
+      "rejected": true,
+      "reason": "Runtime must consume the coherent frame"
+    },
+    {
+      "name": "wrong_action_scale",
+      "rejected": true,
+      "reason": "Action order, scaling or limits differ"
+    },
+    {
+      "name": "scripted_recovery",
+      "rejected": true,
+      "reason": "Runtime configuration differs"
+    },
+    {
+      "name": "wrong_host_PD",
+      "rejected": true,
+      "reason": "Runtime configuration differs"
+    }
+  ],
+  "cpp_tests": [
+    {
+      "binary": "policy_model_contract",
+      "cases": 6,
+      "failures": 0,
+      "skipped": 0,
+      "command": [
+        "docker",
+        "exec",
+        "-e",
+        "RMCS_UNIFIED_TEST_PROFILE=/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/memory_test.yaml",
+        "rmcs_devcontainer-rmcs-develop-1",
+        "bash",
+        "-lc",
+        "source /opt/ros/jazzy/setup.bash && source /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/install/setup.bash && exec /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_rl/policy_model_contract --gtest_output=xml:/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/policy_model_contract.xml"
+      ]
+    },
+    {
+      "binary": "observation_frame",
+      "cases": 5,
+      "failures": 0,
+      "skipped": 0,
+      "command": [
+        "docker",
+        "exec",
+        "-e",
+        "RMCS_UNIFIED_TEST_PROFILE=/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/memory_test.yaml",
+        "rmcs_devcontainer-rmcs-develop-1",
+        "bash",
+        "-lc",
+        "source /opt/ros/jazzy/setup.bash && source /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/install/setup.bash && exec /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_rl/observation_frame --gtest_output=xml:/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/observation_frame.xml"
+      ]
+    },
+    {
+      "binary": "wheel_leg_unified_observation",
+      "cases": 5,
+      "failures": 0,
+      "skipped": 0,
+      "command": [
+        "docker",
+        "exec",
+        "-e",
+        "RMCS_UNIFIED_TEST_PROFILE=/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/memory_test.yaml",
+        "rmcs_devcontainer-rmcs-develop-1",
+        "bash",
+        "-lc",
+        "source /opt/ros/jazzy/setup.bash && source /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/install/setup.bash && exec /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/wheel_leg_unified_observation --gtest_output=xml:/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/wheel_leg_unified_observation.xml"
+      ]
+    },
+    {
+      "binary": "wheel_leg_unified_policy_integration",
+      "cases": 1,
+      "failures": 0,
+      "skipped": 0,
+      "command": [
+        "docker",
+        "exec",
+        "-e",
+        "RMCS_UNIFIED_TEST_PROFILE=/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/memory_test.yaml",
+        "rmcs_devcontainer-rmcs-develop-1",
+        "bash",
+        "-lc",
+        "source /opt/ros/jazzy/setup.bash && source /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/install/setup.bash && exec /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/wheel_leg_unified_policy_integration --gtest_output=xml:/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/wheel_leg_unified_policy_integration.xml"
+      ]
+    }
+  ],
+  "cpp_test_cases": 17,
+  "exact115_graph_loaded_by_production_bridge": true,
+  "production_controller_inputs": "in-memory sensors only; no WheelLeg hardware component instantiated",
+  "memory_profile_sha256": "ac93b48efe35475cf18abfd272df15513fd0837120f792fb22be07ff2b3458d2",
+  "compiled_runtime_rebuilt": false,
+  "behavior_qualified": false,
+  "hardware_tested": false,
+  "hardware_process_launched": false,
+  "new_ppo_updates": 0,
+  "revision": "002"
+}
