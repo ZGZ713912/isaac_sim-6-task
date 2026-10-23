@@ -388,3 +388,6 @@
 
 
 098已按冻结计划再完成64离线步，独立offline Adam六状态64→128精确续接，PPO仍0新增/累计1384、研究PPO谱系569、累计离线128步。末态SHA 7a6c10a1a7f1217918ca68fbc459144ea4d0e93fb0fd3b8e325448ca7f661c7a；只有六个recovery张量变化，其他actor/std/critic/PPO Adam/四saved RNG精确。316帧归一目标loss从096末1.053846接续至1.050760；相对096在3883原保留输入上腿最大变化7.133mrad、轮1.3049rad/s均通过范围，13361非恢复输出逐位保持、strict load通过。仅授等097结束后的24环境名义闭环对照，未采用/未大训。iteration098_state.json/refit_launch.json。
+
+
+097随机48×12s已exit0/native completed，初态严格配对/低中32全轨迹精确。48/48完整存活并全窗在5cm内，低/中/高最大4.498/2.863/4.959cm；高位actual腿3–95Hz .9060mrad、轮.15390rad/s，全部036六HF未退化，最大间隙.743mm。只判定本次12s静态通过，高位仅.414mm余量，不能直接大训。下一更长静站及与恢复候选合并后的完整验收仍必需。iteration097_final.json/decision.json封存，新PPO0/累计1384/长训0。
