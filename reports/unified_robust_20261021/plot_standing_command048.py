@@ -18,8 +18,10 @@ def main(iteration=48):
     result = json.loads((REPORTS / f"iteration{iteration:03d}_final.json").read_text())
     if iteration == 48:
         assert all(all(row["paired"].values()) for row in result["tests"].values())
-    else:
+    elif iteration == 49:
         assert all(result["baseline_pairing"].values()) and all(result["wheel_proxy_pairing"].values())
+    else:
+        assert all(result["pairing"].values())
     sources = [("Retained baseline", "quiet_velocity_baseline036"),
                ("Gain -2 (rejected)", "command_feedback_negative048"),
                ("Gain +2", "command_feedback_positive048")]
@@ -27,6 +29,9 @@ def main(iteration=48):
         sources = [("Retained baseline", "quiet_velocity_baseline036"),
                    ("Wheel proxy, gain +2", "command_feedback_positive048"),
                    ("Rolling estimate, gain +2", "rolling_command_feedback049")]
+    if iteration == 50:
+        sources = [("Retained baseline", "quiet_velocity_baseline036"),
+                   ("Learned rolling feedback, 64 updates", "learned_rolling_static050")]
     metrics = [("full_window/worst_episode_body_xy_max_excursion_m", "Full-window maximum displacement", "cm", 100., 5.),
                ("body_xy_worst_episode_excursion_m", "Steady-window maximum displacement", "cm", 100., 5.),
                ("leg_motion_fast_rms_rad_3_95", "Actual leg motion, 3-95 Hz", "mrad RMS", 1000., None),
@@ -34,18 +39,19 @@ def main(iteration=48):
     values, provenance = [], []
     for label, name in sources:
         directory = RUNS / name
+        step = json.loads((directory / "progress.json").read_text())["completed_updates"]
         events = EventAccumulator(str(directory), size_guidance={"scalars": 0})
         events.Reload()
         rows = []
         for metric, _, _, scale, _ in metrics:
             row = []
             for case in ("stand_low", "stand", "stand_high"):
-                readings = [r.value for r in events.Scalars(f"Comparison/robust/{case}/{metric}") if r.step == 441]
+                readings = [r.value for r in events.Scalars(f"Comparison/robust/{case}/{metric}") if r.step == step]
                 assert readings and max(readings) - min(readings) < 1e-7
                 row.append(readings[-1] * scale)
             rows.append(row)
         values.append(rows)
-        provenance.append(dict(label=label, run=str(directory.relative_to(ROOT)), step=441,
+        provenance.append(dict(label=label, run=str(directory.relative_to(ROOT)), step=step,
             files=[dict(path=str(p.relative_to(ROOT)), sha256=hashlib.sha256(p.read_bytes()).hexdigest())
                    for p in sorted(directory.glob("events.out.tfevents.*"))]))
     values = np.asarray(values)
@@ -54,7 +60,7 @@ def main(iteration=48):
     for j, (_, title, unit, _, limit) in enumerate(metrics):
         ax = axes.flat[j]
         for i, (label, _) in enumerate(sources):
-            ax.bar(x + (i - 1) * .24, values[i, j], width=.22, label=label,
+            ax.bar(x + (i - (len(sources) - 1) / 2) * .24, values[i, j], width=.22, label=label,
                    color=("#68788a", "#ba6657", "#317f94")[i])
         if limit:
             ax.axhline(limit, color="#ac3b3b", linestyle="--", label="5 cm envelope")
@@ -64,21 +70,23 @@ def main(iteration=48):
         ax.set_axisbelow(True)
     handles, labels = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="outside lower center", ncol=4, frameon=False)
-    fig.suptitle("Matched zero-PPO standing command feedback: 16 episodes per height\n"
+    title = "Matched learned rolling feedback" if iteration == 50 else "Matched zero-PPO standing command feedback"
+    fig.suptitle(title + ": 16 episodes per height\n"
                  "200 Hz policy / 1 kHz physics; moderate domains; ground friction 0.3-0.5", fontsize=13)
-    path = REPORTS / f"standing_command{iteration:03d}.png"
+    basename = f"standing_rolling{iteration:03d}" if iteration == 50 else f"standing_command{iteration:03d}"
+    path = REPORTS / (basename + ".png")
     fig.savefig(path, dpi=160)
     plt.close(fig)
     receipt = dict(schema=f"quiet{iteration:03d}-original-event-figure-v1", figure=str(path.relative_to(ROOT)),
         figure_sha256=hashlib.sha256(path.read_bytes()).hexdigest(), sources=provenance,
         metrics=[m[0] for m in metrics], plotted_values=values.tolist(),
         data_source="Original TensorBoard event files; logarithmic y axes; no separate curve store")
-    (REPORTS / f"standing_command{iteration:03d}.provenance.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    (REPORTS / (basename + ".provenance.json")).write_text(json.dumps(receipt, indent=2) + "\n")
     print(path)
 
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--iteration", type=int, choices=[48, 49], default=48)
+    parser.add_argument("--iteration", type=int, choices=[48, 49, 50], default=48)
     main(parser.parse_args().iteration)
