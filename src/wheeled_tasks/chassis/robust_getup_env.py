@@ -80,7 +80,7 @@ class RobustGetupEnv(ChassisEnv):
         self.v5.settings = dict(self.v5.settings, action_clip=settings["leg_action_clip"], wheel_action_clip=settings["wheel_action_clip"])
         self.domain = RobustDomain(n, device, settings, kwargs["seed"], self.dt)
         from wheeled_algo.standing_displacement import WheelAngleCoordinate
-        from wheeled_algo.standing_displacement_contract import observer_from_settings
+        from wheeled_algo.standing_reference_lifecycle import observer_from_settings
         self.standing_observer = observer_from_settings(settings, n, device, self.policy_dt)
         if self.standing_observer is not None:
             self.standing_coordinate = WheelAngleCoordinate().to(device).eval()
@@ -258,11 +258,14 @@ class RobustGetupEnv(ChassisEnv):
                 positions = frame[:, 10:16].clone()
                 positions[:, :4] += self.v5.nominal[list(POLICY_FROM_CONTROL)][:4]
                 coordinate, valid = self.standing_coordinate(positions, frame[:, 7:10])
+                severe = self.standing_observer.disarm_severe_tilt(frame[:, 7:10])
+                if severe is not None:
+                    self.standing_entry_tick[severe] = self.tick
                 requested = (frame[:, [0, 2]].abs() < frame.new_tensor([.1, .2])).all(-1) & ~self.passive
                 eligible = ((quiet_gate(frame)[:, 0] >= .999)
                     & (tilt_gate(frame, self.getup_cfg.get("stance_aware_recovery", False),
                                  self.getup_cfg.get("recovery_shape_aware", False))[:, 0] <= .05)
-                    & ((self.tick-self.standing_entry_tick)*self.policy_dt >= .2))
+                    & ((self.tick-self.standing_entry_tick)*self.policy_dt >= self.standing_observer.capture_delay_seconds))
                 displacement, _ = self.standing_observer.update(coordinate, valid, requested, eligible, self.tick)
                 frame[:, 14:16] = 20. * displacement
             observations["policy"] = frame
