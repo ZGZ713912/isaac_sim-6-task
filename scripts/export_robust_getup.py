@@ -115,6 +115,19 @@ def load_mean(checkpoint, *, migration_source_root=None):
     return mean.eval(), info
 
 
+def verify_deterministic_evidence(report):
+    """Only an unmodified deterministic actor can qualify its exported mean."""
+    if (report.get("sampled_policy_exposure_diagnostic") is not None
+            or report.get("evaluation_counterfactual") is not None
+            or report.get("evaluation_overrides", {}) != {}
+            or report.get("ablation_variants", False)
+            or any(report.get(key) is not None for key in (
+                "quiet_alpha_override", "quiet_wheel_output_alpha", "early_roll_authority_degrees",
+                "quiet_wheel_position_release_band_m", "quiet_wheel_gyro_release_band_rad_s",
+                "recovery_leg_step_override", "fixed_ground_friction"))):
+        raise ValueError("Mean qualification rejects sampled policies and evaluation-only interventions")
+
+
 def assess(reports, baselines, checkpoint, protocol):
     from analyze_robust_getup import analyze
     checkpoint_sha = digest(checkpoint)
@@ -124,6 +137,8 @@ def assess(reports, baselines, checkpoint, protocol):
     for evaluation, baseline in zip(reports, baselines, strict=True):
         data = json.loads((evaluation / "report.json").read_text())
         parent = json.loads((baseline / "report.json").read_text())
+        verify_deterministic_evidence(data)
+        verify_deterministic_evidence(parent)
         if any(row.get("evaluation_overrides") or row.get("case_subset") for row in (data, parent)):
             raise ValueError("Diagnostic overrides/subsets cannot qualify a deployment candidate")
         if (data["checkpoint_sha256"] != checkpoint_sha or parent["checkpoint_sha256"] != checkpoint_sha
