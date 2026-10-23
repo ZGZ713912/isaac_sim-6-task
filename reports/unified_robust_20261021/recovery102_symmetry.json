@@ -1,0 +1,33 @@
+{
+  "schema": "recovery102-symmetry-diagnosis-v1",
+  "status": "completed",
+  "checkpoint_sha256": "eb49ecdf871d5d2ca218586b75072c62f61771fc8431171f363c95d8bbb7a50f",
+  "physical_contract_sha256": "2c14d2a9664af0558e69f28d66619047f9e2f1b87df28bc95dd1851f7caafaed",
+  "nominal_L_R_wheel_parameters": {
+    "armature": [
+      0.0038669808882082915,
+      0.003818453742910773
+    ],
+    "frictionloss": [
+      0.049507400779663126,
+      0.06957712078102896
+    ],
+    "damping": [
+      0.0006085318417485766,
+      0.0003429025559035852
+    ]
+  },
+  "full_recovery_recorded_inputs": 134,
+  "mirrored_raw_action_max_abs_error": 1.52587890625e-05,
+  "verified": "Recovery decoder uses canonical mirrored NN logits; actual native nominal wheel response differs between sides",
+  "hypothesis": "An initially zero bounded recovery residual on original sensor axes can learn side differences without rewriting old canonical branch",
+  "limitations": [
+    "Near equivariance and unequal physical parameters are facts; they do not uniquely explain right impacts",
+    "No residual model has been trained or run; old weights remain selected",
+    "Preliminary native early-authority101 is queued first; do not add PPO or untested residual automatically"
+  ],
+  "new_macro_updates": 0,
+  "new_offline_steps": 0,
+  "robust_consumed": 1384,
+  "full_training_admitted": false
+}
