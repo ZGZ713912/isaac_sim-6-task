@@ -397,3 +397,6 @@
 
 
 099组合仅在CPU准备：将097高位quiet偏置与alpha.32合入098，SHA ea5dee88448d24d37e6c120b0ed1a1b0cfa895c6e16d1d67869789e6ab291454。115200条097静态输入输出逐位等价097，13020非quiet输入输出逐位等价098，strict load及其余actor/critic/std/PPO Adam/离线Adam/四saved RNG保持。由于098实际行为前提失败，099原生30s/新种子计划明确未启动且退休，不能当组合已通过。iteration099_migration.json/plan.json/decision.json；0原生/0新优化。
+
+
+100仅对已过097静态门的原097 checkpoint做更长确认，不合入被拒绝098/099。先48×30s、seed211322/domain.35/friction.3–.5，并逐位核对前12s与097的obs/actions/q/dq/XY/alive；若通过原036六HF/全窗5cm/3mm间隙/全存活门，再48×12s新seed211425。任一失败即停止后续，不授正式大训。PPO谱系505，此候选没有096/098离线步，实验实际PPO1384与离线128仍保留，0新优化。iteration100_plan.json冻结。
