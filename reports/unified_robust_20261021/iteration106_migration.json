@@ -1,0 +1,33 @@
+{
+  "schema": "quiet106-bounded-network-bias-v1",
+  "parent_sha256": "10cca03e85ffa1c08b36d88830cf0d3b8fd6d08a1e95ad942fa17c5801e04cbf",
+  "changed_actor": [
+    "mlp.mean.quiet_velocity.low.weight",
+    "mlp.mean.quiet_velocity.high.weight"
+  ],
+  "changed_values": 16,
+  "position_head_scale": 1.5,
+  "heights": [
+    "low",
+    "high"
+  ],
+  "reason": "100 fresh domain late positive displacement low5.442cm/high6.910cm; recorded position slots observe the actual drift",
+  "hypothesis": "Increasing existing learned low/high position feedback reduces late equilibrium offset without another DC shift",
+  "parameter_step_basis": "Bounded1.5 multiplier of existing learned position feedback; unchanged bias, observer150ms,mid and nonquiet functions",
+  "motor_commands": "Existing neural position heads scaled; all six still use the same actor; no observer or scripted angle change",
+  "optimizer": "All named Adam moments kept; explicit zero-PPO parameter proposal",
+  "new_macro_updates": 0,
+  "candidate_lineage": 505,
+  "robust_consumed": 1384,
+  "full_training_admitted": false,
+  "installed_in_rmcs": false,
+  "checkpoint_sha256": "a513167a51a3a485ab56fbe99f2731359ee972cceef30daaa789a33be2aad837",
+  "strict_load_valid": true,
+  "other_actor_std_critic_Adam_fourRNG_exact": true,
+  "recorded_inputs": 14609,
+  "mid_actions_exact": 13775,
+  "nonquiet_actions_exact": 13022,
+  "zero_displacement_actions_exact": true,
+  "maximum_same_input_leg_target_change_rad": 0.00039184093475341797,
+  "native_behavior_proven": false
+}
