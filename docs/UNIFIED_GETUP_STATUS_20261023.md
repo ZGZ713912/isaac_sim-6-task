@@ -324,3 +324,6 @@
 
 
 088的显式evaluation-only实现现已加入独立evaluation_recovery_step.py和batch --recovery-leg-steps；默认路径不变，诊断只能名义domain0、固定原摩擦、单seed、左右动态推倒+不对称倒扣，自动保留原step.3，替代值限定[.05,.3)。禁止混用其他动作/观测干预，task/report均写明override，不能用于正式准入。62项新增与相关CPU通过，含原actor/权重不修改、原步长函数精确、轮与零恢复域精确、错误CLI在checkpoint/原生之前拒绝。尚未运行088原生；新PPO0、累计1384、长训0。087将先完成alpha.32的相同编号随机静站复验。
+
+
+087的零PPO正式迁移已通过严格load，PT仅新增quiet_output_wheel_alpha=.32和版本号，actor/critic/Adam及四RNG全部逐位保留。14609真实输入与086诊断包装器逐位等价，13022非quiet输出及腿输出不变；候选仍谱系505，随机行为尚待验证。准备seed211322、48×12s、domain.35、地面.3–.5、原机械保护和近原点独立碰撞布局，按074相同环境编号串行配对；actual HF仍用036六项门，不降低标准。iteration087_migration.json及iteration087_plan.json。
