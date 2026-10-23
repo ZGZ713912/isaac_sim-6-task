@@ -60,6 +60,7 @@ def prepare(output, seed):
         value = deepcopy(value)
         value["scene_groups"] = [dict(name="stand_mid", fraction=1., terrain=["flat"])]
         value["target_num_envs"] = 1
+        value["flat_group_episode_seconds"] = {}
         value["evaluation"]["seed"] = seed
         if "evaluation.seed" in value:
             value["evaluation.seed"] = seed
@@ -71,7 +72,7 @@ def prepare(output, seed):
     design = {k: v for k, v in design.items() if k != "stages"}
     design.update(run_scope="interactive_unscored", qualification=None,
         source_contract_sha256=sha(SOURCE / "config/contract.json"), source_role="train",
-        allowed_changes=["scene_groups", "target_num_envs", "evaluation.seed", "invocation", "runtime.seed"],
+        allowed_changes=["scene_groups", "target_num_envs", "flat_group_episode_seconds", "evaluation.seed", "invocation", "runtime.seed"],
         stages={"speed": {"roles": {"playback": expected}}})
     output.mkdir(parents=True, exist_ok=False)
     write(output / "playback_expectations.json", design)

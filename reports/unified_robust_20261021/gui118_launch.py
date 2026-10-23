@@ -32,6 +32,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--source-archive", type=Path, required=True)
+    parser.add_argument("--attempt-id", default="001", choices=("001", "002", "003"))
     args = parser.parse_args()
     boundary = json.loads((REPORTS / "gui118_boundary.json").read_text())
     receipt = dict(schema="gui118-launch-v1", status="waiting_existing_native", wrapper_pid=os.getpid(),
@@ -39,7 +40,7 @@ def main():
         archive_sha256=hashlib.sha256(args.source_archive.read_bytes()).hexdigest(),
         viewer_sha256=hashlib.sha256((REPORTS / "gui118_getup.py").read_bytes()).hexdigest(),
         runner_held=boundary["runner_pid"], optimizer_updates=0)
-    path = REPORTS / "gui118_launch.json"
+    path = REPORTS / ("gui118_launch.json" if args.attempt_id == "001" else f"gui118_launch{args.attempt_id}.json")
     if path.exists():
         raise ValueError("Do not overwrite an existing GUI launch receipt")
     write(path, receipt)
@@ -54,7 +55,7 @@ def main():
     if json.loads(progress.read_text())["status"] != "completed":
         raise RuntimeError("Existing native worker did not complete; no automatic GUI retry")
     command = [sys.executable, str(REPORTS / "gui118_getup.py"), "--output", str(args.output.resolve())]
-    with (REPORTS / "gui118_native001.log").open("x") as log:
+    with (REPORTS / f"gui118_native{args.attempt_id}.log").open("x") as log:
         child = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
         receipt.update(status="viewer_started", viewer_pid=child.pid, command=command, native_finished_before_gui=True)
         write(path, receipt)
