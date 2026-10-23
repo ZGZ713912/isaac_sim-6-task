@@ -1,0 +1,97 @@
+{
+  "schema": "standing-reference068-offline-cpp-parity-v1",
+  "frames": 35158,
+  "sources": [
+    {
+      "run": "high_recenter_static066",
+      "trajectory_sha256": "c2c21bbdb9f78097b17c7a3e1ef47fbce9dfca6ac52b295f96f6a16fa972b0e3",
+      "lanes": [
+        0,
+        1,
+        2,
+        27,
+        28,
+        29
+      ]
+    },
+    {
+      "run": "high_recenter_full066",
+      "trajectory_sha256": "fee1d44302ac71724509c6b4ad5b143f0405e7981cc2d2251df533b0780b040a",
+      "lanes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        30
+      ]
+    }
+  ],
+  "geometry_table_sha256": "57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
+  "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+  "contract": {
+    "quiet_velocity_feedback": true,
+    "quiet_velocity_feedback_mode": "standing_displacement",
+    "standing_position_filter_seconds": 0.15,
+    "standing_position_reference": {
+      "capture_delay_seconds": 0.05,
+      "reset_on_severe_tilt": true
+    },
+    "standing_position_observation": {
+      "schema": "wheel-leg-standing-displacement-v3",
+      "policy_hz": 200,
+      "slots": [
+        14,
+        16
+      ],
+      "scale_per_m": 20.0,
+      "filter_seconds": 0.15,
+      "limit_m": 0.25,
+      "source": "continuous_model_wheel_angles_delayed_with_leg_encoders_and_gravity",
+      "capture": "once_after_declared_delay_active_quiet_gate_ge_.999_and_recovery_gate_le_.05",
+      "request": "abs_vx_lt_.1_and_abs_yaw_lt_.2",
+      "reset": "episode_or_RL_entry_or_request_end_or_valid_normalized_gravity_z_gt_-.5",
+      "invalid": "zero_output_preserve_reference",
+      "legacy_network_slots": "forced_zero",
+      "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+      "geometry_table_sha256": "57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
+      "capture_delay_seconds": 0.05,
+      "severe_tilt_reset": {
+        "enabled": true,
+        "normalized_gz_gt": -0.5,
+        "reference_age": "restart_while_severe"
+      }
+    }
+  },
+  "build_command": [
+    "g++",
+    "-std=c++20",
+    "-O2",
+    "-ffp-contract=off",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/unified_robust_20261021/deployment_candidate068/parity_driver.cpp",
+    "-o",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/standing_reference_cpp068/parity_driver"
+  ],
+  "discrete_valid_active_count_exact": true,
+  "maximum_coordinate_error_m": 6.008697511772354e-08,
+  "maximum_anchor_error_m": 7.451869205032935e-09,
+  "maximum_filtered_error_m": 1.5383628843013142e-08,
+  "maximum_observation_slot_error": 3.0767257686026284e-07,
+  "files": {
+    "runs/unified_robust_20261022/standing_reference_cpp068/inputs.txt": "edf9f00abe35ca72bc882329f9eced0cc0427bb3396bcecbbb9fb43f329f029b",
+    "runs/unified_robust_20261022/standing_reference_cpp068/actual.txt": "c7c8cdca923045afaa7b4408623d45da20b8552f64cccf84a4e5b9ceab4eede7",
+    "runs/unified_robust_20261022/standing_reference_cpp068/parity.npz": "c93b66b9245a8827d2b89eb11c3c4673066daea1dfaee6710e829914e12d564b",
+    "reports/unified_robust_20261021/deployment_candidate068/standing_reference_v3.hpp": "bbf3dd9eb04a9920d946faafab2703b0836856e684bbc441291d0253af75aa24",
+    "reports/unified_robust_20261021/deployment_candidate068/model_geometry107.hpp": "6a51771e8841c7e56f5df4ba298d8b37f1cac60785f07f0f93a0fa97a8ee574c",
+    "reports/unified_robust_20261021/deployment_candidate068/parity_driver.cpp": "edbf3e47db19f85d156daa592b68928b99e8fcdd6d4f7f618cd2883ec8d5e0e6"
+  },
+  "installed_in_rmcs": false,
+  "hardware_tested": false,
+  "long_training_admitted": false,
+  "scope": "Standalone C++ candidate; native-derived encoder fixtures and synthetic lifecycle/invalid/air-spin/duplicate-tick cases"
+}
