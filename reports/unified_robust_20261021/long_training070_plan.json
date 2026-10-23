@@ -1,0 +1,313 @@
+{
+  "schema": "recovery070-conditional-long-plan-v1",
+  "status": "prepared_not_started",
+  "parent_checkpoint": "runs/unified_robust_20261022/quiet_severe_reference065/model_migrated.pt",
+  "parent_sha256": "12669ef1f470ce88acb6a9a17b907b31f2b34dd96396417f94079dbdcf813dba",
+  "parent_lineage_clock": 505,
+  "robust_charged_before": 1160,
+  "new_long_updates_target": 5120,
+  "block_sizes": [
+    64,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    192
+  ],
+  "expected_final_lineage_clock": 5625,
+  "expected_charged_if_all_completed": 6280,
+  "admission_required": "admission067_final.json: full_training_admitted=true and exact parent SHA",
+  "actor_scope": "recovery head only; all quiet MLPs/position heads, motion/parent, std and geometry frozen",
+  "trainable_actor_values": 21894,
+  "actor_lr": 1e-05,
+  "critic_lr": 0.001,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "domain_scale": 0.35,
+  "ground_friction": [
+    0.3,
+    0.5
+  ],
+  "seed_first_block": 211431,
+  "native_origin_mode": "isolated_overlap_v1",
+  "expected_settings": {
+    "schema": "wheel-leg-unified-getup-v1",
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "actor_dim": 35,
+    "action_dim": 6,
+    "passive_min_seconds": 0.2,
+    "passive_max_seconds": 1.2,
+    "passive_hold_seconds": 0.08,
+    "episode_seconds": 12.0,
+    "stable_seconds": 0.5,
+    "followup_seconds": 2.0,
+    "recovery_timeout_seconds": 9.0,
+    "leg_action_clip": 16.0,
+    "wheel_action_clip": 9.0,
+    "leg_position_scale": 0.25,
+    "closure_gap_m": 0.003,
+    "impact_limit_n": 3500.0,
+    "impact_window_seconds": 0.02,
+    "impact_impulse_limit_ns": 20.0,
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "motion_push_fraction": 1.0,
+    "motion_fraction": 0.4,
+    "arc_fraction_within_motion": 0.4,
+    "lateral_acceleration_m_s2": 2.06,
+    "wheel_radius_m": 0.06,
+    "wheel_track_m": 0.4373,
+    "wheel_speed_limit_rad_s": 90.0,
+    "friction_start": [
+      0.5,
+      0.5
+    ],
+    "friction_final": [
+      0.2,
+      0.5
+    ],
+    "curriculum_updates": 128,
+    "origin_updates": 0,
+    "motor_control": "six_axis_RL_after_zero_effort_settling",
+    "input_source": "IMU_encoders_commands_previous_action",
+    "fallback_script": false,
+    "state_writes": "episode_reset_only",
+    "version": "robust-v2.10-recovery-capture",
+    "stance_aware_recovery": true,
+    "recovery_shape_aware": true,
+    "paired_feedback_winding": true,
+    "cyclic_leg_targets": true,
+    "recovery_leg_step": 0.3,
+    "smooth_knee_targets": true,
+    "recovery_knee_center": [
+      0.924544,
+      0.924537
+    ],
+    "recovery_leg_speed_cost": 0.0005,
+    "recovery_family_weights": [
+      0.0,
+      0.1,
+      0.1,
+      0.2,
+      0.2,
+      0.3,
+      0.1
+    ],
+    "side_recovery_birth_focus": false,
+    "standing_drift_speed_scale_m_s": 0.02,
+    "quiet_native_height_anchors": true,
+    "quiet_exploration_fraction": 0.06,
+    "quiet_wheel_exploration_fraction": 0.35,
+    "quiet_velocity_feature_gain": 10.0,
+    "quiet_velocity_feedback": true,
+    "quiet_velocity_feedback_mode": "standing_displacement",
+    "nominal_fraction": 0.25,
+    "motor_strength_range": [
+      0.9475,
+      1.0350000000000001
+    ],
+    "leg_kp_scale_range": [
+      0.965,
+      1.0350000000000001
+    ],
+    "leg_kd_scale_range": [
+      0.9475,
+      1.0525
+    ],
+    "spring_strength_range": [
+      0.972,
+      1.028
+    ],
+    "torque_delay_ms": [
+      0,
+      1
+    ],
+    "motor_tau_ms": [
+      0.0,
+      1.75
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      1
+    ],
+    "encoder_bias_rad": 0.00105,
+    "encoder_noise_rad": 0.00035,
+    "gyro_bias_rad_s": 0.0052499999999999995,
+    "gyro_noise_rad_s": 0.0034999999999999996,
+    "gravity_noise": 0.0014,
+    "velocity_noise_rad_s": [
+      0.017499999999999998,
+      0.0875
+    ],
+    "sensor_noise_scale": 1.0,
+    "domains_enabled": true,
+    "quiet_action_rate_cost": 0.15,
+    "quiet_motor_speed_cost": 0.025,
+    "quiet_effort_delta_cost": 0.03,
+    "quiet_actor_alpha": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.65,
+      0.65
+    ],
+    "boundary_xy_m": [
+      40.0,
+      40.0
+    ],
+    "push_torque_direction": -1.0,
+    "hold_motion_during_recovery": false,
+    "canonical_recovery": true,
+    "motion_residual_fraction": 0.25,
+    "domain_scale": 0.35,
+    "pd_feedback_delay_ms": [
+      0,
+      1
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      2
+    ],
+    "pd_encoder_bias_rad": 0.00105,
+    "reward_gamma": 0.998,
+    "reward_potential_gain": 5.0,
+    "quiet_frozen": false,
+    "quiet_training": false,
+    "quiet_sway_m": 0.05,
+    "quiet_spectral_cost": true,
+    "quiet_critic_anchor": true,
+    "quiet_velocity_feature_scale": null,
+    "quiet_wheel_bound": 0.5,
+    "arc_tuning_fraction": 0.0,
+    "standing_support_training": true,
+    "quiet_position_weight": 0.0,
+    "quiet_height_probabilities": [
+      0.5,
+      0.25,
+      0.25
+    ],
+    "quiet_high_common_alpha": null,
+    "quiet_high_leg_prediction_s": 0.005,
+    "standing_early_position_weight": 6.0,
+    "standing_drift_weight": 2.0,
+    "quiet_height_experts": true,
+    "fast_forward_reference": true,
+    "fast_forward_reference_range": [
+      1.0,
+      1.5
+    ],
+    "fast_forward_reference_yaw_fade": null,
+    "native_origin_mode": "isolated_overlap_v1",
+    "standing_position_observation": {
+      "schema": "wheel-leg-standing-displacement-v3",
+      "policy_hz": 200,
+      "slots": [
+        14,
+        16
+      ],
+      "scale_per_m": 20.0,
+      "filter_seconds": 0.15,
+      "limit_m": 0.25,
+      "source": "continuous_model_wheel_angles_delayed_with_leg_encoders_and_gravity",
+      "capture": "once_after_declared_delay_active_quiet_gate_ge_.999_and_recovery_gate_le_.05",
+      "request": "abs_vx_lt_.1_and_abs_yaw_lt_.2",
+      "reset": "episode_or_RL_entry_or_request_end_or_valid_normalized_gravity_z_gt_-.5",
+      "invalid": "zero_output_preserve_reference",
+      "legacy_network_slots": "forced_zero",
+      "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+      "geometry_table_sha256": "57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
+      "capture_delay_seconds": 0.05,
+      "severe_tilt_reset": {
+        "enabled": true,
+        "normalized_gz_gt": -0.5,
+        "reference_age": "restart_while_severe"
+      }
+    },
+    "standing_position_filter_seconds": 0.15,
+    "standing_position_reference": {
+      "capture_delay_seconds": 0.05,
+      "reset_on_severe_tilt": true
+    },
+    "active_friction_range": [
+      0.3,
+      0.5
+    ]
+  },
+  "declared_profile_changes": {
+    "motion_push_fraction": {
+      "previous": 0.25,
+      "current": 1.0
+    },
+    "motion_fraction": {
+      "previous": 0.8,
+      "current": 0.4
+    },
+    "version": {
+      "previous": "robust-v2.39-severe-standing-reference-reset",
+      "current": "robust-v2.10-recovery-capture"
+    },
+    "quiet_training": {
+      "previous": true,
+      "current": false
+    },
+    "quiet_height_probabilities": {
+      "previous": [
+        0.25,
+        0.25,
+        0.5
+      ],
+      "current": [
+        0.5,
+        0.25,
+        0.25
+      ]
+    }
+  },
+  "preserved_standing_settings": [
+    "quiet_critic_anchor",
+    "quiet_spectral_cost",
+    "standing_support_training",
+    "quiet_position_weight",
+    "standing_early_position_weight",
+    "standing_drift_weight",
+    "quiet_actor_alpha",
+    "quiet_exploration_fraction",
+    "quiet_wheel_exploration_fraction",
+    "quiet_high_leg_prediction_s",
+    "quiet_leg_prediction_all_heights",
+    "standing_position_observation",
+    "standing_position_reference"
+  ],
+  "reset_exposure": "40% upright rehearsal, 60% fallen; front/back/left/right/inverted/compound weights .1/.1/.2/.2/.3/.1",
+  "command_exposure": "30% stand,20% straight,10% spin,40% arcs; existing high-speed samples retained",
+  "checkpoint_continuity": "actor,critic,named Adam and all saved RNG; each block starts fresh native episodes",
+  "block_acceptance": "48x12s randomized standing and140x12s full suite; frozen5cm/3mm/HF and motion/recovery gates",
+  "periodic_admission": "Fresh two-seed nominal and30s randomized standing after each1024 new updates and final",
+  "interrupted_accounting": "Charge all completed updates and any unsealed in-flight update conservatively; no refunds",
+  "long_training_admitted": false,
+  "new_macro_updates": 0,
+  "hardware_ready": false,
+  "installed_in_rmcs": false,
+  "strong_push_boundary": "Original80N/32Nm stationary push failed29/32 impact protection; retain receipt065"
+}
