@@ -14,7 +14,7 @@ from iteration036_compare import CASES, paired, read
 
 
 def main():
-    names = ("quiet_velocity_baseline036", "learned_position_static058", "low_transfer_static059")
+    names = ("quiet_velocity_baseline036", "learned_position_static058", "low_transfer_static059", "high_transfer_static060")
     baseline = read(names[0])
     result = dict(schema="position058-actual-motion-band-diagnosis-v1", runs={}, new_macro_updates=0,
                   window="alive, command zero, time>=3s; same Hann normalization as fixed analyzer",
@@ -30,6 +30,14 @@ def main():
             selected = data["alive"][:, i] & (t >= 3.) & (np.abs(data["commands"][:, i, :2]).max(-1) < .01)
             dt = float(np.median(np.diff(t)))
             values = dict(lane=i, case=row["name"], observation_delay_ticks=row["first_reset_domain"]["sensor_delay_policy_ticks"])
+            full = data["alive"][:, i] & ~data["passive"][:, i]
+            position = data["local_position"][:, i, :2]
+            relative = position - position[np.flatnonzero(full)[:1]]
+            distance = np.linalg.norm(relative, axis=-1)
+            at = int(np.where(full, distance, -1.).argmax())
+            values.update(full_excursion_peak_m=float(distance[at]), full_excursion_peak_time_s=float(t[at]),
+                          xy_at_peak_m=relative[at].tolist(),
+                          filtered_wheel_position_before_peak_action_m=(data["observations"][at, i, 14:16] / 20.).tolist())
             for first, last in ((3, 8), (8, 20), (20, 95), (3, 95)):
                 for quantity, array, columns, unit in (("leg", "motor_position", [0, 1, 3, 4], "rad"),
                                                         ("wheel", "motor_velocity", [2, 5], "rad_s")):
@@ -40,6 +48,10 @@ def main():
             selected = [r for r in lanes if r["case"] == case]
             summary[case] = {key: float(np.mean([r[key] for r in selected]))
                              for key in selected[0] if "_motion_rms_" in key}
+            worst = max(selected, key=lambda row: row["full_excursion_peak_m"])
+            summary[case].update(worst_excursion_lane=worst["lane"],
+                                 worst_excursion_m=worst["full_excursion_peak_m"],
+                                 worst_excursion_time_s=worst["full_excursion_peak_time_s"])
             for key, value in (("leg_motion_rms_rad_3_95", "leg_motion_fast_rms_rad_3_95"),
                                ("wheel_motion_rms_rad_s_3_95", "wheel_motion_fast_rms_rad_s_3_95")):
                 assert abs(summary[case][key] - analysis["cases"][case]["quiet"][value]) < 1e-10
