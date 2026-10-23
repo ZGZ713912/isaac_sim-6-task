@@ -142,3 +142,5 @@
 新合同`wheel-leg-standing-displacement-v1`逐字段认证，缺合同实际PT加载被拒绝；交付export暂拒绝该实验ABI，待RMCS预处理真正接入验证后才解除。RMCS尚未修改。94项CPU通过；22,560实际输入对照036封存旧源默认动作逐位一致，新位置槽任意改成±5、零头时仍逐位一致。旧actor/critic/Adam/RNG及441来源时钟保留；3,072条人工非零深拷贝诊断图误差1.91e-6，人工权重未写回PT。封存PT SHA`47bb0c656ce0c3f681fe4a1f9f4ef1572f6fcc517170ec4f2f7847a681aea4cc`。前一草案迁移保留在`quiet_position056`，最终为`quiet_position056_sealed`，没有覆盖旧交付。
 
 计划先唯一48×12s原生零PPO对照036，检查新增观测而零权重时所有旧观测/轨迹/动作是否保持；未通过不得开始位置反馈PPO。累计robust1089/长训0，不提前计入后续拟32更新。计划`iteration056_plan.json`、CPU/ONNX审计`iteration056_audit.json`；原生是否完成以process/progress/final回执为准。
+
+056原生已returncode0/native completed，400.72s实耗。48/48跑满，12项初态配对全部通过；全部2401帧的旧观测、actions、local_position、motor_position、motor_velocity与036逐位一致，最大差均0，alive/passive也完全一致。新obs14:16峰值5（限幅后）确实非零。该结果证明新预处理在零头时未干扰旧闭环，不是漂移已改善：静站结果仍是036的33.54/18.55/12.09cm。回执`iteration056_final.json`，轨迹SHA`d8c4d6f1cabb1da3277f3cd663c77555ae43fc7a786d507a6962cba6f992203e`；0新PPO，累计1089/长训0。
