@@ -543,6 +543,11 @@ class RobustGetupEnv(ChassisEnv):
             "Robust/domain_fraction": self.domain.enabled.float().mean(),
             "Robust/motor_strength_mean": self.domain.strength.mean(),
             "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * 5.})
+        if self.standing_observer is not None:
+            info["log"].update({
+                "StandingReference/active_fraction": self.standing_observer.active.float().mean(),
+                "StandingReference/severe_resets_per_episode_mean": self.standing_observer.severe_reset_count.float().mean(),
+                "StandingReference/filtered_abs_m": self.standing_observer.filtered.abs().mean()})
         for f, name in enumerate(FAMILIES):
             mask = self.settled_family == f
             info["log"][f"UnifiedGetup/post_settle/{name}_episodes"] = (enable & mask).float().sum()

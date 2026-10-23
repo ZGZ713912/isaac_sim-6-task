@@ -33,6 +33,18 @@ def fixed_forward_cases(template, speeds, replicas, yaws=(0.,)):
     return cases
 
 
+def fixed_stationary_push_cases(full):
+    """Keep the frozen push/pose; explicitly replace only its motion request."""
+    cases = []
+    for original in full:
+        if original["name"] in ("moving_push_left", "moving_push_right"):
+            case = deepcopy(original)
+            case["name"] = original["name"].replace("moving_", "stationary_", 1)
+            case["command"] = [0., 0., original["command"][2]]
+            cases.append(case)
+    return cases
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
@@ -59,6 +71,8 @@ def main():
     subset.add_argument("--case-names", nargs="+", help="Explicit diagnostic subset; cannot replace the full acceptance suite")
     subset.add_argument("--forward-speeds", type=float, nargs="+",
                         help="Diagnostic steady forward commands, e.g. 1.5 1.75 2; cannot qualify an export")
+    subset.add_argument("--stationary-push-cases", action="store_true",
+                        help="Diagnostic zero-command versions of the frozen moving-push cases; cannot qualify an export")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
                         help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
@@ -76,7 +90,7 @@ def main():
     args = parser.parse_args()
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
-    max_replicas = 64 if args.case_names or args.forward_speeds else 4
+    max_replicas = 64 if args.case_names or args.forward_speeds or args.stationary_push_cases else 4
     if not 1 <= args.replicas <= max_replicas or len(set(args.variants)) != len(args.variants):
         parser.error("Use 1..4 full-suite replicas or 1..64 diagnostic-subset replicas, and unique variants")
     if not 0. <= args.domain_scale <= 1. or not 0. < args.friction_min <= .5:
@@ -120,7 +134,8 @@ def main():
         known = {c["name"] for c in training.fixed_cases(bank, 35, seeds[0])}
         if len(selected_names) != len(args.case_names) or not selected_names <= known:
             parser.error("Use distinct known fixed-case names")
-    case_count = len(args.forward_speeds) * len(args.forward_yaws) if args.forward_speeds else len(selected_names) if selected_names else 35
+    case_count = (2 if args.stationary_push_cases else len(args.forward_speeds) * len(args.forward_yaws)
+                  if args.forward_speeds else len(selected_names) if selected_names else 35)
     per_variant = case_count * args.replicas
     count = per_variant * len(args.variants) * len(seeds)
     if len(seeds) > 2 or len(set(seeds)) != len(seeds) or count > 1024:
@@ -256,6 +271,8 @@ def main():
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
+        if args.stationary_push_cases:
+            env.evaluation_overrides["stationary_push_cases"] = True
         if args.instant_sensor_group:
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         if args.neutralize_bias:
@@ -277,7 +294,9 @@ def main():
         cases = []
         for seed, name in groups:
             full = training.fixed_cases(env.bank, 35 * args.replicas, seed)
-            if args.forward_speeds:
+            if args.stationary_push_cases:
+                cases.extend(fixed_stationary_push_cases(full))
+            elif args.forward_speeds:
                 template = next(case for case in full if case["name"] == "forward")
                 cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas, args.forward_yaws))
             else:
