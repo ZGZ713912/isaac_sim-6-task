@@ -158,3 +158,7 @@
 058已唯一启动PID1156866。实际task guard在model_initial.pt尚不存在时完成逐字段比对，settings SHA`4702919c0b9066e010d50191abd25df6f39c3dbd28b1604b9c5f98717b0b3857`，腿.06/轮.35正确。实际初态PT SHA`cf907f6c8987d76014910343eb536158b6e74ea809fdc5aac9c5a0ee628532a1`；actor/critic/named Adam/四RNG与056精确一致，新24值和空Adam正确，旧actor/std冻结。回执`iteration058_task_guard.json`、`iteration058_initial.json`。已完成量按原生progress更新，拟32尚不能提前称完成；本次提交不改原生源或重启进程。
 
 058运行期间完成的只读`position_native056_probe.json`直接核验056实际obs14:16（不再额外假设轮角噪声），正确对齐pre-action observation与上一条post-action诊断真值。未触及.25m限幅段的最差前向误差低/中/高31.96/18.59/18.56mm；最大低位误差lane34实际末位移18.68mm、估计50.63mm，而非最大33cm漂移lane。首次真实越过5cm时观测同向约48.4–61.1mm。故方向/包络信息存在，但轮里程不能当位置真值；该诊断不证明闭环5cm或长时间精度。参考锚在.2s，越线统计与出生起点正式全窗判据不能混用。指标写入056原event的`Diagnosis/position_native056`；0新原生/PPO、不改运行中的源。
+
+058训练32宏更新已实际完成，outer returncode0/native completed，795.39s含2s短回放。最终PT SHA`3745d2668286bd33363a70e660e72ec54ffa15bcf5e75ebac3d036dd2beccb3d`，来源473、账本1128（含057保守在途1）、长训0。结尾仅三位置weight与八critic张量改变，新反馈Adam各384步，旧actor/std/named Adam精确保持。22,560条实际输入中14,964非quiet输入，在新位置槽任意改为±5时动作仍逐位相同；3,072条诊断ONNX raw最大误差1.91e-6，诊断图只在run目录，不交付。完整审计`iteration058_final_state.json`、`iteration058_numeric.json`。48×12s原生固定复测PID1168596已唯一启动，未结束前不授予漂移/减振或长训资格。
+
+后续部署合同还需补“已经站立时严重倒地后重建轮角参考”：短时无效/倾斜不能抹去漂移，但严重翻倒的空转轮角不能解释成地面位移。058当前v1仅episode/RL entry/请求结束重置，不冒称该动态路径已认证；初始任意倒地仍从inactive参考开始。应在当前原生退出后做显式版本迁移、IMU严重倾斜与回正序列的单独验证，不热改运行中的源。
