@@ -77,6 +77,11 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path, f
     assert fine["standing_drift_speed_scale_m_s"] == .01
     assert fine["standing_drift_weight"] == drift["standing_drift_weight"]
     assert fine["quiet_sway_m"] == drift["quiet_sway_m"]
+    args.quiet_wheel_exploration_fraction = .1
+    _, wheel_precision = training.prepare(args)
+    expected = dict(fine, version="robust-v2.32-quiet-wheel-exploration", quiet_wheel_exploration_fraction=.1)
+    assert wheel_precision == expected
+    args.quiet_wheel_exploration_fraction = None
     args.high_standing_only = True
     _, high = training.prepare(args)
     assert high["quiet_height_probabilities"] == [0., 0., 1.]

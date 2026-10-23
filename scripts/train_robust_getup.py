@@ -97,6 +97,9 @@ def prepare(args):
                         standing_drift_speed_scale_m_s=args.standing_drift_speed_scale)
     if getattr(args, "quiet_exploration_fraction", None) is not None:
         task.update(version="robust-v2.24-quiet-exploration", quiet_exploration_fraction=args.quiet_exploration_fraction)
+    if getattr(args, "quiet_wheel_exploration_fraction", None) is not None:
+        task.update(version="robust-v2.32-quiet-wheel-exploration",
+                    quiet_wheel_exploration_fraction=args.quiet_wheel_exploration_fraction)
     if getattr(args, "focus_recovery_quiet", False):
         task.update(version=task["version"] + "-recovery-quiet", quiet_training=True, motion_fraction=.6,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
@@ -411,6 +414,8 @@ def main():
                         help="Explicit drift cost scale in m/s, .005...02; requires the standing drift objective")
     parser.add_argument("--quiet-exploration-fraction", type=float,
                         help="Quiet-only exploration multiplier, .05...35; preserves motion/recovery sampling and deterministic mean")
+    parser.add_argument("--quiet-wheel-exploration-fraction", type=float,
+                        help="Quiet-only wheel exploration multiplier, .05...35; preserves leg and nonquiet sampling")
     parser.add_argument("--high-standing-only", action="store_true",
                         help="Opt-in standing pilot that samples only the 420 mm high request")
     parser.add_argument("--focus-recovery-quiet", action="store_true", help="Tune recovery and quiet standing while freezing parent and arc motion")
@@ -460,6 +465,9 @@ def main():
     if args.quiet_exploration_fraction is not None and (not args.quiet_only
             or not .05 <= args.quiet_exploration_fraction <= .35):
         parser.error("Quiet exploration revision requires --quiet-only and a fraction within .05...35")
+    if args.quiet_wheel_exploration_fraction is not None and (not args.quiet_only
+            or not .05 <= args.quiet_wheel_exploration_fraction <= .35):
+        parser.error("Quiet wheel exploration revision requires --quiet-only and a fraction within .05...35")
     if args.high_standing_only and not (args.quiet_only and args.standing_support_training
                                         and args.early_standing_position):
         parser.error("High-standing-only tuning requires quiet support and early-position profiles")
