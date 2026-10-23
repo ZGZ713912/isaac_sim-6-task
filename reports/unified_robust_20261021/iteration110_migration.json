@@ -1,0 +1,33 @@
+{
+  "schema": "quiet110-position-gain-v1",
+  "parent_sha256": "a513167a51a3a485ab56fbe99f2731359ee972cceef30daaa789a33be2aad837",
+  "anchor097_sha256": "10cca03e85ffa1c08b36d88830cf0d3b8fd6d08a1e95ad942fa17c5801e04cbf",
+  "changed_actor": [
+    "mlp.mean.quiet_velocity.high.weight"
+  ],
+  "changed_values": 8,
+  "position_gain_relative097": {
+    "low": 1.5,
+    "mid": 1.0,
+    "high": 2.0
+  },
+  "reason": "106 low drift5.442->3.852cm, high6.910->5.623cm with all6HF below036; only high still fails",
+  "early_late_evidence": "High early max5.725->5.623cm; late max6.910->4.179cm; this step may still fail startup and must not be adopted on tail-only metrics",
+  "hypothesis": "A further bounded high position-feedback step improves its transient while preserving low/mid and ordinary motion",
+  "unchanged": "DC.003; quiet wheel alpha.32; observer150ms; original action/physics/protection contract",
+  "new_macro_updates": 0,
+  "new_offline_steps": 0,
+  "candidate_lineage": 505,
+  "robust_consumed": 1384,
+  "full_training_admitted": false,
+  "installed_in_rmcs": false,
+  "checkpoint_sha256": "c38a376b240c5e04a282e24a8357b9dfb68f092b2aa77b0552c11b69ad12bf2a",
+  "strict_load_valid": true,
+  "other_actor_std_critic_Adam_fourRNG_exact": true,
+  "recorded_inputs": 14609,
+  "low_mid_actions_exact": 14192,
+  "nonquiet_actions_exact": 13022,
+  "zero_displacement_actions_exact": true,
+  "maximum_same_input_leg_target_change_rad": 0.0003917217254638672,
+  "native_behavior_proven": false
+}
