@@ -234,3 +234,6 @@
 065已从066严格迁移，PT SHA`12669ef1f470ce88acb6a9a17b907b31f2b34dd96396417f94079dbdcf813dba`，只把v3 severe reset False→True并更新合同/version；全部actor/critic/named Adam/四RNG保持，22,560实际输入动作逐位相同。已串行执行before/after强静止侧推，实际进展见各process及pipeline回执；0新PPO，来源505/账本1160/长训0。before组32例中29例impact_bad、3例右侧存活并完成动态恢复，闭链峰.708mm；不能把这种猛烈推倒边界归为参考观测或通过关闭撞击保护掩盖。
 
 068独立离线C++候选已完成35,158帧对照，包括原生轨迹构造的编码器输入、重复tick、严重倾斜、空转、运动切换及无效输入。有效性/active/重建计数逐位一致；坐标峰误差6.01e-8m、滤波1.54e-8m、最终观测槽3.08e-7。使用冻结107表SHA`57d65167…65befb69`与同一spec，g++ C++20/关闭FMA收缩并启用警告error编译通过。`deployment_cpp068.json`及`deployment_candidate068/`。旧轨迹未保存延迟后的原始轮角，fixture使用post-step真实轮角与已记录腿/IMU观测，故它是独立数学/状态一致性检查，不能称硬件原始传感器回放或RMCS闭环验证；尚未接入RMCS，不解除新ABI交付限制。
+
+
+065强静止侧推before/after均已returncode0/native completed、初态与推前1000帧动作/观测/电机/位置逐位配对。after两侧各16例均真实翻倒并各自清除旧参考16次；右侧3例存活、重新捕获并全部达到末2s稳定/5cm，旧参考版同3例存活但仅2例末窗达标。左侧16例均impact_bad，在重捕获前终止；全32例没有参考生命周期违规、没有闭链/机械越限，但双向完整链没有充分实际覆盖。因此`native_lifecycle_exercised_and_valid=false`，未接续067或长训。`iteration065_final.json`负结果完整保留，不能把右侧的状态逻辑有效当成猛烈翻倒已修复。
