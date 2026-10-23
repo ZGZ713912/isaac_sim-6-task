@@ -63,7 +63,7 @@ def prepare(args):
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
                     "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_wheel_exploration_fraction", "quiet_velocity_feature_gain",
                     "quiet_velocity_feedback", "quiet_velocity_feedback_mode", "standing_position_observation",
-                    "standing_position_filter_seconds"):
+                    "standing_position_filter_seconds", "standing_position_reference"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
