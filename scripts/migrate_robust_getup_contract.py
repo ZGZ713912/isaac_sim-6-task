@@ -27,6 +27,8 @@ def main():
     parser.add_argument("--shape-aware-recovery", action="store_true")
     parser.add_argument("--quiet-high-common-alpha", type=float)
     parser.add_argument("--quiet-high-leg-prediction-ms", type=float)
+    parser.add_argument("--all-height-leg-prediction", action="store_true",
+                        help="Explicitly apply the existing positive prediction duration at every quiet standing height")
     parser.add_argument("--recovery-leg-step", type=float,
                         help="Diagnostic common-leg increment in raw action per 5 ms; .2 means .05 rad, not a scripted angle")
     parser.add_argument("--quiet-height-experts", action="store_true",
@@ -108,6 +110,13 @@ def main():
     if args.quiet_high_leg_prediction_ms is not None:
         info["settings"].update(version="robust-v2.13-high-leg-prediction",
                                 quiet_high_leg_prediction_s=args.quiet_high_leg_prediction_ms * .001)
+    if args.all_height_leg_prediction:
+        if info["settings"].get("quiet_leg_prediction_all_heights", False):
+            parser.error("All-height leg prediction is already enabled")
+        if not info["settings"].get("quiet_high_leg_prediction_s", 0.):
+            parser.error("All-height leg prediction requires a positive existing or explicit prediction duration")
+        info["settings"].update(version="robust-v2.31-all-height-leg-prediction",
+                                quiet_leg_prediction_all_heights=True)
     if args.recovery_leg_step is not None:
         info["settings"].update(version="robust-v2.19-recovery-common-step",
                                 recovery_leg_step=args.recovery_leg_step)
@@ -236,7 +245,7 @@ def main():
                 if low_info[key] != old_info[key]:
                     raise ValueError("Low-height reference mechanism or locomotion parent differs")
             for key in ("quiet_actor_alpha", "quiet_velocity_feature_scale", "quiet_wheel_bound",
-                        "quiet_high_leg_prediction_s", "recovery_shape_aware", "fast_forward_reference_range",
+                        "quiet_high_leg_prediction_s", "quiet_leg_prediction_all_heights", "recovery_shape_aware", "fast_forward_reference_range",
                         "fast_forward_reference_yaw_fade"):
                 if low_info["settings"].get(key) != old_info["settings"].get(key):
                     raise ValueError("Low-height reference controller contract differs: " + key)
@@ -296,7 +305,7 @@ def main():
         if info["settings"].get("quiet_velocity_feature_gain", 1.) != ref_info["settings"].get("quiet_velocity_feature_gain", 1.):
             raise ValueError("High-height reference controller contract differs: quiet_velocity_feature_gain")
         for key in ("quiet_actor_alpha", "quiet_velocity_feature_scale", "quiet_wheel_bound",
-                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_native_height_anchors",
+                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_leg_prediction_all_heights", "quiet_native_height_anchors",
                     "leg_action_clip", "wheel_action_clip", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade"):
             if info["settings"].get(key) != ref_info["settings"].get(key):
@@ -331,6 +340,7 @@ def main():
     revision["recovery_shape_aware"] = args.shape_aware_recovery
     revision["quiet_high_common_alpha"] = info["settings"].get("quiet_high_common_alpha")
     revision["quiet_high_leg_prediction_s"] = info["settings"].get("quiet_high_leg_prediction_s", 0.)
+    revision["quiet_leg_prediction_all_heights"] = info["settings"].get("quiet_leg_prediction_all_heights", False)
     revision["recovery_leg_step"] = info["settings"]["recovery_leg_step"]
     revision["motion_residual_fraction"] = info["settings"].get("motion_residual_fraction", 0.)
     revision["fast_forward_reference"] = info["settings"].get("fast_forward_reference", False)
