@@ -1,0 +1,35 @@
+{
+  "schema": "quiet093-bounded-network-bias-v1",
+  "parent_sha256": "bce79708a7bf1140a0051b9094056c1dcf32f7b7fc819015adabe09a0c3f9e91",
+  "changed_actor": [
+    "mlp.mean.quiet_high.2.bias"
+  ],
+  "changed_values": 4,
+  "added_high_output_logits": [
+    0.0020000000949949026,
+    0.0020000000949949026,
+    -0.0020000000949949026,
+    -0.0020000000949949026,
+    0.0,
+    0.0
+  ],
+  "reason": "090 filter lag change did not solve startup;087 high lane begins with backward common-angle adjustment during rise",
+  "hypothesis": "Small forward common-angle DC change in existing high quiet MLP reduces startup excursion",
+  "parameter_step_basis": ".002 logits is comparable to066 removed high quiet DC shift, without changing its dynamic weights",
+  "motor_commands": "Existing neural actor only; no new controller, observer, gate or scripted angle",
+  "optimizer": "All named Adam moments kept; explicit zero-PPO parameter proposal",
+  "new_macro_updates": 0,
+  "candidate_lineage": 505,
+  "robust_consumed": 1384,
+  "full_training_admitted": false,
+  "installed_in_rmcs": false,
+  "checkpoint_sha256": "e2037cb1b82c002d643651b6bb1712855c5cd7e00436c86c81cd7d14a4560da2",
+  "strict_load_valid": true,
+  "other_actor_std_critic_Adam_fourRNG_exact": true,
+  "recorded_inputs": 14609,
+  "low_mid_actions_exact": 14192,
+  "nonquiet_actions_exact": 13022,
+  "same_input_wheel_outputs_exact": true,
+  "maximum_same_input_leg_target_change_rad": 0.00020000338554382324,
+  "native_behavior_proven": false
+}
