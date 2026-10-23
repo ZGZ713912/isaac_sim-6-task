@@ -70,6 +70,8 @@ def main():
         if runner and runner["start_ticks"] == boundary["runner_start_ticks"] and runner["state"] in ("T", "t"):
             os.kill(boundary["runner_pid"], signal.SIGCONT)
             receipt.update(status="viewer_closed_original_queue_released", runner_released=True)
+        elif runner is None and json.loads((REPORTS / "iteration115_pipeline.json").read_text())["status"] == "completed":
+            receipt.update(status="viewer_closed_original_queue_already_completed", runner_released=False)
         else:
             receipt.update(status="viewer_closed_runner_identity_rejected", runner_released=False)
     else:

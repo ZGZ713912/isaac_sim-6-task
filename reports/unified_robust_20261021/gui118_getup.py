@@ -95,7 +95,7 @@ class View:
         import omni.appwindow
         import omni.ui as ui
         from omni.kit.viewport.utility import get_active_viewport
-        from pxr import Gf, Sdf, UsdGeom, UsdLux, UsdShade
+        from pxr import Gf, Sdf, Usd, UsdGeom, UsdLux, UsdShade, UsdPhysics
         self.env, self.args = env, args
         self.paused = False
         self.reset_requested = False
@@ -112,8 +112,17 @@ class View:
         stage = env.sim.stage
         UsdLux.DomeLight.Define(stage, "/World/GetupDome").CreateIntensityAttr(1000.)
         colors = ((.22, .56, .85), (.94, .52, .17))
+        # Keep the evaluated Fabric physics transport. This USD-only display
+        # hierarchy follows read-back body poses and has no physics schemas.
+        UsdGeom.Imageable(stage.GetPrimAtPath(env.env_paths[0] + "/Robot")).MakeInvisible()
+        self.display_operations = {}
         for body in env.robot.body_names:
-            visual = stage.GetPrimAtPath(env.env_paths[0] + "/Robot/" + body + "/Visual")
+            path = "/World/GetupDisplay/" + body
+            self.display_operations[body] = UsdGeom.Xform.Define(stage, path).AddTransformOp()
+            visual = stage.DefinePrim(path + "/Visual")
+            visual.GetReferences().AddReference(str(ROOT / env.cfg["asset_directory"] / env.manifest["usd"]),
+                                                "/Robot/" + body + "/Visual")
+            UsdGeom.Imageable(visual).MakeVisible()
             color = (.4, .44, .49) if body == "base_link" else colors[int(body.startswith("R"))]
             material = UsdShade.Material.Define(stage, "/World/GetupMaterials/" + body)
             shader = UsdShade.Shader.Define(stage, str(material.GetPath()) + "/Surface")
@@ -122,8 +131,16 @@ class View:
             shader.CreateInput("roughness", Sdf.ValueTypeNames.Float).Set(.5)
             material.CreateSurfaceOutput().ConnectToSource(shader.ConnectableAPI(), "surface")
             UsdShade.MaterialBindingAPI.Apply(visual).Bind(material)
+        for prim in Usd.PrimRange(stage.GetPrimAtPath("/World/GetupDisplay")):
+            if prim.HasAPI(UsdPhysics.RigidBodyAPI) or prim.HasAPI(UsdPhysics.CollisionAPI):
+                raise RuntimeError("The cosmetic display must not introduce physical bodies")
         self.viewport = get_active_viewport()
         self.viewport.resolution = (1280, 720)
+        camera = UsdGeom.Camera.Define(stage, "/World/GetupCamera")
+        camera.CreateClippingRangeAttr(Gf.Vec2f(.005, 200.))
+        camera.CreateFocalLengthAttr(32.)
+        self.camera_operation = camera.AddTransformOp()
+        self.viewport.camera_path = "/World/GetupCamera"
         self.window = ui.Window("PURE RL GETUP / ACTUAL MOTOR STATE", width=530, height=490)
         with self.window.frame:
             with ui.VStack(spacing=7):
@@ -147,6 +164,17 @@ class View:
                 ui.Label("Physics 1000 Hz / actor 200 Hz. Playback capped at 0.5x;\nactual speed depends on rendering. Simulated time is shown below.", word_wrap=True, height=40)
                 self.state = ui.Label("Initializing native state", word_wrap=True, height=210)
                 ui.Label("Candidate demonstration only. Failed attempts remain visible.\nChanging a case or Replay resets the complete physical episode.", word_wrap=True, height=40)
+
+    def update_display(self):
+        from pxr import Gf
+        poses = self.env.robot.data.body_link_pose_w.torch[0].cpu().numpy()
+        for body, pose in zip(self.env.robot.body_names, poses):
+            matrix = Gf.Matrix4d().SetRotate(Gf.Quatd(float(pose[6]), Gf.Vec3d(*(float(v) for v in pose[3:6]))))
+            self.display_operations[body].Set(matrix.SetTranslateOnly(Gf.Vec3d(*(float(v) for v in pose[:3]))))
+        if self.follow:
+            position = poses[self.env.robot.body_names.index("base_link"), :3].astype(float)
+            eye, target = position + [1.05, 1.35, .7], position + [0., 0., -.03]
+            self.camera_operation.Set(Gf.Matrix4d().SetLookAt(Gf.Vec3d(*eye), Gf.Vec3d(*target), Gf.Vec3d(0, 0, 1)).GetInverse())
 
     def choose(self, model, _item):
         selected = model.get_item_value_model().as_int
@@ -202,7 +230,8 @@ def main():
         checkpoint=str(MODEL), checkpoint_sha256=MODEL_SHA, source_sha256=sha(__file__),
         started=time.time(), run_scope="interactive_unscored", qualification=None,
         policy_hz=200, physics_hz=1000, scripted_recovery=False, optimizer_updates=0,
-        state_writes="episode_reset_only", cases=[], render_transport="USD", episode_results=[])
+        state_writes="physical_episode_reset_only; cosmetic_USD_link_copy_at_render", cases=[],
+        render_transport="USD live body-pose mirror; native Fabric physics retained", episode_results=[])
     write(args.output / "report.json", receipt)
     launcher = env = view = writer = None
     interrupted = {"signal": None}
@@ -220,21 +249,37 @@ def main():
         from pxr import UsdGeom, Usd
         from wheeled_tasks.chassis.robust_getup_env import RobustGetupEnv
         from wheeled_tasks.chassis.unified_getup import FAMILIES
+        from isaaclab.sim.utils.stage import create_new_stage
         from train_robust_getup import fixed_cases
         from omni.kit.viewport.utility import capture_viewport_to_file
         torch.set_num_threads(4)
         mean = mean.cuda().eval()
         bank = REPORTS / "pose_bank002.json"
+        # The GUI and the simulator must start from the same fresh stage.
+        create_new_stage()
         env = RobustGetupEnv(cfg, manifest, control, ROOT, stage_name="speed", num_envs=1,
             device="cuda:0", seed=args.seed, level=1., run_role="playback",
-            bank=bank, settings=task, render_use_fabric=False)
-        assert env.recovery is None and not env.sim.cfg.use_fabric
+            bank=bank, settings=task)
+        assert env.recovery is None and env.sim.cfg.use_fabric
+        import omni.usd
+        attached = omni.usd.get_context().get_stage()
+        receipt["stage_binding"] = dict(simulator=env.sim.stage.GetRootLayer().identifier,
+            viewport_context=attached.GetRootLayer().identifier if attached else None)
+        if attached is not env.sim.stage:
+            raise RuntimeError("GUI USD context differs from the physical scene")
         templates = {c["name"]: c for c in fixed_cases(env.bank, 35, args.seed)}
         cases = [templates[n] for n in NAMES]
         receipt["cases"] = cases
         receipt["startup_report"] = env.startup_report
         writer = SummaryWriter(str(args.output), filename_suffix=".gui118")
         view = View(env, args)
+        view.update_display()
+        # Warm up only rendering; no physics state is advanced or overwritten.
+        physical_steps = env.sim._physics_step_count
+        for _ in range(12):
+            env.sim.render()
+        if env.sim._physics_step_count != physical_steps:
+            raise RuntimeError("Display warmup advanced physics")
         ids = torch.arange(1, device=env.device)
         view.reset_requested = True
         completed = False
@@ -260,6 +305,7 @@ def main():
                     env.generator.manual_seed(args.seed)
                     env.domain.rng.manual_seed(args.seed + 83977)
                     env.reset(ids)
+                    view.update_display()
                     view.reset_requested = False
                     view.finished_wall = None
                     completed, rows, saved_times = False, [], set()
@@ -281,13 +327,12 @@ def main():
                         "actions", "gap", "passive", "stable", "recovered", "followup_success", "terminated", "local_position",
                         "enable_event", "settled_family")
                 rows.append({k: d[k].detach().cpu().numpy() for k in keys}
-                            | {"observations": obs.cpu().numpy()})
+                            | {"observations": obs.cpu().numpy(),
+                               "body_link_pose_w": env.robot.data.body_link_pose_w.torch.cpu().numpy()})
                 seconds = float(d["time"][0])
                 terminal = bool(done[0]) or seconds >= (30. if active.startswith("stand") else 12.) - .001
                 if tick % 8 == 0 or terminal:
-                    position = env.robot.data.root_link_pose_w.torch[0, :3].cpu().numpy()
-                    if view.follow:
-                        env.sim.set_camera_view(tuple(position + [1.05, 1.35, .7]), tuple(position + [0., 0., -.03]))
+                    view.update_display()
                     q = d["motor_position"][0].cpu().numpy()
                     legs = np.degrees(q[[0, 1, 3, 4]])
                     wheels = d["motor_velocity"][0, [2, 5]].cpu().tolist()
@@ -310,12 +355,12 @@ def main():
                         writer.add_scalar(f"GetupViewer/{active}/{tag}", value, tick)
                     env.sim.render()
                     # Compare actual link translations to the USD display source.
-                    if tick % 200 < 8:
+                    if tick % 200 < 8 or tick == 8:
                         paths = ("base_link", "L_link1", "LL_link1", "R_link1", "RR_link1")
                         cache = UsdGeom.XformCache(Usd.TimeCode.Default())
                         errors, rotation_errors = [], []
                         for body in paths:
-                            prim = env.sim.stage.GetPrimAtPath(env.env_paths[0] + "/Robot/" + body)
+                            prim = env.sim.stage.GetPrimAtPath("/World/GetupDisplay/" + body)
                             matrix = cache.GetLocalToWorldTransform(prim)
                             visual = np.asarray(matrix.ExtractTranslation())
                             physical = env.robot.data.body_link_pose_w.torch[0, env.robot.body_names.index(body)].cpu().numpy()
