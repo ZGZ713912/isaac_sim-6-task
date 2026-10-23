@@ -1,0 +1,75 @@
+{
+  "schema": "position063-deployment-observation-audit-v1",
+  "verified_at_utc": "2026-10-23T04:26:01.625245+00:00",
+  "reference_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "reference_path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/models/wheel_leg/recovery_candidate.onnx",
+  "local_reference_path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/models/wheel_leg_flat_base_20261018/source.onnx",
+  "tracked_yaml": {
+    "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml",
+    "sha256": "d5b4a80e9915ad596fdf0f2e7b97a1f4d8b7377228889ff6de466e4340730c00",
+    "lines": [
+      {
+        "line": 60,
+        "text": "policy_rate: 50.0"
+      },
+      {
+        "line": 84,
+        "text": "- index=14 type=joint_pos joints=left_wheel,right_wheel zero=true name=joint_position_wheels clip=-100:100"
+      }
+    ]
+  },
+  "actual_hardware_policy_hz": {
+    "value": 200,
+    "source": "user confirmation; tracked YAML is not identified as actual launch config"
+  },
+  "candidate": {
+    "checkpoint_sha256": "205b0a9af61e15d8f4be73b203d01e0067483e8935fae6a5eebffe238652b5b3",
+    "observation_contract": {
+      "schema": "wheel-leg-standing-displacement-v3",
+      "policy_hz": 200,
+      "slots": [
+        14,
+        16
+      ],
+      "scale_per_m": 20.0,
+      "filter_seconds": 0.15,
+      "limit_m": 0.25,
+      "source": "continuous_model_wheel_angles_delayed_with_leg_encoders_and_gravity",
+      "capture": "once_after_declared_delay_active_quiet_gate_ge_.999_and_recovery_gate_le_.05",
+      "request": "abs_vx_lt_.1_and_abs_yaw_lt_.2",
+      "reset": "episode_or_RL_entry_or_request_end",
+      "invalid": "zero_output_preserve_reference",
+      "legacy_network_slots": "forced_zero",
+      "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+      "geometry_table_sha256": "57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
+      "capture_delay_seconds": 0.05,
+      "severe_tilt_reset": {
+        "enabled": false,
+        "normalized_gz_gt": -0.5,
+        "reference_age": "restart_while_severe"
+      }
+    },
+    "hardware_ready": false
+  },
+  "required_integration": {
+    "owner": "WheelLegController observation preprocessing and lifecycle",
+    "slots": "14:16 =20 * filtered relative wheel rolling coordinates in metres",
+    "bridge": "RlBridge remains YAML routing and threaded inference",
+    "resets": "episode/entry/request end; severe-tilt reset still pending native qualification"
+  },
+  "hardware_or_rmcs_changes": false,
+  "scope": "Read-only compatibility audit. Experimental position candidates have not replaced the delivered313 ONNX or the deployed reference.",
+  "reference_selected_metadata": {
+    "leg_winding_version": "paired_branch107_v1",
+    "leg_target_model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997"
+  },
+  "policy_tick_alignment": {
+    "owner": "WheelLegController::run_policy_ / assemble_observation_",
+    "source": "rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/wheel_leg_controller.cpp",
+    "lines": [
+      353,
+      357
+    ],
+    "current_behavior": "Observation assembled at scheduled policy divisor; new observation state must advance here once per200Hz policy tick, not every PD tick."
+  }
+}
