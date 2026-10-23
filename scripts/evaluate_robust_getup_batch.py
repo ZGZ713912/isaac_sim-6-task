@@ -114,6 +114,8 @@ def main():
                         help="Diagnostic1..4 strength grid using existing per-case force/torque multiplier")
     parser.add_argument("--quiet-wheel-output-alphas", type=float, nargs="+",
                         help="Nominal static diagnostic: filter complete quiet wheel outputs using the applied previous action")
+    parser.add_argument("--quiet-wheel-position-release-bands", type=float, nargs="+",
+                        help="Static diagnostic: alpha.25 baseline plus one or two position-release bands in metres")
     parser.add_argument("--early-roll-full-degrees", type=float, nargs="+",
                         help="Nominal dynamic-push diagnostic: original control plus20deg-start recovery authority variants")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
@@ -176,6 +178,21 @@ def main():
             parser.error("Early roll grid requires nominal robust-only dynamic push pair,1..2 full angles within25..60deg and no other intervention")
         roll_variants = {f"early_roll20_to_{value:.17g}": value for value in values}
         args.variants = ["robust", *roll_variants]
+    position_variants = {}
+    if args.quiet_wheel_position_release_bands is not None:
+        if (args.variants != ["robust"] or args.quiet_wheel_output_alphas is not None
+                or args.early_roll_full_degrees is not None
+                or set(args.case_names or []) != {"stand_low", "stand", "stand_high"}
+                or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
+                or args.neutralize_bias or args.standing_command_feedback_gain is not None
+                or args.friction_value is not None):
+            parser.error("Position-release grid requires robust-only three static cases and no other intervention")
+        from wheeled_algo.evaluation_position_filter import position_filter_variants
+        try:
+            position_variants = position_filter_variants(args.quiet_wheel_position_release_bands)
+        except ValueError as error:
+            parser.error(str(error))
+        args.variants = list(position_variants)
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -288,6 +305,10 @@ def main():
         if roll_variants:
             public_task["evaluation_counterfactual"] = dict(kind="early_roll_authority_v1",
                 start_degrees=20., variant_full_degrees=roll_variants, learned_parameters_changed=False)
+        if position_variants:
+            public_task["evaluation_counterfactual"] = dict(kind="position_released_quiet_wheel_filter_v1",
+                alpha_min=.25, variants=position_variants, position_slots=[14, 15], scale_per_m=20.,
+                learned_parameters_changed=False, hidden_state_added=False)
         training.write_json(task_path, public_task)
         reference_mean = None
         if args.reference_checkpoint is not None:
@@ -340,6 +361,9 @@ def main():
             if name in roll_variants:
                 from wheeled_algo.evaluation_early_roll import EarlyRollEvaluation
                 mean = EarlyRollEvaluation(mean, 20., roll_variants[name])
+            if name in position_variants:
+                from wheeled_algo.evaluation_position_filter import PositionReleasedWheelFilter
+                mean = PositionReleasedWheelFilter(mean, position_variants[name])
             models.append(mean.eval())
 
         class BatchMean(nn.Module):
@@ -365,6 +389,8 @@ def main():
             env.evaluation_overrides["quiet_wheel_output_alphas"] = args.quiet_wheel_output_alphas
         if roll_variants:
             env.evaluation_overrides["early_roll_full_degrees"] = args.early_roll_full_degrees
+        if position_variants:
+            env.evaluation_overrides["quiet_wheel_position_release_bands"] = args.quiet_wheel_position_release_bands
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
@@ -426,6 +452,9 @@ def main():
                 split["quiet_wheel_output_alpha"] = alpha_variants[name]
             if roll_variants:
                 split["early_roll_authority_degrees"] = [20., roll_variants[name]] if name in roll_variants else None
+            if position_variants:
+                split["quiet_wheel_position_release_band_m"] = position_variants[name]
+                split["quiet_wheel_output_alpha_min"] = .25
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"
             if name == "deployed":
