@@ -394,3 +394,6 @@
 
 
 098名义24×12s已exit0/native completed，初态和推前1000帧obs/actions/q/dq/XY/alive严格相同。额外64离线步使左/右动态与倒扣全部退到0/4实用，峰冲量分别29.107/36.405/21.690Ns，均超原20保护；旧096同批仍4/0/4实用及19.018/27.324/18.501Ns。明确拒绝098，终止这条316帧单成功目标的继续拟合，loss下降不能替代闭环收益；保留096局部收益作研究，不采用。PPO仍累计1384，实际离线共128步独立记录，长训0。
+
+
+099组合仅在CPU准备：将097高位quiet偏置与alpha.32合入098，SHA ea5dee88448d24d37e6c120b0ed1a1b0cfa895c6e16d1d67869789e6ab291454。115200条097静态输入输出逐位等价097，13020非quiet输入输出逐位等价098，strict load及其余actor/critic/std/PPO Adam/离线Adam/四saved RNG保持。由于098实际行为前提失败，099原生30s/新种子计划明确未启动且退休，不能当组合已通过。iteration099_migration.json/plan.json/decision.json；0原生/0新优化。
