@@ -376,3 +376,6 @@
 
 
 096已按冻结计划完成64离线Adam步、0新PPO，SHA eb49ecdf871d5d2ca218586b75072c62f61771fc8431171f363c95d8bbb7a50f。只有六个recovery张量改变；其余actor/std/critic/原PPO Adam/四saved RNG精确，另存离线Adam。316帧应用目标归一损失1.064760→1.053846，3883保留帧最大腿变化4.985mrad/轮1.1514rad/s通过预设范围，13361非恢复输入动作逐位保持，strict load通过。仅授下一24环境名义原079/新096均值对照，不据小幅loss下降宣称自起改善或追加PPO。iteration096_state.json和refit_launch.json封存；PPO1384、研究谱系569+离线64步，采用仍505。
+
+
+097准备只检验高位DC中点.003，原087 alpha.32/150ms不变，依据093(.002)的启动后移与095(.004)的晚期前漂两边约束，不再向单侧扩大。只有四个高位quiet偏置值变化，其他actor/std/critic/Adam/四RNG保持；14609输入低中/非quiet/同输入轮输出精确，最大腿目标变化.30001mrad。先等096原生完全退出再48×12s相同随机编号复验；通过亦不直接大训，仍需更长静站/新种子和合并策略完整验收。iteration097_migration.json/plan.json，0PPO/累计1384。
