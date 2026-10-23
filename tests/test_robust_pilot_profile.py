@@ -18,6 +18,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path, f
     torch.save({"infos": {"settings": {"stance_aware_recovery": True, "recovery_shape_aware": True,
                                         "leg_action_clip": 16., "motion_residual_fraction": .25,
                                         "quiet_high_leg_prediction_s": .005, "fast_forward_reference": True,
+                                        "quiet_leg_prediction_all_heights": True,
                                         "fast_forward_reference_range": [1., 1.5],
                                         "fast_forward_reference_yaw_fade": None,
                                         "quiet_height_experts": True,
@@ -41,6 +42,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path, f
     _, task = training.prepare(args)
     assert task["stance_aware_recovery"] and task["recovery_shape_aware"]
     assert task["quiet_high_leg_prediction_s"] == .005 and task["fast_forward_reference"]
+    assert task["quiet_leg_prediction_all_heights"]
     assert task["fast_forward_reference_range"] == [1., 1.5]
     assert task["fast_forward_reference_yaw_fade"] is None
     assert task["native_origin_mode"] == "isolated_overlap_v1"
@@ -94,6 +96,7 @@ def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path, f
     assert side["motion_fraction"] == .2 and side["motion_push_fraction"] == 1.
     assert side["side_recovery_birth_focus"] and not task["side_recovery_birth_focus"]
     assert side["quiet_height_experts"] and side["quiet_high_leg_prediction_s"] == .005
+    assert side["quiet_leg_prediction_all_heights"]
     assert side["quiet_actor_alpha"] == task["quiet_actor_alpha"]
     assert side["recovery_leg_step"] == task["recovery_leg_step"]
     assert side["reward_gamma"] == task["reward_gamma"]

@@ -85,6 +85,7 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            recovery_shape_aware=info["settings"].get("recovery_shape_aware", False),
                            quiet_high_common_alpha=info["settings"].get("quiet_high_common_alpha"),
                            quiet_high_leg_prediction_s=info["settings"].get("quiet_high_leg_prediction_s", 0.),
+                           quiet_leg_prediction_all_heights=info["settings"].get("quiet_leg_prediction_all_heights", False),
                            quiet_height_experts=info["settings"].get("quiet_height_experts", False),
                            quiet_native_height_anchors=info["settings"].get("quiet_native_height_anchors", False),
                            fast_forward_reference=info["settings"].get("fast_forward_reference", False),
@@ -228,6 +229,9 @@ def main():
     onnx.helper.set_model_props(model, dict(actor_adaptation="wheel-leg-robust-getup-v2", policy_hz="200",
         observation_dim="35", action_dim="6", motor_control="full_RL_after_passive_enable",
         source_checkpoint_sha256=digest(args.checkpoint),
+        quiet_leg_prediction_scope=("all_quiet_heights" if info["settings"].get("quiet_leg_prediction_all_heights", False)
+            else "high_quiet_only" if info["settings"].get("quiet_high_leg_prediction_s", 0.) else "disabled"),
+        quiet_leg_prediction_seconds=str(info["settings"].get("quiet_high_leg_prediction_s", 0.)),
         recovery_coordinates=("smooth_absolute_knee_circular_common" if info["settings"].get("smooth_knee_targets") else "circular_common"),
         recovery_authority=("stance_and_knee_shape_v1" if info["settings"].get("recovery_shape_aware")
             else "stance_aware_v1" if info["settings"].get("stance_aware_recovery") else "tilt_only_v1"),
