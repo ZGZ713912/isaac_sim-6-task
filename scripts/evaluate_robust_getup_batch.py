@@ -122,6 +122,8 @@ def main():
                         help="Single-policy static gyro counterfactual; randomized confirmation uses equal-index serial native runs")
     parser.add_argument("--early-roll-full-degrees", type=float, nargs="+",
                         help="Nominal dynamic-push diagnostic: original control plus20deg-start recovery authority variants")
+    parser.add_argument("--recovery-leg-steps", type=float, nargs="+",
+                        help="Nominal recovery diagnostic: smaller common-angle increments; original.3 control is included")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
                         help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
@@ -139,7 +141,7 @@ def main():
     args = parser.parse_args()
     if sum(value is not None for value in (args.quiet_wheel_output_alphas,
             args.quiet_wheel_position_release_bands, args.quiet_wheel_gyro_release_bands,
-            args.quiet_wheel_gyro_release_band, args.early_roll_full_degrees)) > 1:
+            args.quiet_wheel_gyro_release_band, args.early_roll_full_degrees, args.recovery_leg_steps)) > 1:
         parser.error("Use only one action-filter or recovery-authority diagnostic grid")
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
@@ -222,6 +224,20 @@ def main():
             parser.error(str(error))
         gyro_variants = checked if grid else {"robust": gyro_values}
         args.variants = list(gyro_variants)
+    step_variants = {}
+    if args.recovery_leg_steps is not None:
+        if (args.variants != ["robust"] or len(seeds) != 1 or args.domain_scale != 0.
+                or set(args.case_names or []) != {"moving_push_left", "moving_push_right", "inverted_asymmetric"}
+                or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
+                or args.neutralize_bias or args.standing_command_feedback_gain is not None
+                or args.friction_value is not None or args.friction_min != .5):
+            parser.error("Recovery step grid requires nominal domain0, robust-only push pair plus inverted-asymmetric, one seed and no other intervention")
+        from wheeled_algo.evaluation_recovery_step import recovery_step_variants
+        try:
+            step_variants = recovery_step_variants(args.recovery_leg_steps)
+        except ValueError as error:
+            parser.error(str(error))
+        args.variants = list(step_variants)
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -342,6 +358,10 @@ def main():
             public_task["evaluation_counterfactual"] = dict(kind="gyro_released_quiet_wheel_filter_v1",
                 alpha_min=.25, variants=gyro_variants, gyro_slots=[4, 5], gyro_scale_to_rad_s=2.,
                 learned_parameters_changed=False, hidden_state_added=False)
+        if step_variants:
+            public_task["evaluation_counterfactual"] = dict(kind="smaller_recovery_common_step_v1",
+                variants=step_variants, original_step=.3, raw_to_rad_scale=.25,
+                learned_parameters_changed=False, knee_and_wheel_rules_changed=False)
         training.write_json(task_path, public_task)
         reference_mean = None
         if args.reference_checkpoint is not None:
@@ -400,6 +420,9 @@ def main():
             if name in gyro_variants:
                 from wheeled_algo.evaluation_gyro_filter import GyroReleasedWheelFilter
                 mean = GyroReleasedWheelFilter(mean, gyro_variants[name])
+            if name in step_variants:
+                from wheeled_algo.evaluation_recovery_step import RecoveryStepEvaluation
+                mean = RecoveryStepEvaluation(mean, step_variants[name])
             models.append(mean.eval())
 
         class BatchMean(nn.Module):
@@ -430,6 +453,8 @@ def main():
         if gyro_variants:
             env.evaluation_overrides["quiet_wheel_gyro_release_bands" if args.quiet_wheel_gyro_release_bands is not None
                                      else "quiet_wheel_gyro_release_band"] = gyro_values
+        if step_variants:
+            env.evaluation_overrides["recovery_leg_steps"] = step_variants
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
@@ -497,6 +522,8 @@ def main():
             if gyro_variants:
                 split["quiet_wheel_gyro_release_band_rad_s"] = gyro_variants[name]
                 split["quiet_wheel_output_alpha_min"] = .25
+            if step_variants:
+                split["recovery_leg_step_override"] = step_variants[name]
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"
             if name == "deployed":
