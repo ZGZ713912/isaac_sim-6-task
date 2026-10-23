@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--lifecycle-result", type=Path, default=REPORTS / "iteration065_final.json")
     args = parser.parse_args()
     assert args.lifecycle_result.resolve() in {REPORTS.resolve() / name
-        for name in ("iteration065_final.json", "iteration069_final.json")}
+        for name in ("iteration065_final.json", "iteration069_final.json", "iteration071_final.json")}
     checkpoint = RUNS / "quiet_severe_reference065/model_migrated.pt"
     protocol_path = REPORTS / "acceptance_protocol003.json"
     protocol = json.loads(protocol_path.read_text())

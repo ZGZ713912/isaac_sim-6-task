@@ -34,15 +34,32 @@ def fixed_forward_cases(template, speeds, replicas, yaws=(0.,)):
     return cases
 
 
-def fixed_stationary_push_cases(full):
+def validate_stationary_push_scales(scales):
+    if (not 1 <= len(scales) <= 4 or len(set(scales)) != len(scales)
+            or any(not math.isfinite(value) or not 0. < value <= 1. for value in scales)):
+        raise ValueError("Use1..4 distinct finite stationary push scales within(0,1]")
+
+
+def fixed_stationary_push_cases(full, scales=None):
     """Keep the frozen push/pose; explicitly replace only its motion request."""
+    if scales is not None:
+        validate_stationary_push_scales(scales)
     cases = []
     for original in full:
         if original["name"] in ("moving_push_left", "moving_push_right"):
             case = deepcopy(original)
             case["name"] = original["name"].replace("moving_", "stationary_", 1)
             case["command"] = [0., 0., original["command"][2]]
-            cases.append(case)
+            if scales is None:
+                cases.append(case)
+            else:
+                for scale in scales:
+                    scaled = deepcopy(case)
+                    # The existing floating point sign multiplies BOTH native
+                    # force and torque. No environment code or RNG changes.
+                    scaled["push_sign"] *= scale
+                    scaled["diagnostic_push_scale"] = scale
+                    cases.append(scaled)
     return cases
 
 
@@ -86,6 +103,8 @@ def main():
                         help="Diagnostic zero-command versions of the frozen moving-push cases; cannot qualify an export")
     parser.add_argument("--stationary-push-scale", type=float, default=1.,
                         help="Explicit force/torque scale for stationary-push diagnostics only; default preserves the frozen pusher")
+    parser.add_argument("--stationary-push-scales", type=float, nargs="+",
+                        help="Diagnostic1..4 strength grid using existing per-case force/torque multiplier")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
                         help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
@@ -113,6 +132,13 @@ def main():
     if (not math.isfinite(args.stationary_push_scale) or not 0. < args.stationary_push_scale <= 1.
             or args.stationary_push_scale != 1. and not args.stationary_push_cases):
         parser.error("Use finite stationary push scale in (0,1] only with --stationary-push-cases")
+    if args.stationary_push_scales is not None:
+        if not args.stationary_push_cases or args.stationary_push_scale != 1.:
+            parser.error("Strength grid requires --stationary-push-cases and default global scale1")
+        try:
+            validate_stationary_push_scales(args.stationary_push_scales)
+        except ValueError as error:
+            parser.error(str(error))
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -149,7 +175,7 @@ def main():
         known = {c["name"] for c in training.fixed_cases(bank, 35, seeds[0])}
         if len(selected_names) != len(args.case_names) or not selected_names <= known:
             parser.error("Use distinct known fixed-case names")
-    case_count = (2 if args.stationary_push_cases else len(args.forward_speeds) * len(args.forward_yaws)
+    case_count = (2 * len(args.stationary_push_scales or [1.]) if args.stationary_push_cases else len(args.forward_speeds) * len(args.forward_yaws)
                   if args.forward_speeds else len(selected_names) if selected_names else 35)
     per_variant = case_count * args.replicas
     count = per_variant * len(args.variants) * len(seeds)
@@ -292,6 +318,8 @@ def main():
             env.evaluation_overrides["stationary_push_cases"] = True
             if args.stationary_push_scale != 1.:
                 env.evaluation_overrides["stationary_push_scale"] = args.stationary_push_scale
+            if args.stationary_push_scales is not None:
+                env.evaluation_overrides["stationary_push_scales"] = args.stationary_push_scales
         if args.instant_sensor_group:
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         if args.neutralize_bias:
@@ -314,7 +342,7 @@ def main():
         for seed, name in groups:
             full = training.fixed_cases(env.bank, 35 * args.replicas, seed)
             if args.stationary_push_cases:
-                cases.extend(fixed_stationary_push_cases(full))
+                cases.extend(fixed_stationary_push_cases(full, args.stationary_push_scales))
             elif args.forward_speeds:
                 template = next(case for case in full if case["name"] == "forward")
                 cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas, args.forward_yaws))
