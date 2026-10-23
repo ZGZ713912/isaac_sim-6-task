@@ -1,0 +1,66 @@
+{
+  "schema": "stationary-reference-native-validation-plan-v1",
+  "status": "planned_only_no_native_started",
+  "candidate_selection": "Use064 only after its fixed static gate passes; otherwise preserve062 and diagnose remaining vibration first",
+  "new_ppo_updates": 0,
+  "intervention": "Same actor/critic/Adam/RNG; standing_position_reference.reset_on_severe_tilt False->True only",
+  "fixed_cases": [
+    {
+      "name": "stationary_push_left",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "push": true,
+      "push_sign": 1.0
+    },
+    {
+      "name": "stationary_push_right",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "push": true,
+      "push_sign": -1.0
+    }
+  ],
+  "pusher_settings": {
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "push_torque_direction": -1.0
+  },
+  "native": {
+    "seed": 211322,
+    "replicas_per_direction": 16,
+    "seconds": 12,
+    "domain_scale": 0.35,
+    "ground_friction": [
+      0.3,
+      0.5
+    ],
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "layout": "isolated_overlap_v1",
+    "workers": "two serial32env evaluation processes, before then after"
+  },
+  "required_diagnostics": [
+    "standing_reference_active",
+    "standing_reference_anchor_m",
+    "standing_reference_filtered_m",
+    "standing_reference_severe_reset_count"
+  ],
+  "checks": [
+    "All first states/domain/material/push draws paired",
+    "All pre-push action, motor and root traces identical",
+    "Reference active before push, severe sensor tilt invalidates once, air-spin cannot recapture",
+    "Only valid upright quiet observations after declared delay can recapture",
+    "Report actual falls, closure guard, recovery, terminal2s stable fraction and motion/displacement; failures preserved"
+  ],
+  "default_suite": "Keep35 frozen cases and default case SHA3fe0212986b85b2add73b96c6676a6427b73d0c9400ab223962915304b7412f5 unchanged; explicit diagnostic option cannot qualify the normal full suite",
+  "hardware_or_rmcs_change": false,
+  "long_training_admitted": false
+}
