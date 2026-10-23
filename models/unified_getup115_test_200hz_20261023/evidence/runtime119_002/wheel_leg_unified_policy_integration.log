@@ -1,0 +1,39 @@
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from UnifiedPolicyIntegration
+[ RUN      ] UnifiedPolicyIntegration.NeutralPrepareDirectInvertedAndSideEntryResetAndStaleFeedback
+[INFO] [1792769813.987027500] [wheel_leg_controller]: Self-righting takeover: 200 ms blend, bounded upright capture=0, FOLD/PLANT 1.00, low insertion 8.00, ORBIT 4.00 rad/s, capture 11.5 deg at 0.27..0.36 m, hinge maxima 1.389/1.389 rad, leg error 0.15 rad, wheel speed 5.0 rad/s, upright gyro 1.00 rad/s, motion held until stable
+[INFO] [1792769814.044176410] [rl_bridge]: observation layout (obs_size=35):
+[INFO] [1792769814.044204898] [rl_bridge]:   [0:35) frame  scale=1 <- /wheel_leg/rl/input/frame (std::vector<double>)
+[INFO] [1792769814.044207728] [rl_bridge]: action layout (action_size=6):
+[INFO] [1792769814.044211329] [rl_bridge]:   #0 /wheel_leg/rl/target/left_hip_joint -> /wheel_leg/rl/target/left_hip_joint scale=0.25
+[INFO] [1792769814.044214600] [rl_bridge]:   #1 /wheel_leg/rl/target/left_knee_joint -> /wheel_leg/rl/target/left_knee_joint scale=0.25
+[INFO] [1792769814.044218097] [rl_bridge]:   #2 /wheel_leg/rl/target/right_hip_joint -> /wheel_leg/rl/target/right_hip_joint scale=0.25
+[INFO] [1792769814.044221211] [rl_bridge]:   #3 /wheel_leg/rl/target/right_knee_joint -> /wheel_leg/rl/target/right_knee_joint scale=0.25
+[INFO] [1792769814.044224131] [rl_bridge]:   #4 /wheel_leg/rl/target/left_wheel -> /wheel_leg/rl/target/left_wheel scale=10
+[INFO] [1792769814.044226613] [rl_bridge]:   #5 /wheel_leg/rl/target/right_wheel -> /wheel_leg/rl/target/right_wheel scale=10
+[INFO] [1792769814.044228466] [rl_bridge]: contract: obs_size=35 action_size=6 policy_rate=200.000 Hz
+[INFO] [1792769814.044232135] [rl_bridge]: in-process policy worker: model=/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/unified_runtime119_002/unified115_test.onnx, obs=35, action=6
+[INFO] [1792769814.044249635] [rmcs_executor]: Calculating component dependencies
+[INFO] [1792769814.044254520] [rmcs_executor]: - predefined_msg_provider
+[INFO] [1792769814.044258073] [rmcs_executor]: - snapshots
+[INFO] [1792769814.044260854] [rmcs_executor]: -     rl_bridge_actions
+[INFO] [1792769814.044262830] [rmcs_executor]: -         wheel_leg_controller
+[INFO] [1792769814.044264800] [rmcs_executor]: -             rl_bridge
+[INFO] [1792769814.044267252] [rmcs_executor]: -         observe
+[INFO] [1792769814.044293012] [wheel_leg_controller]: Joint PD backend: host torque, Kp 160.0, Kd 2.5
+[INFO] [1792769814.044298615] [wheel_leg_controller]: Self-righting disabled: recovery_enabled=false
+[INFO] [1792769814.044302110] [wheel_leg_controller]: Heading hold disabled: P 5.00 1/s, correction limit 4.00 rad/s at policy rate
+[INFO] [1792769814.111431381] [rl_bridge]: valid=1 (obs_seq=1 action_age=0.0010 s)
+[WARN] [1792769814.315427553] [rl_bridge]: valid=0: no inference result available
+[INFO] [1792769814.321438214] [rl_bridge]: valid=1 (obs_seq=42 action_age=0.0010 s)
+[ERROR] [1792769814.444430599] [wheel_leg_controller]: RL stopped at /workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/wheel_leg_controller.cpp:461: state=3 failure=1 native_failure=0 feedback_fresh=1 feedback_valid=0 sensor_valid=0 sensor_issue=3 mask=0x7f age_ms[motor,imu,accel]=[20.006,20.006,20.006] last_hinge=[0.5574,0.5574] dq_max[leg,wheel]=[0.000,0.000] gyro=0.000 height_command=0.305 command_vx=0.000 obs_vx=0.000 wheel_ref=[13.709,-16.657] wheel_dq=[0.000,0.000] leg_torque_fb=[0.000,0.000,0.000,0.000] motor_q=[1.8200,2.5926,-1.7200,-2.4926] motor_range_margin=9.8074 rad
+[WARN] [1792769814.445427931] [rl_bridge]: valid=0: disabled by enable interface
+[INFO] [1792769814.476421825] [rl_bridge]: valid=1 (obs_seq=67 action_age=0.0010 s)
+Coherent full-RL frames=67, serialization max=0, applied-history max=0
+[       OK ] UnifiedPolicyIntegration.NeutralPrepareDirectInvertedAndSideEntryResetAndStaleFeedback (511 ms)
+[----------] 1 test from UnifiedPolicyIntegration (511 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (511 ms total)
+[  PASSED  ] 1 test.
