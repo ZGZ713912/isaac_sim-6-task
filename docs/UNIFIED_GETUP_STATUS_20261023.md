@@ -150,3 +150,5 @@
 从056封存的036零函数PT启动128env×128rollout×32宏更新、seed211329、LR.001，原.35域/地面.3–.5/200Hz策略1000Hz反馈PD保持。只更新三高度24值位置头与critic，旧actor/std/Adam冻结；保留036高位5ms预测，不复用失败050–054权重。沿用既有quiet腿.06/轮.35采样、standing support/early position/drift奖励，位置观测是本次学习路径的新增条件。拟时钟441→473、实际总消费1089→1121；未完成前不能预记。
 
 原48×12s固定静站须同时5cm/3mm/实际腿轮3–95Hz不退化，才继续140全套及后续正式双种子/长静站。实际初态/结尾由`iteration057_native_audit.py`认证全部旧actor、named Adam、RNG与新24值；不因多存活或训练loss有限而授予长训。尚无新交付或RMCS修改。计划`iteration057_plan.json`。
+
+057初态审计实际拒绝探索分布：runner遗漏显式CLI倍率，036底座的腿.35/轮None（等效轮.35）被继承，而计划为腿.06/轮.35。actor/critic/named Adam/RNG均保留，但不能把该次训练当计划实验。已一次SIGTERM停止PID1148073并实读退出；Isaac handler外部exit0，progress仍training，因此原生helper正确拒绝，不冒称完成。最后已完成6宏更新/已知谱系447，仅初态PT保存；额外1个未封存在途attempt保守计费，不退款。该attempt共计7消费，账本1089→1096，已知完成6与保守计费1分开，长训0。完整负证据`iteration057_rejection.json`及原pipeline/audit日志保留。下一058从056原零头重新开始，明确CLI倍率，并在启动后自动核对实际task settings，避免依赖人工晚检查。
