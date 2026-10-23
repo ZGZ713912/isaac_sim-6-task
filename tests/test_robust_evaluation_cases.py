@@ -3,6 +3,10 @@ import importlib.util
 import hashlib
 import json
 from pathlib import Path
+import subprocess
+import sys
+
+import pytest
 
 
 def test_speed_seam_cases_keep_pose_and_do_not_mutate_the_full_suite_template():
@@ -58,3 +62,33 @@ def test_stationary_push_retains_native_pose_and_push_and_leaves_default_cases_f
     selected[0]["command"][0] = 5.
     assert selected[2]["command"] == [0., 0., .305]
     assert hashlib.sha256(json.dumps(full, sort_keys=True).encode()).hexdigest() == digest
+
+
+def test_scaled_stationary_push_does_not_change_default_or_duration():
+    path = Path(__file__).resolve().parents[1] / "scripts/evaluate_robust_getup_batch.py"
+    spec = importlib.util.spec_from_file_location("stationary_push_scaling", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    original = dict(push_force_n=80., push_torque_nm=32., push_start_seconds=5.,
+                    push_duration_seconds=.3, push_torque_direction=-1.)
+    assert module.scaled_stationary_push(original, 1.) == original
+    scaled = module.scaled_stationary_push(original, .5)
+    assert scaled == dict(original, push_force_n=40., push_torque_nm=16.)
+    assert original["push_force_n"] == 80.
+    for scale in (0., -1., 2., float("nan"), float("inf")):
+        with pytest.raises(ValueError):
+            module.scaled_stationary_push(original, scale)
+
+
+@pytest.mark.parametrize("arguments", [["--stationary-push-scale", ".5"],
+    ["--stationary-push-cases", "--stationary-push-scale", "nan"],
+    ["--stationary-push-cases", "--stationary-push-scale", "0"],
+    ["--stationary-push-cases", "--case-names", "stand"]])
+def test_stationary_diagnostic_invalid_cli_rejected_before_checkpoint_or_native_launch(tmp_path, arguments):
+    root = Path(__file__).resolve().parents[1]
+    output = tmp_path / "must-not-exist"
+    command = [sys.executable, str(root / "scripts/evaluate_robust_getup_batch.py"),
+               "--checkpoint", str(tmp_path / "missing.pt"), "--output", str(output), *arguments]
+    result = subprocess.run(command, capture_output=True, text=True)
+    assert result.returncode == 2 and "error:" in result.stderr
+    assert not output.exists()

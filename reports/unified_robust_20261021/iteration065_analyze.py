@@ -15,13 +15,13 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
 from wheeled_algo.robust_getup import quiet_gate, tilt_gate
 
 
-def load(name):
+def load(name, overrides):
     directory = RUNS / name / "robust"
     report = json.loads((directory / "report.json").read_text())
     trajectory = directory / "trajectory.npz"
     assert hashlib.sha256(trajectory.read_bytes()).hexdigest() == report["trajectory_sha256"]
     assert json.loads((directory.parent / "progress.json").read_text())["status"] == "completed"
-    assert report["evaluation_overrides"] == dict(stationary_push_cases=True)
+    assert report["evaluation_overrides"] == overrides
     return directory, report, dict(np.load(trajectory))
 
 
@@ -53,19 +53,24 @@ def reference_trace_violations(obs, active, count, age, filtered, anchor, alive,
     return violations
 
 
-def main():
+def main(iteration=65):
     torch.set_num_threads(1)
-    before, after = load("stationary_reference_before065"), load("stationary_reference_after065")
+    assert iteration in (65, 69)
+    overrides = dict(stationary_push_cases=True)
+    if iteration == 69:
+        overrides["stationary_push_scale"] = .5
+    before, after = [load(f"stationary_reference_{side}{iteration:03d}", overrides) for side in ("before", "after")]
     for field in ("name", "pose_index", "command", "push", "push_sign", "world_origin_m",
                   "first_reset_domain", "material_coefficients"):
         assert [r.get(field) for r in before[1]["lanes"]] == [r.get(field) for r in after[1]["lanes"]], field
     first_push = int(np.flatnonzero(after[2]["pushing"].any(-1))[0])
     for field in ("observations", "actions", "motor_position", "motor_velocity", "local_position", "alive"):
         assert np.array_equal(before[2][field][:first_push], after[2][field][:first_push]), field
-    result = dict(schema="reference065-native-lifecycle-audit-v1", before={}, after={},
+    result = dict(schema=f"reference{iteration:03d}-native-lifecycle-audit-v1", before={}, after={},
                   new_macro_updates=0, robust_consumed=1160, long_training_admitted=False,
                   matched_first_states_domains_materials=True, prepush_traces_bitwise_exact=True,
                   prepush_frames=first_push, diagnostic_only=True, hardware_ready=False)
+    result["evaluation_overrides"] = overrides
     violations = []
     task = json.loads((after[0].parent / "task_contract.json").read_text())["settings"]
     for label, (directory, report, data) in (("before", before), ("after", after)):
@@ -117,7 +122,7 @@ def main():
         result[label] = dict(summary=summary, lanes=rows, trajectory_sha256=report["trajectory_sha256"],
                              checkpoint_sha256=report["checkpoint_sha256"])
         step = json.loads((directory.parent / "progress.json").read_text())["completed_updates"]
-        writer = SummaryWriter(str(directory.parent), filename_suffix=".stationary_reference065")
+        writer = SummaryWriter(str(directory.parent), filename_suffix=f".stationary_reference{iteration:03d}")
         for case, metrics in summary.items():
             for key, value in metrics.items():
                 writer.add_scalar(f"StationaryReference/{case}/{key}", value, step)
@@ -128,10 +133,13 @@ def main():
     result["mechanical_gate_passed"] = all(row["max_gap_m"] <= .003 and not
         set(row["termination_causes"]) & {"mechanical", "closure_gap"} for row in result["after"]["lanes"])
     result["scope"] = "One matched randomized stationary push pair; does not replace full-suite/long-standing admission"
-    (REPORTS / "iteration065_final.json").write_text(json.dumps(result, indent=2) + "\n")
+    (REPORTS / f"iteration{iteration:03d}_final.json").write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps({k: result[k] for k in ("native_lifecycle_exercised_and_valid", "lifecycle_violations")}))
     print(json.dumps(result["after"]["summary"]))
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--iteration", type=int, choices=[65, 69], default=65)
+    main(parser.parse_args().iteration)

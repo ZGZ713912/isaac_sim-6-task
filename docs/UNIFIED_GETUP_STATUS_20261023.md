@@ -237,3 +237,6 @@
 
 
 065强静止侧推before/after均已returncode0/native completed、初态与推前1000帧动作/观测/电机/位置逐位配对。after两侧各16例均真实翻倒并各自清除旧参考16次；右侧3例存活、重新捕获并全部达到末2s稳定/5cm，旧参考版同3例存活但仅2例末窗达标。左侧16例均impact_bad，在重捕获前终止；全32例没有参考生命周期违规、没有闭链/机械越限，但双向完整链没有充分实际覆盖。因此`native_lifecycle_exercised_and_valid=false`，未接续067或长训。`iteration065_final.json`负结果完整保留，不能把右侧的状态逻辑有效当成猛烈翻倒已修复。
+
+
+069独立诊断计划已冻结：同066/065两份参数完全相同的模型，只把测试外力改成40N/16N·m，持续.3s、5s开始、原.35域/地面.3–.5及32×12s配对保持。它用于获得左侧可走完的reset/recapture连续路径，不修订80N/32Nm原全套，不放宽撞击或3mm闭链保护，不能用较轻输入证明强输入鲁棒性改善。新增显式`--stationary-push-scale`只允许stationary诊断，实际合同与override同时记录；默认scale1保持旧值，坏参数在读取PT/启动native前拒绝。72项相关CPU通过，默认case SHA保持；`iteration069_plan.json`、`iteration069_cpu.json`。若双向至少各1例完整参考链且原机械门通过，才进入067独立nominal双种子和30s静站，强推失败会作为已知边界写进该回执。0新PPO，来源505/账本1160/长训0。
