@@ -1,0 +1,78 @@
+{
+  "schema": "composed105-admission-plan-v1",
+  "checkpoint_sha256": "e06c4dc19c073a2fd58560842b4c959bf27520f0f8012ac4d37412d77d874b04",
+  "migration_sha256": "1972273f30a56dd01c097e869ade6bbcf4cbd3963b08b303a2ffd971ac265825",
+  "protocol_sha256": "e018dd9feef44a0889a474b13121277352dd28ce764c6d8be6810c02ad089100",
+  "prerequisite": "100 quiet30s and fresh48 static pass; exact097 quiet tensors/decoder and recorded-function equivalence",
+  "order": [
+    "randomized_full140",
+    "nominal210_seed211131",
+    "nominal210_seed211132",
+    "stationary_lifecycle32"
+  ],
+  "random_job": {
+    "name": "composed_full105",
+    "replicas": 4,
+    "environments": 140,
+    "seconds": 12.0,
+    "seed": 211322,
+    "domain_scale": 0.35,
+    "friction_min": 0.3
+  },
+  "nominal_jobs": [
+    {
+      "name": "composed_nominal105_211131",
+      "replicas": 3,
+      "environments": 210,
+      "seconds": 12.0,
+      "seed": 211131,
+      "domain_scale": 0.0,
+      "variants": [
+        "parent",
+        "robust"
+      ]
+    },
+    {
+      "name": "composed_nominal105_211132",
+      "replicas": 3,
+      "environments": 210,
+      "seconds": 12.0,
+      "seed": 211132,
+      "domain_scale": 0.0,
+      "variants": [
+        "parent",
+        "robust"
+      ]
+    }
+  ],
+  "lifecycle_job": {
+    "name": "composed_stationary105",
+    "replicas": 16,
+    "environments": 32,
+    "seconds": 12.0,
+    "seed": 211322,
+    "domain_scale": 0.35,
+    "friction_min": 0.3,
+    "stationary_push_cases": true
+  },
+  "stop_after_failed_stage": true,
+  "new_macro_updates": 0,
+  "new_offline_steps": 0,
+  "cumulative_offline_steps": 64,
+  "robust_consumed": 1384,
+  "candidate_ppo_lineage": 569,
+  "full_training_admitted": false,
+  "known_failed_stress": "096 nominal strong moving right0/4 at27.324Ns; disclose regardless of aggregate pass",
+  "random_gates": "036 six actualHF/full5cm/air3mm/allstaticalive;protocol003 family minimum2 and25%,arc errors,survival85%,one actual moving fall practical",
+  "lifecycle_gates": "Each stationary side>=1 actual severe fall, valid reset/recapture, final2s95%stable with vx<.1/yaw<.2 and5cm sway;closure3mm/passive0",
+  "interpretation": "Existing formal gates allow imperfect behavior; no requirement from the retired099/098 all12 diagnostic is silently rewritten",
+  "sources": {
+    "scripts/evaluate_robust_getup_batch.py": "d2086356cc17a270f5ddb38be04802c2e1a9b4f9a41d1a1aa9765ff5f557c888",
+    "scripts/export_robust_getup.py": "38ec0ac7ec8641e8666452542582668ac4e7ac99b6cb863ad3113aaf1cb9d9be",
+    "scripts/analyze_robust_getup.py": "d9e6ce342c0276aa6352fa54aec64c3b4d656574e3d20ad326a12d9e85fff33d",
+    "src/wheeled_algo/quiet_output_actor.py": "fd48fabcfdf3d6bdb980b369b17fe7ec82c317449ef20c72f46b74a2d0bde410",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4",
+    "reports/unified_robust_20261021/iteration105_runner.py": "dd6257082a4820cb292b6e8f95f697f069cb16f48c480f9a219ef8276a4ce0c4"
+  }
+}
