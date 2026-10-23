@@ -26,8 +26,10 @@ def main(iteration=48):
         assert all(result["pairing"]["checks"].values())
     elif iteration == 52:
         assert all(result["pairing_to050"].values()) and all(result["pairing_to_retained"].values())
-    else:
+    elif iteration == 53:
         assert all(result["pairing"].values()) and all(result["pairing_to052"].values())
+    else:
+        assert all(result["pairing"].values()) and all(result["pairing_to052"].values()) and all(result["pairing_to053"].values())
     sources = [("Retained baseline", "quiet_velocity_baseline036"),
                ("Gain -2 (rejected)", "command_feedback_negative048"),
                ("Gain +2", "command_feedback_positive048")]
@@ -49,6 +51,10 @@ def main(iteration=48):
         sources = [("Retained baseline", "quiet_velocity_baseline036"),
                    ("All-height prediction (052)", "all_prediction_static052"),
                    ("Adapted feedback, 32 updates (053)", "adapted_prediction_static053")]
+    if iteration == 54:
+        sources = [("Retained baseline", "quiet_velocity_baseline036"),
+                   ("Original wheel exploration (053)", "adapted_prediction_static053"),
+                   ("Lower wheel exploration (054)", "precision_sampling_static054")]
     metrics = [("full_window/worst_episode_body_xy_max_excursion_m", "Full-window maximum displacement", "cm", 100., 5.),
                ("body_xy_worst_episode_excursion_m", "Steady-window maximum displacement", "cm", 100., 5.),
                ("leg_motion_fast_rms_rad_3_95", "Actual leg motion, 3-95 Hz", "mrad RMS", 1000., None),
@@ -94,6 +100,8 @@ def main(iteration=48):
         title = "Matched all-height leg prediction (052), no PPO; original delays retained"
     if iteration == 53:
         title = "Adapted rolling feedback (053); original randomized delays retained"
+    if iteration == 54:
+        title = "Equal-budget quiet wheel exploration (053 vs054); sensor domains retained"
     fig.suptitle(title + ": 16 episodes per height\n"
                  "200 Hz policy / 1 kHz physics; moderate domains; ground friction 0.3-0.5", fontsize=13)
     basename = f"standing_rolling{iteration:03d}" if iteration == 50 else f"standing_command{iteration:03d}"
@@ -101,6 +109,8 @@ def main(iteration=48):
         basename = f"standing_{'delay' if iteration == 51 else 'prediction'}{iteration:03d}"
     if iteration == 53:
         basename = "standing_adaptation053"
+    if iteration == 54:
+        basename = "standing_sampling054"
     path = REPORTS / (basename + ".png")
     fig.savefig(path, dpi=160)
     plt.close(fig)
@@ -115,5 +125,5 @@ def main(iteration=48):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--iteration", type=int, choices=[48, 49, 50, 51, 52, 53], default=48)
+    parser.add_argument("--iteration", type=int, choices=[48, 49, 50, 51, 52, 53, 54], default=48)
     main(parser.parse_args().iteration)
