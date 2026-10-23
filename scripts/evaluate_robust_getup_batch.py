@@ -165,7 +165,7 @@ def main():
         torch.set_num_threads(4)
         torch.manual_seed(args.seed)
         verified_mean, verified_info = load_verified_mean(args.checkpoint)
-        if verified_info["settings"].get("quiet_velocity_feedback_mode") == "rolling_velocity":
+        if verified_info["settings"].get("quiet_velocity_feedback_mode") in ("rolling_velocity", "standing_displacement"):
             from wheeled_algo.rolling_velocity import frozen_table_path
             path = frozen_table_path()
             relative = path.relative_to(ROOT)
@@ -176,10 +176,10 @@ def main():
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
                     "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",
-                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
+                    "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_leg_prediction_all_heights", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
                     "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_wheel_exploration_fraction", "quiet_velocity_feature_gain",
-                    "quiet_velocity_feedback", "quiet_velocity_feedback_mode"):
+                    "quiet_velocity_feedback", "quiet_velocity_feedback_mode", "standing_position_observation"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
         task_path = args.output / "task_contract.json"
@@ -227,6 +227,10 @@ def main():
                 mean.quiet_alpha[4:].fill_(1.)
             elif name == "undamped":
                 mean.quiet_alpha.fill_(1.)
+            if task.get("standing_position_observation") is not None and (name in ("parent", "deployed")
+                    or name == "reference" and not getattr(mean, "quiet_velocity_feedback_mode", None) == "standing_displacement"):
+                from wheeled_algo.robust_getup import ZeroStandingPosition
+                mean = ZeroStandingPosition(mean)
             models.append(mean.eval())
 
         class BatchMean(nn.Module):

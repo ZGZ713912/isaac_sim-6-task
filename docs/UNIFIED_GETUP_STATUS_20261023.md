@@ -134,3 +134,11 @@
 055只读传感器灵敏度复用053完成回放：18个名义lane的clean-state时间对齐最大残差1.14e-7，保留原偏置、延迟、命令和上一帧动作，每次只替换一组随机误差。去除重力随机误差产生的轮目标差RMS约.073/.081/.083rad/s，较其他单组更大；各组不是可加分解，也不是新闭环减振效果。`standing_noise055_adapted_prediction_static053.json`及原event保留全部组，未从任何训练或部署模型删除噪声。后续优先验证有界的相对位移感知，避免反复提高瞬时速度反馈增益。RMCS只读代码显示`hardware/wheel-leg.cpp`轮驱动已启用multi-turn angle，`observation.cpp`已有轮端q映射；仍缺本轮实车连续角度/丢帧测试，未改RMCS。
 
 055另完成默认不安装的`WheelAngleCoordinate`/`StandingDisplacement`组件：沿用冻结107几何与连续轮角，平面静站参考只在首次有效quiet请求捕获，运动请求或显式reset结束参考；短时噪声/失效/gyro变化不会重锚。50ms低通、±.25m限幅，同策略tick重复读取及局部reset不会重复推进其他lane。15项CPU测试通过。115,152条052实际帧上Torch与独立NumPy最大坐标差5.22e-8m，构造不消耗RNG，5,760条原actor动作逐位相同。假定轮角sigma.001rad/常偏±.005rad的滤波坐标最差误差低/中/高23.45/11.55/13.21mm；未授予滑移/转向/长时间或实车精度。报告`iteration055_audit.json`，源SHA`c8d4f7ed8d2dd0e6938ae3729310f66546c8af76bc5ec78f73a1e6dfc5619d0e`。本轮0原生/0PPO、累计1089/长训0；未接入actor、训练或RMCS，旧35D合同与交付图保持。下一采用默认关闭的显式实验合同，先检验零权重迁移，再有界学习位置反馈，不复用失败050–054权重。
+
+## 056：显式相对位置观测候选，先验证零函数
+
+默认关闭的`standing_displacement`模式复用obs14:16，输入20×50ms低通相对轮滚动坐标；这两个槽对全部旧MLP、parent和恢复网络强制置零。三高度各一个无bias4×2头，共24值，输出同腿共同转动和两轮独立修正；零初始化，不增加电机脚本或外部位置PD。仅传感器观测器持有参考与低通状态。连续轮角同18D块延迟、同现有encoder noise域，沿用原随机抽样数量；其余噪声/执行器/物理不变。首次active quiet满.2s、门限有效时捕获，episode/RL entry/请求结束才重置，失效帧零输出但不抹参考。参考/parent比较也显式清空新槽。
+
+新合同`wheel-leg-standing-displacement-v1`逐字段认证，缺合同实际PT加载被拒绝；交付export暂拒绝该实验ABI，待RMCS预处理真正接入验证后才解除。RMCS尚未修改。94项CPU通过；22,560实际输入对照036封存旧源默认动作逐位一致，新位置槽任意改成±5、零头时仍逐位一致。旧actor/critic/Adam/RNG及441来源时钟保留；3,072条人工非零深拷贝诊断图误差1.91e-6，人工权重未写回PT。封存PT SHA`47bb0c656ce0c3f681fe4a1f9f4ef1572f6fcc517170ec4f2f7847a681aea4cc`。前一草案迁移保留在`quiet_position056`，最终为`quiet_position056_sealed`，没有覆盖旧交付。
+
+计划先唯一48×12s原生零PPO对照036，检查新增观测而零权重时所有旧观测/轨迹/动作是否保持；未通过不得开始位置反馈PPO。累计robust1089/长训0，不提前计入后续拟32更新。计划`iteration056_plan.json`、CPU/ONNX审计`iteration056_audit.json`；原生是否完成以process/progress/final回执为准。

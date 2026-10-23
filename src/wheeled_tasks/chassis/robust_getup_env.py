@@ -79,6 +79,13 @@ class RobustGetupEnv(ChassisEnv):
             settings["wheel_action_clip"], settings["leg_action_clip"], settings["leg_action_clip"], settings["wheel_action_clip"]])
         self.v5.settings = dict(self.v5.settings, action_clip=settings["leg_action_clip"], wheel_action_clip=settings["wheel_action_clip"])
         self.domain = RobustDomain(n, device, settings, kwargs["seed"], self.dt)
+        from wheeled_algo.standing_displacement import (validate_observation_contract,
+            WheelAngleCoordinate, StandingDisplacement)
+        self.standing_observer = None
+        if validate_observation_contract(settings):
+            self.standing_coordinate = WheelAngleCoordinate().to(device).eval()
+            self.standing_observer = StandingDisplacement(n, device, dt=self.policy_dt)
+            self.standing_entry_tick = torch.full((n,), self.tick, dtype=torch.long, device=device)
         if self.dynamics_randomization is not None:
             self.domain.enabled.copy_(self.dynamics_randomization.enabled)
         self.getup_feedback = GetupFeedback(n, device, self.domain.enabled, settings, self.domain.rng)
@@ -228,7 +235,13 @@ class RobustGetupEnv(ChassisEnv):
             self.quiet_standing.reset(ids)
             self.wheel_air_run[ids] = 0.
             self.dual_wheel_air_run[ids] = 0.
-            self.domain.reset(ids, ChassisEnv.get_observations(self)["policy"][ids, 4:22])
+            reset_frame = ChassisEnv.get_observations(self)["policy"]
+            if self.standing_observer is not None:
+                reset_frame = reset_frame.clone()
+                reset_frame[:, 14:16] = self.robot.data.joint_pos.torch[:, self.ids][:, [2, 5]]
+                self.standing_observer.reset(ids)
+                self.standing_entry_tick[ids] = self.tick
+            self.domain.reset(ids, reset_frame[ids, 4:22])
             self.getup_feedback.reset(ids, self.robot.data.joint_pos.torch[ids][:, self.ids],
                                       self.robot.data.joint_vel.torch[ids][:, self.ids])
             self.previous_effort[ids] = 0.
@@ -237,7 +250,22 @@ class RobustGetupEnv(ChassisEnv):
         observations = super().get_observations()
         if self.robust_ready:
             frame = observations["policy"].clone()
+            if self.standing_observer is not None:
+                frame[:, 14:16] = self.robot.data.joint_pos.torch[:, self.ids][:, [2, 5]]
             frame[:, 4:22] = self.domain.observe(frame[:, 4:22], self.tick)
+            if self.standing_observer is not None:
+                from wheeled_algo.robust_getup import quiet_gate, tilt_gate
+                from .scut_observation import POLICY_FROM_CONTROL
+                positions = frame[:, 10:16].clone()
+                positions[:, :4] += self.v5.nominal[list(POLICY_FROM_CONTROL)][:4]
+                coordinate, valid = self.standing_coordinate(positions, frame[:, 7:10])
+                requested = (frame[:, [0, 2]].abs() < frame.new_tensor([.1, .2])).all(-1) & ~self.passive
+                eligible = ((quiet_gate(frame)[:, 0] >= .999)
+                    & (tilt_gate(frame, self.getup_cfg.get("stance_aware_recovery", False),
+                                 self.getup_cfg.get("recovery_shape_aware", False))[:, 0] <= .05)
+                    & ((self.tick-self.standing_entry_tick)*self.policy_dt >= .2))
+                displacement, _ = self.standing_observer.update(coordinate, valid, requested, eligible, self.tick)
+                frame[:, 14:16] = 20. * displacement
             observations["policy"] = frame
             if self.getup_cfg["quiet_critic_anchor"]:
                 xy = self.robot.data.root_link_pose_w.torch[:, :2] - self.origins[:, :2]
@@ -383,6 +411,10 @@ class RobustGetupEnv(ChassisEnv):
             (self.passive_hold >= self.getup_cfg["passive_hold_seconds"]) | (elapsed >= self.getup_cfg["passive_max_seconds"]))
         self.settled_family[enable] = classify_gravity(gravity)[enable]
         self.passive[enable] = False
+        if self.standing_observer is not None:
+            enabled_ids = enable.nonzero().flatten()
+            self.standing_observer.reset(enabled_ids)
+            self.standing_entry_tick[enabled_ids] = self.tick
         # Passive placement impacts are recorded but are not actor failures.
         # Start the active impact window at enable, with no stale passive force.
         self.contact_impulse_history[:, enable] = 0.
