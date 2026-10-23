@@ -62,7 +62,7 @@ def prepare(args):
                     "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_leg_prediction_all_heights", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
                     "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_wheel_exploration_fraction", "quiet_velocity_feature_gain",
-                    "quiet_velocity_feedback", "quiet_velocity_feedback_mode"):
+                    "quiet_velocity_feedback", "quiet_velocity_feedback_mode", "standing_position_observation"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
@@ -500,7 +500,7 @@ def main():
         ROOT / "src/wheeled_algo/recovery_rollout.py", ROOT / "src/wheeled_algo/unified_getup_ablation.py"]
     sources = sorted(set(sources) | set((ROOT / "src/wheeled_tasks/chassis").glob("*.py"))
                      | set((ROOT / "src/wheeled_algo").glob("*.py")))
-    if task.get("quiet_velocity_feedback_mode") == "rolling_velocity":
+    if task.get("quiet_velocity_feedback_mode") in ("rolling_velocity", "standing_displacement"):
         from wheeled_algo.rolling_velocity import frozen_table_path
         sources.append(frozen_table_path())
     hashes = {}
@@ -739,6 +739,9 @@ def main():
             runner.save, runner.alg.update = save, update
             if args.actor_variant == "parent":
                 mean = mean.parent
+                if task.get("standing_position_observation") is not None:
+                    from wheeled_algo.robust_getup import ZeroStandingPosition
+                    mean = ZeroStandingPosition(mean)
             elif args.actor_variant == "undamped":
                 mean.quiet_alpha.fill_(1.)
             if args.pre_eval:

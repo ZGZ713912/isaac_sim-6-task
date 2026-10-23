@@ -53,6 +53,8 @@ def load_mean(checkpoint, *, migration_source_root=None):
         raise ValueError("Expected a v2 training checkpoint")
     if info.get("actor_variant", "robust") != "robust":
         raise ValueError("Comparison variants are not deployment candidates")
+    from wheeled_algo.standing_displacement import validate_observation_contract
+    validate_observation_contract(info["settings"])
     if any(not key.startswith("mlp.") for key in state["actor_state_dict"]):
         raise ValueError("Unsupported external actor normalization or distribution state")
     for actor_source, expected_sha in info["source_sha256"].items():
@@ -218,6 +220,8 @@ def main():
     if not behavior["adequate"]:
         raise ValueError("Candidate still needs iteration: " + "; ".join(behavior["failures"]))
     mean, info = load_mean(args.checkpoint)
+    if info["settings"].get("standing_position_observation") is not None:
+        raise ValueError("Standing-position experimental ABI needs a validated RMCS preprocessor before delivery export")
     if not info["settings"].get("paired_feedback_winding", False):
         raise ValueError("Deployment candidate must bind the corrected paired-feedback contract")
     torch.set_num_threads(2)

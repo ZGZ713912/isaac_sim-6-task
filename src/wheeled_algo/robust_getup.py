@@ -16,6 +16,16 @@ from .recovery_coordinates import smooth_recovery_legs
 KIND = "wheel-leg-robust-getup-v2"
 
 
+class ZeroStandingPosition(nn.Module):
+    """Expose the old sensor ABI to an explicit legacy comparison actor."""
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+
+    def forward(self, obs):
+        return self.model(torch.cat((obs[:, :14], torch.zeros_like(obs[:, 14:16]), obs[:, 16:]), -1))
+
+
 def tilt_gate(obs, stance_aware=False, shape_aware=False):
     original = ((obs[:, 9:10] + .94) / .44).clamp(0., 1.)
     if not stance_aware:
@@ -64,17 +74,17 @@ class QuietVelocityFeedback(nn.Module):
 
     def __init__(self, mode="all"):
         super().__init__()
-        if mode not in ("all", "wheels", "wheel_memory", "coupled_state", "rolling_velocity"):
+        if mode not in ("all", "wheels", "wheel_memory", "coupled_state", "rolling_velocity", "standing_displacement"):
             raise ValueError("Quiet velocity feedback mode must be all, wheels, wheel_memory, coupled_state or rolling_velocity")
         self.mode = mode
-        size = 4 if mode in ("coupled_state", "rolling_velocity") else 6 if mode == "all" else 2
-        inputs = 1 if mode == "rolling_velocity" else 16 if mode == "coupled_state" else 4 if mode == "wheel_memory" else size
+        size = 4 if mode in ("coupled_state", "rolling_velocity", "standing_displacement") else 6 if mode == "all" else 2
+        inputs = 2 if mode == "standing_displacement" else 1 if mode == "rolling_velocity" else 16 if mode == "coupled_state" else 4 if mode == "wheel_memory" else size
         self.weight = nn.Parameter(torch.zeros(size, inputs))
         if mode == "coupled_state":
             self.bias = nn.Parameter(torch.zeros(size))
 
     def forward(self, velocity):
-        if self.mode in ("coupled_state", "rolling_velocity"):
+        if self.mode in ("coupled_state", "rolling_velocity", "standing_displacement"):
             # Same-leg common rotations preserve the paired knee difference.
             # This additive bounded correction is applied after the old tanh,
             # so unequal old logits cannot turn it into a knee-opening change.
@@ -139,7 +149,7 @@ class RobustGetupActor(UnifiedGetupActor):
         self.quiet_native_height_anchors = quiet_native_height_anchors
         if quiet_velocity_feedback and not quiet_height_experts:
             raise ValueError("Quiet velocity feedback requires existing three-height experts")
-        if quiet_velocity_feedback_mode not in ("all", "wheels", "wheel_memory", "coupled_state", "rolling_velocity"):
+        if quiet_velocity_feedback_mode not in ("all", "wheels", "wheel_memory", "coupled_state", "rolling_velocity", "standing_displacement"):
             raise ValueError("Quiet velocity feedback mode must be all, wheels, wheel_memory, coupled_state or rolling_velocity")
         if quiet_velocity_feedback_mode != "all" and not quiet_velocity_feedback:
             raise ValueError("Wheel-only velocity mode requires explicit quiet velocity feedback")
@@ -167,15 +177,20 @@ class RobustGetupActor(UnifiedGetupActor):
         self.requires_grad_(False)
         self.quiet_velocity.requires_grad_(True)
 
-    def quiet_correction(self, features, obs):
+    def quiet_correction(self, features, obs, standing_position=None):
         mid_logits = self.quiet(features)
-        coupled_state = self.quiet_velocity_feedback and self.quiet_velocity_feedback_mode in ("coupled_state", "rolling_velocity")
+        coupled_state = self.quiet_velocity_feedback and self.quiet_velocity_feedback_mode in ("coupled_state", "rolling_velocity", "standing_displacement")
         if self.quiet_velocity_feedback:
             # Encoder velocity is scaled by .1 in the observation contract.
             # Legacy velocity modes are bias-free. The coupled-state mode also
             # sees pose and an affine offset, without a position integrator.
             velocity = torch.tanh(obs[:, 16:22] * 10.)
-            if self.quiet_velocity_feedback_mode == "rolling_velocity":
+            if self.quiet_velocity_feedback_mode == "standing_displacement":
+                # Already low-pass filtered and scaled to 1 at 5 cm by the
+                # versioned sensor preprocessing. No position controller is
+                # outside the actor; RL learns all six coordinated commands.
+                velocity = standing_position.clamp(-5., 5.)
+            elif self.quiet_velocity_feedback_mode == "rolling_velocity":
                 rolling, _ = self.rolling_velocity(obs)
                 # 2 cm/s is the declared standing drift scale. Geometry is
                 # frozen; three bias-free4x1 heads learn motor coordination.
@@ -225,6 +240,12 @@ class RobustGetupActor(UnifiedGetupActor):
         return torch.where(lo >= 1., low, torch.where(hi >= 1., high, result))
 
     def forward(self, obs):
+        standing_position = None
+        if self.quiet_velocity_feedback_mode == "standing_displacement":
+            standing_position = obs[:, 14:16]
+            # Every previously trained network, gate and sensor feature keeps
+            # the original zero-wheel-position contract, including recovery.
+            obs = torch.cat((obs[:, :14], torch.zeros_like(obs[:, 14:16]), obs[:, 16:]), -1)
         features = torch.tanh(obs * self.feature_scale)
         gate = tilt_gate(obs, self.stance_aware_recovery, self.recovery_shape_aware)
         arc_gate = ((obs[:, :1].abs() - .05) / .2).clamp(0., 1.) * ((obs[:, 2:3].abs() - .05) / .2).clamp(0., 1.)
@@ -275,7 +296,7 @@ class RobustGetupActor(UnifiedGetupActor):
             # only its learning coordinates change, without saturating a new tanh.
             quiet_features = torch.cat((quiet_features[:, :16],
                 quiet_features[:, 16:22] * self.quiet_velocity_feature_gain, quiet_features[:, 22:]), -1)
-        motion = motion + quiet * (smoothed - motion + self.quiet_bound * self.quiet_correction(quiet_features, obs))
+        motion = motion + quiet * (smoothed - motion + self.quiet_bound * self.quiet_correction(quiet_features, obs, standing_position))
         raw = (canonical_recovery_logits(self.recovery, obs, self.feature_scale)
                if self.canonical_recovery else self.recovery(features))
         legs = obs[:, 22:26] + self.recovery_leg_step * torch.tanh(raw[:, :4])
