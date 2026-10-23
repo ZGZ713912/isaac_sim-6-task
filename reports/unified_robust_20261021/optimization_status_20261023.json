@@ -50,6 +50,12 @@
       "status": "completed",
       "native_status": "completed",
       "returncode": 0
+    },
+    "instant_policy_delay051_process.json": {
+      "pid": 976527,
+      "status": "completed",
+      "native_status": "completed",
+      "returncode": 0
     }
   },
   "full_behavior_baseline": "iteration032_final.json",
@@ -185,6 +191,18 @@
     {
       "path": "reports/unified_robust_20261021/standing_rolling050.provenance.json",
       "sha256": "7b068bb16d121ebb52caf42262ed18a55a726cfb854b8e5f68d2c87cac412ba6"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration051_final.json",
+      "sha256": "6a7d43953017f1bf8508c48a8c95e67c0dba97db8a449898990ee72da52a9111"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration051_pipeline.json",
+      "sha256": "78e234e47f8cf21b764bf621647979b275d000591596507769a729aab59cf9ac"
+    },
+    {
+      "path": "reports/unified_robust_20261021/instant_policy_delay051_process.json",
+      "sha256": "e8305c32470ce60a75f72ca3abe8d8c0fd34479d2cdae471c02738ae1b76becc"
     }
   ],
   "active_candidate050": {
@@ -243,5 +261,81 @@
         "wheel_clearance_after_02s_peak_m": 0.0005058795213699341
       }
     }
+  },
+  "latest_delay_diagnosis051": {
+    "new_optimizer_updates": 0,
+    "model_unchanged": true,
+    "pairing": {
+      "checks": {
+        "name": true,
+        "pose_index": true,
+        "command": true,
+        "recovery": true,
+        "world_origin_m": true,
+        "material_coefficients": true,
+        "sequence": true,
+        "push": true,
+        "push_sign": true,
+        "commands_history_context_exact": true,
+        "only_declared_domain_delay_changed": true,
+        "first_measurement_matches_declared_time_shift": true,
+        "native_origin_mode": true,
+        "checkpoint_exact": true,
+        "only_declared_override": true
+      },
+      "affected_lanes": [
+        1,
+        3,
+        6,
+        7,
+        10,
+        25,
+        26,
+        29,
+        39,
+        45
+      ],
+      "first_measurement_max_abs_error": 0.0
+    },
+    "standing": {
+      "stand_low": {
+        "episodes": 16,
+        "survived": 16,
+        "full_window_max_excursion_m": 0.19862700998783112,
+        "full_window_within_5cm": 12,
+        "steady_window_max_excursion_m": 0.15336064994335175,
+        "leg_motion_fast_rms_rad_3_95": 0.0005826426408678784,
+        "wheel_motion_fast_rms_rad_s_3_95": 0.08203588969261016,
+        "leg_target_fast_rms_rad_3_95": 0.0006213406524897042,
+        "wheel_target_fast_rms_rad_s_3_95": 0.13534624292108532,
+        "wheel_clearance_after_02s_peak_m": 0.0006953664124011993
+      },
+      "stand": {
+        "episodes": 16,
+        "survived": 16,
+        "full_window_max_excursion_m": 0.10086830705404282,
+        "full_window_within_5cm": 15,
+        "steady_window_max_excursion_m": 0.07754819095134735,
+        "leg_motion_fast_rms_rad_3_95": 0.0007893460570302679,
+        "wheel_motion_fast_rms_rad_s_3_95": 0.12684088389050324,
+        "leg_target_fast_rms_rad_3_95": 0.0008622649417660853,
+        "wheel_target_fast_rms_rad_s_3_95": 0.19205808742709696,
+        "wheel_clearance_after_02s_peak_m": 0.0006721653044223785
+      },
+      "stand_high": {
+        "episodes": 16,
+        "survived": 16,
+        "full_window_max_excursion_m": 0.08691246062517166,
+        "full_window_within_5cm": 13,
+        "steady_window_max_excursion_m": 0.0921345055103302,
+        "leg_motion_fast_rms_rad_3_95": 0.0010319270271948395,
+        "wheel_motion_fast_rms_rad_s_3_95": 0.19957207297510754,
+        "leg_target_fast_rms_rad_3_95": 0.0010968115263966258,
+        "wheel_target_fast_rms_rad_s_3_95": 0.25560230379434523,
+        "wheel_clearance_after_02s_peak_m": 0.0005058795213699341
+      }
+    },
+    "qualification": false,
+    "interpretation": "Middle instability is sensitive to policy observation delay;5cm target still fails. Keep delay domains in next candidate."
   }
 }
