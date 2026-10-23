@@ -281,6 +281,19 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
     with torch.inference_mode():
         for tick in range(round(seconds / env.policy_dt)):
             obs = env.get_observations()
+            reference_state = {}
+            observer = getattr(env, "standing_observer", None)
+            if observer is not None:
+                # Input-aligned state: step() also prepares the next observation.
+                # Capture now so a severe tilt or recapture is never shifted by
+                # one policy tick relative to the action's recorded observation.
+                reference_state = dict(
+                    standing_reference_active=observer.active.clone(),
+                    standing_reference_anchor_m=observer.anchor.clone(),
+                    standing_reference_filtered_m=observer.filtered.clone(),
+                    standing_reference_severe_reset_count=observer.severe_reset_count.clone(),
+                    standing_reference_output_valid=((observer.last_tick == env.tick) & observer.active).clone(),
+                    standing_reference_age_s=((env.tick - env.standing_entry_tick) * env.policy_dt).clone())
             _, _, done, info = env.step(mean(obs["policy"]))
             data = info["diagnostics"]
             mask = alive.clone()
@@ -314,6 +327,7 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
                 keep += ("wheel_clearance", "wheel_clearance_peak", "wheel_contact_fraction")
                 keep += ("wheel_air_run_peak", "dual_wheel_air_run_peak", "wheel_air_seconds")
                 snapshots.append({k: data[k].detach().cpu().numpy() for k in keep}
+                                 | {k: value.detach().cpu().numpy() for k, value in reference_state.items()}
                                  | {"alive": mask.cpu().numpy(), "observations": obs["policy"].cpu().numpy()})
             alive &= ~done
             if tick % 400 == 399:

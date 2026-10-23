@@ -54,6 +54,7 @@ def test_wrong_native_placement_or_case_is_refused(change):
 
 @pytest.mark.parametrize("diagnostic", [{"evaluation_overrides": {"sensor_delay_policy_ticks": 0}},
                                        {"evaluation_overrides": {"neutralize_bias": "pd_encoder"}},
+                                       {"evaluation_overrides": {"stationary_push_cases": True}},
                                        {"case_subset": ["stand_high"]}])
 def test_diagnostic_counterfactuals_cannot_qualify_export(tmp_path, monkeypatch, diagnostic):
     import json
