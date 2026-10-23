@@ -172,3 +172,7 @@
 059原生已returncode0/native completed，400.88s，48/48存活，全部初态配对通过。低位全窗最差24.436→4.770cm，5cm内10→16/16，末9s最差1.172cm；实际腿3–95Hz .426→.256mrad、轮.0792→.0457rad/s，均低于036，轮底最大间隙.955mm。中/高位全部2400帧的observations、actions、local_position、motor_position、motor_velocity与058逐位相同，排除了本次低位改动影响其他高度。轨迹SHA`d7d5b2ee582ca13749d309e1799feb749ac05d26968c22f3ebcfb46d7551a107`，结果`iteration059_final.json`。低位单项通过；中位腿HF略增和高位6.443cm仍使整体拒绝，未开展长训或交付。
 
 下一060单变量将同一mid位置weight复制到high，保留059低位及所有旧quiet MLP。检验米制位置反馈是否也能跨到高位，不通过时保留059分支；0PPO，账本1128/谱系473/长训0。
+
+060迁移SHA`5e36081c49aba88de1ad53d39a6f97208ae1870761cbbe730edf3eae806e5a48`，只改high位置8值及其named Adam，其余actor/critic/Adam/RNG保持。5,760实际输入上零位置动作逐位一致，3,840低中位动作逐位一致，高位最大raw差.01154。`iteration060_migration.json`。固定原生48回合已唯一启动PID1202844，运行期间不修改原生源；结果尚待完成。
+
+只读分频诊断`position_vibration058_probe.json`将实际腿/轮运动按原Hann归一化拆为3–8、8–20、20–95Hz，汇总复算与既有3–95Hz指标精确一致。中位腿RMS从036到058：3–8Hz .5965→.6271mrad，8–20Hz .2649→.2498mrad，20–95Hz .06376→.05515mrad；059中位轨迹和结果不变。数据接入各原event的`Diagnosis/position_band058`，不另建曲线数据源。该结果只定位增加的频段，不授予唯一因果解释或更改验收门槛。下一可在当前worker退出后，显式迁移仅新增位置观测的低通时间常数50→150ms做零PPO测试；快速平衡输入和全部延迟/噪声域保持，不能假定更慢就一定更稳。059图`standing_position059.png`从原event导出且已实看。
