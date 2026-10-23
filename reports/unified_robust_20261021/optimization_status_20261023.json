@@ -44,6 +44,12 @@
       "status": "completed",
       "native_status": "completed",
       "returncode": 0
+    },
+    "learned_rolling_static050_process.json": {
+      "pid": 950985,
+      "status": "completed",
+      "native_status": "completed",
+      "returncode": 0
     }
   },
   "full_behavior_baseline": "iteration032_final.json",
@@ -53,7 +59,8 @@
     "047_affine_bias_ablation",
     "048_fixed_command_feedback_negative2",
     "048_fixed_command_feedback_positive2",
-    "049_fixed_rolling_velocity_command_feedback2"
+    "049_fixed_rolling_velocity_command_feedback2",
+    "050_learned_rolling_velocity_feedback"
   ],
   "actual_accounting": {
     "latest_pilot_macro_ppo_updates": 64,
@@ -162,14 +169,79 @@
     {
       "path": "reports/unified_robust_20261021/rolling_observability050.json",
       "sha256": "a787025d96f9667d68deead9921e483384511392979b5b971f17ef7a8c72b59b"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration050_final.json",
+      "sha256": "65b72f6e12a8d36a0d49867aae08b3a892d15ab35e1a2dd1a90df0ca0913d4af"
+    },
+    {
+      "path": "reports/unified_robust_20261021/iteration050_pipeline.json",
+      "sha256": "1dfa86a3688d377c1ddcd37ca19812fdcb5c6d28420f33a0b933a9405dca418c"
+    },
+    {
+      "path": "reports/unified_robust_20261021/learned_rolling_static050_process.json",
+      "sha256": "e19068e4ba5661eaf1678daa84e3328793ae42aa8bab888241c4562714ae5c46"
+    },
+    {
+      "path": "reports/unified_robust_20261021/standing_rolling050.provenance.json",
+      "sha256": "7b068bb16d121ebb52caf42262ed18a55a726cfb854b8e5f68d2c87cac412ba6"
     }
   ],
   "active_candidate050": {
-    "status": "extended_static_evaluation_in_progress",
+    "status": "static_target_not_met",
     "checkpoint_sha256": "e4a9d18332256990c1cdf689b31dcd18d64cf2b98e116c7ca04a0fef4e21dd30",
     "trainable_actor_values": 12,
     "old_actor_geometry_std_named_adam_exact": true,
     "new_full_behavior_evidence": false,
-    "long_training_admitted": false
+    "long_training_admitted": false,
+    "static_failures": [
+      "stand_low: displacement exceeds5cm",
+      "stand_low: actual vibration regressed leg_motion_fast_rms_rad_3_95",
+      "stand_low: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95",
+      "stand: displacement exceeds5cm",
+      "stand: clearance exceeds3mm",
+      "stand: actual vibration regressed leg_motion_fast_rms_rad_3_95",
+      "stand: actual vibration regressed wheel_motion_fast_rms_rad_s_3_95",
+      "stand_high: displacement exceeds5cm"
+    ],
+    "full_suite_complete": false,
+    "extended_static": {
+      "stand_low": {
+        "episodes": 16,
+        "survived": 16,
+        "full_window_max_excursion_m": 0.19065310060977936,
+        "full_window_within_5cm": 12,
+        "steady_window_max_excursion_m": 0.14859551191329956,
+        "leg_motion_fast_rms_rad_3_95": 0.0005774565577683806,
+        "wheel_motion_fast_rms_rad_s_3_95": 0.08427972535492653,
+        "leg_target_fast_rms_rad_3_95": 0.0006198036545563034,
+        "wheel_target_fast_rms_rad_s_3_95": 0.13929239756734657,
+        "wheel_clearance_after_02s_peak_m": 0.0006953664124011993
+      },
+      "stand": {
+        "episodes": 16,
+        "survived": 16,
+        "full_window_max_excursion_m": 0.5684962868690491,
+        "full_window_within_5cm": 13,
+        "steady_window_max_excursion_m": 0.589148998260498,
+        "leg_motion_fast_rms_rad_3_95": 0.004567444609978329,
+        "wheel_motion_fast_rms_rad_s_3_95": 0.7842534264283485,
+        "leg_target_fast_rms_rad_3_95": 0.006183233710498503,
+        "wheel_target_fast_rms_rad_s_3_95": 0.9292835038517794,
+        "wheel_clearance_after_02s_peak_m": 0.04919077455997467
+      },
+      "stand_high": {
+        "episodes": 16,
+        "survived": 16,
+        "full_window_max_excursion_m": 0.08434111624956131,
+        "full_window_within_5cm": 13,
+        "steady_window_max_excursion_m": 0.09553392231464386,
+        "leg_motion_fast_rms_rad_3_95": 0.0011140657451909224,
+        "wheel_motion_fast_rms_rad_s_3_95": 0.2239896200547552,
+        "leg_target_fast_rms_rad_3_95": 0.0011860744059296311,
+        "wheel_target_fast_rms_rad_s_3_95": 0.2866622537975383,
+        "wheel_clearance_after_02s_peak_m": 0.0005058795213699341
+      }
+    }
   }
 }
