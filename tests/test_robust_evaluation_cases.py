@@ -80,10 +80,40 @@ def test_scaled_stationary_push_does_not_change_default_or_duration():
             module.scaled_stationary_push(original, scale)
 
 
+def test_stationary_strength_grid_multiplies_both_physical_inputs_without_changing_cases():
+    path = Path(__file__).resolve().parents[1] / "scripts/evaluate_robust_getup_batch.py"
+    spec = importlib.util.spec_from_file_location("stationary_push_grid", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    full = [dict(name="moving_push_left", push=True, push_sign=1., command=[.7, 0., .305], pose_index=17),
+            dict(name="moving_push_right", push=True, push_sign=-1., command=[.7, 0., .305], pose_index=18)]
+    scales = [.65, .75, .85, .95]
+    cases = module.fixed_stationary_push_cases(full, scales)
+    assert len(cases) == 8
+    for index, old in enumerate(full):
+        for offset, scale in enumerate(scales):
+            case = cases[index * 4 + offset]
+            assert case["pose_index"] == old["pose_index"]
+            assert case["push_sign"] == old["push_sign"] * scale
+            assert case["diagnostic_push_scale"] == scale
+            # The existing native force and torque use the same sign scalar.
+            assert abs(case["push_sign"]) * 80. == scale * 80.
+            assert abs(case["push_sign"]) * 32. == scale * 32.
+    cases[0]["command"][0] = 4.
+    assert cases[1]["command"] == [0., 0., .305] and full[0]["command"] == [.7, 0., .305]
+    for bad in ([], [.5, .5], [.1] * 5, [0.], [1.1], [float("nan")], [float("inf")]):
+        with pytest.raises(ValueError):
+            module.fixed_stationary_push_cases([], bad)
+
+
 @pytest.mark.parametrize("arguments", [["--stationary-push-scale", ".5"],
     ["--stationary-push-cases", "--stationary-push-scale", "nan"],
     ["--stationary-push-cases", "--stationary-push-scale", "0"],
-    ["--stationary-push-cases", "--case-names", "stand"]])
+    ["--stationary-push-cases", "--case-names", "stand"],
+    ["--stationary-push-scales", ".65", ".75"],
+    ["--stationary-push-cases", "--stationary-push-scales", ".5", ".5"],
+    ["--stationary-push-cases", "--stationary-push-scales", "nan"],
+    ["--stationary-push-cases", "--stationary-push-scales", ".65", "--stationary-push-scale", ".5"]])
 def test_stationary_diagnostic_invalid_cli_rejected_before_checkpoint_or_native_launch(tmp_path, arguments):
     root = Path(__file__).resolve().parents[1]
     output = tmp_path / "must-not-exist"

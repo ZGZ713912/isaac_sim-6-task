@@ -55,12 +55,14 @@ def reference_trace_violations(obs, active, count, age, filtered, anchor, alive,
 
 def main(iteration=65):
     torch.set_num_threads(1)
-    assert iteration in (65, 69)
+    assert iteration in (65, 69, 71)
     overrides = dict(stationary_push_cases=True)
     if iteration == 69:
         overrides["stationary_push_scale"] = .5
+    if iteration == 71:
+        overrides["stationary_push_scales"] = [.65, .75, .85, .95]
     before, after = [load(f"stationary_reference_{side}{iteration:03d}", overrides) for side in ("before", "after")]
-    for field in ("name", "pose_index", "command", "push", "push_sign", "world_origin_m",
+    for field in ("name", "pose_index", "command", "push", "push_sign", "diagnostic_push_scale", "world_origin_m",
                   "first_reset_domain", "material_coefficients"):
         assert [r.get(field) for r in before[1]["lanes"]] == [r.get(field) for r in after[1]["lanes"]], field
     first_push = int(np.flatnonzero(after[2]["pushing"].any(-1))[0])
@@ -95,6 +97,7 @@ def main(iteration=65):
             completed = bool(row["survived"] and len(good) >= 399)
             practical = completed and row["in_motion_fall"] and stable_fraction >= .95 and excursion <= .05
             entry = dict(lane=i, case=row["name"], survived=row["survived"],
+                push_scale=row.get("diagnostic_push_scale", overrides.get("stationary_push_scale", 1.)),
                 prepush_reference_active=bool(active[max(0, first_push - 20):first_push].all()),
                 severe_input_frames=int(severe.sum()), severe_reference_resets=int(count[alive].max()),
                 recapture_times_s=t[recapture_indices].tolist(), actual_fall=row["in_motion_fall"],
@@ -121,6 +124,17 @@ def main(iteration=65):
                     bool(r["recapture_times_s"]) and r["practical_terminal_standing"] for r in selected))
         result[label] = dict(summary=summary, lanes=rows, trajectory_sha256=report["trajectory_sha256"],
                              checkpoint_sha256=report["checkpoint_sha256"])
+        if iteration == 71:
+            strength_summary = {}
+            for scale in overrides["stationary_push_scales"]:
+                strength_summary[str(scale)] = {}
+                for case in summary:
+                    selected = [r for r in rows if r["case"] == case and r["push_scale"] == scale]
+                    strength_summary[str(scale)][case] = dict(episodes=len(selected),
+                        survived=sum(r["survived"] for r in selected), actual_falls=sum(r["actual_fall"] for r in selected),
+                        exercised_reset_recapture_stand=sum(r["severe_reference_resets"] > 0 and
+                            bool(r["recapture_times_s"]) and r["practical_terminal_standing"] for r in selected))
+            result[label]["strength_summary"] = strength_summary
         step = json.loads((directory.parent / "progress.json").read_text())["completed_updates"]
         writer = SummaryWriter(str(directory.parent), filename_suffix=f".stationary_reference{iteration:03d}")
         for case, metrics in summary.items():
@@ -141,5 +155,5 @@ def main(iteration=65):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--iteration", type=int, choices=[65, 69], default=65)
+    parser.add_argument("--iteration", type=int, choices=[65, 69, 71], default=65)
     main(parser.parse_args().iteration)

@@ -1,0 +1,63 @@
+{
+  "schema": "reference071-strength-grid-plan-v1",
+  "status": "frozen_before_native",
+  "reason": "80N/32Nm: left impact termination before recapture;40N/16Nm:no severe falls in either direction",
+  "retained_receipts_sha256": {
+    "65": "95eed841944966f527f258faf0cb4633e0a6b2693de56c754970f8cec86892a9",
+    "69": "787e0ed5e2cce272229acb98e891bdfa3ffe39eb5464f641c5917ae10a1e5949"
+  },
+  "native": {
+    "seed": 211322,
+    "replicas_per_strength_direction": 8,
+    "environments": 64,
+    "seconds": 12,
+    "domain_scale": 0.35,
+    "ground_friction": [
+      0.3,
+      0.5
+    ],
+    "scales": [
+      0.65,
+      0.75,
+      0.85,
+      0.95
+    ],
+    "force_n": [
+      52.0,
+      60.0,
+      68.0,
+      76.0
+    ],
+    "torque_nm": [
+      20.8,
+      24.0,
+      27.2,
+      30.4
+    ],
+    "push_duration_seconds": 0.3,
+    "push_start_seconds": 5.0,
+    "push_torque_direction": -1.0,
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "origin": "isolated_overlap_v1"
+  },
+  "before_checkpoint": "quiet_high_recenter066/model_migrated.pt",
+  "after_checkpoint": "quiet_severe_reference065/model_migrated.pt",
+  "checkpoint_sha256": {
+    "before": "9c51ffd0867340399aef3a6aa50b7d66d822310e0d3ea02720e84820a15596e4",
+    "after": "12669ef1f470ce88acb6a9a17b907b31f2b34dd96396417f94079dbdcf813dba"
+  },
+  "cases_sha256": "aed2a44612da3f693945504618cd90de7ba1a38186d19c27a3a16f11ba35ce22",
+  "mechanism": "Existing per-case floating-point push_sign multiplies force and torque; explicit diagnostic_push_scale metadata",
+  "source_sha256": {
+    "scripts/evaluate_robust_getup_batch.py": "948dc47859caa10d659f729c489d3530faaad294c65d1e177381c5ef08c47aad",
+    "reports/unified_robust_20261021/iteration065_analyze.py": "2801e12c8fa47fb2451d0383139a1432de50d22dec00c466f131deb4d5dd1642",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4"
+  },
+  "native_environment_code_changed": false,
+  "protection_thresholds_changed": false,
+  "new_macro_updates": 0,
+  "robust_consumed": 1160,
+  "long_training_admitted": false,
+  "interpretation": "Functional lifecycle proof over an explicit strength grid; default80N suite and its failures remain"
+}
