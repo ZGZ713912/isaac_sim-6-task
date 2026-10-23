@@ -1,0 +1,49 @@
+{
+  "schema": "quiet082-gyro-release-plan-v1",
+  "checkpoint_sha256": "12669ef1f470ce88acb6a9a17b907b31f2b34dd96396417f94079dbdcf813dba",
+  "variants": {
+    "quiet_filter025": null,
+    "quiet_gyro_0.050000000000000003_0.20000000000000001": [
+      0.05,
+      0.2
+    ],
+    "quiet_gyro_0.029999999999999999_0.10000000000000001": [
+      0.03,
+      0.1
+    ]
+  },
+  "alpha_min": 0.25,
+  "alpha_max": 1.0,
+  "release_sensor": "norm(obs4:6)*2, roll/pitch gyro rad/s",
+  "hidden_state_added": false,
+  "reason": "081 shows direct quiet neural correction has tiny20-95Hz contribution;074 complete wheel filtering reduces HF but incurs startup displacement",
+  "environments": 36,
+  "replicas": 4,
+  "seed": 211322,
+  "domain_scale": 0.0,
+  "seconds": 12,
+  "cases": [
+    "stand_low",
+    "stand",
+    "stand_high"
+  ],
+  "ground_friction": [
+    0.5,
+    0.5
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "origin": "isolated_overlap_v1",
+  "weights_and_protections_changed": false,
+  "new_macro_updates": 0,
+  "robust_consumed": 1256,
+  "selected_lineage": 505,
+  "full_training_admitted": false,
+  "decision": "Nominal diagnostic only; every chosen band needs equal-index serial random48 confirmation, formal migration and fresh admission",
+  "sources": {
+    "scripts/evaluate_robust_getup_batch.py": "cf394632b95786b4c02fc667aa3b0b32d64014077d48dafd376327a9251629d7",
+    "src/wheeled_algo/evaluation_gyro_filter.py": "e225a9cfd09165ba5fc593a55697fa51c7b80966bc735b02253402102c09bd6d",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4"
+  }
+}
