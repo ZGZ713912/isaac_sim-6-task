@@ -406,3 +406,6 @@
 
 
 102只读确认canonical恢复对134条完整恢复输入的镜像动作最大数值误差1.526e−5raw，而原生名义轮参数L/R armature .00386698/.00381845、frictionloss .0495074/.0695771、damping .000608532/.000342903明确不同。只支持非对称残差能力可能有用的可证伪假设，不认定唯一根因，不新增学习；指标接原096 TB Diagnosis/Recovery102。recovery102_symmetry.json。103从087/093/097/095既有TensorBoard event导出三高度全窗位移、actual腿/轮3–95Hz静态对比，PNG/PDF与event SHA清单封存；只有.003通过当前12s批次，30s/新seed验证仍待100，不因图表放行。无本机TensorBoard服务。
+
+
+104仅在reports准备1350参数非对称恢复残差CPU原型：保留096均值整网冻结，新增零输出小MLP只在原恢复权重>0且负gravityY侧连续有效，将有界logit残差送回同一smooth paired decoder；四腿logit边界.25、轮.03，无新状态/时间/特权信息或脚本角度。14609实际输入零初始化全函数逐位相同，扰动输出后14418条无侧向或无恢复门输入仍逐位不变，全部有界/有限，旧网无梯度、新输出有初始梯度、global RNG保持，0优化步。尚未接任何src/native/export loader，不先训练；等待101既有提前介入闭环对照。asymmetric104_prototype.py/cpu.json。
