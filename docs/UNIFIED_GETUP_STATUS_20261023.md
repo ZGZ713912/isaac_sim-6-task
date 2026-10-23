@@ -266,3 +266,8 @@
 074 alpha.25正式候选已零PPO迁移并严格加载；actor/critic/全部named Adam/RNG逐位保持，14609实际输入与073诊断包装逐位等价，源/合同冻结，35CPU通过。原生48例全部存活，低/中/高全窗4.562/2.617/5.408cm；实际腿3–95Hz .2843/.5397/.6164mrad，轮.0344/.0896/.1193rad/s，最大间隙均<.520mm。低位腿比036的.2828mrad略高，且高位15/16在5cm内，故完整静站门仍拒绝、未运行全套或大训练。回执iteration074_final.json；不以轮减振改善覆盖漂移失败。来源505/账本1160，0新PPO。下一有界32PPO只适应既有quiet MLP与位置头，保持全部运动/恢复/std冻结。
 
 075早roll原型仍仅只读CPU：20→45°和20→25°在066普通201600有效帧gate零变化，14609抽样输入分别14561/14553输出逐位保持；quiet/参考坐标有效域不引入新authority，独立凸组合核对误差<1e-6。尚未修改原生策略，不能宣称降低撞击。另RMCS构建助手已在README指向的.script/build-rmcs找到，先前command-v仅说明不在PATH；未执行构建。
+
+
+076本轮有界32PPO已正常结束并全状态封存，尚待独立静站复测。实际初态在0更新审计时actor/critic/named Adam/四类RNG逐位恢复074；只训练8106个quiet MLP与位置值，15个允许张量改变，其余actor/std和冻结Adam逐位保持，允许Adam均+384 minibatch。actor/critic实际LR1e−5/1e−3，v3/150ms/50ms capture/severe reset与alpha.25保持。新模型SHA4e73a4636046e98d59bec27cf1a598d9c23e627282fcb0672d216dc51d7a293c，来源505→537、实验消费1160→1192、长训仍0；128×128×32是更新规模，不是episode数。回执iteration076_state.json、iteration076_train_process.json，48×12s随机静站已唯一接续，原生源码继续冻结。
+
+另外074新算子独立ONNX数值探针通过2048真实/中间高度输入，最大raw误差2.861e−6、当前主机CPU单线程p95约.417ms；只作算子支持证明，不是硬件时延或部署准入。图filter_tradeoff074.png来自原TensorBoard事件，未启动本机TensorBoard服务。
