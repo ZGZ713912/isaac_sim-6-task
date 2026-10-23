@@ -1,0 +1,57 @@
+{
+  "schema": "offline-recovery096-plan-v1",
+  "parent_sha256": "5fcc13518d9fdd1cb4a3745ef84b38892bffbaeb90719336f66f5a15e6091018",
+  "method": "Successful sampled applied-target regression plus frozen079 retention; not PPO",
+  "learned_parameters": "Only six recovery MLP tensors; all other actor/std/critic/PPO Adam/four saved RNG remain exact",
+  "steps": 64,
+  "learning_rate": 3e-05,
+  "optimizer": "separate Adam, not parent PPO Adam",
+  "retention_weight": 4.0,
+  "gradient_norm_clip": 1.0,
+  "seed": 211496,
+  "retention_batch": 512,
+  "elite_batch": "all postfall successful right frames, uniformly weighted",
+  "sources": [
+    {
+      "source": "recovery_sample_exposure092/robust",
+      "lane": 14,
+      "trajectory_sha256": "230e0e208dbd733a75ab9d8c7db31571256450793dc76f3c325694a380de41d1",
+      "supervised_frames": 316,
+      "scope": "Only postfall recovery-gate>=.5 frames before first recovered-after-push; no prepush targets"
+    },
+    {
+      "source": "dynamic_recovery_target079/robust",
+      "trajectory_sha256": "ce33cf607e7e128a48ee9d2a7a20d6991c8e2eece5a3fbfa3379a3941184a54e",
+      "retained_frames": 2048
+    },
+    {
+      "source": "dynamic_recovery_full079/robust",
+      "trajectory_sha256": "509132efae9d6f948bc7abc657b8e80c3b964df88093dcf5e8cf54b8cc28d417",
+      "retained_frames": 1835
+    }
+  ],
+  "scope_checks": {
+    "max_retention_leg_target_change_rad": 0.05,
+    "max_retention_wheel_target_change_rad_s": 3.0,
+    "nonrecovery_exact": true,
+    "strict_checkpoint_load": true
+  },
+  "behavioral_next": "Only if scope checks pass: nominal paired24 lanes, three cases x4 x2 models,12s; candidate must recover all12 practically",
+  "implementation_sha256": {
+    "reports/unified_robust_20261021/iteration096_refit.py": "27e652331cda38dc8d9ced4e8f9dad945fb238295cce67ebffeb4045c7a32de7",
+    "scripts/evaluate_robust_getup_batch.py": "d2086356cc17a270f5ddb38be04802c2e1a9b4f9a41d1a1aa9765ff5f557c888",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4"
+  },
+  "heldout_seeds": [
+    211131,
+    211132
+  ],
+  "source092_retired_from_heldout": true,
+  "new_macro_updates": 0,
+  "new_offline_steps": 64,
+  "robust_consumed": 1384,
+  "selected_ppo_lineage": 505,
+  "candidate_ppo_lineage": 569,
+  "full_training_admitted": false
+}
