@@ -385,3 +385,6 @@
 
 
 098仅准备从096续64离线步，同316右侧成功目标/同3883原079保留目标/lr3e−5/权重4全部不变，恢复096独立离线Adam64→128并按原private generator连续抽样，不重置优化器。只检验额外同目标更新能否继续降低右冲量而保持左右/倒扣全12条实用门；不引入新噪声比例/新reward/新物理。PPO Adam/critic/std/四saved RNG保持，64新离线步单列，候选PPO谱系仍569、PPO累计1384。096两版推前1000帧obs/actions/q/dq/XY/alive实读全精确，因此其名义改进发生在恢复动作开始后；098也将严格检查该前缀。先完成CPU范围门，等097退出后才名义24闭环。iteration098_plan.json，尚未运行。
+
+
+098已按冻结计划再完成64离线步，独立offline Adam六状态64→128精确续接，PPO仍0新增/累计1384、研究PPO谱系569、累计离线128步。末态SHA 7a6c10a1a7f1217918ca68fbc459144ea4d0e93fb0fd3b8e325448ca7f661c7a；只有六个recovery张量变化，其他actor/std/critic/PPO Adam/四saved RNG精确。316帧归一目标loss从096末1.053846接续至1.050760；相对096在3883原保留输入上腿最大变化7.133mrad、轮1.3049rad/s均通过范围，13361非恢复输出逐位保持、strict load通过。仅授等097结束后的24环境名义闭环对照，未采用/未大训。iteration098_state.json/refit_launch.json。
