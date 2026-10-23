@@ -35,7 +35,12 @@ def main():
     assert initial_mean.quiet_high_leg_prediction_s == .005
     assert settings["quiet_velocity_feedback_mode"] == "rolling_velocity"
     # No task, randomization, cost, or model changes in this continuation.
-    assert equal(parent["infos"]["settings"], settings)
+    parent_settings = parent["infos"]["settings"]
+    version_labels = {"parent": parent_settings["version"], "native_initial": settings["version"]}
+    assert version_labels == {"parent": "robust-v2.31-all-height-leg-prediction",
+                              "native_initial": "robust-v2.15-standing-drift"}
+    assert equal({k: v for k, v in parent_settings.items() if k != "version"},
+                 {k: v for k, v in settings.items() if k != "version"})
     assert initial["infos"]["completed_updates"] == 505
     heads = {f"mlp.mean.quiet_velocity.{name}.weight" for name in ("mid", "low", "high")}
     old_names = set(initial_slots["actor"]) - heads
@@ -43,7 +48,8 @@ def main():
     progress = json.loads((initial_path.parent / "progress.json").read_text())
     assert progress["trainable_actor_parameters"] == 12
     result = dict(schema="prediction053-native-initial-audit-v1", initial_clock=505,
-        parent_actor_critic_named_adam_rng_and_settings_exact=True,
+        parent_actor_critic_named_adam_rng_and_semantic_settings_exact=True,
+        only_settings_metadata_difference=version_labels,
         all_height_prediction=True, prediction_seconds=.005, trainable_actor_values=12,
         old_actor_parameter_slots=len(old_names), initial_feedback_adam_step=768,
         checkpoint_sha256=hashlib.sha256(initial_path.read_bytes()).hexdigest())
