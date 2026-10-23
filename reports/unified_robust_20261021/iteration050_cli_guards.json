@@ -1,0 +1,47 @@
+[
+  {
+    "command": [
+      "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+      "scripts/migrate_robust_getup_contract.py",
+      "--checkpoint",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_rolling050/model_migrated.pt",
+      "--output",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/unified_robust_20261021/never_created050",
+      "--quiet-velocity-feedback-mode",
+      "rolling_velocity"
+    ],
+    "returncode": 2,
+    "last_error": "migrate_robust_getup_contract.py: error: Velocity mode requires explicit --quiet-velocity-feedback migration",
+    "output_created": false
+  },
+  {
+    "command": [
+      "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+      "scripts/migrate_robust_getup_contract.py",
+      "--checkpoint",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_rolling050/model_migrated.pt",
+      "--output",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/unified_robust_20261021/never_created050",
+      "--quiet-velocity-feedback",
+      "--quiet-velocity-feedback-mode",
+      "rolling_velocity"
+    ],
+    "returncode": 2,
+    "last_error": "migrate_robust_getup_contract.py: error: Add velocity feedback once to an existing three-height-expert checkpoint",
+    "output_created": false
+  },
+  {
+    "command": [
+      "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+      "scripts/train_robust_getup.py",
+      "--output",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/unified_robust_20261021/never_created050",
+      "--resume",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_rolling050/model_migrated.pt",
+      "--quiet-feedback-only"
+    ],
+    "returncode": 2,
+    "last_error": "train_robust_getup.py: error: Velocity-only training requires a resumed quiet support/early-position/drift profile",
+    "output_created": false
+  }
+]

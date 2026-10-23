@@ -4,11 +4,27 @@ This is a model-derived no-slip estimate, not a calibrated sensor. Invalid knee
 geometry disables it. It has no simulator state, history or contact-truth input.
 """
 import math
+import hashlib
+import json
+from pathlib import Path
 
 import torch
 from torch import nn
 
 SPEC_SHA256 = "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997"
+TABLE_SHA256 = "57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69"
+TABLE_RELATIVE = "reports/flat_base_continuation_20261019/low_friction_candidate001/height_lookup.json"
+
+
+def frozen_table_path():
+    path = Path(__file__).resolve().parents[2] / TABLE_RELATIVE
+    if hashlib.sha256(path.read_bytes()).hexdigest() != TABLE_SHA256:
+        raise ValueError("Frozen107 rolling geometry table changed")
+    return path
+
+
+def frozen_rolling_estimator():
+    return RollingBaseVelocity(json.loads(frozen_table_path().read_text()))
 
 
 class RollingBaseVelocity(nn.Module):
@@ -28,6 +44,13 @@ class RollingBaseVelocity(nn.Module):
             knots = getattr(self, f"side{index}_delta_rad")
             if knots.ndim != 1 or len(knots) < 2 or not bool((knots[1:] > knots[:-1]).all()):
                 raise ValueError("Rolling geometry needs increasing relative-angle knots")
+
+    def verify_frozen_geometry(self):
+        expected = frozen_rolling_estimator().state_dict()
+        actual = self.state_dict()
+        if actual.keys() != expected.keys() or any(
+                not torch.equal(value.detach().cpu(), expected[name]) for name, value in actual.items()):
+            raise ValueError("Rolling estimator geometry buffers changed")
 
     def forward(self, obs):
         q = obs[:, 10:14] + self.nominal

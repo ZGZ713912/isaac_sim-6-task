@@ -92,6 +92,8 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            fast_forward_reference_yaw_fade=info["settings"].get("fast_forward_reference_yaw_fade", .25))
     weights = {k.removeprefix("mlp.mean."): v for k, v in state["actor_state_dict"].items() if k.startswith("mlp.mean.")}
     mean.load_state_dict(weights, strict=True)
+    if info["settings"].get("quiet_velocity_feedback_mode") == "rolling_velocity":
+        mean.rolling_velocity.verify_frozen_geometry()
     expected_bounds = torch.tensor([info["settings"]["leg_action_clip"]] * 4 + [info["settings"]["wheel_action_clip"]] * 2)
     if (not torch.equal(mean.action_bound, expected_bounds)
             or not torch.equal(mean.quiet_alpha, torch.tensor(info["settings"]["quiet_actor_alpha"]))
