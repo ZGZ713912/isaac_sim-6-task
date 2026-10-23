@@ -1,0 +1,46 @@
+{
+  "schema": "recovery092-sampling-exposure-plan-v1",
+  "checkpoint_sha256": "5fcc13518d9fdd1cb4a3745ef84b38892bffbaeb90719336f66f5a15e6091018",
+  "variants": {
+    "robust": 1.0,
+    "recovery_leg_noise_0.5": 0.5,
+    "recovery_leg_noise_0.25": 0.25
+  },
+  "seed": 211322,
+  "noise_seed": 211492,
+  "replicas": 4,
+  "environments": 60,
+  "cases": [
+    "left_asymmetric",
+    "right_asymmetric",
+    "inverted_asymmetric",
+    "moving_push_left",
+    "moving_push_right"
+  ],
+  "seconds": 12,
+  "domain_scale": 0.0,
+  "ground_friction": [
+    0.5,
+    0.5
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "new_macro_updates": 0,
+  "robust_consumed": 1384,
+  "parent_lineage": 569,
+  "intervention": "Checkpoint Gaussian draws; reduce only four leg stds by a smooth recovery-authority factor",
+  "frozen": "Mean, wheel std, quiet and zero-recovery std, all weights, all mechanical protections",
+  "common_randomness": "Same private noise seed, fixed batch shape and draw calls per variant; global RNG untouched",
+  "rationale_sha256": "8891e2a3c54d43639b26c19a4da6a390862d90621db51b2e86e7df0631047459",
+  "selection": "Only propose a bounded learning pilot if practical completions gain>=2 and recovered events do not regress",
+  "eligible_for_policy_qualification": false,
+  "full_training_admitted": false,
+  "sources": {
+    "scripts/evaluate_robust_getup_batch.py": "d2086356cc17a270f5ddb38be04802c2e1a9b4f9a41d1a1aa9765ff5f557c888",
+    "src/wheeled_algo/evaluation_recovery_noise.py": "3b2b38743e1aa5b396a201bce15b648d95fa56a66ebba93a8f1dfddbd764cc32",
+    "src/wheeled_algo/recovery_exploration.py": "11bbc8ad85d24013a4687ee1f4464525c877bf92a13cc2b9a076c414409281d9",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4"
+  }
+}

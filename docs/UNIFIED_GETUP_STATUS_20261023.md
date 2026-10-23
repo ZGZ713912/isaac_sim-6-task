@@ -349,3 +349,6 @@
 
 
 090随机48×12s已exit0/native completed，初态严格配对，48/48存活且036六项actual HF均未退化、最大离地<.970mm。低/中/高全窗4.537/2.785/5.385cm，高位仍15/16在5cm内；比087最差只改善.339mm，故拒绝100ms变更，不继续缩短滤波时间来猜测。该证据不支持位置观测滤波滞后是启动漂移的充分解释。iteration090_final.json与iteration090_decision.json封存，0新PPO、累计1384/采用505/研究079谱系569/长训0；实车v3接口继续原150ms。
+
+
+092零PPO带噪声曝光对照已实现准备：079原训练Gaussian与仅恢复腿std乘.5/.25，五场景为左右不对称倒地/不对称倒扣/左右动态推倒，每场景四条不同噪声轨迹，共60环境12s，物理仍名义domain0。新RecoveryNoiseMean保留mean/std参数和全部named state键，只按原恢复权重平滑缩小四腿log-std；默认训练路径尚未修改。独立私有Generator在三版本使用相同seed/固定行数/调用次数，采样概率与native RSL Gaussian同尺度，不消耗全局Torch RNG。50项相关CPU通过；14609实际输入的均值、轮std、零恢复std和全部权重逐位保持，fraction1完整采样器精确，私有抽样终态一致。只当完成后实用接续增加至少2且起身事件不减少才提出有界PPO；带噪声评测不能授予均值部署资格。iteration092_plan.json及iteration092_cpu.json。0新PPO、累计1384/长训0。
