@@ -71,3 +71,17 @@ def test_mismatched_sensor_contract_and_double_filter_rejected():
     mean.quiet_output_wheel_alpha = .25
     with pytest.raises(ValueError):
         PositionReleasedWheelFilter(mean, [.01, .025])
+
+
+def test_randomized_multi_variant_grid_rejected_before_checkpoint_or_native(monkeypatch, capsys, tmp_path):
+    import sys
+    from evaluate_robust_getup_batch import main
+    monkeypatch.setattr(sys, "argv", ["evaluate", "--checkpoint", str(tmp_path / "missing.pt"),
+        "--output", str(tmp_path / "not-created"), "--variants", "robust", "--replicas", "16",
+        "--case-names", "stand", "stand_low", "stand_high", "--domain-scale", ".35",
+        "--quiet-wheel-position-release-bands", ".01", ".025"])
+    with pytest.raises(SystemExit) as error:
+        main()
+    assert error.value.code == 2
+    assert "nominal domain0" in capsys.readouterr().err
+    assert not (tmp_path / "not-created").exists()
