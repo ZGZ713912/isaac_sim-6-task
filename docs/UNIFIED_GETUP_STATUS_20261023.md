@@ -143,7 +143,7 @@
 
 计划先唯一48×12s原生零PPO对照036，检查新增观测而零权重时所有旧观测/轨迹/动作是否保持；未通过不得开始位置反馈PPO。累计robust1089/长训0，不提前计入后续拟32更新。计划`iteration056_plan.json`、CPU/ONNX审计`iteration056_audit.json`；原生是否完成以process/progress/final回执为准。
 
-056原生已returncode0/native completed，400.72s实耗。48/48跑满，12项初态配对全部通过；全部2401帧的旧观测、actions、local_position、motor_position、motor_velocity与036逐位一致，最大差均0，alive/passive也完全一致。新obs14:16峰值5（限幅后）确实非零。该结果证明新预处理在零头时未干扰旧闭环，不是漂移已改善：静站结果仍是036的33.54/18.55/12.09cm。回执`iteration056_final.json`，轨迹SHA`d8c4d6f1cabb1da3277f3cd663c77555ae43fc7a786d507a6962cba6f992203e`；0新PPO，累计1089/长训0。
+056原生已returncode0/native completed，400.72s实耗。48/48跑满，12项初态配对全部通过；全部2400帧的旧观测、actions、local_position、motor_position、motor_velocity与036逐位一致，最大差均0，alive/passive也完全一致。新obs14:16峰值5（限幅后）确实非零。该结果证明新预处理在零头时未干扰旧闭环，不是漂移已改善：静站结果仍是036的33.54/18.55/12.09cm。回执`iteration056_final.json`，轨迹SHA`d8c4d6f1cabb1da3277f3cd663c77555ae43fc7a786d507a6962cba6f992203e`；0新PPO，累计1089/长训0。
 
 ## 057：首次RL位置反馈短训计划
 
@@ -156,3 +156,5 @@
 058沿用057原32更新计划，明确传入腿.06/轮.35，从原056零头/441时钟开始，不接续错误branch。新增只用于实验runner的CPU `prepare()`预检与实际task全字段比对，task生成时即自动核验；真实子进程匹配/不匹配两项负正测试通过，不匹配在初态PT/训练前被终止。预检JSON封存于`iteration058_preflight.json`。源/物理/actor不因该guard修改，无需重跑已逐位等价的056。拟32完成后的账本1096→1128包含057保守在途计费1；来源441→473，长训仍0。行为判据与057保持，计划`iteration058_plan.json`。
 
 058已唯一启动PID1156866。实际task guard在model_initial.pt尚不存在时完成逐字段比对，settings SHA`4702919c0b9066e010d50191abd25df6f39c3dbd28b1604b9c5f98717b0b3857`，腿.06/轮.35正确。实际初态PT SHA`cf907f6c8987d76014910343eb536158b6e74ea809fdc5aac9c5a0ee628532a1`；actor/critic/named Adam/四RNG与056精确一致，新24值和空Adam正确，旧actor/std冻结。回执`iteration058_task_guard.json`、`iteration058_initial.json`。已完成量按原生progress更新，拟32尚不能提前称完成；本次提交不改原生源或重启进程。
+
+058运行期间完成的只读`position_native056_probe.json`直接核验056实际obs14:16（不再额外假设轮角噪声），正确对齐pre-action observation与上一条post-action诊断真值。未触及.25m限幅段的最差前向误差低/中/高31.96/18.59/18.56mm；最大低位误差lane34实际末位移18.68mm、估计50.63mm，而非最大33cm漂移lane。首次真实越过5cm时观测同向约48.4–61.1mm。故方向/包络信息存在，但轮里程不能当位置真值；该诊断不证明闭环5cm或长时间精度。参考锚在.2s，越线统计与出生起点正式全窗判据不能混用。指标写入056原event的`Diagnosis/position_native056`；0新原生/PPO、不改运行中的源。
