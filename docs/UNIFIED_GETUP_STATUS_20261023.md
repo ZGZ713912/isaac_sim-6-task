@@ -327,3 +327,8 @@
 
 
 087的零PPO正式迁移已通过严格load，PT仅新增quiet_output_wheel_alpha=.32和版本号，actor/critic/Adam及四RNG全部逐位保留。14609真实输入与086诊断包装器逐位等价，13022非quiet输出及腿输出不变；候选仍谱系505，随机行为尚待验证。准备seed211322、48×12s、domain.35、地面.3–.5、原机械保护和近原点独立碰撞布局，按074相同环境编号串行配对；actual HF仍用036六项门，不降低标准。iteration087_migration.json及iteration087_plan.json。
+
+
+088名义36×12s方案已冻结准备：原079 step.3、较小.2/.15三个版本，三场景各4副本，含左右动态80N/32Nm/.3s推倒与不对称倒扣。先确认新安装wrapper在14609真实输入上与先前CPU原型逐位等价、原函数和RNG不变，再等087全部原生结束后唯一运行。必须核对推前1000帧和初态；新PPO0，不因冲击数值下降就授予起身/长训资格。iteration088_plan.json、iteration088_cpu.json。
+
+089在086原记录上分解轮速目标为forward=(L−R)/2、yaw=(L+R)/2，窗口3–11s且频域能量守恒。原alpha1低/中/高的目标20–95Hz yaw能量占75.4%/75.1%/27.8%，实际3–95Hz yaw占51.1%/9.9%/3.1%；高位实际振动主要在前后平衡通道。alpha.32后三高度实际yaw占61.4%/6.2%/3.8%。这只是既有记录模态分解，不是yaw-only滤波的闭环收益证据，不能相加推断改进。Diagnosis/WheelDirection089追加原086 TensorBoard事件，wheel_direction089.json；0原生/0PPO。
