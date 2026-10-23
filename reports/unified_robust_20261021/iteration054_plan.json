@@ -1,0 +1,39 @@
+{
+  "schema": "quiet054-bounded-sampling-plan-v1",
+  "parent_checkpoint": "runs/unified_robust_20261022/quiet_all_prediction052/model_migrated.pt",
+  "parent_sha256": "cdc987c58a93f59b7811037c6626c2010bdedea44a64043eee79d505390fc732",
+  "causal_basis": "053 improved partial drift but worsened vibration. Fixed-observation sampling054 shows .213rad/s wheel sigma (~.906cm/s rolling proxy), comparable to remaining drift; test only quiet wheel exploration035to010.",
+  "initial_clock": 505,
+  "updates": 32,
+  "expected_final_clock": 537,
+  "robust_consumed_before": 1057,
+  "expected_consumed_after": 1089,
+  "trainable_actor_values": 12,
+  "actor_scope": "Existing three bias-free4x1 rolling-velocity heads and critic; all other actor/std/geometry and their Adam frozen",
+  "task_or_reward_changes": false,
+  "quiet_leg_prediction_all_heights": true,
+  "quiet_high_leg_prediction_s": 0.005,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "num_envs": 128,
+  "rollout_steps": 128,
+  "seed": 211329,
+  "actor_lr": 0.001,
+  "domain_scale": 0.35,
+  "ground_friction": [
+    0.3,
+    0.5
+  ],
+  "native_origin_mode": "isolated_overlap_v1",
+  "validation": {
+    "initial": "Exact initial actor/critic/named Adam/four RNG versus052 and equal-budget053; only quiet wheel exploration fraction035to010 and explicit version metadata change",
+    "final": "Only12 actor values and8 critic tensors change, original frozen slots exact; new Adam step768to1152",
+    "static": "Matched48x12s211322, no overrides/original sensor and actuator domains; paired036/052/053, fixed5cm/3mm/actual3-95Hz nonregression versus036",
+    "full_suite": "Only if static passes:140x12s, then still fresh formal two seeds and longer standing before long"
+  },
+  "new_long_updates": 0,
+  "long_training_admitted": false,
+  "run_started": false,
+  "quiet_wheel_exploration_fraction": 0.1,
+  "comparison": "Both053 and054 start from505 and train32; selected lineage537 in each, total experiment1057to1089, do not sum branch clocks"
+}
