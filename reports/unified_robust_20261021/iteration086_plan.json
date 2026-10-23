@@ -1,0 +1,45 @@
+{
+  "schema": "quiet086-constant-bracket-plan-v1",
+  "checkpoint_sha256": "12669ef1f470ce88acb6a9a17b907b31f2b34dd96396417f94079dbdcf813dba",
+  "hypothesis": "A fixed alpha between073 .25 and .5 may reduce .25 startup overshoot without the time-varying gain that failed084",
+  "reason": "074 fixed .25 lowered HF but high randomized excursion5.408cm;084 gyro release caused middle11.840cm/41.449mm clearance",
+  "variants": {
+    "quiet_wheel_alpha_1": 1.0,
+    "quiet_wheel_alpha_0.25": 0.25,
+    "quiet_wheel_alpha_0.32000000000000001": 0.32,
+    "quiet_wheel_alpha_0.40000000000000002": 0.4
+  },
+  "seed": 211322,
+  "replicas": 4,
+  "environments": 48,
+  "cases": [
+    "stand_low",
+    "stand",
+    "stand_high"
+  ],
+  "seconds": 12,
+  "domain_scale": 0.0,
+  "friction": [
+    0.5,
+    0.5
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "parent_control": "alpha1 exact selected065 function in the same native batch",
+  "no_weight_changes": true,
+  "no_added_state": true,
+  "no_action_or_mechanical_guard_changes": true,
+  "new_macro_updates": 0,
+  "robust_consumed": 1384,
+  "adopted_lineage": 505,
+  "prerequisite": "083 training plus both evaluations fully completed; one native worker",
+  "full_training_admitted": false,
+  "selection": "Report all alphas; any candidate needs equal-index serial random48 and fresh formal admission",
+  "sources": {
+    "scripts/evaluate_robust_getup_batch.py": "74ba6c6369bbc3e8e6bf7b75a1c1ceca7c5b6da4c8e4a9633eb132430f5dac1f",
+    "src/wheeled_algo/evaluation_quiet_output.py": "15cb74455a9c8e6dd2e86a0f3e8b40643f20d3e0ec1b2c719e030f108380544e",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4"
+  }
+}
