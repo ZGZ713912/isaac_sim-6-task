@@ -208,3 +208,8 @@
 064 CPU prepare已封存`iteration064_preflight.json`，v3/150ms/50ms/严重重建False正确继承，预计静站可训练8106值（旧MLPs8082+位置24）。`iteration064_plan.json`明确actor1e-5/critic1e-3与32上限，未提前计费。实际startup guard在task出现时逐字段比对，再待initial PT ZIP完整后认证actor/critic/named Adam/四RNG、真实优化器LR与quiet-only模式标记；progress中的原生可训练总数需其发布后再核验，不把CPU预计值冒充已观察值。训练后还检查15个允许张量范围、每个允许Adam仅增384步、非静站实际输入输出逐位相同。原生源本轮没有修改，启动与完成量以`iteration064_train_process.json`和原生progress为准。
 
 064已唯一启动PID1244929。实际task在initial PT不存在时逐字段通过；初态审计在0次更新时通过，actor/critic/named Adam/四RNG精确恢复，PT内真实LR1e-5/1e-3及quiet-only True/feedback-only False正确，`iteration064_initial.json`、`iteration064_task_guard.json`。初态时progress尚未发布可训练计数，回执为null而非冒称；随后真实PPO progress已发布8106值并正常推进，快照`iteration064_live001.json`独立记录实读增量/谱系/累计消费，不能把拟32提前计入。运行期间只添加只读报告/诊断ONNX校验脚本，不热改原生源、模型或奖励。
+
+
+064的32次新PPO已实际完成：原生returncode0且progress completed，来源时钟473→505，本轮robust累计消费1160（含既有保守在途计费），长训0。实际可训练8106值，15个静站允许张量更新、各named Adam增加384 minibatch步；其余actor/std/Adam逐位保持，critic八张量更新。最终PT SHA`cb892fe99a96794e5eccee3ca33a71a69e9940eef179c33564ad158cec20d7ff`。28,320实际输入中14,964非quiet输入在任意±5位置槽下动作仍逐位一致；3,072条诊断ONNX误差2.861e-6，图SHA`623fc8f100460e211a317791fd2dd6985e2ea778957ca5c08e454a2b28a9407a`，仅run目录诊断图，未替换交付或接入RMCS。回执`iteration064_final_state.json`、`iteration064_numeric.json`。随后48×12s固定静站正在进行，只有完整结果才能判定漂移/减振；若未过原门槛不接续140套件或长训。
+
+`stationary_reference_validation_plan065.json`仅冻结后续零PPO方案：原80N/32N·m/0.3s侧推、零运动命令，真实连续倒地/空转/回正路径，对比严重倾斜是否重建参考；无推倒后的root状态写入。当前140套件的moving_push命令为.7m/s，位置参考未激活，不能替代这一验证。拟新增诊断case须显式标记覆盖，默认35场景SHA保持，待064静站结果后再选择分支；当前尚未启动065原生或更改其环境代码。
