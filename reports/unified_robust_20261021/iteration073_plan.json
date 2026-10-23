@@ -1,0 +1,46 @@
+{
+  "schema": "quiet073-nominal-grid-plan-v1",
+  "status": "frozen_before_native",
+  "checkpoint": "runs/unified_robust_20261022/quiet_severe_reference065/model_migrated.pt",
+  "checkpoint_sha256": "12669ef1f470ce88acb6a9a17b907b31f2b34dd96396417f94079dbdcf813dba",
+  "seed": 211322,
+  "replicas": 4,
+  "environments": 48,
+  "seconds": 12,
+  "domain_scale": 0.0,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "variants": {
+    "quiet_wheel_alpha_1": 1.0,
+    "quiet_wheel_alpha_0.5": 0.5,
+    "quiet_wheel_alpha_0.25": 0.25,
+    "quiet_wheel_alpha_0.10000000000000001": 0.1
+  },
+  "cases": [
+    "stand_low",
+    "stand",
+    "stand_high"
+  ],
+  "mechanism": "Full quiet wheel output IIR from previous APPLIED action; learned correction is inside this filter",
+  "guards": [
+    "original alpha1 control",
+    "all static alive",
+    "full excursion<=.05m",
+    "post0.2s air<=.003m",
+    "report20-95Hz and3-95Hz target and actual motion",
+    "compare exact1346 parent from067"
+  ],
+  "sources": {
+    "scripts/evaluate_robust_getup_batch.py": "6c19a70d0cf3c1926bea2999f5441710ee8206e46c958ed8017ed9321cb03033",
+    "src/wheeled_algo/evaluation_quiet_output.py": "15cb74455a9c8e6dd2e86a0f3e8b40643f20d3e0ec1b2c719e030f108380544e",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4"
+  },
+  "new_macro_updates": 0,
+  "selected_lineage": 505,
+  "robust_consumed": 1160,
+  "long_training_admitted": false,
+  "deployment_package_replaced": false,
+  "interpretation": "Diagnostic coefficients only; any selected coefficient needs randomized closed-loop confirmation and a formal actor migration"
+}
