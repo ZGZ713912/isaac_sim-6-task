@@ -126,3 +126,5 @@
 054已经唯一启动，实际初态审计通过：与052和053初态的actor/critic/named Adam及四RNG完全一致，所有其他语义settings相同；新quiet轮倍率.10和5ms全高度预测都已在保存的原生初态核验。旧actor/std/geometry仍冻结。回执`iteration054_initial.json`；拟32仍须等原生完成后计入最终消费。
 
 辅助只读`standing_position054_all_prediction_static052.json`检查未来位置观测的可行性：从已记录的连续轮角、原延迟IMU/腿角及冻结107几何计算平面前后相对位移，轮角另叠加假设sigma.001rad/常偏.005rad。三高度16回合平均MAE 3.39/2.14/1.68mm，但最差瞬时误差24.07/12.78/14.57mm；不是所有回合都只有毫米误差。现35D将轮位置置零，诊断额外读取了记录角度，未装入actor或RMCS；轮角连续性/噪声实测、转向/侧滚/离地/打滑和恢复重置均缺验证，不能当作已解决漂移。真实位置只用作离线误差标签，没有泄入actor。054原生源冻结不受该报告影响。
+
+054现已实际32更新、returncode0/native completed，终点SHA`7b0d4fa0879d756c62e18d73c7f3181dcdb6e39392bdd18859ae724f3d5b98f4`；谱系537、累计实际消费1089、长训0。三反馈weight和八critic张量改变，旧actor/std/geometry及其Adam精确不变，新反馈Adam1152步。14,964条非quiet动作逐位保留；3,072条诊断ONNX最大raw误差1.91e-6，图仅在run目录。已唯一进入原48×12s确定性复测，尚未授予行为或交付资格。
