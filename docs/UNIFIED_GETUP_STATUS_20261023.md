@@ -352,3 +352,6 @@
 
 
 092零PPO带噪声曝光对照已实现准备：079原训练Gaussian与仅恢复腿std乘.5/.25，五场景为左右不对称倒地/不对称倒扣/左右动态推倒，每场景四条不同噪声轨迹，共60环境12s，物理仍名义domain0。新RecoveryNoiseMean保留mean/std参数和全部named state键，只按原恢复权重平滑缩小四腿log-std；默认训练路径尚未修改。独立私有Generator在三版本使用相同seed/固定行数/调用次数，采样概率与native RSL Gaussian同尺度，不消耗全局Torch RNG。50项相关CPU通过；14609实际输入的均值、轮std、零恢复std和全部权重逐位保持，fraction1完整采样器精确，私有抽样终态一致。只当完成后实用接续增加至少2且起身事件不减少才提出有界PPO；带噪声评测不能授予均值部署资格。iteration092_plan.json及iteration092_cpu.json。0新PPO、累计1384/长训0。
+
+
+093准备高位quiet网络四个输出偏置的小参数对照，承接087的alpha.32与150ms观测，不沿用被拒绝090。只对high输出logits增加[+.002,+.002,−.002,−.002,0,0]，幅度与066先前移除的DC偏置同量级，针对高位升高初期共同腿目标偏后；此为有界NN参数提案，不是已训练收益或新脚本角度。只有该四值变化，其余actor/std/critic/named Adam/四RNG精确；14609输入的低中位/非quiet动作及轮输出逐位保持，单次腿目标改动≤.00020001rad。strict load通过，下一须在092完全退出后相同编号随机48×12s复验并核对低中位32条完整轨迹。iteration093_migration.json、iteration093_plan.json；0新PPO/累计1384，未采用。
