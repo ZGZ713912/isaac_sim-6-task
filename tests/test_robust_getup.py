@@ -495,7 +495,7 @@ def test_native_likelihood_uses_actual_state_dependent_exploration():
     from rsl_rl.modules.distribution import HeteroscedasticGaussianDistribution
     obs = observation(3)
     obs[1, 0], obs[2, 9] = 1., 1.
-    for fraction, wheel_fraction in ((.35, None), (.1, None), (.06, .35)):
+    for fraction, wheel_fraction in ((.35, None), (.1, None), (.06, .35), (.06, .1), (.06, .05)):
         actor = SensorConditionedMean(RobustGetupActor(nn.Linear(35, 6)), quiet_exploration_fraction=fraction,
                                       quiet_wheel_exploration_fraction=wheel_fraction)
         raw = actor(obs)
