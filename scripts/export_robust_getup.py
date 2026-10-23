@@ -128,8 +128,43 @@ def verify_deterministic_evidence(report):
         raise ValueError("Mean qualification rejects sampled policies and evaluation-only interventions")
 
 
-def assess(reports, baselines, checkpoint, protocol):
+def assess_extended_standing(evaluations, checkpoint_sha, protocol):
+    import numpy as np
     from analyze_robust_getup import analyze
+    from wheeled_algo.standing_acceptance import review_extended_standing
+    spec = protocol["long_standing_confirmation"]
+    results, seeds, failures = [], [], []
+    for evaluation in evaluations:
+        evaluation = Path(evaluation)
+        data = json.loads((evaluation / "report.json").read_text())
+        verify_deterministic_evidence(data)
+        if (data["checkpoint_sha256"] != checkpoint_sha or data["actor_variant"] != "robust"
+                or data["seconds"] < spec["minimum_seconds"]
+                or data["policy_hz"] != 200 or data["physics_hz"] != 1000
+                or set(data.get("case_subset", [])) != set(spec["cases"])
+                or data.get("paired_feedback_winding") is not True
+                or data.get("native_origin_mode") != spec["native_origin_mode"]
+                or data["robust_domains"]["domains"]["domain_scale"] != spec["domain_scale"]
+                or data["material"]["ground_static_friction_range"] != spec["ground_friction_range"]
+                or data["material"]["ground_dynamic_friction_range"] != spec["ground_friction_range"]):
+            raise ValueError("Extended standing identity, duration, physics, cases or domain mismatch")
+        if digest(evaluation / "trajectory.npz") != data["trajectory_sha256"]:
+            raise ValueError("Extended standing trajectory hash mismatch")
+        with np.load(evaluation / "trajectory.npz") as trajectory:
+            row = review_extended_standing(data, analyze(evaluation), trajectory, protocol)
+        row.update(evaluation=str(evaluation), evaluation_sha256=digest(evaluation / "report.json"),
+                   trajectory_sha256=data["trajectory_sha256"], seed=data["seed"])
+        results.append(row)
+        seeds.append(data["seed"])
+        failures.extend(f"seed{data['seed']} {x}" for x in row["failures"])
+    if sorted(seeds) != sorted(spec["required_seeds"]):
+        failures.append("complete long standing and independent seed evidence is required")
+    return dict(adequate=not failures, failures=failures, evaluations=results)
+
+
+def assess(reports, baselines, checkpoint, protocol, *, standing_evaluations=()):
+    from analyze_robust_getup import analyze
+    from wheeled_algo.standing_acceptance import excursion_limit
     checkpoint_sha = digest(checkpoint)
     failures, results = [], []
     if len(reports) != 2 or len(baselines) != 2:
@@ -189,8 +224,9 @@ def assess(reports, baselines, checkpoint, protocol):
             for field in ("leg_motion_fast_rms_rad_3_95", "wheel_motion_fast_rms_rad_s_3_95"):
                 if old_quiet.get(field, 0.) > 1e-8 and field in quiet:
                     physical_gains.append(1. - quiet[field] / old_quiet[field])
-            if quiet.get("body_xy_worst_episode_excursion_m", float("inf")) > protocol.get("stand_xy_excursion_max_m", float("inf")):
-                failures.append(f"seed {data['seed']} {name} 5 cm sway envelope")
+            limit = excursion_limit(protocol, name)
+            if quiet.get("body_xy_worst_episode_excursion_m", float("inf")) > limit:
+                failures.append(f"seed {data['seed']} {name} {limit * 100:g} cm sway envelope")
         if not quiet_gains or sum(quiet_gains) / len(quiet_gains) < protocol["nominal_quiet_hf_target_rms_improvement_fraction"]:
             failures.append(f"seed {data['seed']} quiet target vibration reduction")
         for gains, key, label in ((fast_gains, "quiet_3_95_target_improvement_fraction", "3..95 Hz target reduction"),
@@ -221,7 +257,11 @@ def assess(reports, baselines, checkpoint, protocol):
             max_gap_m=analysis["max_gap_m"]))
     if sorted(r["seed"] for r in (json.loads((p / "report.json").read_text()) for p in reports)) != sorted(protocol["required_confirmation_seeds"]):
         failures.append("confirmation seeds")
-    return dict(adequate=not failures, failures=failures, comparisons=results)
+    extended = None
+    if "long_standing_confirmation" in protocol:
+        extended = assess_extended_standing(standing_evaluations, checkpoint_sha, protocol)
+        failures.extend(extended["failures"])
+    return dict(adequate=not failures, failures=failures, comparisons=results, extended_standing=extended)
 
 
 def main():
@@ -234,9 +274,11 @@ def main():
     parser.add_argument("--evaluation", type=Path, nargs=2, required=True)
     parser.add_argument("--baseline", type=Path, nargs=2, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--protocol", type=Path, default=ROOT / "reports/unified_robust_20261021/acceptance_protocol003.json")
+    parser.add_argument("--protocol", type=Path, default=ROOT / "reports/unified_robust_20261021/acceptance_protocol004.json")
+    parser.add_argument("--standing-evaluation", type=Path, nargs="*", default=[])
     args = parser.parse_args()
-    behavior = assess(args.evaluation, args.baseline, args.checkpoint, json.loads(args.protocol.read_text()))
+    behavior = assess(args.evaluation, args.baseline, args.checkpoint, json.loads(args.protocol.read_text()),
+                      standing_evaluations=args.standing_evaluation)
     if not behavior["adequate"]:
         raise ValueError("Candidate still needs iteration: " + "; ".join(behavior["failures"]))
     mean, info = load_mean(args.checkpoint)
