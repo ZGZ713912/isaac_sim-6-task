@@ -1,0 +1,88 @@
+{
+  "schema": "offline-recovery098-native-result-v1",
+  "status": "completed",
+  "initial_pairing": {
+    "name": true,
+    "pose_index": true,
+    "command": true,
+    "recovery": true,
+    "world_origin_m": true,
+    "first_reset_domain": true,
+    "material_coefficients": true,
+    "sequence": true,
+    "push": true,
+    "push_sign": true,
+    "first_observation": true,
+    "native_origin_mode": true
+  },
+  "moving_prepush1000frames_exact": {
+    "observations": true,
+    "actions": true,
+    "motor_position": true,
+    "motor_velocity": true,
+    "local_position": true,
+    "alive": true
+  },
+  "results": {
+    "reference": {
+      "cases": {
+        "moving_push_left": {
+          "episodes": 4,
+          "recovered": 4,
+          "practical": 4,
+          "contact_impulse_peak_ns": 19.017927169799805
+        },
+        "moving_push_right": {
+          "episodes": 4,
+          "recovered": 0,
+          "practical": 0,
+          "contact_impulse_peak_ns": 27.324241638183594
+        },
+        "inverted_asymmetric": {
+          "episodes": 4,
+          "recovered": 4,
+          "practical": 4,
+          "contact_impulse_peak_ns": 18.500959396362305
+        }
+      },
+      "closure_peak_m": 0.0004011810233350843,
+      "passive_motor_peak_nm": 0.0,
+      "trajectory_sha256": "d3173c3f429551d94bc3fac8d8cd652b00cf04f9fda38169e0b2df5cb41306ea"
+    },
+    "robust": {
+      "cases": {
+        "moving_push_left": {
+          "episodes": 4,
+          "recovered": 0,
+          "practical": 0,
+          "contact_impulse_peak_ns": 29.106508255004883
+        },
+        "moving_push_right": {
+          "episodes": 4,
+          "recovered": 0,
+          "practical": 0,
+          "contact_impulse_peak_ns": 36.405372619628906
+        },
+        "inverted_asymmetric": {
+          "episodes": 4,
+          "recovered": 0,
+          "practical": 0,
+          "contact_impulse_peak_ns": 21.690032958984375
+        }
+      },
+      "closure_peak_m": 0.00042462535202503204,
+      "passive_motor_peak_nm": 0.0,
+      "trajectory_sha256": "b8ddd0189648b71c7540def871803690c646effa633846abcce6e35cb528d975"
+    }
+  },
+  "nominal_diagnostic_pass": false,
+  "checkpoint_sha256": "7a6c10a1a7f1217918ca68fbc459144ea4d0e93fb0fd3b8e325448ca7f661c7a",
+  "state_audit_sha256": "18187305169197fc8af1ca82cb721fb1b74a5b16493757b1f484e15997eac7d5",
+  "new_macro_updates": 0,
+  "actual_offline_steps": 64,
+  "cumulative_offline_steps": 128,
+  "robust_consumed": 1384,
+  "full_training_admitted": false,
+  "candidate_adopted": false,
+  "scope": "Nominal diagnostic only;24 lanes include repeated deterministic cases, not heldout diversity"
+}
