@@ -83,7 +83,8 @@ def main():
         axis.axhline(0., color="#657582", lw=.6)
         axis.set_title(f"{height} mm | exact XY maximum {peaks[worst_lane].value * 100.:.2f} cm")
         axis.set_xlabel("Simulated time (s)")
-        axis.set_ylim(-bound * 1.12, bound * 1.12)
+        extent = max(bound, peaks[worst_lane].value * 100.) * 1.12
+        axis.set_ylim(-extent, extent)
         axis.grid(alpha=.18)
         axis.spines[["top", "right"]].set_visible(False)
     axes[0].set_ylabel("Body displacement from initial position (cm)")

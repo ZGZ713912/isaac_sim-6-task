@@ -1,0 +1,14 @@
+{
+  "schema": "gui118-startup-repair-v1",
+  "native_attempt": "001",
+  "status": "failed_before_policy_steps",
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/unified_robust_20261021/gui118_getup.py\", line 227, in main\n    env = RobustGetupEnv(cfg, manifest, control, ROOT, stage_name=\"speed\", num_envs=1,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 31, in __init__\n    super().__init__(config, manifest, control, root, **kwargs)\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 612, in __init__\n    raise ValueError(\"Short flat training horizons require explicit valid groups and preserve evaluation horizons\")\nValueError: Short flat training horizons require explicit valid groups and preserve evaluation horizons\n",
+  "policy_steps": 0,
+  "optimizer_updates": 0,
+  "cause": "15-group training horizon map retained in a single-group playback projection",
+  "fix": "Project flat_group_episode_seconds={} independently in runtime and expected playback contract; same existing playback convention",
+  "physics_changed": false,
+  "actor_changed": false,
+  "original_queue_held": true,
+  "time_unix": 1792767986.891333
+}
