@@ -180,13 +180,14 @@ def main():
         args.variants = ["robust", *roll_variants]
     position_variants = {}
     if args.quiet_wheel_position_release_bands is not None:
-        if (args.variants != ["robust"] or args.quiet_wheel_output_alphas is not None
+        if (args.variants != ["robust"] or args.domain_scale != 0.
+                or args.quiet_wheel_output_alphas is not None
                 or args.early_roll_full_degrees is not None
                 or set(args.case_names or []) != {"stand_low", "stand", "stand_high"}
                 or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
                 or args.neutralize_bias or args.standing_command_feedback_gain is not None
                 or args.friction_value is not None):
-            parser.error("Position-release grid requires robust-only three static cases and no other intervention")
+            parser.error("Position-release grid requires nominal domain0, robust-only three static cases and no other intervention; randomized comparisons must use equal-index serial jobs")
         from wheeled_algo.evaluation_position_filter import position_filter_variants
         try:
             position_variants = position_filter_variants(args.quiet_wheel_position_release_bands)

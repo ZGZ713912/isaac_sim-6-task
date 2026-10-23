@@ -54,6 +54,7 @@ def plan():
         robust_charged_if_complete=1256, long_training_admitted=False,
         evaluation="140 full randomized suite and96 same-batch nominal before/after targeted dynamic pushes plus inverted_asymmetric",
         scope="Bounded diagnostic64, not the conditional5120 run; no automatic extra PPO",
+        revision="v2:078 unpaired domain result retained; new position diagnostic rejects random batching; ordinary train/full/nominal paths unchanged",
         sources={str(p.relative_to(ROOT)): sha(p) for p in (
             ROOT / "scripts/train_robust_getup.py", ROOT / "scripts/export_robust_getup.py",
             ROOT / "scripts/evaluate_robust_getup_batch.py", ROOT / "src/wheeled_algo/robust_getup.py",
@@ -116,7 +117,7 @@ def main():
     parser.add_argument("--prepare", action="store_true")
     args = parser.parse_args()
     value = plan()
-    path = REPORTS / "iteration079_plan.json"
+    path = REPORTS / "iteration079_plan_v2.json"
     if args.prepare:
         if path.exists():
             assert json.loads(path.read_text()) == value
@@ -126,7 +127,11 @@ def main():
         return
     assert json.loads(path.read_text()) == value
     # This runner is launched explicitly after078 completes, never in parallel.
-    assert json.loads((REPORTS / "iteration078_pipeline.json").read_text())["status"] == "completed"
+    finished078 = json.loads((REPORTS / "position_release_static078_process.json").read_text())
+    assert finished078["status"] == "completed" and finished078["returncode"] == 0
+    assert finished078["native_status"] == "completed"
+    # Its matching audit failed and cannot qualify a policy.079 uses only065.
+    assert json.loads((REPORTS / "iteration078_independent_result.json").read_text())["admissible_pair"] is False
     pipeline = dict(status="running", phase="bounded_training", started=time.time(),
         new_macro_updates=0, robust_charged_before=1192, long_training_admitted=False)
     write(REPORTS / "iteration079_pipeline.json", pipeline)
