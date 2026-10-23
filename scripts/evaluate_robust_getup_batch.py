@@ -114,6 +114,8 @@ def main():
                         help="Diagnostic1..4 strength grid using existing per-case force/torque multiplier")
     parser.add_argument("--quiet-wheel-output-alphas", type=float, nargs="+",
                         help="Nominal static diagnostic: filter complete quiet wheel outputs using the applied previous action")
+    parser.add_argument("--early-roll-full-degrees", type=float, nargs="+",
+                        help="Nominal dynamic-push diagnostic: original control plus20deg-start recovery authority variants")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
                         help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
@@ -161,6 +163,19 @@ def main():
         except ValueError as error:
             parser.error(str(error))
         args.variants = list(alpha_variants)
+    roll_variants = {}
+    if args.early_roll_full_degrees is not None:
+        values = args.early_roll_full_degrees
+        if (args.variants != ["robust"] or args.domain_scale != 0.
+                or set(args.case_names or []) != {"moving_push_left", "moving_push_right"}
+                or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
+                or args.neutralize_bias or args.standing_command_feedback_gain is not None
+                or args.friction_value is not None or args.friction_min != .5
+                or not 1 <= len(values) <= 2 or len(set(values)) != len(values)
+                or any(not math.isfinite(value) or not 25. <= value <= 60. for value in values)):
+            parser.error("Early roll grid requires nominal robust-only dynamic push pair,1..2 full angles within25..60deg and no other intervention")
+        roll_variants = {f"early_roll20_to_{value:.17g}": value for value in values}
+        args.variants = ["robust", *roll_variants]
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -270,6 +285,9 @@ def main():
             public_task["evaluation_counterfactual"] = dict(
                 kind="whole_quiet_wheel_output_filter_v1", variants=alpha_variants,
                 previous_action_slots=[26, 27], learned_parameters_changed=False)
+        if roll_variants:
+            public_task["evaluation_counterfactual"] = dict(kind="early_roll_authority_v1",
+                start_degrees=20., variant_full_degrees=roll_variants, learned_parameters_changed=False)
         training.write_json(task_path, public_task)
         reference_mean = None
         if args.reference_checkpoint is not None:
@@ -319,6 +337,9 @@ def main():
             if name in alpha_variants:
                 from wheeled_algo.evaluation_quiet_output import QuietWheelOutputFilter
                 mean = QuietWheelOutputFilter(mean, alpha_variants[name])
+            if name in roll_variants:
+                from wheeled_algo.evaluation_early_roll import EarlyRollEvaluation
+                mean = EarlyRollEvaluation(mean, 20., roll_variants[name])
             models.append(mean.eval())
 
         class BatchMean(nn.Module):
@@ -342,6 +363,8 @@ def main():
             env.evaluation_overrides["fixed_ground_friction"] = args.friction_value
         if alpha_variants:
             env.evaluation_overrides["quiet_wheel_output_alphas"] = args.quiet_wheel_output_alphas
+        if roll_variants:
+            env.evaluation_overrides["early_roll_full_degrees"] = args.early_roll_full_degrees
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
@@ -401,6 +424,8 @@ def main():
             split["evaluation_overrides"] = env.evaluation_overrides
             if name in alpha_variants:
                 split["quiet_wheel_output_alpha"] = alpha_variants[name]
+            if roll_variants:
+                split["early_roll_authority_degrees"] = [20., roll_variants[name]] if name in roll_variants else None
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"
             if name == "deployed":
