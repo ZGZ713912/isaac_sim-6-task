@@ -335,3 +335,6 @@
 
 
 087相同环境编号随机48×12s确认已exit0/native completed，初态/域/材质/首帧全部严格配对，48/48存活。alpha.32低/中/高全窗4.498/2.863/5.419cm，高位仍15/16在5cm内；实际腿3–95Hz .2679/.5525/.7949mrad、轮.0327/.0909/.1489rad/s，六项均不劣于036，最大离地.743mm。但高位漂移仍失败，明确不采用、不启动全套或长训、不追加quiet PPO。iteration087_final.json与iteration087_decision.json封存，0新PPO、累计1384、采用505、研究079谱系569、长训0。接下来仅运行已冻结088恢复步长名义对照。
+
+
+090准备单变量缩短站立位移观测滤波150→100ms，保留087的完整轮alpha.32、全部learned权重、50ms capture与severe reset。该假设针对高位.63s启动峰，尚不宣称改善；PT/合同均显式版本化，strict load与actor/critic/named Adam/四RNG逐位保持，14400条同输入动作逐位精确。28项既有合同/参考生命周期/轮滤波CPU通过。只在088全部退出后做相同编号随机48×12s确认，仍要求036六项actual HF不退化、5cm、3mm与全部存活；不能以轮滤波替代位置观察，也不改实车接口。iteration090_migration.json及iteration090_plan.json。0新PPO，累计1384。
