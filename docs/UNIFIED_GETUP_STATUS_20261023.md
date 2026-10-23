@@ -144,3 +144,9 @@
 计划先唯一48×12s原生零PPO对照036，检查新增观测而零权重时所有旧观测/轨迹/动作是否保持；未通过不得开始位置反馈PPO。累计robust1089/长训0，不提前计入后续拟32更新。计划`iteration056_plan.json`、CPU/ONNX审计`iteration056_audit.json`；原生是否完成以process/progress/final回执为准。
 
 056原生已returncode0/native completed，400.72s实耗。48/48跑满，12项初态配对全部通过；全部2401帧的旧观测、actions、local_position、motor_position、motor_velocity与036逐位一致，最大差均0，alive/passive也完全一致。新obs14:16峰值5（限幅后）确实非零。该结果证明新预处理在零头时未干扰旧闭环，不是漂移已改善：静站结果仍是036的33.54/18.55/12.09cm。回执`iteration056_final.json`，轨迹SHA`d8c4d6f1cabb1da3277f3cd663c77555ae43fc7a786d507a6962cba6f992203e`；0新PPO，累计1089/长训0。
+
+## 057：首次RL位置反馈短训计划
+
+从056封存的036零函数PT启动128env×128rollout×32宏更新、seed211329、LR.001，原.35域/地面.3–.5/200Hz策略1000Hz反馈PD保持。只更新三高度24值位置头与critic，旧actor/std/Adam冻结；保留036高位5ms预测，不复用失败050–054权重。沿用既有quiet腿.06/轮.35采样、standing support/early position/drift奖励，位置观测是本次学习路径的新增条件。拟时钟441→473、实际总消费1089→1121；未完成前不能预记。
+
+原48×12s固定静站须同时5cm/3mm/实际腿轮3–95Hz不退化，才继续140全套及后续正式双种子/长静站。实际初态/结尾由`iteration057_native_audit.py`认证全部旧actor、named Adam、RNG与新24值；不因多存活或训练loss有限而授予长训。尚无新交付或RMCS修改。计划`iteration057_plan.json`。
