@@ -124,6 +124,10 @@ def main():
                         help="Nominal dynamic-push diagnostic: original control plus20deg-start recovery authority variants")
     parser.add_argument("--recovery-leg-steps", type=float, nargs="+",
                         help="Nominal recovery diagnostic: smaller common-angle increments; original.3 control is included")
+    parser.add_argument("--recovery-leg-noise-fractions", type=float, nargs="+",
+                        help="Zero-PPO sampled-policy exposure diagnostic; mean qualification is excluded")
+    parser.add_argument("--recovery-noise-seed", type=int, default=211492,
+                        help="Private common Gaussian draws across recovery-noise variants")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
                         help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
@@ -141,7 +145,8 @@ def main():
     args = parser.parse_args()
     if sum(value is not None for value in (args.quiet_wheel_output_alphas,
             args.quiet_wheel_position_release_bands, args.quiet_wheel_gyro_release_bands,
-            args.quiet_wheel_gyro_release_band, args.early_roll_full_degrees, args.recovery_leg_steps)) > 1:
+            args.quiet_wheel_gyro_release_band, args.early_roll_full_degrees, args.recovery_leg_steps,
+            args.recovery_leg_noise_fractions)) > 1:
         parser.error("Use only one action-filter or recovery-authority diagnostic grid")
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
@@ -238,6 +243,24 @@ def main():
         except ValueError as error:
             parser.error(str(error))
         args.variants = list(step_variants)
+    noise_variants = {}
+    if args.recovery_leg_noise_fractions is not None:
+        if (args.variants != ["robust"] or len(seeds) != 1 or args.domain_scale != 0.
+                or set(args.case_names or []) != {"left_asymmetric", "right_asymmetric", "inverted_asymmetric",
+                                                "moving_push_left", "moving_push_right"}
+                or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
+                or args.neutralize_bias or args.standing_command_feedback_gain is not None
+                or args.friction_value is not None or args.friction_min != .5
+                or not 0 <= args.recovery_noise_seed < 2**32):
+            parser.error("Recovery noise grid requires nominal domain0, robust-only five recovery exposure cases, one seed and no other intervention")
+        from wheeled_algo.evaluation_recovery_noise import recovery_noise_variants
+        try:
+            noise_variants = recovery_noise_variants(args.recovery_leg_noise_fractions)
+        except ValueError as error:
+            parser.error(str(error))
+        args.variants = list(noise_variants)
+    elif args.recovery_noise_seed != 211492:
+        parser.error("A recovery noise seed requires its explicit sampled-policy grid")
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -362,6 +385,18 @@ def main():
             public_task["evaluation_counterfactual"] = dict(kind="smaller_recovery_common_step_v1",
                 variants=step_variants, original_step=.3, raw_to_rad_scale=.25,
                 learned_parameters_changed=False, knee_and_wheel_rules_changed=False)
+        noise_log_std = None
+        if noise_variants:
+            agent = json.loads((args.checkpoint.parent / "agent_config.json").read_text())
+            expected_distribution = dict(class_name="HeteroscedasticGaussianDistribution", init_std=.5,
+                                         std_type="log", std_range=[.003,.8])
+            if agent["actor"]["distribution_cfg"] != expected_distribution:
+                raise ValueError("Sampling diagnostic requires the inspected native distribution contract")
+            noise_log_std = torch.load(args.checkpoint, map_location="cpu", weights_only=False)["actor_state_dict"]["mlp.log_std"]
+            public_task["evaluation_counterfactual"] = dict(kind="sampled_recovery_leg_noise_v1",
+                variants=noise_variants, sample_seed=args.recovery_noise_seed,
+                distribution=expected_distribution, learned_parameters_changed=False,
+                deterministic_mean_changed=False, eligible_for_mean_qualification=False)
         training.write_json(task_path, public_task)
         reference_mean = None
         if args.reference_checkpoint is not None:
@@ -423,6 +458,10 @@ def main():
             if name in step_variants:
                 from wheeled_algo.evaluation_recovery_step import RecoveryStepEvaluation
                 mean = RecoveryStepEvaluation(mean, step_variants[name])
+            if name in noise_variants:
+                from wheeled_algo.evaluation_recovery_noise import SampledRecoveryEvaluation
+                mean = SampledRecoveryEvaluation(mean, verified_info["settings"], noise_log_std,
+                                                noise_variants[name], args.recovery_noise_seed).cuda()
             models.append(mean.eval())
 
         class BatchMean(nn.Module):
@@ -455,6 +494,9 @@ def main():
                                      else "quiet_wheel_gyro_release_band"] = gyro_values
         if step_variants:
             env.evaluation_overrides["recovery_leg_steps"] = step_variants
+        if noise_variants:
+            env.evaluation_overrides["sampled_recovery_leg_noise"] = dict(
+                fractions=noise_variants, sample_seed=args.recovery_noise_seed, deterministic_mean=False)
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
@@ -524,6 +566,8 @@ def main():
                 split["quiet_wheel_output_alpha_min"] = .25
             if step_variants:
                 split["recovery_leg_step_override"] = step_variants[name]
+            if noise_variants:
+                split["sampled_policy_exposure_diagnostic"] = models[index].sampling_receipt()
             split["seed"] = seed
             split["paired_feedback_winding"] = name != "raw_pd"
             if name == "deployed":
