@@ -79,12 +79,11 @@ class RobustGetupEnv(ChassisEnv):
             settings["wheel_action_clip"], settings["leg_action_clip"], settings["leg_action_clip"], settings["wheel_action_clip"]])
         self.v5.settings = dict(self.v5.settings, action_clip=settings["leg_action_clip"], wheel_action_clip=settings["wheel_action_clip"])
         self.domain = RobustDomain(n, device, settings, kwargs["seed"], self.dt)
-        from wheeled_algo.standing_displacement import (validate_observation_contract,
-            WheelAngleCoordinate, StandingDisplacement)
-        self.standing_observer = None
-        if validate_observation_contract(settings):
+        from wheeled_algo.standing_displacement import WheelAngleCoordinate
+        from wheeled_algo.standing_displacement_contract import observer_from_settings
+        self.standing_observer = observer_from_settings(settings, n, device, self.policy_dt)
+        if self.standing_observer is not None:
             self.standing_coordinate = WheelAngleCoordinate().to(device).eval()
-            self.standing_observer = StandingDisplacement(n, device, dt=self.policy_dt)
             self.standing_entry_tick = torch.full((n,), self.tick, dtype=torch.long, device=device)
         if self.dynamics_randomization is not None:
             self.domain.enabled.copy_(self.dynamics_randomization.enabled)
