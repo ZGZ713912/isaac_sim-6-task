@@ -1,0 +1,63 @@
+{
+  "schema": "recovery088-cpu-scope-v1",
+  "status": "prototype_only",
+  "checkpoint_sha256": "5fcc13518d9fdd1cb4a3745ef84b38892bffbaeb90719336f66f5a15e6091018",
+  "input_trajectory_sha256": "509132efae9d6f948bc7abc657b8e80c3b964df88093dcf5e8cf54b8cc28d417",
+  "frames": 14609,
+  "zero_recovery_frames": 13177,
+  "checks": {
+    "0.3": {
+      "zero_recovery_authority_exact": true,
+      "wheel_outputs_exact": true,
+      "original_step_exact": true,
+      "weights_exact": true,
+      "finite": true,
+      "maximum_changed_raw": 0.0,
+      "maximum_circular_target_delta_rad": 0.0,
+      "branch_wrap_rows": 0,
+      "partial_authority_branch_wrap_rows": 0,
+      "worst_recorded_input_row": 0,
+      "worst_recovery_authority": 1.0,
+      "common_increment_before_projection_rad": 0.075,
+      "common_increment_before_projection_rad_s": 15.0
+    },
+    "0.2": {
+      "zero_recovery_authority_exact": true,
+      "wheel_outputs_exact": true,
+      "original_step_exact": null,
+      "weights_exact": true,
+      "finite": true,
+      "maximum_changed_raw": 25.078311920166016,
+      "maximum_circular_target_delta_rad": 0.02049875259399414,
+      "branch_wrap_rows": 6,
+      "partial_authority_branch_wrap_rows": 0,
+      "worst_recorded_input_row": 1995,
+      "worst_recovery_authority": 1.0,
+      "common_increment_before_projection_rad": 0.05,
+      "common_increment_before_projection_rad_s": 10.0
+    },
+    "0.15": {
+      "zero_recovery_authority_exact": true,
+      "wheel_outputs_exact": true,
+      "original_step_exact": null,
+      "weights_exact": true,
+      "finite": true,
+      "maximum_changed_raw": 25.060232162475586,
+      "maximum_circular_target_delta_rad": 0.03074836917221546,
+      "branch_wrap_rows": 10,
+      "partial_authority_branch_wrap_rows": 0,
+      "worst_recorded_input_row": 1995,
+      "worst_recovery_authority": 1.0,
+      "common_increment_before_projection_rad": 0.0375,
+      "common_increment_before_projection_rad_s": 7.5
+    }
+  },
+  "original_not_mutated": true,
+  "rng_unchanged": true,
+  "reason": "083 broader exposure regressed random recovery;079 nominal right impact occurs after full recovery authority and fast leg rotation",
+  "hypothesis": "Smaller learned common-angle increments may reduce active collision impulse while retaining knee-coordinate and wheel feedback",
+  "native_behavior_proven": false,
+  "installed_in_actor_or_cli": false,
+  "full_training_admitted": false,
+  "new_macro_updates": 0
+}
