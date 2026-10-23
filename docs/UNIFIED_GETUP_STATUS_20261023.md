@@ -361,3 +361,6 @@
 
 
 093随机48×12s已exit0/native completed，全部初态严格配对，低中位32条观测/动作/q/dq/XY/alive全轨迹逐位保持。48/48存活，高位16条漂移均减少，最差087的5.419→5.069cm，仍15/16在5cm内；低/中4.498/2.863cm，最大离地.743mm。高位actual腿3–95Hz .9242mrad、轮.15793rad/s均低于036限，完整六项HF未退化。拒绝采用093，不因只差.69mm放宽5cm门槛；最差仍是lane29出生后.605s向后偏移。支持下一次只扩大同一高位NN偏置幅度的有界对照，尚非正式准入。iteration093_final.json、iteration093_decision.json；新PPO0/累计1384/长训0。
+
+
+095只将093同一高位quiet输出偏置扩大为相对087的[+.004,+.004,−.004,−.004,0,0]，保持alpha.32/150ms、旧全部权重与机械保护。严格load、14609输入验证：只有四个bias值变化，其他actor/std/critic/Adam/四RNG精确，低中/非quiet及同输入轮输出逐位保持，单次腿目标最大变化.40001mrad。下一仍是相同编号随机48×12s，只有通过后才考虑新种子和组合策略复验，不自动追加PPO。iteration095_migration.json、iteration095_plan.json；累计1384/长训0。
