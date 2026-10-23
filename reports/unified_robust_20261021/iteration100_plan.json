@@ -1,0 +1,47 @@
+{
+  "schema": "quiet100-static-plan-v1",
+  "checkpoint_sha256": "10cca03e85ffa1c08b36d88830cf0d3b8fd6d08a1e95ad942fa17c5801e04cbf",
+  "prerequisite": "097 exact48-lane12s static gate passed; quiet-only confirmation independent of rejected098",
+  "jobs": [
+    {
+      "name": "quiet_standing30s100",
+      "seconds": 30.0,
+      "seed": 211322
+    },
+    {
+      "name": "quiet_standing_fresh100",
+      "seconds": 12.0,
+      "seed": 211425
+    }
+  ],
+  "stop_on_static_failure": true,
+  "replicas": 16,
+  "environments": 48,
+  "cases": [
+    "stand_low",
+    "stand",
+    "stand_high"
+  ],
+  "domain_scale": 0.35,
+  "friction_min": 0.3,
+  "friction_max": 0.5,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "native_origin_mode": "isolated_overlap_v1",
+  "thresholds": "036 six actualHF nonregression, allalive,5cm full-window,3mm post0.2s air",
+  "original12s_prefix": "097 all48 obs/actions/q/dq/XY/alive exact for first2400frames of30s",
+  "new_macro_updates": 0,
+  "new_offline_steps": 0,
+  "cumulative_offline_steps": 0,
+  "robust_consumed": 1384,
+  "full_training_admitted": false,
+  "further_required": "protocol003 matched nominal two-seed and full randomized/lifecycle confirmation",
+  "implementation_sha256": {
+    "scripts/evaluate_robust_getup_batch.py": "d2086356cc17a270f5ddb38be04802c2e1a9b4f9a41d1a1aa9765ff5f557c888",
+    "scripts/analyze_robust_getup.py": "d9e6ce342c0276aa6352fa54aec64c3b4d656574e3d20ad326a12d9e85fff33d",
+    "src/wheeled_algo/quiet_output_actor.py": "fd48fabcfdf3d6bdb980b369b17fe7ec82c317449ef20c72f46b74a2d0bde410",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4",
+    "reports/unified_robust_20261021/iteration100_runner.py": "94f8bc92969a20409d87c12f372dd78311680fb3a1c18f949ebc957cdfe32ddd"
+  }
+}
