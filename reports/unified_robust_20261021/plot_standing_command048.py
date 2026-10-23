@@ -15,7 +15,10 @@ RUNS = ROOT / "runs/unified_robust_20261022"
 
 
 def main(iteration=48):
-    result = json.loads((REPORTS / f"iteration{iteration:03d}_final.json").read_text())
+    result_path = REPORTS / f"iteration{iteration:03d}_final.json"
+    if iteration == 66 and not result_path.exists():
+        result_path = REPORTS / "iteration066_static.json"
+    result = json.loads(result_path.read_text())
     if iteration == 48:
         assert all(all(row["paired"].values()) for row in result["tests"].values())
     elif iteration == 49:
@@ -33,7 +36,7 @@ def main(iteration=48):
     elif iteration in (59, 60, 61, 62):
         assert all(result["pairing_to036"].values())
         assert all(result[f"pairing_to{iteration-1:03d}"].values())
-    elif iteration == 64:
+    elif iteration in (64, 66):
         assert all(result["pairing"].values()) and all(result["parent_pairing"].values())
     else:
         assert all(result["pairing"].values()) and all(result["pairing_to052"].values()) and all(result["pairing_to053"].values())
@@ -85,6 +88,10 @@ def main(iteration=48):
         sources = [("Retained baseline", "quiet_velocity_baseline036"),
                    ("Position feedback parent (062)", "position_reference_static062"),
                    ("Joint quiet adaptation, 32 updates (064)", "joint_quiet_static064")]
+    if iteration == 66:
+        sources = [("Retained baseline", "quiet_velocity_baseline036"),
+                   ("Joint quiet adaptation (064)", "joint_quiet_static064"),
+                   ("High quiet bias recentered (066)", "high_recenter_static066")]
     metrics = [("full_window/worst_episode_body_xy_max_excursion_m", "Full-window maximum displacement", "cm", 100., 5.),
                ("body_xy_worst_episode_excursion_m", "Steady-window maximum displacement", "cm", 100., 5.),
                ("leg_motion_fast_rms_rad_3_95", "Actual leg motion, 3-95 Hz", "mrad RMS", 1000., None),
@@ -142,6 +149,8 @@ def main(iteration=48):
         title = "Earlier quiet position-reference capture (062), no PPO"
     if iteration == 64:
         title = "Low-LR joint quiet adaptation (064); sensor domains retained"
+    if iteration == 66:
+        title = "Analytic high quiet bias recentering (066), no PPO"
     fig.suptitle(title + ": 16 episodes per height\n"
                  "200 Hz policy / 1 kHz physics; moderate domains; ground friction 0.3-0.5", fontsize=13)
     basename = f"standing_rolling{iteration:03d}" if iteration == 50 else f"standing_command{iteration:03d}"
@@ -151,7 +160,7 @@ def main(iteration=48):
         basename = "standing_adaptation053"
     if iteration == 54:
         basename = "standing_sampling054"
-    if iteration in (57, 58, 59, 60, 61, 62, 64):
+    if iteration in (57, 58, 59, 60, 61, 62, 64, 66):
         basename = f"standing_position{iteration:03d}"
     path = REPORTS / (basename + ".png")
     fig.savefig(path, dpi=160)
@@ -167,5 +176,5 @@ def main(iteration=48):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--iteration", type=int, choices=[48, 49, 50, 51, 52, 53, 54, 57, 58, 59, 60, 61, 62, 64], default=48)
+    parser.add_argument("--iteration", type=int, choices=[48, 49, 50, 51, 52, 53, 54, 57, 58, 59, 60, 61, 62, 64, 66], default=48)
     main(parser.parse_args().iteration)
