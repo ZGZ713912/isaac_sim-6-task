@@ -118,6 +118,8 @@ def main():
                         help="Static diagnostic: alpha.25 baseline plus one or two position-release bands in metres")
     parser.add_argument("--quiet-wheel-gyro-release-bands", type=float, nargs="+",
                         help="Nominal static diagnostic: alpha.25 baseline plus one or two roll/pitch gyro-release bands in rad/s")
+    parser.add_argument("--quiet-wheel-gyro-release-band", type=float, nargs=2,
+                        help="Single-policy static gyro counterfactual; randomized confirmation uses equal-index serial native runs")
     parser.add_argument("--early-roll-full-degrees", type=float, nargs="+",
                         help="Nominal dynamic-push diagnostic: original control plus20deg-start recovery authority variants")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
@@ -137,7 +139,7 @@ def main():
     args = parser.parse_args()
     if sum(value is not None for value in (args.quiet_wheel_output_alphas,
             args.quiet_wheel_position_release_bands, args.quiet_wheel_gyro_release_bands,
-            args.early_roll_full_degrees)) > 1:
+            args.quiet_wheel_gyro_release_band, args.early_roll_full_degrees)) > 1:
         parser.error("Use only one action-filter or recovery-authority diagnostic grid")
     seeds = args.seeds or [args.seed]
     args.seed = seeds[0]
@@ -201,18 +203,24 @@ def main():
             parser.error(str(error))
         args.variants = list(position_variants)
     gyro_variants = {}
-    if args.quiet_wheel_gyro_release_bands is not None:
-        if (args.variants != ["robust"] or args.domain_scale != 0.
+    gyro_values = (args.quiet_wheel_gyro_release_bands if args.quiet_wheel_gyro_release_bands is not None
+                   else args.quiet_wheel_gyro_release_band)
+    if gyro_values is not None:
+        grid = args.quiet_wheel_gyro_release_bands is not None
+        if grid and (args.domain_scale != 0. or args.friction_min != .5):
+            parser.error("Gyro-release grid requires nominal domain0; randomized comparisons must use equal-index serial jobs")
+        if (args.variants != ["robust"] or len(seeds) != 1
                 or set(args.case_names or []) != {"stand_low", "stand", "stand_high"}
                 or args.sensor_delay_policy_ticks is not None or args.instant_sensor_group
                 or args.neutralize_bias or args.standing_command_feedback_gain is not None
-                or args.friction_value is not None or args.friction_min != .5):
-            parser.error("Gyro-release grid requires nominal domain0, robust-only three static cases and no other intervention; randomized comparisons must use equal-index serial jobs")
+                or args.friction_value is not None):
+            parser.error("Gyro-release diagnostic requires robust-only three static cases, one seed and no other intervention")
         from wheeled_algo.evaluation_gyro_filter import gyro_filter_variants
         try:
-            gyro_variants = gyro_filter_variants(args.quiet_wheel_gyro_release_bands)
+            checked = gyro_filter_variants(gyro_values)
         except ValueError as error:
             parser.error(str(error))
+        gyro_variants = checked if grid else {"robust": gyro_values}
         args.variants = list(gyro_variants)
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
@@ -420,7 +428,8 @@ def main():
         if position_variants:
             env.evaluation_overrides["quiet_wheel_position_release_bands"] = args.quiet_wheel_position_release_bands
         if gyro_variants:
-            env.evaluation_overrides["quiet_wheel_gyro_release_bands"] = args.quiet_wheel_gyro_release_bands
+            env.evaluation_overrides["quiet_wheel_gyro_release_bands" if args.quiet_wheel_gyro_release_bands is not None
+                                     else "quiet_wheel_gyro_release_band"] = gyro_values
         if args.forward_speeds:
             env.evaluation_overrides["forward_speeds"] = args.forward_speeds
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
