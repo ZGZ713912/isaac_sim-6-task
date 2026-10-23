@@ -30,6 +30,9 @@ def main(iteration=48):
         assert all(result["pairing"].values()) and all(result["pairing_to052"].values())
     elif iteration in (57, 58):
         assert all(result["pairing"].values()) and all(result["zero_abi_pairing"].values())
+    elif iteration in (59, 60):
+        assert all(result["pairing_to036"].values())
+        assert all(result[f"pairing_to{iteration-1:03d}"].values())
     else:
         assert all(result["pairing"].values()) and all(result["pairing_to052"].values()) and all(result["pairing_to053"].values())
     sources = [("Retained baseline", "quiet_velocity_baseline036"),
@@ -60,6 +63,14 @@ def main(iteration=48):
     if iteration in (57, 58):
         sources = [("Retained baseline", "quiet_velocity_baseline036"),
                    (f"Learned position feedback, 32 updates ({iteration:03d})", f"learned_position_static{iteration:03d}")]
+    if iteration == 59:
+        sources = [("Retained baseline", "quiet_velocity_baseline036"),
+                   ("Learned position feedback (058)", "learned_position_static058"),
+                   ("Mid-to-low transfer (059)", "low_transfer_static059")]
+    if iteration == 60:
+        sources = [("Retained baseline", "quiet_velocity_baseline036"),
+                   ("Low transfer (059)", "low_transfer_static059"),
+                   ("Mid-to-high transfer (060)", "high_transfer_static060")]
     metrics = [("full_window/worst_episode_body_xy_max_excursion_m", "Full-window maximum displacement", "cm", 100., 5.),
                ("body_xy_worst_episode_excursion_m", "Steady-window maximum displacement", "cm", 100., 5.),
                ("leg_motion_fast_rms_rad_3_95", "Actual leg motion, 3-95 Hz", "mrad RMS", 1000., None),
@@ -109,6 +120,8 @@ def main(iteration=48):
         title = "Equal-budget quiet wheel exploration (053 vs054); sensor domains retained"
     if iteration in (57, 58):
         title = f"Learned encoder-relative position feedback ({iteration:03d}); sensor domains retained"
+    if iteration in (59, 60):
+        title = f"Transferred encoder-relative position feedback ({iteration:03d}), no PPO"
     fig.suptitle(title + ": 16 episodes per height\n"
                  "200 Hz policy / 1 kHz physics; moderate domains; ground friction 0.3-0.5", fontsize=13)
     basename = f"standing_rolling{iteration:03d}" if iteration == 50 else f"standing_command{iteration:03d}"
@@ -118,7 +131,7 @@ def main(iteration=48):
         basename = "standing_adaptation053"
     if iteration == 54:
         basename = "standing_sampling054"
-    if iteration in (57, 58):
+    if iteration in (57, 58, 59, 60):
         basename = f"standing_position{iteration:03d}"
     path = REPORTS / (basename + ".png")
     fig.savefig(path, dpi=160)
@@ -134,5 +147,5 @@ def main(iteration=48):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--iteration", type=int, choices=[48, 49, 50, 51, 52, 53, 54, 57, 58], default=48)
+    parser.add_argument("--iteration", type=int, choices=[48, 49, 50, 51, 52, 53, 54, 57, 58, 59, 60], default=48)
     main(parser.parse_args().iteration)
