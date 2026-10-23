@@ -112,3 +112,5 @@
 053已唯一启动。实际初态actor/critic/named Adam和四组RNG精确一致，构造后的actor确实保留全高度5ms预测；三反馈Adam起步768，其余25个actor槽冻结。首份报告过严地比较了`settings.version`标签：迁移标签v2.31恢复到reward profile v2.15，其余全部settings逐项相同。拒绝回执保留，只修正报告审计对这两个明确标签的处理，没有改原生源或重启PPO。训练进度中的已完成量以原生progress为准，不能将拟32直接算作完成。
 
 052完成轨迹的只读观测诊断`standing_feedback053_all_prediction_static052.json`：最差低/中/高回合末9s真实前进速度1.680/.898/1.063cm/s，编码器/IMU估计1.368/.885/.855cm/s；quiet gate均值均为1，反馈特征均值.562/.394/.373。因此这三条持续移动仍能被当前特征看到，不能解释为静站门反复关闭。最大逐回合平均估计误差.311/.258/.225cm/s，低位误差在12s可积累数厘米；这些真值仅用于离线误差标签，未加进actor或部署位置观测器。名义域7/5/6条均在5cm内，超线集中于随机域，继续保留这些域进行适应。诊断接入该回放原TensorBoard event。
+
+053已实际完成32宏更新，外部returncode0/native completed；终点SHA`662db206a925723f856bcdbee809fb024a09ee11932490fc8dd428944fcb8601`，来源谱系537、robust实际累计1057、长训0。仅三反馈weight张量和八critic张量改变，旧actor/std/geometry及其Adam保持，反馈Adam各1152步。14,964条非quiet实际输入动作逐位不变；3,072条真实/中间高度诊断ONNX最大raw误差1.91e-6。诊断图只在run目录，没有替换交付图。48×12s静站复测已唯一启动，未完成前不提前认定漂移、振动或恢复资格。
