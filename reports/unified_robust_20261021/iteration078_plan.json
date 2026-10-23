@@ -1,0 +1,45 @@
+{
+  "schema": "quiet078-position-release-plan-v1",
+  "checkpoint_sha256": "12669ef1f470ce88acb6a9a17b907b31f2b34dd96396417f94079dbdcf813dba",
+  "baseline": "Frozen065 weights plus whole wheel alpha.25; exactly the074 policy function",
+  "variants": {
+    "quiet_filter025": null,
+    "quiet_release_0.01_0.025000000000000001": [
+      0.01,
+      0.025
+    ],
+    "quiet_release_0.025000000000000001_0.050000000000000003": [
+      0.025,
+      0.05
+    ]
+  },
+  "alpha_min": 0.25,
+  "alpha_max": 1.0,
+  "position_source": "obs14:16/20 from versioned sensor-only standing observer",
+  "environments": 144,
+  "replicas_per_case_variant": 16,
+  "seed": 211322,
+  "seconds": 12.0,
+  "domain_scale": 0.35,
+  "ground_friction": [
+    0.3,
+    0.5
+  ],
+  "origin": "isolated_overlap_v1",
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "protection_thresholds_changed": false,
+  "learned_parameters_changed": false,
+  "hidden_state_added": false,
+  "required": "Original full5cm/air3mm and six actual3-95HF<=036;20-95 target separately reported",
+  "new_macro_updates": 0,
+  "robust_consumed": 1192,
+  "retained_lineage": 505,
+  "full_training_admitted": false,
+  "sources": {
+    "scripts/evaluate_robust_getup_batch.py": "5648b3afc123a2e9ffdf79e727c466866b18686aa9b1cf7f302a74bb0e2c2060",
+    "src/wheeled_algo/evaluation_position_filter.py": "77dff9e601f070436cffef4490316752bce7a4a1c3b7bb17007067770dcfc58c",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4"
+  }
+}
