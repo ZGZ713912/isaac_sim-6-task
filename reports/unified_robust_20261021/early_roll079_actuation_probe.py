@@ -20,7 +20,9 @@ from wheeled_algo.evaluation_early_roll import roll_gate
 def main():
     torch.set_num_threads(1)
     mean, _ = load_mean(ROOT / "runs/unified_robust_20261022/quiet_severe_reference065/model_migrated.pt")
-    result = dict(schema="roll079-failure-actuation-readonly-v1", variants={}, new_macro_updates=0,
+    result = dict(schema="roll079-failure-actuation-readonly-v2", variants={}, new_macro_updates=0,
+        correction="Saved actions use control order; wheel target indices are2,5. The old v1 near-raw9 field used4,5 and is superseded; original JSON remains preserved.",
+        wheel_control_indices=[2, 5],
         interpretation="Representative deterministic lanes; timestamps are logged after-step times for input-aligned observations; no claim of unique impact cause")
     for variant, full in (("robust", None), ("early_roll20_to_45", 45.), ("early_roll20_to_25", 25.)):
         directory = RUN / variant
@@ -53,7 +55,7 @@ def main():
                 preimpact_200ms_leg_travel_peak_rad=float(np.abs(travel[window]).max()),
                 leg_torque_near_cap_fraction=float((np.abs(tau[selected][:, [0, 1, 3, 4]]) >= 39.9).mean()),
                 wheel_torque_near_cap_fraction=float((np.abs(tau[selected][:, [2, 5]]) >= 4.49).mean()),
-                wheel_target_near_raw9_fraction=float((np.abs(data["actions"][selected, lane, 4:]) >= 8.99).mean()),
+                wheel_target_near_raw9_fraction=float((np.abs(data["actions"][selected, lane][:, [2, 5]]) >= 8.99).mean()),
                 peak_contact_impulse_ns=float(data["impulse"][selected, lane].max()),
                 peak_gyro_x_rad_s=float(np.abs(data["omega"][selected, lane, 0]).max()),
                 reference_resets_peak=int(data["standing_reference_severe_reset_count"][selected, lane].max()))
@@ -62,9 +64,9 @@ def main():
         for case, row in rows.items():
             for key, value in row.items():
                 if value is not None:
-                    writer.add_scalar("Diagnosis/EarlyRoll079/" + variant + "/" + case + "/" + key, value, 505)
+                    writer.add_scalar("Diagnosis/EarlyRoll079/corrected_control_order/" + variant + "/" + case + "/" + key, value, 505)
         writer.close()
-    write(REPORTS / "early_roll079_actuation.json", result)
+    write(REPORTS / "early_roll079_actuation_corrected.json", result)
     print(json.dumps(result), flush=True)
 
 
