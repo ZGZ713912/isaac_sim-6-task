@@ -206,3 +206,5 @@
 下一064从062而非消融063继续：将旧三高度quiet MLP与新位置头一起做32次小步联合微调，LR1e-5，冻结motion/arc/recovery/std，保持.06/.35探索、参考50ms、低通150ms、全部奖励/域/物理。此前058仅训练新24值、旧静站网络冻结；063已证伪简单去腿位置反馈。此处让旧静站网络适应新增位置调节，而不是继续固定增益消融或删除观测延迟。拟128×128×32，源clock473→505、账本1128→1160，只有实际完成后计入；仍先过原48固定静站再进入完整套件/正式准入，长训不预放行。
 
 064 CPU prepare已封存`iteration064_preflight.json`，v3/150ms/50ms/严重重建False正确继承，预计静站可训练8106值（旧MLPs8082+位置24）。`iteration064_plan.json`明确actor1e-5/critic1e-3与32上限，未提前计费。实际startup guard在task出现时逐字段比对，再待initial PT ZIP完整后认证actor/critic/named Adam/四RNG、真实优化器LR与quiet-only模式标记；progress中的原生可训练总数需其发布后再核验，不把CPU预计值冒充已观察值。训练后还检查15个允许张量范围、每个允许Adam仅增384步、非静站实际输入输出逐位相同。原生源本轮没有修改，启动与完成量以`iteration064_train_process.json`和原生progress为准。
+
+064已唯一启动PID1244929。实际task在initial PT不存在时逐字段通过；初态审计在0次更新时通过，actor/critic/named Adam/四RNG精确恢复，PT内真实LR1e-5/1e-3及quiet-only True/feedback-only False正确，`iteration064_initial.json`、`iteration064_task_guard.json`。初态时progress尚未发布可训练计数，回执为null而非冒称；随后真实PPO progress已发布8106值并正常推进，快照`iteration064_live001.json`独立记录实读增量/谱系/累计消费，不能把拟32提前计入。运行期间只添加只读报告/诊断ONNX校验脚本，不热改原生源、模型或奖励。
