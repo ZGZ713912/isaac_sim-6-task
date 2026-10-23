@@ -152,3 +152,5 @@
 原48×12s固定静站须同时5cm/3mm/实际腿轮3–95Hz不退化，才继续140全套及后续正式双种子/长静站。实际初态/结尾由`iteration057_native_audit.py`认证全部旧actor、named Adam、RNG与新24值；不因多存活或训练loss有限而授予长训。尚无新交付或RMCS修改。计划`iteration057_plan.json`。
 
 057初态审计实际拒绝探索分布：runner遗漏显式CLI倍率，036底座的腿.35/轮None（等效轮.35）被继承，而计划为腿.06/轮.35。actor/critic/named Adam/RNG均保留，但不能把该次训练当计划实验。已一次SIGTERM停止PID1148073并实读退出；Isaac handler外部exit0，progress仍training，因此原生helper正确拒绝，不冒称完成。最后已完成6宏更新/已知谱系447，仅初态PT保存；额外1个未封存在途attempt保守计费，不退款。该attempt共计7消费，账本1089→1096，已知完成6与保守计费1分开，长训0。完整负证据`iteration057_rejection.json`及原pipeline/audit日志保留。下一058从056原零头重新开始，明确CLI倍率，并在启动后自动核对实际task settings，避免依赖人工晚检查。
+
+058沿用057原32更新计划，明确传入腿.06/轮.35，从原056零头/441时钟开始，不接续错误branch。新增只用于实验runner的CPU `prepare()`预检与实际task全字段比对，task生成时即自动核验；真实子进程匹配/不匹配两项负正测试通过，不匹配在初态PT/训练前被终止。预检JSON封存于`iteration058_preflight.json`。源/物理/actor不因该guard修改，无需重跑已逐位等价的056。拟32完成后的账本1096→1128包含057保守在途计费1；来源441→473，长训仍0。行为判据与057保持，计划`iteration058_plan.json`。
