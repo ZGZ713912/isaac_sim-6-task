@@ -1,0 +1,318 @@
+{
+  "schema": "domain111-conditional-curriculum-v1",
+  "status": "prepared_not_started",
+  "reason": "User requests standing jitter robustness across hardware gap; retain200Hz and identified wheel response",
+  "scales": [
+    {
+      "scale": 0.35,
+      "domains": {
+        "nominal_fraction": 0.25,
+        "motor_strength_range": [
+          0.9475,
+          1.0350000000000001
+        ],
+        "leg_kp_scale_range": [
+          0.965,
+          1.0350000000000001
+        ],
+        "leg_kd_scale_range": [
+          0.9475,
+          1.0525
+        ],
+        "spring_strength_range": [
+          0.972,
+          1.028
+        ],
+        "torque_delay_ms": [
+          0,
+          1
+        ],
+        "motor_tau_ms": [
+          0.0,
+          1.75
+        ],
+        "sensor_delay_policy_ticks": [
+          0,
+          1
+        ],
+        "encoder_bias_rad": 0.00105,
+        "encoder_noise_rad": 0.00035,
+        "gyro_bias_rad_s": 0.0052499999999999995,
+        "gyro_noise_rad_s": 0.0034999999999999996,
+        "gravity_noise": 0.0014,
+        "velocity_noise_rad_s": [
+          0.017499999999999998,
+          0.0875
+        ],
+        "pd_feedback_delay_ms": [
+          0,
+          1
+        ],
+        "pd_feedback_period_ms": [
+          1,
+          2
+        ],
+        "pd_encoder_bias_rad": 0.00105
+      },
+      "rigid_body": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.965,
+          1.0350000000000001
+        ],
+        "leg_mass_scale": [
+          0.9824999999999999,
+          1.0175
+        ],
+        "wheel_mass_scale": [
+          0.9824999999999999,
+          1.0175
+        ],
+        "inertia_scale": [
+          0.965,
+          1.0350000000000001
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.0028,
+            0.0028
+          ],
+          "y": [
+            -0.0017499999999999998,
+            0.0017499999999999998
+          ],
+          "z": [
+            -0.0017499999999999998,
+            0.0017499999999999998
+          ]
+        },
+        "source_reference": "bounded robustness hypotheses, not identified hardware parameters"
+      }
+    },
+    {
+      "scale": 0.65,
+      "domains": {
+        "nominal_fraction": 0.25,
+        "motor_strength_range": [
+          0.9025,
+          1.065
+        ],
+        "leg_kp_scale_range": [
+          0.935,
+          1.065
+        ],
+        "leg_kd_scale_range": [
+          0.9025,
+          1.0975
+        ],
+        "spring_strength_range": [
+          0.9480000000000001,
+          1.052
+        ],
+        "torque_delay_ms": [
+          0,
+          2
+        ],
+        "motor_tau_ms": [
+          0.0,
+          3.25
+        ],
+        "sensor_delay_policy_ticks": [
+          0,
+          1
+        ],
+        "encoder_bias_rad": 0.0019500000000000001,
+        "encoder_noise_rad": 0.0006500000000000001,
+        "gyro_bias_rad_s": 0.00975,
+        "gyro_noise_rad_s": 0.006500000000000001,
+        "gravity_noise": 0.0026000000000000003,
+        "velocity_noise_rad_s": [
+          0.0325,
+          0.1625
+        ],
+        "pd_feedback_delay_ms": [
+          0,
+          2
+        ],
+        "pd_feedback_period_ms": [
+          1,
+          4
+        ],
+        "pd_encoder_bias_rad": 0.0019500000000000001
+      },
+      "rigid_body": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.935,
+          1.065
+        ],
+        "leg_mass_scale": [
+          0.9675,
+          1.0325
+        ],
+        "wheel_mass_scale": [
+          0.9675,
+          1.0325
+        ],
+        "inertia_scale": [
+          0.935,
+          1.065
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.005200000000000001,
+            0.005200000000000001
+          ],
+          "y": [
+            -0.0032500000000000003,
+            0.0032500000000000003
+          ],
+          "z": [
+            -0.0032500000000000003,
+            0.0032500000000000003
+          ]
+        },
+        "source_reference": "bounded robustness hypotheses, not identified hardware parameters"
+      }
+    },
+    {
+      "scale": 1.0,
+      "domains": {
+        "nominal_fraction": 0.25,
+        "motor_strength_range": [
+          0.85,
+          1.1
+        ],
+        "leg_kp_scale_range": [
+          0.9,
+          1.1
+        ],
+        "leg_kd_scale_range": [
+          0.85,
+          1.15
+        ],
+        "spring_strength_range": [
+          0.92,
+          1.08
+        ],
+        "torque_delay_ms": [
+          0,
+          3
+        ],
+        "motor_tau_ms": [
+          0.0,
+          5.0
+        ],
+        "sensor_delay_policy_ticks": [
+          0,
+          2
+        ],
+        "encoder_bias_rad": 0.003,
+        "encoder_noise_rad": 0.001,
+        "gyro_bias_rad_s": 0.015,
+        "gyro_noise_rad_s": 0.01,
+        "gravity_noise": 0.004,
+        "velocity_noise_rad_s": [
+          0.05,
+          0.25
+        ],
+        "pd_feedback_delay_ms": [
+          0,
+          3
+        ],
+        "pd_feedback_period_ms": [
+          1,
+          5
+        ],
+        "pd_encoder_bias_rad": 0.003
+      },
+      "rigid_body": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.9,
+          1.1
+        ],
+        "leg_mass_scale": [
+          0.95,
+          1.05
+        ],
+        "wheel_mass_scale": [
+          0.95,
+          1.05
+        ],
+        "inertia_scale": [
+          0.9,
+          1.1
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.008,
+            0.008
+          ],
+          "y": [
+            -0.005,
+            0.005
+          ],
+          "z": [
+            -0.005,
+            0.005
+          ]
+        },
+        "source_reference": "bounded robustness hypotheses, not identified hardware parameters"
+      }
+    }
+  ],
+  "first_gate": "Current candidate must pass all static5cm/6 actualHF/3mm air/alive requirements at scale.35 including independent holdout and30s; pureRL getup/motion nominal protocol003 must pass before long training",
+  "order": [
+    "freeze exact checkpoint and same-input motion scope",
+    "paired zero-PPO standing and ordinary-arc stress at.65",
+    "only if justified prepare one bounded adaptation block with old motion parent frozen",
+    "recheck.35 retention and heldout.65 together",
+    "repeat at1.0 after previous evidence; no blind scale jump"
+  ],
+  "prior_success_retention": [
+    "nominal25percent environments retained",
+    "standing specialist update freezes old motion/recovery/std",
+    "recovery specialist update freezes old standing/motion/std",
+    "all six motor actions still produced by neural policy; no script target controller"
+  ],
+  "evaluation": "Untuned seed per new domain tier; seeds become tuning data after use; do not relabel known failures as heldout",
+  "reward": "Stationary-relative position and HF costs masked by standing request;5cm position deadband; no penalty on absolute continuous wheel angles during travel",
+  "unknowns": [
+    "Leg actuator response and mechanical freeplay are not identified",
+    "Static sensor and delay randomization does not validate real CAN timing",
+    "Wheel slip can bias wheel-angle coordinates; true simulator XY remains only critic/reward/evaluation"
+  ],
+  "no_protection_or_real2sim_reference_change": true,
+  "no_local_tensorboard_server": true,
+  "new_macro_updates": 0,
+  "new_offline_steps": 0,
+  "full_training_admitted": false,
+  "sources_sha256": {
+    "src/wheeled_tasks/chassis/robust_getup.py": "bed8d65a233d62e87811e7e43ee83d7971ecd98ae8b849381c3ba1f0d1917de2",
+    "src/wheeled_tasks/chassis/getup_feedback.py": "026865835d33c5afafd9002056e353f01cc17b29fcbe8f49e1335eb5f67d24c7",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4",
+    "src/wheeled_algo/standing_displacement.py": "0929ddca72410bce7a5dd67ffd69cba7d7944ee4cf6725eb9f741a4c07b2061d"
+  }
+}
