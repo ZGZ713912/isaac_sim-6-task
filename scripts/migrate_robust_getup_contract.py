@@ -45,7 +45,7 @@ def main():
                         help="Explicit1...30 post-tanh feature conditioning; inverse-scale quiet weights and named Adam moments")
     parser.add_argument("--quiet-velocity-feedback", action="store_true",
                         help="Append three zero-initialized feedback paths; preserve all previous tensors/moments/RNG")
-    parser.add_argument("--quiet-velocity-feedback-mode", choices=("all", "wheels", "wheel_memory", "coupled_state"),
+    parser.add_argument("--quiet-velocity-feedback-mode", choices=("all", "wheels", "wheel_memory", "coupled_state", "rolling_velocity"),
                         help="Explicit new path: legacy velocity modes or bounded full-sensor common-leg/wheel corrections")
     parser.add_argument("--motion-residual-fraction", type=float,
                         help="Explicit zero-PPO revision of straight/spin compensation; mixed arc authority stays intact")
@@ -137,8 +137,8 @@ def main():
             raise ValueError("Cannot authenticate velocity-feedback actor optimizer order")
         next_id = max(p for g in state["optimizer_state_dict"]["param_groups"] for p in g["params"]) + 1
         mode = args.quiet_velocity_feedback_mode or "all"
-        size = 4 if mode == "coupled_state" else 6 if mode == "all" else 2
-        inputs = 16 if mode == "coupled_state" else 4 if mode == "wheel_memory" else size
+        size = 4 if mode in ("coupled_state", "rolling_velocity") else 6 if mode == "all" else 2
+        inputs = 1 if mode == "rolling_velocity" else 16 if mode == "coupled_state" else 4 if mode == "wheel_memory" else size
         for name in ("mid", "low", "high"):
             key = "mlp.mean.quiet_velocity." + name + ".weight"
             state["actor_state_dict"][key] = state["actor_state_dict"]["mlp.mean.quiet.0.weight"].new_zeros((size, inputs))
@@ -148,17 +148,24 @@ def main():
                 state["actor_state_dict"][key.removesuffix("weight") + "bias"] = state["actor_state_dict"][key].new_zeros(size)
                 group["params"].append(next_id)
                 next_id += 1
+        if mode == "rolling_velocity":
+            from wheeled_algo.rolling_velocity import frozen_rolling_estimator, TABLE_RELATIVE, TABLE_SHA256
+            for name, value in frozen_rolling_estimator().state_dict().items():
+                state["actor_state_dict"]["mlp.mean.rolling_velocity." + name] = value.clone()
+            revision["rolling_geometry"] = dict(file=TABLE_RELATIVE, sha256=TABLE_SHA256, trainable=False)
         info["settings"].update(version=({"all": "robust-v2.27-quiet-velocity-feedback",
                                          "wheels": "robust-v2.28-quiet-wheel-velocity",
                                          "wheel_memory": "robust-v2.30-quiet-wheel-memory",
-                                         "coupled_state": "robust-v2.31-quiet-coupled-state"}[mode]),
+                                         "coupled_state": "robust-v2.31-quiet-coupled-state",
+                                         "rolling_velocity": "robust-v2.32-quiet-rolling-velocity"}[mode]),
                                 quiet_velocity_feedback=True, quiet_velocity_feedback_mode=mode)
         revision["quiet_velocity_feedback"] = dict(new_parameters=3 * size * (inputs + int(mode == "coupled_state")), mode=mode, initial_weights="zero",
             input=({"all": "tanh(physical six encoder velocities in rad/s)",
                     "wheels": "tanh(physical two wheel encoder velocities in rad/s)",
                     "wheel_memory": "tanh(two wheel encoder velocities) and tanh(previous two wheel raw commands times10); original35D fields only",
-                    "coupled_state": "tanh(physical gyro), gravity, tanh(leg positions), tanh(six physical velocities); original35D only, no previous actions"}[mode]),
-            output=("bounded additive common-leg and wheel corrections after the old quiet tanh" if mode == "coupled_state"
+                    "coupled_state": "tanh(physical gyro), gravity, tanh(leg positions), tanh(six physical velocities); original35D only, no previous actions",
+                    "rolling_velocity": "tanh(50 * model-derived body forward velocity in m/s); existing35D encoders/IMU only"}[mode]),
+            output=("bounded additive common-leg and wheel corrections after the old quiet tanh" if mode in ("coupled_state", "rolling_velocity")
                     else "six axis logits" if mode == "all" else "two wheel logits; four leg logits exactly unchanged"),
             bias=mode == "coupled_state",
             optimizer="all old moments retained; only new parameters start with empty Adam state",
@@ -339,9 +346,13 @@ def main():
         raise ValueError("Migration changed unrelated actor parameters")
     args.output.mkdir(parents=True, exist_ok=False)
     sources = {}
-    for path in sorted(set((ROOT / "src/wheeled_algo").glob("*.py"))
-                       | set((ROOT / "src/wheeled_tasks/chassis").glob("*.py"))
-                       | {Path(__file__), ROOT / "scripts/train_robust_getup.py"}):
+    source_paths = (set((ROOT / "src/wheeled_algo").glob("*.py"))
+                    | set((ROOT / "src/wheeled_tasks/chassis").glob("*.py"))
+                    | {Path(__file__), ROOT / "scripts/train_robust_getup.py"})
+    if info["settings"].get("quiet_velocity_feedback_mode") == "rolling_velocity":
+        from wheeled_algo.rolling_velocity import frozen_table_path
+        source_paths.add(frozen_table_path())
+    for path in sorted(source_paths):
         relative = path.resolve().relative_to(ROOT)
         target = args.output / "source" / relative
         target.parent.mkdir(parents=True, exist_ok=True)
