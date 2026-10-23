@@ -13,6 +13,29 @@ from torch import nn
 from .rolling_velocity import frozen_rolling_estimator
 
 
+def observation_contract():
+    """Versioned observation semantics; this is not the old zero-wheel ABI."""
+    from .rolling_velocity import TABLE_SHA256, SPEC_SHA256
+    return dict(schema="wheel-leg-standing-displacement-v1", policy_hz=200,
+                slots=[14, 16], scale_per_m=20., filter_seconds=.05, limit_m=.25,
+                source="continuous_model_wheel_angles_delayed_with_leg_encoders_and_gravity",
+                capture="once_after_0.2s_active_quiet_gate_ge_.999_and_recovery_gate_le_.05",
+                request="abs_vx_lt_.1_and_abs_yaw_lt_.2", reset="episode_or_RL_entry_or_request_end",
+                invalid="zero_output_preserve_reference", legacy_network_slots="forced_zero",
+                model_spec_sha256=SPEC_SHA256, geometry_table_sha256=TABLE_SHA256)
+
+
+def validate_observation_contract(settings):
+    enabled = settings.get("quiet_velocity_feedback_mode") == "standing_displacement"
+    declared = settings.get("standing_position_observation")
+    if enabled:
+        if not settings.get("quiet_velocity_feedback") or declared != observation_contract():
+            raise ValueError("Standing displacement requires the exact versioned observation contract")
+    elif declared is not None:
+        raise ValueError("Standing displacement contract requires its explicit feedback mode")
+    return enabled
+
+
 class WheelAngleCoordinate(nn.Module):
     """Absolute forward rolling coordinate of each wheel in metres.
 
