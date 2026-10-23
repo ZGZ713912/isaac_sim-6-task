@@ -1,5 +1,7 @@
 """Diagnostic speed lanes must retain their real command and frozen reset."""
 import importlib.util
+import hashlib
+import json
 from pathlib import Path
 
 
@@ -30,3 +32,29 @@ def test_forward_yaw_seam_records_each_true_two_axis_command():
     assert len({case["name"] for case in cases}) == 6
     assert all(case["pose_index"] == 17 for case in cases)
     assert sum(case["command"] == [3., -.125, .305] for case in cases) == 8
+
+
+def test_stationary_push_retains_native_pose_and_push_and_leaves_default_cases_frozen():
+    root = Path(__file__).resolve().parents[1]
+    def load(name, path):
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    batch = load("stationary_push_batch", root / "scripts/evaluate_robust_getup_batch.py")
+    training = load("stationary_push_training", root / "scripts/train_robust_getup.py")
+    bank = json.loads((root / "reports/unified_robust_20261021/pose_bank002.json").read_text())
+    full = training.fixed_cases(bank, 140, 211322)
+    digest = hashlib.sha256(json.dumps(full, sort_keys=True).encode()).hexdigest()
+    assert digest == "3fe0212986b85b2add73b96c6676a6427b73d0c9400ab223962915304b7412f5"
+    selected = batch.fixed_stationary_push_cases(full)
+    original = [case for case in full if case["name"].startswith("moving_push_")]
+    assert len(selected) == 8
+    for case, old in zip(selected, original, strict=True):
+        assert case["name"] == old["name"].replace("moving_", "stationary_", 1)
+        assert case["command"] == [0., 0., .305]
+        assert {k: v for k, v in case.items() if k not in ("name", "command")} == {
+            k: v for k, v in old.items() if k not in ("name", "command")}
+    selected[0]["command"][0] = 5.
+    assert selected[2]["command"] == [0., 0., .305]
+    assert hashlib.sha256(json.dumps(full, sort_keys=True).encode()).hexdigest() == digest
