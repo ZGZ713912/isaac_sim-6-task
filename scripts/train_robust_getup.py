@@ -59,7 +59,7 @@ def prepare(args):
         # including non-tensor authority flags, rather than reset defaults.
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
-                    "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "fast_forward_reference",
+                    "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_leg_prediction_all_heights", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
                     "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_wheel_exploration_fraction", "quiet_velocity_feature_gain",
                     "quiet_velocity_feedback", "quiet_velocity_feedback_mode"):
@@ -539,6 +539,7 @@ def main():
             recovery_shape_aware=task["recovery_shape_aware"],
             quiet_high_common_alpha=task.get("quiet_high_common_alpha"),
             quiet_high_leg_prediction_s=task.get("quiet_high_leg_prediction_s", 0.),
+            quiet_leg_prediction_all_heights=task.get("quiet_leg_prediction_all_heights", False),
             quiet_height_experts=task.get("quiet_height_experts", False),
             quiet_native_height_anchors=task.get("quiet_native_height_anchors", False),
             fast_forward_reference=task.get("fast_forward_reference", False),

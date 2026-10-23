@@ -97,7 +97,8 @@ class RobustGetupActor(UnifiedGetupActor):
                  fast_forward_reference=False, fast_forward_reference_range=(1.5, 2.),
                  fast_forward_reference_yaw_fade=.25, quiet_height_experts=False,
                  quiet_native_height_anchors=False, quiet_velocity_feature_gain=1.,
-                 quiet_velocity_feedback=False, quiet_velocity_feedback_mode="all"):
+                 quiet_velocity_feedback=False, quiet_velocity_feedback_mode="all",
+                 quiet_leg_prediction_all_heights=False):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
@@ -119,6 +120,11 @@ class RobustGetupActor(UnifiedGetupActor):
         if not 0. <= quiet_high_leg_prediction_s <= .01:
             raise ValueError("High-height leg prediction must be between 0 and 10 ms")
         self.quiet_high_leg_prediction_s = quiet_high_leg_prediction_s
+        if not isinstance(quiet_leg_prediction_all_heights, bool):
+            raise ValueError("All-height leg prediction must be an explicit boolean")
+        if quiet_leg_prediction_all_heights and not quiet_high_leg_prediction_s:
+            raise ValueError("All-height leg prediction requires a positive prediction duration")
+        self.quiet_leg_prediction_all_heights = quiet_leg_prediction_all_heights
         if fast_forward_reference and not isinstance(getattr(getattr(parent, "command", None), "base", None), nn.Module):
             raise ValueError("Fast-forward reference requires the authenticated original feedback inside the frozen parent")
         self.fast_forward_reference = fast_forward_reference
@@ -228,8 +234,10 @@ class RobustGetupActor(UnifiedGetupActor):
         if self.quiet_high_leg_prediction_s:
             # q is radians and dq is scaled by .1 in the frozen observation
             # contract. This bounded, causal first-order estimate adds no state
-            # or new sensor. It is confined to an upright high-stance request.
-            prediction_gate = quiet_gate(obs) * ((obs[:, 3:4] / 5. - .35) / .05).clamp(0., 1.)
+            # or new sensor. Old checkpoints retain the high-stance scope.
+            prediction_gate = quiet_gate(obs)
+            if not self.quiet_leg_prediction_all_heights:
+                prediction_gate = prediction_gate * ((obs[:, 3:4] / 5. - .35) / .05).clamp(0., 1.)
             predicted = obs[:, 10:14] + prediction_gate * (10. * self.quiet_high_leg_prediction_s) * obs[:, 16:20]
             predicted = torch.where(prediction_gate > 0., torch.atan2(predicted.sin(), predicted.cos()), obs[:, 10:14])
             motion_obs = torch.cat((obs[:, :10], predicted, obs[:, 14:]), -1)
