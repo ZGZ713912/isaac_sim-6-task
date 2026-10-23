@@ -1,0 +1,86 @@
+{
+  "schema": "composed115-admission-plan-v1",
+  "checkpoint_sha256": "11c4451ab73c4935051fc0187a5fc3a70a3534cee67f22d393500f623bd9f121",
+  "migration_sha256": "69d95fd162be97d00801a87bb68c45803627f89f5580d2c92a15427c473eb6c4",
+  "protocol_sha256": "05e6469f6da54b726fc2bfb5e53ff7f90f996bfbcceaf942e453f6437ee39ab3",
+  "reason": "User high10cm+recenter; withdraw114 without training.112 rejects096 generalization; retain079 recovery with110 static function.",
+  "static_jobs": [
+    {
+      "name": "composed_static_original115",
+      "replicas": 16,
+      "seconds": 30.0,
+      "seed": 211322,
+      "domain_scale": 0.35,
+      "friction_min": 0.3
+    },
+    {
+      "name": "composed_static_holdout115",
+      "replicas": 16,
+      "seconds": 30.0,
+      "seed": 211626,
+      "domain_scale": 0.35,
+      "friction_min": 0.3
+    }
+  ],
+  "random_job": {
+    "name": "composed_full115",
+    "replicas": 4,
+    "seconds": 12.0,
+    "seed": 211322,
+    "domain_scale": 0.35,
+    "friction_min": 0.3
+  },
+  "nominal_jobs": [
+    {
+      "name": "composed_nominal115_211131",
+      "replicas": 3,
+      "seconds": 12.0,
+      "seed": 211131,
+      "domain_scale": 0.0,
+      "friction_min": 0.5
+    },
+    {
+      "name": "composed_nominal115_211132",
+      "replicas": 3,
+      "seconds": 12.0,
+      "seed": 211132,
+      "domain_scale": 0.0,
+      "friction_min": 0.5
+    }
+  ],
+  "lifecycle_job": {
+    "name": "composed_stationary115",
+    "replicas": 16,
+    "seconds": 12.0,
+    "seed": 211322,
+    "domain_scale": 0.35,
+    "friction_min": 0.3
+  },
+  "order": "two30s static, full random140, two matched nominal210, stationary reset/recapture32; stop at failed stage",
+  "static_gates": "all48alive; low/mid5cm,high10cm and tail recenter/no sustained outward drift;6 actualHF<=036 and post.2s air<=3mm",
+  "common_gates": "protocol004 actual-settled family minimum2 and25%,85% motion, arc MAEs, one actual moving-fall practical, closure3mm/passive0",
+  "lifecycle_gates": "one actual severe fall+valid reset/recapture+terminal stand per side, unmodified105 lifecycle helper",
+  "original_static_retention": "original115 middle16 full trajectories bitwise100 original30s; complete first115200 quiet inputs exact110 verifiedCPU",
+  "heldout_seed_status": "211626 unused by standing tuning before this plan; becomes observed after this run",
+  "known_failed_stress": "079 nominal diagnostic right strong moving push0/16; do not hide even if aggregate admission passes",
+  "new_macro_updates": 0,
+  "new_offline_steps": 0,
+  "candidate_ppo_lineage": 569,
+  "candidate_offline_steps": 0,
+  "robust_consumed": 1384,
+  "actual_experiment_offline_steps": 128,
+  "full_training_admitted": false,
+  "source_sha256": {
+    "scripts/evaluate_robust_getup_batch.py": "d2086356cc17a270f5ddb38be04802c2e1a9b4f9a41d1a1aa9765ff5f557c888",
+    "scripts/analyze_robust_getup.py": "d9e6ce342c0276aa6352fa54aec64c3b4d656574e3d20ad326a12d9e85fff33d",
+    "scripts/export_robust_getup.py": "487d991c92b889d8b0b2d7d32a887ba0c02040524ea286cb389de0a8a05e81e8",
+    "src/wheeled_algo/standing_acceptance.py": "3464c56aae4fcfe66a93cec946a93ba660bab2de667a861c0d61059dd633868b",
+    "src/wheeled_algo/quiet_output_actor.py": "fd48fabcfdf3d6bdb980b369b17fe7ec82c317449ef20c72f46b74a2d0bde410",
+    "src/wheeled_algo/robust_getup.py": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "156b0037264ead5f87b8bedcf07c4dd76d14d33b1471cb691bc3573fe3f934a4",
+    "reports/unified_robust_20261021/iteration105_runner.py": "dd6257082a4820cb292b6e8f95f697f069cb16f48c480f9a219ef8276a4ce0c4",
+    "reports/unified_robust_20261021/iteration036_compare.py": "75993eb7d4cca49e3f7f2869507c085ea3365943e1d695e93387baa80fc719e5",
+    "reports/unified_robust_20261021/iteration115_merge.py": "d4d154aa3d129955b95dcbbe084f4041a952de888f7fa17299c8f6016397ad28",
+    "reports/unified_robust_20261021/iteration115_runner.py": "038e8a6583281dc783f35084f4f4d5033b11bdb1e250896a221474dd566ca1a2"
+  }
+}
