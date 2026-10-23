@@ -63,7 +63,7 @@ def prepare(args):
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
                     "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_wheel_exploration_fraction", "quiet_velocity_feature_gain",
                     "quiet_velocity_feedback", "quiet_velocity_feedback_mode", "standing_position_observation",
-                    "standing_position_filter_seconds", "standing_position_reference"):
+                    "standing_position_filter_seconds", "standing_position_reference", "quiet_output_wheel_alpha"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
@@ -549,7 +549,12 @@ def main():
         control = load_chassis_control(ROOT / cfg["control_math_source"])
         env = RobustGetupEnv(cfg, manifest, control, ROOT, stage_name="speed", num_envs=args.num_envs,
             device=args.device, seed=args.seed, level=1., run_role="train", bank=args.bank, settings=task)
-        mean = RobustGetupActor(load_mean(torch), quiet_alpha=task["quiet_actor_alpha"],
+        actor_type, extra = RobustGetupActor, {}
+        if "quiet_output_wheel_alpha" in task:
+            from wheeled_algo.quiet_output_actor import QuietOutputGetupActor
+            actor_type = QuietOutputGetupActor
+            extra["quiet_output_wheel_alpha"] = task["quiet_output_wheel_alpha"]
+        mean = actor_type(load_mean(torch), quiet_alpha=task["quiet_actor_alpha"],
             canonical_recovery=task["canonical_recovery"], motion_residual_fraction=task["motion_residual_fraction"],
             cyclic_leg_targets=task["cyclic_leg_targets"], leg_action_clip=task["leg_action_clip"],
             recovery_leg_step=task["recovery_leg_step"], smooth_knee_targets=task["smooth_knee_targets"],
@@ -567,7 +572,7 @@ def main():
             quiet_native_height_anchors=task.get("quiet_native_height_anchors", False),
             fast_forward_reference=task.get("fast_forward_reference", False),
             fast_forward_reference_range=task.get("fast_forward_reference_range", [1.5, 2.]),
-            fast_forward_reference_yaw_fade=task.get("fast_forward_reference_yaw_fade", .25)).to(args.device)
+            fast_forward_reference_yaw_fade=task.get("fast_forward_reference_yaw_fade", .25), **extra).to(args.device)
         initialization = torch.load(args.initialize, map_location=args.device, weights_only=False)
         if initialization["infos"]["schema"] != "unified-getup-checkpoint-v1":
             raise ValueError("Initialization must be an authenticated v1 recovery checkpoint")

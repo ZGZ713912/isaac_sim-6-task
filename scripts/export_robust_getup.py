@@ -69,7 +69,12 @@ def load_mean(checkpoint, *, migration_source_root=None):
         raise ValueError("Locomotion parent changed")
     parent = torch.load(parent_file, map_location="cpu", weights_only=True)
     plan = json.loads((ROOT / parent["infos"]["plan_file"]).read_text())
-    mean = RobustGetupActor(mean_from_checkpoint(parent, ROOT / plan["actor_bundle"] / "source.onnx"),
+    actor_type, extra = RobustGetupActor, {}
+    if "quiet_output_wheel_alpha" in info["settings"]:
+        from wheeled_algo.quiet_output_actor import QuietOutputGetupActor
+        actor_type = QuietOutputGetupActor
+        extra["quiet_output_wheel_alpha"] = info["settings"]["quiet_output_wheel_alpha"]
+    mean = actor_type(mean_from_checkpoint(parent, ROOT / plan["actor_bundle"] / "source.onnx"),
                            quiet_alpha=info["settings"]["quiet_actor_alpha"],
                            canonical_recovery=info["settings"].get("canonical_recovery", False),
                            motion_residual_fraction=info["settings"].get("motion_residual_fraction", 0.),
@@ -92,7 +97,7 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            quiet_native_height_anchors=info["settings"].get("quiet_native_height_anchors", False),
                            fast_forward_reference=info["settings"].get("fast_forward_reference", False),
                            fast_forward_reference_range=info["settings"].get("fast_forward_reference_range", [1.5, 2.]),
-                           fast_forward_reference_yaw_fade=info["settings"].get("fast_forward_reference_yaw_fade", .25))
+                           fast_forward_reference_yaw_fade=info["settings"].get("fast_forward_reference_yaw_fade", .25), **extra)
     weights = {k.removeprefix("mlp.mean."): v for k, v in state["actor_state_dict"].items() if k.startswith("mlp.mean.")}
     mean.load_state_dict(weights, strict=True)
     if info["settings"].get("quiet_velocity_feedback_mode") == "rolling_velocity":
