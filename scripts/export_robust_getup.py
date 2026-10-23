@@ -53,7 +53,7 @@ def load_mean(checkpoint, *, migration_source_root=None):
         raise ValueError("Expected a v2 training checkpoint")
     if info.get("actor_variant", "robust") != "robust":
         raise ValueError("Comparison variants are not deployment candidates")
-    from wheeled_algo.standing_displacement import validate_observation_contract
+    from wheeled_algo.standing_displacement_contract import validate_observation_contract
     validate_observation_contract(info["settings"])
     if any(not key.startswith("mlp.") for key in state["actor_state_dict"]):
         raise ValueError("Unsupported external actor normalization or distribution state")
