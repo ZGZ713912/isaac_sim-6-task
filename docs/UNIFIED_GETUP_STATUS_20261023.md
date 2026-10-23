@@ -122,3 +122,5 @@
 只读5,760条052静站输入表明现有quiet轮采样目标sigma .2134/.2137rad/s，按轮径/左右平均折算为前进滚动代理sigma .906cm/s，与残余真实漂移量级相近；腿sigma约.9mrad。将轮quiet倍率.35降至.10后，轮目标sigma .0610/.0611rad/s、滚动代理.259cm/s。确定性均值和腿方差逐位不变，14,964条非quiet输入完整采样函数不变，实际RSL distribution logprob与同一个Gaussian一致。该固定观测分析不是实测body速度或训练收益；报告`quiet_sampling054_probe.json`。
 
 新增默认不覆盖的`--quiet-wheel-exploration-fraction`，只限quiet profile/.05–.35。63项CPU与4项实际CLI拒绝通过；不改PPO分布、原logprob、均值结构、奖励或域。054从052同505时钟/Adam/RNG重新做与053同样32更新，唯一语义差为轮quiet倍率.35→.10，仍冻结其他actor和std参数，保留全高度5ms预测。实际初态还须与053按参数名认证Adam和RNG；同48×12s配对053与036门槛，通过后才完整套件。消费现1057，拟完成后1089；两个分支各505→537，不能相加为569。长训仍0，尚无新交付。
+
+054已经唯一启动，实际初态审计通过：与052和053初态的actor/critic/named Adam及四RNG完全一致，所有其他语义settings相同；新quiet轮倍率.10和5ms全高度预测都已在保存的原生初态核验。旧actor/std/geometry仍冻结。回执`iteration054_initial.json`；拟32仍须等原生完成后计入最终消费。
