@@ -1,0 +1,35 @@
+{
+  "schema": "quiet097-bounded-network-bias-v1",
+  "parent_sha256": "bce79708a7bf1140a0051b9094056c1dcf32f7b7fc819015adabe09a0c3f9e91",
+  "changed_actor": [
+    "mlp.mean.quiet_high.2.bias"
+  ],
+  "changed_values": 4,
+  "added_high_output_logits": [
+    0.003000000026077032,
+    0.003000000026077032,
+    -0.003000000026077032,
+    -0.003000000026077032,
+    0.0,
+    0.0
+  ],
+  "reason": "093 .002 worst startup5.069cm;095 .004 late forward creep5.331cm; bracket both limits",
+  "hypothesis": "Small forward common-angle DC change in existing high quiet MLP reduces startup excursion",
+  "parameter_step_basis": "Midpoint .003 total logits relative087 between startup-limited.002 and late-creep-limited.004; one bracketed coordinate test",
+  "motor_commands": "Existing neural actor only; no new controller, observer, gate or scripted angle",
+  "optimizer": "All named Adam moments kept; explicit zero-PPO parameter proposal",
+  "new_macro_updates": 0,
+  "candidate_lineage": 505,
+  "robust_consumed": 1384,
+  "full_training_admitted": false,
+  "installed_in_rmcs": false,
+  "checkpoint_sha256": "10cca03e85ffa1c08b36d88830cf0d3b8fd6d08a1e95ad942fa17c5801e04cbf",
+  "strict_load_valid": true,
+  "other_actor_std_critic_Adam_fourRNG_exact": true,
+  "recorded_inputs": 14609,
+  "low_mid_actions_exact": 14192,
+  "nonquiet_actions_exact": 13022,
+  "same_input_wheel_outputs_exact": true,
+  "maximum_same_input_leg_target_change_rad": 0.0003000199794769287,
+  "native_behavior_proven": false
+}
