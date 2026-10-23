@@ -198,3 +198,5 @@
 下一063零PPO消融：仅把三个新位置头的腿共同角两行置0，保留轮位置反馈、全部旧quiet/平衡/recovery网络和同一v3参考。用以检验新增腿位置修正是否在和原快速平衡反馈相互影响；六电机依然全部由RL输出，不增加脚本动作。该假设尚未有闭环证据，不据此称为原因或承诺更稳；实际静站门槛继续不变，严重翻倒重建仍单独关闭待验证。
 
 063已封存PT SHA`205b0a9af61e15d8f4be73b203d01e0067483e8935fae6a5eebffe238652b5b3`，只有新三头的12个腿位置系数置0，轮位置权重、所有旧actor/critic/全部Adam/四RNG精确保持，原生源未修改。28,320实际输入上轮动作逐位不变，14,964非quiet动作和全部零位置动作逐位一致，腿raw最大差.003172。`iteration063_migration.json`。拟同48×12s原生配对，未完成前不称消融改善；0新PPO、账本1128/来源473/长训0。
+
+063运行期间只读重核RMCS部署边界，回执`deployment_position_abi063_audit.json`：实际`recovery_candidate.onnx`与本地source均SHA`a00d13df…c29c29`，图内`paired_branch107_v1`及几何spec SHA与本轮保持一致；旧图没有可据以断言实际运行频率的`policy_hz`元数据。实车200Hz仍以用户确认作依据。被读tracked YAML SHA`d5b4a80e…30c00`第60行为50Hz、第84行将轮位置槽`zero=true`，未被确认为实际启动文件，不能据此宣称实车50Hz。`WheelLegController`已在policy_divisor边界组装观测（controller.cpp353–357），是以后一次策略tick更新位置状态的现有接点；`RlBridge`继续只负责路由/线程推理。新位置ABI仍未接入RMCS，未改任何RMCS文件或硬件进程，旧313交付图保持。
