@@ -9,6 +9,7 @@ from copy import deepcopy
 import hashlib
 import importlib.util
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -45,6 +46,16 @@ def fixed_stationary_push_cases(full):
     return cases
 
 
+def scaled_stationary_push(settings, scale):
+    """Separate diagnostic disturbance; the default force/time stays frozen."""
+    if not math.isfinite(scale) or not 0. < scale <= 1.:
+        raise ValueError("Stationary push scale must be finite within (0,1]")
+    settings = deepcopy(settings)
+    for key in ("push_force_n", "push_torque_nm"):
+        settings[key] *= scale
+    return settings
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
@@ -73,6 +84,8 @@ def main():
                         help="Diagnostic steady forward commands, e.g. 1.5 1.75 2; cannot qualify an export")
     subset.add_argument("--stationary-push-cases", action="store_true",
                         help="Diagnostic zero-command versions of the frozen moving-push cases; cannot qualify an export")
+    parser.add_argument("--stationary-push-scale", type=float, default=1.,
+                        help="Explicit force/torque scale for stationary-push diagnostics only; default preserves the frozen pusher")
     parser.add_argument("--forward-yaws", type=float, nargs="+", default=[0.],
                         help="Diagnostic yaw rates crossed with --forward-speeds")
     parser.add_argument("--sensor-delay-policy-ticks", type=int, choices=[0, 1, 2],
@@ -97,6 +110,9 @@ def main():
         parser.error("Domain scale must be 0..1 and minimum friction in (0,.5]")
     if args.friction_value is not None and not 0. <= args.friction_value <= 1.:
         parser.error("Fixed ground friction must be in [0,1]")
+    if (not math.isfinite(args.stationary_push_scale) or not 0. < args.stationary_push_scale <= 1.
+            or args.stationary_push_scale != 1. and not args.stationary_push_cases):
+        parser.error("Use finite stationary push scale in (0,1] only with --stationary-push-cases")
     if args.forward_speeds and (len(set(args.forward_speeds)) != len(args.forward_speeds)
                                or not all(0. <= speed <= 3. for speed in args.forward_speeds)):
         parser.error("Use distinct diagnostic forward speeds in [0,3] m/s")
@@ -107,7 +123,6 @@ def main():
     if ("reference" in args.variants) != (args.reference_checkpoint is not None):
         parser.error("Use --reference-checkpoint together with the reference variant")
     if args.standing_command_feedback_gain is not None:
-        import math
         if (not math.isfinite(args.standing_command_feedback_gain)
                 or abs(args.standing_command_feedback_gain) > 8.
                 or args.variants != ["robust"]
@@ -198,6 +213,8 @@ def main():
                     "standing_position_filter_seconds", "standing_position_reference"):
             if key in verified_info["settings"]:
                 task[key] = deepcopy(verified_info["settings"][key])
+        if args.stationary_push_cases:
+            task = scaled_stationary_push(task, args.stationary_push_scale)
         task_path = args.output / "task_contract.json"
         public_task = json.loads(task_path.read_text())
         public_task["settings"] = task
@@ -273,6 +290,8 @@ def main():
             env.evaluation_overrides["forward_yaws"] = args.forward_yaws
         if args.stationary_push_cases:
             env.evaluation_overrides["stationary_push_cases"] = True
+            if args.stationary_push_scale != 1.:
+                env.evaluation_overrides["stationary_push_scale"] = args.stationary_push_scale
         if args.instant_sensor_group:
             env.evaluation_overrides["instant_sensor_group"] = args.instant_sensor_group
         if args.neutralize_bias:
