@@ -1,0 +1,30 @@
+{
+  "schema": "runtime085-full-frame-parity-v1",
+  "frames": 35158,
+  "valid_frames": 35137,
+  "input_fixture068_sha256": "edf9f00abe35ca72bc882329f9eced0cc0427bb3396bcecbbb9fb43f329f029b",
+  "invalid_rejection_exact": true,
+  "full35_maximum_error": 4.76837158203125e-07,
+  "position_slot_maximum_error": 4.76837158203125e-07,
+  "passive_history_maximum_error": 1.9073486328125e-06,
+  "multiple_common_turns_injected": true,
+  "command": [
+    "docker",
+    "exec",
+    "-i",
+    "rmcs_devcontainer-rmcs-develop-1",
+    "/workspaces/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/build/rmcs_core/wheel_leg_observation_parity"
+  ],
+  "scope": "native-derived encoder fixtures plus synthetic reset/invalid/duplicate cases; raw delayed wheel angles were not saved in068, so its post-step angles remain an offline fixture",
+  "files": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/runtime085_frames/inputs.txt": "5dbc8ceebdd3db4d98c128d07d185ee2f746b230d80c81b078ea7ae9b436702f",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/runtime085_frames/actual.txt": "cd22e0a0414166811781aa950ea0b34f129d6bac245719d3291e4ab1e0387718",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/runtime085_frames/parity.npz": "cd7c5235f32d8baf34f8d42f81c001d702c824c0ab5a2b74bb1094d90fd36bcb",
+    "/home/noir/Documents/workspace/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/unified_observation.hpp": "6ba3d5528a12c455c7983fc9daf3dd0d2ac031aab6c3a002d0c60c58675c84c5",
+    "/home/noir/Documents/workspace/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/standing_reference_v3.hpp": "6a3f8e2ce934bd83fbca11504e1b080092470e11d67576a43d48109e597ef981",
+    "/home/noir/Documents/workspace/RMCS/.codex/worktrees/unified-standing-v3/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/standing_model_geometry.hpp": "3619f12090d020ccd2d0c2f3c55950fe6d999f920a3576b5dedb3a432d2144af"
+  },
+  "hardware_tested": false,
+  "behavior_qualified": false,
+  "new_ppo_updates": 0
+}
