@@ -1,0 +1,135 @@
+{
+  "schema": "quiet052-original-event-figure-v1",
+  "figure": "reports/unified_robust_20261021/standing_prediction052.png",
+  "figure_sha256": "0884078eddd3a1dd7032cc5181e1f2747f49722927bc34ccf28e5894cf586f85",
+  "sources": [
+    {
+      "label": "Retained baseline",
+      "run": "runs/unified_robust_20261022/quiet_velocity_baseline036",
+      "step": 441,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792695023.ZGZ.462719.0.behavior",
+          "sha256": "5e94126bb0af2a9b427b93acc24a2e79005be3a0c314b4af62868e966d11d674"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792709803.ZGZ.826112.0.standing_segments047",
+          "sha256": "55ef25f9c9820360674bc8cf9fcb449f1ee88d2e5a14b09cc675c85cd98510bb"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792709966.ZGZ.827805.0.standing_segments047",
+          "sha256": "408bc485a35a2360fe9684f311ee112f7264c94151e25951d184996feaaefddb"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792712429.ZGZ.853953.0.rolling_velocity049",
+          "sha256": "0c4f9e6232a83fc537ccc5567e60439c5424b9245b2620b88c6ddb9e7233ad92"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792713216.ZGZ.876719.0.rolling_velocity049",
+          "sha256": "f34d3bdd94eab1eb2fabf6115e092072d2cb377087770c622fb771a5fe70da5d"
+        },
+        {
+          "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/events.out.tfevents.1792714433.ZGZ.910724.0.rolling_observability050",
+          "sha256": "0c845daf6d8dbecf45d9e2dba968c593ad631849489c5d5e73f22f431996fba3"
+        }
+      ]
+    },
+    {
+      "label": "Learned rolling feedback (050)",
+      "run": "runs/unified_robust_20261022/learned_rolling_static050",
+      "step": 505,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/learned_rolling_static050/events.out.tfevents.1792716108.ZGZ.963764.0.behavior",
+          "sha256": "51efff746ddcccbddc060df212a22023ee66020fcfefcce03ecfb430383871bd"
+        }
+      ]
+    },
+    {
+      "label": "All-height q prediction (052)",
+      "run": "runs/unified_robust_20261022/all_prediction_static052",
+      "step": 505,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/all_prediction_static052/events.out.tfevents.1792718275.ZGZ.1020918.0.behavior",
+          "sha256": "e09ea80383a98bd381890bec5af4d0afa11ae4677d76f7a3a8c83b94e097f023"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    "full_window/worst_episode_body_xy_max_excursion_m",
+    "body_xy_worst_episode_excursion_m",
+    "leg_motion_fast_rms_rad_3_95",
+    "wheel_motion_fast_rms_rad_s_3_95"
+  ],
+  "plotted_values": [
+    [
+      [
+        33.54179263114929,
+        18.553896248340607,
+        12.094707787036896
+      ],
+      [
+        26.267999410629272,
+        14.466822147369385,
+        12.736031413078308
+      ],
+      [
+        0.2827847783919424,
+        0.661621568724513,
+        1.2038745917379856
+      ],
+      [
+        0.05773825943470001,
+        0.12595055997371674,
+        0.22590185701847076
+      ]
+    ],
+    [
+      [
+        19.065310060977936,
+        56.84962868690491,
+        8.434111624956131
+      ],
+      [
+        14.859551191329956,
+        58.914899826049805,
+        9.553392231464386
+      ],
+      [
+        0.5774565506726503,
+        4.5674447901546955,
+        1.114065758883953
+      ],
+      [
+        0.08427972346544266,
+        0.7842534184455872,
+        0.22398962080478668
+      ]
+    ],
+    [
+      [
+        19.52025443315506,
+        10.56501418352127,
+        8.434111624956131
+      ],
+      [
+        15.082170069217682,
+        8.136486262083054,
+        9.553392231464386
+      ],
+      [
+        0.7268443587236106,
+        0.9179410990327597,
+        1.114065758883953
+      ],
+      [
+        0.09943202137947083,
+        0.14699922502040863,
+        0.22398962080478668
+      ]
+    ]
+  ],
+  "data_source": "Original TensorBoard event files; logarithmic y axes; no separate curve store"
+}

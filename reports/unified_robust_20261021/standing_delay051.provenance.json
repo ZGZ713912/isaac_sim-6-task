@@ -1,0 +1,82 @@
+{
+  "schema": "quiet051-original-event-figure-v1",
+  "figure": "reports/unified_robust_20261021/standing_delay051.png",
+  "figure_sha256": "a50263895c7e7081e6c7a9b1d81b8242e6d684084453b0a520791ee3921b8dc8",
+  "sources": [
+    {
+      "label": "050 with original delays",
+      "run": "runs/unified_robust_20261022/learned_rolling_static050",
+      "step": 505,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/learned_rolling_static050/events.out.tfevents.1792716108.ZGZ.963764.0.behavior",
+          "sha256": "51efff746ddcccbddc060df212a22023ee66020fcfefcce03ecfb430383871bd"
+        }
+      ]
+    },
+    {
+      "label": "050, diagnostic delay0",
+      "run": "runs/unified_robust_20261022/instant_policy_delay051",
+      "step": 505,
+      "files": [
+        {
+          "path": "runs/unified_robust_20261022/instant_policy_delay051/events.out.tfevents.1792717107.ZGZ.983176.0.behavior",
+          "sha256": "6a56101fc8127a77c572d228122cbf589a4bfe8a1d3562fc7be19763eee22bb2"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    "full_window/worst_episode_body_xy_max_excursion_m",
+    "body_xy_worst_episode_excursion_m",
+    "leg_motion_fast_rms_rad_3_95",
+    "wheel_motion_fast_rms_rad_s_3_95"
+  ],
+  "plotted_values": [
+    [
+      [
+        19.065310060977936,
+        56.84962868690491,
+        8.434111624956131
+      ],
+      [
+        14.859551191329956,
+        58.914899826049805,
+        9.553392231464386
+      ],
+      [
+        0.5774565506726503,
+        4.5674447901546955,
+        1.114065758883953
+      ],
+      [
+        0.08427972346544266,
+        0.7842534184455872,
+        0.22398962080478668
+      ]
+    ],
+    [
+      [
+        19.86270099878311,
+        10.086830705404282,
+        8.691246062517166
+      ],
+      [
+        15.336064994335175,
+        7.754819095134735,
+        9.21345055103302
+      ],
+      [
+        0.5826426204293966,
+        0.7893460569903255,
+        1.03192706592381
+      ],
+      [
+        0.08203589171171188,
+        0.12684088945388794,
+        0.19957207143306732
+      ]
+    ]
+  ],
+  "data_source": "Original TensorBoard event files; logarithmic y axes; no separate curve store"
+}

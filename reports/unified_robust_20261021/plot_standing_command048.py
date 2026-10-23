@@ -20,8 +20,12 @@ def main(iteration=48):
         assert all(all(row["paired"].values()) for row in result["tests"].values())
     elif iteration == 49:
         assert all(result["baseline_pairing"].values()) and all(result["wheel_proxy_pairing"].values())
-    else:
+    elif iteration == 50:
         assert all(result["pairing"].values())
+    elif iteration == 51:
+        assert all(result["pairing"]["checks"].values())
+    else:
+        assert all(result["pairing_to050"].values()) and all(result["pairing_to_retained"].values())
     sources = [("Retained baseline", "quiet_velocity_baseline036"),
                ("Gain -2 (rejected)", "command_feedback_negative048"),
                ("Gain +2", "command_feedback_positive048")]
@@ -32,6 +36,13 @@ def main(iteration=48):
     if iteration == 50:
         sources = [("Retained baseline", "quiet_velocity_baseline036"),
                    ("Learned rolling feedback, 64 updates", "learned_rolling_static050")]
+    if iteration == 51:
+        sources = [("050 with original delays", "learned_rolling_static050"),
+                   ("050, diagnostic delay0", "instant_policy_delay051")]
+    if iteration == 52:
+        sources = [("Retained baseline", "quiet_velocity_baseline036"),
+                   ("Learned rolling feedback (050)", "learned_rolling_static050"),
+                   ("All-height q prediction (052)", "all_prediction_static052")]
     metrics = [("full_window/worst_episode_body_xy_max_excursion_m", "Full-window maximum displacement", "cm", 100., 5.),
                ("body_xy_worst_episode_excursion_m", "Steady-window maximum displacement", "cm", 100., 5.),
                ("leg_motion_fast_rms_rad_3_95", "Actual leg motion, 3-95 Hz", "mrad RMS", 1000., None),
@@ -71,9 +82,15 @@ def main(iteration=48):
     handles, labels = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="outside lower center", ncol=4, frameon=False)
     title = "Matched learned rolling feedback" if iteration == 50 else "Matched zero-PPO standing command feedback"
+    if iteration == 51:
+        title = "Observation-delay counterfactual (051), no PPO"
+    if iteration == 52:
+        title = "Matched all-height leg prediction (052), no PPO; original delays retained"
     fig.suptitle(title + ": 16 episodes per height\n"
                  "200 Hz policy / 1 kHz physics; moderate domains; ground friction 0.3-0.5", fontsize=13)
     basename = f"standing_rolling{iteration:03d}" if iteration == 50 else f"standing_command{iteration:03d}"
+    if iteration in (51, 52):
+        basename = f"standing_{'delay' if iteration == 51 else 'prediction'}{iteration:03d}"
     path = REPORTS / (basename + ".png")
     fig.savefig(path, dpi=160)
     plt.close(fig)
@@ -88,5 +105,5 @@ def main(iteration=48):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--iteration", type=int, choices=[48, 49, 50], default=48)
+    parser.add_argument("--iteration", type=int, choices=[48, 49, 50, 51, 52], default=48)
     main(parser.parse_args().iteration)
