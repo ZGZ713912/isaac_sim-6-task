@@ -89,6 +89,17 @@ def prepare(args):
     for key in ("ground_static_friction_range", "ground_dynamic_friction_range"):
         material[key] = [.5, .5]
     changes["contact_material"] = material
+    study_path = getattr(args, "randomization_study", None)
+    study = None
+    if study_path is not None:
+        from wheeled_tasks.chassis.randomization_study import resolve, apply
+        study_path = Path(study_path).resolve()
+        study = resolve(json.loads(study_path.read_text()), getattr(args, "randomization_profile", None),
+                        getattr(args, "randomization_strength", 1.))
+        study.update(input_sha256=digest(study_path), input_file=str(study_path))
+        apply(changes, task, study)
+        write_json(args.output / "randomization_study.resolved.json", study)
+        (args.output / "randomization_study.input.json").write_bytes(study_path.read_bytes())
     static_prior = None
     if args.static_load_initialization:
         from wheeled_algo.standing_load_initialization import load_prior
@@ -106,7 +117,7 @@ def prepare(args):
     validate_isolated_origins(cfg, args.num_envs)
     row["runtime"]["seed"] = args.seed
     row["runtime"]["contact_material"] = deepcopy(material)
-    row["runtime"]["modules"]["dynamics_randomization"] = False
+    row["runtime"]["modules"]["dynamics_randomization"] = changes["dynamics_randomization"]["enabled"]
     row["invocation"] = dict(num_envs=args.num_envs, seed=dict(rule="fixed", value=args.seed))
     design["scope"] = "scratch_standing_mechanism_construction"
     design["review_basis"] = dict(mechanism_config=str(BASE_CONFIG), sha256=digest(BASE_CONFIG),
@@ -123,7 +134,9 @@ def prepare(args):
         leg_position_scale_rad=.25, wheel_velocity_scale_rad_s=10.,
         state_writes="reset only", initial_pitch_range_deg=[-.5, .5],
         curriculum=dict(mid_height_until_update=args.all_heights_after, then_heights_m=[.23, .305, .42]),
-        current_scope="nominal standing foundation; robustness and recovery are not qualified",
+        current_scope=("explicit domain study standing foundation; robustness and recovery are not qualified"
+                       if study is not None else "nominal standing foundation; robustness and recovery are not qualified"),
+        randomization_study=study,
         precise_standing_objective=args.precise_objective, normalized_observations=args.normalize_observations,
         desynchronized_initial_episode_lengths=args.desync_episodes,
         standing_failure_resets=args.standing_failures,
@@ -275,6 +288,12 @@ def main():
     parser.add_argument("--rollout-steps", type=int, default=128)
     parser.add_argument("--seed", type=int, default=261001)
     parser.add_argument("--all-heights-after", type=int, default=512)
+    parser.add_argument("--randomization-study", type=Path,
+                        help="Opt-in JSON with independent domain groups; new actor/critic/empty Adam only")
+    parser.add_argument("--randomization-profile",
+                        help="Named profile inside the explicit study; no legacy severity overlay")
+    parser.add_argument("--randomization-strength", type=float, default=1.,
+                        help="Scale the profile's group radii once within0..1; timing remains explicit")
     parser.add_argument("--speed-weight", type=float, default=2.)
     parser.add_argument("--contact-weight", type=float, default=8.)
     parser.add_argument("--contact-break-cost", type=float,
@@ -296,6 +315,8 @@ def main():
     parser.add_argument("--fixed-target-probe", action="store_true")
     parser.add_argument("--preflight-only", action="store_true")
     args = parser.parse_args()
+    if args.randomization_study is None and (args.randomization_profile is not None or args.randomization_strength != 1.):
+        parser.error("Profile and strength require an explicit randomization study JSON")
     if args.updates < 0 or args.num_envs < 21 or args.num_envs > 256 or args.rollout_steps < 8:
         parser.error("Need nonnegative updates,21..256 isolated environments and rollout>=8")
     if args.fixed_target_probe and args.updates:
@@ -490,6 +511,10 @@ def main():
             runner.learn(args.updates, init_at_random_ep_len=args.desync_episodes)
         else:
             runner.logger.init_logging_writer()
+        if task.get("randomization_study") is not None:
+            from wheeled_tasks.chassis.randomization_study import scalar_metrics
+            for key, value in scalar_metrics(task["randomization_study"]).items():
+                runner.logger.writer.add_scalar("DomainStudyConfig/" + key, value, report["completed_updates"])
         save(args.output / "model_final.pt")
         report["status"] = "evaluating"
         write_json(args.output / "progress.json", report)

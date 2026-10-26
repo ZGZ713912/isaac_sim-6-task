@@ -1,0 +1,173 @@
+{
+  "schema": "wheel-leg-permanent-user-requirements-v2",
+  "recorded_date": "2026-10-26",
+  "authority": "User requirements in this conversation; durable capability and measurement requirements",
+  "document": "docs/WHEEL_LEG_ACCEPTANCE.md",
+  "execution_effect": "Requirements only; does not change a running policy, evaluator, training budget, controller, or deployment",
+  "change_policy": "Preserve this version and historical results. User changes require an explicit successor version; a failure does not authorize lowering requirements.",
+  "training_origin": {
+    "fresh_actor": true,
+    "fresh_critic": true,
+    "empty_Adam": true,
+    "resume_old_training": false,
+    "old_policy_teacher_or_donor": false,
+    "old_checkpoints_for_readonly_comparison": true,
+    "nominal_mechanical_initialization_prior": "Allowed when documented; no learned weights or runtime scripted recovery"
+  },
+  "standing_contact": {
+    "required_effective_supported_fraction": 1.0,
+    "raw_supported_fraction_reported_separately": true,
+    "ignored_continuous_loss_max_ms": 2,
+    "ignore_rule": "Ignore each maximal consecutive raw unsupported interval whose observed duration is<=2ms for acceptance; preserve raw samples, raw count/duration and ignored intervals in diagnostics.",
+    "evaluation_start": "Actual logged self-righting/recovery-completed event, followed by the declared stationary command; no fallen/passive/get-up samples in the standing-contact denominator. Direct initialized-standing tests use their explicit standing-start event.",
+    "completion_event_required_for_recovery_episodes": true,
+    "no_completion_is_not_a_pass": true,
+    "no_posthoc_best_window_selection": true,
+    "relapse_rule": "A later fall remains a recovery/standing failure and must not be erased by moving the start forward again.",
+    "extra_startup_grace_seconds_after_completion": 0.0,
+    "current_native_sampling_hz": 1000,
+    "current_raw_observer": "Both wheel contact force norms strictly exceed2N. This is a load/contact classification, not proof of geometric lift-off. Preserve force and estimated wheel-bottom clearance.",
+    "longer_loss_rule": "Intervals longer than2ms remain counted; no force-threshold change or removal of original evidence."
+  },
+  "stationary_spin": {
+    "target_rpm": 100,
+    "minimum_acceptable_rpm": 80,
+    "measured_quantity": "Actual body yaw rate, not wheel speed, requested command, clipped command, or reward",
+    "directions": [
+      "clockwise",
+      "counterclockwise"
+    ],
+    "must_measure_xy_max_excursion_terminal_offset_and_outward_trend": true,
+    "must_remain_upright_and_smooth": true,
+    "height_combinations_required": true
+  },
+  "capabilities": [
+    {
+      "id": "initial_recovery",
+      "requirement": "Recover from initial front/back/left/right/upside-down and asymmetric leg poses; stabilize and continue the requested task"
+    },
+    {
+      "id": "moving_fall_recovery",
+      "requirement": "Detect and recover quickly after a real fall during forward/reverse/turning/spinning motion; resume the request without scripted assistance"
+    },
+    {
+      "id": "standing",
+      "requirement": "Stable quiet low/mid/high standing after actual recovery completion, with continuous effective dual-wheel support allowing<=2ms pulses, small true XY drift and no sustained outward drift"
+    },
+    {
+      "id": "low_speed_straight",
+      "requirement": "Track low positive and negative speeds and the straight path smoothly"
+    },
+    {
+      "id": "high_speed_straight",
+      "requirement": "Track high forward and reverse speeds while retaining straight-path accuracy and balance"
+    },
+    {
+      "id": "stationary_spin",
+      "requirement": "Target100rpm, at least80rpm, both directions, near the same ground location without falling or vibration"
+    },
+    {
+      "id": "four_direction_arcs",
+      "requirement": "Forward-left, forward-right, reverse-left and reverse-right simultaneous translation and turning, including transitions"
+    },
+    {
+      "id": "standing_height_change",
+      "requirement": "Smooth standing height changes without meaningful wheel lift, excessive drift or loss of balance; apply the post-completion<=2ms contact tolerance"
+    },
+    {
+      "id": "moving_height_change",
+      "requirement": "Change height during forward/reverse/turning motion while maintaining tracking and balance"
+    },
+    {
+      "id": "spinning_height_change",
+      "requirement": "Change height during both spin directions while maintaining yaw, location and balance"
+    },
+    {
+      "id": "high_speed_braking",
+      "requirement": "Abruptly command zero from high forward and reverse speeds; stop promptly, smoothly and upright with small overshoot and little rebound"
+    },
+    {
+      "id": "smoothness",
+      "requirement": "All tasks must avoid high-frequency leg/wheel excitation, contact chatter and dangerous measured joint speed"
+    },
+    {
+      "id": "robustness",
+      "requirement": "Confirm nominal and randomized held-out dynamics, actuator/sensor/timing/friction domains, seeds and disturbances; preserve all failures"
+    }
+  ],
+  "leg_wheel_coordination": {
+    "four_leg_joints_remain_active": true,
+    "use_case": "Coordinate hip/knee motion to move wheel centers fore/aft relative to the body together with driven-wheel control for acceleration, reversal and braking",
+    "measure": [
+      "left/right virtual-leg length and angle",
+      "wheel-center fore/aft body position and velocity",
+      "actual wheel speed",
+      "pitch and pitch rate",
+      "true XY velocity",
+      "contact and slip",
+      "applied torque and power"
+    ],
+    "not_proven_by_architecture_or_action_range_alone": true,
+    "no_leg_freeze_or_scripted_recovery_substitute": true
+  },
+  "inherited_references": {
+    "standing_heights_m": [
+      0.23,
+      0.305,
+      0.42
+    ],
+    "standing_xy_max_excursion_m": {
+      "low": 0.05,
+      "mid": 0.05,
+      "high": 0.1
+    },
+    "high_stance_recentering": "Keep the prior30s final10s mean radius<=max(5cm,80percent peak) and outward radial slope<=1mm/s; finite-window evidence only",
+    "closed_chain_gap_max_m": 0.003,
+    "foundation_native_test_seconds": 8,
+    "long_standing_confirmation_seconds": 30,
+    "note": "Apply the corrected post-recovery measurement scope and<=2ms interval tolerance. Historical strict raw results remain preserved; survival-only success is still insufficient."
+  },
+  "not_yet_quantified_by_user": [
+    "maximum time from fall to stable recovery",
+    "allowed transient speed/yaw errors and settling time for every requested speed",
+    "maximum straight-path lateral and heading error",
+    "maximum spin-center excursion and long-term drift",
+    "maximum height-transition settling time and overshoot",
+    "maximum braking time, distance, overshoot and rebound",
+    "absolute smoothness limits for spectral energy, jerk, torque slew and joint speed across dynamic recovery"
+  ],
+  "unquantified_rule": "Retain these objectives and report their measurements. Freeze engineering test ranges and numeric thresholds before each new evaluation; do not represent an unspecified value as a user-approved threshold or infer overall qualification from an absent limit.",
+  "evidence": {
+    "same_checkpoint_required_for_integrated_qualification": true,
+    "separate_initial_fall_from_in_motion_fall": true,
+    "separate_rise_from_stable_hold_and_followup": true,
+    "separate_requested_from_applied_and_measured_commands": true,
+    "separate_nominal_DR_simulation_and_hardware": true,
+    "unknown_or_unmeasured_is_not_pass": true,
+    "training_means_are_not_deterministic_behavior_acceptance": true,
+    "curve_source": "Existing RSL-RL TensorBoard event logging; checkpoint, native trace, contract, judgment and SHA receipts preserve provenance"
+  },
+  "supersedes": "contracts/wheel_leg_acceptance_requirements_v1.json",
+  "change_reason": "Direct user correction2026-10-26: count contact only after actual recovery completion; ignore individual contact-loss runs<=2ms for acceptance; the reported0.0036deg leg-angle RMS is negligible; prioritize noise/domain robustness, and<=1cm standing drift is very good.",
+  "smoothness_interpretation": {
+    "user_accepted_leg_angle_RMS_examples_mrad": [
+      0.06252,
+      0.06294
+    ],
+    "equivalent_rad": [
+      6.252e-05,
+      6.294e-05
+    ],
+    "equivalent_degrees": [
+      0.003582132135157907,
+      0.0036061963625534017
+    ],
+    "rule": "The cited approximately0.0036deg band-limited leg-angle RMS and its tiny difference are negligible and do not independently fail acceptance or justify further optimization solely to reduce them.",
+    "scope": "This does not identify the source as IMU/motor noise or prove all-frequency wheel/torque/dynamic behavior is smooth."
+  },
+  "standing_drift_preference": {
+    "very_good_xy_max_m": 0.01,
+    "rule": "Approximately1cm or less is very good; do not treat it as an additional hard rejection threshold. Preserve raw excursion, terminal offset and outward trend, with the prior5/5/10cm references until changed."
+  },
+  "optimization_priority": "Improve retained standing under motor/encoder/IMU noise and progressively randomized domains rather than minimizing negligible nominal leg-angle RMS or<=2ms contact pulses. Preserve all other task coverage and fresh-training rules."
+}
