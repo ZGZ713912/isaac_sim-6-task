@@ -108,12 +108,23 @@ class RobustGetupActor(UnifiedGetupActor):
                  fast_forward_reference_yaw_fade=.25, quiet_height_experts=False,
                  quiet_native_height_anchors=False, quiet_velocity_feature_gain=1.,
                  quiet_velocity_feedback=False, quiet_velocity_feedback_mode="all",
-                 quiet_leg_prediction_all_heights=False):
+                 quiet_leg_prediction_all_heights=False, recovery_knee_step=.15,
+                 recovery_previous_common_version=None):
         super().__init__(parent)
         self.canonical_recovery = canonical_recovery
         self.motion_residual_fraction = motion_residual_fraction
         self.cyclic_leg_targets = cyclic_leg_targets
         self.recovery_leg_step = recovery_leg_step
+        if isinstance(recovery_knee_step, bool) or not .05 <= recovery_knee_step <= .45:
+            raise ValueError("Knee request lead must be finite within .05.. .45 rad")
+        # This changes only the learned fallen knee request. The explicit
+        # orbit-v2 upright-entry branch retains its existing .15 lead.
+        self.recovery_knee_step = recovery_knee_step
+        if recovery_previous_common_version not in (None, "circular-v1"):
+            raise ValueError("Unknown previous recovery common-angle version")
+        if recovery_previous_common_version and not smooth_knee_targets:
+            raise ValueError("Circular recovery previous targets require smooth knee coordinates")
+        self.recovery_previous_common_version = recovery_previous_common_version
         self.smooth_knee_targets = smooth_knee_targets
         self.recovery_knee_center = recovery_knee_center
         self.quiet_velocity_feature_scale = quiet_velocity_feature_scale
@@ -302,7 +313,9 @@ class RobustGetupActor(UnifiedGetupActor):
         legs = obs[:, 22:26] + self.recovery_leg_step * torch.tanh(raw[:, :4])
         if self.smooth_knee_targets:
             legs = smooth_recovery_legs(raw[:, :4], obs[:, 22:26], obs[:, 10:14],
-                                        self.recovery_leg_step, self.recovery_knee_center)
+                                        self.recovery_leg_step, self.recovery_knee_center,
+                                        knee_step=self.recovery_knee_step,
+                                        previous_common_version=self.recovery_previous_common_version)
         elif self.cyclic_leg_targets:
             legs = paired_offsets(legs * .25, obs[:, 10:14]) / .25
         else:

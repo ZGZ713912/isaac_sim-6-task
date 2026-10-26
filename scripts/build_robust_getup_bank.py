@@ -33,7 +33,7 @@ class Builder(RecoveryProfileBuilder):
         return dict(knee_deg=knees, gap_m=float(gap))
 
 
-def build(output):
+def build(output, gap_starts=False, real_start_seeds=None):
     bundle = ROOT / "model/纯底盘_v7_flat_base107/urdf"
     builder = Builder(bundle, digest(bundle / "manifest.json"))
     # Fixed feasible mechanism configurations, including independent left/right
@@ -67,6 +67,44 @@ def build(output):
                 root_position_m=[0., 0., float(-min_z + .008)],
                 root_quaternion_xyzw=rotation.as_quat().tolist(),
                 full_joint_positions=q, min_collision_clearance_m=.008, **physical))
+    if gap_starts:
+        # Append only: every legacy pose index and full state stays identical.
+        # Near-extended knees and common rotations reproduce the real startup
+        # region through the closed-chain solver, never four independent angles.
+        for left, right in ((42, 42), (95, 95), (103, 103), (106, 106), (100, 105), (105, 100)):
+            aligned = builder.align_wheels(builder.knee_pose(left, right))
+            for orbit in (.8, 1.2, 1.6):
+                q = builder.common_rotate(aligned, orbit, -orbit)
+                physical = builder.validate_q(q)
+                for roll, pitch in ((0, 0), (0, 3), (0, -3), (3, 0), (-3, 0)):
+                    rotation = Rotation.from_euler("xyz", [roll, pitch, 0], degrees=True)
+                    bounds = builder.collision_bounds(q, rotation.as_matrix())
+                    min_z = min(row["lower"][2] for row in bounds)
+                    name = f"floor_knee{left}_{right}_orbit{orbit:.1f}_r{roll}_p{pitch}"
+                    poses.append(dict(name=name, family="upright", gap_floor_start=True,
+                        roll_deg=roll, pitch_deg=pitch, leg_shape=name,
+                        root_position_m=[0., 0., float(-min_z+.008)],
+                        root_quaternion_xyzw=rotation.as_quat().tolist(),
+                        full_joint_positions=q, min_collision_clearance_m=.008, **physical))
+    if real_start_seeds is not None:
+        if not gap_starts:
+            raise ValueError("Real start reconstruction requires --gap-starts")
+        seeds = json.loads(Path(real_start_seeds).read_text())
+        initial = builder.common_rotate(builder.align_wheels(builder.knee_pose(103, 103)), 1.2, -1.2)
+        for seed in seeds["cases"]:
+            fixed = {name: initial[name] for name in builder.controls}
+            fixed.update(zip(("L_joint1", "LL_joint1", "R_joint1", "RR_joint1"), seed["model_q_p_order_rad"][:4]))
+            q = builder.solve(fixed, initial)
+            physical = builder.validate_q(q)
+            bounds = builder.collision_bounds(q, np.eye(3))
+            poses.append(dict(name=seed["name"], family="upright", gap_floor_start=True,
+                real_start_reconstruction=True, source_csv_index=seed["source_csv_index"],
+                source_csv_sha256=seeds["source_sha256"],
+                body_pose_status="upright body assumed; height reconstructed from collision support, not measured",
+                roll_deg=0, pitch_deg=0, leg_shape=seed["name"],
+                root_position_m=[0., 0., float(-min(row["lower"][2] for row in bounds)+.008)],
+                root_quaternion_xyzw=[0., 0., 0., 1.], full_joint_positions=q,
+                min_collision_clearance_m=.008, **physical))
     result = dict(schema="wheel-leg-unified-reset-bank-v1", asset_directory=str(bundle.relative_to(ROOT)),
         asset_manifest_sha256=builder.manifest_sha256, model_spec_sha256=digest(bundle / "model_spec.json"),
         tree_joint_names=builder.manifest["tree_joint_names"], poses=poses,
@@ -82,4 +120,7 @@ def build(output):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    build(parser.parse_args().output)
+    parser.add_argument("--gap-starts", action="store_true")
+    parser.add_argument("--real-start-seeds", type=Path)
+    args = parser.parse_args()
+    build(args.output, args.gap_starts, args.real_start_seeds)
