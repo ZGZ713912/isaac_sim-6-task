@@ -1,0 +1,89 @@
+{
+  "schema": "projected-common-native-proposal-replay-preflight-v1",
+  "checks": {
+    "neutral_exact": true,
+    "phase_frozen_feature_basis_exact": true,
+    "phase_wheel_rows_exact": true,
+    "phase_far_margin": true,
+    "phase_stopped_margin": true,
+    "phase_knee_roundoff": true,
+    "phase_finite": true,
+    "replayed_projection_weights_exact": true,
+    "bounded_recorded_step": true,
+    "critic_Adam_source_unchanged": true,
+    "actual_wrapper_imported": true,
+    "metadata_explicit_projected_method": true,
+    "metadata_source_bound": true,
+    "metadata_projector_bound": true
+  },
+  "source": "runs/robust_policy_repair_20261024/function_root_entry002/model_initial.pt",
+  "source_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+  "proposal": "runs/robust_policy_repair_20261024/pilot012_common_entry002/model_stopped.pt",
+  "proposal_sha256": "06f755784fd8ec1ad36ceb172d43cb7e1ada4efa4146b0516d7e9c6ae7343427",
+  "known_native_reviewed_projection": "runs/robust_policy_repair_20261024/native_common_projected001/model_probe.pt",
+  "known_sha256": "d09ef23a2d5b158104fb4229ac464d5a8892d2fc45ec2436e35e87d6bef43387",
+  "neutral": {
+    "status": "neutral",
+    "rounds": [],
+    "projection_solved": true,
+    "solver_seconds": 0.0,
+    "recorded_step_target_peak_rad": 0.0,
+    "retained_initial_change_rms_rad": 0.0,
+    "proposal_coefficient_l2": 0.0
+  },
+  "replayed_projection": {
+    "status": "solved",
+    "rounds": [
+      {
+        "iteration": 1,
+        "status": "solved",
+        "selected_constraints": 512,
+        "solver_seconds": 0.053955666,
+        "violated_constraints": 665,
+        "max_constraint_violation": 0.0321233413025444
+      },
+      {
+        "iteration": 2,
+        "status": "solved",
+        "selected_constraints": 768,
+        "solver_seconds": 0.08776327900000001,
+        "violated_constraints": 107,
+        "max_constraint_violation": 0.010685985693452634
+      },
+      {
+        "iteration": 3,
+        "status": "solved",
+        "selected_constraints": 875,
+        "solver_seconds": 0.10756968300000001,
+        "violated_constraints": 16,
+        "max_constraint_violation": 0.003738357558836704
+      },
+      {
+        "iteration": 4,
+        "status": "solved",
+        "selected_constraints": 891,
+        "solver_seconds": 0.13553690300000001,
+        "violated_constraints": 0,
+        "max_constraint_violation": 7.37257477290143e-17
+      }
+    ],
+    "projection_solved": true,
+    "solver_seconds": 0.5147614600136876,
+    "recorded_step_target_peak_rad": 0.002586543560028076,
+    "retained_initial_change_rms_rad": 0.00029182119760662317,
+    "proposal_coefficient_l2": 0.025547203638849117,
+    "projected_coefficient_l2": 0.7940252348357868,
+    "max_constraint_violation": 7.37257477290143e-17
+  },
+  "phase_metrics": {
+    "far_signed_lead_min_rad": 0.014606861397624016,
+    "stopped_target_peak_rad": 0.0044915322214365005,
+    "knee_logit_delta_peak": 7.152557373046875e-06
+  },
+  "wrapper_sha256": "99e09c9a8d21a0c3cd21ef450758face7728aeaff19e31f556a56387eae88f5a",
+  "projector_sha256": "35f1795222dee930cf1bc9d34609b6b9689ba4132256fd0212e303f6e71cd913",
+  "new_PPO": 0,
+  "optimizer_steps": 0,
+  "decision": "Engineering preflight only, no new PPO admitted",
+  "created_unix": 1792895307.713702
+}

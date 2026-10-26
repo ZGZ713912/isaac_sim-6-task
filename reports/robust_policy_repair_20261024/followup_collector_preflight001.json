@@ -1,0 +1,66 @@
+{
+  "schema": "followup-reward-zero-collector-preflight-v1",
+  "checks": {
+    "import_without_training": true,
+    "native_GAE_precedes_outer_optimizer": true,
+    "optimizer_explicitly_forbidden": true,
+    "original_reward_timeout_bootstrap_exact": true,
+    "timer_bonus_and_moving_flags_recorded_exact": true,
+    "all_native_task_settings_equal_round015": true,
+    "reward_only_training_scope_requested": true
+  },
+  "collector_sha256": "7a44e88459376ec8df2d8f38ce18775dba74bdb8ba22f0b2cb357533f8e2dfb5",
+  "trainer_sha256": "70e689b9f46d8be892aaee919e4c082ad7255198fa9b54ecf554b2618299c07a",
+  "command": [
+    "--output",
+    "runs/robust_policy_repair_20261024/followup_prepare_CPU001",
+    "--bank",
+    "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+    "--resume",
+    "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+    "--updates",
+    "8",
+    "--num-envs",
+    "256",
+    "--rollout-steps",
+    "512",
+    "--seed",
+    "241510",
+    "--isolated-origins",
+    "--gap-robustness",
+    "--gap-severity",
+    ".8",
+    "--gap-actuator-timing",
+    "native",
+    "--actor-lr",
+    ".0001",
+    "--friction-min",
+    ".3",
+    "--domain-scale",
+    ".35",
+    "--eval-seconds",
+    "2",
+    "--curriculum-updates",
+    "512",
+    "--curriculum-origin",
+    "569",
+    "--motion-output-only",
+    "--motion-recovery-focus",
+    "--followup-continuity-weight",
+    "5"
+  ],
+  "native_runner": "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/rsl_rl/runners/on_policy_runner.py",
+  "native_runner_sha256": "c2dbe47974b047e6992e37ff39ac0a236c8fa5cb595cb9e1715e1344e81dc852",
+  "native_GAE_update_order": {
+    "update": [
+      53
+    ],
+    "compute_returns": [
+      50
+    ]
+  },
+  "new_PPO": 0,
+  "simulator_started": false,
+  "qualification": null,
+  "created_unix": 1792907911.4204385
+}

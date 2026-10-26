@@ -1,0 +1,57 @@
+{
+  "schema": "scratch-reset-probe-preflight-v1",
+  "observed_utc": "2026-10-25T21:59:22.457845+00:00",
+  "new_PPO": 0,
+  "native_steps": 0,
+  "invalid_combinations": [
+    {
+      "arguments": [
+        "--wheel-response-scale",
+        ".5",
+        "--reset-observation-mode",
+        "refresh-final-pose"
+      ],
+      "exit_code": 2,
+      "rejected_before_AppLauncher": true,
+      "output_created": false
+    },
+    {
+      "arguments": [
+        "--external-force-mode",
+        "every-iteration",
+        "--reset-observation-mode",
+        "refresh-final-pose"
+      ],
+      "exit_code": 2,
+      "rejected_before_AppLauncher": true,
+      "output_created": false
+    },
+    {
+      "arguments": [
+        "--wheel-response-scale",
+        ".5",
+        "--external-force-mode",
+        "every-iteration"
+      ],
+      "exit_code": 2,
+      "rejected_before_AppLauncher": true,
+      "output_created": false
+    }
+  ],
+  "CPU_reset_regression": {
+    "original_failed": 3,
+    "candidate_passed": 3
+  },
+  "CPU_initial_sensor_validation_tests_passed": 9,
+  "native_validation": false,
+  "candidate_adopted": false,
+  "hardware_ready": false,
+  "sources_sha256": {
+    "scripts/evaluate_scratch_standing.py": "b7f1f317e76cf5f7987ae72e99563bf7bb9d00ec369e4db35f4190596227150d",
+    "scripts/final_pose_observation_probe.py": "af6c43bf4be7e55cecef37b8a8e1312cc471d1d7dde315ff046aca6fa2a4142e",
+    "scripts/capture_scratch_feedback.py": "83c0a969c20d6f66143a12463df56cda05e5ebbf622d6c64ba46e40b36fa7cdf",
+    "scripts/check_scratch_sensor_timing.py": "c189a39940c9944d11ea18f3addbb1dbd56201229014c5ad5eb57b309ff042dd",
+    "tests/test_grounded_reset_observation.py": "57a08a7cfc6b330ca5987729f0f9375629b51fddd255206e64aa41277cdd17b5",
+    "tests/test_scratch_feedback_trace.py": "48c2312cf5288c276f507eac9cdbb28fdc8fd87a3075e2371bd99d4878996741"
+  }
+}

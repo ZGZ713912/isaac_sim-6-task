@@ -1,0 +1,50 @@
+{
+  "schema": "historical-mean-explicit-migration-compatibility-v1",
+  "checks": {
+    "explicit_archive_checked_migration_load": true,
+    "exactly_two_reviewed_opt_in_source_differences": true,
+    "archived_source_hashes_exact": true,
+    "original_forward_executed": true,
+    "archived_smooth_decoder_executed": true,
+    "old_default_knee_step": true,
+    "circular_extension_disabled": true,
+    "no_new_entry_or_target_limiter": true,
+    "historical_and_current_recorded_function_bitexact": true
+  },
+  "checkpoint": "runs/unified_robust_20261022/offline_recovery096/model_migrated.pt",
+  "checkpoint_sha256": "eb49ecdf871d5d2ca218586b75072c62f61771fc8431171f363c95d8bbb7a50f",
+  "archive": "runs/unified_robust_20261022/offline_recovery096/source",
+  "changed_sources": {
+    "src/wheeled_algo/recovery_coordinates.py": {
+      "expected": "e96bce5394431cb9173189d38e2a7dd9401dd09038023d9ec4edf2207ad4303e",
+      "current": "4e7b7911feea4b9cdf201ca7f2ec9456a10fa731fc9cf15a3ccc3ba7c6b6adcf",
+      "archive": "e96bce5394431cb9173189d38e2a7dd9401dd09038023d9ec4edf2207ad4303e"
+    },
+    "src/wheeled_algo/robust_getup.py": {
+      "expected": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9",
+      "current": "f789979c8f03d2d3e2d9c80c214215bc91c172b0e7bfd2825ba25593812ee486",
+      "archive": "72b870fac3435e7e8237c16ad51d03f3b6403848d755c9572a9c769cded0a6c9"
+    }
+  },
+  "replays": [
+    {
+      "path": "runs/unified_robust_20261022/early_roll_push107/robust/trajectory.npz",
+      "inputs": 16384,
+      "bitexact": true,
+      "max_action_delta": 0.0
+    },
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis026_motion_damping080_nominal_pair/robust/trajectory.npz",
+      "inputs": 16384,
+      "bitexact": true,
+      "max_action_delta": 0.0
+    }
+  ],
+  "clock": 569,
+  "new_PPO": 0,
+  "simulator_started": false,
+  "limitation": "CPU archived/current function equality at recorded inputs. This is not native trajectory replay, not a current-observer qualification and not an adoption of the historical policy.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792927293.284277
+}

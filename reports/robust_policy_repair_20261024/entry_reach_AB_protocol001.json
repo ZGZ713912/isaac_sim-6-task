@@ -1,0 +1,52 @@
+{
+  "schema": "paired-entry-support-PPO-protocol-v1",
+  "status": "paired16_complete_rejected_expanded_RMCS",
+  "plans": [
+    "reports/robust_policy_repair_20261024/plan007_entry_support0_001.json",
+    "reports/robust_policy_repair_20261024/plan008_entry_support1_001.json"
+  ],
+  "new_PPO_budget": 16,
+  "updates_per_arm": 8,
+  "rollout_steps": 512,
+  "num_envs": 256,
+  "actor_lr": 0.0001,
+  "source_clock": 1501,
+  "prior_experiment_consumed": 2587,
+  "planned_final_experiment_consumed": 2603,
+  "actual_experiment_consumed": 2603,
+  "reward_control_variable": "support_weight0_vs1; all other policy, sampler, physics, exposure, sourceRNG and optimizer settings shared",
+  "initial_native_equality_required": true,
+  "first_rollout_hashes_required": true,
+  "zero_PPO_gate_receipts": [
+    "reports/robust_policy_repair_20261024/recovery_support_return_order_gate001.json",
+    "reports/robust_policy_repair_20261024/entry_learning_preflight001.json",
+    "reports/robust_policy_repair_20261024/entry_reach_tests001.log"
+  ],
+  "execution": "Serial paired experiment. A native/PPO failure blocks the remaining arm; finite but negative control behavior remains a valid predeclared control. No automatic repetition, long training or deployment.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792878948.4633238,
+  "admission": "reports/robust_policy_repair_20261024/entry_reach_AB_admission001.json",
+  "admitted_unix": 1792879196.685037,
+  "new_PPO_completed": 16,
+  "remaining_arm_started": true,
+  "failure": "Frozen entry weights differ from their declared reference; evaluated loader does not authenticate the newly trained entry head",
+  "source_checkpoint_preserved": true,
+  "updated_unix": 1792882879.0171554,
+  "contract_failure_recovery": "reports/robust_policy_repair_20261024/entry_AB_contract_readmission001.json",
+  "control_fixed_review": "reports/robust_policy_repair_20261024/pilot007_fixed_decision001.json",
+  "first_rollout_pairing": "reports/robust_policy_repair_20261024/entry_AB_first_rollout_audit001.json",
+  "control_endpoint": "reports/robust_policy_repair_20261024/pilot007_endpoint_audit001.json",
+  "intervention_endpoint": "reports/robust_policy_repair_20261024/pilot008_endpoint_audit001.json",
+  "training_curve": "reports/robust_policy_repair_20261024/entry_AB_training001.png",
+  "intervention_fixed_review": "reports/robust_policy_repair_20261024/pilot008_fixed_decision001.json",
+  "expanded_admission": "reports/robust_policy_repair_20261024/entry_AB_expanded_validation_admission001.json",
+  "RMCS_reviews": [
+    "reports/robust_policy_repair_20261024/pilot007_rmcs_review001.json",
+    "reports/robust_policy_repair_20261024/pilot008_rmcs_review001.json"
+  ],
+  "more_PPO_admitted": false,
+  "adopted_checkpoint": null,
+  "nominal_review": "reports/robust_policy_repair_20261024/entry_AB_nominal_review001.json",
+  "expanded_decision": "reports/robust_policy_repair_20261024/entry_AB_RMCS_decision001.json"
+}

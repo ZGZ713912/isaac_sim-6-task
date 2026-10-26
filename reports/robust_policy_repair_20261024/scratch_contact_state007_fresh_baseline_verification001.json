@@ -1,0 +1,46 @@
+{
+  "schema": "scratch-contact-state-fresh-baseline-verification-v1",
+  "observed_utc": "2026-10-26T03:13:59.275087+00:00",
+  "checks": {
+    "receipts_complete": true,
+    "native_processes_exited": true,
+    "native_GPU_absent": true,
+    "no_PPO_or_Adam": true,
+    "checkpoint_exact": true,
+    "case_metrics_exact": true,
+    "initial_root_positions_exact": true,
+    "native_trace_exact": true,
+    "feedback_trace_exact": true,
+    "physics_runtime_exact": true,
+    "diagnostic_archive_exact": true,
+    "contact_force_and_valid_exact": true,
+    "contact_buffer_not_truncated": true,
+    "native_contact_tags_readback": true
+  },
+  "all_checks_pass": true,
+  "observer_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_contact_state001",
+  "fresh_unmodified_baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_feedback002",
+  "contact_analysis": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_contact_state007_analysis001.json",
+  "contact_analysis_sha256": "43cd52c4593e4b91e3a1799eeb73c7b051063556a8eced60c43b65ccf5e2186e",
+  "mid_missing_ms": 190,
+  "original_warm_evaluation_missing_ms": 217,
+  "original_warm_reproduction": false,
+  "tensorboard_contact_tags": {
+    "ContactState/mid_zero_pitch/missing_wheel_samples": [
+      {
+        "step": 512,
+        "value": 1.0
+      }
+    ],
+    "ContactState/mid_zero_pitch/missing_filter_but_supported_net_samples": [
+      {
+        "step": 512,
+        "value": 0.0
+      }
+    ]
+  },
+  "new_PPO": 0,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "scope": "Observer passivity and full21-case fresh-process baseline reproducibility. The original warm-environment217ms result remains separate; this does not certify standing or unique causality."
+}

@@ -1,0 +1,27 @@
+diagnosis012_final_arithmetic_fixed/evaluation {'trace': 'runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz', 'trace_sha256': '6d1816875765df7eb8849089a5c93b8e4b636a0e912b9e5ba6bc4e55ab549529', 'frames': 81600, 'invariant_frames': 73049, 'invariant_frames_bit_exact': 73049, 'changed_frames': 8551, 'finite': True, 'maximum_raw_action_difference': 0.517270565032959, 'maximum_physical_target_difference_rad': 0.03454852104187012}
+diagnosis012_final_arithmetic_nominal/robust {'trace': 'runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz', 'trace_sha256': '76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf', 'frames': 168000, 'invariant_frames': 159508, 'invariant_frames_bit_exact': 159508, 'changed_frames': 8492, 'finite': True, 'maximum_raw_action_difference': 0.5109224319458008, 'maximum_physical_target_difference_rad': 0.03397846221923828}
+diagnosis012_final_arithmetic_rmcs/evaluation {'trace': 'runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_rmcs/evaluation/trajectory.npz', 'trace_sha256': 'e17b2e540fc82d14249c47463b3a2198ab00cc4331bdcce1d9723a0c7442df85', 'frames': 115200, 'invariant_frames': 107415, 'invariant_frames_bit_exact': 107415, 'changed_frames': 7785, 'finite': True, 'maximum_raw_action_difference': 0.5215120315551758, 'maximum_physical_target_difference_rad': 0.03435850143432617}
+{
+  "schema": "periodic-entry-real-checkpoint-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "source": "runs/robust_policy_repair_20261024/entry_optimizer_support0_source001/model_migrated.pt",
+  "source_sha256": "2cc914b2b9b3b924b1c47d7bdcb4dc600997b03ef9f96483204bf07d55afc4f5",
+  "checks": {
+    "all_tensors_and_state_exact": true,
+    "learning_clock_exact": true,
+    "state_dict_exact": true,
+    "all_invariant_frames_bit_exact": true,
+    "all_frames_finite": true,
+    "all_negative_provenance_cases_rejected": true
+  },
+  "one_thread_CPU_mean_inference_ms": {
+    "source": 2.044825690002957,
+    "periodic_probe": 2.3246456633205526
+  },
+  "timing_scope": "Local PyTorch research diagnostic; not ONNX/RMCS timing acceptance.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false
+}

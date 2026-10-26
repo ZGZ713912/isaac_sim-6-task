@@ -1,0 +1,44 @@
+{
+  "schema": "scratch-physical-flag-counterfactual-v1",
+  "observed_utc": "2026-10-25T21:04:04.626805+00:00",
+  "checks": {
+    "both_completed_zero_PPO": true,
+    "same_checkpoint": true,
+    "same_seed": true,
+    "same_mechanics": true,
+    "same_initial_root": true,
+    "one_observed_scene_flag_differs": true,
+    "same_first_ms_rule": true
+  },
+  "all_checks_pass": true,
+  "runs": [
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval004_final256_feedback001",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval004_external_forces001"
+  ],
+  "native_flags": [
+    false,
+    true
+  ],
+  "mid_height_metrics": [
+    {
+      "missing_ms": 771,
+      "worst_support_fraction": 0.952625,
+      "standing_pass": 0,
+      "maximum_leg_speed_rad_s": 1.221464991569519
+    },
+    {
+      "missing_ms": 1724,
+      "worst_support_fraction": 0.93925,
+      "standing_pass": 0,
+      "maximum_leg_speed_rad_s": 1.2052204608917236
+    }
+  ],
+  "adopted": false,
+  "decision": "Reject enabling this flag as a fix for004. Missing support increases771 to1724ms; both0/7. Keep nativeFalse for next fresh training.",
+  "new_PPO": 0,
+  "hardware_ready": false,
+  "receipts_sha256": {
+    "runs/scratch_standing_20261026/eval004_final256_feedback001/receipt.json": "22d64443b766ad0074530251e95a5e27b3c24579a4c4cdfdbbbebe550d42a6bb",
+    "runs/scratch_standing_20261026/eval004_external_forces001/receipt.json": "9ea53839a6fb1af54bdbe126cfd6b91e157665235155b366818acc1cdedf222a"
+  }
+}

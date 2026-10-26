@@ -1,0 +1,54 @@
+{
+  "schema": "declared-mean-probe-physical-pairing-v1",
+  "checks": {
+    "settings": true,
+    "populations": true,
+    "cases": true,
+    "sensor_actuator_material": true,
+    "rigid": true,
+    "initial": true
+  },
+  "initial_exact": {
+    "actor_inputs_exact": true,
+    "passive_mask_exact": true,
+    "passive_poststep_motor_position_exact": true,
+    "passive_poststep_motor_velocity_exact": true,
+    "precontrol_root_pose_exact": true,
+    "precontrol_motor_position_exact": true,
+    "precontrol_motor_velocity_exact": true
+  },
+  "sensor_actuator_material_exact": true,
+  "rigid_parameters_exact": true,
+  "precontrol_physical_state_captured": true,
+  "intervention": {
+    "schema": "quiet-wheel-displacement-gain3-diagnostic-v1",
+    "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+    "source_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+    "factor": 3.0,
+    "changed_tensors": [
+      "quiet_velocity.low.weight",
+      "quiet_velocity.mid.weight",
+      "quiet_velocity.high.weight"
+    ],
+    "changed_rows": [
+      2,
+      3
+    ],
+    "changed_entries": 12,
+    "gaussian_mean_changed": true,
+    "checkpoint_file_changed": false,
+    "sampling_std_changed": false,
+    "observer_changed": false,
+    "eligible_for_checkpoint_mean_qualification": false,
+    "new_PPO": 0,
+    "rationale": "Test whether stronger existing quiet wheel position feedback reduces long-lived drift under bias/delay. Preserve all leg weights, current.5 quiet authority, existing35D sensors and all physical guards.",
+    "wrapper_sha256": "8a4b4a6a8d46f78a95166dc9c63095a37f10f5c7c80a2945c06bb8b6200280f5",
+    "probe_sha256": "4e0779fd03364885a821fd6f72e8b001d261d920f536d511b13b749e490bae10"
+  },
+  "before_trajectory_sha256": "9668e35b61b509fc2c77690ca7cc16f89093b94b9c0632ccaf1ffad816957c29",
+  "after_trajectory_sha256": "340b25a3818111cd0a89dce11d1ea78be732318e82328625de173d22836e87f7",
+  "standard_policy_only_comparison_accepted": false,
+  "eligible_for_checkpoint_mean_qualification": false,
+  "qualification": null,
+  "hardware_ready": false
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "pilot006-endpoint-replay-likelihood-audit-v1",
+  "source_checkpoint": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+  "source_sha256": "3a4f183f46af00dcd25bb2d4bb69150154c95577c9999752012397ece237a519",
+  "candidate_checkpoint": "runs/robust_policy_repair_20261024/pilot006_final_pairs_side/model_final.pt",
+  "candidate_sha256": "8da85d11ef2b6fb658831bec8402961b5046c002bd43f77fe64a0c08e6e826ab",
+  "comparison": "32 update endpoints on fixed evaluation observations, not PPO minibatch/on-policy KL",
+  "runs": [
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis012_final_circular_fixed/evaluation/trajectory.npz",
+      "sha256": "f0c0e653377eb93412101566697b2ac70605a620d6ea5aae75fe1dd6a8d9a85e",
+      "frames": 81600,
+      "raw_action_abs_delta": {
+        "count": 489600,
+        "mean": 0.00697747990489006,
+        "p99": 0.11016488075256348,
+        "max": 25.130409240722656
+      },
+      "physical_leg_abs_delta_rad": {
+        "count": 326400,
+        "mean": 0.0007417227025143802,
+        "p99": 0.008206844329833984,
+        "max": 0.04629647731781006
+      },
+      "raw_gaussian_KL": {
+        "count": 81600,
+        "mean": 2.157557725906372,
+        "p99": 0.17171593010425568,
+        "max": 88846.140625
+      },
+      "raw_leg_delta_over_pi_frames": 2,
+      "gate_active_frames": 16510,
+      "active_raw_gaussian_KL": {
+        "count": 16510,
+        "mean": 10.663639068603516,
+        "p99": 0.2165387123823166,
+        "max": 88846.140625
+      },
+      "quiet_raw_gaussian_KL": {
+        "count": 65090,
+        "mean": 0.0,
+        "p99": 0.0,
+        "max": 0.0
+      }
+    },
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf",
+      "frames": 168000,
+      "raw_action_abs_delta": {
+        "count": 1008000,
+        "mean": 0.004870506934821606,
+        "p99": 0.1132962703704834,
+        "max": 25.121936798095703
+      },
+      "physical_leg_abs_delta_rad": {
+        "count": 672000,
+        "mean": 0.0004541353555396199,
+        "p99": 0.00801706314086914,
+        "max": 0.052918314933776855
+      },
+      "raw_gaussian_KL": {
+        "count": 168000,
+        "mean": 2.125293493270874,
+        "p99": 0.1531497836112976,
+        "max": 88753.671875
+      },
+      "raw_leg_delta_over_pi_frames": 4,
+      "gate_active_frames": 23556,
+      "active_raw_gaussian_KL": {
+        "count": 23556,
+        "mean": 15.157468795776367,
+        "p99": 0.31370821595191956,
+        "max": 88753.671875
+      },
+      "quiet_raw_gaussian_KL": {
+        "count": 144444,
+        "mean": 0.0,
+        "p99": 0.0,
+        "max": 0.0
+      }
+    }
+  ],
+  "qualification": null,
+  "hardware_started": false
+}

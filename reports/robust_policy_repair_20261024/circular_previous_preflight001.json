@@ -1,0 +1,28 @@
+{
+  "schema": "circular-recovery-previous-preflight-v1",
+  "default_replays": [
+    {
+      "checkpoint": "runs/robust_policy_repair_20261024/circular_previous_default_rebind001/model_migrated.pt",
+      "frames": 168000,
+      "all_mean_outputs_bitwise_exact": true
+    },
+    {
+      "checkpoint": "runs/robust_policy_repair_20261024/low_wheel_reverse_rebind001/model_migrated.pt",
+      "frames": 168000,
+      "all_mean_outputs_bitwise_exact": true
+    },
+    {
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_preserving_default_rebind001/model_migrated.pt",
+      "frames": 168000,
+      "all_mean_outputs_bitwise_exact": true
+    }
+  ],
+  "circular_checks": {
+    "noncrossing_all_targets_exact": true,
+    "all_wheels_exact": true,
+    "changed_crossing_frames": 1953
+  },
+  "qualification": null,
+  "new_PPO": 0,
+  "native_test_required": true
+}

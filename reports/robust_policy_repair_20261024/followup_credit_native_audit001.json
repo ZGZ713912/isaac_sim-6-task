@@ -1,0 +1,273 @@
+{
+  "schema": "native-followup-reward-credit-audit-v1",
+  "checks": {
+    "native_queue_complete": true,
+    "frozen_inputs": true,
+    "initial_actor_critic_Adam_and_four_RNGs": true,
+    "final_actor_exact": true,
+    "final_critic_exact": true,
+    "final_Adam_slots_and_original_parameter_groups_exact": true,
+    "final_LRs_exactly_declared": true,
+    "stopped_CP_exact_initial": true,
+    "first_original044_all16_rollout_GAE_tensors_exact": true,
+    "four_windows_and_original045_all_arrays_exact": true,
+    "zero_PPO": true,
+    "source_clock1501": true,
+    "source390_parameter_scope": true,
+    "native_credit_exposure": true,
+    "native_state_readback_SHA": true,
+    "strict_decoder_and_reward_contract": true
+  },
+  "credit_rows": [
+    {
+      "window": 0,
+      "moving_history_frames": 0,
+      "moving_bonus_frames": 0,
+      "moving_bonus_sum": 0.0,
+      "native_return_delta_sum_on_moving_history": 0.0,
+      "native_normalized_advantage_delta_sum_on_moving_history": 0.0,
+      "moving_bonus_positive_mean_advantage": null,
+      "moving_bonus_positive_original_mean_advantage": null
+    },
+    {
+      "window": 1,
+      "moving_history_frames": 0,
+      "moving_bonus_frames": 0,
+      "moving_bonus_sum": 0.0,
+      "native_return_delta_sum_on_moving_history": 0.0,
+      "native_normalized_advantage_delta_sum_on_moving_history": 0.0,
+      "moving_bonus_positive_mean_advantage": null,
+      "moving_bonus_positive_original_mean_advantage": null
+    },
+    {
+      "window": 2,
+      "moving_history_frames": 29516,
+      "moving_bonus_frames": 301,
+      "moving_bonus_sum": 0.0395745113492012,
+      "native_return_delta_sum_on_moving_history": 3.2946105003356934,
+      "native_normalized_advantage_delta_sum_on_moving_history": -106.23931884765625,
+      "moving_bonus_positive_mean_advantage": -0.02918972820043564,
+      "moving_bonus_positive_original_mean_advantage": -0.026282794773578644
+    },
+    {
+      "window": 3,
+      "moving_history_frames": 23040,
+      "moving_bonus_frames": 5593,
+      "moving_bonus_sum": 5.77852725982666,
+      "native_return_delta_sum_on_moving_history": 461.25909423828125,
+      "native_normalized_advantage_delta_sum_on_moving_history": 23.620882034301758,
+      "moving_bonus_positive_mean_advantage": 0.046909842640161514,
+      "moving_bonus_positive_original_mean_advantage": 0.03757821395993233
+    }
+  ],
+  "preserved045_arrays": [
+    {
+      "window": 0,
+      "original045_common_array_exact": {
+        "bonus": true,
+        "native_hold": true,
+        "moving_fall": true,
+        "learning_mask": true,
+        "observations": true,
+        "rewards": true,
+        "returns": true,
+        "advantages": true,
+        "original_rewards": true
+      }
+    },
+    {
+      "window": 1,
+      "original045_common_array_exact": {
+        "bonus": true,
+        "native_hold": true,
+        "moving_fall": true,
+        "learning_mask": true,
+        "observations": true,
+        "rewards": true,
+        "returns": true,
+        "advantages": true,
+        "original_rewards": true
+      }
+    },
+    {
+      "window": 2,
+      "original045_common_array_exact": {
+        "bonus": true,
+        "native_hold": true,
+        "moving_fall": true,
+        "learning_mask": true,
+        "observations": true,
+        "rewards": true,
+        "returns": true,
+        "advantages": true,
+        "original_rewards": true
+      }
+    },
+    {
+      "window": 3,
+      "original045_common_array_exact": {
+        "bonus": true,
+        "native_hold": true,
+        "moving_fall": true,
+        "learning_mask": true,
+        "observations": true,
+        "rewards": true,
+        "returns": true,
+        "advantages": true,
+        "original_rewards": true
+      }
+    }
+  ],
+  "frozen_inputs": 599,
+  "diagnosis": "A positive bonus reaches actual moving-fall history and native GAE; normalized advantages are not uniformly increased. This is an exposure/credit observation, not a learned-behavior gain or PPO admission.",
+  "first_actual_rollout_tensors": {
+    "observations__policy": {
+      "shape": [
+        512,
+        256,
+        35
+      ],
+      "dtype": "float32",
+      "sha256": "b9f50b1c8be19454f4ef3b290dcea010ed4b8ccfd9eeede4460a6ff15dce966e"
+    },
+    "observations__critic": {
+      "shape": [
+        512,
+        256,
+        83
+      ],
+      "dtype": "float32",
+      "sha256": "d215c5f31951bc7bbd4ef382a2c606924e7b06a3190a2a8d80551540699635a3"
+    },
+    "actions": {
+      "shape": [
+        512,
+        256,
+        6
+      ],
+      "dtype": "float32",
+      "sha256": "e01f1303445fd5ba359d50d6cc8dc968e20011cda0887641febdc4c268d04228"
+    },
+    "dones": {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "uint8",
+      "sha256": "fa43239bcee7b97ca62f007cc68487560a39e19f74f3dde7486db3f98df8e471"
+    },
+    "rewards": {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "43e24dbba0d56d9ae5c2b47815f17bfb97480b57c1fe8645d8a62d8dec1cff35"
+    },
+    "values": {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "02ca1e251bab6ab70fd246e1028f82e535cee81b398d94c0683d279c96af459d"
+    },
+    "actions_log_prob": {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "6dc2cbb466b9abe7ba07c43174b48625a84de593bc72bb72fde7b53ad359bc5b"
+    },
+    "returns": {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "309d5d905cea7b213aeb44754212bf75cf64b49a1ca1ab1504610d2cb8d90045"
+    },
+    "advantages": {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "4923c629423eafd95084369e5e6b1e6cf47d5957e4a2478f64d60f20a64f4a97"
+    },
+    "learning_mask": {
+      "shape": [
+        512,
+        256
+      ],
+      "dtype": "bool",
+      "sha256": "1e7e271a711662bd512ea4c53e59d36467c50401dcef174feb70386018ea7df3"
+    },
+    "bootstrap_mask": {
+      "shape": [
+        512,
+        256
+      ],
+      "dtype": "bool",
+      "sha256": "5af014ab7d268c44fb1554402452e1c6f7ac71e0e63e92039ef40038056306b5"
+    },
+    "distribution_param_0": {
+      "shape": [
+        512,
+        256,
+        6
+      ],
+      "dtype": "float32",
+      "sha256": "da1c561ddfad16bc8cee8dbfd95d41fd6bdacf4d309bcd58f46152ed30cced6a"
+    },
+    "distribution_param_1": {
+      "shape": [
+        512,
+        256,
+        6
+      ],
+      "dtype": "float32",
+      "sha256": "8962572c2062fbbc6f8d9c40850fabde18cf3f330367a41c3f2adafdbcfd1aa0"
+    },
+    "last_observations__policy": {
+      "shape": [
+        256,
+        35
+      ],
+      "dtype": "float32",
+      "sha256": "1c76c668f398fe3d7c9c7aad81b901e1205ffe46153eb18d5df6d0792daf697f"
+    },
+    "last_observations__critic": {
+      "shape": [
+        256,
+        83
+      ],
+      "dtype": "float32",
+      "sha256": "53b718131f8e55a6fa1db6a27a295a9cedb409f9613a71b77c4407369618ba2e"
+    },
+    "last_critic_values": {
+      "shape": [
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "a0f21d87078d6f41eebe4cd2d27608d10295c2c0067009606a0b9072285054cf"
+    }
+  },
+  "source_checkpoint": "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+  "source_sha256": "cba0099f92f4627d9d0bb77a186392eaea4e5a65eedaec286c7597ec2a177b5e",
+  "native_initial_sha256": "79a97019f63e24085a9c1bdc6c64d2771dd11f0ea6c5febc64b60e19ca3f07b8",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2646,
+  "repair_optimizer_updates": 266,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792908897.2678466
+}

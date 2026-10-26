@@ -1,0 +1,39 @@
+{
+  "schema": "robust-contract-migration-v1",
+  "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/pilot020_side_recovery032/model_final.pt",
+  "source_sha256": "3d8a476c7059939ee4fe134b83cd85330fd7b1fce5535ca813ac10cfa5f3d55f",
+  "optimizer_updates": 0,
+  "reason": "Preserve newly improved full-RL recovery and restore one authenticated intermediate high quiet expert; zero additional PPO and no added lineage clocks",
+  "high_quiet_reference": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_snapshot035_353/model_migrated.pt",
+    "sha256": "ca62903bf2cf7b3e7012af01f438597c323d5dafaee2dd19bda9b46d5ab00638",
+    "source_clock": 353,
+    "base_clock_retained": 441,
+    "optimizer": "only high expert moments copied by parameter name",
+    "restored_parameters": [
+      "mean.quiet_high.0.weight",
+      "mean.quiet_high.0.bias",
+      "mean.quiet_high.2.weight",
+      "mean.quiet_high.2.bias"
+    ],
+    "source_clocks_are_not_added": true
+  },
+  "stance_aware_recovery": true,
+  "recovery_shape_aware": true,
+  "quiet_high_common_alpha": null,
+  "quiet_high_leg_prediction_s": 0.005,
+  "recovery_leg_step": 0.3,
+  "motion_residual_fraction": 0.25,
+  "fast_forward_reference": true,
+  "fast_forward_reference_range": [
+    1.0,
+    1.5
+  ],
+  "fast_forward_reference_yaw_fade": null,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/side_quiet035_353/model_migrated.pt",
+  "checkpoint_sha256": "fa271b8a1dab1bf5caecf15552da15bb3eae48fdd18217efeca950f8326bdf69",
+  "completed_updates": 441,
+  "actor_other_than_quiet_unchanged": true,
+  "feedback_winding": "paired_circular_feedback_v1",
+  "hardware_tested": false
+}

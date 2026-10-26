@@ -1,0 +1,42 @@
+--- scripts/export_robust_getup.py.before
++++ scripts/export_robust_getup.py
+@@ -43,10 +43,13 @@
+                 max_abs_support_coordinate_m=peak + 48.)
+ 
+ 
+-def load_mean(checkpoint, *, migration_source_root=None):
++def load_mean(checkpoint, *, migration_source_root=None, _entry_ancestors=()):
+     import torch
+     from wheeled_algo.command_residual import mean_from_checkpoint
+     from wheeled_algo.robust_getup import RobustGetupActor
++    resolved = str(Path(checkpoint).resolve())
++    if resolved in _entry_ancestors or len(_entry_ancestors) >= 32:
++        raise ValueError("Cyclic or excessive entry checkpoint ancestry")
+     state = torch.load(checkpoint, map_location="cpu", weights_only=False)
+     info = state["infos"]
+     if info["schema"] != "robust-getup-checkpoint-v2":
+@@ -167,9 +170,21 @@
+         if digest(reference_path) != origin["sha256"]:
+             raise ValueError("Frozen entry reference checkpoint changed")
+         reference = torch.load(reference_path, map_location="cpu", weights_only=False)["actor_state_dict"]
+-        if any(not torch.equal(value, reference["mlp.mean.recovery." + key])
+-               for key, value in mean.entry_recovery.state_dict().items()):
+-            raise ValueError("Frozen entry weights differ from their declared reference")
++        learned = info.get("entry_recovery_learning")
++        if learned is None:
++            if any(not torch.equal(value, reference["mlp.mean.recovery." + key])
++                   for key, value in mean.entry_recovery.state_dict().items()):
++                raise ValueError("Frozen entry weights differ from their declared reference")
++        else:
++            module = "src/wheeled_algo/entry_checkpoint.py"
++            if info["source_sha256"].get(module) != digest(ROOT / module):
++                raise ValueError("Trained entry checkpoint contract source is missing or changed")
++            source = Path(learned["source_checkpoint"])
++            if digest(source) != learned["source_sha256"]:
++                raise ValueError("Trained entry source checkpoint changed")
++            load_mean(source, _entry_ancestors=(*_entry_ancestors, resolved))
++            from wheeled_algo.entry_checkpoint import validate_entry_learning
++            validate_entry_learning(state, torch.load(source, map_location="cpu", weights_only=False))
+     if info["settings"].get("quiet_velocity_feedback_mode") == "rolling_velocity":
+         mean.rolling_velocity.verify_frozen_geometry()
+     expected_bounds = torch.tensor([info["settings"]["leg_action_clip"]] * 4 + [info["settings"]["wheel_action_clip"]] * 2)

@@ -1,0 +1,67 @@
+{
+  "schema": "scratch-wheel-increment-static-contract-diagnostic-v1",
+  "rows": [
+    {
+      "parameterization": "absolute_zero",
+      "encoder_rad_s": [
+        [
+          1.0,
+          -1.0
+        ]
+      ],
+      "wheel_target_rad_s": [
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "wheel_motor_effort_nm": [
+        [
+          -0.6000000238418579,
+          0.6000000238418579
+        ]
+      ]
+    },
+    {
+      "parameterization": "zero_learned_wheel_increment",
+      "encoder_rad_s": [
+        [
+          1.0,
+          -1.0
+        ]
+      ],
+      "wheel_target_rad_s": [
+        [
+          1.0,
+          -1.0
+        ]
+      ],
+      "wheel_motor_effort_nm": [
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    }
+  ],
+  "source_sha256": {
+    "runs/scratch_standing_20261026/pilot003_coupled/config/contract.json": "ff463604da42b8f29945a962c80bfc4460ec0be30b807ffb12521822c4776f55",
+    "contracts/flat_base_200hz_control_v1.json": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+    "model/\u7eaf\u5e95\u76d8_v7_flat_base107/urdf/manifest.json": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+    "src/wheeled_tasks/chassis/v5_control.py": "ffcf4602a5e3deb9948386c52d87be62703b312256d7092aeb71237a16fcc943",
+    "src/wheeled_algo/wheel_velocity_increment.py": "750530e7d6905aa30a2809936282028276a57ec908e83bc77a5848149ded76af"
+  },
+  "scope": "One simultaneous native control calculation with a zero residual MLP; not a physics rollout or stability proof",
+  "new_native_PPO": 0,
+  "optimizer_constructed": false,
+  "checkpoint_reads": 0,
+  "training_weights_produced": false,
+  "native_validation_pending": true,
+  "qualified": false,
+  "hardware_ready": false,
+  "CPU_tests": {
+    "model_cases": 8,
+    "feedback_analysis_cases": 6,
+    "native_Adam_calls_in_CPU_unit_test": 12
+  }
+}

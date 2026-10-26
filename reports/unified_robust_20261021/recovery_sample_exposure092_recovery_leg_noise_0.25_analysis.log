@@ -1,0 +1,36 @@
+{
+  "schema": "robust-getup-behavior-analysis-v2",
+  "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/recovery_sample_exposure092/recovery_leg_noise_0.25",
+  "report_sha256": "399bad37bc08a870e573875e3893173f4c1f865050cf75fde7bd3a1c0757acda",
+  "checkpoint_sha256": "5fcc13518d9fdd1cb4a3745ef84b38892bffbaeb90719336f66f5a15e6091018",
+  "seed": 211322,
+  "actor_variant": "recovery_leg_noise_0.25",
+  "motion_episodes": 8,
+  "motion_survived": 2,
+  "actual_settled_attitudes": {
+    "right": {
+      "episodes": 4,
+      "recovered": 0,
+      "recovery_and_motion_success": 0,
+      "practical_recovery_and_motion_success": 0
+    },
+    "left": {
+      "episodes": 4,
+      "recovered": 4,
+      "recovery_and_motion_success": 1,
+      "practical_recovery_and_motion_success": 4
+    },
+    "inverted": {
+      "episodes": 4,
+      "recovered": 4,
+      "recovery_and_motion_success": 0,
+      "practical_recovery_and_motion_success": 4
+    }
+  },
+  "passive_motor_peak_nm": 0.0,
+  "practical_moving_fall_recoveries": 2,
+  "practical_definition": "completed episode; last 2 s >=95% stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+  "max_gap_m": 0.0004117651842534542,
+  "signal_sampling_hz": 200,
+  "vibration_scope": "1..3, 3..95 and 20..95 Hz from 200 Hz simulation samples; not a CAN/hardware measurement"
+}

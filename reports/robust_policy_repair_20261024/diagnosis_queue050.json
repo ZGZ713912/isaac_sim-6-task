@@ -1,0 +1,39 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 4086636,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "quiet_yaw_restore_development",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis050_quiet_yaw_restore_development",
+      "log": "reports/robust_policy_repair_20261024/diagnosis050_quiet_yaw_restore_development.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_quiet_wheel_yaw_restore001.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis050_quiet_yaw_restore_development",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241204"
+      ],
+      "status": "completed",
+      "started_unix": 1792911424.4138732,
+      "pid": 4086637,
+      "returncode": 0,
+      "finished_unix": 1792911641.201184
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792911641.201382,
+  "finished_unix": 1792911641.2013817
+}

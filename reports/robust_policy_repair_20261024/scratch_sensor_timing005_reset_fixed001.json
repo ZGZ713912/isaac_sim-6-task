@@ -1,0 +1,109 @@
+{
+  "schema": "scratch-standing-sensor-timing-validation-v1",
+  "new_PPO": 0,
+  "native_physics_steps": 0,
+  "policy_executed": false,
+  "optimizer_constructed": false,
+  "checkpoint_sha256": "44ddd2a037dd558bc739bb5721f722199ea1cd36deb1130aad7ac88f9d8cba27",
+  "channels": {
+    "gravity": {
+      "maximum_absolute": 7.152557373046875e-07,
+      "rms": 1.2617054434059246e-07
+    },
+    "gyro_rad_s": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    },
+    "motor_velocity_rad_s": {
+      "maximum_absolute": 3.814697265625e-06,
+      "rms": 1.8007275228057135e-07
+    },
+    "leg_position_delta_rad": {
+      "maximum_absolute": 5.7816505416585784e-08,
+      "rms": 9.958774035642064e-09
+    },
+    "previous_applied_action": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    },
+    "command_features": {
+      "maximum_absolute": 9.536743172944284e-08,
+      "rms": 3.9537248538878614e-08
+    },
+    "flat_command_context": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    }
+  },
+  "pair_count": 33579,
+  "checks": {
+    "gravity": true,
+    "gyro_rad_s": true,
+    "motor_velocity_rad_s": true,
+    "leg_position_delta_rad": true,
+    "previous_applied_action": true,
+    "command_features": true,
+    "flat_command_context": true
+  },
+  "all_consecutive_input_alignment_checks_pass": true,
+  "initial_native_state_recorded": true,
+  "initial_channels": {
+    "gravity_from_native": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    },
+    "gravity_from_root_quaternion": {
+      "maximum_absolute": 2.4864801454471674e-06,
+      "rms": 1.131283871810987e-06
+    },
+    "native_gravity_from_root_quaternion": {
+      "maximum_absolute": 2.4864801454471674e-06,
+      "rms": 1.131283871810987e-06
+    },
+    "gyro_rad_s": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    },
+    "leg_position_delta_rad": {
+      "maximum_absolute": 1.8813616914359343e-08,
+      "rms": 1.2260098068576979e-08
+    },
+    "motor_velocity_rad_s": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    },
+    "previous_applied_action": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    }
+  },
+  "initial_checks": {
+    "gravity_from_native": true,
+    "gravity_from_root_quaternion": true,
+    "native_gravity_from_root_quaternion": true,
+    "gyro_rad_s": true,
+    "leg_position_delta_rad": true,
+    "motor_velocity_rad_s": true,
+    "previous_applied_action": true
+  },
+  "all_input_alignment_checks_pass": true,
+  "gyro_gravity_relation": {
+    "gravity_derivative_rms_per_s": 0.22639639627875424,
+    "measured_sign_residual_rms_per_s": 0.017808275032752893,
+    "reversed_sign_residual_rms_per_s": 0.4527441228325539,
+    "measured_sign_residual_norm_p95_per_s": 0.019921122101335082,
+    "gravity_norm_maximum_error": 7.905644467953721e-07,
+    "scope": "Trapezoidal 200Hz finite-difference check, including impacts; not an exact continuous-time identity or independent yaw-axis certification"
+  },
+  "scope": "Consecutive-frame comparisons start at the second actor call. Full alignment additionally requires a recorded native final reset state and matching first actor input. Standing acceptance starts at the first physical millisecond.",
+  "hardware_ready": false,
+  "sources_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_reset_cache001/receipt.json": "8f92b66fb74b7194b593b3e45273ceb9aa12f487b4f7d10f6d41babc5a708d67",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_reset_cache001/evaluation/result.json": "482e69cd4f73d41606139faaac8ed079ac73afb56d08288ab3c9288bcc9bad37",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_reset_cache001/evaluation/native_trace.npz": "1e642554caffeab94bb9a290f778e5cf4eba7b454c602c352784235f27bc350a",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_reset_cache001/evaluation/feedback_trace.npz": "f79874d2d4ee3b4ed5fc20caeae028e40c947a1adcb74bc7a9832b370dee4565",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot005_static_load/config/contract.json": "93314e31d1af6d53e1646134b907ad389f10ae9c97fcb18d4f41aab4ed528ef2",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/\u7eaf\u5e95\u76d8_v7_flat_base107/urdf/manifest.json": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/check_scratch_sensor_timing.py": "c189a39940c9944d11ea18f3addbb1dbd56201229014c5ad5eb57b309ff042dd"
+  }
+}

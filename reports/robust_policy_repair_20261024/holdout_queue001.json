@@ -1,0 +1,89 @@
+{
+  "schema": "serial-gap-native-validation-v1",
+  "pid": 3684107,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "filter005",
+      "checkpoint": "runs/robust_policy_repair_20261024/standing_filter005_migration001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/holdout_filter005_seed241204",
+      "status": "completed",
+      "started_unix": 1792861867.3647106,
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/standing_filter005_migration001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/holdout_filter005_seed241204",
+        "--bank",
+        "reports/real_robot_robustness_20261024/pose_bank_gap002.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241204"
+      ],
+      "pid": 3684108,
+      "returncode": 0,
+      "finished_unix": 1792862082.5273159
+    },
+    {
+      "name": "baseline569",
+      "checkpoint": "runs/real_robot_robustness_long_20261024/entry001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/holdout_baseline569_seed241204",
+      "status": "completed",
+      "started_unix": 1792862082.527591,
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/real_robot_robustness_long_20261024/entry001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/holdout_baseline569_seed241204",
+        "--bank",
+        "reports/real_robot_robustness_20261024/pose_bank_gap002.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241204"
+      ],
+      "pid": 3685668,
+      "returncode": 0,
+      "finished_unix": 1792862296.2647903
+    },
+    {
+      "name": "stopped1501",
+      "checkpoint": "runs/real_robot_robustness_long_20261024/campaign001/train_004/model_stopped.pt",
+      "output": "runs/robust_policy_repair_20261024/holdout_stopped1501_seed241204",
+      "status": "completed",
+      "started_unix": 1792862296.2652936,
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/real_robot_robustness_long_20261024/campaign001/train_004/model_stopped.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/holdout_stopped1501_seed241204",
+        "--bank",
+        "reports/real_robot_robustness_20261024/pose_bank_gap002.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241204"
+      ],
+      "pid": 3687345,
+      "returncode": 0,
+      "finished_unix": 1792862510.3315635
+    }
+  ],
+  "seed": 241204,
+  "optimizer_updates": 0,
+  "hardware_started": false,
+  "finished_unix": 1792862510.3319402
+}

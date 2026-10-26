@@ -1,0 +1,36 @@
+{
+  "schema": "robust-getup-behavior-analysis-v2",
+  "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/friction_diagnostic027/robust",
+  "report_sha256": "dab7be53b8a9b15eb16a189db6b2c90ffffbd4c884cede4c318c07ae395656eb",
+  "checkpoint_sha256": "8675350d4cc5f49dd53afa4e4b01b625030620a0fd3be301c33807d4e30b3755",
+  "seed": 211326,
+  "actor_variant": "robust",
+  "motion_episodes": 96,
+  "motion_survived": 96,
+  "actual_settled_attitudes": {
+    "right": {
+      "episodes": 32,
+      "recovered": 20,
+      "recovery_and_motion_success": 12,
+      "practical_recovery_and_motion_success": 20
+    },
+    "left": {
+      "episodes": 32,
+      "recovered": 12,
+      "recovery_and_motion_success": 5,
+      "practical_recovery_and_motion_success": 12
+    },
+    "inverted": {
+      "episodes": 64,
+      "recovered": 43,
+      "recovery_and_motion_success": 15,
+      "practical_recovery_and_motion_success": 43
+    }
+  },
+  "passive_motor_peak_nm": 0.0,
+  "practical_moving_fall_recoveries": 0,
+  "practical_definition": "completed episode; last 2 s >=95% stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+  "max_gap_m": 0.0005248434608802199,
+  "signal_sampling_hz": 200,
+  "vibration_scope": "1..3, 3..95 and 20..95 Hz from 200 Hz simulation samples; not a CAN/hardware measurement"
+}

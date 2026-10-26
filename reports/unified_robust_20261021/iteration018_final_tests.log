@@ -1,0 +1,41 @@
+..................................F............................          [100%]
+=================================== FAILURES ===================================
+_______ test_standing_reward_revision_preserves_recovery_authority_flags _______
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-1/test_standing_reward_revision_0')
+
+    def test_standing_reward_revision_preserves_recovery_authority_flags(tmp_path):
+        root = Path(__file__).resolve().parents[1]
+        spec = importlib.util.spec_from_file_location("robust_profile_training", root / "scripts/train_robust_getup.py")
+        training = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(training)
+        checkpoint = tmp_path / "prior.pt"
+        torch.save({"infos": {"settings": {"stance_aware_recovery": True, "recovery_shape_aware": True,
+                                            "leg_action_clip": 16., "motion_residual_fraction": .25}}}, checkpoint)
+        bank = tmp_path / "bank.json"
+        bank.write_text("{}")
+        args = SimpleNamespace(output=tmp_path / "run", bank=bank, resume=checkpoint, no_domains=False,
+            curriculum_updates=128, quiet_leg_alpha=.25, quiet_wheel_alpha=.65, domain_scale=.35,
+            quiet_only=True, standing_support_training=True, num_envs=32, rollout_steps=128,
+            mode="train", friction="high", friction_min=.3, seed=123)
+        _, task = training.prepare(args)
+        assert task["stance_aware_recovery"] and task["recovery_shape_aware"]
+        assert task["standing_support_training"] and task["quiet_critic_anchor"]
+        assert task["quiet_actor_alpha"] == [.25] * 4 + [.65] * 2
+        assert task["sensor_delay_policy_ticks"] == [0, 1]
+        assert task["quiet_height_probabilities"] == [.25, .25, .5]
+        assert task["quiet_position_weight"] == 2.
+        args.early_standing_position = True
+        _, revised = training.prepare(args)
+        assert revised["quiet_position_weight"] == 0.
+        assert revised["standing_early_position_weight"] == 6.
+        args.friction_min = args.friction_max = .1
+        cfg, fixed = training.prepare(args)
+        assert fixed["active_friction_range"] == [.1, .1]
+>       from wheeled_tasks.chassis.contact_material import ContactMaterial
+E       ImportError: cannot import name 'ContactMaterial' from 'wheeled_tasks.chassis.contact_material' (/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/contact_material.py)
+
+tests/test_robust_pilot_profile.py:37: ImportError
+=========================== short test summary info ============================
+FAILED tests/test_robust_pilot_profile.py::test_standing_reward_revision_preserves_recovery_authority_flags
+1 failed, 62 passed in 27.61s

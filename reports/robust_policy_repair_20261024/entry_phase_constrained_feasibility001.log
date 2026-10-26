@@ -1,0 +1,59 @@
+{"iteration": 1, "status": "solved", "selected_constraints": 512, "solver_iterations": 150, "solver_seconds": 0.296410094, "max_constraint_violation": 0.15305724194062442, "violated_constraints": 1838}
+{"iteration": 2, "status": "solved", "selected_constraints": 768, "solver_iterations": 725, "solver_seconds": 0.866198664, "max_constraint_violation": 0.061613838403886234, "violated_constraints": 474}
+{"iteration": 3, "status": "solved", "selected_constraints": 1024, "solver_iterations": 1400, "solver_seconds": 1.9997465509999999, "max_constraint_violation": 0.027073300946782286, "violated_constraints": 124}
+{"iteration": 4, "status": "solved", "selected_constraints": 1148, "solver_iterations": 925, "solver_seconds": 1.2874572810000002, "max_constraint_violation": 0.0011684577412957031, "violated_constraints": 8}
+{"iteration": 5, "status": "solved", "selected_constraints": 1156, "solver_iterations": 550, "solver_seconds": 0.733599574, "max_constraint_violation": 1.0040947236999997e-06, "violated_constraints": 0}
+{
+  "schema": "entry-phase-constrained-fit-v1",
+  "source": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "source_sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "feature_source": "reports/robust_policy_repair_20261024/fit_entry_phase_path001.py",
+  "feature_sha256": "88a8ac95d27109d34969355f3ee24726ae5b0d5deedc3e4e4b0d23bf37425d57",
+  "dataset": "reports/robust_policy_repair_20261024/entry_phase_path_dataset001.npz",
+  "dataset_sha256": "d7bfa37723fba515641526d55eb01466a2f7ccdf7c5e16348441eb6c3ea87df8",
+  "predeclared_parameters": {
+    "maximum_cut_rounds": 8,
+    "maximum_new_cuts_per_round": 256,
+    "solver_time_limit_seconds_per_round": 45,
+    "direction_logit_margin": 0.25,
+    "stopped_leg_common_bound": 0.12,
+    "anchor_max_change": 0.2,
+    "anchor_weight": 100.0,
+    "ridge": 1e-05
+  },
+  "metrics": {
+    "target_states": 54450,
+    "anchor_frames": 1120,
+    "constraint_pool": 86400,
+    "far_common_signed_min": 0.24999994419530558,
+    "far_lead_signed_min_rad": 0.014754567295312881,
+    "far_lead_correct_fraction": 1.0,
+    "near_common_max": 0.1200010040947237,
+    "near_lead_max_rad": 0.007784456014633179,
+    "anchor_change_rms": 0.01734796405158026,
+    "anchor_change_max": 0.11309941991769379,
+    "target_rmse": 0.2118340313936461,
+    "independent_design_error": 1.69114017989358e-06,
+    "edit_vector_l2": 55.63538708123288,
+    "elapsed_seconds": 12.04956340789795
+  },
+  "checks": {
+    "solver_solved": true,
+    "complete_direction_margin": true,
+    "complete_actual_target_direction": true,
+    "stopped_leg_common": true,
+    "stopped_leg_target": false,
+    "retention_rms": true,
+    "retention_max": true,
+    "design_matches_NN": true,
+    "finite": true
+  },
+  "decision": "reject_without_native_or_PPO",
+  "scope": "All phase states are development constraints. The soft teacher magnitude RMSE is descriptive; explicit direction, stop and successful-trajectory retention are required. No behavioral holdout or native contact proof.",
+  "new_PPO": 0,
+  "gradient_optimizer_updates": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792885268.280457
+}

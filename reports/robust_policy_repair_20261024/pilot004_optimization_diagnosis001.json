@@ -1,0 +1,68 @@
+{
+  "schema": "bounded-pilot-learning-diagnosis-v1",
+  "source_trajectory_sha256": "6bf68fcdfb808b8de18c710ef8691658606eb41238dbcdc876884f423497a815",
+  "sampled_exposure_replay": [
+    {
+      "name": "stand_low__roll_minus2",
+      "leg_sample_std_actual_rad_median": 0.001021931180730462,
+      "leg_sample_std_actual_rad_p95": 0.0010349811054766178,
+      "leg_sample_std_actual_rad_max": 0.004249385558068752,
+      "wheel_sample_std_raw_p95": 0.02354886382818222
+    },
+    {
+      "name": "stand_high__clean",
+      "leg_sample_std_actual_rad_median": 0.001021931180730462,
+      "leg_sample_std_actual_rad_p95": 0.0010349811054766178,
+      "leg_sample_std_actual_rad_max": 0.002825170988216996,
+      "wheel_sample_std_raw_p95": 0.02354886382818222
+    },
+    {
+      "name": "stand_high__combined",
+      "leg_sample_std_actual_rad_median": 0.017032185569405556,
+      "leg_sample_std_actual_rad_p95": 0.03627891466021538,
+      "leg_sample_std_actual_rad_max": 0.06433376669883728,
+      "wheel_sample_std_raw_p95": 0.1492222249507904
+    }
+  ],
+  "tensorboard_event_directory": "runs/robust_policy_repair_20261024/pilot004_high",
+  "pilot_metrics": {
+    "Train/mean_reward": {
+      "samples": 30,
+      "first": -9.467266082763672,
+      "last": -57.03817367553711,
+      "mean": -33.8733154296875
+    },
+    "Standing/request_position_radius_m": {
+      "samples": 32,
+      "first": 0.02741999924182892,
+      "last": 0.2681525945663452,
+      "mean": 0.260536118876189
+    },
+    "Standing/request_abs_vx_m_s": {
+      "samples": 32,
+      "first": 0.08408463001251221,
+      "last": 0.07896605134010315,
+      "mean": 0.08939456776715815
+    },
+    "Standing/support_cost_density": {
+      "samples": 32,
+      "first": 0.023930244147777557,
+      "last": 0.03568638116121292,
+      "mean": 0.14709140855120495
+    },
+    "Loss/value": {
+      "samples": 32,
+      "first": 10.899548530578613,
+      "last": 20.729442596435547,
+      "mean": 13.16059684753418
+    },
+    "Loss/entropy": {
+      "samples": 32,
+      "first": -18.78680992126465,
+      "last": -16.704862594604492,
+      "mean": -16.172225028276443
+    }
+  },
+  "interpretation": "No std tensor changed. Conditional distribution entropy changes with state-dependent gates. Sampled training reward/radius worsened during this block; no inference that critic loss or these aggregates alone establish the mechanism.",
+  "qualification": null
+}

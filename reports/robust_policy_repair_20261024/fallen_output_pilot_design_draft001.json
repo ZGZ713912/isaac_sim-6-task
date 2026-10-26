@@ -1,0 +1,33 @@
+{
+  "schema": "fallen-output-pilot-design-draft-v1",
+  "status": "not_admitted",
+  "hypothesis": "The measured first100ms of moving falls have zero entry-head output sensitivity and nonzero fallen-head sensitivity. Test learning only the existing fallen final linear layer, with80percent motion-push exposure and20percent static recovery.",
+  "source_policy": "best9a, represented by an explicitly neutral floor0 V4 checkpoint; .5 candidate promotion suspended pending paired development control.",
+  "runtime": "Pure existing35D\u21926D sensor feedback. No new NN, FSM, trajectory, gate, observation or action transform.",
+  "trainable": [
+    "mlp.mean.recovery.4.weight",
+    "mlp.mean.recovery.4.bias"
+  ],
+  "trainable_parameters": 774,
+  "optimizer": "Original28 actor/8 critic Adam slots and all RNG retained;26 frozen actor slots exact. Native3epochs\u00d74minibatches=12steps per completed update.",
+  "draft_CPU": "fallen_output_draft_CPU_preflight001.json validates16 negative controls and12 synthetic Adam steps, not simulator PPO.",
+  "planned_max_updates": 8,
+  "planned_seed": 241510,
+  "planned_learning_rate": 0.0001,
+  "planned_population": 256,
+  "planned_rollout_steps": 512,
+  "exposure": "Existing --motion-recovery-focus; original80N/32Nm/300ms push from5s, force/reward/guards unchanged.",
+  "admission_remaining": [
+    "Actual trainer/decoder integration after active frozen native evaluation closes",
+    "Neutral source163200-frame CPU equivalence",
+    "Real native restore/mean/std/RNG initial readback before first optimizer attempt",
+    "Count actual push and moving-fall exposure into native TensorBoard",
+    "Freeze behavioral nonregression and >=1 moving-fall recovery improvement before extension"
+  ],
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "repair_optimizer_updates": 250,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792900289.2884007
+}

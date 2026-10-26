@@ -1,0 +1,27 @@
+runs/robust_policy_repair_20261024/entry_common_fit_periodic001/model_probe.pt
+{
+  "schema": "entry-common-fit-checkpoint-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/entry_common_fit_periodic001/model_probe.pt",
+  "sha256": "9249152a8fb8809e5d6f618dc25e0ea55c8d151fe3a70d0ce0c4f25449e607a9",
+  "reference": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "reference_sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "checks": {
+    "only_entry_last_layer_changed": true,
+    "wheel_last_layer_rows_exact": true,
+    "clocks_equal": true,
+    "all_entry0_bit_exact": true,
+    "all_wheel_outputs_exact": true,
+    "knee_logit_roundoff_under_1e_5": true,
+    "finite": true
+  },
+  "fit": "reports/robust_policy_repair_20261024/entry_common_edit_feasibility001.json",
+  "fit_sha256": "1c7ca51a87957486bd5ab41a084bba822b07b9a726c5b3bcda8e9991e9e185e1",
+  "method": "Closed-form existing last-layer common-only edit, original frozen fallen/quiet/motion/std and knee/wheel mapping retained.",
+  "native_hypothesis": "State-dependent drive can leave the observed wheels-up equilibrium while retaining successful entry actions.",
+  "new_PPO": 0,
+  "gradient_optimizer_updates": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792884057.6966515
+}

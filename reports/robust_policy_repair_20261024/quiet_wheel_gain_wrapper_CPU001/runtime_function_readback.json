@@ -1,0 +1,96 @@
+{
+  "schema": "quiet-wheel-displacement-gain3-diagnostic-v1",
+  "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "source_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "factor": 3.0,
+  "changed_tensors": [
+    "quiet_velocity.low.weight",
+    "quiet_velocity.mid.weight",
+    "quiet_velocity.high.weight"
+  ],
+  "changed_rows": [
+    2,
+    3
+  ],
+  "changed_entries": 12,
+  "gaussian_mean_changed": true,
+  "checkpoint_file_changed": false,
+  "sampling_std_changed": false,
+  "observer_changed": false,
+  "eligible_for_checkpoint_mean_qualification": false,
+  "new_PPO": 0,
+  "rationale": "Test whether stronger existing quiet wheel position feedback reduces long-lived drift under bias/delay. Preserve all leg weights, current.5 quiet authority, existing35D sensors and all physical guards.",
+  "wrapper_sha256": "8a4b4a6a8d46f78a95166dc9c63095a37f10f5c7c80a2945c06bb8b6200280f5",
+  "probe_sha256": "4e0779fd03364885a821fd6f72e8b001d261d920f536d511b13b749e490bae10",
+  "weights": [
+    {
+      "expert": "mid",
+      "before": [
+        [
+          0.09132808446884155,
+          0.021407248452305794
+        ],
+        [
+          -0.04948773235082626,
+          -0.047105468809604645
+        ]
+      ],
+      "after": [
+        [
+          0.27398425340652466,
+          0.06422174721956253
+        ],
+        [
+          -0.1484631896018982,
+          -0.14131641387939453
+        ]
+      ]
+    },
+    {
+      "expert": "low",
+      "before": [
+        [
+          0.1355593204498291,
+          0.02931353449821472
+        ],
+        [
+          -0.07564818859100342,
+          -0.070469431579113
+        ]
+      ],
+      "after": [
+        [
+          0.4066779613494873,
+          0.08794060349464417
+        ],
+        [
+          -0.22694456577301025,
+          -0.21140828728675842
+        ]
+      ]
+    },
+    {
+      "expert": "high",
+      "before": [
+        [
+          0.045632217079401016,
+          0.010609788820147514
+        ],
+        [
+          -0.026043638586997986,
+          -0.02449968084692955
+        ]
+      ],
+      "after": [
+        [
+          0.13689665496349335,
+          0.031829364597797394
+        ],
+        [
+          -0.07813091576099396,
+          -0.07349903881549835
+        ]
+      ]
+    }
+  ]
+}

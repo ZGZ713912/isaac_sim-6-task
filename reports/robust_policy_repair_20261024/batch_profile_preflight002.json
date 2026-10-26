@@ -1,0 +1,145 @@
+{
+  "schema": "batch-checkpoint-profile-preflight-v2",
+  "rows": [
+    {
+      "domain_scale": 0.0,
+      "checks": {
+        "gap_severity": true,
+        "gap_actuator_timing_profile": true,
+        "gap_correct_pd_scaling": true,
+        "gap_entry_handoff_version": true,
+        "gap_upright_target_limit_version": true,
+        "standing_position_observation": true,
+        "standing_position_reference": true,
+        "standing_position_filter_seconds": true,
+        "quiet_high_common_alpha": true,
+        "quiet_velocity_feature_gain": true,
+        "quiet_native_height_anchors": true,
+        "quiet_output_wheel_alpha": true,
+        "native_millisecond_PD": true,
+        "requested_domain_enabled": true,
+        "mechanical_asset_directory_exact": true,
+        "control_math_source_exact": true
+      },
+      "gap_severity": 0.8,
+      "domains_enabled": false,
+      "asset_directory": "model/纯底盘_v7_flat_base107/urdf",
+      "control_math_source": "contracts/flat_base_200hz_control_v1.json",
+      "rigid_domain": {
+        "enabled": false,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.9199999999999999,
+          1.08
+        ],
+        "leg_mass_scale": [
+          0.9199999999999999,
+          1.08
+        ],
+        "wheel_mass_scale": [
+          0.9199999999999999,
+          1.08
+        ],
+        "inertia_scale": [
+          0.84,
+          1.1600000000000001
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.012,
+            0.012
+          ],
+          "y": [
+            -0.0064,
+            0.0064
+          ],
+          "z": [
+            -0.008,
+            0.008
+          ]
+        },
+        "source_reference": "bounded robustness hypotheses, not identified hardware parameters"
+      },
+      "observation_schema": "wheel-leg-standing-displacement-v7-recovery-reference"
+    },
+    {
+      "domain_scale": 0.35,
+      "checks": {
+        "gap_severity": true,
+        "gap_actuator_timing_profile": true,
+        "gap_correct_pd_scaling": true,
+        "gap_entry_handoff_version": true,
+        "gap_upright_target_limit_version": true,
+        "standing_position_observation": true,
+        "standing_position_reference": true,
+        "standing_position_filter_seconds": true,
+        "quiet_high_common_alpha": true,
+        "quiet_velocity_feature_gain": true,
+        "quiet_native_height_anchors": true,
+        "quiet_output_wheel_alpha": true,
+        "native_millisecond_PD": true,
+        "requested_domain_enabled": true,
+        "mechanical_asset_directory_exact": true,
+        "control_math_source_exact": true
+      },
+      "gap_severity": 0.8,
+      "domains_enabled": true,
+      "asset_directory": "model/纯底盘_v7_flat_base107/urdf",
+      "control_math_source": "contracts/flat_base_200hz_control_v1.json",
+      "rigid_domain": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.9199999999999999,
+          1.08
+        ],
+        "leg_mass_scale": [
+          0.9199999999999999,
+          1.08
+        ],
+        "wheel_mass_scale": [
+          0.9199999999999999,
+          1.08
+        ],
+        "inertia_scale": [
+          0.84,
+          1.1600000000000001
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.012,
+            0.012
+          ],
+          "y": [
+            -0.0064,
+            0.0064
+          ],
+          "z": [
+            -0.008,
+            0.008
+          ]
+        },
+        "source_reference": "bounded robustness hypotheses, not identified hardware parameters"
+      },
+      "observation_schema": "wheel-leg-standing-displacement-v7-recovery-reference"
+    }
+  ],
+  "checkpoint_sha256": "11756e69ebb6ab5d171af45a885689fd78fc11000c14473841ac1e14c1568793",
+  "source_sha256": "7df8900bd5d3b3201d9d23b5f66d4d7d5b76cd8227605116d7a8fa98329c3fe9",
+  "native_validated": false,
+  "criteria_changed": false,
+  "new_PPO": 0,
+  "supersedes": "preflight001 mechanical_model_unchanged placeholder was not a measured check; replaced by actual config equality"
+}

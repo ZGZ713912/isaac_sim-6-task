@@ -1,0 +1,46 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3735010,
+  "status": "failed",
+  "jobs": [
+    {
+      "name": "high_common0125_nominal211131",
+      "checkpoint": "runs/robust_policy_repair_20261024/high_common0125_probe001/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/high_common0125_nominal211131_001",
+      "log": "reports/robust_policy_repair_20261024/diagnosis008_nominal211131.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_robust_getup_batch.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/high_common0125_probe001/model_probe.pt",
+        "--checkpoint-task-profile",
+        "--output",
+        "runs/robust_policy_repair_20261024/high_common0125_nominal211131_001",
+        "--seed",
+        "211131",
+        "--replicas",
+        "2",
+        "--variants",
+        "parent",
+        "robust",
+        "--domain-scale",
+        "0",
+        "--seconds",
+        "12",
+        "--isolated-origins"
+      ],
+      "status": "failed",
+      "started_unix": 1792868648.1440215,
+      "pid": 3735012,
+      "returncode": 0,
+      "finished_unix": 1792868969.8370347,
+      "error": "Native process returned zero without a completed artifact"
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792868969.8371866,
+  "error": "Native process returned zero without a completed artifact: high_common0125_nominal211131",
+  "finished_unix": 1792868969.837186
+}

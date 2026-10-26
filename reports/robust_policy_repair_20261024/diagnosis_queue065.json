@@ -1,0 +1,43 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 291420,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "trained_quiet_full019",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis065_trained_quiet_full019",
+      "log": "reports/robust_policy_repair_20261024/diagnosis065_trained_quiet_full019.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_grounded058.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis065_trained_quiet_full019",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--seed",
+        "241201",
+        "--severity",
+        "1",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--case-group",
+        "standing"
+      ],
+      "status": "completed",
+      "started_unix": 1792939822.3515673,
+      "pid": 291421,
+      "returncode": 0,
+      "finished_unix": 1792939987.0829434
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792939987.0831242,
+  "finished_unix": 1792939987.0831237
+}

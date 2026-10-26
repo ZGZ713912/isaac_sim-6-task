@@ -1,0 +1,68 @@
+{
+  "schema": "bounded-entry-native-endpoint-audit-v2",
+  "checks": {
+    "initial_restore_all": true,
+    "sealed_completed_or_stopped": true,
+    "attempts_match_completed": true,
+    "clock": true,
+    "only_six_entry_tensors_changed": true,
+    "frozen_actor_std_exact": true,
+    "frozen_actor_Adam_exact": true,
+    "entry_Adam_exact_step_increment": true,
+    "critic_changed": true,
+    "strict_V3_decode": true
+  },
+  "plan": "reports/robust_policy_repair_20261024/plan009_function_root_entry001.json",
+  "source": "runs/robust_policy_repair_20261024/function_root_entry001/model_initial.pt",
+  "source_sha256": "b7733de1bcf5d3cfbc9781a849b016d08b8a6b02e49f6a8cb8235e0e74a12055",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot009_contract002/model_migrated.pt",
+  "checkpoint_sha256": "5e24f163310182db64a1af59ec4223414142392d746a91ef1ba2834a9521b114",
+  "actor_class": "MotionTargetDampedGapActor",
+  "changed_actor_tensors": [
+    "mlp.mean.entry_recovery.0.weight",
+    "mlp.mean.entry_recovery.0.bias",
+    "mlp.mean.entry_recovery.2.weight",
+    "mlp.mean.entry_recovery.2.bias",
+    "mlp.mean.entry_recovery.4.weight",
+    "mlp.mean.entry_recovery.4.bias"
+  ],
+  "entry_Adam_steps": {
+    "28": {
+      "before": 0.0,
+      "after": 24.0,
+      "increment": 24.0
+    },
+    "29": {
+      "before": 0.0,
+      "after": 24.0,
+      "increment": 24.0
+    },
+    "30": {
+      "before": 0.0,
+      "after": 24.0,
+      "increment": 24.0
+    },
+    "31": {
+      "before": 0.0,
+      "after": 24.0,
+      "increment": 24.0
+    },
+    "32": {
+      "before": 0.0,
+      "after": 24.0,
+      "increment": 24.0
+    },
+    "33": {
+      "before": 0.0,
+      "after": 24.0,
+      "increment": 24.0
+    }
+  },
+  "actual_completed_PPO": 2,
+  "learning_clock": 1503,
+  "actual_experiment_consumed": 2605,
+  "scope": "Sealed tensors, clocks, real optimizer step counters, source identity and strict decoding; behavior reviewed separately",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792889349.8273098
+}

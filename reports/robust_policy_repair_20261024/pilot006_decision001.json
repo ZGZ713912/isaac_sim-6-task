@@ -1,0 +1,29 @@
+{
+  "schema": "bounded-relearning-pilot006-decision-v1",
+  "decision": "reject_adoption_and_extension",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot006_final_pairs_side/model_final.pt",
+  "checkpoint_sha256": "8da85d11ef2b6fb658831bec8402961b5046c002bd43f77fe64a0c08e6e826ab",
+  "source_checkpoint": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+  "source_sha256": "3a4f183f46af00dcd25bb2d4bb69150154c95577c9999752012397ece237a519",
+  "paired_exact": true,
+  "checks": {
+    "standing_at_least19": true,
+    "motion_MAE_at_most0135": true,
+    "entry_peak_no_greater_than_source": false,
+    "fallen_recoveries_at_least3": false,
+    "fallen_peak_no_greater_than_source": false,
+    "all_survived": true,
+    "no_additional_impact_terminations": true
+  },
+  "remaining_nominal_and_RMCS_gates": "not run because fixed admission failed",
+  "new_PPO_completed": 32,
+  "new_PPO_attempted": 32,
+  "current_lineage_clock": 1533,
+  "actual_experiment_consumed": 2587,
+  "repair_PPO_consumed": 207,
+  "additional_PPO_started": false,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792874549.1732001,
+  "plan_metadata_note": "admission_rejection field inherited from rejected motion plan is stale predecessor text; new side pilot admission is final_pair_side_admission001.json and actual source/commands are the new plan"
+}

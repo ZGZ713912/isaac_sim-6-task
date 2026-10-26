@@ -1,0 +1,445 @@
+{
+  "schema": "native-quiet-output-endpoint-v1",
+  "checks": {
+    "endpoint_clock": true,
+    "declared_budget": true,
+    "attempted_charged_exact": true,
+    "all_native_update_rows": true,
+    "all_native_step_and_finite_checks": true,
+    "native_update_row_clocks": true,
+    "wrapper_bound": true,
+    "source_bound": true,
+    "first_rollout_native_exact": true,
+    "exactly_six_existing_actor_tensors_changed": true,
+    "frozen_actor_and_basis_and_std_exact": true,
+    "all22_frozen_actor_Adam_slots_exact": true,
+    "learned_and_critic_Adam_steps_exact": true,
+    "critic_changed": true,
+    "frozen_inputs_exact": true,
+    "initial_restore_all": true,
+    "strict_V7_decode": true,
+    "outside_quiet_function_exact": true,
+    "quiet_function_changed": true,
+    "native_TensorBoard_seven_tags": true,
+    "native_TensorBoard_exact_steps": true,
+    "native_TensorBoard_step_checks_pass": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot017_quiet_output/model_final.pt",
+  "checkpoint_sha256": "192348773d222d9cf10be193ca9c88cc82f64bace79a5f7b8b3d96777742e5f0",
+  "source": "runs/robust_policy_repair_20261024/quiet_output_root001/model_initial.pt",
+  "source_sha256": "32e871427e61f72dc8996a6536e536fa7f05fdec04925c473c701539c6e2b3a0",
+  "changed_actor_tensors": [
+    "mlp.mean.quiet.2.weight",
+    "mlp.mean.quiet.2.bias",
+    "mlp.mean.quiet_low.2.weight",
+    "mlp.mean.quiet_low.2.bias",
+    "mlp.mean.quiet_high.2.weight",
+    "mlp.mean.quiet_high.2.bias"
+  ],
+  "source_clock": 1501,
+  "branch_clock": 1509,
+  "real_PPO_attempts": 8,
+  "real_PPO_completed": 8,
+  "actual_experiment_consumed": 2662,
+  "repair_optimizer_updates": 282,
+  "native_update_rows": [
+    {
+      "completed_updates": 1,
+      "learning_clock": 1502,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108096,
+        "encoder_displacement_rms_m": 0.042918816208839417,
+        "output_parameter_update_L2": 0.005674249492585659,
+        "output_gradient_L2": 0.9999997615814209,
+        "native_Adam_step_min": 780.0,
+        "native_Adam_step_max": 1536.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927032.1288002
+    },
+    {
+      "completed_updates": 2,
+      "learning_clock": 1503,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111354,
+        "encoder_displacement_rms_m": 0.07161089032888412,
+        "output_parameter_update_L2": 0.002800453919917345,
+        "output_gradient_L2": 0.9999993443489075,
+        "native_Adam_step_min": 792.0,
+        "native_Adam_step_max": 1548.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927086.275442
+    },
+    {
+      "completed_updates": 3,
+      "learning_clock": 1504,
+      "metrics": {
+        "observed_upright_zero_request_frames": 107088,
+        "encoder_displacement_rms_m": 0.08808434754610062,
+        "output_parameter_update_L2": 0.004215814173221588,
+        "output_gradient_L2": 0.9999994039535522,
+        "native_Adam_step_min": 804.0,
+        "native_Adam_step_max": 1560.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927143.9324632
+    },
+    {
+      "completed_updates": 4,
+      "learning_clock": 1505,
+      "metrics": {
+        "observed_upright_zero_request_frames": 109968,
+        "encoder_displacement_rms_m": 0.10663583129644394,
+        "output_parameter_update_L2": 0.004027313552796841,
+        "output_gradient_L2": 0.9999990463256836,
+        "native_Adam_step_min": 816.0,
+        "native_Adam_step_max": 1572.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927199.8305547
+    },
+    {
+      "completed_updates": 5,
+      "learning_clock": 1506,
+      "metrics": {
+        "observed_upright_zero_request_frames": 106950,
+        "encoder_displacement_rms_m": 0.10181134939193726,
+        "output_parameter_update_L2": 0.0035971880424767733,
+        "output_gradient_L2": 0.9999991059303284,
+        "native_Adam_step_min": 828.0,
+        "native_Adam_step_max": 1584.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927268.230631
+    },
+    {
+      "completed_updates": 6,
+      "learning_clock": 1507,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110443,
+        "encoder_displacement_rms_m": 0.060531049966812134,
+        "output_parameter_update_L2": 0.003619686933234334,
+        "output_gradient_L2": 0.9517018795013428,
+        "native_Adam_step_min": 840.0,
+        "native_Adam_step_max": 1596.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927330.2018178
+    },
+    {
+      "completed_updates": 7,
+      "learning_clock": 1508,
+      "metrics": {
+        "observed_upright_zero_request_frames": 107975,
+        "encoder_displacement_rms_m": 0.08072526752948761,
+        "output_parameter_update_L2": 0.0035960357636213303,
+        "output_gradient_L2": 0.9999992251396179,
+        "native_Adam_step_min": 852.0,
+        "native_Adam_step_max": 1608.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927393.6747305
+    },
+    {
+      "completed_updates": 8,
+      "learning_clock": 1509,
+      "metrics": {
+        "observed_upright_zero_request_frames": 109766,
+        "encoder_displacement_rms_m": 0.0888853669166565,
+        "output_parameter_update_L2": 0.0040367101319134235,
+        "output_gradient_L2": 0.9999989867210388,
+        "native_Adam_step_min": 864.0,
+        "native_Adam_step_max": 1620.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792927448.6566203
+    }
+  ],
+  "native_TensorBoard": {
+    "QuietOutputTraining/encoder_displacement_rms_m": [
+      {
+        "step": 1501,
+        "value": 0.042918816208839417
+      },
+      {
+        "step": 1502,
+        "value": 0.07161089032888412
+      },
+      {
+        "step": 1503,
+        "value": 0.08808434754610062
+      },
+      {
+        "step": 1504,
+        "value": 0.10663583129644394
+      },
+      {
+        "step": 1505,
+        "value": 0.10181134939193726
+      },
+      {
+        "step": 1506,
+        "value": 0.060531049966812134
+      },
+      {
+        "step": 1507,
+        "value": 0.08072526752948761
+      },
+      {
+        "step": 1508,
+        "value": 0.0888853669166565
+      }
+    ],
+    "QuietOutputTraining/native_Adam_step_max": [
+      {
+        "step": 1501,
+        "value": 1536.0
+      },
+      {
+        "step": 1502,
+        "value": 1548.0
+      },
+      {
+        "step": 1503,
+        "value": 1560.0
+      },
+      {
+        "step": 1504,
+        "value": 1572.0
+      },
+      {
+        "step": 1505,
+        "value": 1584.0
+      },
+      {
+        "step": 1506,
+        "value": 1596.0
+      },
+      {
+        "step": 1507,
+        "value": 1608.0
+      },
+      {
+        "step": 1508,
+        "value": 1620.0
+      }
+    ],
+    "QuietOutputTraining/native_Adam_step_min": [
+      {
+        "step": 1501,
+        "value": 780.0
+      },
+      {
+        "step": 1502,
+        "value": 792.0
+      },
+      {
+        "step": 1503,
+        "value": 804.0
+      },
+      {
+        "step": 1504,
+        "value": 816.0
+      },
+      {
+        "step": 1505,
+        "value": 828.0
+      },
+      {
+        "step": 1506,
+        "value": 840.0
+      },
+      {
+        "step": 1507,
+        "value": 852.0
+      },
+      {
+        "step": 1508,
+        "value": 864.0
+      }
+    ],
+    "QuietOutputTraining/observed_upright_zero_request_frames": [
+      {
+        "step": 1501,
+        "value": 108096.0
+      },
+      {
+        "step": 1502,
+        "value": 111354.0
+      },
+      {
+        "step": 1503,
+        "value": 107088.0
+      },
+      {
+        "step": 1504,
+        "value": 109968.0
+      },
+      {
+        "step": 1505,
+        "value": 106950.0
+      },
+      {
+        "step": 1506,
+        "value": 110443.0
+      },
+      {
+        "step": 1507,
+        "value": 107975.0
+      },
+      {
+        "step": 1508,
+        "value": 109766.0
+      }
+    ],
+    "QuietOutputTraining/output_gradient_L2": [
+      {
+        "step": 1501,
+        "value": 0.9999997615814209
+      },
+      {
+        "step": 1502,
+        "value": 0.9999993443489075
+      },
+      {
+        "step": 1503,
+        "value": 0.9999994039535522
+      },
+      {
+        "step": 1504,
+        "value": 0.9999990463256836
+      },
+      {
+        "step": 1505,
+        "value": 0.9999991059303284
+      },
+      {
+        "step": 1506,
+        "value": 0.9517018795013428
+      },
+      {
+        "step": 1507,
+        "value": 0.9999992251396179
+      },
+      {
+        "step": 1508,
+        "value": 0.9999989867210388
+      }
+    ],
+    "QuietOutputTraining/output_parameter_update_L2": [
+      {
+        "step": 1501,
+        "value": 0.005674249492585659
+      },
+      {
+        "step": 1502,
+        "value": 0.002800453919917345
+      },
+      {
+        "step": 1503,
+        "value": 0.004215814173221588
+      },
+      {
+        "step": 1504,
+        "value": 0.004027313552796841
+      },
+      {
+        "step": 1505,
+        "value": 0.0035971880424767733
+      },
+      {
+        "step": 1506,
+        "value": 0.003619686933234334
+      },
+      {
+        "step": 1507,
+        "value": 0.0035960357636213303
+      },
+      {
+        "step": 1508,
+        "value": 0.0040367101319134235
+      }
+    ],
+    "QuietOutputTraining/passed": [
+      {
+        "step": 1501,
+        "value": 1.0
+      },
+      {
+        "step": 1502,
+        "value": 1.0
+      },
+      {
+        "step": 1503,
+        "value": 1.0
+      },
+      {
+        "step": 1504,
+        "value": 1.0
+      },
+      {
+        "step": 1505,
+        "value": 1.0
+      },
+      {
+        "step": 1506,
+        "value": 1.0
+      },
+      {
+        "step": 1507,
+        "value": 1.0
+      },
+      {
+        "step": 1508,
+        "value": 1.0
+      }
+    ]
+  },
+  "frozen_inputs": 706,
+  "function_probe": {
+    "trace": "runs/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation/evaluation/trajectory.npz",
+    "sha256": "aaf5863b9721ddb28354df9e7b8247c102ef9f9adec300816ae8158e03137f98",
+    "frames": 81600,
+    "outside_count": 32045,
+    "outside_different": 0,
+    "active_different": 49029,
+    "peak_action_delta": 0.0023984909057617188
+  },
+  "interpretation": "Engineering readback only; frozen recorded observations do not prove closed-loop behavior or qualification.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792927545.7599888
+}

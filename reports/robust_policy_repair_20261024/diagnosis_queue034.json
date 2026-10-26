@@ -1,0 +1,41 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3969028,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "quiet_authority050_fixed",
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis034_quiet_authority050_fixed",
+      "log": "reports/robust_policy_repair_20261024/diagnosis034_quiet_authority050_fixed.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_quiet_authority_probe003.py",
+        "--retained-quiet-authority",
+        ".5",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis034_quiet_authority050_fixed",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792897144.1102233,
+      "pid": 3969029,
+      "returncode": 0,
+      "finished_unix": 1792897368.0875196
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792897368.0877166,
+  "finished_unix": 1792897368.0877163
+}

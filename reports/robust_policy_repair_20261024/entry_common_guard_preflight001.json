@@ -1,0 +1,35 @@
+{
+  "schema": "common-gradient-and-phase-guard-preflight-v1",
+  "checks": {
+    "feature_gradients_zero": true,
+    "last_gradients_present": true,
+    "common_rows_equal": true,
+    "wheel_gradients_zero": true,
+    "all_weights_unchanged": true,
+    "neutral_frozen_feature_basis_exact": true,
+    "neutral_wheel_rows_exact": true,
+    "neutral_far_margin": true,
+    "neutral_stopped_margin": true,
+    "neutral_knee_roundoff": true,
+    "neutral_finite": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/function_root_entry002/model_initial.pt",
+  "checkpoint_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+  "source_clock": 1501,
+  "gradient_requires_grad_parameters": 21894,
+  "effective_common_parameters": 258,
+  "neutral_guard": {
+    "far_signed_lead_min_rad": 0.014603648334741592,
+    "stopped_target_peak_rad": 0.0044915154576301575,
+    "knee_logit_delta_peak": 0.0
+  },
+  "phase_frames": 54450,
+  "mask_source_sha256": "80623bb51cf59ed46168926d55c8a58ad7b0f32883e35497dc1f47a0e2ca0589",
+  "hypothesis": "Keep the original feature basis and knee/wheel mappings while optimizing only the existing two common rows. Stop before another rollout if a completed update violates the existing phase margins.",
+  "status": "engineering_preflight_only_no_new_PPO_admitted",
+  "new_PPO": 0,
+  "optimizer_steps": 0,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792892284.3913577
+}

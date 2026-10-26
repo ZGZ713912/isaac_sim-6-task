@@ -1,0 +1,39 @@
+{
+  "schema": "real-partial-PPO-phase-constraint-audit-v1",
+  "dataset": "reports/robust_policy_repair_20261024/entry_phase_path_dataset001.npz",
+  "dataset_sha256": "d7bfa37723fba515641526d55eb01466a2f7ccdf7c5e16348441eb6c3ea87df8",
+  "frames": 54450,
+  "rows": [
+    {
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+      "far_common_signed_min": 0.24999934434890747,
+      "far_actual_signed_lead_min_rad": 0.014603648334741592,
+      "far_actual_direction_correct_fraction": 1.0,
+      "stopped_common_peak": 0.06000121310353279,
+      "stopped_actual_target_peak_rad": 0.0044915154576301575
+    },
+    {
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot009_contract002/model_migrated.pt",
+      "sha256": "5e24f163310182db64a1af59ec4223414142392d746a91ef1ba2834a9521b114",
+      "far_common_signed_min": 0.16283833980560303,
+      "far_actual_signed_lead_min_rad": 0.00997534766793251,
+      "far_actual_direction_correct_fraction": 1.0,
+      "stopped_common_peak": 0.16542360186576843,
+      "stopped_actual_target_peak_rad": 0.012219319120049477
+    }
+  ],
+  "changes": {
+    "common_logit_delta_peak": 0.20260803401470184,
+    "knee_logit_delta_peak": 0.003490626811981201,
+    "wheel_logit_delta_peak": 0.0007046759128570557,
+    "physical_wheel_target_delta_peak_nm": 0.006312429904937744,
+    "physical_leg_target_delta_peak_rad": 0.013394832611083984
+  },
+  "scope": "Offline original development constraints after real native PPO; no additional physical trajectory, causal claim or new training.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2605,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792889688.2875323
+}

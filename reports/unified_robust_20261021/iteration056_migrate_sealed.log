@@ -1,0 +1,38 @@
+{
+  "schema": "robust-contract-migration-v1",
+  "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_velocity036/model_migrated.pt",
+  "source_sha256": "3d5336b518b1f23c91b6dc9b1aa3f19e81a3112de9c596df86bc7451f78cb7d6",
+  "optimizer_updates": 0,
+  "reason": "Explicit position ABI on clean036; legacy comparisons mask new slots; zero-PPO parity before bounded learning",
+  "observation_abi_changed": true,
+  "rmcs_preprocessor_installed": false,
+  "quiet_velocity_feedback": {
+    "new_parameters": 24,
+    "mode": "standing_displacement",
+    "initial_weights": "zero",
+    "input": "20 * filtered relative encoder rolling coordinate in metres, slots14:16; old networks force these slots to zero",
+    "output": "bounded additive common-leg and wheel corrections after the old quiet tanh",
+    "bias": false,
+    "optimizer": "all old moments retained; only new parameters start with empty Adam state",
+    "deterministic_function": "preserved; no random initialization draws"
+  },
+  "stance_aware_recovery": true,
+  "recovery_shape_aware": true,
+  "quiet_high_common_alpha": null,
+  "quiet_high_leg_prediction_s": 0.005,
+  "quiet_leg_prediction_all_heights": false,
+  "recovery_leg_step": 0.3,
+  "motion_residual_fraction": 0.25,
+  "fast_forward_reference": true,
+  "fast_forward_reference_range": [
+    1.0,
+    1.5
+  ],
+  "fast_forward_reference_yaw_fade": null,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_position056_sealed/model_migrated.pt",
+  "checkpoint_sha256": "47bb0c656ce0c3f681fe4a1f9f4ef1572f6fcc517170ec4f2f7847a681aea4cc",
+  "completed_updates": 441,
+  "actor_other_than_quiet_unchanged": true,
+  "feedback_winding": "paired_circular_feedback_v1",
+  "hardware_tested": false
+}

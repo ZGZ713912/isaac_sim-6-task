@@ -1,0 +1,43 @@
+{
+  "schema": "entry-opposite-common-bias-native-protocol-v1",
+  "status": "admitted_fixed51_zero_PPO_only",
+  "reference": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "candidate": "runs/robust_policy_repair_20261024/entry_positive030_periodic001/model_probe.pt",
+  "intervention": "Opposite sign of the four existing entry NN final common-output biases: +.30/+ .30/- .30/- .30; periodic function, original fallen/quiet/motion/wheel weights and all hardware limits retained.",
+  "hypothesis": "The periodic-only probe reduces oscillation but reaches a wheels-up equilibrium. The opposite common drive is the shortest return toward the RMCS support common angle for the two recorded stalls. Test it without PPO.",
+  "prior_failure": "periodic_entry_fixed_decision001.json remains rejected; this is a new NN bias intervention, not extension of the failed unchanged weights.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "stages": [
+    "fixed51 zero-PPO only",
+    "nominal complete35x2 plus RMCS72 only after fixed success"
+  ],
+  "gate": {
+    "fixed_standing_at_least": 19,
+    "fixed_motion_mae_at_most": 0.135,
+    "fixed_fallen_recovery_at_least": 3,
+    "fixed_fallen_followup_at_least": 2,
+    "fixed_entry_recovery_at_least": 6,
+    "fixed_entry_followup_at_least": 5,
+    "fixed_entry_leg_peak_at_most_rad_s": 8.911178255081177,
+    "fixed_fallen_leg_peak_at_most_rad_s": 24.11665153503418,
+    "fixed_impacts_at_most": 2,
+    "RMCS_recovery_at_least": 55,
+    "RMCS_followup_at_least": 36,
+    "RMCS_tail90_at_least": 52,
+    "RMCS_impacts_at_most": 2,
+    "RMCS_leg_peak_at_most_rad_s": 18.907798767089844,
+    "nominal_compound_followup_at_least": 8,
+    "nominal_inverted_followup_at_least": 10,
+    "nominal_right_followup_at_least": 2,
+    "nominal_left_followup_at_least": 2,
+    "nominal_motion_survival_at_least": 42,
+    "no_automatic_PPO": true
+  },
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792883324.5659611,
+  "checkpoint_sha256": "4b8aa03d96ff6b16e5375e8e4ee637b4a33e9e2878f58c80cc0d96e51dfff47b",
+  "preflight_sha256": "3212a592aac663cf061d1d87687ed268f38aecddf941664b8cf19dee2c8735dc",
+  "updated_unix": 1792883341.061234
+}

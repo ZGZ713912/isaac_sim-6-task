@@ -1,0 +1,27 @@
+...F...........................                                          [100%]
+=================================== FAILURES ===================================
+_____ test_fallen_updates_cannot_modify_the_full_entry_authority_function ______
+
+    def test_fallen_updates_cannot_modify_the_full_entry_authority_function():
+        old, new = pair(814)
+        obs = torch.zeros(6, 35)
+        obs[:, 3] = .305 * 5.
+        obs[:, 9] = -1.
+        obs[:3, 10:14] = torch.tensor([1., 1., -1., -1.])
+        obs[3:, 9] = 1.
+        obs[:, 22:26] = obs[:, 10:14] / .25
+        gate = handoff_entry_gate(obs)[:, 0]
+        assert torch.equal(gate, torch.tensor([1., 1., 1., 0., 0., 0.]))
+        with torch.no_grad():
+            for p in new.recovery.parameters():
+                p.add_(.03)
+            assert torch.equal(old(obs)[:3], new(obs)[:3])
+>           assert not torch.equal(old(obs)[3:], new(obs)[3:])
+E           assert not True
+E            +  where True = <built-in method equal of type object at 0x7fef4453e180>(tensor([[-0.2130,  0.2130,  0.2130, -0.2130,  0.0000,  0.0000],\n        [-0.2130,  0.2130,  0.2130, -0.2130,  0.0000,  0.0000],\n        [-0.2130,  0.2130,  0.2130, -0.2130,  0.0000,  0.0000]]), tensor([[-0.2130,  0.2130,  0.2130, -0.2130,  0.0000,  0.0000],\n        [-0.2130,  0.2130,  0.2130, -0.2130,  0.0000,  0.0000],\n        [-0.2130,  0.2130,  0.2130, -0.2130,  0.0000,  0.0000]]))
+E            +    where <built-in method equal of type object at 0x7fef4453e180> = torch.equal
+
+tests/test_gap_entry_preservation.py:56: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_gap_entry_preservation.py::test_fallen_updates_cannot_modify_the_full_entry_authority_function
+1 failed, 30 passed in 1.81s

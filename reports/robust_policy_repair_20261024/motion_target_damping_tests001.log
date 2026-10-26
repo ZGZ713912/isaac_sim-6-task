@@ -1,0 +1,23 @@
+......F......................................                            [100%]
+=================================== FAILURES ===================================
+_________ test_previous_action_periodic_representation_and_reflection __________
+
+    def test_previous_action_periodic_representation_and_reflection():
+        obs,a,bounds = sample()
+        obs[:,10:14] = torch.tensor([-.03,.04,-.02,.05])
+        obs[:,22:26] = torch.tensor([.1,-.1,.2,-.2])
+        shifted = obs.clone()
+        shifted[:,22:26] += torch.tensor([2.,-2.,4.,-4.])*torch.pi/.25
+        first = damp_motion_targets(a,obs,.8,bounds)
+        second = damp_motion_targets(a,shifted,.8,bounds)
+>       torch.testing.assert_close(first,second,rtol=0.,atol=2e-6)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 12 / 72 (16.7%)
+E       Greatest absolute difference: 3.337860107421875e-06 at index (0, 2) (up to 2e-06 allowed)
+E       Greatest relative difference: 3.2093783374875784e-05 at index (0, 2) (up to 0.0 allowed)
+
+tests/test_motion_target_damping.py:76: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_motion_target_damping.py::test_previous_action_periodic_representation_and_reflection
+1 failed, 44 passed in 1.01s

@@ -1,0 +1,34 @@
+{
+  "schema": "recovery-support-return-order-gate-v1",
+  "proposed_weight": 1.0,
+  "checks": [
+    {
+      "name": "left_symmetric",
+      "family": "right",
+      "stall_lower_minus_crash_upper_return": 0.9721202693087783,
+      "crash_remains_worse": true
+    },
+    {
+      "name": "right_asymmetric",
+      "family": "left",
+      "stall_lower_minus_crash_upper_return": 1.6297727631646026,
+      "crash_remains_worse": true
+    },
+    {
+      "name": "left_symmetric",
+      "family": "right",
+      "stall_lower_minus_crash_upper_return": 0.9721202693087783,
+      "crash_remains_worse": true
+    },
+    {
+      "name": "right_asymmetric",
+      "family": "left",
+      "stall_lower_minus_crash_upper_return": 1.6297727631646026,
+      "crash_remains_worse": true
+    }
+  ],
+  "all_pass": true,
+  "scope": "Preceding native trajectories only; no policy gradient or unobserved continuation value proof. Unit tests and fresh native equality required before a bounded paired pilot.",
+  "new_PPO": 0,
+  "created_unix": 1792878425.4183621
+}

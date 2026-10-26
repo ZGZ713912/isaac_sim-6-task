@@ -1,0 +1,1176 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1792855227.447532 3613703 descriptor_database.cc:633] File already exists in database: grpc/health/v1/health.proto
+W0000 00:00:1792855227.447591 3613703 message.cc:301] Protobuf GeneratedMessageFactory: File is already registered: grpc/health/v1/health.proto
+[ISAACLAB] AppLauncher initialization complete
+[INFO]: Registered backend 'physx' for factory Articulation.
+[INFO]: Simulation parameters for joints in /World/envs/env_.*/Robot:
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                    Simulation Joint Information (Prim path: /World/envs/env_.*/Robot)                                                   |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+| Index | Name           | Stiffness | Damping | Armature | Static Friction | Dynamic Friction | Viscous Friction |   Position Limits   | Velocity Limits | Effort Limits |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+|   0   | L_joint1       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   1   | R_joint1       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   2   | LL_joint1      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   3   | RR_joint1      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   4   | L_joint2       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.086, 1.083]   |     1.0e+09     |    100.000    |
+|   5   | R_jonit2       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-1.083, 0.086]   |     1.0e+09     |    100.000    |
+|   6   | LL_joint2      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   7   | RR_joint2      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   8   | L_joint3       |   0.000   |  0.000  |  0.004   |      0.050      |      0.050       |      0.001       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     4.500     |
+|   9   | LLL_joint2     |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   10  | R_joint3       |   0.000   |  0.000  |  0.004   |      0.070      |      0.070       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     4.500     |
+|   11  | RRR_joint2     |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   12  | LL_joint3      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   13  | RR_joint3      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   14  | L_spring_slide |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.010, 0.070]   |     100.000     |    1.0e+03    |
+|   15  | R_spring_slide |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.010, 0.070]   |     100.000     |    1.0e+03    |
+|   16  | LL_link4       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   17  | RR_joint4      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 actor :  ['policy']
+	 critic :  ['critic']
+--------------------------------------------------------------------------------
+Actor Model: MLPModel(
+  (obs_normalizer): Identity()
+  (distribution): HeteroscedasticGaussianDistribution()
+  (mlp): MLP(
+    (0): Linear(in_features=35, out_features=256, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=256, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=64, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=64, out_features=12, bias=True)
+    (7): Unflatten(dim=-1, unflattened_size=[2, 6])
+  )
+)
+Critic Model: MLPModel(
+  (obs_normalizer): Identity()
+  (mlp): MLP(
+    (0): Linear(in_features=83, out_features=256, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=256, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=64, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=64, out_features=1, bias=True)
+  )
+)
+Could not find git repository in /home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/rsl_rl/__init__.py. Skipping.
+################################################################################
+[1m                          Learning iteration 1501/1565                          [0m 
+
+                            Total steps: 32768 
+                       Steps per second: 1498 
+                        Collection time: 21.461s 
+                          Learning time: 0.402s 
+                        Mean value loss: 10.4088
+                    Mean surrogate loss: -0.0000
+                      Mean entropy loss: -18.6027
+                        Mean action std: 0.03
+  UnifiedGetup/recovery_active_fraction: 0.1953
+          UnifiedGetup/upright_fraction: 0.6817
+          UnifiedGetup/recovered_events: 0.0000
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 4482.3833
+   UnifiedGetup/contact_impulse_peak_ns: 11.9940
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.1016
+UnifiedGetup/moderate_arc_active_fraction: 0.0000
+                UnifiedGetup/vx_mae_m_s: 0.2072
+             UnifiedGetup/yaw_mae_rad_s: 0.3063
+        Standing/wheel_clearance_peak_m: 0.0017
+         Standing/dual_support_fraction: 0.8917
+        Standing/geometric_air_fraction: 0.0213
+                  Quiet/active_fraction: 0.8047
+                 Quiet/action_delta_rms: 0.0773
+              Quiet/leg_speed_rms_rad_s: 1.2493
+              Quiet/effort_delta_rms_nm: 0.9930
+     Quiet/fast_target_normalized_power: 231.9421
+   Quiet/fast_velocity_normalized_power: 35.0263
+                Quiet/position_radius_m: 0.0215
+     Standing/request_position_radius_m: 0.0215
+          Standing/support_cost_density: 0.0264
+Standing/position_deadband_cost_density: 0.0172
+            Standing/drift_cost_density: 0.8045
+            Standing/drift_paid_density: 0.8947
+            Standing/request_abs_vx_m_s: 0.0685
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 16.3036
+     LegQuality/physical_effort_peak_nm: 24.7324
+LegQuality/physical_saturation_fraction: 0.0003
+LegQuality/physical_saturation_run_peak_s: 0.0010
+ LegQuality/physical_effort_slew_rms_nm: 0.9819
+                LegQuality/paid_density: 0.0013
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.7150
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0100
+UnifiedGetup/post_settle/upright_episodes: 0.1953
+UnifiedGetup/post_settle/upright_recoveries: 0.0000
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0156
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0078
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 21.86s
+                           Time elapsed: 0:00:21
+                                    ETA: 0:22:57
+
+################################################################################
+[1m                          Learning iteration 1502/1565                          [0m 
+
+                            Total steps: 65536 
+                       Steps per second: 1585 
+                        Collection time: 20.440s 
+                          Learning time: 0.232s 
+                        Mean value loss: 8.3100
+                    Mean surrogate loss: -0.0002
+                      Mean entropy loss: -16.4142
+                        Mean action std: 0.05
+  UnifiedGetup/recovery_active_fraction: 0.1953
+          UnifiedGetup/upright_fraction: 0.6673
+          UnifiedGetup/recovered_events: 0.0000
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 2667.2271
+   UnifiedGetup/contact_impulse_peak_ns: 8.5117
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.1016
+UnifiedGetup/moderate_arc_active_fraction: 0.0000
+                UnifiedGetup/vx_mae_m_s: 0.1963
+             UnifiedGetup/yaw_mae_rad_s: 0.3000
+        Standing/wheel_clearance_peak_m: 0.0473
+         Standing/dual_support_fraction: 0.9021
+        Standing/geometric_air_fraction: 0.0096
+                  Quiet/active_fraction: 0.7910
+                 Quiet/action_delta_rms: 0.0999
+              Quiet/leg_speed_rms_rad_s: 1.1980
+              Quiet/effort_delta_rms_nm: 1.0666
+     Quiet/fast_target_normalized_power: 296.1915
+   Quiet/fast_velocity_normalized_power: 48.0129
+                Quiet/position_radius_m: 0.0366
+     Standing/request_position_radius_m: 0.0374
+          Standing/support_cost_density: 0.0146
+Standing/position_deadband_cost_density: 0.1180
+            Standing/drift_cost_density: 0.7907
+            Standing/drift_paid_density: 1.2725
+            Standing/request_abs_vx_m_s: 0.0601
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 17.8429
+     LegQuality/physical_effort_peak_nm: 39.1472
+LegQuality/physical_saturation_fraction: 0.0018
+LegQuality/physical_saturation_run_peak_s: 0.0347
+ LegQuality/physical_effort_slew_rms_nm: 2.0360
+                LegQuality/paid_density: 0.0057
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8047
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0287
+UnifiedGetup/post_settle/upright_episodes: 0.1094
+UnifiedGetup/post_settle/upright_recoveries: 0.0000
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0391
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0234
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 20.67s
+                           Time elapsed: 0:00:42
+                                    ETA: 0:21:58
+
+################################################################################
+[1m                          Learning iteration 1503/1565                          [0m 
+
+                            Total steps: 98304 
+                       Steps per second: 1619 
+                        Collection time: 19.780s 
+                          Learning time: 0.450s 
+                        Mean value loss: 4.3434
+                    Mean surrogate loss: -0.0001
+                      Mean entropy loss: -15.8114
+                        Mean action std: 0.05
+  UnifiedGetup/recovery_active_fraction: 0.1950
+          UnifiedGetup/upright_fraction: 0.6900
+          UnifiedGetup/recovered_events: 0.0078
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0001
+             UnifiedGetup/impact_peak_n: 2475.1228
+   UnifiedGetup/contact_impulse_peak_ns: 8.1019
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.1016
+UnifiedGetup/moderate_arc_active_fraction: 0.0000
+                UnifiedGetup/vx_mae_m_s: 0.1795
+             UnifiedGetup/yaw_mae_rad_s: 0.2594
+        Standing/wheel_clearance_peak_m: 0.3351
+         Standing/dual_support_fraction: 0.8782
+        Standing/geometric_air_fraction: 0.0205
+                  Quiet/active_fraction: 0.7862
+                 Quiet/action_delta_rms: 0.1003
+              Quiet/leg_speed_rms_rad_s: 1.2306
+              Quiet/effort_delta_rms_nm: 1.0816
+     Quiet/fast_target_normalized_power: 312.1572
+   Quiet/fast_velocity_normalized_power: 49.0018
+                Quiet/position_radius_m: 0.0455
+     Standing/request_position_radius_m: 0.0475
+          Standing/support_cost_density: 0.0174
+Standing/position_deadband_cost_density: 0.2679
+            Standing/drift_cost_density: 0.5596
+            Standing/drift_paid_density: 0.9006
+            Standing/request_abs_vx_m_s: 0.0493
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 22.9897
+     LegQuality/physical_effort_peak_nm: 39.9917
+LegQuality/physical_saturation_fraction: 0.0075
+LegQuality/physical_saturation_run_peak_s: 0.1236
+ LegQuality/physical_effort_slew_rms_nm: 3.4527
+                LegQuality/paid_density: 0.0161
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8127
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0366
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0078
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 20.23s
+                           Time elapsed: 0:01:02
+                                    ETA: 0:21:16
+
+################################################################################
+[1m                          Learning iteration 1504/1565                          [0m 
+
+                            Total steps: 131072 
+                       Steps per second: 1676 
+                        Collection time: 19.054s 
+                          Learning time: 0.494s 
+                        Mean value loss: 3.8233
+                    Mean surrogate loss: -0.0001
+                      Mean entropy loss: -16.4124
+                        Mean action std: 0.04
+  UnifiedGetup/recovery_active_fraction: 0.1824
+          UnifiedGetup/upright_fraction: 0.7458
+          UnifiedGetup/recovered_events: 0.0312
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 2193.5669
+   UnifiedGetup/contact_impulse_peak_ns: 7.2469
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.1016
+UnifiedGetup/moderate_arc_active_fraction: 0.0000
+                UnifiedGetup/vx_mae_m_s: 0.1485
+             UnifiedGetup/yaw_mae_rad_s: 0.1948
+        Standing/wheel_clearance_peak_m: 0.1467
+         Standing/dual_support_fraction: 0.8910
+        Standing/geometric_air_fraction: 0.0134
+                  Quiet/active_fraction: 0.7891
+                 Quiet/action_delta_rms: 0.0916
+              Quiet/leg_speed_rms_rad_s: 1.1193
+              Quiet/effort_delta_rms_nm: 1.0006
+     Quiet/fast_target_normalized_power: 255.9085
+   Quiet/fast_velocity_normalized_power: 39.7601
+                Quiet/position_radius_m: 0.0648
+     Standing/request_position_radius_m: 0.0688
+          Standing/support_cost_density: 0.0162
+Standing/position_deadband_cost_density: 0.4732
+            Standing/drift_cost_density: 0.3473
+            Standing/drift_paid_density: 0.5604
+            Standing/request_abs_vx_m_s: 0.0525
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 12.5326
+     LegQuality/physical_effort_peak_nm: 40.0000
+LegQuality/physical_saturation_fraction: 0.0109
+LegQuality/physical_saturation_run_peak_s: 0.3499
+ LegQuality/physical_effort_slew_rms_nm: 4.0672
+                LegQuality/paid_density: 0.0106
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8217
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0420
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0312
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 19.55s
+                           Time elapsed: 0:01:22
+                                    ETA: 0:20:34
+
+################################################################################
+[1m                          Learning iteration 1505/1565                          [0m 
+
+                            Total steps: 163840 
+                       Steps per second: 1668 
+                        Collection time: 18.354s 
+                          Learning time: 1.290s 
+                        Mean value loss: 3.3897
+                    Mean surrogate loss: -0.0005
+                      Mean entropy loss: -16.6364
+                        Mean action std: 0.04
+  UnifiedGetup/recovery_active_fraction: 0.1676
+          UnifiedGetup/upright_fraction: 0.7682
+          UnifiedGetup/recovered_events: 0.0312
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 1515.7698
+   UnifiedGetup/contact_impulse_peak_ns: 5.6859
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.1016
+UnifiedGetup/moderate_arc_active_fraction: 0.0000
+                UnifiedGetup/vx_mae_m_s: 0.1203
+             UnifiedGetup/yaw_mae_rad_s: 0.1614
+        Standing/wheel_clearance_peak_m: 0.4280
+         Standing/dual_support_fraction: 0.8937
+        Standing/geometric_air_fraction: 0.0103
+                  Quiet/active_fraction: 0.8047
+                 Quiet/action_delta_rms: 0.0977
+              Quiet/leg_speed_rms_rad_s: 1.1688
+              Quiet/effort_delta_rms_nm: 1.0590
+     Quiet/fast_target_normalized_power: 301.2578
+   Quiet/fast_velocity_normalized_power: 45.4506
+                Quiet/position_radius_m: 0.0894
+     Standing/request_position_radius_m: 0.0902
+          Standing/support_cost_density: 0.0155
+Standing/position_deadband_cost_density: 0.6313
+            Standing/drift_cost_density: 0.3157
+            Standing/drift_paid_density: 0.5132
+            Standing/request_abs_vx_m_s: 0.0472
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 11.5372
+     LegQuality/physical_effort_peak_nm: 40.0000
+LegQuality/physical_saturation_fraction: 0.0069
+LegQuality/physical_saturation_run_peak_s: 0.1743
+ LegQuality/physical_effort_slew_rms_nm: 3.2628
+                LegQuality/paid_density: 0.0069
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8274
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0457
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0234
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0078
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 19.64s
+                           Time elapsed: 0:01:41
+                                    ETA: 0:20:03
+
+################################################################################
+[1m                          Learning iteration 1506/1565                          [0m 
+
+                            Total steps: 196608 
+                       Steps per second: 2100 
+                        Collection time: 13.992s 
+                          Learning time: 1.611s 
+                        Mean value loss: 3.7048
+                    Mean surrogate loss: -0.0001
+                      Mean entropy loss: -16.5371
+                        Mean action std: 0.04
+  UnifiedGetup/recovery_active_fraction: 0.1501
+          UnifiedGetup/upright_fraction: 0.7674
+          UnifiedGetup/recovered_events: 0.0312
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 1925.9491
+   UnifiedGetup/contact_impulse_peak_ns: 6.8183
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.1016
+UnifiedGetup/moderate_arc_active_fraction: 0.0060
+                UnifiedGetup/vx_mae_m_s: 0.0993
+             UnifiedGetup/yaw_mae_rad_s: 0.1420
+        Standing/wheel_clearance_peak_m: 0.4481
+         Standing/dual_support_fraction: 0.8887
+        Standing/geometric_air_fraction: 0.0125
+                  Quiet/active_fraction: 0.7894
+                 Quiet/action_delta_rms: 0.0896
+              Quiet/leg_speed_rms_rad_s: 1.1190
+              Quiet/effort_delta_rms_nm: 0.9933
+     Quiet/fast_target_normalized_power: 248.4581
+   Quiet/fast_velocity_normalized_power: 38.7846
+                Quiet/position_radius_m: 0.0961
+     Standing/request_position_radius_m: 0.1105
+          Standing/support_cost_density: 0.0214
+Standing/position_deadband_cost_density: 0.7633
+            Standing/drift_cost_density: 0.2939
+            Standing/drift_paid_density: 0.4823
+            Standing/request_abs_vx_m_s: 0.0465
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 8.4905
+     LegQuality/physical_effort_peak_nm: 40.0000
+LegQuality/physical_saturation_fraction: 0.0054
+LegQuality/physical_saturation_run_peak_s: 0.1711
+ LegQuality/physical_effort_slew_rms_nm: 2.8612
+                LegQuality/paid_density: 0.0045
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8314
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0464
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0234
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0078
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 15.60s
+                           Time elapsed: 0:01:57
+                                    ETA: 0:18:56
+
+################################################################################
+[1m                          Learning iteration 1507/1565                          [0m 
+
+                            Total steps: 229376 
+                       Steps per second: 1811 
+                        Collection time: 17.554s 
+                          Learning time: 0.535s 
+                        Mean value loss: 9.8278
+                    Mean surrogate loss: -0.0001
+                      Mean entropy loss: -16.8321
+                        Mean action std: 0.03
+  UnifiedGetup/recovery_active_fraction: 0.1445
+          UnifiedGetup/upright_fraction: 0.7546
+          UnifiedGetup/recovered_events: 0.0000
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 1491.5876
+   UnifiedGetup/contact_impulse_peak_ns: 6.1897
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.0871
+UnifiedGetup/moderate_arc_active_fraction: 0.0049
+                UnifiedGetup/vx_mae_m_s: 0.1710
+             UnifiedGetup/yaw_mae_rad_s: 0.1895
+        Standing/wheel_clearance_peak_m: 0.4082
+         Standing/dual_support_fraction: 0.8994
+        Standing/geometric_air_fraction: 0.0113
+                  Quiet/active_fraction: 0.8020
+                 Quiet/action_delta_rms: 0.0983
+              Quiet/leg_speed_rms_rad_s: 1.1719
+              Quiet/effort_delta_rms_nm: 1.0799
+     Quiet/fast_target_normalized_power: 300.3878
+   Quiet/fast_velocity_normalized_power: 46.1861
+                Quiet/position_radius_m: 0.1219
+     Standing/request_position_radius_m: 0.1354
+          Standing/support_cost_density: 0.0155
+Standing/position_deadband_cost_density: 0.9014
+            Standing/drift_cost_density: 0.3012
+            Standing/drift_paid_density: 0.4942
+            Standing/request_abs_vx_m_s: 0.0598
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 7.9563
+     LegQuality/physical_effort_peak_nm: 40.0000
+LegQuality/physical_saturation_fraction: 0.0036
+LegQuality/physical_saturation_run_peak_s: 0.3848
+ LegQuality/physical_effort_slew_rms_nm: 2.4455
+                LegQuality/paid_density: 0.0031
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8517
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0504
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0000
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 18.09s
+                           Time elapsed: 0:02:15
+                                    ETA: 0:18:24
+
+################################################################################
+[1m                          Learning iteration 1508/1565                          [0m 
+
+                            Total steps: 262144 
+                       Steps per second: 1427 
+                        Collection time: 22.155s 
+                          Learning time: 0.800s 
+                        Mean value loss: 45.4677
+                    Mean surrogate loss: -0.0006
+                      Mean entropy loss: -16.6720
+                        Mean action std: 0.03
+  UnifiedGetup/recovery_active_fraction: 0.1292
+          UnifiedGetup/upright_fraction: 0.7698
+          UnifiedGetup/recovered_events: 0.0625
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 1479.2921
+   UnifiedGetup/contact_impulse_peak_ns: 6.0331
+    UnifiedGetup/external_push_fraction: 0.0374
+   UnifiedGetup/in_motion_fall_fraction: 0.0000
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.0820
+UnifiedGetup/moderate_arc_active_fraction: 0.0048
+                UnifiedGetup/vx_mae_m_s: 0.1301
+             UnifiedGetup/yaw_mae_rad_s: 0.1013
+        Standing/wheel_clearance_peak_m: 0.0482
+         Standing/dual_support_fraction: 0.8748
+        Standing/geometric_air_fraction: 0.0332
+                  Quiet/active_fraction: 0.8141
+                 Quiet/action_delta_rms: 0.1004
+              Quiet/leg_speed_rms_rad_s: 1.2168
+              Quiet/effort_delta_rms_nm: 1.1171
+     Quiet/fast_target_normalized_power: 317.3305
+   Quiet/fast_velocity_normalized_power: 47.1298
+                Quiet/position_radius_m: 0.1527
+     Standing/request_position_radius_m: 0.1638
+          Standing/support_cost_density: 0.0664
+Standing/position_deadband_cost_density: 1.0241
+            Standing/drift_cost_density: 0.3227
+            Standing/drift_paid_density: 0.5361
+            Standing/request_abs_vx_m_s: 0.0618
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 1.0002
+            Robust/sensor_delay_mean_ms: 1.6602
+   LegQuality/physical_speed_peak_rad_s: 8.0270
+     LegQuality/physical_effort_peak_nm: 38.1601
+LegQuality/physical_saturation_fraction: 0.0031
+LegQuality/physical_saturation_run_peak_s: 0.2224
+ LegQuality/physical_effort_slew_rms_nm: 2.2577
+                LegQuality/paid_density: 0.0027
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8594
+StandingReference/severe_resets_per_episode_mean: 0.0000
+       StandingReference/filtered_abs_m: 0.0549
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0469
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0156
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 22.95s
+                           Time elapsed: 0:02:38
+                                    ETA: 0:18:30
+
+################################################################################
+[1m                          Learning iteration 1509/1565                          [0m 
+
+                            Total steps: 294912 
+                       Steps per second: 1475 
+                        Collection time: 20.727s 
+                          Learning time: 1.478s 
+                        Mean value loss: 33.4215
+                    Mean surrogate loss: -0.0001
+                      Mean entropy loss: -13.9648
+                            Mean reward: -17.23
+                    Mean episode length: 1110.82
+                        Mean action std: 0.08
+  UnifiedGetup/recovery_active_fraction: 0.1917
+          UnifiedGetup/upright_fraction: 0.6673
+          UnifiedGetup/recovered_events: 0.0391
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.2656
+            UnifiedGetup/episode_events: 0.2656
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0001
+             UnifiedGetup/impact_peak_n: 7227.6689
+   UnifiedGetup/contact_impulse_peak_ns: 14.3899
+    UnifiedGetup/external_push_fraction: 0.0576
+   UnifiedGetup/in_motion_fall_fraction: 0.0919
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.0820
+UnifiedGetup/moderate_arc_active_fraction: 0.0078
+                UnifiedGetup/vx_mae_m_s: 0.1360
+             UnifiedGetup/yaw_mae_rad_s: 0.3898
+        Standing/wheel_clearance_peak_m: 0.4698
+         Standing/dual_support_fraction: 0.7309
+        Standing/geometric_air_fraction: 0.1895
+                  Quiet/active_fraction: 0.6938
+                 Quiet/action_delta_rms: 0.0996
+              Quiet/leg_speed_rms_rad_s: 1.2781
+              Quiet/effort_delta_rms_nm: 1.1802
+     Quiet/fast_target_normalized_power: 316.9210
+   Quiet/fast_velocity_normalized_power: 48.8729
+                Quiet/position_radius_m: 0.1586
+     Standing/request_position_radius_m: 0.2306
+          Standing/support_cost_density: 2.1550
+Standing/position_deadband_cost_density: 1.5020
+            Standing/drift_cost_density: 0.4596
+            Standing/drift_paid_density: 0.7221
+            Standing/request_abs_vx_m_s: 0.1145
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 0.9998
+            Robust/sensor_delay_mean_ms: 1.6937
+   LegQuality/physical_speed_peak_rad_s: 23.2541
+     LegQuality/physical_effort_peak_nm: 40.0000
+LegQuality/physical_saturation_fraction: 0.0120
+LegQuality/physical_saturation_run_peak_s: 0.2858
+ LegQuality/physical_effort_slew_rms_nm: 4.0741
+                LegQuality/paid_density: 0.0536
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.7702
+StandingReference/severe_resets_per_episode_mean: 0.0739
+       StandingReference/filtered_abs_m: 0.0513
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0312
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0078
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 22.20s
+                           Time elapsed: 0:03:00
+                                    ETA: 0:18:24
+
+################################################################################
+[1m                          Learning iteration 1510/1565                          [0m 
+
+                            Total steps: 327680 
+                       Steps per second: 1735 
+                        Collection time: 18.351s 
+                          Learning time: 0.535s 
+                        Mean value loss: 12.1966
+                    Mean surrogate loss: -0.0001
+                      Mean entropy loss: -15.8322
+                            Mean reward: -17.42
+                    Mean episode length: 1112.31
+                        Mean action std: 0.05
+  UnifiedGetup/recovery_active_fraction: 0.1420
+          UnifiedGetup/upright_fraction: 0.7585
+          UnifiedGetup/recovered_events: 0.0547
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0078
+            UnifiedGetup/episode_events: 0.0078
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 3296.5625
+   UnifiedGetup/contact_impulse_peak_ns: 11.0819
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0589
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.0820
+UnifiedGetup/moderate_arc_active_fraction: 0.0101
+                UnifiedGetup/vx_mae_m_s: 0.1027
+             UnifiedGetup/yaw_mae_rad_s: 0.1604
+        Standing/wheel_clearance_peak_m: 0.3661
+         Standing/dual_support_fraction: 0.8500
+        Standing/geometric_air_fraction: 0.0592
+                  Quiet/active_fraction: 0.7646
+                 Quiet/action_delta_rms: 0.0985
+              Quiet/leg_speed_rms_rad_s: 1.2238
+              Quiet/effort_delta_rms_nm: 1.0596
+     Quiet/fast_target_normalized_power: 302.6655
+   Quiet/fast_velocity_normalized_power: 47.8981
+                Quiet/position_radius_m: 0.1560
+     Standing/request_position_radius_m: 0.2443
+          Standing/support_cost_density: 0.4997
+Standing/position_deadband_cost_density: 1.3075
+            Standing/drift_cost_density: 0.4420
+            Standing/drift_paid_density: 0.7259
+            Standing/request_abs_vx_m_s: 0.0863
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 0.9991
+            Robust/sensor_delay_mean_ms: 1.8147
+   LegQuality/physical_speed_peak_rad_s: 22.2734
+     LegQuality/physical_effort_peak_nm: 39.9026
+LegQuality/physical_saturation_fraction: 0.0043
+LegQuality/physical_saturation_run_peak_s: 0.0958
+ LegQuality/physical_effort_slew_rms_nm: 2.6142
+                LegQuality/paid_density: 0.0175
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.7983
+StandingReference/severe_resets_per_episode_mean: 0.0589
+       StandingReference/filtered_abs_m: 0.0531
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0469
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0078
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 18.89s
+                           Time elapsed: 0:03:19
+                                    ETA: 0:17:58
+
+################################################################################
+[1m                          Learning iteration 1511/1565                          [0m 
+
+                            Total steps: 360448 
+                       Steps per second: 1670 
+                        Collection time: 19.245s 
+                          Learning time: 0.372s 
+                        Mean value loss: 5.8631
+                    Mean surrogate loss: -0.0002
+                      Mean entropy loss: -16.2858
+                            Mean reward: -17.42
+                    Mean episode length: 1112.31
+                        Mean action std: 0.04
+  UnifiedGetup/recovery_active_fraction: 0.1230
+          UnifiedGetup/upright_fraction: 0.7697
+          UnifiedGetup/recovered_events: 0.0234
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 1508.8650
+   UnifiedGetup/contact_impulse_peak_ns: 7.4055
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0586
+UnifiedGetup/recovered_after_push_fraction: 0.0000
+    UnifiedGetup/mixed_command_fraction: 0.0820
+UnifiedGetup/moderate_arc_active_fraction: 0.0117
+                UnifiedGetup/vx_mae_m_s: 0.0934
+             UnifiedGetup/yaw_mae_rad_s: 0.0838
+        Standing/wheel_clearance_peak_m: 0.1603
+         Standing/dual_support_fraction: 0.8693
+        Standing/geometric_air_fraction: 0.0185
+                  Quiet/active_fraction: 0.7663
+                 Quiet/action_delta_rms: 0.0964
+              Quiet/leg_speed_rms_rad_s: 1.1803
+              Quiet/effort_delta_rms_nm: 1.0311
+     Quiet/fast_target_normalized_power: 283.6154
+   Quiet/fast_velocity_normalized_power: 44.6475
+                Quiet/position_radius_m: 0.1816
+     Standing/request_position_radius_m: 0.2820
+          Standing/support_cost_density: 0.1101
+Standing/position_deadband_cost_density: 1.4152
+            Standing/drift_cost_density: 0.4114
+            Standing/drift_paid_density: 0.6976
+            Standing/request_abs_vx_m_s: 0.0805
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 0.9991
+            Robust/sensor_delay_mean_ms: 1.8164
+   LegQuality/physical_speed_peak_rad_s: 11.7726
+     LegQuality/physical_effort_peak_nm: 33.0791
+LegQuality/physical_saturation_fraction: 0.0003
+LegQuality/physical_saturation_run_peak_s: 0.0119
+ LegQuality/physical_effort_slew_rms_nm: 1.5059
+                LegQuality/paid_density: 0.0023
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8068
+StandingReference/severe_resets_per_episode_mean: 0.0586
+       StandingReference/filtered_abs_m: 0.0574
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0156
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0078
+--------------------------------------------------------------------------------
+                         Iteration time: 19.62s
+                           Time elapsed: 0:03:39
+                                    ETA: 0:17:36
+
+################################################################################
+[1m                          Learning iteration 1512/1565                          [0m 
+
+                            Total steps: 393216 
+                       Steps per second: 1726 
+                        Collection time: 18.730s 
+                          Learning time: 0.246s 
+                        Mean value loss: 3.3203
+                    Mean surrogate loss: -0.0003
+                      Mean entropy loss: -17.0527
+                            Mean reward: -17.42
+                    Mean episode length: 1112.31
+                        Mean action std: 0.03
+  UnifiedGetup/recovery_active_fraction: 0.1077
+          UnifiedGetup/upright_fraction: 0.8088
+          UnifiedGetup/recovered_events: 0.0234
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 996.9488
+   UnifiedGetup/contact_impulse_peak_ns: 5.6451
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0586
+UnifiedGetup/recovered_after_push_fraction: 0.0056
+    UnifiedGetup/mixed_command_fraction: 0.0820
+UnifiedGetup/moderate_arc_active_fraction: 0.0117
+                UnifiedGetup/vx_mae_m_s: 0.0807
+             UnifiedGetup/yaw_mae_rad_s: 0.0636
+        Standing/wheel_clearance_peak_m: 0.3444
+         Standing/dual_support_fraction: 0.8920
+        Standing/geometric_air_fraction: 0.0107
+                  Quiet/active_fraction: 0.7857
+                 Quiet/action_delta_rms: 0.0901
+              Quiet/leg_speed_rms_rad_s: 1.1345
+              Quiet/effort_delta_rms_nm: 0.9898
+     Quiet/fast_target_normalized_power: 267.9266
+   Quiet/fast_velocity_normalized_power: 40.9253
+                Quiet/position_radius_m: 0.2343
+     Standing/request_position_radius_m: 0.3150
+          Standing/support_cost_density: 0.0766
+Standing/position_deadband_cost_density: 1.5780
+            Standing/drift_cost_density: 0.3760
+            Standing/drift_paid_density: 0.6403
+            Standing/request_abs_vx_m_s: 0.0679
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 0.9991
+            Robust/sensor_delay_mean_ms: 1.8164
+   LegQuality/physical_speed_peak_rad_s: 7.5746
+     LegQuality/physical_effort_peak_nm: 27.6942
+LegQuality/physical_saturation_fraction: 0.0000
+LegQuality/physical_saturation_run_peak_s: 0.0001
+ LegQuality/physical_effort_slew_rms_nm: 1.3383
+                LegQuality/paid_density: 0.0005
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8363
+StandingReference/severe_resets_per_episode_mean: 0.0586
+       StandingReference/filtered_abs_m: 0.0605
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0000
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 18.98s
+                           Time elapsed: 0:03:58
+                                    ETA: 0:17:12
+
+################################################################################
+[1m                          Learning iteration 1513/1565                          [0m 
+
+                            Total steps: 425984 
+                       Steps per second: 1958 
+                        Collection time: 15.568s 
+                          Learning time: 1.166s 
+                        Mean value loss: 32.4450
+                    Mean surrogate loss: -0.0000
+                      Mean entropy loss: -17.0115
+                            Mean reward: -17.42
+                    Mean episode length: 1112.31
+                        Mean action std: 0.03
+  UnifiedGetup/recovery_active_fraction: 0.0886
+          UnifiedGetup/upright_fraction: 0.7934
+          UnifiedGetup/recovered_events: 0.0391
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 916.6182
+   UnifiedGetup/contact_impulse_peak_ns: 5.5550
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0586
+UnifiedGetup/recovered_after_push_fraction: 0.0247
+    UnifiedGetup/mixed_command_fraction: 0.0763
+UnifiedGetup/moderate_arc_active_fraction: 0.0079
+                UnifiedGetup/vx_mae_m_s: 0.1553
+             UnifiedGetup/yaw_mae_rad_s: 0.1246
+        Standing/wheel_clearance_peak_m: 0.4668
+         Standing/dual_support_fraction: 0.8957
+        Standing/geometric_air_fraction: 0.0101
+                  Quiet/active_fraction: 0.7922
+                 Quiet/action_delta_rms: 0.0941
+              Quiet/leg_speed_rms_rad_s: 1.1585
+              Quiet/effort_delta_rms_nm: 1.0219
+     Quiet/fast_target_normalized_power: 264.7880
+   Quiet/fast_velocity_normalized_power: 42.0450
+                Quiet/position_radius_m: 0.2790
+     Standing/request_position_radius_m: 0.3416
+          Standing/support_cost_density: 0.0885
+Standing/position_deadband_cost_density: 1.6698
+            Standing/drift_cost_density: 0.3565
+            Standing/drift_paid_density: 0.5987
+            Standing/request_abs_vx_m_s: 0.0625
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 0.9991
+            Robust/sensor_delay_mean_ms: 1.8164
+   LegQuality/physical_speed_peak_rad_s: 7.7484
+     LegQuality/physical_effort_peak_nm: 36.5243
+LegQuality/physical_saturation_fraction: 0.0006
+LegQuality/physical_saturation_run_peak_s: 0.0320
+ LegQuality/physical_effort_slew_rms_nm: 1.9190
+                LegQuality/paid_density: 0.0012
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8483
+StandingReference/severe_resets_per_episode_mean: 0.0586
+       StandingReference/filtered_abs_m: 0.0622
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0000
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 16.73s
+                           Time elapsed: 0:04:15
+                                    ETA: 0:16:40
+
+################################################################################
+[1m                          Learning iteration 1514/1565                          [0m 
+
+                            Total steps: 458752 
+                       Steps per second: 2110 
+                        Collection time: 15.058s 
+                          Learning time: 0.471s 
+                        Mean value loss: 5.5055
+                    Mean surrogate loss: -0.0002
+                      Mean entropy loss: -16.9077
+                            Mean reward: -17.42
+                    Mean episode length: 1112.31
+                        Mean action std: 0.03
+  UnifiedGetup/recovery_active_fraction: 0.0728
+          UnifiedGetup/upright_fraction: 0.8074
+          UnifiedGetup/recovered_events: 0.0469
+    UnifiedGetup/episode_success_events: 0.0000
+         UnifiedGetup/terminated_events: 0.0000
+            UnifiedGetup/episode_events: 0.0000
+     UnifiedGetup/passive_motor_peak_nm: 0.0000
+         UnifiedGetup/closure_gap_max_m: 0.0000
+             UnifiedGetup/impact_peak_n: 890.8779
+   UnifiedGetup/contact_impulse_peak_ns: 4.8781
+    UnifiedGetup/external_push_fraction: 0.0000
+   UnifiedGetup/in_motion_fall_fraction: 0.0586
+UnifiedGetup/recovered_after_push_fraction: 0.0327
+    UnifiedGetup/mixed_command_fraction: 0.0703
+UnifiedGetup/moderate_arc_active_fraction: 0.0052
+                UnifiedGetup/vx_mae_m_s: 0.1660
+             UnifiedGetup/yaw_mae_rad_s: 0.0643
+        Standing/wheel_clearance_peak_m: 0.4481
+         Standing/dual_support_fraction: 0.8936
+        Standing/geometric_air_fraction: 0.0128
+                  Quiet/active_fraction: 0.7920
+                 Quiet/action_delta_rms: 0.0995
+              Quiet/leg_speed_rms_rad_s: 1.2103
+              Quiet/effort_delta_rms_nm: 1.0842
+     Quiet/fast_target_normalized_power: 307.3585
+   Quiet/fast_velocity_normalized_power: 48.6711
+                Quiet/position_radius_m: 0.3047
+     Standing/request_position_radius_m: 0.3668
+          Standing/support_cost_density: 0.0848
+Standing/position_deadband_cost_density: 1.7366
+            Standing/drift_cost_density: 0.3644
+            Standing/drift_paid_density: 0.6054
+            Standing/request_abs_vx_m_s: 0.0650
+                 Robust/domain_fraction: 0.7109
+             Robust/motor_strength_mean: 0.9991
+            Robust/sensor_delay_mean_ms: 1.8164
+   LegQuality/physical_speed_peak_rad_s: 7.9148
+     LegQuality/physical_effort_peak_nm: 34.7197
+LegQuality/physical_saturation_fraction: 0.0000
+LegQuality/physical_saturation_run_peak_s: 0.0000
+ LegQuality/physical_effort_slew_rms_nm: 1.7349
+                LegQuality/paid_density: 0.0007
+      RobustIMU/fixed_angle_abs_max_rad: 0.0418
+     RobustIMU/wobble_amplitude_max_rad: 0.0070
+      RobustIMU/wobble_frequency_max_hz: 7.9919
+      StandingReference/active_fraction: 0.8438
+StandingReference/severe_resets_per_episode_mean: 0.0586
+       StandingReference/filtered_abs_m: 0.0653
+UnifiedGetup/post_settle/upright_episodes: 0.0000
+UnifiedGetup/post_settle/upright_recoveries: 0.0234
+UnifiedGetup/post_settle/front_episodes: 0.0000
+UnifiedGetup/post_settle/front_recoveries: 0.0000
+ UnifiedGetup/post_settle/back_episodes: 0.0000
+UnifiedGetup/post_settle/back_recoveries: 0.0000
+ UnifiedGetup/post_settle/left_episodes: 0.0000
+UnifiedGetup/post_settle/left_recoveries: 0.0000
+UnifiedGetup/post_settle/right_episodes: 0.0000
+UnifiedGetup/post_settle/right_recoveries: 0.0000
+UnifiedGetup/post_settle/inverted_episodes: 0.0000
+UnifiedGetup/post_settle/inverted_recoveries: 0.0000
+UnifiedGetup/post_settle/compound_episodes: 0.0000
+UnifiedGetup/post_settle/compound_recoveries: 0.0078
+--------------------------------------------------------------------------------
+                         Iteration time: 15.53s
+                           Time elapsed: 0:04:30
+                                    ETA: 0:16:06
+
+{"status": "stopped", "updates": 15}
+Loading user config located at: '/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/data/Kit/IsaacLab/3.0/user.config.json'
+2026-10-24T15:20:27Z [0ms] [Warning] [omni.ext.plugin] [ext: isaaclab_visualizers] Extensions config 'extension.toml' doesn't exist '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers' or '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/config'
+2026-10-24T15:20:27Z [422ms] [Warning] [omni.kit.telemetry.plugin] failed to acquire the ITasking interface.  Launching the transmitter synchronously.
+2026-10-24T15:20:27Z [629ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-10-24T15:20:29Z [1,917ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred
+2026-10-24T15:20:29Z [1,917ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred
+2026-10-24T15:20:32Z [5,293ms] [Warning] [isaaclab_physx.physics.physx_manager] TGS solver with enable_external_forces_every_iteration=False may cause noisy velocities.
+2026-10-24T15:20:38Z [10,825ms] [Warning] [usdrt.population.plugin] Last global time was not created. Did you call setEnableUsdNoticeHandling?
+2026-10-24T15:20:38Z [10,828ms] [Warning] [omni.physx.plugin] Detected an articulation at /World/envs/env_0/Robot/base_link with more than 4 velocity iterations being added to a TGS scene.The related behavior changed recently, please consult the changelog. This warning will only print once.

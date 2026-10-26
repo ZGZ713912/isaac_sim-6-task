@@ -1,0 +1,74 @@
+{
+  "schema": "robust-policy-repair-completion-requirements-v1",
+  "source_protocol": "reports/unified_robust_20261021/acceptance_protocol004.json",
+  "source_protocol_sha256": "05e6469f6da54b726fc2bfb5e53ff7f90f996bfbcceaf942e453f6437ee39ab3",
+  "objective": "User requests a robust policy after iterative diagnosis/training for later real-robot testing",
+  "interim_pilot_gate": "Fixed51 physical and behavior nonregression permits zero-PPO expanded tests only. A measured gain on the actual moving-fall target and expanded nonregression are required before adoption or further PPO.",
+  "requirements": [
+    {
+      "name": "Policy and mechanics",
+      "evidence": "authenticated35D/6D at200Hz,1000Hz native physicsPD; paired winding, torque, mechanical, impulse, closure and termination protections retained; finite policy and exact ONNX parity",
+      "status": "unproven_for_final_candidate"
+    },
+    {
+      "name": "Frozen nominal practical qualification",
+      "evidence": "Run the unchanged acceptance_protocol004 at both required confirmation seeds with its family, ordinary motion, vibration and successful-episode rules",
+      "status": "Best9a nominal practical compound8/8,inverted10/10,right4/4,left2/2; motion42/46; actual moving-fall recoveries0 still fails formal completion."
+    },
+    {
+      "name": "Long standing and recentering",
+      "evidence": "Unchanged30s two-seed/16replicas/3height acceptance from source protocol; trueXY, physical3..95Hz motion, wheel clearance and high recentering assessed",
+      "status": "Current best9a has not passed formal30s. c025 completed96 formal episodes but fails position/recentering and physical3..95Hz gates at both seeds."
+    },
+    {
+      "name": "Full randomized stress improvement",
+      "evidence": "Compare to both stopped1501 and baseline569 on fixed51 cases, fullseverity1 and native actuator timing; then confirm with fresh heldout seeds. Target>=18/21 preliminary stand poses and nonregressing motionMAE<=.135, disclose every surviving failure.",
+      "status": "Current9a fixed19/21 and paired development17/21; c025 fixed20/21 and same development17/21. Both remain unqualified; no fresh holdout."
+    },
+    {
+      "name": "RMCS inverted coverage",
+      "evidence": "Revalidated lookup bank, actual post-settle classes; compare72native cases, recovery and followup separately, inspect impact guards and leg speed, then holdout confirmation",
+      "status": "Best9a RMCS72:70survive57recover36strictfollow56tail90,2impact,18.9078rad/s; fresh heldout confirmation remains."
+    },
+    {
+      "name": "Hardware handoff",
+      "evidence": "Export only the selected simulation-qualified mean; package exact observation winding/table, axis/layout/rate/nominal/action metadata, checkpoint/ONNX SHA and test receipts; no actual hardware motion by agent",
+      "status": "no_selected_model_or_export"
+    }
+  ],
+  "criteria_changes": "Any change requires an explicit rationale and must not count a narrower/easier gate as the original objective",
+  "qualification": null,
+  "hardware_ready": false,
+  "updated_unix": 1792948821.244338,
+  "historical_interim_pilot_gate": "standing>=11/21 and motionMAE<=.135 are only an admission to another bounded experiment, not completion or deployment",
+  "latest_research_status": {
+    "repair_total_PPO": 378,
+    "experiment_consumed": 2758,
+    "best_checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+    "best_clock": 1501,
+    "best_fixed": "standing19/21,entry8/8,fallen4/2,motionMAE.124232618",
+    "latest_branch": "02216PPO completed and078pairedphysicalmid12/final16 both rejected. Aggregate lostms2542->3233/3086, meanvibration2.1694->2.2235/2.2448mrad. All0/21continuous.",
+    "current_diagnosis": "081completed:original019sameheight-matched073 births, TGS64/32->64/1. Sameinitial/domainchecks passed.8contactimprove13worse,5lowerlegvibration,all0/21continuous. Reject solver default change. No activePPO/evaluation; standing remains unresolved.",
+    "moving_fall_recovery": 0,
+    "selected_deployment_model": null,
+    "development_standing_current9a": 17,
+    "development_standing_c025": 17,
+    "c025_formal30s": "reject_robust_qualification",
+    "latest_reward_coverage": "079: all2542/3041/2415lostms in019/021final/075nominal occurred below the existing6rad/s native-peak threshold. Existing endstep quadratic cost remains; no unique causal claim."
+  },
+  "user_priority_20261025": {
+    "requirement": "From the beginning of stationary standing, both wheels must continuously support the robot, without policy-induced lift.",
+    "native_sample_dt_s": 0.001,
+    "unchanged_contact_force_threshold_n": 2.0,
+    "no_startup_grace": true,
+    "geometry_resolution_reporting_m": 0.0001,
+    "raw_clearance_required": true,
+    "simultaneous_requirements": [
+      "Continuous dual wheel load at every physical1ms",
+      "Raw positive wheel clearance and interruptions disclosed",
+      "Low physical leg vibration and velocity",
+      "All original posture, position,30s and heldout gates remain"
+    ],
+    "status": "Not achieved.022bothcheckpoints rejected,081solverchange rejected. All original criteria preserved; no deployment model."
+  }
+}

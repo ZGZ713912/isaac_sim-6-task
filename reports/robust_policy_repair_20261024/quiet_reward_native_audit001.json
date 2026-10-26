@@ -1,0 +1,240 @@
+{
+  "schema": "quiet-reward-native-pair-audit-v1",
+  "checks": {
+    "frozen_inputs_exact": true,
+    "non_reward_trajectory_exact": true,
+    "reward_intervention_present": true,
+    "position_reward_density_reconstructed": true,
+    "native_reward_reconstructed": true,
+    "penalty_never_rewards_more": true,
+    "intermediate_radius_has_credit": true
+  },
+  "traces": [
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis030_quiet_reward_control/evaluation/trajectory.npz",
+      "sha256": "a2c47d6a457abf9276b2fdf66f5cfbd1bfe0572cb1a36b9d7ddc972a477eddd8"
+    },
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis030_quiet_reward_tight/evaluation/trajectory.npz",
+      "sha256": "d378fc6380eb80f752ba00609883bd61a3e9079d033cc62f25e26878c23e2470"
+    }
+  ],
+  "non_reward_arrays_exact": {
+    "time": true,
+    "gravity": true,
+    "height": true,
+    "commands": true,
+    "requested_command": true,
+    "velocity": true,
+    "omega": true,
+    "actions": true,
+    "motor_effort": true,
+    "motor_velocity": true,
+    "gap": true,
+    "impact": true,
+    "impulse": true,
+    "passive": true,
+    "stable": true,
+    "done": true,
+    "terminated": true,
+    "enable_event": true,
+    "settled_family": true,
+    "recovered": true,
+    "followup_success": true,
+    "mechanical": true,
+    "closure_gap": true,
+    "impact_bad": true,
+    "boundary_bad": true,
+    "local_position": true,
+    "motor_position": true,
+    "wheel_contact": true,
+    "velocity_world": true,
+    "pushing": true,
+    "in_motion_fall": true,
+    "recovered_after_push": true,
+    "wheel_clearance": true,
+    "wheel_clearance_peak": true,
+    "wheel_contact_fraction": true,
+    "wheel_air_run_peak": true,
+    "dual_wheel_air_run_peak": true,
+    "wheel_air_seconds": true,
+    "leg_speed_peak_rad_s": true,
+    "leg_effort_peak_nm": true,
+    "leg_saturation_fraction": true,
+    "leg_effort_slew_rms_nm": true,
+    "leg_saturation_run_s": true,
+    "recovery_support_cost_density": true,
+    "reward_potential_progress": true,
+    "reward_recovery_active": true,
+    "standing_reference_active": true,
+    "standing_reference_anchor_m": true,
+    "standing_reference_filtered_m": true,
+    "standing_reference_severe_reset_count": true,
+    "standing_reference_output_valid": true,
+    "standing_reference_age_s": true,
+    "alive": true,
+    "observations": true
+  },
+  "density_residual_peak": 1.049041748046875e-05,
+  "reward_residual_peak": 6.332993507385254e-08,
+  "tolerances": {
+    "density": 0.0001,
+    "reward": 1e-06
+  },
+  "rows": [
+    {
+      "name": "stand_low__clean",
+      "max_radius_m": 0.032760731875896454,
+      "native_reward_sum_before": 49.351951599121094,
+      "native_reward_sum_after": 48.74222946166992,
+      "extra_position_penalty_sum": 0.6097198724746704
+    },
+    {
+      "name": "stand_low__pitch_plus2",
+      "max_radius_m": 0.01407636795192957,
+      "native_reward_sum_before": 51.264617919921875,
+      "native_reward_sum_after": 51.264617919921875,
+      "extra_position_penalty_sum": -0.0
+    },
+    {
+      "name": "stand_low__pitch_minus2",
+      "max_radius_m": 0.022231770679354668,
+      "native_reward_sum_before": 49.117862701416016,
+      "native_reward_sum_after": 49.10629653930664,
+      "extra_position_penalty_sum": 0.011567511595785618
+    },
+    {
+      "name": "stand_low__roll_plus2",
+      "max_radius_m": 0.028726903721690178,
+      "native_reward_sum_before": 45.739723205566406,
+      "native_reward_sum_after": 45.126312255859375,
+      "extra_position_penalty_sum": 0.6134135723114014
+    },
+    {
+      "name": "stand_low__roll_minus2",
+      "max_radius_m": 0.034884337335824966,
+      "native_reward_sum_before": 41.83855056762695,
+      "native_reward_sum_after": 40.82148361206055,
+      "extra_position_penalty_sum": 1.0170671939849854
+    },
+    {
+      "name": "stand_low__wobble",
+      "max_radius_m": 0.039251770824193954,
+      "native_reward_sum_before": 40.44508743286133,
+      "native_reward_sum_after": 38.607261657714844,
+      "extra_position_penalty_sum": 1.8378270864486694
+    },
+    {
+      "name": "stand_low__combined",
+      "max_radius_m": 0.021480577066540718,
+      "native_reward_sum_before": 41.263023376464844,
+      "native_reward_sum_after": 41.258811950683594,
+      "extra_position_penalty_sum": 0.004209580831229687
+    },
+    {
+      "name": "stand__clean",
+      "max_radius_m": 0.0486190989613533,
+      "native_reward_sum_before": 47.46662521362305,
+      "native_reward_sum_after": 44.72905349731445,
+      "extra_position_penalty_sum": 2.7375648021698
+    },
+    {
+      "name": "stand__pitch_plus2",
+      "max_radius_m": 0.021321317180991173,
+      "native_reward_sum_before": 49.5904426574707,
+      "native_reward_sum_after": 49.58662414550781,
+      "extra_position_penalty_sum": 0.00381762208417058
+    },
+    {
+      "name": "stand__pitch_minus2",
+      "max_radius_m": 0.01387028768658638,
+      "native_reward_sum_before": 49.4146614074707,
+      "native_reward_sum_after": 49.4146614074707,
+      "extra_position_penalty_sum": -0.0
+    },
+    {
+      "name": "stand__roll_plus2",
+      "max_radius_m": 0.034911226481199265,
+      "native_reward_sum_before": 48.25252914428711,
+      "native_reward_sum_after": 47.466461181640625,
+      "extra_position_penalty_sum": 0.7860617637634277
+    },
+    {
+      "name": "stand__roll_minus2",
+      "max_radius_m": 0.017540834844112396,
+      "native_reward_sum_before": 49.355220794677734,
+      "native_reward_sum_after": 49.355220794677734,
+      "extra_position_penalty_sum": -0.0
+    },
+    {
+      "name": "stand__wobble",
+      "max_radius_m": 0.005833739414811134,
+      "native_reward_sum_before": 41.75947570800781,
+      "native_reward_sum_after": 41.75947570800781,
+      "extra_position_penalty_sum": -0.0
+    },
+    {
+      "name": "stand__combined",
+      "max_radius_m": 0.01020335778594017,
+      "native_reward_sum_before": 40.92720413208008,
+      "native_reward_sum_after": 40.92720413208008,
+      "extra_position_penalty_sum": -0.0
+    },
+    {
+      "name": "stand_high__clean",
+      "max_radius_m": 0.08061246573925018,
+      "native_reward_sum_before": 41.1087646484375,
+      "native_reward_sum_after": -9.232511520385742,
+      "extra_position_penalty_sum": 50.341278076171875
+    },
+    {
+      "name": "stand_high__pitch_plus2",
+      "max_radius_m": 0.06346145272254944,
+      "native_reward_sum_before": 43.647117614746094,
+      "native_reward_sum_after": 38.777610778808594,
+      "extra_position_penalty_sum": 4.869505882263184
+    },
+    {
+      "name": "stand_high__pitch_minus2",
+      "max_radius_m": 0.05283110961318016,
+      "native_reward_sum_before": 44.92873764038086,
+      "native_reward_sum_after": 36.71791076660156,
+      "extra_position_penalty_sum": 8.210826873779297
+    },
+    {
+      "name": "stand_high__roll_plus2",
+      "max_radius_m": 0.04096628725528717,
+      "native_reward_sum_before": 46.22284698486328,
+      "native_reward_sum_after": 44.14682388305664,
+      "extra_position_penalty_sum": 2.076021194458008
+    },
+    {
+      "name": "stand_high__roll_minus2",
+      "max_radius_m": 0.045964762568473816,
+      "native_reward_sum_before": 44.356544494628906,
+      "native_reward_sum_after": 37.73270797729492,
+      "extra_position_penalty_sum": 6.623834609985352
+    },
+    {
+      "name": "stand_high__wobble",
+      "max_radius_m": 0.8269036412239075,
+      "native_reward_sum_before": -138.3228759765625,
+      "native_reward_sum_after": -210.46348571777344,
+      "extra_position_penalty_sum": 72.1406021118164
+    },
+    {
+      "name": "stand_high__combined",
+      "max_radius_m": 0.06748542934656143,
+      "native_reward_sum_before": 35.60157775878906,
+      "native_reward_sum_after": 29.22060775756836,
+      "extra_position_penalty_sum": 6.380970001220703
+    }
+  ],
+  "inputs_exact_count": 353,
+  "decision": "bounded_training_pair_may_be_reviewed",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2605,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792890942.9777822
+}

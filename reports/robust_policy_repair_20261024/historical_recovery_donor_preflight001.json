@@ -1,0 +1,52 @@
+{
+  "schema": "historical-recovery-donor-preflight-v1",
+  "checks": {
+    "strict_current_mean_loaded": true,
+    "donor_file_hash": true,
+    "only_six_existing_recovery_tensors": true,
+    "all_nonrecovery_state_bitexact": true,
+    "feature_basis_bitexact": true,
+    "torch_rng_unchanged": true,
+    "recorded_actions_finite": true,
+    "action_intervention_observed": true,
+    "current_source_file_unchanged": true,
+    "old_function_not_claimed": true,
+    "no_qualification": true
+  },
+  "runtime": {
+    "schema": "historical-recovery-neural-donor-current-decoder-v1",
+    "donor_checkpoint": "runs/unified_robust_20261022/offline_recovery096/model_migrated.pt",
+    "donor_sha256": "eb49ecdf871d5d2ca218586b75072c62f61771fc8431171f363c95d8bbb7a50f",
+    "donor_clock": 569,
+    "source_policy_clock": 1501,
+    "changed_tensor_names": [
+      "recovery.0.weight",
+      "recovery.0.bias",
+      "recovery.2.weight",
+      "recovery.2.bias",
+      "recovery.4.weight",
+      "recovery.4.bias"
+    ],
+    "transplanted_tensor_count": 6,
+    "current_decoder_retained": true,
+    "historical_policy_function_reproduced": false,
+    "historical_checkpoint_authenticated": false,
+    "source_checkpoint_file_changed": false,
+    "gaussian_mean_changed": true,
+    "sampling_std_changed": false,
+    "runtime_script_or_FSM_added": false,
+    "observer_changed": false,
+    "physics_changed": false,
+    "new_PPO": 0,
+    "eligible_for_checkpoint_mean_qualification": false
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "checkpoint_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "observations_checked": 9883,
+  "changed_observations": 863,
+  "wrapper_sha256": "710ecaef554f78575ce3192a68ec8e89fd48a3bd1e7d3f38ef4f4fe4b37e98f8",
+  "probe_sha256": "c478a15a0d090bbaa080b661482e9488d650716778245c715d7c29e994c534ac",
+  "batch_sha256": "4c98a144c1fc28ba5b7054a4a7977674b229cd6eb77a9d8d4fb3bab294fbcd5b",
+  "new_PPO": 0,
+  "created_unix": 1792925806.087131
+}

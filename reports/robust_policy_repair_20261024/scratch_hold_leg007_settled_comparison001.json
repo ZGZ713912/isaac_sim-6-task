@@ -1,0 +1,85 @@
+{
+  "schema": "scratch-settled-leg-hold-native-comparison-v1",
+  "observed_utc": "2026-10-26T03:28:52.076972+00:00",
+  "checks": {
+    "receipt_complete": true,
+    "native_process_exited": true,
+    "native_GPU_absent": true,
+    "new_PPO_zero": true,
+    "optimizer_not_constructed": true,
+    "checkpoint_exact": true,
+    "physics_runtime_exact": true,
+    "all1600_actor_calls": true,
+    "declared_boundary_exact": true,
+    "initial_native_state_exact": true,
+    "native_inputs_and_actions_601_frame_prefix_exact": true,
+    "native_wheel_outputs_unchanged": true,
+    "post_boundary_selected_legs_held": true,
+    "targets_captured_from_original_3s_action": true,
+    "entire_native_601_frame_prefix_exact": true,
+    "all_nonselected_native_trajectories_exact": true
+  },
+  "all_checks_pass": true,
+  "reader_sha256": "80362c2c7ed9d6db04b7650f9ad4a5d49303c2f746375684d0c966e50a06b924",
+  "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_contact_state001",
+  "intervention": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_hold_settled_legs001",
+  "baseline_mid": {
+    "missing_ms": 190,
+    "standing_pass": 0,
+    "mean_vibration_mrad": 0.06561223231256008,
+    "mean_forward_speed_rms_m_s": 0.0021633695079279797
+  },
+  "intervention_mid": {
+    "missing_ms": 358,
+    "standing_pass": 0,
+    "mean_vibration_mrad": 0.10581907390483788,
+    "mean_forward_speed_rms_m_s": 0.0024726349926952806
+  },
+  "post_intervention_cases": [
+    {
+      "pitch_deg": 0.0,
+      "baseline_missing_ms": 1,
+      "intervention_missing_ms": 1
+    },
+    {
+      "pitch_deg": -0.25,
+      "baseline_missing_ms": 1,
+      "intervention_missing_ms": 0
+    },
+    {
+      "pitch_deg": 0.25,
+      "baseline_missing_ms": 89,
+      "intervention_missing_ms": 49
+    },
+    {
+      "pitch_deg": -0.5,
+      "baseline_missing_ms": 2,
+      "intervention_missing_ms": 205
+    },
+    {
+      "pitch_deg": 0.5,
+      "baseline_missing_ms": 21,
+      "intervention_missing_ms": 32
+    },
+    {
+      "pitch_deg": -1.0,
+      "baseline_missing_ms": 1,
+      "intervention_missing_ms": 0
+    },
+    {
+      "pitch_deg": 1.0,
+      "baseline_missing_ms": 40,
+      "intervention_missing_ms": 36
+    }
+  ],
+  "post_intervention_interval_s": [
+    3.005,
+    8.0
+  ],
+  "original_strict8s_acceptance_retained": true,
+  "new_PPO": 0,
+  "adoption_by_training": false,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "decision": "Reject settled-target hold as a standing repair. Removing all subsequent leg correction still worsens support overall. This does not establish a unique excitation source; keep direct six-motor feedback and investigate learning smoother target changes."
+}

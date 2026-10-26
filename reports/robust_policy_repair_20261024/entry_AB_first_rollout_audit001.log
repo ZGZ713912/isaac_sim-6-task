@@ -1,0 +1,56 @@
+{
+  "schema": "paired-entry-first-native-rollout-audit-v1",
+  "checks": {
+    "observations/policy": true,
+    "observations/critic": true,
+    "actions": true,
+    "dones": true,
+    "values": true,
+    "actions_log_prob": true,
+    "learning_mask": true,
+    "bootstrap_mask": true,
+    "distribution_param_0": true,
+    "distribution_param_1": true,
+    "native_reward_intervention_present": true,
+    "same_receipt_wrapper": true,
+    "same_native_measurement_phase": true
+  },
+  "receipt_paths": [
+    "runs/robust_policy_repair_20261024/pilot007_entry_support0/first_rollout_hashes.json",
+    "runs/robust_policy_repair_20261024/pilot008_entry_support1/first_rollout_hashes.json"
+  ],
+  "receipt_sha256": [
+    "5a1c58f69ad0091d1c7f4446df1aab039a4c0d8e8bc9d984fa74c8bde0d71bcf",
+    "645492104e9f0df4bbbe1843073c504fc3366f7ac093c9fd0f12a9ffd3dbab42"
+  ],
+  "paired_dimensions": [
+    512,
+    256,
+    6
+  ],
+  "reward_hashes": [
+    {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "8c773557e47f9ea71e918faf0788312716a5aa9b5de062cd85711706afa443d1"
+    },
+    {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "ff5d35d518b1c549aa0b17247eef19acbdb7d5618aa84f715616b647c22ffa83"
+    }
+  ],
+  "scope": "Actual first rollout before any optimizer step. Same actor and critic observations, sampled actions, dones, values, action likelihoods, distribution parameters and valid masks; reward differs by the declared support cost.",
+  "serialization_intervention": "reports/robust_policy_repair_20261024/entry_serialization_intervention001.json",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792880683.3648453
+}

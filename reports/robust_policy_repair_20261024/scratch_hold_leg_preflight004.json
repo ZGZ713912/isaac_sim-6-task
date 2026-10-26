@@ -1,0 +1,107 @@
+{
+  "schema": "scratch-hold-initial-leg-target-preflight-v1",
+  "status": "prepared_not_started",
+  "observed_utc": "2026-10-26T03:22:33.299499+00:00",
+  "checks": {
+    "recorded_native_actions_reproduce_on_CPU": true,
+    "first_action_unchanged": true,
+    "later_selected_leg_targets_held": true,
+    "native_wheels_unchanged": true,
+    "other_height_outputs_unchanged": true,
+    "later_intervention_nonzero": true,
+    "native_prefix_601_frames_exact": true,
+    "capture_at3s_only": true,
+    "all1600_calls_accounted": true,
+    "selected_original_cases": true,
+    "actor_parameters_and_buffers_unchanged": true,
+    "all5_invalid_CLI_combinations_rejected_before_output": true
+  },
+  "all_checks_pass": true,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero/model_final.pt",
+  "checkpoint_sha256": "02aad5dc894ac4f0c67b9b0ddd8d703d76be11e50aec47dd22eed87956bdc23d",
+  "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_contact_state001",
+  "recorded_feedback_sha256": "8521ac4006053bd2ad464ef402b910e8ac66a02e94ad688be7ab29fd122fa8a5",
+  "source_sha256": {
+    "scripts/evaluate_scratch_standing.py": "ce8cc1d357bf4d77961f8f2639439ec857877c556c1e37b7f729b8c534cd8c79",
+    "scripts/hold_initial_leg_target_probe.py": "ead7b39b763c7ae8ce58372de30d9620e22c0420ac3a6ce4a8882110e8d4c941",
+    "tests/test_scratch_hold_initial_leg_target_probe.py": "bdd6de6faae8b1a436e0736475bc77ca5b3bc4075d21e1039757788185a9828a"
+  },
+  "reader_sha256": "5d3ac10f46d87ed7d56a47f2f03800035e40b92edb56b8372aeefa2d75165637",
+  "original_frozen_sources_verified": 262,
+  "hold_after_s": 3.0,
+  "first_modified_policy_time_s": 3.005,
+  "native_prefix_policy_frames": 601,
+  "CLI_rejections": [
+    {
+      "flags": [
+        "--leg-hold-after-seconds",
+        "3"
+      ],
+      "returncode": 2,
+      "output_not_created": true,
+      "passed": true,
+      "stderr_tail": "le WHEEL_RESPONSE_SCALE]\n                                    [--reset-observation-mode {native,refresh-final-pose}]\n                                    [--velocity-iterations {1,4}]\n                                    [--hold-initial-leg-targets]\n                                    [--leg-hold-after-seconds {0,3}]\n                                    [--trace-feedback] [--trace-contact-state]\nevaluate_scratch_standing.py: error: A delayed leg-hold boundary requires the leg-target hold diagnostic\n"
+    },
+    {
+      "flags": [
+        "--hold-initial-leg-targets",
+        "--leg-hold-after-seconds",
+        "3"
+      ],
+      "returncode": 2,
+      "output_not_created": true,
+      "passed": true,
+      "stderr_tail": "-response-scale WHEEL_RESPONSE_SCALE]\n                                    [--reset-observation-mode {native,refresh-final-pose}]\n                                    [--velocity-iterations {1,4}]\n                                    [--hold-initial-leg-targets]\n                                    [--leg-hold-after-seconds {0,3}]\n                                    [--trace-feedback] [--trace-contact-state]\nevaluate_scratch_standing.py: error: The leg-target hold diagnostic requires trace-feedback\n"
+    },
+    {
+      "flags": [
+        "--hold-initial-leg-targets",
+        "--leg-hold-after-seconds",
+        "3",
+        "--trace-feedback",
+        "--wheel-response-scale",
+        ".5"
+      ],
+      "returncode": 2,
+      "output_not_created": true,
+      "passed": true,
+      "stderr_tail": "     [--wheel-response-scale WHEEL_RESPONSE_SCALE]\n                                    [--reset-observation-mode {native,refresh-final-pose}]\n                                    [--velocity-iterations {1,4}]\n                                    [--hold-initial-leg-targets]\n                                    [--leg-hold-after-seconds {0,3}]\n                                    [--trace-feedback] [--trace-contact-state]\nevaluate_scratch_standing.py: error: Use one declared counterfactual at a time\n"
+    },
+    {
+      "flags": [
+        "--hold-initial-leg-targets",
+        "--leg-hold-after-seconds",
+        "3",
+        "--trace-feedback",
+        "--duration-seconds",
+        "30"
+      ],
+      "returncode": 2,
+      "output_not_created": true,
+      "passed": true,
+      "stderr_tail": "     [--wheel-response-scale WHEEL_RESPONSE_SCALE]\n                                    [--reset-observation-mode {native,refresh-final-pose}]\n                                    [--velocity-iterations {1,4}]\n                                    [--hold-initial-leg-targets]\n                                    [--leg-hold-after-seconds {0,3}]\n                                    [--trace-feedback] [--trace-contact-state]\nevaluate_scratch_standing.py: error: Use one declared counterfactual at a time\n"
+    },
+    {
+      "flags": [
+        "--hold-initial-leg-targets",
+        "--leg-hold-after-seconds",
+        "1",
+        "--trace-feedback"
+      ],
+      "returncode": 2,
+      "output_not_created": true,
+      "passed": true,
+      "stderr_tail": "EL_RESPONSE_SCALE]\n                                    [--reset-observation-mode {native,refresh-final-pose}]\n                                    [--velocity-iterations {1,4}]\n                                    [--hold-initial-leg-targets]\n                                    [--leg-hold-after-seconds {0,3}]\n                                    [--trace-feedback] [--trace-contact-state]\nevaluate_scratch_standing.py: error: argument --leg-hold-after-seconds: invalid choice: '1' (choose from 0, 3)\n"
+    }
+  ],
+  "CPU_to_original_GPU_maximum_action_error": 1.9073486328125e-06,
+  "maximum_leg_intervention_raw": 0.11255693435668945,
+  "new_PPO": 0,
+  "native_steps": 0,
+  "optimizer_constructed": false,
+  "adoption_by_training": false,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "prerequisite": "All preceding native processes must really exit. Verify the actual native601-frame prefix and first action match the fresh-process original baseline before interpreting results.",
+  "scope": "CPU replay on original recorded observations validates the action intervention only. It does not predict the altered closed-loop trajectory or certify standing."
+}

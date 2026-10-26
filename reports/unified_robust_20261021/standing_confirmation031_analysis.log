@@ -1,0 +1,42 @@
+{
+  "schema": "robust-getup-behavior-analysis-v2",
+  "evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/standing_confirmation031/robust",
+  "report_sha256": "e388a39a0636209eecbec341ff6f26d8e5ad503259868155d4a5b244d6a9a4c8",
+  "checkpoint_sha256": "0461e23433417e9655bc23f028a895237b14c52ce205941d581c654c1f330c13",
+  "seed": 211322,
+  "actor_variant": "robust",
+  "motion_episodes": 92,
+  "motion_survived": 84,
+  "actual_settled_attitudes": {
+    "inverted": {
+      "episodes": 28,
+      "recovered": 25,
+      "recovery_and_motion_success": 10,
+      "practical_recovery_and_motion_success": 19
+    },
+    "right": {
+      "episodes": 8,
+      "recovered": 3,
+      "recovery_and_motion_success": 0,
+      "practical_recovery_and_motion_success": 2
+    },
+    "upright": {
+      "episodes": 8,
+      "recovered": 8,
+      "recovery_and_motion_success": 3,
+      "practical_recovery_and_motion_success": 3
+    },
+    "left": {
+      "episodes": 4,
+      "recovered": 3,
+      "recovery_and_motion_success": 1,
+      "practical_recovery_and_motion_success": 2
+    }
+  },
+  "passive_motor_peak_nm": 0.0,
+  "practical_moving_fall_recoveries": 0,
+  "practical_definition": "completed episode; last 2 s >=95% stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+  "max_gap_m": 0.0007740885484963655,
+  "signal_sampling_hz": 200,
+  "vibration_scope": "1..3, 3..95 and 20..95 Hz from 200 Hz simulation samples; not a CAN/hardware measurement"
+}

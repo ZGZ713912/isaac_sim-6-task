@@ -1,0 +1,41 @@
+{
+  "schema": "policy-quiet-authority-falsification-v1",
+  "source": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "source_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "source_clock": 1501,
+  "intervention": "Change only the policy method gyro-release factor: retain .5 of the otherwise removed quiet authority. Shared observer/standard-deviation gate is unchanged.",
+  "hypothesis": "Releasing all quiet smoothing/correction during upright zero-command capture may sustain the measured 2rad/s oscillation.",
+  "baseline": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed",
+  "cases": 51,
+  "seconds": 8.0,
+  "seed": 241201,
+  "gate": {
+    "standing_at_least": 19,
+    "motion_MAE_at_most": 0.135,
+    "entry_recovery_at_least": 8,
+    "entry_followup_at_least": 8,
+    "fallen_recovery_at_least": 4,
+    "fallen_followup_at_least": 2,
+    "entry_peak_at_most_rad_s": 8.911178255081177,
+    "fallen_peak_at_most_rad_s": 24.11665153503418,
+    "impacts_at_most": 2,
+    "closure_gap_at_most_m": 0.003,
+    "passive_peak_nm": 0.0,
+    "pairing_exact": true,
+    "capture_names": [
+      "real_start_3__clean",
+      "real_start_5__pitch_plus2",
+      "real_start_6__pitch_plus2"
+    ],
+    "capture_angular_RMS_mean_baseline": 2.3713873624801636,
+    "capture_angular_RMS_ratio_at_most": 0.8,
+    "entry_followup_improvement_at_least": 9
+  },
+  "interpretation": "Diagnostic mean-function override, not the stored checkpoint mean; no PPO, adoption or export automatically admitted.",
+  "original_acceptance_conditions_unchanged": true,
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792897117.0346534
+}

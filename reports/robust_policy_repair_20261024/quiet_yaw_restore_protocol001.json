@@ -1,0 +1,35 @@
+{
+  "schema": "quiet-wheel-opposite-differential-protocol-v1",
+  "control": "runs/robust_policy_repair_20261024/diagnosis038_quiet_stance050_development",
+  "same_common_control": "runs/robust_policy_repair_20261024/diagnosis049_quiet_wheel_modal_development",
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "full_population": 51,
+  "seed": 241204,
+  "seconds": 8,
+  "hypothesis": "Common translation and differential yaw have different balance dynamics. Relative to049 diagonal allocation, reverse only the differential response while exactly retaining both common row sums. Test native yaw reduction rather than inferring stability from the immediate actuator Jacobian.",
+  "intervention": "For every existing height expert set wheel submatrix [[0,S_left],[S_right,0]], where S is the original wheel row sum. All leg and other weights,.5 quiet authority,35D sensors,observer,physical guards unchanged.",
+  "mechanism_gate": {
+    "cases": [
+      "stand_low__roll_plus2",
+      "stand__roll_plus2"
+    ],
+    "metric": "mean(abs(native_body_omega_z)) over6to8seconds,rad/s",
+    "at_most_fraction_of_original": 0.5,
+    "standing_survived": 21,
+    "lost_previous_passes_at_most": 0
+  },
+  "standing_gate": {
+    "pose_and_position_at_least": 19,
+    "max_gap_m": 0.003,
+    "passive_motor_peak_nm": 0
+  },
+  "scope": "Previously used development cases; not a fresh holdout. Explicit diagnostic mean override excludes saved-checkpoint qualification. A yaw mechanism pass is not a standing qualification or PPO admission.",
+  "decisions": "Fail yaw reduction rejects the proposed mechanism. Passing yaw with failed standing allows only a separately justified zero-PPO common-response investigation; never PPO/adoption/export.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2654,
+  "repair_optimizer_updates": 274,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792911397.7159986
+}

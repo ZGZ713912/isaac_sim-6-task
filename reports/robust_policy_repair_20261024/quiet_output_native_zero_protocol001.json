@@ -1,0 +1,37 @@
+{
+  "schema": "quiet-output-native-zero-protocol-v1",
+  "hypothesis": "Three existing quiet neural output layers can use gyro, gravity, leg pose and velocities to coordinate state-dependent corrections. Prior010/011 tuned only24 displacement-feedback parameters; repeated wheel-matrix diagnostics did not fix the17/21 development standing failures. This changes training scope only, not the initial actor or runtime action space.",
+  "source": "runs/robust_policy_repair_20261024/quiet_output_root001/model_initial.pt",
+  "source_sha256": "32e871427e61f72dc8996a6536e536fa7f05fdec04925c473c701539c6e2b3a0",
+  "source_function": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "source_function_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "source_clock": 1501,
+  "trainable": {
+    "mlp.mean.quiet.2.weight": 384,
+    "mlp.mean.quiet.2.bias": 6,
+    "mlp.mean.quiet_low.2.weight": 384,
+    "mlp.mean.quiet_low.2.bias": 6,
+    "mlp.mean.quiet_high.2.weight": 384,
+    "mlp.mean.quiet_high.2.bias": 6
+  },
+  "actor_parameters": 1170,
+  "retained": "All existing hidden layers,24feedback parameters,parent,motion,fallen,entry,std,Adam namespace,observations,gains,gates,torque/impulse/closure protections. Initial saved actor/critic/Adam/RNG are exact. Only declared training exposure changes; reward constants are inherited.",
+  "required": "Actual131072 native sampled transitions and native GAE; strict original mean/conditioned-std equality on every frame; exact full-state restoration; no attempted optimizer update.",
+  "boundaries": "No PPO admission, adoption, export or qualification from this collection. A separately reviewed bounded pilot and complete original qualification remain required.",
+  "reviewed_source_changes": {
+    "scripts/export_robust_getup.py": {
+      "before": "4f2a1bc2d51997fffd97409439267ca55af64b8fecfdc756ba7474428b0d9778",
+      "after": "1553a860dddb6acd4f2de560546e63d7bb2b57ccd45576c3b84e718eae8fad19"
+    },
+    "scripts/train_robust_getup.py": {
+      "before": "70e689b9f46d8be892aaee919e4c082ad7255198fa9b54ecf554b2618299c07a",
+      "after": "c0fc706b0713a86d8726c649f513c1e563c44f897ca239962930fbf4af555121"
+    }
+  },
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2654,
+  "repair_optimizer_updates": 274,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792926520.4018102
+}

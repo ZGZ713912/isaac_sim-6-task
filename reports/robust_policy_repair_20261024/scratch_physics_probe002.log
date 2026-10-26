@@ -1,0 +1,70 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1792950565.472014  476701 descriptor_database.cc:633] File already exists in database: grpc/health/v1/health.proto
+W0000 00:00:1792950565.472048  476701 message.cc:301] Protobuf GeneratedMessageFactory: File is already registered: grpc/health/v1/health.proto
+[ISAACLAB] AppLauncher initialization complete
+[INFO]: Registered backend 'physx' for factory Articulation.
+[INFO]: Simulation parameters for joints in /World/envs/env_.*/Robot:
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                    Simulation Joint Information (Prim path: /World/envs/env_.*/Robot)                                                   |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+| Index | Name           | Stiffness | Damping | Armature | Static Friction | Dynamic Friction | Viscous Friction |   Position Limits   | Velocity Limits | Effort Limits |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+|   0   | L_joint1       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   1   | R_joint1       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   2   | LL_joint1      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   3   | RR_joint1      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     40.000    |
+|   4   | L_joint2       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.086, 1.083]   |     1.0e+09     |    100.000    |
+|   5   | R_jonit2       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-1.083, 0.086]   |     1.0e+09     |    100.000    |
+|   6   | LL_joint2      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   7   | RR_joint2      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   8   | L_joint3       |   0.000   |  0.000  |  0.004   |      0.050      |      0.050       |      0.001       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     4.500     |
+|   9   | LLL_joint2     |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   10  | R_joint3       |   0.000   |  0.000  |  0.004   |      0.070      |      0.070       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |     4.500     |
+|   11  | RRR_joint2     |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   12  | LL_joint3      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   13  | RR_joint3      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   14  | L_spring_slide |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.010, 0.070]   |     100.000     |    1.0e+03    |
+|   15  | R_spring_slide |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       |   [-0.010, 0.070]   |     100.000     |    1.0e+03    |
+|   16  | LL_link4       |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
+|   17  | RR_joint4      |   0.000   |  0.000  |  0.000   |      0.000      |      0.000       |      0.000       | [-3.4e+38, 3.4e+38] |     1.0e+09     |    100.000    |
++-------+----------------+-----------+---------+----------+-----------------+------------------+------------------+---------------------+-----------------+---------------+
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 actor :  ['policy']
+	 critic :  ['critic']
+--------------------------------------------------------------------------------
+Actor Model: MLPModel(
+  (obs_normalizer): Identity()
+  (distribution): GaussianDistribution()
+  (mlp): MLP(
+    (0): Linear(in_features=35, out_features=128, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=128, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=64, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=64, out_features=6, bias=True)
+  )
+)
+Critic Model: MLPModel(
+  (obs_normalizer): Identity()
+  (mlp): MLP(
+    (0): Linear(in_features=83, out_features=128, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=128, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=64, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=64, out_features=1, bias=True)
+  )
+)
+Could not find git repository in /home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/rsl_rl/__init__.py. Skipping.
+Loading user config located at: '/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/data/Kit/IsaacLab/3.0/user.config.json'
+2026-10-25T17:49:25Z [0ms] [Warning] [omni.ext.plugin] [ext: isaaclab_visualizers] Extensions config 'extension.toml' doesn't exist '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers' or '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/config'
+2026-10-25T17:49:25Z [280ms] [Warning] [omni.kit.telemetry.plugin] failed to acquire the ITasking interface.  Launching the transmitter synchronously.
+2026-10-25T17:49:25Z [379ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-10-25T17:49:26Z [1,150ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred
+2026-10-25T17:49:26Z [1,150ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred
+2026-10-25T17:49:28Z [3,081ms] [Warning] [isaaclab_physx.physics.physx_manager] TGS solver with enable_external_forces_every_iteration=False may cause noisy velocities.
+2026-10-25T17:49:29Z [3,953ms] [Warning] [usdrt.population.plugin] Last global time was not created. Did you call setEnableUsdNoticeHandling?
+2026-10-25T17:49:29Z [3,955ms] [Warning] [omni.physx.plugin] Detected an articulation at /World/envs/env_0/Robot/base_link with more than 4 velocity iterations being added to a TGS scene.The related behavior changed recently, please consult the changelog. This warning will only print once.

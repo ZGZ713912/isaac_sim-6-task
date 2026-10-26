@@ -1,0 +1,49 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 71446,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "current9a_matched_moving",
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis056_current9a_matched_moving",
+      "log": "reports/robust_policy_repair_20261024/diagnosis056_current9a_matched_moving.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_robust_getup_batch.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis056_current9a_matched_moving",
+        "--variants",
+        "robust",
+        "--replicas",
+        "8",
+        "--seed",
+        "211322",
+        "--domain-scale",
+        "0",
+        "--seconds",
+        "12",
+        "--isolated-origins",
+        "--case-names",
+        "moving_push_left",
+        "moving_push_right",
+        "--early-roll-full-degrees",
+        "40",
+        "50",
+        "--checkpoint-task-profile"
+      ],
+      "status": "completed",
+      "started_unix": 1792928762.248052,
+      "pid": 71447,
+      "returncode": 0,
+      "finished_unix": 1792929100.592426
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792929100.5926359,
+  "finished_unix": 1792929100.5926356
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "bounded-pilot-frozen-actor-inspection-v1",
+  "initial": "runs/robust_policy_repair_20261024/pilot004_high/model_initial.pt",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot004_high/model_1512.pt",
+  "checkpoint_sha256": "942ce59980016f287f825e9309e72191cae5be1533ddfcde07efcab3ddaec6ea",
+  "clock": 1513,
+  "checks": {
+    "only_high_stance_actor_tensors_changed": true,
+    "exploration_std_preserved": true,
+    "changed_parameter_count_is_2702": true
+  },
+  "actor_changes": [
+    {
+      "key": "mlp.mean.quiet_high.0.weight",
+      "n": 2240,
+      "max_abs_change": 0.020813751965761185
+    },
+    {
+      "key": "mlp.mean.quiet_high.0.bias",
+      "n": 64,
+      "max_abs_change": 0.0072365403175354
+    },
+    {
+      "key": "mlp.mean.quiet_high.2.weight",
+      "n": 384,
+      "max_abs_change": 0.0060391491279006
+    },
+    {
+      "key": "mlp.mean.quiet_high.2.bias",
+      "n": 6,
+      "max_abs_change": 0.0010463132057338953
+    },
+    {
+      "key": "mlp.mean.quiet_velocity.high.weight",
+      "n": 8,
+      "max_abs_change": 0.0009191427379846573
+    }
+  ],
+  "qualification": null,
+  "hardware_ready": false
+}

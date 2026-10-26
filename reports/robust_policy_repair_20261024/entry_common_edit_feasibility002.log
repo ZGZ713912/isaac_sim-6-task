@@ -1,0 +1,70 @@
+{
+  "schema": "entry-common-linear-edit-feasibility-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "source_sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "target_common_logit": 0.7,
+  "anchor_weight": 100.0,
+  "ridge": 1e-05,
+  "metrics": {
+    "anchor_frames": 1120,
+    "target_frames": 1200,
+    "heldout_anchor_frames": 374,
+    "heldout_target_frames": 400,
+    "anchor_common_delta_rms": 0.0016144272696740013,
+    "anchor_common_delta_max": 0.015834765373717308,
+    "target_common_mean": 0.6995028101612395,
+    "target_common_min": 0.6655214648769017,
+    "heldout_target_common_mean": 0.6996169624126536,
+    "heldout_target_common_min": 0.6659277984071066,
+    "edit_vector_l2": 5.034939529569411,
+    "edit_vector_max": 1.529319721261051
+  },
+  "checks": {
+    "anchor_rms_at_most_005": true,
+    "anchor_max_at_most_020": true,
+    "target_common_mean_at_least_050": true,
+    "heldout_target_common_min_at_least_035": true,
+    "finite": true
+  },
+  "target_sources": [
+    {
+      "name": "real_start_5__clean",
+      "actual_family": "upright",
+      "frames": 200
+    },
+    {
+      "name": "real_start_5__pitch_plus2",
+      "actual_family": "upright",
+      "frames": 200
+    },
+    {
+      "name": "real_start_6__clean",
+      "actual_family": "upright",
+      "frames": 200
+    },
+    {
+      "name": "real_start_6__pitch_plus2",
+      "actual_family": "upright",
+      "frames": 200
+    },
+    {
+      "name": "right_symmetric__clean",
+      "actual_family": "upright",
+      "frames": 200
+    },
+    {
+      "name": "right_symmetric__combined",
+      "actual_family": "upright",
+      "frames": 200
+    }
+  ],
+  "decision": "eligible_for_weight_edit_preflight",
+  "validation_scope": "Interleaved recorded-state function checks, not independent behavioral holdout.",
+  "source_weights_modified": false,
+  "optimizer_updates": 0,
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792883882.6172545
+}

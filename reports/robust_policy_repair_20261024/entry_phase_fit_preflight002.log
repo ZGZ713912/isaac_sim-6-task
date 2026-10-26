@@ -1,0 +1,32 @@
+runs/robust_policy_repair_20261024/entry_phase_fit_periodic002/model_probe.pt
+{
+  "schema": "entry-common-fit-checkpoint-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/entry_phase_fit_periodic002/model_probe.pt",
+  "sha256": "cf3f3643c742653623e21bdd94603df4e057789e46f3452524e6cc07aba0c840",
+  "reference": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "reference_sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "checks": {
+    "only_entry_last_layer_changed": true,
+    "wheel_last_layer_rows_exact": true,
+    "clocks_equal": true,
+    "all_entry0_bit_exact": true,
+    "all_wheel_outputs_exact": true,
+    "knee_logit_roundoff_under_1e_5": false,
+    "finite": true
+  },
+  "fit": "reports/robust_policy_repair_20261024/entry_phase_constrained_feasibility002.json",
+  "fit_sha256": "17967fc01fbd2744046640d6739d714915eb9d6ffc97734b7d0e6fb7b2618433",
+  "method": "Closed-form existing last-layer common-only edit, original frozen fallen/quiet/motion/std and knee/wheel mapping retained.",
+  "native_hypothesis": "Full sampled phase coverage gives sustained independent leg drive toward wheel-down and stops the already-arrived leg, while retaining successful entry actions.",
+  "new_PPO": 0,
+  "gradient_optimizer_updates": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792885426.6888409
+}
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/create_entry_phase_constrained002.py", line 102, in <module>
+    assert all(checks.values())
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError

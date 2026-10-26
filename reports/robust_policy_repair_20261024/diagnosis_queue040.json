@@ -1,0 +1,70 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 4023678,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "fallen014_wheels_only",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot014_fallen_output/model_final.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis040_fallen014_wheels_only",
+      "log": "reports/robust_policy_repair_20261024/diagnosis040_fallen014_wheels_only.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_fallen_partition_probe001.py",
+        "--retained-fallen-output-rows",
+        "wheels",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/pilot014_fallen_output/model_final.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis040_fallen014_wheels_only",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792903292.7411911,
+      "pid": 4023679,
+      "returncode": 0,
+      "finished_unix": 1792903515.9756255
+    },
+    {
+      "name": "fallen014_legs_only",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot014_fallen_output/model_final.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis040_fallen014_legs_only",
+      "log": "reports/robust_policy_repair_20261024/diagnosis040_fallen014_legs_only.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_fallen_partition_probe001.py",
+        "--retained-fallen-output-rows",
+        "legs",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/pilot014_fallen_output/model_final.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis040_fallen014_legs_only",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792903516.0461304,
+      "pid": 4025225,
+      "returncode": 0,
+      "finished_unix": 1792903741.7972727
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792903741.797475,
+  "finished_unix": 1792903741.7974746
+}

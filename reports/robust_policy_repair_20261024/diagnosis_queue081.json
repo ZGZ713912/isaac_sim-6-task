@@ -1,0 +1,43 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 455088,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "tgs_velocity1_height_matched019",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis081_tgs_velocity1",
+      "log": "reports/robust_policy_repair_20261024/diagnosis081_tgs_velocity1.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_tgs_velocity081.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis081_tgs_velocity1",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+        "--seed",
+        "241201",
+        "--severity",
+        "1",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--case-group",
+        "standing"
+      ],
+      "status": "completed",
+      "started_unix": 1792948511.392982,
+      "pid": 455089,
+      "returncode": 0,
+      "finished_unix": 1792948690.5999599
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792948690.600172,
+  "finished_unix": 1792948690.6001716
+}

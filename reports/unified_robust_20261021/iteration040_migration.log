@@ -1,0 +1,38 @@
+{
+  "schema": "robust-contract-migration-v1",
+  "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_velocity036/model_migrated.pt",
+  "source_sha256": "3d5336b518b1f23c91b6dc9b1aa3f19e81a3112de9c596df86bc7451f78cb7d6",
+  "optimizer_updates": 0,
+  "reason": "Learn wheel correction memory from existing previous wheel commands after velocity-only feedback failed drift and noise together; no added observation/state",
+  "quiet_velocity_feedback": {
+    "new_parameters": 24,
+    "mode": "wheel_memory",
+    "initial_weights": "zero",
+    "input": "tanh(two wheel encoder velocities) and tanh(previous two wheel raw commands times10); original35D fields only",
+    "output": "two wheel logits; four leg logits exactly unchanged",
+    "bias": false,
+    "optimizer": "all old moments retained; only new parameters start with empty Adam state",
+    "deterministic_function": "preserved; no random initialization draws"
+  },
+  "quiet_exploration_fraction": 0.06,
+  "deterministic_mean_unchanged": true,
+  "quiet_wheel_exploration_fraction": 0.35,
+  "stance_aware_recovery": true,
+  "recovery_shape_aware": true,
+  "quiet_high_common_alpha": null,
+  "quiet_high_leg_prediction_s": 0.005,
+  "recovery_leg_step": 0.3,
+  "motion_residual_fraction": 0.25,
+  "fast_forward_reference": true,
+  "fast_forward_reference_range": [
+    1.0,
+    1.5
+  ],
+  "fast_forward_reference_yaw_fade": null,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_wheel_memory040/model_migrated.pt",
+  "checkpoint_sha256": "161b5efe92f83e74beefe1205cb8994c3d316a34213275415b27ab047c40b8ea",
+  "completed_updates": 441,
+  "actor_other_than_quiet_unchanged": true,
+  "feedback_winding": "paired_circular_feedback_v1",
+  "hardware_tested": false
+}

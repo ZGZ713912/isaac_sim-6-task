@@ -1,0 +1,9 @@
+source_fixed normal frames 3451 candidate frames 4350
+source_nominal normal frames 23580 candidate frames 24258
+source_RMCS has no eligible moving frames; excluded from the fit
+new_phase_fixed normal frames 3869 candidate frames 4841
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fit_motion_damping_skip_standardized001.py", line 89, in <module>
+    vector = torch.cat((standardized_vector[:-1]/scale,(standardized_vector[-1]-center@(standardized_vector[:-1]/scale))[None]),0)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+RuntimeError: The size of tensor a (4) must match the size of tensor b (99) at non-singleton dimension 1

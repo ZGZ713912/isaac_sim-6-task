@@ -1,0 +1,39 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3980458,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "quiet_stance050_implementation",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation",
+      "log": "reports/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792898776.295562,
+      "pid": 3980461,
+      "returncode": 0,
+      "finished_unix": 1792899000.3901727
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792899000.3903587,
+  "finished_unix": 1792899000.3903582
+}

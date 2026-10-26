@@ -1,0 +1,61 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+___________ test_initial_placement_publishes_roll_before_first_actor ___________
+
+reset_module = <module 'wheeled_tasks.chassis.grounded_reset_under_test' from '/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/grounded_standing_reset.py'>
+
+    def test_initial_placement_publishes_roll_before_first_actor(reset_module):
+        env = ResetEnv()
+        reset_module.install(env)
+>       torch.testing.assert_close(env.domain.observed[:, 3:6], env.native_frame()[:, 7:10], rtol=0., atol=1e-7)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 6 / 9 (66.7%)
+E       Greatest absolute difference: 0.00499990489333868 at index (0, 1) (up to 1e-07 allowed)
+E       Greatest relative difference: 1.0 at index (0, 1) (up to 0.0 allowed)
+
+tests/test_grounded_reset_observation.py:110: AssertionError
+_________ test_final_pitches_reach_first_actor_without_a_physics_step __________
+
+reset_module = <module 'wheeled_tasks.chassis.grounded_reset_under_test' from '/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/grounded_standing_reset.py'>
+
+    def test_final_pitches_reach_first_actor_without_a_physics_step(reset_module):
+        env = ResetEnv()
+        reset_module.install(env)
+        env.reset(torch.arange(3))
+        frame = FrameBuilder.get_observations(env)["policy"]
+>       torch.testing.assert_close(frame[:, 7:10], env.native_frame()[:, 7:10], rtol=0., atol=1e-7)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 8 / 9 (88.9%)
+E       Greatest absolute difference: 0.017452407628297806 at index (2, 0) (up to 1e-07 allowed)
+E       Greatest relative difference: 1.0 at index (0, 1) (up to 0.0 allowed)
+
+tests/test_grounded_reset_observation.py:118: AssertionError
+____________ test_partial_reset_preserves_other_lanes_tick_and_rng _____________
+
+reset_module = <module 'wheeled_tasks.chassis.grounded_reset_under_test' from '/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/grounded_standing_reset.py'>
+
+    def test_partial_reset_preserves_other_lanes_tick_and_rng(reset_module):
+        env = ResetEnv()
+        reset_module.install(env)
+        env.reset(torch.arange(3))
+        before = env.history.buffer.clone()
+        sensors_before = env.domain.sensor_history.clone()
+        rng = torch.random.get_rng_state().clone()
+        env.pitch[1] = math.radians(.25)
+        env.reset(torch.tensor([1]))
+        frame = FrameBuilder.get_observations(env)["policy"]
+>       torch.testing.assert_close(frame[1, 7:10], env.native_frame()[1, 7:10], rtol=0., atol=1e-7)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 3 / 3 (100.0%)
+E       Greatest absolute difference: 0.004999931436032057 at index (1,) (up to 1e-07 allowed)
+E       Greatest relative difference: 1.0 at index (0,) (up to 0.0 allowed)
+
+tests/test_grounded_reset_observation.py:133: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_grounded_reset_observation.py::test_initial_placement_publishes_roll_before_first_actor
+FAILED tests/test_grounded_reset_observation.py::test_final_pitches_reach_first_actor_without_a_physics_step
+FAILED tests/test_grounded_reset_observation.py::test_partial_reset_preserves_other_lanes_tick_and_rng
+3 failed in 0.83s

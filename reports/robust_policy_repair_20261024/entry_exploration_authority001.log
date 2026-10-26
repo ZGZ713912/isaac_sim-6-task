@@ -1,0 +1,63 @@
+{
+  "schema": "paired-entry-exploration-authority-v1",
+  "checks": {
+    "actual_conditioned_distribution_used": true,
+    "physical_leg_scale025": true,
+    "physical_wheel_velocity_scale10": true,
+    "candidate_wheels_exact": true,
+    "candidate_off_entry_exact": true,
+    "correct_probability_order": true
+  },
+  "source": "runs/robust_policy_repair_20261024/function_root_entry002/model_initial.pt",
+  "source_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+  "phase_dataset_sha256": "d7bfa37723fba515641526d55eb01466a2f7ccdf7c5e16348441eb6c3ea87df8",
+  "frames": 54450,
+  "rows": [
+    {
+      "entry_scale": 0.2,
+      "leg_std_rad": [
+        0.028765583410859108,
+        0.02839924395084381,
+        0.028076346963644028,
+        0.02810988575220108
+      ],
+      "wheel_speed_std_rad_s": [
+        5.607517242431641,
+        5.59033727645874
+      ],
+      "paired_common_std_rad": 0.020034173503518105,
+      "far_wrong_direction_probability_mean": 0.024217529297210123,
+      "far_wrong_direction_probability_max": 0.23486753220751494,
+      "stopped_abs_target_gt_006rad_probability_mean": 0.7655324935913086,
+      "entry_zero_std_exact": true,
+      "all_wheel_std_exact": true
+    },
+    {
+      "entry_scale": 0.05,
+      "leg_std_rad": [
+        0.007191395852714777,
+        0.007099810987710953,
+        0.007019086740911007,
+        0.00702747143805027
+      ],
+      "wheel_speed_std_rad_s": [
+        5.607517242431641,
+        5.59033727645874
+      ],
+      "paired_common_std_rad": 0.005008543375879526,
+      "far_wrong_direction_probability_mean": 6.985146823170768e-06,
+      "far_wrong_direction_probability_max": 0.001916179449057427,
+      "stopped_abs_target_gt_006rad_probability_mean": 0.26175031065940857,
+      "entry_zero_std_exact": true,
+      "all_wheel_std_exact": true
+    }
+  ],
+  "assumptions": "Independent native Gaussian leg samples, before global motor-action clipping. Paired common displacement is the mean of two nearby motor angles. Gaussian probabilities are not closed-loop outcome probabilities.",
+  "noise_candidate": "Original hardcoded entry leg scale.2 versus.05; wheel/std outside entry unchanged. No checkpoint or runtime source changed.",
+  "decision": "Analytical diagnosis only. A finite paired sampled-policy exposure can falsify the exploration hypothesis before any new PPO.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2622,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792894006.8517191
+}

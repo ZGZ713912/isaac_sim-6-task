@@ -1,0 +1,53 @@
+{
+  "schema": "scratch-first-native-update-verification-v1",
+  "observed_utc": "2026-10-26T03:38:48.179474+00:00",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot008_leg_target_rate020",
+  "pid": 709399,
+  "start_ticks": 31429889,
+  "checks": {
+    "original_process_identity": true,
+    "original_process_on_GPU": true,
+    "initial_actual_Adam_empty": true,
+    "initial_actual_clock_zero": true,
+    "initialization_forbids_checkpoint_teacher": true,
+    "no_training_checkpoint_reads": true,
+    "initial_actor_exactly007_initial": true,
+    "initial_critic_exactly007_initial": true,
+    "initial_tensor_hashes_match": true,
+    "all12_first_Adam_calls_finite": true,
+    "actor_and_critic_parameters_changed": true,
+    "actual_first_Adam_state_covers17": true,
+    "first_checkpoint_Adam_steps12": true,
+    "actual_source_snapshot263_matches": true,
+    "actual_cost_contract_matches": true,
+    "all6_real_RSL_cost_tags_present": true,
+    "actual_cost_paid_positive": true,
+    "actual_density_integrates_policy_dt": true,
+    "actual_logged_weight_correct": true,
+    "actual_pure_RL_rollout": true
+  },
+  "all_checks_pass": true,
+  "completed_updates_observed": 11,
+  "prior_completed_fresh_updates": 1921,
+  "total_completed_fresh_updates": 1932,
+  "event_prefix": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot008_leg_target_rate020/events.out.tfevents.1792985765.ZGZ.709399.0",
+    "bytes": 72908,
+    "sha256": "9719621f9ce23550c02de40a28f701fe0e0a47d80adf5b0d54caf20afd9bdd1a"
+  },
+  "first_RSL_cost_values": {
+    "LegTargetRate/target_delta_rms_rad": 0.003910718020051718,
+    "LegTargetRate/target_delta_peak_rad": 0.01764666475355625,
+    "LegTargetRate/target_rate_rms_rad_s": 0.7821435928344727,
+    "LegTargetRate/cost_density_per_second": 0.3889659643173218,
+    "LegTargetRate/paid_cost_per_policy_step": 0.0019448299426585436,
+    "LegTargetRate/weight_density_per_second": 0.20000000298023224
+  },
+  "reader_sha256": "a40ecdc323feb3b9879787286ea4ad8ee775475509c995d06724322bf7da2927",
+  "initial_actor_tensor_sha256": "521f9e97536f472e6bf98b42220a6063467988d52a6a5f7ac2c66a01641b67dd",
+  "initial_critic_tensor_sha256": "bba66fe18caca514de1f7603a4316b0459c45f6ea759c7ed5653e6d056c22c87",
+  "new_PPO_by_reader": 0,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "scope": "This separate CPU reader compares initial tensors only; no old weights are assigned into training. Fresh optimization and actual reward payment are verified; standing improvement remains unevaluated."
+}

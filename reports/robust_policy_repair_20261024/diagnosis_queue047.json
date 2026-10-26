@@ -1,0 +1,47 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 4064094,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "motion015_original_moving_fall_diagnosis",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot015_motion_output/model_final.pt",
+      "reference_checkpoint": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis047_motion015_nominal_target_diagnosis",
+      "log": "reports/robust_policy_repair_20261024/diagnosis047_motion015_nominal_target_diagnosis.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_robust_getup_batch.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/pilot015_motion_output/model_final.pt",
+        "--reference-checkpoint",
+        "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis047_motion015_nominal_target_diagnosis",
+        "--checkpoint-task-profile",
+        "--seed",
+        "211131",
+        "--replicas",
+        "2",
+        "--variants",
+        "robust",
+        "reference",
+        "--domain-scale",
+        "0",
+        "--seconds",
+        "12",
+        "--isolated-origins"
+      ],
+      "status": "completed",
+      "started_unix": 1792908916.0929737,
+      "pid": 4064096,
+      "returncode": 0,
+      "finished_unix": 1792909260.6253946
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792909260.625598,
+  "finished_unix": 1792909260.6255977
+}

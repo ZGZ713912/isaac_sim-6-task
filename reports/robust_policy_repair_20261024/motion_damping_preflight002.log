@@ -1,0 +1,31 @@
+diagnosis012_final_arithmetic_fixed/evaluation complete
+diagnosis012_final_arithmetic_nominal/robust complete
+diagnosis012_final_arithmetic_rmcs/evaluation complete
+diagnosis024_entry_phase_fit_fixed/evaluation complete
+{
+  "schema": "motion-leg-damping-preflight-v1",
+  "source": "runs/robust_policy_repair_20261024/entry_phase_fit_periodic002/model_probe.pt",
+  "candidate": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "source_sha256": "cf3f3643c742653623e21bdd94603df4e057789e46f3452524e6cc07aba0c840",
+  "candidate_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "alpha": 0.8,
+  "checks": {
+    "all_weights_exact": true,
+    "clock_equal": true,
+    "inactive_bit_exact": true,
+    "quiet_bit_exact": true,
+    "neutral_all_bit_exact": true,
+    "all_wheels_exact": true,
+    "active_error_under_012": true,
+    "bounded_small_edit": true,
+    "normal_motion_step_ratio": true,
+    "finite": true,
+    "tamper_rejected": true
+  },
+  "decision": "admit_fixed51_zero_PPO_only",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792887164.0497868
+}

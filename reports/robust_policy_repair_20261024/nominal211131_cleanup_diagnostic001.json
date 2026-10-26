@@ -1,0 +1,20 @@
+{
+  "schema": "post-trace-cleanup-failure-review-v1",
+  "native_frames": 2400,
+  "native_lanes": 140,
+  "seconds": 12,
+  "source_report_sha256": "9765756fea8ae4b4cd8612234ea91d0dcffea138f742e1c092b85a21fcd74945",
+  "source_trajectory_sha256": "c09f7ea8f402d3b5b7e3dadb4637e99f87b4b9b08a5454d4f6cd79faf4a202ba",
+  "failure": {
+    "status": "failed",
+    "error": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/evaluate_robust_getup_batch.py\", line 559, in main\n    report = training.evaluate(env, BatchMean().cuda(), args.output / \"all\", torch,\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/train_robust_getup.py\", line 430, in evaluate\n    env.reset(torch.arange(env.num_envs, device=env.device))\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 185, in reset\n    raise ValueError(\"Gap training requires a validated floor-start bank\")\nValueError: Gap training requires a validated floor-start bank\n",
+    "checkpoint_sha256": "ca39b6d34456e6da24a9f0738a0c126950ce287d6b149be5ad09008e2c176db0",
+    "optimizer_updates": 0
+  },
+  "diagnostic_splits": [
+    "diagnostic_parent",
+    "diagnostic_robust"
+  ],
+  "qualification_eligible": false,
+  "new_PPO": 0
+}

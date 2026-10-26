@@ -1,0 +1,19 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_fully_inverted_reference_coverage_does_not_change_the_old_suite _____
+
+    def test_fully_inverted_reference_coverage_does_not_change_the_old_suite():
+        root = Path(__file__).resolve().parents[1]
+        old = json.loads((root / "reports/real_robot_robustness_20261024/pose_bank_gap002.json").read_text())
+        new = json.loads((root / "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json").read_text())
+        assert new["poses"][:len(old["poses"])] == old["poses"]
+>       assert cases(old) == cases(new)
+E       AssertionError: assert [{'name': 're...5], ...}, ...] == [{'name': 're...5], ...}, ...]
+E         
+E         At index 16 diff: {'name': 'inverted_symmetric__clean', 'recovery': True, 'pose_index': 154, 'command': [0.5, -1.0, 0.305], 'behavior_case': 'inverted_symmetric', 'imu_case': 'clean', 'imu_mount': {'fixed_degrees': [0.0, 0.0, 0.0], 'amplitude_degrees': [0.0, 0.0], 'frequency_hz': [5.0, 3.0], 'phase_rad': [0.0, 0.5]}} != {'name': 'inverted_symmetric__clean', 'recovery': True, 'pose_index': 378, 'command': [0.5, -1.0, 0.305], 'behavior_case': 'inverted_symmetric', 'imu_case': 'clean', 'imu_mount': {'fixed_degrees': [0.0, 0.0, 0.0], 'amplitude_degrees': [0.0, 0.0], 'frequency_hz': [5.0, 3.0], 'phase_rad': [0.0, 0.5]}}
+E         Use -v to get more diff
+
+tests/test_rmcs_inverted_cases.py:12: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_rmcs_inverted_cases.py::test_fully_inverted_reference_coverage_does_not_change_the_old_suite
+1 failed in 0.11s

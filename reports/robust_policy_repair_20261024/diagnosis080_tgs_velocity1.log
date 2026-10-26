@@ -1,0 +1,29 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1792948272.660362  451835 descriptor_database.cc:633] File already exists in database: grpc/health/v1/health.proto
+W0000 00:00:1792948272.660401  451835 message.cc:301] Protobuf GeneratedMessageFactory: File is already registered: grpc/health/v1/health.proto
+[ISAACLAB] AppLauncher initialization complete
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/evaluate_gap_robustness.py", line 216, in main
+    env = RobustGetupEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py", line 31, in __init__
+    super().__init__(config, manifest, control, root, **kwargs)
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/evaluate_tgs_velocity080.py", line 35, in initialize
+    return native_init(instance, after, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py", line 58, in __init__
+    self.design_preflight = design_preflight(config, control, root, stage=stage_name,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py", line 519, in design_preflight
+    receipt = validate_design_contract(config, json.loads(contents), control,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py", line 484, in validate_design_contract
+    raise ValueError(f"Preflight rejected ({source}; stage={stage}, role={role}):\n"
+ValueError: Preflight rejected (/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/diagnosis080_tgs_velocity1/config/design.json; stage=speed, role=train):
+contract.velocity_iterations: design=32, effective=1
+Loading user config located at: '/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/isaacsim/kit/data/Kit/IsaacLab/3.0/user.config.json'
+2026-10-25T17:11:12Z [0ms] [Warning] [omni.ext.plugin] [ext: isaaclab_visualizers] Extensions config 'extension.toml' doesn't exist '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers' or '/home/noir/IsaacLab-3.0-beta2/source/isaaclab_visualizers/config'
+2026-10-25T17:11:12Z [439ms] [Warning] [omni.kit.telemetry.plugin] failed to acquire the ITasking interface.  Launching the transmitter synchronously.
+2026-10-25T17:11:13Z [572ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-10-25T17:11:14Z [1,767ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred
+2026-10-25T17:11:14Z [1,767ms] [Warning] [isaacsim.core.simulation_manager.plugin] USD stage is not available; stage-opened subscription is deferred

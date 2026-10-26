@@ -1,0 +1,86 @@
+source_fixed normal frames 3451 candidate frames 4350
+source_nominal normal frames 23580 candidate frames 24258
+source_RMCS has no eligible moving frames; excluded from the fit
+new_phase_fixed normal frames 3869 candidate frames 4841
+{
+  "schema": "motion-NN-target-damping-feasibility-v1",
+  "source": "runs/robust_policy_repair_20261024/entry_phase_fit_periodic002/model_probe.pt",
+  "source_sha256": "cf3f3643c742653623e21bdd94603df4e057789e46f3452524e6cc07aba0c840",
+  "parameters": {
+    "alpha": 0.8,
+    "ridge": 1e-05,
+    "equilibrium_weight": 10.0
+  },
+  "method": "One 100-feature by four-output solve: original64 hidden features plus35 existing normalized inputs and an affine term. This tests whether a small NN linear input shortcut can express target damping. Offline only; no actor code or checkpoint is created.",
+  "independent_parameters": 400,
+  "metrics": [
+    {
+      "name": "source_fixed",
+      "training": true,
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "sha256": "6d1816875765df7eb8849089a5c93b8e4b636a0e912b9e5ba6bc4e55ab549529",
+      "candidates": 4350,
+      "normal_frames": 3451,
+      "normal_fraction": 0.7933333333333333,
+      "target_step_rms_before_rad": 0.0025506748352199793,
+      "target_step_rms_after_rad": 0.0024626136291772127,
+      "target_step_rms_ratio": 0.9654753303608878,
+      "teacher_error_rms_rad": 0.0005041296826675534,
+      "teacher_error_peak_rad": 0.005280828103423119,
+      "weight_edit_target_peak_delta_rad": 0.004742149263620377,
+      "equilibrium_frames": 167,
+      "equilibrium_target_peak_delta_rad": 7.709860801696777e-05
+    },
+    {
+      "name": "source_nominal",
+      "training": true,
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf",
+      "candidates": 24258,
+      "normal_frames": 23580,
+      "normal_fraction": 0.9720504575810042,
+      "target_step_rms_before_rad": 0.0013746549375355244,
+      "target_step_rms_after_rad": 0.0012973377015441656,
+      "target_step_rms_ratio": 0.943755168020585,
+      "teacher_error_rms_rad": 0.00025042847846634686,
+      "teacher_error_peak_rad": 0.006491445004940033,
+      "weight_edit_target_peak_delta_rad": 0.004763802047818899,
+      "equilibrium_frames": 5454,
+      "equilibrium_target_peak_delta_rad": 0.0001854225993156433
+    },
+    {
+      "name": "new_phase_fixed",
+      "training": false,
+      "trace": "runs/robust_policy_repair_20261024/diagnosis024_entry_phase_fit_fixed/evaluation/trajectory.npz",
+      "sha256": "e8a5ab109b1832f9d098ce8cc8d0f4cafc89e28dae9d82ae443faa9a3a71acea",
+      "candidates": 4841,
+      "normal_frames": 3869,
+      "normal_fraction": 0.7992150382152448,
+      "target_step_rms_before_rad": 0.0026878733187913895,
+      "target_step_rms_after_rad": 0.0025690451730042696,
+      "target_step_rms_ratio": 0.9557910170258502,
+      "teacher_error_rms_rad": 0.0005576158873736858,
+      "teacher_error_peak_rad": 0.005280828103423119,
+      "weight_edit_target_peak_delta_rad": 0.004854315891861916,
+      "equilibrium_frames": 167,
+      "equilibrium_target_peak_delta_rad": 7.709860801696777e-05
+    }
+  ],
+  "checks": {
+    "finite": true,
+    "teacher_error_rms": false,
+    "teacher_error_peak": false,
+    "step_reduction_at_least_10pct": false,
+    "target_edit_bounded": true,
+    "equilibrium_preserved": true
+  },
+  "scope": "Recorded-state function fit with the new phase trace excluded from the solve. It does not prove native support improvement or behavior generalization.",
+  "decision": "reject_without_native_or_PPO",
+  "new_PPO": 0,
+  "gradient_optimizer_updates": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "elapsed_seconds": 0.5291008949279785,
+  "created_unix": 1792886465.191387
+}

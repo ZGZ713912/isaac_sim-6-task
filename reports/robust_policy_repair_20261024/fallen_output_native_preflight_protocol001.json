@@ -1,0 +1,28 @@
+{
+  "schema": "fallen-output-native-preflight-v1",
+  "source": "runs/robust_policy_repair_20261024/fallen_output_root001/model_initial.pt",
+  "source_sha256": "f1a98b917e430a040a595eb4487764abc9f73d3a5bf6784d71ee9fa72fd0b52f",
+  "source_clock": 1501,
+  "jobs": [
+    "Same native current9a51-case development control at241204",
+    "Single actual256x512 sampled training rollout and native GAE; collector exits before any optimizer attempt"
+  ],
+  "gate": {
+    "optimizer_attempts": 0,
+    "new_PPO": 0,
+    "restored_actor_critic_Adam_RNG_exact": true,
+    "original_mean_bit_exact": true,
+    "original_conditioned_std_bit_exact": true,
+    "trainable_actor_tensors": [
+      "mlp.mean.recovery.4.weight",
+      "mlp.mean.recovery.4.bias"
+    ]
+  },
+  "callback_order": "Installed native runner compute_returns precedes outer optimizer-attempt accounting; tested by actual source inspection and collector import.",
+  "no_advanced_RNG_resume_claim": "model_stopped is the exact native initial checkpoint copy, not an advanced physical/RNG training resume",
+  "qualification": null,
+  "hardware_started": false,
+  "actual_experiment_consumed": 2630,
+  "repair_optimizer_updates": 250,
+  "created_unix": 1792901092.596466
+}

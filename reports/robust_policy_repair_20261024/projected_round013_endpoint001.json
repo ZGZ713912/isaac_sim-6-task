@@ -1,0 +1,203 @@
+{
+  "schema": "projected-Adam-native-endpoint-v1",
+  "checks": {
+    "endpoint_clock": true,
+    "declared_budget": true,
+    "attempted_charged_exact": true,
+    "all_projected_steps_recorded": true,
+    "projection_metadata_matches": true,
+    "projection_version": true,
+    "projection_source_exact": true,
+    "wrapper_bound": true,
+    "projector_bound": true,
+    "only_final_common_tensors_changed": true,
+    "non_entry_and_basis_exact": true,
+    "wheel_rows_exact": true,
+    "all_old_actor_Adam_exact": true,
+    "all_six_entry_Adam_steps": true,
+    "basis_Adam_moments_zero": true,
+    "critic_changed": true,
+    "frozen_inputs_exact": true,
+    "initial_restore_all": true,
+    "first_native_rollout_exact": true,
+    "strict_V3_decode": true,
+    "outside_entry_function_exact": true,
+    "wheel_function_exact": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot013_projected_entry/model_final.pt",
+  "checkpoint_sha256": "27c43e26dc37242948cca02939faa4494f00c7240b3ae942ed55cb4a428d90e6",
+  "changed_actor_tensors": [
+    "mlp.mean.entry_recovery.4.weight",
+    "mlp.mean.entry_recovery.4.bias"
+  ],
+  "source": "runs/robust_policy_repair_20261024/function_root_entry002/model_initial.pt",
+  "source_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+  "source_clock": 1501,
+  "branch_clock": 1509,
+  "real_PPO_attempts": 8,
+  "real_PPO_completed": 8,
+  "actual_experiment_consumed": 2630,
+  "repair_optimizer_updates": 250,
+  "phase_checks": [
+    {
+      "clock": 1502,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.014606863260269165,
+        "stopped_target_peak_rad": 0.0044915564358234406,
+        "knee_logit_delta_peak": 8.940696716308594e-06
+      }
+    },
+    {
+      "clock": 1503,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.015042100101709366,
+        "stopped_target_peak_rad": 0.004491455852985382,
+        "knee_logit_delta_peak": 8.046627044677734e-06
+      }
+    },
+    {
+      "clock": 1504,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.014773523434996605,
+        "stopped_target_peak_rad": 0.004491468891501427,
+        "knee_logit_delta_peak": 7.241964340209961e-06
+      }
+    },
+    {
+      "clock": 1505,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.015266571193933487,
+        "stopped_target_peak_rad": 0.0040184445679187775,
+        "knee_logit_delta_peak": 7.748603820800781e-06
+      }
+    },
+    {
+      "clock": 1506,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.015014205127954483,
+        "stopped_target_peak_rad": 0.0037881480529904366,
+        "knee_logit_delta_peak": 7.62939453125e-06
+      }
+    },
+    {
+      "clock": 1507,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.014612589031457901,
+        "stopped_target_peak_rad": 0.004095990210771561,
+        "knee_logit_delta_peak": 8.881092071533203e-06
+      }
+    },
+    {
+      "clock": 1508,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.014613546431064606,
+        "stopped_target_peak_rad": 0.004218149930238724,
+        "knee_logit_delta_peak": 8.404254913330078e-06
+      }
+    },
+    {
+      "clock": 1509,
+      "checks": {
+        "frozen_feature_basis_exact": true,
+        "wheel_rows_exact": true,
+        "far_margin": true,
+        "stopped_margin": true,
+        "knee_roundoff": true,
+        "finite": true,
+        "projection_solved": true,
+        "recorded_step_bound": true
+      },
+      "metrics": {
+        "far_signed_lead_min_rad": 0.01461985893547535,
+        "stopped_target_peak_rad": 0.004241644404828548,
+        "knee_logit_delta_peak": 7.927417755126953e-06
+      }
+    }
+  ],
+  "phase_guard_stop": false,
+  "all_development_phase_checks_pass": true,
+  "frozen_inputs": 408,
+  "function_probe": {
+    "trace": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed/evaluation/trajectory.npz",
+    "sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+    "frames": 81600,
+    "outside_count": 75632,
+    "outside_different": 0,
+    "wheel_different": 0
+  },
+  "algorithm": "Projected Adam: native gradients and moments plus explicit post-update constrained coefficient projection.",
+  "interpretation": "Engineering audit only; this receipt does not qualify physical behavior or authorize extension.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792896179.0445206
+}

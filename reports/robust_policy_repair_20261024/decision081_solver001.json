@@ -1,0 +1,38 @@
+{
+  "schema": "numerical-solver-diagnostic-decision-v1",
+  "baseline": {
+    "lost_ms_all21": 2590,
+    "worst_support": 0.93975,
+    "mean_vibration_mrad": 2.0789682196101196,
+    "whole_continuous": 0,
+    "peak_leg_speed": 2.113281726837158,
+    "late_continuous": 5
+  },
+  "diagnostic": {
+    "lost_ms_all21": 3085,
+    "worst_support": 0.9475,
+    "mean_vibration_mrad": 2.405668523611634,
+    "whole_continuous": 0,
+    "peak_leg_speed": 4.3482184410095215,
+    "late_continuous": 3
+  },
+  "adopted": false,
+  "default_physics_retained": "TGS64position/32velocity",
+  "changed_for_diagnostic_only": "velocity_iterations32_to1",
+  "improved_contact_cases": 8,
+  "degraded_contact_cases": 13,
+  "lower_vibration_cases": 5,
+  "paired_checks": {
+    "same_seed": true,
+    "same_seconds": true,
+    "same_native_rates": true,
+    "same_case_order": true,
+    "exact_initial_state": true,
+    "exact_domains_materials_and_scene": true,
+    "same_grounded_reset": true
+  },
+  "new_PPO": 0,
+  "qualification": null,
+  "interpretation": "No complete-support success; contact/vibration mixed or worse. Reject a solver-default change based on this diagnostic. This does not identify a unique causal source.",
+  "created_unix": 1792948821.240143
+}

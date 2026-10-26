@@ -1,0 +1,68 @@
+{
+  "schema": "scratch-standing-sensor-timing-validation-v1",
+  "new_PPO": 0,
+  "native_physics_steps": 0,
+  "policy_executed": false,
+  "optimizer_constructed": false,
+  "checkpoint_sha256": "cdca61ca16a5223939deae26494f3fc3d7cf093925bfe06988c56b7bf72d8c38",
+  "channels": {
+    "gravity": {
+      "maximum_absolute": 7.152557373046875e-07,
+      "rms": 1.1717941910102488e-07
+    },
+    "gyro_rad_s": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    },
+    "motor_velocity_rad_s": {
+      "maximum_absolute": 9.5367431640625e-07,
+      "rms": 6.111486038130628e-08
+    },
+    "leg_position_delta_rad": {
+      "maximum_absolute": 5.7816505416585784e-08,
+      "rms": 9.804344377338395e-09
+    },
+    "previous_applied_action": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    },
+    "command_features": {
+      "maximum_absolute": 9.536743172944284e-08,
+      "rms": 3.9537248538878614e-08
+    },
+    "flat_command_context": {
+      "maximum_absolute": 0.0,
+      "rms": 0.0
+    }
+  },
+  "pair_count": 33579,
+  "checks": {
+    "gravity": true,
+    "gyro_rad_s": true,
+    "motor_velocity_rad_s": true,
+    "leg_position_delta_rad": true,
+    "previous_applied_action": true,
+    "command_features": true,
+    "flat_command_context": true
+  },
+  "all_input_alignment_checks_pass": true,
+  "gyro_gravity_relation": {
+    "gravity_derivative_rms_per_s": 0.22220955401003886,
+    "measured_sign_residual_rms_per_s": 0.0215368127683922,
+    "reversed_sign_residual_rms_per_s": 0.44506117107032833,
+    "measured_sign_residual_norm_p95_per_s": 0.012441033845459491,
+    "gravity_norm_maximum_error": 7.583472045880058e-07,
+    "scope": "Trapezoidal 200Hz finite-difference check, including impacts; not an exact continuous-time identity or independent yaw-axis certification"
+  },
+  "scope": "Contract validation of existing nominal observations. Consecutive-frame comparisons start at the second actor call because no pre-start native output is recorded. Standing acceptance still starts at the first physical millisecond.",
+  "hardware_ready": false,
+  "sources_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval003_final256_feedback001/receipt.json": "46705b90c52b29f3c714efaa166afbb656a1f2b2fa5a403f083ca187193df2ed",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval003_final256_feedback001/evaluation/result.json": "bf4af517331b188d69551484f17867e7f377f66b57e0d3f8c880104c5f74afca",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval003_final256_feedback001/evaluation/native_trace.npz": "7bf930cf0cf3bc27ebfab8a94a9dae39cfc0f1917d40e97bb433cda2a0c685d9",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval003_final256_feedback001/evaluation/feedback_trace.npz": "e64a9fd0c447dea7203e21776b29d98e20155c73a4812d701fefbbe849e49cf2",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot003_coupled/config/contract.json": "ff463604da42b8f29945a962c80bfc4460ec0be30b807ffb12521822c4776f55",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/\u7eaf\u5e95\u76d8_v7_flat_base107/urdf/manifest.json": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/check_scratch_sensor_timing.py": "b358e3493939710bb19472ba65849120edc52aff5d9919357e9a20b1d963f847"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "scratch-hold-initial-leg-target-preflight-v1",
+  "status": "prepared_not_started",
+  "observed_utc": "2026-10-26T01:25:34.254126+00:00",
+  "checks": {
+    "recorded_native_actions_reproduce_on_CPU": true,
+    "all1600_first21_inputs_used": true,
+    "first_action_unchanged": true,
+    "held_targets_from_each_own_first_action": true,
+    "every_native_wheel_output_unchanged": true,
+    "other_height_outputs_unchanged": true,
+    "actual_later_leg_actions_differ": true,
+    "frozen_actor_state_unchanged": true,
+    "CPU_tests_completed": true,
+    "all4_invalid_CLI_configurations_rejected": true
+  },
+  "all_checks_pass": true,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot005_static_load/model_final.pt",
+  "checkpoint_sha256": "44ddd2a037dd558bc739bb5721f722199ea1cd36deb1130aad7ac88f9d8cba27",
+  "frozen_checkpoint_source_count": 262,
+  "source_sha256": {
+    "scripts/evaluate_scratch_standing.py": "9a8ccce2a7c2f755f9a5509c55d9296b122bec0fd8c3890e3dfe131f587074fb",
+    "scripts/hold_initial_leg_target_probe.py": "008a49e678bab5c394f9a13689387c034c02e865798eed7f33945305820dc2b3",
+    "tests/test_scratch_hold_initial_leg_target_probe.py": "73d12a583e77bd68f2ed18acb5e5af67a395832c1bed9e6a9ecd40eff9eaebe4"
+  },
+  "CPU_replay": {
+    "source_trace": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_final256_feedback001/evaluation/feedback_trace.npz",
+    "source_trace_sha256": "573abcc3b3348d92f1911fe2e4f16fd7a69482f42b83b7fe12d1ecf0c2968d3b",
+    "observations": 33600,
+    "maximum_native_GPU_to_CPU_action_difference": 4.76837158203125e-07,
+    "maximum_native_to_wrapped_wheel_difference": 0.0,
+    "maximum_later_leg_intervention_raw": 0.07888536155223846,
+    "trajectory_prediction": false
+  },
+  "CPU_tests": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_hold_leg_cpu_tests002.log",
+    "passed": 24
+  },
+  "CLI_rejections": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_hold_leg_cli_rejections001.json",
+  "seed": 261101,
+  "native_validation": false,
+  "native_steps": 0,
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "adoption_by_training": false,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "prerequisite": "Keep007 running untouched to512 and its own original evaluation; verify actual process/GPU exit and seal. Run this serial diagnostic only if subsequent evidence still calls for separating later leg feedback from contact/mechanical coupling; preparation is not automatic adoption or launch.",
+  "scope": "The CPU actor was loaded read-only, outside training, without an optimizer. Original recorded observations test the action intervention only; they do not predict the altered closed-loop trajectory or contact benefit. Final requested policy remains direct six-motor RL.",
+  "preflight_reader_sha256": "37d6131822871ab02c4ad139cf2052f365d6382cbb2fa8f7a74a2565e9e2e6b4"
+}

@@ -1,0 +1,1287 @@
+{
+  "schema": "native-quiet-output-endpoint-v1",
+  "checks": {
+    "native_contact_TensorBoard_seven_tags": true,
+    "native_contact_TensorBoard_exact_steps": true,
+    "contact_penalty_actually_paid": true,
+    "endpoint_clock": true,
+    "declared_budget": true,
+    "attempted_charged_exact": true,
+    "all_native_update_rows": true,
+    "all_native_step_and_finite_checks": true,
+    "native_update_row_clocks": true,
+    "wrapper_bound": true,
+    "source_bound": true,
+    "first_rollout_native_exact": true,
+    "exactly_twelve_existing_actor_tensors_changed": true,
+    "frozen_actor_and_basis_and_std_exact": true,
+    "all16_frozen_actor_Adam_slots_exact": true,
+    "learned_and_critic_Adam_steps_exact": true,
+    "critic_changed": true,
+    "frozen_inputs_exact": true,
+    "initial_restore_all": true,
+    "exact_contact_contract": true,
+    "strict_V8_decode": true,
+    "outside_quiet_function_exact": true,
+    "quiet_function_changed": true,
+    "native_TensorBoard_seven_tags": true,
+    "native_TensorBoard_exact_steps": true,
+    "native_TensorBoard_step_checks_pass": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+  "checkpoint_sha256": "fdecda7ddf8ef298da8d38b8f0086c1fe45cee22f9903b020a9e48de6ce0c96a",
+  "source": "runs/robust_policy_repair_20261024/quiet_full_root001/model_initial.pt",
+  "source_sha256": "53504db0363c83794d8f56c16bfaf4709f7a90a7417d04cc1d5c6dede1b94324",
+  "changed_actor_tensors": [
+    "mlp.mean.quiet.0.weight",
+    "mlp.mean.quiet.0.bias",
+    "mlp.mean.quiet.2.weight",
+    "mlp.mean.quiet.2.bias",
+    "mlp.mean.quiet_low.0.weight",
+    "mlp.mean.quiet_low.0.bias",
+    "mlp.mean.quiet_low.2.weight",
+    "mlp.mean.quiet_low.2.bias",
+    "mlp.mean.quiet_high.0.weight",
+    "mlp.mean.quiet_high.0.bias",
+    "mlp.mean.quiet_high.2.weight",
+    "mlp.mean.quiet_high.2.bias"
+  ],
+  "source_clock": 1501,
+  "branch_clock": 1517,
+  "real_PPO_attempts": 16,
+  "real_PPO_completed": 16,
+  "actual_experiment_consumed": 2694,
+  "repair_optimizer_updates": 314,
+  "native_update_rows": [
+    {
+      "completed_updates": 1,
+      "learning_clock": 1502,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108166,
+        "encoder_displacement_rms_m": 0.042670246213674545,
+        "output_parameter_update_L2": 0.0169838797301054,
+        "output_gradient_L2": 0.9999997615814209,
+        "native_Adam_step_min": 780.0,
+        "native_Adam_step_max": 1536.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792938594.6569903
+    },
+    {
+      "completed_updates": 2,
+      "learning_clock": 1503,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111709,
+        "encoder_displacement_rms_m": 0.07027313858270645,
+        "output_parameter_update_L2": 0.015029676258563995,
+        "output_gradient_L2": 0.9999992251396179,
+        "native_Adam_step_min": 792.0,
+        "native_Adam_step_max": 1548.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792938651.8086154
+    },
+    {
+      "completed_updates": 3,
+      "learning_clock": 1504,
+      "metrics": {
+        "observed_upright_zero_request_frames": 106795,
+        "encoder_displacement_rms_m": 0.08677354454994202,
+        "output_parameter_update_L2": 0.01466679573059082,
+        "output_gradient_L2": 0.6062685251235962,
+        "native_Adam_step_min": 804.0,
+        "native_Adam_step_max": 1560.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792938706.668232
+    },
+    {
+      "completed_updates": 4,
+      "learning_clock": 1505,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111983,
+        "encoder_displacement_rms_m": 0.11099682003259659,
+        "output_parameter_update_L2": 0.01690344139933586,
+        "output_gradient_L2": 0.7078100442886353,
+        "native_Adam_step_min": 816.0,
+        "native_Adam_step_max": 1572.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792938761.821236
+    },
+    {
+      "completed_updates": 5,
+      "learning_clock": 1506,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108744,
+        "encoder_displacement_rms_m": 0.10637257248163223,
+        "output_parameter_update_L2": 0.01647762581706047,
+        "output_gradient_L2": 0.9999993443489075,
+        "native_Adam_step_min": 828.0,
+        "native_Adam_step_max": 1584.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792938829.2545507
+    },
+    {
+      "completed_updates": 6,
+      "learning_clock": 1507,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108384,
+        "encoder_displacement_rms_m": 0.060374390333890915,
+        "output_parameter_update_L2": 0.013719256967306137,
+        "output_gradient_L2": 0.7592642307281494,
+        "native_Adam_step_min": 840.0,
+        "native_Adam_step_max": 1596.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792938891.7215524
+    },
+    {
+      "completed_updates": 7,
+      "learning_clock": 1508,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108674,
+        "encoder_displacement_rms_m": 0.08360543102025986,
+        "output_parameter_update_L2": 0.012032659724354744,
+        "output_gradient_L2": 0.9999994039535522,
+        "native_Adam_step_min": 852.0,
+        "native_Adam_step_max": 1608.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792938954.0567958
+    },
+    {
+      "completed_updates": 8,
+      "learning_clock": 1509,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111439,
+        "encoder_displacement_rms_m": 0.09226357936859131,
+        "output_parameter_update_L2": 0.016033891588449478,
+        "output_gradient_L2": 0.7175172567367554,
+        "native_Adam_step_min": 864.0,
+        "native_Adam_step_max": 1620.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939021.2952256
+    },
+    {
+      "completed_updates": 9,
+      "learning_clock": 1510,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111381,
+        "encoder_displacement_rms_m": 0.11138936132192612,
+        "output_parameter_update_L2": 0.012034045532345772,
+        "output_gradient_L2": 0.9999995231628418,
+        "native_Adam_step_min": 876.0,
+        "native_Adam_step_max": 1632.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939087.4944627
+    },
+    {
+      "completed_updates": 10,
+      "learning_clock": 1511,
+      "metrics": {
+        "observed_upright_zero_request_frames": 107894,
+        "encoder_displacement_rms_m": 0.08717314898967743,
+        "output_parameter_update_L2": 0.013347866013646126,
+        "output_gradient_L2": 0.8380047082901001,
+        "native_Adam_step_min": 888.0,
+        "native_Adam_step_max": 1644.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939150.9941072
+    },
+    {
+      "completed_updates": 11,
+      "learning_clock": 1512,
+      "metrics": {
+        "observed_upright_zero_request_frames": 112111,
+        "encoder_displacement_rms_m": 0.08362479507923126,
+        "output_parameter_update_L2": 0.014080076478421688,
+        "output_gradient_L2": 0.9968599081039429,
+        "native_Adam_step_min": 900.0,
+        "native_Adam_step_max": 1656.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939207.9116936
+    },
+    {
+      "completed_updates": 12,
+      "learning_clock": 1513,
+      "metrics": {
+        "observed_upright_zero_request_frames": 106472,
+        "encoder_displacement_rms_m": 0.09405489265918732,
+        "output_parameter_update_L2": 0.013565205037593842,
+        "output_gradient_L2": 0.9999990463256836,
+        "native_Adam_step_min": 912.0,
+        "native_Adam_step_max": 1668.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939262.5614812
+    },
+    {
+      "completed_updates": 13,
+      "learning_clock": 1514,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110187,
+        "encoder_displacement_rms_m": 0.0987013652920723,
+        "output_parameter_update_L2": 0.016426054760813713,
+        "output_gradient_L2": 0.980540931224823,
+        "native_Adam_step_min": 924.0,
+        "native_Adam_step_max": 1680.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939324.4445455
+    },
+    {
+      "completed_updates": 14,
+      "learning_clock": 1515,
+      "metrics": {
+        "observed_upright_zero_request_frames": 107365,
+        "encoder_displacement_rms_m": 0.1143283024430275,
+        "output_parameter_update_L2": 0.017950549721717834,
+        "output_gradient_L2": 0.9999992251396179,
+        "native_Adam_step_min": 936.0,
+        "native_Adam_step_max": 1692.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939382.1694922
+    },
+    {
+      "completed_updates": 15,
+      "learning_clock": 1516,
+      "metrics": {
+        "observed_upright_zero_request_frames": 107381,
+        "encoder_displacement_rms_m": 0.07221401482820511,
+        "output_parameter_update_L2": 0.01859058067202568,
+        "output_gradient_L2": 0.6979110836982727,
+        "native_Adam_step_min": 948.0,
+        "native_Adam_step_max": 1704.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939438.5154464
+    },
+    {
+      "completed_updates": 16,
+      "learning_clock": 1517,
+      "metrics": {
+        "observed_upright_zero_request_frames": 112113,
+        "encoder_displacement_rms_m": 0.09019684046506882,
+        "output_parameter_update_L2": 0.019361238926649094,
+        "output_gradient_L2": 0.9999994039535522,
+        "native_Adam_step_min": 960.0,
+        "native_Adam_step_max": 1716.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792939492.4143906
+    }
+  ],
+  "native_TensorBoard": {
+    "QuietFullTraining/encoder_displacement_rms_m": [
+      {
+        "step": 1501,
+        "value": 0.042670246213674545
+      },
+      {
+        "step": 1502,
+        "value": 0.07027313858270645
+      },
+      {
+        "step": 1503,
+        "value": 0.08677354454994202
+      },
+      {
+        "step": 1504,
+        "value": 0.11099682003259659
+      },
+      {
+        "step": 1505,
+        "value": 0.10637257248163223
+      },
+      {
+        "step": 1506,
+        "value": 0.060374390333890915
+      },
+      {
+        "step": 1507,
+        "value": 0.08360543102025986
+      },
+      {
+        "step": 1508,
+        "value": 0.09226357936859131
+      },
+      {
+        "step": 1509,
+        "value": 0.11138936132192612
+      },
+      {
+        "step": 1510,
+        "value": 0.08717314898967743
+      },
+      {
+        "step": 1511,
+        "value": 0.08362479507923126
+      },
+      {
+        "step": 1512,
+        "value": 0.09405489265918732
+      },
+      {
+        "step": 1513,
+        "value": 0.0987013652920723
+      },
+      {
+        "step": 1514,
+        "value": 0.1143283024430275
+      },
+      {
+        "step": 1515,
+        "value": 0.07221401482820511
+      },
+      {
+        "step": 1516,
+        "value": 0.09019684046506882
+      }
+    ],
+    "QuietFullTraining/native_Adam_step_max": [
+      {
+        "step": 1501,
+        "value": 1536.0
+      },
+      {
+        "step": 1502,
+        "value": 1548.0
+      },
+      {
+        "step": 1503,
+        "value": 1560.0
+      },
+      {
+        "step": 1504,
+        "value": 1572.0
+      },
+      {
+        "step": 1505,
+        "value": 1584.0
+      },
+      {
+        "step": 1506,
+        "value": 1596.0
+      },
+      {
+        "step": 1507,
+        "value": 1608.0
+      },
+      {
+        "step": 1508,
+        "value": 1620.0
+      },
+      {
+        "step": 1509,
+        "value": 1632.0
+      },
+      {
+        "step": 1510,
+        "value": 1644.0
+      },
+      {
+        "step": 1511,
+        "value": 1656.0
+      },
+      {
+        "step": 1512,
+        "value": 1668.0
+      },
+      {
+        "step": 1513,
+        "value": 1680.0
+      },
+      {
+        "step": 1514,
+        "value": 1692.0
+      },
+      {
+        "step": 1515,
+        "value": 1704.0
+      },
+      {
+        "step": 1516,
+        "value": 1716.0
+      }
+    ],
+    "QuietFullTraining/native_Adam_step_min": [
+      {
+        "step": 1501,
+        "value": 780.0
+      },
+      {
+        "step": 1502,
+        "value": 792.0
+      },
+      {
+        "step": 1503,
+        "value": 804.0
+      },
+      {
+        "step": 1504,
+        "value": 816.0
+      },
+      {
+        "step": 1505,
+        "value": 828.0
+      },
+      {
+        "step": 1506,
+        "value": 840.0
+      },
+      {
+        "step": 1507,
+        "value": 852.0
+      },
+      {
+        "step": 1508,
+        "value": 864.0
+      },
+      {
+        "step": 1509,
+        "value": 876.0
+      },
+      {
+        "step": 1510,
+        "value": 888.0
+      },
+      {
+        "step": 1511,
+        "value": 900.0
+      },
+      {
+        "step": 1512,
+        "value": 912.0
+      },
+      {
+        "step": 1513,
+        "value": 924.0
+      },
+      {
+        "step": 1514,
+        "value": 936.0
+      },
+      {
+        "step": 1515,
+        "value": 948.0
+      },
+      {
+        "step": 1516,
+        "value": 960.0
+      }
+    ],
+    "QuietFullTraining/observed_upright_zero_request_frames": [
+      {
+        "step": 1501,
+        "value": 108166.0
+      },
+      {
+        "step": 1502,
+        "value": 111709.0
+      },
+      {
+        "step": 1503,
+        "value": 106795.0
+      },
+      {
+        "step": 1504,
+        "value": 111983.0
+      },
+      {
+        "step": 1505,
+        "value": 108744.0
+      },
+      {
+        "step": 1506,
+        "value": 108384.0
+      },
+      {
+        "step": 1507,
+        "value": 108674.0
+      },
+      {
+        "step": 1508,
+        "value": 111439.0
+      },
+      {
+        "step": 1509,
+        "value": 111381.0
+      },
+      {
+        "step": 1510,
+        "value": 107894.0
+      },
+      {
+        "step": 1511,
+        "value": 112111.0
+      },
+      {
+        "step": 1512,
+        "value": 106472.0
+      },
+      {
+        "step": 1513,
+        "value": 110187.0
+      },
+      {
+        "step": 1514,
+        "value": 107365.0
+      },
+      {
+        "step": 1515,
+        "value": 107381.0
+      },
+      {
+        "step": 1516,
+        "value": 112113.0
+      }
+    ],
+    "QuietFullTraining/output_gradient_L2": [
+      {
+        "step": 1501,
+        "value": 0.9999997615814209
+      },
+      {
+        "step": 1502,
+        "value": 0.9999992251396179
+      },
+      {
+        "step": 1503,
+        "value": 0.6062685251235962
+      },
+      {
+        "step": 1504,
+        "value": 0.7078100442886353
+      },
+      {
+        "step": 1505,
+        "value": 0.9999993443489075
+      },
+      {
+        "step": 1506,
+        "value": 0.7592642307281494
+      },
+      {
+        "step": 1507,
+        "value": 0.9999994039535522
+      },
+      {
+        "step": 1508,
+        "value": 0.7175172567367554
+      },
+      {
+        "step": 1509,
+        "value": 0.9999995231628418
+      },
+      {
+        "step": 1510,
+        "value": 0.8380047082901001
+      },
+      {
+        "step": 1511,
+        "value": 0.9968599081039429
+      },
+      {
+        "step": 1512,
+        "value": 0.9999990463256836
+      },
+      {
+        "step": 1513,
+        "value": 0.980540931224823
+      },
+      {
+        "step": 1514,
+        "value": 0.9999992251396179
+      },
+      {
+        "step": 1515,
+        "value": 0.6979110836982727
+      },
+      {
+        "step": 1516,
+        "value": 0.9999994039535522
+      }
+    ],
+    "QuietFullTraining/output_parameter_update_L2": [
+      {
+        "step": 1501,
+        "value": 0.0169838797301054
+      },
+      {
+        "step": 1502,
+        "value": 0.015029676258563995
+      },
+      {
+        "step": 1503,
+        "value": 0.01466679573059082
+      },
+      {
+        "step": 1504,
+        "value": 0.01690344139933586
+      },
+      {
+        "step": 1505,
+        "value": 0.01647762581706047
+      },
+      {
+        "step": 1506,
+        "value": 0.013719256967306137
+      },
+      {
+        "step": 1507,
+        "value": 0.012032659724354744
+      },
+      {
+        "step": 1508,
+        "value": 0.016033891588449478
+      },
+      {
+        "step": 1509,
+        "value": 0.012034045532345772
+      },
+      {
+        "step": 1510,
+        "value": 0.013347866013646126
+      },
+      {
+        "step": 1511,
+        "value": 0.014080076478421688
+      },
+      {
+        "step": 1512,
+        "value": 0.013565205037593842
+      },
+      {
+        "step": 1513,
+        "value": 0.016426054760813713
+      },
+      {
+        "step": 1514,
+        "value": 0.017950549721717834
+      },
+      {
+        "step": 1515,
+        "value": 0.01859058067202568
+      },
+      {
+        "step": 1516,
+        "value": 0.019361238926649094
+      }
+    ],
+    "QuietFullTraining/passed": [
+      {
+        "step": 1501,
+        "value": 1.0
+      },
+      {
+        "step": 1502,
+        "value": 1.0
+      },
+      {
+        "step": 1503,
+        "value": 1.0
+      },
+      {
+        "step": 1504,
+        "value": 1.0
+      },
+      {
+        "step": 1505,
+        "value": 1.0
+      },
+      {
+        "step": 1506,
+        "value": 1.0
+      },
+      {
+        "step": 1507,
+        "value": 1.0
+      },
+      {
+        "step": 1508,
+        "value": 1.0
+      },
+      {
+        "step": 1509,
+        "value": 1.0
+      },
+      {
+        "step": 1510,
+        "value": 1.0
+      },
+      {
+        "step": 1511,
+        "value": 1.0
+      },
+      {
+        "step": 1512,
+        "value": 1.0
+      },
+      {
+        "step": 1513,
+        "value": 1.0
+      },
+      {
+        "step": 1514,
+        "value": 1.0
+      },
+      {
+        "step": 1515,
+        "value": 1.0
+      },
+      {
+        "step": 1516,
+        "value": 1.0
+      }
+    ]
+  },
+  "native_contact_TensorBoard": {
+    "StrictStanding/maximum_wheel_separation_m": [
+      {
+        "step": 1501,
+        "value": 0.0013205355498939753
+      },
+      {
+        "step": 1502,
+        "value": 0.0027830409817397594
+      },
+      {
+        "step": 1503,
+        "value": 0.22186875343322754
+      },
+      {
+        "step": 1504,
+        "value": 0.002915971912443638
+      },
+      {
+        "step": 1505,
+        "value": 0.24492976069450378
+      },
+      {
+        "step": 1506,
+        "value": 0.00214939471334219
+      },
+      {
+        "step": 1507,
+        "value": 0.2034093588590622
+      },
+      {
+        "step": 1508,
+        "value": 0.08387438952922821
+      },
+      {
+        "step": 1509,
+        "value": 0.12734262645244598
+      },
+      {
+        "step": 1510,
+        "value": 0.12472110986709595
+      },
+      {
+        "step": 1511,
+        "value": 0.00907689519226551
+      },
+      {
+        "step": 1512,
+        "value": 0.3061460852622986
+      },
+      {
+        "step": 1513,
+        "value": 0.0021273139864206314
+      },
+      {
+        "step": 1514,
+        "value": 0.2835366129875183
+      },
+      {
+        "step": 1515,
+        "value": 0.008623934350907803
+      },
+      {
+        "step": 1516,
+        "value": 0.17574194073677063
+      }
+    ],
+    "StrictStanding/minimum_wheel_vertical_load_n": [
+      {
+        "step": 1501,
+        "value": 0.0
+      },
+      {
+        "step": 1502,
+        "value": 0.0
+      },
+      {
+        "step": 1503,
+        "value": 0.0
+      },
+      {
+        "step": 1504,
+        "value": 0.0
+      },
+      {
+        "step": 1505,
+        "value": 0.0
+      },
+      {
+        "step": 1506,
+        "value": 0.0
+      },
+      {
+        "step": 1507,
+        "value": 0.0
+      },
+      {
+        "step": 1508,
+        "value": 0.0
+      },
+      {
+        "step": 1509,
+        "value": 0.0
+      },
+      {
+        "step": 1510,
+        "value": 0.0
+      },
+      {
+        "step": 1511,
+        "value": 0.0
+      },
+      {
+        "step": 1512,
+        "value": 0.0
+      },
+      {
+        "step": 1513,
+        "value": 0.0
+      },
+      {
+        "step": 1514,
+        "value": 0.0
+      },
+      {
+        "step": 1515,
+        "value": 0.0
+      },
+      {
+        "step": 1516,
+        "value": 0.0
+      }
+    ],
+    "StrictStanding/missing_physical_ms_per_policy_step": [
+      {
+        "step": 1501,
+        "value": 0.1385486125946045
+      },
+      {
+        "step": 1502,
+        "value": 0.20009101927280426
+      },
+      {
+        "step": 1503,
+        "value": 0.44775864481925964
+      },
+      {
+        "step": 1504,
+        "value": 0.14064395427703857
+      },
+      {
+        "step": 1505,
+        "value": 0.22843030095100403
+      },
+      {
+        "step": 1506,
+        "value": 0.16364532709121704
+      },
+      {
+        "step": 1507,
+        "value": 0.42561060190200806
+      },
+      {
+        "step": 1508,
+        "value": 0.19610892236232758
+      },
+      {
+        "step": 1509,
+        "value": 0.19423165917396545
+      },
+      {
+        "step": 1510,
+        "value": 0.18558479845523834
+      },
+      {
+        "step": 1511,
+        "value": 0.1670016646385193
+      },
+      {
+        "step": 1512,
+        "value": 0.34046003222465515
+      },
+      {
+        "step": 1513,
+        "value": 0.15257130563259125
+      },
+      {
+        "step": 1514,
+        "value": 0.28427451848983765
+      },
+      {
+        "step": 1515,
+        "value": 0.15727397799491882
+      },
+      {
+        "step": 1516,
+        "value": 0.19649764895439148
+      }
+    ],
+    "StrictStanding/paid_penalty_per_policy_step": [
+      {
+        "step": 1501,
+        "value": 0.0017076842486858368
+      },
+      {
+        "step": 1502,
+        "value": 0.004176768474280834
+      },
+      {
+        "step": 1503,
+        "value": 0.02742740884423256
+      },
+      {
+        "step": 1504,
+        "value": 0.002209105994552374
+      },
+      {
+        "step": 1505,
+        "value": 0.009727050550282001
+      },
+      {
+        "step": 1506,
+        "value": 0.002106220694258809
+      },
+      {
+        "step": 1507,
+        "value": 0.025659311562776566
+      },
+      {
+        "step": 1508,
+        "value": 0.005098098888993263
+      },
+      {
+        "step": 1509,
+        "value": 0.008104028180241585
+      },
+      {
+        "step": 1510,
+        "value": 0.006020218599587679
+      },
+      {
+        "step": 1511,
+        "value": 0.0025983662344515324
+      },
+      {
+        "step": 1512,
+        "value": 0.020067468285560608
+      },
+      {
+        "step": 1513,
+        "value": 0.002090112306177616
+      },
+      {
+        "step": 1514,
+        "value": 0.01348145306110382
+      },
+      {
+        "step": 1515,
+        "value": 0.0021457956172525883
+      },
+      {
+        "step": 1516,
+        "value": 0.005992330610752106
+      }
+    ],
+    "StrictStanding/support_cost_density_per_second": [
+      {
+        "step": 1501,
+        "value": 0.04269210621714592
+      },
+      {
+        "step": 1502,
+        "value": 0.10441921651363373
+      },
+      {
+        "step": 1503,
+        "value": 0.6856852769851685
+      },
+      {
+        "step": 1504,
+        "value": 0.05522764474153519
+      },
+      {
+        "step": 1505,
+        "value": 0.24317626655101776
+      },
+      {
+        "step": 1506,
+        "value": 0.05265551805496216
+      },
+      {
+        "step": 1507,
+        "value": 0.6414828300476074
+      },
+      {
+        "step": 1508,
+        "value": 0.12745247781276703
+      },
+      {
+        "step": 1509,
+        "value": 0.20260070264339447
+      },
+      {
+        "step": 1510,
+        "value": 0.1505054533481598
+      },
+      {
+        "step": 1511,
+        "value": 0.06495915353298187
+      },
+      {
+        "step": 1512,
+        "value": 0.501686692237854
+      },
+      {
+        "step": 1513,
+        "value": 0.052252814173698425
+      },
+      {
+        "step": 1514,
+        "value": 0.3370363414287567
+      },
+      {
+        "step": 1515,
+        "value": 0.05364489555358887
+      },
+      {
+        "step": 1516,
+        "value": 0.14980825781822205
+      }
+    ],
+    "StrictStanding/support_every_1ms_fraction": [
+      {
+        "step": 1501,
+        "value": 0.9217517375946045
+      },
+      {
+        "step": 1502,
+        "value": 0.9069516062736511
+      },
+      {
+        "step": 1503,
+        "value": 0.8566539287567139
+      },
+      {
+        "step": 1504,
+        "value": 0.9271465539932251
+      },
+      {
+        "step": 1505,
+        "value": 0.9080040454864502
+      },
+      {
+        "step": 1506,
+        "value": 0.9148399829864502
+      },
+      {
+        "step": 1507,
+        "value": 0.8683916330337524
+      },
+      {
+        "step": 1508,
+        "value": 0.9134841561317444
+      },
+      {
+        "step": 1509,
+        "value": 0.9193530678749084
+      },
+      {
+        "step": 1510,
+        "value": 0.9153234958648682
+      },
+      {
+        "step": 1511,
+        "value": 0.9190117120742798
+      },
+      {
+        "step": 1512,
+        "value": 0.8905206918716431
+      },
+      {
+        "step": 1513,
+        "value": 0.9237806797027588
+      },
+      {
+        "step": 1514,
+        "value": 0.8978022336959839
+      },
+      {
+        "step": 1515,
+        "value": 0.9214388728141785
+      },
+      {
+        "step": 1516,
+        "value": 0.9129626750946045
+      }
+    ],
+    "StrictStanding/weight_density_per_second": [
+      {
+        "step": 1501,
+        "value": 8.0
+      },
+      {
+        "step": 1502,
+        "value": 8.0
+      },
+      {
+        "step": 1503,
+        "value": 8.0
+      },
+      {
+        "step": 1504,
+        "value": 8.0
+      },
+      {
+        "step": 1505,
+        "value": 8.0
+      },
+      {
+        "step": 1506,
+        "value": 8.0
+      },
+      {
+        "step": 1507,
+        "value": 8.0
+      },
+      {
+        "step": 1508,
+        "value": 8.0
+      },
+      {
+        "step": 1509,
+        "value": 8.0
+      },
+      {
+        "step": 1510,
+        "value": 8.0
+      },
+      {
+        "step": 1511,
+        "value": 8.0
+      },
+      {
+        "step": 1512,
+        "value": 8.0
+      },
+      {
+        "step": 1513,
+        "value": 8.0
+      },
+      {
+        "step": 1514,
+        "value": 8.0
+      },
+      {
+        "step": 1515,
+        "value": 8.0
+      },
+      {
+        "step": 1516,
+        "value": 8.0
+      }
+    ]
+  },
+  "frozen_inputs": 238,
+  "function_probe": {
+    "trace": "runs/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation/evaluation/trajectory.npz",
+    "sha256": "aaf5863b9721ddb28354df9e7b8247c102ef9f9adec300816ae8158e03137f98",
+    "frames": 81600,
+    "outside_count": 32045,
+    "outside_different": 0,
+    "active_different": 49028,
+    "peak_action_delta": 0.004034221172332764
+  },
+  "interpretation": "Engineering readback only; frozen recorded observations do not prove closed-loop behavior or qualification.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792939742.4301412
+}

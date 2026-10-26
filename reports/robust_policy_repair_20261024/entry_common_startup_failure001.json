@@ -1,0 +1,16 @@
+{
+  "schema": "common-entry-startup-failure-v1",
+  "status": "failed_before_simulator_import",
+  "round": "runs/robust_policy_repair_20261024/round012",
+  "log": "runs/robust_policy_repair_20261024/round012/training.log",
+  "PPO_attempted": 0,
+  "PPO_completed": 0,
+  "checkpoint_created": false,
+  "frozen_input_count": 370,
+  "all_frozen_inputs_exact": true,
+  "reason": "Logger installer is imported locally by train.main; wrapper incorrectly accessed it as module attribute.",
+  "fix": "Patch wheeled_algo.exploration_init.install_axis_std_logging before train.main performs its local import.",
+  "new_wrapper": "reports/robust_policy_repair_20261024/run_entry_common_guard002.py",
+  "new_wrapper_sha256": "518a58f313d6eea5164de28b8d41d540b5bba3671402759694b65464a015dd5c",
+  "created_unix": 1792893381.9859285
+}

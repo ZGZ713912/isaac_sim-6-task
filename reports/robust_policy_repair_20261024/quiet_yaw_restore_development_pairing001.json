@@ -1,0 +1,54 @@
+{
+  "schema": "declared-mean-probe-physical-pairing-v1",
+  "checks": {
+    "settings": true,
+    "populations": true,
+    "cases": true,
+    "sensor_actuator_material": true,
+    "rigid": true,
+    "initial": true
+  },
+  "initial_exact": {
+    "actor_inputs_exact": true,
+    "passive_mask_exact": true,
+    "passive_poststep_motor_position_exact": true,
+    "passive_poststep_motor_velocity_exact": true,
+    "precontrol_root_pose_exact": true,
+    "precontrol_motor_position_exact": true,
+    "precontrol_motor_velocity_exact": true
+  },
+  "sensor_actuator_material_exact": true,
+  "rigid_parameters_exact": true,
+  "precontrol_physical_state_captured": true,
+  "intervention": {
+    "schema": "quiet-wheel-common-preserved-opposite-differential-v1",
+    "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+    "source_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+    "common_response_preserved": true,
+    "changed_tensors": [
+      "quiet_velocity.low.weight",
+      "quiet_velocity.mid.weight",
+      "quiet_velocity.high.weight"
+    ],
+    "changed_rows": [
+      2,
+      3
+    ],
+    "changed_entries": 12,
+    "gaussian_mean_changed": true,
+    "checkpoint_file_changed": false,
+    "sampling_std_changed": false,
+    "observer_changed": false,
+    "eligible_for_checkpoint_mean_qualification": false,
+    "new_PPO": 0,
+    "rationale": "Test opposite differential feedback without increasing common response: replace wheel rows with anti-diag(each original row sum), preserving leg weights,.5 quiet authority,35D sensors and physical guards. Recorded yaw/coordinate association is not causal proof.",
+    "wrapper_sha256": "dd71a71c394b16144186d54fd4f83e9a6f1f9c0f1a78a28cca78995b570a0ef6",
+    "probe_sha256": "20f5a69dd8041c99c4c64f32b7a72fd93108b0a44452c8a8699e64980472a364"
+  },
+  "before_trajectory_sha256": "9668e35b61b509fc2c77690ca7cc16f89093b94b9c0632ccaf1ffad816957c29",
+  "after_trajectory_sha256": "89783a380a2557a35d214488af21128025963acdce87f49e4285e610521fd6fb",
+  "standard_policy_only_comparison_accepted": false,
+  "eligible_for_checkpoint_mean_qualification": false,
+  "qualification": null,
+  "hardware_ready": false
+}

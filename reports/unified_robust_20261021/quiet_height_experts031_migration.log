@@ -1,0 +1,38 @@
+{
+  "schema": "robust-contract-migration-v1",
+  "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/pilot014_standing_drift026/model_final.pt",
+  "source_sha256": "8675350d4cc5f49dd53afa4e4b01b625030620a0fd3be301c33807d4e30b3755",
+  "optimizer_updates": 0,
+  "reason": "Isolate quiet-height training interference; low expert from029, mid and high from026; preserve35D/6D control, nonquiet actor, critic and original Adam moments",
+  "low_quiet_reference": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/pilot015_standing_continue029_resume001/model_final.pt",
+    "sha256": "467021c1e7656d05fecc3e520d677d45ab4846a1340b96a18713b92394cb85b3"
+  },
+  "quiet_height_experts": {
+    "anchors_m": [
+      0.23,
+      0.305,
+      0.42
+    ],
+    "interpolation": "continuous existing commanded height; exact expert endpoints",
+    "optimizer": "old parameter moments retained; low/high moments copied from their authenticated source quiet head"
+  },
+  "stance_aware_recovery": true,
+  "recovery_shape_aware": true,
+  "quiet_high_common_alpha": null,
+  "quiet_high_leg_prediction_s": 0.005,
+  "recovery_leg_step": 0.3,
+  "motion_residual_fraction": 0.25,
+  "fast_forward_reference": true,
+  "fast_forward_reference_range": [
+    1.0,
+    1.5
+  ],
+  "fast_forward_reference_yaw_fade": null,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_height_experts031/model_migrated.pt",
+  "checkpoint_sha256": "60ed39d86e2233fa56e588de6eccb8c7e54aa713f6d4e566c52baa78f8924a04",
+  "completed_updates": 345,
+  "actor_other_than_quiet_unchanged": true,
+  "feedback_winding": "paired_circular_feedback_v1",
+  "hardware_tested": false
+}

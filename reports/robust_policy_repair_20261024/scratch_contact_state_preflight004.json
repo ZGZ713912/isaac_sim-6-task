@@ -1,0 +1,52 @@
+{
+  "schema": "scratch-contact-state-diagnostic-preflight-v1",
+  "status": "prepared_not_started",
+  "observed_utc": "2026-10-25T23:23:17.947059+00:00",
+  "prerequisite": {
+    "pid": 604203,
+    "start_ticks": 29631429,
+    "requires_actual_process_and_GPU_exit": true,
+    "requires_own_512_update_evaluation_complete": true
+  },
+  "diagnostic": {
+    "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot005_static_load/model_final.pt",
+    "expected_original_native_trace_sha256": "ecfe6479a904c1dfe0a1859479c0524e0d85f3735ade37c3718e9d96c5503a95",
+    "reader": "scripts/evaluate_scratch_standing.py",
+    "flags": [
+      "--trace-feedback",
+      "--trace-contact-state"
+    ],
+    "seed": 261101,
+    "external_force_mode": "native",
+    "wheel_response_scale": 1.0,
+    "reset_observation_mode": "native",
+    "requires_exact_original_cases_and_trace_reproduction": true
+  },
+  "source_sha256": {
+    "scripts/evaluate_scratch_standing.py": "4ebdfa9345d9785a76c5d4ac44196829bb33058fe736a105c2176827e55951e2",
+    "scripts/capture_scratch_contact_state.py": "953cafc019b7aa7d3847cad82fa866d91678bde248bf32d8e0c3d843d3fae53c",
+    "tests/test_scratch_contact_state_trace.py": "336abd50e8f1e9a8a84fdf381023b81cdb398d402d7e003ec4022f614384e869"
+  },
+  "tests": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_contact_state_cpu_tests005.log",
+    "sha256": "3ef0e7d7f202f024d8e236cc7e09ecdbd157132dfb733acc314d6292f5f91d29",
+    "passed": 20
+  },
+  "native_validation": false,
+  "new_PPO": 0,
+  "training_checkpoint_reads": 0,
+  "scope": "Read-only replay of an existing cold-start actor; no live training source, optimizer, policy, mechanics, contact acceptance or episode state changes.",
+  "supersedes": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_contact_state_preflight003.json",
+  "checks": {
+    "diagnostic_checkpoint_exists": true,
+    "live_262_training_sources_unchanged": true,
+    "initial_training_checkpoint_reads_zero": true,
+    "invalid_flag_rejected_before_output": true,
+    "native_sensor_path_order_and_filter_membership_required": true,
+    "packed_point_overflow_explicitly_rejected": true,
+    "all_original_1ms_force_and_valid_samples_required_exact": true,
+    "evaluation_failure_restores_hooks": true
+  },
+  "padding_handling": "Uncounted native contact buffer records may be uninitialized; torch.where prevents masked NaNs from contaminating valid contact force sums. Dedicated CPU case passed.",
+  "native_joint_properties": "Read legacy friction coefficient, new static/dynamic/viscous parameters, drive damping and armature. Optional getter failure is explicit unavailable, never assumed zero. Native readback remains pending."
+}

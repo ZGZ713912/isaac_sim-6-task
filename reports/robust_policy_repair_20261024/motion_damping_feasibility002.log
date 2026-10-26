@@ -1,0 +1,86 @@
+source_fixed normal frames 3451 candidate frames 4350
+source_nominal normal frames 23580 candidate frames 24258
+source_RMCS has no eligible moving frames; excluded from the fit
+new_phase_fixed normal frames 3869 candidate frames 4841
+{
+  "schema": "motion-NN-target-damping-feasibility-v1",
+  "source": "runs/robust_policy_repair_20261024/entry_phase_fit_periodic002/model_probe.pt",
+  "source_sha256": "cf3f3643c742653623e21bdd94603df4e057789e46f3452524e6cc07aba0c840",
+  "parameters": {
+    "alpha": 0.8,
+    "ridge": 1e-05,
+    "equilibrium_weight": 10.0
+  },
+  "method": "One 65-feature by four-output existing arc NN final-layer solve. Offline target interpolation is supervision only; no runtime filter or new state is introduced.",
+  "independent_parameters": 260,
+  "metrics": [
+    {
+      "name": "source_fixed",
+      "training": true,
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "sha256": "6d1816875765df7eb8849089a5c93b8e4b636a0e912b9e5ba6bc4e55ab549529",
+      "candidates": 4350,
+      "normal_frames": 3451,
+      "normal_fraction": 0.7933333333333333,
+      "target_step_rms_before_rad": 0.0025506748352199793,
+      "target_step_rms_after_rad": 0.0024891395587474108,
+      "target_step_rms_ratio": 0.9758749035263597,
+      "teacher_error_rms_rad": 0.0005060047842562199,
+      "teacher_error_peak_rad": 0.004786064848303795,
+      "weight_edit_target_peak_delta_rad": 0.0033394319470971823,
+      "equilibrium_frames": 167,
+      "equilibrium_target_peak_delta_rad": 9.153783321380615e-05
+    },
+    {
+      "name": "source_nominal",
+      "training": true,
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf",
+      "candidates": 24258,
+      "normal_frames": 23580,
+      "normal_fraction": 0.9720504575810042,
+      "target_step_rms_before_rad": 0.0013746549375355244,
+      "target_step_rms_after_rad": 0.0013070878339931369,
+      "target_step_rms_ratio": 0.9508479534045675,
+      "teacher_error_rms_rad": 0.0002535571111366153,
+      "teacher_error_peak_rad": 0.0064992718398571014,
+      "weight_edit_target_peak_delta_rad": 0.0031720399856567383,
+      "equilibrium_frames": 5454,
+      "equilibrium_target_peak_delta_rad": 0.0001386590301990509
+    },
+    {
+      "name": "new_phase_fixed",
+      "training": false,
+      "trace": "runs/robust_policy_repair_20261024/diagnosis024_entry_phase_fit_fixed/evaluation/trajectory.npz",
+      "sha256": "e8a5ab109b1832f9d098ce8cc8d0f4cafc89e28dae9d82ae443faa9a3a71acea",
+      "candidates": 4841,
+      "normal_frames": 3869,
+      "normal_fraction": 0.7992150382152448,
+      "target_step_rms_before_rad": 0.0026878733187913895,
+      "target_step_rms_after_rad": 0.002605683635920286,
+      "target_step_rms_ratio": 0.969422039983618,
+      "teacher_error_rms_rad": 0.0005445266724564135,
+      "teacher_error_peak_rad": 0.004786064848303795,
+      "weight_edit_target_peak_delta_rad": 0.0033394319470971823,
+      "equilibrium_frames": 167,
+      "equilibrium_target_peak_delta_rad": 9.153783321380615e-05
+    }
+  ],
+  "checks": {
+    "finite": true,
+    "teacher_error_rms": false,
+    "teacher_error_peak": false,
+    "step_reduction_at_least_10pct": false,
+    "target_edit_bounded": true,
+    "equilibrium_preserved": true
+  },
+  "scope": "Recorded-state function fit with the new phase trace excluded from the solve. It does not prove native support improvement or behavior generalization.",
+  "decision": "reject_without_native_or_PPO",
+  "new_PPO": 0,
+  "gradient_optimizer_updates": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "elapsed_seconds": 0.5203077793121338,
+  "created_unix": 1792886311.068731
+}

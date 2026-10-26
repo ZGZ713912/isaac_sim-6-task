@@ -1,0 +1,37 @@
+{
+  "schema": "robust-contract-migration-v1",
+  "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_velocity036/model_migrated.pt",
+  "source_sha256": "3d5336b518b1f23c91b6dc9b1aa3f19e81a3112de9c596df86bc7451f78cb7d6",
+  "optimizer_updates": 0,
+  "reason": "Restrict new velocity learning to wheel inputs and wheel outputs after all-axis pilot amplified leg vibration; preserve original six-axis policy",
+  "quiet_velocity_feedback": {
+    "new_parameters": 12,
+    "mode": "wheels",
+    "initial_weights": "zero",
+    "input": "tanh(physical two wheel encoder velocities in rad/s)",
+    "output": "two wheel logits; four leg logits exactly unchanged",
+    "bias": false,
+    "optimizer": "all old moments retained; only new parameters start with empty Adam state",
+    "deterministic_function": "preserved; no random initialization draws"
+  },
+  "quiet_exploration_fraction": 0.1,
+  "deterministic_mean_unchanged": true,
+  "stance_aware_recovery": true,
+  "recovery_shape_aware": true,
+  "quiet_high_common_alpha": null,
+  "quiet_high_leg_prediction_s": 0.005,
+  "recovery_leg_step": 0.3,
+  "motion_residual_fraction": 0.25,
+  "fast_forward_reference": true,
+  "fast_forward_reference_range": [
+    1.0,
+    1.5
+  ],
+  "fast_forward_reference_yaw_fade": null,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/unified_robust_20261022/quiet_wheel_velocity038/model_migrated.pt",
+  "checkpoint_sha256": "fb6dfcf8e628269fd04c5e3dfa9e17d92b8ab9e4f66f9a7ee6378440280afaf0",
+  "completed_updates": 441,
+  "actor_other_than_quiet_unchanged": true,
+  "feedback_winding": "paired_circular_feedback_v1",
+  "hardware_tested": false
+}

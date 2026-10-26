@@ -1,0 +1,132 @@
+{
+  "schema": "recorded-motion-output-direct-scope-v1",
+  "checks": {
+    "late_moving_frames_present": true,
+    "late_motion_output_sensitive": true,
+    "standing_motion_output_exact_zero": true,
+    "actual_fall_cases_present": true
+  },
+  "rows": [
+    {
+      "name": "left_symmetric__combined/late_motion",
+      "eligible_frames": 801,
+      "audited_frames": 48,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 0.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 68.08135986328125,
+        "fallen_output": 0.0
+      }
+    },
+    {
+      "name": "right_symmetric__combined/late_motion",
+      "eligible_frames": 801,
+      "audited_frames": 48,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 0.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 68.55957794189453,
+        "fallen_output": 0.0
+      }
+    },
+    {
+      "name": "inverted_symmetric__clean/late_motion",
+      "eligible_frames": 801,
+      "audited_frames": 48,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 0.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 67.93169403076172,
+        "fallen_output": 0.0
+      }
+    },
+    {
+      "name": "inverted_symmetric__combined/late_motion",
+      "eligible_frames": 801,
+      "audited_frames": 48,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 0.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 68.09808349609375,
+        "fallen_output": 0.0
+      }
+    },
+    {
+      "name": "standing_all_heights_control",
+      "eligible_frames": 25221,
+      "audited_frames": 48,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 0.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 0.0,
+        "fallen_output": 0.0
+      }
+    },
+    {
+      "name": "moving_push_left/first100ms_fall",
+      "eligible_frames": 21,
+      "audited_frames": 21,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 1.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 1.4493327140808105,
+        "fallen_output": 76.28650665283203
+      }
+    },
+    {
+      "name": "moving_push_right/first100ms_fall",
+      "eligible_frames": 21,
+      "audited_frames": 21,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 1.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 0.8873575329780579,
+        "fallen_output": 75.7316665649414
+      }
+    },
+    {
+      "name": "moving_push_left/first100ms_fall",
+      "eligible_frames": 21,
+      "audited_frames": 21,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 1.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 1.4493327140808105,
+        "fallen_output": 76.28650665283203
+      }
+    },
+    {
+      "name": "moving_push_right/first100ms_fall",
+      "eligible_frames": 21,
+      "audited_frames": 21,
+      "entry_gate_peak": 0.0,
+      "fallen_gate_peak": 1.0,
+      "output_parameter_gradient_L2": {
+        "motion_output": 0.8873575329780579,
+        "fallen_output": 75.7316665649414
+      }
+    }
+  ],
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "checkpoint_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "traces": [
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed/evaluation/trajectory.npz",
+      "sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f"
+    },
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis026_motion_damping080_nominal_pair/robust/trajectory.npz",
+      "sha256": "cff3b06ec87aef20f9872fc72ee6bde21470952547c227849adc8a273971d4a3"
+    }
+  ],
+  "motion_output_parameters": 390,
+  "objective": "sum legs plus.1sum wheels, existing final output layer only; direct action sensitivity, not native PPO credit or closed-loop benefit",
+  "interpretation": "A zero direct gradient excludes immediate action changes at these recorded states only. Earlier action changes can alter later states. No new controller/network or optimization is introduced.",
+  "new_PPO": 0,
+  "optimizer_calls": 0,
+  "actual_experiment_consumed": 2638,
+  "repair_optimizer_updates": 258,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792905474.0050924
+}

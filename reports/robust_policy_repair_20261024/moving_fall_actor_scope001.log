@@ -1,0 +1,123 @@
+{
+  "schema": "actual-moving-fall-actor-scope-v1",
+  "checks": {
+    "moving_fall_examples_present": true,
+    "entry_paths_exact_zero": true,
+    "fallen_paths_nonzero": true,
+    "quiet_paths_exact_zero": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "checkpoint_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "trace": "runs/robust_policy_repair_20261024/diagnosis026_motion_damping080_nominal_pair/robust/trajectory.npz",
+  "trace_sha256": "cff3b06ec87aef20f9872fc72ee6bde21470952547c227849adc8a273971d4a3",
+  "rows": [
+    {
+      "lane": 29,
+      "name": "moving_push_left",
+      "first_observed_fall_s": 5.34499979019165,
+      "termination_s": 5.599999904632568,
+      "measured_contact_impulse_ns": 20.239171981811523,
+      "termination_causes": [
+        "impact_bad"
+      ],
+      "frames": 21,
+      "window_seconds": [
+        5.34499979019165,
+        5.444999694824219
+      ],
+      "entry_gate_peak": 0.0,
+      "fallen_gate_mean": 0.8244938850402832,
+      "quiet_gate_peak": 0.0,
+      "output_sensitivity_parameter_gradient_L2": {
+        "entry_recovery": 0.0,
+        "recovery": 76.55960083007812,
+        "quiet": 0.0,
+        "quiet_low": 0.0,
+        "quiet_high": 0.0
+      }
+    },
+    {
+      "lane": 32,
+      "name": "moving_push_right",
+      "first_observed_fall_s": 5.264999866485596,
+      "termination_s": 5.505000114440918,
+      "measured_contact_impulse_ns": 23.26953887939453,
+      "termination_causes": [
+        "impact_bad"
+      ],
+      "frames": 21,
+      "window_seconds": [
+        5.264999866485596,
+        5.364999771118164
+      ],
+      "entry_gate_peak": 0.0,
+      "fallen_gate_mean": 0.9116131067276001,
+      "quiet_gate_peak": 0.0,
+      "output_sensitivity_parameter_gradient_L2": {
+        "entry_recovery": 0.0,
+        "recovery": 76.05221557617188,
+        "quiet": 0.0,
+        "quiet_low": 0.0,
+        "quiet_high": 0.0
+      }
+    },
+    {
+      "lane": 64,
+      "name": "moving_push_left",
+      "first_observed_fall_s": 5.34499979019165,
+      "termination_s": 5.599999904632568,
+      "measured_contact_impulse_ns": 20.239171981811523,
+      "termination_causes": [
+        "impact_bad"
+      ],
+      "frames": 21,
+      "window_seconds": [
+        5.34499979019165,
+        5.444999694824219
+      ],
+      "entry_gate_peak": 0.0,
+      "fallen_gate_mean": 0.8244938850402832,
+      "quiet_gate_peak": 0.0,
+      "output_sensitivity_parameter_gradient_L2": {
+        "entry_recovery": 0.0,
+        "recovery": 76.55960083007812,
+        "quiet": 0.0,
+        "quiet_low": 0.0,
+        "quiet_high": 0.0
+      }
+    },
+    {
+      "lane": 67,
+      "name": "moving_push_right",
+      "first_observed_fall_s": 5.264999866485596,
+      "termination_s": 5.505000114440918,
+      "measured_contact_impulse_ns": 23.26953887939453,
+      "termination_causes": [
+        "impact_bad"
+      ],
+      "frames": 21,
+      "window_seconds": [
+        5.264999866485596,
+        5.364999771118164
+      ],
+      "entry_gate_peak": 0.0,
+      "fallen_gate_mean": 0.9116131067276001,
+      "quiet_gate_peak": 0.0,
+      "output_sensitivity_parameter_gradient_L2": {
+        "entry_recovery": 0.0,
+        "recovery": 76.05221557617188,
+        "quiet": 0.0,
+        "quiet_low": 0.0,
+        "quiet_high": 0.0
+      }
+    }
+  ],
+  "objective": "sum four leg actions plus.1*sum wheel actions; output sensitivity only, not PPO/GAE gradient or native closed-loop improvement",
+  "interpretation": "Entry-only optimization cannot directly change these observed first100ms actions. Recovery-head sensitivity is present; earlier entry learning can still alter arrival states.",
+  "new_PPO": 0,
+  "optimizer_calls": 0,
+  "actual_experiment_consumed": 2630,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792899284.1163113
+}

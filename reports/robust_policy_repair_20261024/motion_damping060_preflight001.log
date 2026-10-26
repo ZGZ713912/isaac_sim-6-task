@@ -1,0 +1,38 @@
+{
+  "schema": "motion-damping-coefficient-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_damping060001/model_probe.pt",
+  "sha256": "6379144de480ddc1261888e645c6311cfd9cd48548539be1c7f8ff6ac8554246",
+  "source": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "source_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "alpha_before": 0.8,
+  "alpha_after": 0.6,
+  "checks": {
+    "all_saved_non_metadata_state_exact": true,
+    "only_alpha_metadata_changed": true,
+    "inactive_and_quiet_exact": true,
+    "wheels_exact": true,
+    "finite": true,
+    "change_below_003_rad": true,
+    "existing_target_error_bound": true,
+    "normal_step_reduced": true
+  },
+  "hypothesis": "A further bounded reduction of motion leg target increments may prevent the short support breaks that interrupt strict post-recovery tracking.",
+  "gate": {
+    "standing_at_least": 19,
+    "motion_MAE_at_most": 0.135,
+    "entry_recovery_at_least": 8,
+    "entry_followup_at_least": 8,
+    "fallen_recovery_at_least": 4,
+    "fallen_followup_at_least": 2,
+    "entry_peak_at_most_rad_s": 8.911178255081177,
+    "fallen_peak_at_most_rad_s": 24.11665153503418,
+    "impacts_at_most": 1,
+    "improvement_required": "entry_followup>=9 OR fallen_followup>=3 OR fallen_recovery>=5",
+    "no_PPO": true
+  },
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2605,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792889576.6852846
+}

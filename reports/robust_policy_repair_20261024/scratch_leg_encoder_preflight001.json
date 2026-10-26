@@ -1,0 +1,85 @@
+{
+  "schema": "scratch-leg-encoder-response-CPU-preflight-v1",
+  "observed_utc": "2026-10-26T04:18:15.001568+00:00",
+  "checks": {
+    "all1600_native_mean_parity": true,
+    "input_immutable": true,
+    "all_native_wheels_exact": true,
+    "all_other_heights_exact": true,
+    "first_action_native": true,
+    "leg_response_actually_changed": true,
+    "direct_leg_velocity_path_removed": true,
+    "gyro_and_position_feedback_remains": true,
+    "scale1_is_exact_identity": true,
+    "scale_half_interpolation_correct": true,
+    "actor_parameters_normalizer_and_RNG_unchanged": true,
+    "invalid_scales_rejected": true,
+    "full_sidecar_and_actual_RSL_tags": true,
+    "all7_bad_CLI_combinations_rejected_before_output_and_App": true
+  },
+  "all_checks_pass": true,
+  "checkpoint_sha256": "02aad5dc894ac4f0c67b9b0ddd8d703d76be11e50aec47dd22eed87956bdc23d",
+  "feedback_trace_sha256": "8521ac4006053bd2ad464ef402b910e8ac66a02e94ad688be7ab29fd122fa8a5",
+  "maximum_CPU_native_action_error": 1.9073486328125e-06,
+  "diagnostic_changed_frames": 1599,
+  "actual_counterfactual_implementation": {
+    "schema": "scratch-leg-encoder-response-counterfactual-v1",
+    "actor_calls": 1600,
+    "native_actor_calls_per_decision": 2,
+    "response_scale": 0.0,
+    "selected_height_m": 0.305,
+    "selected_case_indices": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "neutral_features": [
+      16,
+      17,
+      18,
+      19
+    ],
+    "leg_policy_columns": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "wheel_policy_columns": [
+      4,
+      5
+    ],
+    "formula": "legs=F(neutral_leg_velocity)+scale*(F(current)-F(neutral_leg_velocity)); wheels=F(current)",
+    "retained_feedback": "current IMU, gravity, positions, previous action, commands; native current wheel outputs",
+    "original_actions": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_leg_encoder_preflight001/unmodified_leg_encoder_actions.npz",
+      "sha256": "e5b32f53aa378edcd1e595af559fb36e739cfba11297bce1fd0ae6bbda05ac7f"
+    },
+    "first_action_unchanged": true,
+    "other_heights_policy_unchanged": true,
+    "new_PPO": 0,
+    "optimizer_constructed": false,
+    "learned_policy": false,
+    "adoption_by_training": false,
+    "export_forbidden": true,
+    "behavior_qualification": false,
+    "scope": "Read-only isolation of direct neural leg-velocity response. No target hold, physics, PD, reset, mechanical protection or strict100% support acceptance changes; no policy qualification."
+  },
+  "actual_event_sha256": "abcfafd31f5b84940f71efe4a8782f6237f31fe914719f001d9d24df18bcdc15",
+  "source_sha256": {
+    "scripts/leg_encoder_response_probe.py": "8024fa743be6903180cedb99dcecbb672725ecf4d41df999ecbc4af4c60ebb8c",
+    "scripts/evaluate_scratch_standing.py": "334986875e62e11bcde91eb2531f400ecaf8a5ef664d18d0db456a4dc326fcd2"
+  },
+  "reader_sha256": "0e9bbb3947c2f50a26a29661ddb4419db496d81687d67898cb88f2dd85725161",
+  "new_PPO": 0,
+  "native_steps": 0,
+  "optimizer_constructed": false,
+  "native_validation": false,
+  "hardware_ready": false,
+  "next_native_condition": "Only after original008 PID709399/start31429889 completes its own evaluation, exits GPU/process, and is sealed. Need native baseline and identical initial/untouched-population checks before attribution.",
+  "scope": "CPU implementation and selectivity proof on recorded baseline observations. No counterfactual physical trajectory has been simulated and no training/deployment change is adopted."
+}

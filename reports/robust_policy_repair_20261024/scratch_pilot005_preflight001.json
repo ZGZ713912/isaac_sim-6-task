@@ -1,0 +1,60 @@
+{
+  "schema": "scratch-fresh-load-initialization-preflight-v1",
+  "observed_utc": "2026-10-25T21:08:22.948359+00:00",
+  "checks": {
+    "same_mechanics": true,
+    "same_task_except_declared_initialization": true,
+    "same_agent": true,
+    "same_evaluate_function": true,
+    "same_bank": true,
+    "only_intended_source_changes": true,
+    "no_runtime_compensation": true,
+    "all_outputs_trainable": true
+  },
+  "all_checks_pass": true,
+  "source_count": 262,
+  "changed_sources": [
+    "scripts/train_scratch_standing.py",
+    "src/wheeled_algo/scratch_standing.py"
+  ],
+  "added_sources": [
+    "src/wheeled_algo/standing_load_initialization.py"
+  ],
+  "static_initialization": {
+    "schema": "scratch-static-load-initialization-v1",
+    "reference_sha256": "7d144218dd509d6e8cd1ec4aa813cce2f67cb6960841398638a9b14b08ffe728",
+    "native_pair_sha256": "88259d94013b904bbd8bee071a6694d17513e08bed3f96c41e5ec483b1f93ea0",
+    "geometry_policy_raw": [
+      0.29959918300456945,
+      -0.05938980783276504,
+      -0.29959918300456945,
+      0.05939136655550859,
+      0.0,
+      0.0
+    ],
+    "offset_policy_raw": [
+      0.09755037610874084,
+      -0.11062725925258295,
+      -0.09759822002341223,
+      0.11066859127489273,
+      0.0,
+      0.0
+    ],
+    "biased_policy_raw": [
+      0.3971495591133103,
+      -0.17001706708534797,
+      -0.3971974030279817,
+      0.17005995783040131,
+      0.0,
+      0.0
+    ],
+    "runtime_compensation": false,
+    "all_outputs_trainable": true,
+    "source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+    "scope": "Startup initialization prior; no standing, robustness or hardware qualification"
+  },
+  "CPU_tests_passed": 22,
+  "new_PPO": 0,
+  "native_validation": false,
+  "hardware_ready": false
+}

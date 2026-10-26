@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/evaluate_robust_getup_batch.py", line 635, in <module>
+    main()
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/evaluate_robust_getup_batch.py", line 325, in main
+    cfg, task = training.prepare(config_args)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/train_robust_getup.py", line 151, in prepare
+    validate_isolated_origins(dict(cfg, **changes), args.num_envs)
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/isolated_origins.py", line 14, in validate_isolated_origins
+    raise ValueError("Isolated native getup batches are initially bounded to 1..256 environments")
+ValueError: Isolated native getup batches are initially bounded to 1..256 environments

@@ -1,0 +1,62 @@
+{
+  "schema": "entry-leg-noise-sampled-pair-decision-v1",
+  "checks": {
+    "frozen_inputs": true,
+    "paired": true,
+    "survivors": true,
+    "impacts": true,
+    "recovered_gain": false,
+    "followup_count": true,
+    "followup_no_loss": true,
+    "leg_peak": true,
+    "closure": true,
+    "passive": true
+  },
+  "pairing": {
+    "root_pose": true,
+    "motor_position": true,
+    "motor_velocity": true,
+    "initial_policy_input": true,
+    "same_cases": true,
+    "domains_and_materials": true,
+    "rigid_properties": true,
+    "same_private_gaussian_draws": true
+  },
+  "rows": [
+    {
+      "name": "entry_noise_control",
+      "episodes": 24,
+      "survived": 24,
+      "recovered": 15,
+      "followup_success": 12,
+      "impacts": 0,
+      "max_leg_speed_rad_s": 10.508248329162598,
+      "closure_peak_m": 6.151166599011049e-05,
+      "passive_motor_peak_nm": 0.0,
+      "trace_sha256": "c02e0639fa537845c50dc89014f123b5c499368a29873a8529df14507a44cce7"
+    },
+    {
+      "name": "entry_noise_quarter",
+      "episodes": 24,
+      "survived": 24,
+      "recovered": 17,
+      "followup_success": 12,
+      "impacts": 0,
+      "max_leg_speed_rad_s": 10.259249687194824,
+      "closure_peak_m": 3.851726796710864e-05,
+      "passive_motor_peak_nm": 0.0,
+      "trace_sha256": "68d5ec3b325a1877edafb1b5b4faf23dbe0011208b84db7989667d41f1479f42"
+    }
+  ],
+  "source_checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "source_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "frozen_inputs": 391,
+  "decision": "reject_PPO_admission_from_this_noise_pair",
+  "qualification_scope": "Private sampled exposure only; never qualifies the deterministic mean or hardware.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2622,
+  "repair_optimizer_updates": 242,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792894759.476137
+}

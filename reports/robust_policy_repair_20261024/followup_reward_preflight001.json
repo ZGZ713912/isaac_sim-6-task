@@ -1,0 +1,46 @@
+{
+  "schema": "followup-continuity-reward-CPU-v1",
+  "checks": {
+    "bounded_formula_and_passive_mask": true,
+    "five_invalid_weight_negative_controls": true,
+    "negative_native_timer_rejected": true,
+    "weight0.0_native_observation_done_state_RNG_exact": true,
+    "weight0.0_autoreset_uses_pre_reset_timer": true,
+    "weight0.0_exact_reward_only_difference": true,
+    "zero_weight_reward_object_identity": true,
+    "weight0.0_duplicate_install_rejected": true,
+    "weight5.0_native_observation_done_state_RNG_exact": true,
+    "weight5.0_autoreset_uses_pre_reset_timer": true,
+    "weight5.0_exact_reward_only_difference": true,
+    "weight5.0_duplicate_install_rejected": true,
+    "metadata_only_decode_function_bit_exact": true,
+    "five_actual_decoder_tamper_controls_rejected": true,
+    "original_saved_training_payload_exact": true,
+    "legacy_V4_V5_V6_decoders_pass": true
+  },
+  "contract": {
+    "schema": "native-followup-continuity-reward-v1",
+    "module": "src/wheeled_tasks/chassis/followup_continuity_reward.py",
+    "module_sha256": "aee67757fbb84986e37938dca4abb5d91dee24c7e43a3d4c74df8f105d43f687",
+    "weight_density_per_second": 5.0,
+    "policy_dt": 0.005,
+    "followup_seconds": 2.0,
+    "formula": "weight*dt*clamp(native_followup_hold/2,0,1)^2*policy_learning_mask",
+    "scope": "training_reward_only; native success timer, physics and policy function unchanged"
+  },
+  "files_sha256": {
+    "src/wheeled_tasks/chassis/followup_continuity_reward.py": "aee67757fbb84986e37938dca4abb5d91dee24c7e43a3d4c74df8f105d43f687",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/preflight_followup_reward001.py": "2e2fee57e4ccc196bac19c40943715057687f5f177f487f0a7aa2b9c1e23bb22",
+    "scripts/train_robust_getup.py": "70e689b9f46d8be892aaee919e4c082ad7255198fa9b54ecf554b2618299c07a",
+    "scripts/export_robust_getup.py": "4f2a1bc2d51997fffd97409439267ca55af64b8fecfdc756ba7474428b0d9778"
+  },
+  "source_checkpoint": "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+  "source_sha256": "cba0099f92f4627d9d0bb77a186392eaea4e5a65eedaec286c7597ec2a177b5e",
+  "interpretation": "CPU timer/autoreset and real decoder checks; no native exposure or learned behavior claim.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2646,
+  "repair_optimizer_updates": 266,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792907673.7821522
+}

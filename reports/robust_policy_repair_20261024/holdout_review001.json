@@ -1,0 +1,112 @@
+{
+  "schema": "fresh-seed-comparison-review-v1",
+  "seed": 241204,
+  "seconds": 8,
+  "severity": 1,
+  "rows": [
+    {
+      "label": "baseline569",
+      "checkpoint_sha256": "9cd87bfb8df418178318f4f517325e12580d2ed6e292aa3b2520a3125cf8c54f",
+      "trajectory_sha256": "5f73b1844ba7820035733fde32f341b77609755bff9bb473b2a06f4a4896a771",
+      "standing_pass": 9,
+      "groups": {
+        "entry": {
+          "n": 12,
+          "survived": 12,
+          "recovered": 8,
+          "followup": 7,
+          "vx_mae_m_s": 0.0884404454069833,
+          "max_leg_speed_rad_s": 10.538823127746582
+        },
+        "fallen": {
+          "n": 6,
+          "survived": 3,
+          "recovered": 1,
+          "followup": 0,
+          "vx_mae_m_s": 0.3624073229730129,
+          "max_leg_speed_rad_s": 14.543481826782227
+        },
+        "motion": {
+          "n": 12,
+          "survived": 12,
+          "recovered": 0,
+          "followup": 0,
+          "vx_mae_m_s": 0.13632467730591694,
+          "max_leg_speed_rad_s": 5.766006946563721
+        }
+      }
+    },
+    {
+      "label": "stopped1501",
+      "checkpoint_sha256": "5efe963eb85d7b0106b093db33feff361ddd53c5d6f5f2a39c7e272fcc0c78ca",
+      "trajectory_sha256": "6bebcb9d8d110cce84f1d339343f2c99075efffdbfd6d1dcf2b08e8232fed379",
+      "standing_pass": 7,
+      "groups": {
+        "entry": {
+          "n": 12,
+          "survived": 12,
+          "recovered": 8,
+          "followup": 5,
+          "vx_mae_m_s": 0.07099399692378938,
+          "max_leg_speed_rad_s": 10.99207878112793
+        },
+        "fallen": {
+          "n": 6,
+          "survived": 6,
+          "recovered": 4,
+          "followup": 1,
+          "vx_mae_m_s": 0.3093147948384285,
+          "max_leg_speed_rad_s": 20.797504425048828
+        },
+        "motion": {
+          "n": 12,
+          "survived": 12,
+          "recovered": 0,
+          "followup": 0,
+          "vx_mae_m_s": 0.1968116688852509,
+          "max_leg_speed_rad_s": 5.269741535186768
+        }
+      }
+    },
+    {
+      "label": "filter005",
+      "checkpoint_sha256": "663efb3bb64c738f7820a0e857ce34cffb0f70a71e591160512c03a01957c8f0",
+      "trajectory_sha256": "d08935b82194c8f3dafc23b3c1ea939147f89e0ae4f0687815b7961b78ba7a40",
+      "standing_pass": 16,
+      "groups": {
+        "entry": {
+          "n": 12,
+          "survived": 12,
+          "recovered": 8,
+          "followup": 7,
+          "vx_mae_m_s": 0.07044644607231021,
+          "max_leg_speed_rad_s": 10.99730110168457
+        },
+        "fallen": {
+          "n": 6,
+          "survived": 6,
+          "recovered": 2,
+          "followup": 1,
+          "vx_mae_m_s": 0.25981782128413516,
+          "max_leg_speed_rad_s": 18.36008644104004
+        },
+        "motion": {
+          "n": 12,
+          "survived": 12,
+          "recovered": 0,
+          "followup": 0,
+          "vx_mae_m_s": 0.13632467730591694,
+          "max_leg_speed_rad_s": 5.766006946563721
+        }
+      }
+    }
+  ],
+  "exact_precontrol_and_domain_pairing": true,
+  "decision": "Improvement in standing generalizes relative to9/21 original and7/21 stopped, but16/21 is insufficient; high wobble/combined drift and only1/6 fallen followup remain.",
+  "reuse_notice": "241204 was fresh at evaluation start. Subsequent half-gain probe makes it a development seed; another untouched seed is required for final confirmation.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2523,
+  "qualified": false,
+  "selected_deployment_model": null,
+  "created_unix": 1792862981.4114125
+}

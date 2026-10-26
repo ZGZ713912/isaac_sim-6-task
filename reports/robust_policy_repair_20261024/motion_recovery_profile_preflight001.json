@@ -1,0 +1,59 @@
+{
+  "schema": "motion-recovery-profile-preflight-v1",
+  "source_sha256": "5a13bd3ca6bb293030ccf72ddcb7e33244cb0da5b67a01abd91e6185fbd70f92",
+  "motion_births": 206,
+  "static_recovery_births": 50,
+  "command_mix": "Original30percent stand/20straight/10spin/40arcs, sampled at each reset; motion-birth means upright initialization, not necessarily nonzero command",
+  "only_exposure_changes": true,
+  "reward_checks": {
+    "reward_gamma": true,
+    "reward_potential_gain": true,
+    "gap_leg_quality": true,
+    "recovery_leg_speed_cost": true,
+    "quiet_position_weight": true,
+    "standing_early_position_weight": true,
+    "standing_drift_weight": true,
+    "quiet_action_rate_cost": true,
+    "quiet_motor_speed_cost": true,
+    "quiet_effort_delta_cost": true
+  },
+  "imu_mount": {
+    "fixed_degrees": [
+      2.4000000000000004,
+      2.4000000000000004,
+      0.8
+    ],
+    "wobble_degrees": [
+      0.0,
+      0.4
+    ],
+    "wobble_hz": [
+      1.0,
+      8.0
+    ]
+  },
+  "severity": 0.8,
+  "push": {
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "motion_push_fraction": 1.0
+  },
+  "hardware_started": false,
+  "qualification": null,
+  "actual_setting_differences": {
+    "motion_fraction": {
+      "before": 0.5,
+      "after": 0.8
+    },
+    "motion_push_fraction": {
+      "before": 0.25,
+      "after": 1.0
+    },
+    "version": {
+      "before": "robust-gap-v1",
+      "after": "robust-v2.35-motion-recovery-exposure"
+    }
+  }
+}

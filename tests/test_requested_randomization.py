@@ -122,6 +122,25 @@ def test_ablation_removes_only_declared_group(requested):
     assert no_delay["task"]["sensor_delay_policy_ticks"] == [0, 0]
 
 
+def test_alignment_ablation_preserves_all_other_actual_draws_and_rng(requested):
+    rows = []
+    ids = torch.arange(512)
+    sensors = torch.zeros(512, 18)
+    for profile in ("requested", "without_alignment"):
+        domain = RobustDomain(512, "cpu", resolve(requested, profile)["task"], 261003, .001)
+        domain.reset(ids, sensors, tick=0)
+        feedback = GetupFeedback(512, "cpu", domain.enabled, domain.cfg, domain.rng)
+        feedback.reset(ids, torch.zeros(512, 6), torch.zeros(512, 6))
+        domain.observe(sensors, 0)
+        rows.append((domain, feedback))
+    (normal, normal_pd), (no_align, no_align_pd) = rows
+    for field in ("enabled", "strength", "kp", "kd", "spring", "bias", "sigma", "sensor_delay"):
+        assert torch.equal(getattr(normal, field), getattr(no_align, field)), field
+    assert torch.equal(normal_pd.bias, no_align_pd.bias)
+    assert torch.equal(normal.rng.get_state(), no_align.rng.get_state())
+    assert normal.imu_mount.fixed.any() and not no_align.imu_mount.fixed.any()
+
+
 @pytest.mark.parametrize("edit", ["gain", "wobble", "unknown_reference", "inertia", "timing"])
 def test_invalid_requested_configs_are_not_silently_ignored(requested, edit):
     if edit == "gain": requested["fixed"]["leg_kp_scale"] = .9

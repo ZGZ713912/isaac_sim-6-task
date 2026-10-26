@@ -1,0 +1,73 @@
+{
+  "schema": "frozen-native-queue-completion-v1",
+  "inputs": 451,
+  "changed_inputs": [],
+  "jobs": [
+    {
+      "name": "quiet_stance050_rmcs",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis037_quiet_stance050_rmcs",
+      "log": "reports/robust_policy_repair_20261024/diagnosis037_quiet_stance050_rmcs.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis037_quiet_stance050_rmcs",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241203",
+        "--case-group",
+        "rmcs-inverted"
+      ],
+      "status": "completed",
+      "started_unix": 1792899051.7606823,
+      "pid": 3984539,
+      "returncode": 0,
+      "finished_unix": 1792899284.7862527
+    },
+    {
+      "name": "quiet_stance050_nominal_pair",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+      "reference_checkpoint": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis037_quiet_stance050_nominal_pair",
+      "log": "reports/robust_policy_repair_20261024/diagnosis037_quiet_stance050_nominal_pair.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_robust_getup_batch.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+        "--reference-checkpoint",
+        "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis037_quiet_stance050_nominal_pair",
+        "--checkpoint-task-profile",
+        "--seed",
+        "211131",
+        "--replicas",
+        "2",
+        "--variants",
+        "robust",
+        "reference",
+        "--domain-scale",
+        "0",
+        "--seconds",
+        "12",
+        "--isolated-origins"
+      ],
+      "status": "completed",
+      "started_unix": 1792899284.8177865,
+      "pid": 3986292,
+      "returncode": 0,
+      "finished_unix": 1792899624.4473639
+    }
+  ],
+  "new_PPO": 0,
+  "created_unix": 1792899646.4160762
+}

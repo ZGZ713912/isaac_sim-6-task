@@ -1,0 +1,97 @@
+{
+  "schema": "nearest-feasible-native-common-step-v1",
+  "checks": {
+    "solver_solved": true,
+    "full_constraint_pool": true,
+    "phase_frozen_feature_basis_exact": true,
+    "phase_wheel_rows_exact": true,
+    "phase_far_margin": true,
+    "phase_stopped_margin": true,
+    "phase_knee_roundoff": true,
+    "phase_finite": true,
+    "only_last_entry_tensors": true,
+    "wheels_exact": true,
+    "critic_Adam_RNG_exact": true,
+    "meaningful_recorded_target_change": true,
+    "retains_native_change_rms": true,
+    "bounded_recorded_change": true
+  },
+  "source": "runs/robust_policy_repair_20261024/pilot012_common_entry002/model_stopped.pt",
+  "source_sha256": "06f755784fd8ec1ad36ceb172d43cb7e1ada4efa4146b0516d7e9c6ae7343427",
+  "reference": "runs/robust_policy_repair_20261024/function_root_entry002/model_initial.pt",
+  "reference_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+  "source_learning_clock": 1502,
+  "phase_dataset_sha256": "d7bfa37723fba515641526d55eb01466a2f7ccdf7c5e16348441eb6c3ea87df8",
+  "real_trace": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed/evaluation/trajectory.npz",
+  "real_trace_sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+  "real_entry_frames": 1195,
+  "feature_source_sha256": "88a8ac95d27109d34969355f3ee24726ae5b0d5deedc3e4e4b0d23bf37425d57",
+  "rounds": [
+    {
+      "iteration": 1,
+      "status": "solved",
+      "selected_constraints": 512,
+      "solver_seconds": 0.054387357000000004,
+      "violated_constraints": 665,
+      "max_constraint_violation": 0.0321233413025444
+    },
+    {
+      "iteration": 2,
+      "status": "solved",
+      "selected_constraints": 768,
+      "solver_seconds": 0.09061870600000001,
+      "violated_constraints": 107,
+      "max_constraint_violation": 0.010685985693452634
+    },
+    {
+      "iteration": 3,
+      "status": "solved",
+      "selected_constraints": 875,
+      "solver_seconds": 0.109052999,
+      "violated_constraints": 16,
+      "max_constraint_violation": 0.003738357558836704
+    },
+    {
+      "iteration": 4,
+      "status": "solved",
+      "selected_constraints": 891,
+      "solver_seconds": 0.14006427600000002,
+      "violated_constraints": 0,
+      "max_constraint_violation": 7.37257477290143e-17
+    }
+  ],
+  "phase_metrics": {
+    "far_signed_lead_min_rad": 0.014606861397624016,
+    "stopped_target_peak_rad": 0.0044915322214365005,
+    "knee_logit_delta_peak": 7.152557373046875e-06
+  },
+  "objective": "Closest to the actual258-coefficient PPO proposal in equal-weight phase and recorded-entry output metrics plus1e-4 coefficient regularization.",
+  "fixed_limits": {
+    "far_common_logit_min": 0.25,
+    "stopped_common_logit_max": 0.06,
+    "max_cut_rounds": 8,
+    "max_new_cuts_per_round": 256,
+    "solver_seconds_per_round": 45.0,
+    "min_native_rms_fraction": 0.15,
+    "min_peak_change_rad": 0.0001,
+    "max_peak_change_rad": 0.005
+  },
+  "metrics": {
+    "native_delta_rms_rad": 0.0003589338157325983,
+    "projected_delta_rms_rad": 0.00029182119760662317,
+    "projected_delta_peak_rad": 0.002586543560028076,
+    "retained_rms_fraction": 0.8130223033207512,
+    "coefficient_change_l2": 0.7940252348357868,
+    "elapsed_seconds": 16.600516080856323
+  },
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2622,
+  "repair_optimizer_updates": 242,
+  "optimizer_continuation": "Not coordinate equivalent; keep sealed native Adam only for provenance. No further PPO admitted.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792893760.948392,
+  "checkpoint": "runs/robust_policy_repair_20261024/native_common_projected001/model_probe.pt",
+  "checkpoint_sha256": "d09ef23a2d5b158104fb4229ac464d5a8892d2fc45ec2436e35e87d6bef43387",
+  "decision": "CPU checks passed; one fixed native evaluation may be reviewed, no PPO."
+}

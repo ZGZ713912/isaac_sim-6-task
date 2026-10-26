@@ -1,0 +1,31 @@
+{
+  "schema": "entry-contract-native-checkpoint-preflight-v1",
+  "checks": {
+    "actor_state_dict_exact": true,
+    "critic_state_dict_exact": true,
+    "optimizer_state_dict_exact": true,
+    "iter_exact": true,
+    "old_unproven_checkpoint_still_rejected": true,
+    "81600_native_frames_function_exact": true,
+    "all7_negative_loads_rejected": true
+  },
+  "negative_rejection": {
+    "head": "Trained entry tensors differ from their recorded digest",
+    "frozen_std": "Entry-only training changed a frozen actor tensor or std",
+    "source_hash": "Trained entry source checkpoint changed",
+    "clock": "Trained entry provenance has inconsistent learning clocks",
+    "missing_proof": "Frozen entry weights differ from their declared reference",
+    "contract_source": "Actor source differs from the trained source: src/wheeled_algo/entry_checkpoint.py",
+    "cycle": "Trained entry source checkpoint changed"
+  },
+  "old_checkpoint": "runs/robust_policy_repair_20261024/pilot007_entry_support0/model_final.pt",
+  "old_sha256": "980597b18f557c6dc4df285ebc09dca70da03ffd56d3490657d84f7653bf6041",
+  "new_checkpoint": "runs/robust_policy_repair_20261024/pilot007_entry_contract001/model_migrated.pt",
+  "new_sha256": "617c0d494d291343dc1778c87e1c81cedcd9e88307a92afae02ac266f87ea4e6",
+  "frames": 81600,
+  "different_frames": 0,
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2595,
+  "qualification": null,
+  "hardware_started": false
+}

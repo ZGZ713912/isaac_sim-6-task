@@ -1,0 +1,53 @@
+closed-chain continuation knee=50 complete
+closed-chain continuation knee=67.855 complete
+closed-chain continuation knee=95 complete
+{
+  "schema": "entry-full-phase-path-feasibility-v1",
+  "source": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "source_sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "dataset": "reports/robust_policy_repair_20261024/entry_phase_path_dataset001.npz",
+  "dataset_sha256": "d7bfa37723fba515641526d55eb01466a2f7ccdf7c5e16348441eb6c3ea87df8",
+  "metrics": {
+    "feasible_full_states": 1089,
+    "observation_states": 54450,
+    "anchor_frames": 1120,
+    "train_frames": 36300,
+    "heldout_frames": 18150,
+    "closure_peak_m": 1.5202354861220294e-16,
+    "physical_knee_min_deg": 49.999570217386044,
+    "physical_knee_max_deg": 95.00039558154954,
+    "anchor_common_change_rms": 0.01382338832243112,
+    "anchor_common_change_max": 0.10397173162299422,
+    "target_rmse": 0.22445062179854394,
+    "heldout_rmse": 0.22358439125480153,
+    "far_common_signed_min": -0.10380795889517169,
+    "far_common_correct_fraction": 0.9914520202020202,
+    "far_target_lead_signed_min_rad": -0.0061059873551130295,
+    "far_target_lead_correct_fraction": 0.9979924242424243,
+    "independent_design_error": 1.8721304777535863e-06,
+    "edit_vector_l2": 47.4177798063473,
+    "elapsed_seconds": 17.924516439437866
+  },
+  "checks": {
+    "geometry": true,
+    "design_matches_actual_NN": true,
+    "retention_rms": true,
+    "retention_max": true,
+    "heldout_rmse": false,
+    "complete_common_direction": false,
+    "complete_actual_target_direction": false,
+    "finite": true
+  },
+  "teacher": "Offline periodic toward-wheel-down common output: -0.9*tanh(sin(phase)/0.2).",
+  "method": "One predeclared 258-parameter existing last-layer ridge solve; independent common outputs; no gradient optimizer.",
+  "anchor_weight": 100.0,
+  "ridge": 1e-05,
+  "scope": "Feasible closed chains, knee/spring travel and actor function directions. No contact dynamics or recovery proof; interleaved configuration holdout is development only.",
+  "decision": "reject_fit_without_native_or_PPO",
+  "new_PPO": 0,
+  "gradient_optimizer_updates": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792885108.4721873
+}

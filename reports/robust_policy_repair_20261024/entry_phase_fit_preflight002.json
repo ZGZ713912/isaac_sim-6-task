@@ -1,0 +1,58 @@
+{
+  "schema": "entry-common-fit-checkpoint-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/entry_phase_fit_periodic002/model_probe.pt",
+  "sha256": "cf3f3643c742653623e21bdd94603df4e057789e46f3452524e6cc07aba0c840",
+  "reference": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "reference_sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "checks": {
+    "only_entry_last_layer_changed": true,
+    "wheel_last_layer_rows_exact": true,
+    "clocks_equal": true,
+    "all_entry0_bit_exact": true,
+    "all_wheel_outputs_exact": true,
+    "knee_logit_roundoff_under_1e_5": false,
+    "finite": true
+  },
+  "replays": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "frames": 81600,
+      "entry0_frames": 67848,
+      "entry0_frames_bit_exact": 67848,
+      "all_wheel_outputs_bit_exact": true,
+      "finite": true,
+      "maximum_physical_target_delta_rad": 0.11251772195100784,
+      "max_float32_knee_logit_change": 8.344650268554688e-06
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "frames": 168000,
+      "entry0_frames": 156356,
+      "entry0_frames_bit_exact": 156356,
+      "all_wheel_outputs_bit_exact": true,
+      "finite": true,
+      "maximum_physical_target_delta_rad": 0.11314558982849121,
+      "max_float32_knee_logit_change": 1.2159347534179688e-05
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_rmcs/evaluation/trajectory.npz",
+      "frames": 115200,
+      "entry0_frames": 94612,
+      "entry0_frames_bit_exact": 94612,
+      "all_wheel_outputs_bit_exact": true,
+      "finite": true,
+      "maximum_physical_target_delta_rad": 0.09784233570098877,
+      "max_float32_knee_logit_change": 1.1086463928222656e-05
+    }
+  ],
+  "fit": "reports/robust_policy_repair_20261024/entry_phase_constrained_feasibility002.json",
+  "fit_sha256": "17967fc01fbd2744046640d6739d714915eb9d6ffc97734b7d0e6fb7b2618433",
+  "method": "Closed-form existing last-layer common-only edit, original frozen fallen/quiet/motion/std and knee/wheel mapping retained.",
+  "native_hypothesis": "Full sampled phase coverage gives sustained independent leg drive toward wheel-down and stops the already-arrived leg, while retaining successful entry actions.",
+  "new_PPO": 0,
+  "gradient_optimizer_updates": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792885426.6888409
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "declared-mean-probe-physical-pairing-v1",
+  "checks": {
+    "settings": true,
+    "populations": true,
+    "cases": true,
+    "sensor_actuator_material": true,
+    "rigid": true,
+    "initial": true
+  },
+  "initial_exact": {
+    "actor_inputs_exact": true,
+    "passive_mask_exact": true,
+    "passive_poststep_motor_position_exact": true,
+    "passive_poststep_motor_velocity_exact": true,
+    "precontrol_root_pose_exact": true,
+    "precontrol_motor_position_exact": true,
+    "precontrol_motor_velocity_exact": true
+  },
+  "sensor_actuator_material_exact": true,
+  "rigid_parameters_exact": true,
+  "precontrol_physical_state_captured": true,
+  "intervention": {
+    "schema": "fallen-wheel-entry-protected-probe-v1",
+    "trained_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/pilot014_fallen_output/model_final.pt",
+    "trained_sha256": "c79fc4740320c5f953305b3e81b0a126eb43d606a19f35496384c399284dbbdd",
+    "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/fallen_output_root001/model_initial.pt",
+    "source_sha256": "f1a98b917e430a040a595eb4487764abc9f73d3a5bf6784d71ee9fa72fd0b52f",
+    "scope": "Only learned fallen wheel rows; multiply output difference by clamp(1-entry_gate/.05,0,1)",
+    "sensors": "Existing35D entry gate from IMU and leg encoders; no case identity or simulator state",
+    "gaussian_mean_changed": true,
+    "checkpoint_file_changed": false,
+    "sampling_std_changed": false,
+    "observer_changed": false,
+    "eligible_for_checkpoint_mean_qualification": false,
+    "wrapper_sha256": "5b39ef3aff5302f4dc30cac87dbed9ac9401dc820b0fc0921fcd7bd248a24cc9",
+    "probe_sha256": "2edc83ac730ec3faf797cde8c4f7b623bb53df2be7c53549bdb1fc1304723de8",
+    "new_PPO": 0
+  },
+  "before_trajectory_sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+  "after_trajectory_sha256": "26046d854333be015bf71717e831ea99615f76dee51f16df0666835fc3e3c3df",
+  "standard_policy_only_comparison_accepted": false,
+  "eligible_for_checkpoint_mean_qualification": false,
+  "qualification": null,
+  "hardware_ready": false
+}

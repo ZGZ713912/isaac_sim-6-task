@@ -1,0 +1,92 @@
+{
+  "schema": "current-source-native-control-replay-v1",
+  "checks": {
+    "all_native_arrays_exact": true,
+    "same_checkpoint": true,
+    "same_actor_settings": true,
+    "expected_only_policy_task_markers": true
+  },
+  "baseline": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed",
+  "current_control": "runs/robust_policy_repair_20261024/diagnosis035_current_source_control",
+  "comparison": {
+    "time": true,
+    "gravity": true,
+    "height": true,
+    "commands": true,
+    "requested_command": true,
+    "velocity": true,
+    "omega": true,
+    "actions": true,
+    "motor_effort": true,
+    "motor_velocity": true,
+    "gap": true,
+    "impact": true,
+    "impulse": true,
+    "passive": true,
+    "stable": true,
+    "done": true,
+    "terminated": true,
+    "enable_event": true,
+    "settled_family": true,
+    "recovered": true,
+    "followup_success": true,
+    "mechanical": true,
+    "closure_gap": true,
+    "impact_bad": true,
+    "boundary_bad": true,
+    "local_position": true,
+    "motor_position": true,
+    "wheel_contact": true,
+    "velocity_world": true,
+    "pushing": true,
+    "in_motion_fall": true,
+    "recovered_after_push": true,
+    "wheel_clearance": true,
+    "wheel_clearance_peak": true,
+    "wheel_contact_fraction": true,
+    "wheel_air_run_peak": true,
+    "dual_wheel_air_run_peak": true,
+    "wheel_air_seconds": true,
+    "leg_speed_peak_rad_s": true,
+    "leg_effort_peak_nm": true,
+    "leg_saturation_fraction": true,
+    "leg_effort_slew_rms_nm": true,
+    "leg_saturation_run_s": true,
+    "recovery_support_cost_density": true,
+    "native_reward": true,
+    "reward_density": true,
+    "reward_potential_progress": true,
+    "reward_recovery_active": true,
+    "standing_reference_active": true,
+    "standing_reference_anchor_m": true,
+    "standing_reference_filtered_m": true,
+    "standing_reference_severe_reset_count": true,
+    "standing_reference_output_valid": true,
+    "standing_reference_age_s": true,
+    "alive": true,
+    "observations": true
+  },
+  "task_metadata_delta": {
+    "gap_entry_encoder_version": {
+      "before": "MISSING",
+      "after": "periodic-chart-v1"
+    },
+    "motion_leg_damping_alpha": {
+      "before": "MISSING",
+      "after": 0.8
+    },
+    "motion_leg_damping_version": {
+      "before": "MISSING",
+      "after": "motion-leg-damping-v1"
+    }
+  },
+  "trace_sha256": {
+    "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+    "runs/robust_policy_repair_20261024/diagnosis035_current_source_control": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f"
+  },
+  "interpretation": "Tests actual closed-loop replay under current source; task policy markers were not normalized or removed in the artifacts.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "qualification": null,
+  "created_unix": 1792897983.8442872
+}
