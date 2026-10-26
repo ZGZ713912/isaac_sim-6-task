@@ -1,0 +1,71 @@
+{
+  "schema": "scratch-leg-speed-terminal-review-v1",
+  "observed_utc": "2026-10-26T05:47:46.403445+00:00",
+  "original_process_exited": true,
+  "original_GPU_absent": true,
+  "identity": {
+    "schema": "scratch-readonly-native-launch-v1",
+    "observed_utc": "2026-10-26T05:31:23.174711+00:00",
+    "pid": 746147,
+    "start_ticks": 32122474,
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_leg_velocity_zero001",
+    "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero/model_final.pt",
+    "checkpoint_sha256": "02aad5dc894ac4f0c67b9b0ddd8d703d76be11e50aec47dd22eed87956bdc23d",
+    "command": [
+      "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+      "-u",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/evaluate_scratch_standing.py",
+      "--checkpoint",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero/model_final.pt",
+      "--output",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_leg_velocity_zero001",
+      "--seed",
+      "261101",
+      "--trace-feedback",
+      "--leg-speed-response-scale",
+      "0"
+    ],
+    "evaluator_sha256": "334986875e62e11bcde91eb2531f400ecaf8a5ef664d18d0db456a4dc326fcd2",
+    "probe_sha256": "8024fa743be6903180cedb99dcecbb672725ecf4d41df999ecbc4af4c60ebb8c",
+    "comparator_sha256": "8d46798940705ee7cf0d449e8fcdd409b5f584ff4257f2623e8af89b6fec4a26",
+    "preflight": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_leg_encoder_preflight001.json",
+    "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_feedback002",
+    "prior008_seal": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_pilot008_closed_seal001.json",
+    "prior008_original_process_and_GPU_absent": true,
+    "new_PPO": 0,
+    "optimizer_constructed": false,
+    "adoption_by_training": false,
+    "hardware_ready": false
+  },
+  "matched_native_checks": 23,
+  "independently_verified_RSL_values": {
+    "matched_comparison": 11,
+    "eval007_final512_feedback002": 8,
+    "eval007_leg_velocity_zero001": 8,
+    "native_intervention": 5
+  },
+  "total_verified_RSL_values": 32,
+  "comparison_sha256": "06b0b1afaecd1c3a208f5bf2184fcbba6170d7d8958edc6c599cbbd36aec3ac6",
+  "excitation_sha256": "9f0069378e8f81ceeb0c6947118f6843898de8687e730df46cbc9c2560b9fa05",
+  "baseline": {
+    "total_missing_physical_ms": 190,
+    "standing_pass": 0,
+    "mean_position_vibration_3_95Hz_mrad": 0.06561223231256008,
+    "maximum_leg_speed_rad_s": 0.8671355843544006,
+    "mean_forward_speed_rms_m_s": 0.0021633695079279797
+  },
+  "intervention": {
+    "total_missing_physical_ms": 152,
+    "standing_pass": 0,
+    "mean_position_vibration_3_95Hz_mrad": 0.05753465528999056,
+    "maximum_leg_speed_rad_s": 0.4683178663253784,
+    "mean_forward_speed_rms_m_s": 0.0024061223957687616
+  },
+  "conclusion": "Direct neural leg-speed response contributes to measured excitation. Isolation reduces leg speed and excitation but still fails strict continuous support; no unique-cause or deployable-policy claim.",
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "adopted": false,
+  "qualified": false,
+  "hardware_ready": false,
+  "reader_sha256": "32419871bc8d64a02cf01d23acc81b7189a06a967c4dabc1d1c5dcd6323c40f6"
+}

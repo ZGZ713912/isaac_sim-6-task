@@ -106,12 +106,16 @@ class RobustDomain:
         self.torque_cursor = self.sensor_cursor = 0
         self.last_sensor_tick = -1
         self.rows = torch.arange(count, device=device)
+        self.imu_mount = None
+        if cfg.get("imu_mount") is not None:
+            from .imu_mount import ImuMount
+            self.imu_mount = ImuMount(count, device, cfg["imu_mount"], self.rng)
 
     def uniform(self, ids, bounds, columns):
         low, high = bounds
         return low + (high - low) * torch.rand(len(ids), columns, device=self.device, generator=self.rng)
 
-    def reset(self, ids, sensors):
+    def reset(self, ids, sensors, tick=None):
         cfg = self.cfg
         enabled = self.enabled[ids, None]
         for name, key, columns in (("strength", "motor_strength_range", 6), ("kp", "leg_kp_scale_range", 1),
@@ -132,6 +136,17 @@ class RobustDomain:
             + [cfg["encoder_noise_rad"]] * 4 + [wheel_sigma] * 2
             + [cfg["velocity_noise_rad_s"][0] * .1] * 4 + [cfg["velocity_noise_rad_s"][1] * .1] * 2)
         self.sigma[ids] = sigma * enabled * cfg["sensor_noise_scale"]
+        if self.imu_mount is not None:
+            seconds = (max(0, self.last_sensor_tick) if tick is None else tick)*.005
+            self.imu_mount.reset(ids, enabled[:, 0], seconds)
+            profiles = cfg.get("imu_mount_profiles")
+            if profiles is not None:
+                for lane in ids.cpu().tolist():
+                    if profiles[lane] is not None:
+                        self.imu_mount.set_profile(lane, profiles[lane])
+            sensors = self.imu_mount.apply(sensors, seconds, ids)
+            sensors = sensors + self.bias[ids]
+            self.last_sensor_tick = -1
         self.sensor_history[:, ids] = sensors[None]
         self.observed[ids] = sensors
         self.torque_history[:, ids] = 0.
@@ -139,6 +154,8 @@ class RobustDomain:
 
     def observe(self, sensors, tick):
         if self.last_sensor_tick != tick:
+            if self.imu_mount is not None:
+                sensors = self.imu_mount.apply(sensors, tick*.005)
             noisy = sensors + self.bias + torch.randn(sensors.shape, device=self.device, generator=self.rng) * self.sigma
             gravity = noisy[:, 3:6]
             noisy[:, 3:6] = gravity / gravity.norm(dim=-1, keepdim=True).clamp_min(1e-6)
