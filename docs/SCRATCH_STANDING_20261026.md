@@ -463,3 +463,8 @@ CPU准备cost0配对候选，`scratch_contact_event_AB_preflight001.json`十二�
 
 
 009首个完整1–32更新窗口已从原生RSL event不可变字节前缀核对：007/009的平均双轮支撑99.41956%/99.43577%、腿速RMS0.0706325/0.0698259rad/s、平均已完成回合0.87678/0.88811s。高度误差1.38695/1.42580mm、平移RMS0.12717/0.12828m/s，没有明显整体改善证据；这些是带失败重置的早期训练均值，不能作为连续静站通过。两个从零初始模型及009的17更新模型离线读回确认：新架构直接腿速→腿目标响应严格为0，保留轮子完整反馈；理想姿态偏导不代表闭环稳定性。原PID759032/start32263952仍在训练；报告`scratch_pilot009_live001.json`、`scratch_training007_009_window032_read001.json`，预算与源码保持。
+
+
+009第二至第四窗口：33–64腿速RMS比007高8.6%、支撑低0.172个百分点；97–128已完成回合均值3.5867s（007为1.4266s）、平均倾角1.6498°（007为2.8661°），学习平衡更快，但支撑98.9412%仍低于007的99.0972%，平移RMS0.14198m/s也未达静站要求，不能采纳。数据`scratch_training007_009_window032_read003.json`来自原RSL event前缀，图表同名PNG。继续原512预算，不热改。
+
+另发现旧`ScratchStanding/leg_speed_peak_rad_s`经RSL logger对128个policy-step峰值再次取均值，并非整个rollout真正最大值，不能拿它排除偶发高速。真实RSL合成负对照已复现：唯一50rad/s尖峰会显示0.390625rad/s；未应用的只读候选保留50rad/s和1个>=50rad/s样本。候选8项CPU检查通过，21个RSL scalar独立回读，并从007原始224000个1ms腿电机样本准确重现峰值0.867135584rad/s。候选在`reports/robust_policy_repair_20261024/scratch_extrema_candidate001/`，integration.patch只做未来logger观测，不更改动作、reward、mask、物理或模型；git apply --check通过但没有应用。首个reader字段名错误及合成事件已保留，修正后的validation.json通过。新指标仍须009实际结束后集成验证、提交；当前264份训练源码不变。终评原始1ms峰值原本可靠，本缺口限于训练extras的汇总。

@@ -1,0 +1,86 @@
+--- a/src/wheeled_tasks/chassis/physical_standing_reward.py
++++ b/src/wheeled_tasks/chassis/physical_standing_reward.py
+@@ -28,6 +28,8 @@
+         raise ValueError("Physical standing objective already installed")
+     if not all(0. <= value <= 16. for value in (speed_weight, contact_weight, torque_weight)):
+         raise ValueError("Invalid standing cost weights")
++    from .standing_rollout_extrema import StandingRolloutExtrema
++    env.standing_rollout_extrema = StandingRolloutExtrema(env.num_envs, env.device)
+     monitor = StandingContactMonitor(env)
+     native_step, native_gap = env.step, env.closure_gap
+     native_torque = env.actuator_response.apply_torque
+@@ -67,6 +69,7 @@
+         delta = tau - torch.cat((previous_torque[None], tau[:-1]))
+         previous_torque.copy_(tau[-1])
+         speed, slew = motion_density(dq, delta)
++        env.standing_rollout_extrema.observe(dq)
+         support = support_density(monitor.last["force"], monitor.last["clearance"])
+         eligible = requested & extras["policy_learning_mask"]
+         paid_speed = env.policy_dt * speed_weight * speed * eligible
+--- a/scripts/train_scratch_standing.py
++++ b/scripts/train_scratch_standing.py
+@@ -471,6 +471,8 @@
+                     raise RuntimeError("First fresh native PPO update failed its audit")
+                 write_json(args.output / "first_update_audit.json", audit_result)
+                 audit = None
++            report["last_rollout_extrema"] = env.standing_rollout_extrema.write(
++                runner.logger.writer, report["completed_updates"], args.rollout_steps)
+             env.actor_updates = report["completed_updates"]
+             report.update(status="training", elapsed_s=time.monotonic()-start,
+                 last_losses={key: float(value) for key, value in losses.items()}, valid_rollout=mask.metrics,
+--- /dev/null
++++ b/src/wheeled_tasks/chassis/standing_rollout_extrema.py
+@@ -0,0 +1,53 @@
++"""Unapplied candidate: true maxima from every native physical leg sample.
++
++This observer writes directly to the existing RSL writer at the completed PPO
++update, bypassing the averaging of per-policy-step extras. It does not alter
++observations, actions, rewards, masks, simulator state, optimizer or RNG.
++"""
++import torch
++
++
++class StandingRolloutExtrema:
++    thresholds_rad_s = (3., 10., 50.)
++
++    def __init__(self, num_envs, device):
++        if num_envs <= 0:
++            raise ValueError("Need a positive native environment count")
++        self.num_envs = num_envs
++        self.thresholds = torch.tensor(self.thresholds_rad_s, device=device)
++        self.peak_per_leg = torch.zeros(4, device=device)
++        self.counts = torch.zeros(3, dtype=torch.int64, device=device)
++        self.policy_calls = 0
++
++    def observe(self, dq):
++        if dq.shape != (5, self.num_envs, 4) or not dq.is_floating_point():
++            raise ValueError("Require all five1ms samples, every native environment and four leg motors")
++        magnitude = dq.detach().abs()
++        self.peak_per_leg = torch.maximum(self.peak_per_leg, magnitude.amax(dim=(0, 1)))
++        self.counts += (magnitude[..., None] >= self.thresholds).sum(dim=(0, 1, 2))
++        self.policy_calls += 1
++
++    def snapshot(self, expected_calls):
++        if expected_calls <= 0 or self.policy_calls != expected_calls:
++            raise ValueError("Require the entire completed native rollout")
++        if not torch.isfinite(self.peak_per_leg).all():
++            raise ValueError("Nonfinite native physical leg-speed extrema")
++        result = dict(peak_leg_speed_rad_s=float(self.peak_per_leg.max()),
++                      policy_decisions=self.policy_calls,
++                      observed_leg_motor_samples=self.policy_calls * 5 * self.num_envs * 4)
++        for axis, value in enumerate(self.peak_per_leg.tolist()):
++            result[f"peak_leg{axis}_speed_rad_s"] = value
++        for threshold, count in zip(self.thresholds_rad_s, self.counts.tolist()):
++            result[f"leg_motor_samples_at_or_above_{int(threshold)}_rad_s"] = count
++        return result
++
++    def write(self, writer, completed_update, expected_calls):
++        if writer is None or completed_update <= 0:
++            raise ValueError("Need the actual RSL writer and a committed positive PPO update")
++        values = self.snapshot(expected_calls)
++        for name, value in values.items():
++            writer.add_scalar("ScratchStandingExtrema/" + name, value, completed_update - 1)
++        self.peak_per_leg.zero_()
++        self.counts.zero_()
++        self.policy_calls = 0
++        return values
