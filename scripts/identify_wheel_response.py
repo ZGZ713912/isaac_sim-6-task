@@ -40,6 +40,9 @@ def load_run(root: Path, name: str) -> tuple[dict, list, dict]:
         raw = source["feedback_frame_bytes"][active, 32:48].reshape(-1, 2, 8).astype(np.int32)
     rpm = raw[:, :, 2] * 256 + raw[:, :, 3]
     rpm = np.where(rpm >= 32768, rpm - 65536, rpm)
+    # 2026-09-29 bags used the then-current 15.8 driver scale; RMCS now sets
+    # 15.62, so re-recorded data will not satisfy this 1e-9 check unchanged.
+    # See docs/WHEEL_LEG_WHEEL_REDUCTION_20261026.md.
     data["speed_consistent"] = abs(-rpm / 15.8 * 2 * np.pi / 60 - data["dq_api"][:, 4:6]) < 1e-9
     data["t"] = (data["control_steady_ns"].astype(np.int64)
                  - int(data["control_steady_ns"][0])) * 1e-9

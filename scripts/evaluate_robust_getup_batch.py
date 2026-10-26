@@ -85,6 +85,8 @@ def main():
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--reference-checkpoint", type=Path,
                         help="Optional exact initial checkpoint for a no-PPO coordinate-change comparison")
+    parser.add_argument("--checkpoint-task-profile", action="store_true",
+                        help="Inherit authenticated checkpoint policy, sensor and actuator settings; keep the frozen35 cases")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=211131)
     parser.add_argument("--seeds", type=int, nargs="+")
@@ -304,9 +306,11 @@ def main():
     if len(seeds) > 2 or len(set(seeds)) != len(seeds) or count > 1024:
         parser.error("Use at most two distinct seeds and 1024 total native environments")
     checkpoint_sha = training.digest(args.checkpoint)
+    import torch
+    saved_settings = torch.load(args.checkpoint, map_location="cpu", weights_only=False)["infos"]["settings"]
+    if saved_settings.get("gap_robustness_version") and not args.checkpoint_task_profile:
+        parser.error("Gap checkpoints require --checkpoint-task-profile to avoid an obsolete sensor/actuator environment")
     if args.isolated_origins is None:
-        import torch
-        saved_settings = torch.load(args.checkpoint, map_location="cpu", weights_only=False)["infos"]["settings"]
         args.isolated_origins = saved_settings.get("native_origin_mode") == "isolated_overlap_v1"
     config_args = argparse.Namespace(output=args.output, bank=ROOT / "reports/unified_robust_20261021/pose_bank002.json",
         no_domains=args.domain_scale == 0., domain_scale=args.domain_scale,
@@ -316,6 +320,8 @@ def main():
         num_envs=count, rollout_steps=128, mode="evaluate", friction="high", seed=args.seed,
         isolated_origins=args.isolated_origins,
         allow_large_world_coordinates=args.allow_large_world_coordinates, episode_seconds=max(12., args.seconds))
+    if args.checkpoint_task_profile:
+        config_args.resume = args.checkpoint
     cfg, task = training.prepare(config_args)
     if count < len(cfg["scene_groups"]):
         parser.error("Native population must cover every base scene group; increase diagnostic replicas or use the full suite")
@@ -345,12 +351,17 @@ def main():
         verified_mean, verified_info = load_verified_mean(args.checkpoint)
         if verified_info["settings"].get("quiet_velocity_feedback_mode") in ("rolling_velocity", "standing_displacement"):
             from wheeled_algo.rolling_velocity import frozen_table_path
-            path = frozen_table_path()
-            relative = path.relative_to(ROOT)
-            target = args.output / "source" / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(path.read_bytes())
-            sources[str(relative)] = training.digest(path)
+            tables = [frozen_table_path()]
+            observation = verified_info["settings"].get("standing_position_observation") or {}
+            if observation.get("original_geometry_table_sha256"):
+                from wheeled_tasks.chassis.standing_geometry107 import table_path
+                tables.append(table_path())
+            for path in tables:
+                relative = path.relative_to(ROOT)
+                target = args.output / "source" / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(path.read_bytes())
+                sources[str(relative)] = training.digest(path)
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
                     "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "quiet_actor_alpha",
                     "quiet_velocity_feature_scale", "quiet_wheel_bound", "stance_aware_recovery", "recovery_shape_aware",
@@ -366,6 +377,15 @@ def main():
         task_path = args.output / "task_contract.json"
         public_task = json.loads(task_path.read_text())
         public_task["settings"] = task
+        public_task["evaluation_profile"] = dict(
+            schema="checkpoint-task-profile-v1" if args.checkpoint_task_profile else "legacy-batch-profile-v1",
+            checkpoint=str(args.checkpoint), checkpoint_sha256=checkpoint_sha,
+            fixed_cases_bank=str(config_args.bank), fixed_cases_bank_sha256=training.digest(config_args.bank),
+            domains_enabled=task["domains_enabled"], domain_scale=task["domain_scale"],
+            gap_severity=task.get("gap_severity"), gap_actuator_timing_profile=task.get("gap_actuator_timing_profile"),
+            gap_correct_pd_scaling=task.get("gap_correct_pd_scaling", False),
+            observation=task.get("standing_position_observation"),
+            criterion_changes=False, optimizer_updates=0)
         if alpha_variants:
             public_task["evaluation_counterfactual"] = dict(
                 kind="whole_quiet_wheel_output_filter_v1", variants=alpha_variants,
@@ -473,10 +493,23 @@ def main():
                 return torch.cat([self.models[index % len(self.models)](obs[index * per_variant:(index + 1) * per_variant])
                                   for index in range(len(self.models) * len(seeds))], 0)
 
+        case_bank = json.loads(config_args.bank.read_text())
+        groups = [(seed, name) for seed in seeds for name in args.variants]
+        cases = []
+        for seed, name in groups:
+            full = training.fixed_cases(case_bank, 35 * args.replicas, seed)
+            if args.stationary_push_cases:
+                cases.extend(fixed_stationary_push_cases(full, args.stationary_push_scales))
+            elif args.forward_speeds:
+                template = next(case for case in full if case["name"] == "forward")
+                cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas, args.forward_yaws))
+            else:
+                cases.extend(case for case in full if selected_names is None or case["name"] in selected_names)
+
         manifest = json.loads((ROOT / cfg["asset_directory"] / "manifest.json").read_text())
         env = RobustGetupEnv(cfg, manifest, load_chassis_control(ROOT / cfg["control_math_source"]), ROOT,
             stage_name="speed", num_envs=count, device="cuda:0", seed=args.seed, level=1., run_role="train",
-            bank=config_args.bank, settings=task)
+            bank=config_args.bank, settings=task, fixed_cases=cases)
         env.actor_variant = "batched_" + "_".join(args.variants)
         env.evaluation_checkpoint = args.checkpoint
         env.evaluation_overrides = ({} if args.sensor_delay_policy_ticks is None else
@@ -520,20 +553,9 @@ def main():
                 env.evaluation_overrides["standing_command_feedback"].update(
                     geometry_table_sha256="57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
                     model_spec_sha256="0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997")
-        groups = [(seed, name) for seed in seeds for name in args.variants]
         for index, (_, name) in enumerate(groups):
             if name == "raw_pd":
                 env.paired_feedback_enabled[index * per_variant:(index + 1) * per_variant] = False
-        cases = []
-        for seed, name in groups:
-            full = training.fixed_cases(env.bank, 35 * args.replicas, seed)
-            if args.stationary_push_cases:
-                cases.extend(fixed_stationary_push_cases(full, args.stationary_push_scales))
-            elif args.forward_speeds:
-                template = next(case for case in full if case["name"] == "forward")
-                cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas, args.forward_yaws))
-            else:
-                cases.extend(case for case in full if selected_names is None or case["name"] in selected_names)
         report = training.evaluate(env, BatchMean().cuda(), args.output / "all", torch,
                                    seed=args.seed, seconds=args.seconds, cases=cases)
         arrays = dict(np.load(args.output / "all/trajectory.npz"))

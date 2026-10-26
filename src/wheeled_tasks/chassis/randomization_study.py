@@ -157,8 +157,11 @@ def _resolve_requested(spec, profile, strength):
         gravity_noise=reference["gravity_noise"]*noise,
         velocity_noise_rad_s=[reference["leg_velocity_noise_rad_s"]*noise,
                               reference["wheel_velocity_noise_rad_s"]*noise], **timing)
+    # Keep identical zero-amplitude mount draws in every active v2 profile.
+    # Otherwise removing alignment shifts the later PD bias/white-noise RNG
+    # stream and confounds a supposed single-group counterfactual.
     task["imu_mount"] = (dict(fixed_degrees=[v*align for v in imu],
-        wobble_degrees=[0., 0.], wobble_hz=[1., 1.]) if align else None)
+        wobble_degrees=[0., 0.], wobble_hz=[1., 1.]) if active else None)
     dynamics = result["dynamics_randomization"]
     dynamics.update(enabled=active,
         base_mass_scale=around(reference["mass_fraction"], mass),

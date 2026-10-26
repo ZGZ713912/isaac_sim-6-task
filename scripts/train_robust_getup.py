@@ -14,6 +14,7 @@ import json
 import os
 from pathlib import Path
 import random
+import signal
 import sys
 import time
 import traceback
@@ -24,6 +25,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 PARENT = ROOT / "runs/flat_base_20261020/pilot034_directional200_1346/model_001346.pt"
 BASE_CONFIG = PARENT.parent / "config/contract.json"
+
+
+class TrainingStopped(Exception):
+    """A requested stop has been sealed after a complete PPO update."""
 
 
 def digest(path):
@@ -58,17 +63,25 @@ def prepare(args):
         # A reward/exposure pilot must retain the resumed recovery function,
         # including non-tensor authority flags, rather than reset defaults.
         for key in ("canonical_recovery", "motion_residual_fraction", "cyclic_leg_targets", "leg_action_clip",
-                    "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "stance_aware_recovery",
+                    "recovery_leg_step", "smooth_knee_targets", "recovery_knee_center", "recovery_knee_step", "stance_aware_recovery",
                     "recovery_shape_aware", "quiet_high_common_alpha", "quiet_high_leg_prediction_s", "quiet_leg_prediction_all_heights", "fast_forward_reference",
                     "fast_forward_reference_range", "fast_forward_reference_yaw_fade", "quiet_height_experts",
                     "quiet_native_height_anchors", "quiet_exploration_fraction", "quiet_wheel_exploration_fraction", "quiet_velocity_feature_gain",
                     "quiet_velocity_feedback", "quiet_velocity_feedback_mode", "standing_position_observation",
-                    "standing_position_filter_seconds", "standing_position_reference", "quiet_output_wheel_alpha"):
+                    "standing_position_filter_seconds", "standing_position_reference", "quiet_output_wheel_alpha",
+                    "gap_entry_handoff_version", "gap_robustness_version", "upright_entry_recovery",
+                    "gap_actuator_timing_profile", "gap_severity", "gap_upright_target_limit_version",
+                    "gap_recovery_leg_exploration_fraction", "gap_entry_recovery_split_version",
+                    "recovery_previous_common_version", "gap_final_target_winding_version",
+                    "gap_entry_optimizer_layout", "recovery_support_weight", "gap_entry_encoder_version",
+                    "motion_leg_damping_version", "motion_leg_damping_alpha",
+                    "quiet_stance_authority_version", "quiet_stance_retained_authority", "quiet_stance_recovery_threshold"):
             if key in prior:
                 task[key] = deepcopy(prior[key])
         if prior.get("native_origin_mode") == "isolated_overlap_v1":
             task["native_origin_mode"] = "isolated_overlap_v1"
-        if getattr(args, "recovery_only", False):
+        if (getattr(args, "recovery_only", False) or getattr(args, "gap_robustness", False)
+                or prior.get("gap_robustness_version")):
             # Keep the parent's standing costs and privileged critic channel
             # meanings. This profile changes exposure and trainable weights,
             # while command/height sampling returns to the general motion mix.
@@ -78,8 +91,40 @@ def prepare(args):
                         "quiet_motor_speed_cost", "quiet_effort_delta_cost"):
                 if key in prior:
                     task[key] = deepcopy(prior[key])
+    if task.get("gap_entry_handoff_version") not in (None,"orbit-v2"):
+        raise ValueError("Unknown gap entry handoff version")
+    if task.get("gap_upright_target_limit_version") not in (None,"error-v1"):
+        raise ValueError("Unknown upright target limit version")
+    if task.get("gap_entry_recovery_split_version") not in (None,"frozen-v1"):
+        raise ValueError("Unknown frozen entry head version")
+    if task.get("recovery_previous_common_version") not in (None, "circular-v1"):
+        raise ValueError("Unknown previous recovery common-angle version")
+    if task.get("gap_final_target_winding_version") not in (None, "paired-v1"):
+        raise ValueError("Unknown final target winding version")
+    if task.get("gap_final_target_winding_version") and task.get("gap_upright_target_limit_version") != "error-v1":
+        raise ValueError("Final target winding requires the final upright limiter")
+    if task.get("gap_entry_encoder_version") not in (None, "periodic-chart-v1"):
+        raise ValueError("Unknown entry encoder version")
+    if task.get("motion_leg_damping_version") not in (None, "motion-leg-damping-v1"):
+        raise ValueError("Unknown motion leg damping version")
+    if task.get("motion_leg_damping_version") and not task.get("gap_entry_encoder_version"):
+        raise ValueError("Motion damping requires the authenticated periodic entry actor")
+    if task.get("motion_leg_damping_version"):
+        from wheeled_algo.motion_target_damping import validate_alpha
+        validate_alpha(task.get("motion_leg_damping_alpha"))
+    elif "motion_leg_damping_alpha" in task:
+        raise ValueError("Motion damping alpha requires an explicit version")
     if getattr(args, "isolated_origins", False):
         task["native_origin_mode"] = "isolated_overlap_v1"
+    if getattr(args, "gap_robustness", False) or task.get("gap_robustness_version"):
+        from wheeled_tasks.chassis.gap_robustness import apply_profile
+        if getattr(args,"gap_actuator_timing",None) is not None:
+            task["gap_actuator_timing_profile"] = args.gap_actuator_timing
+        severity = (getattr(args,"gap_severity",1.) if getattr(args,"gap_robustness",False)
+                    else task["gap_severity"])
+        # Domains provide the base task. Explicit tuning modes below must own
+        # their reset/command quotas instead of being silently overwritten.
+        apply_profile(task, severity)
     if getattr(args, "quiet_only", False):
         task.update(version=task["version"] + "-quiet", quiet_training=True, motion_fraction=.8,
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
@@ -106,13 +151,27 @@ def prepare(args):
                     quiet_spectral_cost=True, quiet_critic_anchor=True)
     if getattr(args, "arc_only", False):
         task.update(version=task["version"] + "-arc", motion_fraction=.8, arc_tuning_fraction=.8)
-    if getattr(args, "recovery_only", False):
+    if getattr(args, "recovery_only", False) or getattr(args, "motion_output_only", False):
         task.update(version="robust-v2.10-recovery-capture", stance_aware_recovery=True,
                     recovery_shape_aware=True, motion_push_fraction=1.)
     if getattr(args, "side_recovery_focus", False):
         task.update(version="robust-v2.21-side-recovery-exposure", motion_fraction=.2,
                     recovery_family_weights=[0., .05, .05, .35, .35, .15, .05],
                     side_recovery_birth_focus=True)
+    if getattr(args, "motion_recovery_focus", False):
+        task.update(version="robust-v2.35-motion-recovery-exposure", motion_fraction=.8,
+                    motion_push_fraction=1.)
+    if getattr(args, "entry_recovery_only", False):
+        if task.get("gap_entry_optimizer_layout") != "append-v1":
+            raise ValueError("Entry-only training requires an explicit optimizer-layout migration")
+        task["version"] += "-entry-only"
+    if getattr(args, "recovery_support_weight", None) is not None:
+        task["recovery_support_weight"] = args.recovery_support_weight
+    if "recovery_support_weight" in task:
+        import math
+        weight = task["recovery_support_weight"]
+        if not math.isfinite(weight) or not 0. <= weight <= 2.:
+            raise ValueError("Recovery support weight must be finite within0..2")
     if getattr(args, "episode_seconds", None) is not None:
         task["episode_seconds"] = args.episode_seconds
     # The fixed physics/control source remains pinned. The task overlay is a
@@ -142,6 +201,9 @@ def prepare(args):
             material[key] = [args.friction_min, friction_max]
     task["active_friction_range"] = material["ground_static_friction_range"]
     changes["dynamics_randomization"] = rigid_body_domain(task["domains_enabled"], task["domain_scale"])
+    if task.get("gap_robustness_version"):
+        from wheeled_tasks.chassis.gap_robustness import rigid_profile
+        changes["dynamics_randomization"] = rigid_profile(changes["dynamics_randomization"], task["gap_severity"])
     # This base contract describes mechanism construction. Task behavior lives
     # in UnifiedGetupEnv and is independently declared in task_contract.json.
     for key, value in changes.items():
@@ -225,6 +287,7 @@ def fixed_cases(bank, count, seed, ablations=False):
 def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
     import numpy as np
     from wheeled_tasks.chassis.unified_getup import FAMILIES
+    previous_fixed_cases = env.fixed_cases
     env.fixed_cases = (fixed_cases(env.bank, env.num_envs, seed, getattr(env, "ablation_variants", False))
                        if cases is None else cases)
     if len(env.fixed_cases) != env.num_envs:
@@ -236,6 +299,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
     env.domain.rng.manual_seed(seed + 83977)
     env.reset(torch.arange(env.num_envs, device=env.device))
     overrides = getattr(env, "evaluation_overrides", {})
+    if "torque_transport_delay_ms" in overrides:
+        env.domain.torque_delay.fill_(overrides["torque_transport_delay_ms"])
     if "sensor_delay_policy_ticks" in overrides:
         env.domain.sensor_delay.fill_(overrides["sensor_delay_policy_ticks"])
     if "instant_sensor_group" in overrides:
@@ -244,6 +309,11 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         env.domain.evaluation_immediate_features = groups[overrides["instant_sensor_group"]]
     from wheeled_tasks.chassis.evaluation_interventions import neutralize_evaluation_bias
     bias_intervention = neutralize_evaluation_bias(env, overrides.get("neutralize_bias"))
+    initial_path = Path(output).with_name(Path(output).name+"_precontrol_state.npz")
+    np.savez_compressed(initial_path,
+        root_pose=env.robot.data.root_link_pose_w.torch.detach().cpu().numpy(),
+        motor_position=env.robot.data.joint_pos.torch[:, env.ids].detach().cpu().numpy(),
+        motor_velocity=env.robot.data.joint_vel.torch[:, env.ids].detach().cpu().numpy())
     env.cfg["record_diagnostics"] = True
     alive = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
     snapshots = []
@@ -269,6 +339,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         sensor_delay_policy_ticks=env.domain.sensor_delay.detach().cpu().tolist(), motor_alpha=env.domain.motor_alpha.detach().cpu().tolist(),
         sensor_bias=env.domain.bias.detach().cpu().tolist(), pd_feedback_period_ms=env.getup_feedback.period.detach().cpu().tolist(),
         pd_feedback_delay_ms=env.getup_feedback.delay.detach().cpu().tolist(), pd_encoder_bias_rad=env.getup_feedback.bias.detach().cpu().tolist())
+    if env.domain.imu_mount is not None:
+        domain_parameters.update({key: value.detach().cpu().tolist() for key,value in env.domain.imu_mount.parameters().items()})
     lane_material = None
     if env.contact_material is not None:
         material = env.contact_material
@@ -326,6 +398,10 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
                 keep += ("pushing", "in_motion_fall", "recovered_after_push")
                 keep += ("wheel_clearance", "wheel_clearance_peak", "wheel_contact_fraction")
                 keep += ("wheel_air_run_peak", "dual_wheel_air_run_peak", "wheel_air_seconds")
+                keep += tuple(key for key in ("leg_speed_peak_rad_s", "leg_effort_peak_nm", "leg_saturation_fraction",
+                    "leg_effort_slew_rms_nm", "leg_saturation_run_s") if key in data)
+                keep += tuple(key for key in ("recovery_support_cost_density", "native_reward", "reward_density",
+                    "reward_potential_progress", "reward_recovery_active") if key in data)
                 snapshots.append({k: data[k].detach().cpu().numpy() for k in keep}
                                  | {k: value.detach().cpu().numpy() for k, value in reference_state.items()}
                                  | {"alive": mask.cpu().numpy(), "observations": obs["policy"].cpu().numpy()})
@@ -333,6 +409,15 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
             if tick % 400 == 399:
                 print(json.dumps(dict(stage="evaluation", output=str(output), simulated_seconds=(tick + 1) * env.policy_dt,
                     alive=int(alive.sum()), recovered=int(recovered.sum()), elapsed_s=time.monotonic()-start)), flush=True)
+                trace_directory = getattr(env, "evaluation_trace_directory", None)
+                if trace_directory is not None:
+                    trace_directory = Path(trace_directory)
+                    trace_directory.mkdir(parents=True, exist_ok=True)
+                    block = snapshots[-400:]
+                    np.savez_compressed(trace_directory / f"chunk_{tick//400:04d}.npz",
+                        **{key: np.stack([s[key] for s in block]) for key in block[0]})
+                    write_json(trace_directory / "progress.json", dict(completed_policy_steps=tick+1,
+                        simulated_seconds=(tick+1)*env.policy_dt, finished=False))
     arrays = {key: np.stack([s[key] for s in snapshots]) for key in snapshots[0]}
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
@@ -372,11 +457,16 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
         checkpoint_sha256=digest(env.evaluation_checkpoint) if getattr(env, "evaluation_checkpoint", None) else None,
         ablation_variants=getattr(env, "ablation_variants", False),
         source_scope="native simulation; no hardware motion", hardware_ready=False)
+    report["evaluation_overrides"] = getattr(env, "evaluation_overrides", {})
+    report["precontrol_state_sha256"] = digest(initial_path)
     if bias_intervention is not None:
         report["bias_intervention"] = bias_intervention
     write_json(output / "report.json", report)
     print(json.dumps({k: v for k, v in report.items() if k not in ("lanes", "material")}), flush=True)
-    env.fixed_cases = None
+    # Evaluation-only callers may construct from a frozen bank without the
+    # training floor-start labels. Restore their fixed reset contract too.
+    # Training callers retain the original None/reset behavior.
+    env.fixed_cases = previous_fixed_cases
     env.cfg["record_diagnostics"] = False
     env.reset(torch.arange(env.num_envs, device=env.device))
     return report
@@ -385,6 +475,8 @@ def evaluate(env, mean, output, torch, *, seed, seconds=12., cases=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--gap-actuator-timing", choices=("stress","native"),
+                        help="Isolate sensor/mass robustness while retaining native actuator response")
     parser.add_argument("--bank", type=Path, default=ROOT / "reports/unified_robust_20261021/pose_bank002.json")
     parser.add_argument("--mode", choices=("smoke", "train", "evaluate"), default="train")
     parser.add_argument("--updates", type=int, default=8)
@@ -412,6 +504,8 @@ def main():
     parser.add_argument("--quiet-wheel-bound", type=float, default=.5)
     parser.add_argument("--actor-variant", choices=("robust", "parent", "undamped"), default="robust")
     parser.add_argument("--domain-scale", type=float, default=1.)
+    parser.add_argument("--gap-robustness", action="store_true", help="Opt-in IMU mount, payload and leg-control robustness pilot")
+    parser.add_argument("--gap-severity", type=float, default=1.)
     parser.add_argument("--friction-min", type=float)
     parser.add_argument("--actor-lr", type=float, default=1e-4)
     parser.add_argument("--restore-quiet-checkpoint", type=Path)
@@ -419,8 +513,18 @@ def main():
     parser.add_argument("--quiet-only", action="store_true", help="Freeze motion/recovery and tune the quiet head, allowing 5 cm slow sway")
     parser.add_argument("--quiet-feedback-only", "--quiet-velocity-only", dest="quiet_velocity_only", action="store_true",
                         help="Quiet-only profile: train only the explicitly migrated feedback branch, keeping existing quiet MLPs fixed")
+    parser.add_argument("--quiet-output-only", action="store_true",
+                        help="Tune only the three authenticated existing quiet output layers; freeze other actor tensors and std")
+    parser.add_argument("--quiet-full-only", action="store_true",
+                        help="V8 trial: tune the existing quiet MLPs including hidden layers; freeze all other actor tensors and std")
     parser.add_argument("--standing-support-training", action="store_true",
                         help="Quiet-only profile: persistent request anchor, geometric support cost, 50%% high-height exposure")
+    parser.add_argument("--standing-contact-weight", type=float,
+                        help="Explicit quiet-output trial: native1ms minimum-load and wheel-separation density cost,0..16")
+    parser.add_argument("--standing-contact-break-cost", type=float,
+                        help="Contact-objective trial: cost per native1ms dual-support interruption,0..0.2 reward/event")
+    parser.add_argument("--grounded-standing-reset", action="store_true",
+                        help="Labelled reset-only placement of both wheel cylinders; requires a contact-objective trial")
     parser.add_argument("--early-standing-position", action="store_true",
                         help="Charge the 5 cm position envelope after the first .2 s instead of deferring it with vibration startup")
     parser.add_argument("--standing-drift-objective", action="store_true",
@@ -437,8 +541,18 @@ def main():
     parser.add_argument("--arc-only", action="store_true", help="Tune only the shared motion head with extra moderate simultaneous requests")
     parser.add_argument("--recovery-only", action="store_true",
                         help="Tune recovery with bounded world coordinates and more motion disturbances; freeze quiet/motion/std")
+    parser.add_argument("--motion-output-only", action="store_true",
+                        help="Tune only the authenticated existing motion output layer; freeze other actor tensors and std")
+    parser.add_argument("--followup-continuity-weight", type=float,
+                        help="Opt-in training-only density bonus0..5 from the unchanged native2s followup timer")
+    parser.add_argument("--entry-recovery-only", action="store_true",
+                        help="Train only the explicitly migrated learned entry head; freeze fallen/motion/quiet/std")
+    parser.add_argument("--recovery-support-weight", type=float,
+                        help="Opt-in training density cost for near-upright unrecovered wheel clearance,0..2")
     parser.add_argument("--side-recovery-focus", action="store_true",
                         help="Recovery-only reset exposure: 70%% side, 15%% inverted, 15%% other falls; retain20%% upright motion births")
+    parser.add_argument("--motion-recovery-focus", action="store_true",
+                        help="Recovery-only exposure: 80%% upright births with existing moving pushes, 20%% static recovery; preserve forces/reward")
     args = parser.parse_args()
     if not (1 <= args.updates <= 256 and 32 <= args.num_envs <= 1024 and 64 <= args.rollout_steps <= 512
             and args.num_envs % 4 == 0 and 2 <= args.eval_seconds <= 12):
@@ -492,12 +606,111 @@ def main():
         parser.error("Arc-only tuning already freezes quiet/recovery/std; choose a single mode")
     if args.recovery_only and (args.arc_only or args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):
         parser.error("Recovery-only tuning already freezes quiet/motion/std; choose a single mode")
+    if args.entry_recovery_only and not (args.mode == "train" and args.recovery_only and args.resume):
+        parser.error("Entry-only learning requires train, recovery-only and an explicitly migrated resume")
+    if args.recovery_support_weight is not None and not args.entry_recovery_only:
+        parser.error("This reward pilot requires entry-only learning to preserve early fallen actions")
     if args.side_recovery_focus and not args.recovery_only:
         parser.error("Side recovery exposure requires --recovery-only")
+    if args.motion_output_only and (not args.resume or args.mode != "train"
+            or any((args.recovery_only, args.entry_recovery_only, args.arc_only, args.quiet_only,
+                    args.freeze_quiet, args.focus_recovery_quiet, args.side_recovery_focus))):
+        parser.error("Motion output learning requires its V6 resume and excludes other actor tuning modes")
+    if args.quiet_output_only and (not args.resume or args.mode != "train" or not args.quiet_only
+            or any((args.quiet_full_only, args.quiet_velocity_only, args.high_standing_only, args.recovery_only,
+                    args.entry_recovery_only, args.arc_only, args.motion_output_only))):
+        parser.error("Quiet output learning requires its V7 resume and quiet-only mode without another tuning scope")
+    if args.quiet_full_only and (not args.resume or args.mode != "train" or not args.quiet_only
+            or any((args.quiet_output_only, args.quiet_velocity_only, args.high_standing_only,
+                    args.recovery_only, args.entry_recovery_only, args.arc_only, args.motion_output_only))):
+        parser.error("Complete quiet MLP learning requires a V8 resume and a single quiet-only tuning scope")
+    if args.standing_contact_weight is not None:
+        from wheeled_tasks.chassis.standing_contact_reward import contract
+        try:
+            contract(args.standing_contact_weight, args.grounded_standing_reset)
+        except ValueError as error:
+            parser.error(str(error))
+        if not ((args.quiet_output_only or args.quiet_full_only) and args.standing_support_training and args.early_standing_position):
+            parser.error("Contact objective requires authenticated quiet-output, support and early-position training")
+    elif args.grounded_standing_reset:
+        parser.error("Grounded standing reset requires an explicit contact-objective trial")
+    if args.standing_contact_break_cost is not None:
+        from wheeled_tasks.chassis.standing_contact_continuity import contract
+        try:
+            contract(args.standing_contact_break_cost)
+        except ValueError as error:
+            parser.error(str(error))
+        if args.standing_contact_weight is None or not args.grounded_standing_reset:
+            parser.error("Support-break training requires the dense native contact cost and grounded reset")
+    if args.motion_recovery_focus and (not (args.recovery_only or args.motion_output_only) or args.side_recovery_focus):
+        parser.error("Moving recovery exposure requires recovery or motion-output tuning without side-recovery-focus")
+    if args.followup_continuity_weight is not None:
+        import math
+        if (not args.motion_output_only or not args.motion_recovery_focus
+                or not math.isfinite(args.followup_continuity_weight)
+                or not 0. <= args.followup_continuity_weight <= 5.):
+            parser.error("Continuity reward requires bounded0..5 weight and authenticated moving motion-output training")
     if args.curriculum_origin < 0:
         parser.error("Curriculum origin must be nonnegative; it does not reset optimizer consumption")
+    if args.resume:
+        import torch
+        resume_info = torch.load(args.resume, map_location="cpu", weights_only=False)["infos"]
+        function_root = resume_info.get("schema") == "robust-getup-checkpoint-v3"
+        fallen_function_root = resume_info.get("schema") == "robust-getup-checkpoint-v5"
+        motion_function_root = resume_info.get("schema") == "robust-getup-checkpoint-v6"
+        quiet_full_function_root = resume_info.get("schema") == "robust-getup-checkpoint-v8"
+        quiet_function_root = resume_info.get("schema") in ("robust-getup-checkpoint-v7", "robust-getup-checkpoint-v8")
+        if "training_reward_contract" in resume_info:
+            if args.followup_continuity_weight != resume_info["training_reward_contract"]["weight_density_per_second"]:
+                parser.error("Resuming a reward trial requires its explicit unchanged reward weight")
+        if "standing_contact_training_contract" in resume_info:
+            contact = resume_info["standing_contact_training_contract"]
+            if (args.standing_contact_weight != contact["weight_density_per_second"]
+                    or args.grounded_standing_reset != contact["grounded_reset"]):
+                parser.error("Resuming a standing-contact trial requires its unchanged objective and reset protocol")
+        if "standing_contact_continuity_contract" in resume_info:
+            if args.standing_contact_break_cost != resume_info["standing_contact_continuity_contract"]["reward_cost_per_break"]:
+                parser.error("Resuming support-break training requires its explicit unchanged event cost")
+        if motion_function_root != args.motion_output_only:
+            parser.error("V6 requires --motion-output-only; that mode requires an authenticated V6 source")
+        if (quiet_function_root and not quiet_full_function_root) != args.quiet_output_only:
+            parser.error("V7 requires --quiet-output-only; that mode requires an authenticated V7 source")
+        if quiet_full_function_root != args.quiet_full_only:
+            parser.error("V8 requires --quiet-full-only; that mode requires an authenticated V8 source")
+        if fallen_function_root and (args.mode != "train" or not args.recovery_only or args.entry_recovery_only):
+            parser.error("V5 resumes require the existing fallen output-only training mode")
+        revised_function = (resume_info["settings"].get("gap_entry_encoder_version")
+                            or resume_info["settings"].get("motion_leg_damping_version"))
+        if function_root and (args.mode != "train" or not args.entry_recovery_only):
+            parser.error("V3 resumes support entry-only training; use the dedicated native scripts for evaluation")
+        if args.mode == "train" and (function_root or revised_function) and not (fallen_function_root or motion_function_root or quiet_function_root):
+            if not function_root or not args.entry_recovery_only:
+                parser.error("Periodic/motion training requires the explicit V3 entry-only optimizer initialization")
+        if function_root or revised_function or fallen_function_root or motion_function_root or quiet_function_root:
+            from export_robust_getup import load_mean as load_authenticated_mean
+            load_authenticated_mean(args.resume)
     args.output.mkdir(parents=True, exist_ok=False)
     cfg, task = prepare(args)
+    if args.resume and (function_root or fallen_function_root or motion_function_root or quiet_function_root):
+        if quiet_function_root:
+            if quiet_full_function_root:
+                from wheeled_algo.quiet_full_checkpoint import validate_training_settings
+            else:
+                from wheeled_algo.quiet_output_checkpoint import validate_training_settings
+            root_record = resume_info["policy_function_root"]
+        elif motion_function_root:
+            from wheeled_algo.motion_output_checkpoint import validate_training_settings
+            root_record = resume_info["policy_function_root"]
+        elif fallen_function_root:
+            from wheeled_algo.fallen_output_checkpoint import validate_training_settings
+            root_record = resume_info["policy_function_root"]
+        else:
+            from wheeled_algo.function_root_checkpoint import validate_training_settings
+            root_record = resume_info["training_function_root"]
+        from export_robust_getup import load_mean as load_authenticated_mean
+        root_info = torch.load(root_record["checkpoint"],
+                               map_location="cpu", weights_only=False)["infos"]
+        validate_training_settings(task, root_info["settings"])
     if args.curriculum_updates != task["curriculum_updates"]:
         from wheeled_tasks.chassis.unified_getup import validate_settings
         task["curriculum_updates"] = args.curriculum_updates
@@ -505,6 +718,19 @@ def main():
         task_path = args.output / "task_contract.json"
         task_contract = json.loads(task_path.read_text())
         task_contract["settings"] = task
+        write_json(task_path, task_contract)
+    if args.standing_contact_weight is not None:
+        from wheeled_tasks.chassis.standing_contact_reward import contract
+        task_path = args.output / "task_contract.json"
+        task_contract = json.loads(task_path.read_text())
+        task_contract["standing_contact_training_contract"] = contract(args.standing_contact_weight,
+            args.grounded_standing_reset)
+        write_json(task_path, task_contract)
+    if args.standing_contact_break_cost is not None:
+        from wheeled_tasks.chassis.standing_contact_continuity import contract
+        task_path = args.output / "task_contract.json"
+        task_contract = json.loads(task_path.read_text())
+        task_contract["standing_contact_continuity_contract"] = contract(args.standing_contact_break_cost)
         write_json(task_path, task_contract)
     sources = [ROOT / "scripts/train_robust_getup.py", ROOT / "scripts/build_robust_getup_bank.py",
         ROOT / "src/wheeled_tasks/chassis/robust_getup.py", ROOT / "src/wheeled_tasks/chassis/robust_getup_env.py",
@@ -518,6 +744,12 @@ def main():
     if task.get("quiet_velocity_feedback_mode") in ("rolling_velocity", "standing_displacement"):
         from wheeled_algo.rolling_velocity import frozen_table_path
         sources.append(frozen_table_path())
+        from wheeled_tasks.chassis.standing_geometry107 import SCHEMA, table_path
+        from wheeled_tasks.chassis.standing_sensor_winding import SCHEMA as WINDING_SCHEMA
+        from wheeled_tasks.chassis.standing_sensor_uncertainty import SCHEMA as SENSOR_SCHEMA
+        from wheeled_tasks.chassis.standing_recovery_reference import SCHEMA as REFERENCE_SCHEMA
+        if (task.get("standing_position_observation") or {}).get("schema") in (SCHEMA, WINDING_SCHEMA, SENSOR_SCHEMA, REFERENCE_SCHEMA):
+            sources.append(table_path())
     hashes = {}
     for p in sources:
         relative = p.relative_to(ROOT)
@@ -527,6 +759,7 @@ def main():
         target.write_bytes(p.read_bytes())
     report = dict(schema="robust-getup-pilot-v2", status="starting", pid=os.getpid(),
         started_at=datetime.now(timezone.utc).isoformat(), new_optimizer_updates=0,
+        new_optimizer_attempts=0, optimizer_update_in_flight=False,
         completed_updates=0, source_sha256=hashes, task_contract_sha256=digest(args.output / "task_contract.json"),
         hardware_ready=False, args={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()})
     write_json(args.output / "progress.json", report)
@@ -549,16 +782,58 @@ def main():
         control = load_chassis_control(ROOT / cfg["control_math_source"])
         env = RobustGetupEnv(cfg, manifest, control, ROOT, stage_name="speed", num_envs=args.num_envs,
             device=args.device, seed=args.seed, level=1., run_role="train", bank=args.bank, settings=task)
+        if args.followup_continuity_weight is not None:
+            from wheeled_tasks.chassis.followup_continuity_reward import install
+            report["training_reward_contract"] = install(env, args.followup_continuity_weight)
+            write_json(args.output / "training_reward_contract.json", report["training_reward_contract"])
+        if args.standing_contact_weight is not None:
+            from wheeled_tasks.chassis.standing_contact_reward import install
+            report["standing_contact_training_contract"] = install(env, args.standing_contact_weight,
+                grounded_reset=args.grounded_standing_reset)
+            write_json(args.output / "standing_contact_training_contract.json", report["standing_contact_training_contract"])
+        if args.standing_contact_break_cost is not None:
+            from wheeled_tasks.chassis.standing_contact_continuity import install
+            report["standing_contact_continuity_contract"] = install(env, args.standing_contact_break_cost)
+            write_json(args.output / "standing_contact_continuity_contract.json", report["standing_contact_continuity_contract"])
         actor_type, extra = RobustGetupActor, {}
         if "quiet_output_wheel_alpha" in task:
             from wheeled_algo.quiet_output_actor import QuietOutputGetupActor
             actor_type = QuietOutputGetupActor
             extra["quiet_output_wheel_alpha"] = task["quiet_output_wheel_alpha"]
+        if task.get("gap_robustness_version"):
+            from wheeled_algo.gap_robust_actor import GapRobustGetupActor
+            actor_type = GapRobustGetupActor
+            extra["upright_entry_recovery"] = task["upright_entry_recovery"]
+            if task.get("gap_entry_handoff_version") == "orbit-v2":
+                from wheeled_algo.gap_entry_handoff import HandoffGapGetupActor
+                actor_type = HandoffGapGetupActor
+            if task.get("gap_upright_target_limit_version"):
+                if task.get("gap_entry_handoff_version") != "orbit-v2":
+                    raise ValueError("Final target limiter requires the authenticated orbit-v2 actor")
+                from wheeled_algo.upright_target_limit import UprightTargetLimitedGapActor
+                actor_type = UprightTargetLimitedGapActor
+                extra["final_target_winding_version"] = task.get("gap_final_target_winding_version")
+            if task.get("gap_entry_recovery_split_version"):
+                if task.get("gap_entry_handoff_version") != "orbit-v2" or task.get("gap_upright_target_limit_version") != "error-v1":
+                    raise ValueError("Frozen entry requires orbit-v2 and the unchanged final target limit")
+                from wheeled_algo.gap_entry_preservation import EntryPreservingGapActor
+                actor_type = EntryPreservingGapActor
+        if task.get("gap_entry_encoder_version"):
+            if not task.get("gap_entry_recovery_split_version"):
+                raise ValueError("Periodic entry requires the separate entry head")
+            from wheeled_algo.periodic_entry_actor import PeriodicEntryGapActor
+            actor_type = PeriodicEntryGapActor
+        if task.get("motion_leg_damping_version"):
+            from wheeled_algo.motion_target_damping import MotionTargetDampedGapActor
+            actor_type = MotionTargetDampedGapActor
+            extra["motion_leg_alpha"] = task["motion_leg_damping_alpha"]
         mean = actor_type(load_mean(torch), quiet_alpha=task["quiet_actor_alpha"],
             canonical_recovery=task["canonical_recovery"], motion_residual_fraction=task["motion_residual_fraction"],
             cyclic_leg_targets=task["cyclic_leg_targets"], leg_action_clip=task["leg_action_clip"],
             recovery_leg_step=task["recovery_leg_step"], smooth_knee_targets=task["smooth_knee_targets"],
             recovery_knee_center=task["recovery_knee_center"],
+            recovery_knee_step=task.get("recovery_knee_step", .15),
+            recovery_previous_common_version=task.get("recovery_previous_common_version"),
             quiet_velocity_feature_scale=task["quiet_velocity_feature_scale"], quiet_wheel_bound=task["quiet_wheel_bound"],
             quiet_velocity_feature_gain=task.get("quiet_velocity_feature_gain", 1.),
             quiet_velocity_feedback=task.get("quiet_velocity_feedback", False),
@@ -578,6 +853,11 @@ def main():
             raise ValueError("Initialization must be an authenticated v1 recovery checkpoint")
         mean.initialize_from_unified({k.removeprefix("mlp."): v for k, v in initialization["actor_state_dict"].items() if k.startswith("mlp.")})
         mean.action_bound[:4].fill_(task["leg_action_clip"])
+        if args.resume and (fallen_function_root or motion_function_root or quiet_function_root):
+            # Rebuild the authenticated complete runtime, including its explicit
+            # zero-strength stance extension. Optimizer layout stays legacy28.
+            mean, _ = load_authenticated_mean(args.resume)
+            mean = mean.to(args.device)
         env.actor_variant = args.actor_variant
         env.ablation_variants = args.ablation_compare
         report["startup"] = env.startup_report
@@ -604,11 +884,28 @@ def main():
                 init_std=.5, std_type="log", std_range=[.003, .8])
             write_json(args.output / "agent_config.json", runner_cfg)
             runner = OnPolicyRunner(env, runner_cfg, log_dir=str(args.output), device=args.device)
-            runner.alg.actor.mlp = SensorConditionedMean(mean, task.get("quiet_exploration_fraction", .35),
-                task.get("quiet_wheel_exploration_fraction")).to(args.device)
+            distribution_type = SensorConditionedMean
+            if task.get("gap_robustness_version"):
+                from wheeled_algo.gap_robust_actor import GapSensorConditionedMean
+                distribution_type = GapSensorConditionedMean
+                if task.get("gap_entry_handoff_version") == "orbit-v2":
+                    from wheeled_algo.gap_entry_handoff import HandoffGapConditionedMean
+                    distribution_type = HandoffGapConditionedMean
+            distribution_kwargs = {}
+            if "gap_recovery_leg_exploration_fraction" in task:
+                if task.get("gap_entry_handoff_version") != "orbit-v2":
+                    raise ValueError("Bounded fallen exploration requires the orbit-v2 distribution")
+                from wheeled_algo.gap_recovery_exploration import GapRecoveryNoiseMean
+                distribution_type = GapRecoveryNoiseMean
+                distribution_kwargs["recovery_leg_fraction"] = task["gap_recovery_leg_exploration_fraction"]
+            runner.alg.actor.mlp = distribution_type(mean, task.get("quiet_exploration_fraction", .35),
+                task.get("quiet_wheel_exploration_fraction"), **distribution_kwargs).to(args.device)
             if any(p.device != torch.device(args.device) for p in runner.alg.actor.parameters()):
                 raise RuntimeError("Actor parameters must all reside on the policy device")
             runner.alg.critic.load_state_dict(initialization["critic_state_dict"], strict=True)
+            if task.get("gap_entry_optimizer_layout") is not None:
+                from wheeled_algo.entry_optimizer import prepare_entry_optimizer_parameters
+                prepare_entry_optimizer_parameters(mean, task)
             runner.alg.optimizer = torch.optim.Adam([
                 dict(params=[p for p in runner.alg.actor.parameters() if p.requires_grad], lr=args.actor_lr, name="actor"),
                 dict(params=runner.alg.critic.parameters(), lr=1e-3, name="critic")])
@@ -616,7 +913,7 @@ def main():
             quiet_source_info = None
             if args.resume:
                 state = torch.load(args.resume, map_location=args.device, weights_only=False)
-                if state["infos"]["schema"] != "robust-getup-checkpoint-v2" or state["infos"]["bank_sha256"] != digest(args.bank):
+                if state["infos"]["schema"] not in ("robust-getup-checkpoint-v2", "robust-getup-checkpoint-v3", "robust-getup-checkpoint-v5", "robust-getup-checkpoint-v6", "robust-getup-checkpoint-v7", "robust-getup-checkpoint-v8") or state["infos"]["bank_sha256"] != digest(args.bank):
                     raise ValueError("Resume checkpoint or mechanism bank differs")
                 runner.alg.load(state, load_cfg=None, strict=True)
                 parent_updates = state["infos"]["completed_updates"]
@@ -633,6 +930,7 @@ def main():
                 mean.quiet_alpha.copy_(mean.quiet_alpha.new_tensor(task["quiet_actor_alpha"]))
             for group in runner.alg.optimizer.param_groups:
                 group["lr"] = args.actor_lr if group["name"] == "actor" else 1e-3
+            runner.alg.learning_rate = args.actor_lr
             # A revision may enlarge the representation without changing torque
             # limits. Checkpoint buffers must not silently restore the old clip.
             mean.action_bound[:4].fill_(task["leg_action_clip"])
@@ -673,6 +971,8 @@ def main():
                         old_wheel_bound=old_bound, new_wheel_bound=task["quiet_wheel_bound"],
                         purpose="preserve the small-signal initial action while improving quiet-head learning conditioning",
                         optimizer="only rescaled quiet-head moments cleared")
+            if task.get("gap_entry_optimizer_layout") is not None:
+                mean.entry_recovery.requires_grad_(False)
             if args.freeze_quiet:
                 for head in quiet_heads + velocity_heads:
                     head.requires_grad_(False)
@@ -700,6 +1000,20 @@ def main():
                     head.requires_grad_(False)
                 mean.arc.requires_grad_(False)
                 runner.alg.actor.mlp.log_std.requires_grad_(False)
+            if args.resume and fallen_function_root:
+                runner.alg.actor.requires_grad_(False)
+                mean.recovery[-1].requires_grad_(True)
+            if args.resume and motion_function_root:
+                runner.alg.actor.requires_grad_(False)
+                mean.arc[-1].requires_grad_(True)
+            if args.resume and quiet_function_root:
+                runner.alg.actor.requires_grad_(False)
+                for head in quiet_heads:
+                    (head if quiet_full_function_root else head[-1]).requires_grad_(True)
+            if args.entry_recovery_only:
+                from wheeled_algo.entry_optimizer import freeze_except_entry
+                freeze_except_entry(runner.alg.actor.mlp)
+            recovery_trainable_prefix = "entry_recovery." if args.entry_recovery_only else "recovery."
             quiet_trainable_prefixes = (("quiet_velocity.",) if args.quiet_velocity_only
                 else ("quiet_high.", "quiet_velocity.high.") if args.high_standing_only and mean.quiet_height_experts
                 else ("quiet.", "quiet_low.", "quiet_high.", "quiet_velocity."))
@@ -713,13 +1027,24 @@ def main():
                                if not k.startswith("arc.")} if args.arc_only else None)
             frozen_arc_std = runner.alg.actor.mlp.log_std.detach().clone() if args.arc_only else None
             frozen_non_recovery = ({k: v.detach().clone() for k, v in mean.state_dict().items()
-                                    if not k.startswith("recovery.")} if args.recovery_only else None)
+                                    if not k.startswith(recovery_trainable_prefix)} if args.recovery_only else None)
             frozen_recovery_std = runner.alg.actor.mlp.log_std.detach().clone() if args.recovery_only else None
             report["trainable_actor_parameters"] = sum(p.numel() for p in runner.alg.actor.parameters() if p.requires_grad)
             report["parent_updates"] = parent_updates
             report["completed_updates"] = parent_updates
             env.actor_updates = parent_updates
             install_axis_std_logging(runner.logger)
+            if "gap_recovery_leg_exploration_fraction" in task:
+                original_log = runner.logger.log
+
+                def log_distribution(*args, **kwargs):
+                    result = original_log(*args, **kwargs)
+                    if runner.logger.writer is not None:
+                        runner.logger.writer.add_scalar("Exploration/recovery_leg_fraction",
+                            task["gap_recovery_leg_exploration_fraction"], kwargs["it"])
+                    return result
+
+                runner.logger.log = log_distribution
             mask = RecoveryRolloutMask(runner.alg, num_envs=args.num_envs)
             original_update, original_save = runner.alg.update, runner.save
 
@@ -739,21 +1064,111 @@ def main():
                     focus_recovery_quiet=args.focus_recovery_quiet,
                     arc_only_tuning=args.arc_only,
                     recovery_only_tuning=args.recovery_only,
+                    entry_recovery_only_tuning=args.entry_recovery_only,
+                    head_composition=(deepcopy(state["infos"].get("head_composition")) if args.resume else None),
                     hardware_ready=False, prior_parent_updates=1346, initial_policy_training_updates="unknown")
-                original_save(path, infos=info)
+                if "training_reward_contract" in report:
+                    info["training_reward_contract"] = deepcopy(report["training_reward_contract"])
+                if "standing_contact_training_contract" in report:
+                    info["standing_contact_training_contract"] = deepcopy(report["standing_contact_training_contract"])
+                if "standing_contact_continuity_contract" in report:
+                    info["standing_contact_continuity_contract"] = deepcopy(report["standing_contact_continuity_contract"])
+                if args.resume:
+                    # Observation revisions and zero-PPO probes are ancestry,
+                    # not optimizer updates; retain their exact provenance.
+                    for key in ("observation_geometry_migration", "observation_winding_migration",
+                                "observation_sensor_projection_migration", "observation_entry_reference_migration",
+                                "observation_filter_migration", "feedback_scale_probe", "recovery_step_migration",
+                                "pose_bank_migration", "recovery_knee_request_migration",
+                                "recovery_exploration_migration", "entry_recovery_preservation",
+                                "entry_optimizer_migration", "entry_recovery_learning"):
+                        if key in state["infos"]:
+                            info[key] = deepcopy(state["infos"][key])
+                if args.entry_recovery_only:
+                    if state["infos"]["schema"] == "robust-getup-checkpoint-v3":
+                        from wheeled_algo.function_root_checkpoint import SCHEMA, make_progress, environment_revision
+                        info.update(schema=SCHEMA,
+                            training_function_root=deepcopy(state["infos"]["training_function_root"]),
+                            function_root_stage="native-training",
+                            function_root_learning=make_progress(args.resume, state, runner.alg.actor.state_dict(),
+                                                                  report["new_optimizer_updates"]))
+                        revision = environment_revision(root_info["source_sha256"], hashes, task)
+                        if revision is not None:
+                            info["function_root_environment_revision"] = revision
+                    else:
+                        from wheeled_algo.entry_checkpoint import make_entry_learning_record
+                        info["entry_recovery_learning"] = make_entry_learning_record(
+                            args.resume, state, runner.alg.actor.state_dict(),
+                            report["completed_updates"], report["new_optimizer_updates"])
+                if args.resume and (fallen_function_root or motion_function_root or quiet_function_root):
+                    if quiet_function_root:
+                        if quiet_full_function_root:
+                            from wheeled_algo.quiet_full_checkpoint import SCHEMA, make_progress, environment_revision
+                            info["quiet_full_only_tuning"] = True
+                        else:
+                            from wheeled_algo.quiet_output_checkpoint import SCHEMA, make_progress, environment_revision
+                        info["quiet_output_only_tuning"] = not quiet_full_function_root
+                        info["motion_output_only_tuning"] = False
+                    elif motion_function_root:
+                        from wheeled_algo.motion_output_checkpoint import SCHEMA, make_progress, environment_revision
+                        info["motion_output_only_tuning"] = True
+                    else:
+                        from wheeled_algo.fallen_output_checkpoint import SCHEMA, make_progress, environment_revision
+                    info.update(schema=SCHEMA,policy_function_root=deepcopy(state["infos"]["policy_function_root"]),
+                        policy_function_stage="native-training",
+                        policy_function_learning=make_progress(args.resume,state,runner.alg.actor.state_dict(),report["new_optimizer_updates"]))
+                    revision=environment_revision(root_info["source_sha256"],hashes,task)
+                    if revision is not None:
+                        info["policy_function_environment_revision"]=revision
+                target=Path(path)
+                pending=target.with_suffix(target.suffix+".pending")
+                original_save(str(pending), infos=info)
+                if args.resume and (fallen_function_root or motion_function_root or quiet_function_root):
+                    if quiet_function_root:
+                        if quiet_full_function_root:
+                            from wheeled_algo.quiet_full_checkpoint import validate_state
+                        else:
+                            from wheeled_algo.quiet_output_checkpoint import validate_state
+                    elif motion_function_root:
+                        from wheeled_algo.motion_output_checkpoint import validate_state
+                    else:
+                        from wheeled_algo.fallen_output_checkpoint import validate_state
+                    from export_robust_getup import load_mean as load_checked_mean
+                    root_path=state["infos"]["policy_function_root"]["checkpoint"]
+                    root_state=torch.load(root_path,map_location="cpu",weights_only=False)
+                    validate_state(torch.load(pending,map_location="cpu",weights_only=False),root_state,
+                        torch.load(args.resume,map_location="cpu",weights_only=False),state["infos"]["policy_function_root"]["optimizer_actor_parameter_names"])
+                    load_checked_mean(pending)
+                pending.replace(target)
+
+            stop_requested = False
+
+            def request_stop(signum, frame):
+                nonlocal stop_requested
+                stop_requested = True
+                report["stop_requested_signal"] = signum
 
             def update():
+                # Charge an attempted update even if native PPO fails part way
+                # through its minibatches. Never silently refund failed work.
+                report["new_optimizer_attempts"] += 1
+                report["optimizer_update_in_flight"] = True
+                write_json(args.output / "progress.json", report)
                 losses = original_update()
+                report["new_optimizer_updates"] += 1
+                report["optimizer_update_in_flight"] = False
+                report["completed_updates"] = parent_updates + report["new_optimizer_updates"]
                 if not all(torch.isfinite(p).all() for model in (runner.alg.actor, runner.alg.critic) for p in model.parameters()):
                     raise RuntimeError("Nonfinite PPO parameters")
-                report["new_optimizer_updates"] += 1
-                report["completed_updates"] = parent_updates + report["new_optimizer_updates"]
                 report["last_losses"] = {k: float(v) for k, v in losses.items()}
                 report["valid_rollout"] = mask.metrics
                 report["elapsed_s"] = time.monotonic() - start
                 report["status"] = "training"
                 env.actor_updates = report["completed_updates"]
                 write_json(args.output / "progress.json", report)
+                if stop_requested:
+                    save(str(args.output / "model_stopped.pt"))
+                    raise TrainingStopped()
                 return losses
 
             runner.save, runner.alg.update = save, update
@@ -770,6 +1185,8 @@ def main():
                 report["baseline_evaluation"] = evaluate(env, mean, args.output / "baseline_eval", torch,
                                                          seed=args.seed + 100, seconds=args.eval_seconds)
             if args.mode == "train":
+                signal.signal(signal.SIGTERM, request_stop)
+                signal.signal(signal.SIGINT, request_stop)
                 runner.current_learning_iteration = parent_updates
                 if not (args.output / "model_initial.pt").exists():
                     save(str(args.output / "model_initial.pt"))
@@ -793,7 +1210,7 @@ def main():
                     if (any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_non_recovery.items())
                             or not torch.equal(frozen_recovery_std, runner.alg.actor.mlp.log_std)):
                         raise RuntimeError("Recovery tuning changed frozen quiet, motion, parent or exploration")
-                    report["frozen_non_recovery_and_std_unchanged"] = True
+                    report["frozen_non_entry_and_std_unchanged" if args.entry_recovery_only else "frozen_non_recovery_and_std_unchanged"] = True
                 save(str(args.output / "model_final.pt"))
                 env.evaluation_checkpoint = args.output / "model_final.pt"
             else:
@@ -806,6 +1223,11 @@ def main():
         write_json(args.output / "progress.json", report)
         print(json.dumps(dict(status=report["status"], updates=report["new_optimizer_updates"],
                               elapsed_s=report["elapsed_s"])), flush=True)
+    except TrainingStopped:
+        report.update(status="stopped", stopped_checkpoint=str(args.output / "model_stopped.pt"),
+                      elapsed_s=time.monotonic() - start)
+        write_json(args.output / "progress.json", report)
+        print(json.dumps(dict(status="stopped", updates=report["new_optimizer_updates"])), flush=True)
     except BaseException:
         report.update(status="failed", error=traceback.format_exc(), elapsed_s=time.monotonic() - start)
         write_json(args.output / "progress.json", report)

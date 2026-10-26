@@ -1,18 +1,22 @@
 import math
 from types import SimpleNamespace
 import torch
+import pytest
 
 from wheeled_tasks.chassis.standing_failure_termination import install
 
 
-def environment(*, fixed=False, native_done=False):
+def environment(*, fixed=False, native_done=False, domains=False, explicit=False):
     state = dict(gravity=torch.tensor([[math.sin(math.radians(25)), 0., -math.cos(math.radians(25))]]),
         height=torch.tensor([.305]), commands=torch.tensor([[0., 0., .305]]),
         requested_command=torch.tensor([[0., 0., .305]]), terminated=torch.tensor([native_done]))
     extras = dict(diagnostics=state, policy_learning_mask=torch.tensor([True]),
         policy_bootstrap_mask=torch.tensor([not native_done]), time_outs=torch.tensor([False]), log={})
     calls = []
-    env = SimpleNamespace(cfg={"record_diagnostics": True}, getup_cfg={"motion_fraction": 1., "domains_enabled": False},
+    config = {"motion_fraction": 1., "domains_enabled": domains}
+    if explicit:
+        config["randomization_study"] = dict(schema="wheel-leg-resolved-randomization-study-v2", profile="requested")
+    env = SimpleNamespace(cfg={"record_diagnostics": True}, getup_cfg=config,
         fixed_cases=[{}] if fixed else None, history=SimpleNamespace(last_tick=10),
         step=lambda action: ({"policy": "before"}, torch.tensor([.1]), torch.tensor([native_done]), extras),
         reset=lambda ids: calls.append(ids.tolist()), get_observations=lambda: {"policy": "reset"})
@@ -40,3 +44,21 @@ def test_existing_mechanical_failure_is_not_charged_or_reset_twice():
     env, resets = environment(native_done=True)
     _, reward, done, _ = env.step(None)
     assert done.item() and not resets and abs(reward.item() - .1) < 1e-6
+
+
+def test_explicit_domains_use_the_same_true_state_failure_and_cost():
+    env, resets = environment(domains=True, explicit=True)
+    _, reward, done, _ = env.step(None)
+    assert done.item() and resets == [[0]] and abs(reward.item() + 2.9) < 1e-6
+    assert env.standing_failure_termination["max_tilt_deg"] == 20.
+
+
+def test_randomized_fixed_evaluation_still_keeps_the_full_trace():
+    env, resets = environment(domains=True, explicit=True, fixed=True)
+    _, reward, done, _ = env.step(None)
+    assert not resets and not done.item() and abs(reward.item() - .1) < 1e-6
+
+
+def test_undeclared_legacy_domains_remain_rejected():
+    with pytest.raises(ValueError, match="explicit resolved"):
+        environment(domains=True)

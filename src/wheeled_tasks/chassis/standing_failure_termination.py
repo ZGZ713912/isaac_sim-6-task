@@ -1,4 +1,4 @@
-"""End failed nominal standing training episodes, preserving fixed evaluation."""
+"""End failed standing training episodes, preserving full fixed evaluation."""
 import math
 import torch
 
@@ -6,8 +6,11 @@ import torch
 def install(env, *, tilt_deg=20., height_error_m=.025, cost=3.):
     if hasattr(env, "standing_failure_termination") or not env.cfg.get("record_diagnostics"):
         raise ValueError("Attach once after the precise standing objective")
-    if env.getup_cfg["motion_fraction"] != 1. or env.getup_cfg["domains_enabled"]:
-        raise ValueError("This admission profile is limited to nominal standing foundation training")
+    study = env.getup_cfg.get("randomization_study", {})
+    explicit_domains = study.get("schema") in ("wheel-leg-resolved-randomization-study-v1",
+                                               "wheel-leg-resolved-randomization-study-v2")
+    if env.getup_cfg["motion_fraction"] != 1. or env.getup_cfg["domains_enabled"] and not explicit_domains:
+        raise ValueError("Standing foundation requires nominal or an explicit resolved domain study")
     native_step = env.step
 
     def step(actions):
@@ -44,4 +47,7 @@ def install(env, *, tilt_deg=20., height_error_m=.025, cost=3.):
         max_height_error_m=height_error_m, additional_failure_cost=cost,
         state_writes="episode reset only", applied_to_fixed_evaluation=False,
         mechanical_guards_unchanged=True, contact_acceptance_unchanged=True)
+    if explicit_domains:
+        env.standing_failure_termination["domain_scope"] = dict(schema=study["schema"], profile=study["profile"],
+            termination_state="true simulated state before reset; observation noise does not change these gates")
     return env.standing_failure_termination

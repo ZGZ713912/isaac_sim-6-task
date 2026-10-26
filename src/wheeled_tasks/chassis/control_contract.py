@@ -66,6 +66,9 @@ def validate_chassis_control(control):
                 "curve_side", "curve_kind", "torque_reference", "scope", "source_note"}
     if set(wheel) != required:
         raise ValueError("Explicit wheel-output cap must not include an ambiguous motor-side curve or conversion")
+    # The RMCS hardware driver now sets 15.62 explicitly; this identity field stays
+    # 15.8 as frozen provenance and never scales the wheel-output torque cap. See
+    # docs/WHEEL_LEG_WHEEL_REDUCTION_20261026.md.
     for key, expected in (("model", "M3508"), ("gear_ratio", 15.8), ("gearbox_efficiency", 1.),
                           ("kd", .6), ("effort_limit", 4.5), ("curve_side", "wheel_output"),
                           ("torque_reference", "wheel_output"),
