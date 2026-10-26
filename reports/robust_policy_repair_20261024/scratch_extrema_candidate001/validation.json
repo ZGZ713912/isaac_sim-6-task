@@ -1,0 +1,54 @@
+{
+  "schema": "scratch-rollout-extrema-unapplied-candidate-v1",
+  "observed_utc": "2026-10-26T06:22:44.835346+00:00",
+  "synthetic_input": "128 decisions,5 physical samples per decision,2 environments,4 leg motors; one50rad/s impulse at the first physical sample",
+  "actual_existing_RSL_logged_mean_rad_s": 0.390625,
+  "candidate_true_peak_rad_s": 50.0,
+  "synthetic_RNG_and_input_unchanged": true,
+  "synthetic_events": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_extrema_candidate001/synthetic_logger_control002.events",
+    "files_sha256": {
+      "events.out.tfevents.1792995764.ZGZ.775393.0": "2af908ddbfd8708c876c3e62842b9afbf6049c13baa0131a8c22ffaa2acec948"
+    },
+    "verified_scalar_count": 11
+  },
+  "native_source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_feedback002/evaluation",
+  "native_trace_sha256": "6fab3674dc77877c761022388ebc689e1bf677272c9c6e7fff206748105f8640",
+  "native_observer_result": {
+    "peak_leg_speed_rad_s": 0.8671355843544006,
+    "policy_decisions": 1600,
+    "observed_leg_motor_samples": 224000,
+    "peak_leg0_speed_rad_s": 0.5624868869781494,
+    "peak_leg1_speed_rad_s": 0.8671355843544006,
+    "peak_leg2_speed_rad_s": 0.29931730031967163,
+    "peak_leg3_speed_rad_s": 0.45197439193725586,
+    "leg_motor_samples_at_or_above_3_rad_s": 0,
+    "leg_motor_samples_at_or_above_10_rad_s": 0,
+    "leg_motor_samples_at_or_above_50_rad_s": 0
+  },
+  "original_actual_1ms_peak_reproduced": true,
+  "native_events": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_extrema_candidate001/native007_trace_replay002.events",
+    "files_sha256": {
+      "events.out.tfevents.1792995764.ZGZ.775393.1": "c6d50c2bf866825e79e9ef4ddd4d94c3893994e2692e3632355adda078656e89"
+    },
+    "verified_scalar_count": 10
+  },
+  "installed_RSL_logger_sha256": "ff9a592899c6eb803d4a434cef8712aa0424575ac01b13575f3efe2596d4116e",
+  "installed_RSL_logger_copy_sha256": "ff9a592899c6eb803d4a434cef8712aa0424575ac01b13575f3efe2596d4116e",
+  "observer_sha256": "683db85fe7c435d7f4b814f0637dfe46cd5d3bcd05d78337da964bfecec1561c",
+  "integration_patch_sha256": "d1c03fed80515184f093b91fb414af4adb2bbd989b7e1fe89b657d06355b61c4",
+  "patch_basis_sha256": {
+    "src/wheeled_tasks/chassis/physical_standing_reward.py": "323c99c57796fee2efea6964b720630e41677cb31037bc50e782f9bc8eba0b37",
+    "scripts/train_scratch_standing.py": "350dde4c17cb88d60c098fdf7ebe515799ca1c6579b39a2c65cf2b6199271ca6"
+  },
+  "all264_live_training_source_bytes_preserved": true,
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "applied_to_current_training": false,
+  "native_validation": false,
+  "qualified": false,
+  "hardware_ready": false,
+  "scope": "True rollout peak and threshold sample counts only. No action, reward, mask, model, physics, RNG or acceptance changes. Apply only after009 actually exits, validate/commit before any future fresh training.",
+  "reader_sha256": "095a4a4714d8fbdacac68d5d97dea5c7ffebd7cb0f0b0601a82d5976421d9877"
+}
