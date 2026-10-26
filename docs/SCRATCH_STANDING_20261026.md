@@ -483,3 +483,12 @@ CPU准备cost0配对候选，`scratch_contact_event_AB_preflight001.json`十二�
 低230/高420mm未训练外推均0/7，分别26372/21100ms失载、最大XY偏移1.790/1.683m、腿速峰8.406/15.147rad/s；全21场1/21，仍未qualified，无长训/鲁棒性/实车资格。007与009暖环境root出生相同，但没有完整native初态逐位配对，不授唯一因果或多种子结论。007/009各315个原生字段独立复算、18个009原评测RSL标量读回一致；证据capability_status_20261026_read001.json及精确reader。全部32更新窗口已从原TensorBoard event导出到512，scratch_training007_009_window032_final512_read007.json/png。累计各次从零更新2945，失败消费保持。
 
 用户要求的长期任务、静站首1ms起100%双轮承重、自旋目标100rpm/最低80rpm、髋膝轮心前后位置与轮速协调已记录到docs/WHEEL_LEG_ACCEPTANCE.md和contracts/wheel_leg_acceptance_requirements_v1.json，并加入AGENTS.md入口。完整现状见docs/WHEEL_LEG_CAPABILITY_STATUS_20261026.md；历史115/121运动/恢复与009分开，不拼接成功率。此次只读核验与写文档，没有新增native/PPO、没有续训或实车动作。
+
+
+## 用户修订接触口径与随机化重点（2026-10-26晚）
+
+后续用户明确：接地从实际完成自起后的站立段开始，每次连续≤2ms失载忽略，约0.0036°腿角RMS可忽略，1cm内静止漂移很好。前述严格1/7仅为历史v1；同一009原生轨迹按v2中高度7/7、三高度7/21。40次原始失载为38×1ms及2×2ms，均忽略；接触力短暂低于2N不等于明显离地。42个失载轮采样仅4个正估计间隙、最大约0.46mm。七场3场最大XY≤1cm，最差1.558cm；不是全部≤1cm。原始结果、模型和event不改，12个起点/时长边界测试通过，66个v2 RSL标量回读一致。回执scratch_pilot009_acceptance_v2_read001.json；长期要求升级为contracts/wheel_leg_acceptance_requirements_v2.json，不取消其它任务和从零训练要求。
+
+专项随机化审计核对旧长训四阶段冻结源码、最终合同与启动读回：domain_scale=.35后被gap_severity=.6/.8部分覆盖；932次新PPO停止，计划severity1阶段未训练到。最终电机±16%、P±12%、D±24%、质量±8%、独立惯量±16%、COM x±12mm、IMU固定roll/pitch±2.4°、晃动0–0.4°/1–8Hz。额外执行器/PD延迟和lag为0，策略观察仍0/5ms；25%名义域仍有随机摩擦。旧时长对照按≤2ms分项为16/21、16/21、17/21，不再用历史零失载0/21夸大失败。当前009仍DR/噪声全关，没有新鲁棒性成绩。
+
+可调入口contracts/wheel_leg_randomization_study_v1.json已接入train_scratch_standing.py全新actor/critic/空Adam路径；噪声/偏置、IMU静态偏角、晃动、执行器、刚体、摩擦分组，时序独立显式。sensor_first与combined_light只完成CPU配置预检，尚无原生或PPO；不得把配置称为最优强度或实车包络。诊断与具体范围见docs/WHEEL_LEG_RANDOMIZATION_DIAGNOSIS_20261026.md及randomization_audit_20261026_read003.json，81个审计RSL标量独立回读。本次新增PPO=0，native=0，无续训/teacher/部署/实车动作。
