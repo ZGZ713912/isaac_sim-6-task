@@ -1,0 +1,38 @@
+{
+  "schema": "partial-native-entry-PPO-endpoint-audit-v1",
+  "checks": {
+    "stopped_after2": true,
+    "clock1503": true,
+    "exact_six_entry_tensors_changed": true,
+    "frozen_actor_and_std_exact": true,
+    "old_actor_Adam_exact": true,
+    "six_entry_Adam_created": true,
+    "critic_changed": true,
+    "freeze_runtime_check": false,
+    "strict_decoding": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot009_contract002/model_migrated.pt",
+  "sha256": "5e24f163310182db64a1af59ec4223414142392d746a91ef1ba2834a9521b114",
+  "actual_source": "runs/robust_policy_repair_20261024/function_root_entry001/model_initial.pt",
+  "changed_actor_tensors": [
+    "mlp.mean.entry_recovery.0.weight",
+    "mlp.mean.entry_recovery.0.bias",
+    "mlp.mean.entry_recovery.2.weight",
+    "mlp.mean.entry_recovery.2.bias",
+    "mlp.mean.entry_recovery.4.weight",
+    "mlp.mean.entry_recovery.4.bias"
+  ],
+  "entry_Adam_steps": {
+    "28": 24.0,
+    "29": 24.0,
+    "30": 24.0,
+    "31": 24.0,
+    "32": 24.0,
+    "33": 24.0
+  },
+  "new_PPO_completed": 2,
+  "actual_experiment_consumed": 2605,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792889022.8205278
+}

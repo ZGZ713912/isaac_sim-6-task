@@ -1,0 +1,78 @@
+{
+  "schema": "scratch-solver-velocity-native-comparison-v1",
+  "observed_utc": "2026-10-26T00:58:51.582072+00:00",
+  "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_final256_feedback001",
+  "counterfactual": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_velocity004_001",
+  "native_runtime_only_velocity_count_differs": true,
+  "initial_state_equal": {
+    "initial_position_local": true,
+    "initial_root_pose_local": true,
+    "initial_gravity": true,
+    "initial_omega": true,
+    "initial_motor_position_control": true,
+    "initial_motor_velocity_control": true,
+    "initial_action_control": true,
+    "first_actor_observation": true,
+    "first_actor_action": true
+  },
+  "initial_root_positions_equal": true,
+  "source_checkpoint_sha256": "44ddd2a037dd558bc739bb5721f722199ea1cd36deb1130aad7ac88f9d8cba27",
+  "native_iteration_count": 4,
+  "baseline_groups": [
+    {
+      "height_m": 0.23,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 3076,
+      "leg_peak": 6.316125869750977,
+      "leg_vibration_mean_mrad": 0.27911655391965595
+    },
+    {
+      "height_m": 0.305,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 82,
+      "leg_peak": 0.8887922167778015,
+      "leg_vibration_mean_mrad": 0.05980044390474047
+    },
+    {
+      "height_m": 0.42,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 2461,
+      "leg_peak": 12.163459777832031,
+      "leg_vibration_mean_mrad": 0.16375221418482916
+    }
+  ],
+  "counterfactual_groups": [
+    {
+      "height_m": 0.23,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 2987,
+      "leg_peak": 6.256258487701416,
+      "leg_vibration_mean_mrad": 0.33902115906987873
+    },
+    {
+      "height_m": 0.305,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 443,
+      "leg_peak": 0.4577561318874359,
+      "leg_vibration_mean_mrad": 0.3351380228996277
+    },
+    {
+      "height_m": 0.42,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 2102,
+      "leg_peak": 12.164324760437012,
+      "leg_vibration_mean_mrad": 0.20719029435089656
+    }
+  ],
+  "adopted": false,
+  "decision": "Not adopted: trained-height missing contact82->443ms and vibration0.0598->0.3351mrad despite lower speed peak. One bounded1-iteration control remains before fresh cost0 training.",
+  "new_PPO": 0,
+  "hardware_ready": false,
+  "receipt_sha256": "0cd1e53874f71a179c55cd4088448e56468d62e749db26cc25c66556060175eb"
+}

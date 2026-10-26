@@ -1,0 +1,28 @@
+{
+  "schema": "recovery-step-sensor-replay-v2",
+  "rows": [
+    {
+      "run": "continuous_eval001",
+      "trajectory_sha256": "ae5e59e98bd7c44956e34bf0d1b38eafbd042794515170d84b0524ba7e7db4e4",
+      "sampled_sensor_frames": 4080,
+      "wheel_difference_max": 0.0,
+      "circular_leg_difference_max_rad": 0.0357549786567688,
+      "final_knee_difference_change_max_rad": 0.025275588035583496,
+      "ordinary_standing_motion_mean_difference_max": 0.01606273651123047,
+      "unlimited_knee_map_difference_max_rad": 4.76837158203125e-07
+    },
+    {
+      "run": "rmcs_inverted_eval001",
+      "trajectory_sha256": "9e602f3289f9b784b20bd1c30049297eec3771336f31bd06298f6a6a018f8fd5",
+      "sampled_sensor_frames": 5760,
+      "wheel_difference_max": 0.0,
+      "circular_leg_difference_max_rad": 0.03697347640991211,
+      "final_knee_difference_change_max_rad": 0.027496695518493652,
+      "unlimited_knee_map_difference_max_rad": 4.76837158203125e-07
+    }
+  ],
+  "erratum": "The initial assumption that final knee difference is exactly preserved was false because entry per-joint tanh limiting and blended gates can alter it. The underlying knee map remains unchanged. Raw common-angle reporting can jump by 2pi; circular differences are used here.",
+  "scope": "Instantaneous target replay only; native dynamics and performance unproven",
+  "new_PPO": 0,
+  "hardware_ready": false
+}

@@ -13,6 +13,10 @@ import sys
 import time
 import traceback
 
+# Match the existing project simulation entry points rather than relying on
+# an environment variable inherited from a previous interactive shell.
+os.environ["OMNI_KIT_ACCEPT_EULA"] = "YES"
+
 ROOT = Path(__file__).resolve().parents[2]
 REPORTS = Path(__file__).parent
 SOURCE = ROOT / "runs/unified_robust_20261022/composed_static_original115"
@@ -34,7 +38,7 @@ def write(path, value):
     temp.replace(path)
 
 
-def prepare(output, seed):
+def prepare(output, seed, num_envs=1):
     """Project the runtime and its independently frozen train expectations."""
     from wheeled_tasks.chassis.control_contract import load_chassis_control
     from wheeled_tasks.chassis.preflight import design_preflight
@@ -59,7 +63,7 @@ def prepare(output, seed):
     def project(value):
         value = deepcopy(value)
         value["scene_groups"] = [dict(name="stand_mid", fraction=1., terrain=["flat"])]
-        value["target_num_envs"] = 1
+        value["target_num_envs"] = num_envs
         value["flat_group_episode_seconds"] = {}
         value["evaluation"]["seed"] = seed
         if "evaluation.seed" in value:
@@ -67,7 +71,7 @@ def prepare(output, seed):
         return value
 
     cfg, expected["contract"] = project(cfg), project(expected["contract"])
-    expected["invocation"] = dict(num_envs=1, seed=dict(rule="fixed", value=seed))
+    expected["invocation"] = dict(num_envs=num_envs, seed=dict(rule="fixed", value=seed))
     expected["runtime"]["seed"] = seed
     design = {k: v for k, v in design.items() if k != "stages"}
     design.update(run_scope="interactive_unscored", qualification=None,
@@ -78,7 +82,7 @@ def prepare(output, seed):
     write(output / "playback_expectations.json", design)
     cfg["design_preflight"] = dict(file=str(output / "playback_expectations.json"),
         sha256=sha(output / "playback_expectations.json"), stage="speed")
-    proof = design_preflight(cfg, control, ROOT, stage="speed", role="playback", seed=seed, num_envs=1)
+    proof = design_preflight(cfg, control, ROOT, stage="speed", role="playback", seed=seed, num_envs=num_envs)
     write(output / "playback_contract.json", cfg)
     write(output / "task_contract.json", dict(settings=task, source_sha256=sha(SOURCE / "task_contract.json")))
     write(output / "CPU_preflight.json", dict(source=original, playback=proof, checkpoint_sha256=MODEL_SHA,
@@ -211,8 +215,17 @@ def main():
     parser.add_argument("--seed", type=int, default=211322)
     parser.add_argument("--case", choices=NAMES, default=NAMES[0])
     parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--max-wall-seconds", type=float)
+    parser.add_argument("--control-file", type=Path)
     args = parser.parse_args()
     args.output = args.output.resolve()
+    # Match the existing single-robot GUI launcher. Large TBB/OpenBLAS worker
+    # pools can otherwise compete with the many tiny GPU feedback operations.
+    available = sorted(os.sched_getaffinity(0))
+    os.sched_setaffinity(0, available[:4])
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["OMP_NUM_THREADS"] = "4"
+    os.environ["MKL_NUM_THREADS"] = "4"
     cfg, task, manifest, control, mean, info = prepare(args.output, args.seed)
     if args.preflight_only:
         print("GUI118 CPU preflight passed; no simulation launched", flush=True)
@@ -231,6 +244,7 @@ def main():
         started=time.time(), run_scope="interactive_unscored", qualification=None,
         policy_hz=200, physics_hz=1000, scripted_recovery=False, optimizer_updates=0,
         state_writes="physical_episode_reset_only; cosmetic_USD_link_copy_at_render", cases=[],
+        cpu_affinity=sorted(os.sched_getaffinity(0)), control_events=[],
         render_transport="USD live body-pose mirror; native Fabric physics retained", episode_results=[])
     write(args.output / "report.json", receipt)
     launcher = env = view = writer = None
@@ -287,12 +301,42 @@ def main():
         rows = []
         saved_times = set()
         wall_start = last_render = time.monotonic()
+        run_wall_start = last_heartbeat = time.monotonic()
+        last_control = None
+        step_seconds, render_seconds = [], []
         receipt.update(status="gui_running", native_recovery_is_none=True,
             render_use_fabric=env.sim.cfg.use_fabric, update_to_usd=env.sim.get_setting("/physics/updateToUsd"))
         write(args.output / "report.json", receipt)
         print("GUI118_READY " + str(args.output), flush=True)
         with torch.inference_mode():
             while launcher.app.is_running() and interrupted["signal"] is None:
+                now = time.monotonic()
+                if args.max_wall_seconds is not None and now - run_wall_start >= args.max_wall_seconds:
+                    break
+                if args.control_file and args.control_file.exists():
+                    command = json.loads(args.control_file.read_text())
+                    if command["id"] != last_control:
+                        last_control = command["id"]
+                        if command["action"] == "pause":
+                            view.pause()
+                        elif command["action"] == "replay":
+                            view.replay()
+                        elif command["action"] == "next":
+                            view.next()
+                        elif command["action"] == "select":
+                            view.selector.model.get_item_value_model().set_value(NAMES.index(command["case"]))
+                        elif command["action"] == "close":
+                            break
+                        else:
+                            raise ValueError("Unknown viewer control")
+                        receipt["control_events"].append(dict(command=command, handled_unix=time.time()))
+                if now - last_heartbeat >= .5:
+                    receipt.update(paused=view.paused, active_case=NAMES[view.selected],
+                        heartbeat_unix=time.time(), total_wall_seconds=now-run_wall_start,
+                        step_ms_p50=float(np.median(step_seconds[-100:])*1000.) if step_seconds else None,
+                        render_ms_p50=float(np.median(render_seconds[-100:])*1000.) if render_seconds else None)
+                    write(args.output / "report.json", receipt)
+                    last_heartbeat = now
                 if view.reset_requested:
                     if rows:
                         path = args.output / f"episode_{cycle:03d}_{active}.npz"
@@ -320,7 +364,9 @@ def main():
                     continue
                 obs = env.get_observations()["policy"]
                 action = mean(obs)
+                step_start = time.monotonic()
                 _, _, done, extras = env.step(action)
+                step_seconds.append(time.monotonic() - step_start)
                 d = extras["diagnostics"]
                 tick += 1
                 keys = ("time", "gravity", "height", "motor_position", "motor_velocity", "motor_effort",
@@ -331,7 +377,9 @@ def main():
                                "body_link_pose_w": env.robot.data.body_link_pose_w.torch.cpu().numpy()})
                 seconds = float(d["time"][0])
                 terminal = bool(done[0]) or seconds >= (30. if active.startswith("stand") else 12.) - .001
-                if tick % 8 == 0 or terminal:
+                # Pump Kit by wall time as well as simulated frames. Eight slow
+                # policy steps must not prevent Pause/Replay/Next from arriving.
+                if tick % 8 == 0 or terminal or time.monotonic() - last_render >= .04:
                     view.update_display()
                     q = d["motor_position"][0].cpu().numpy()
                     legs = np.degrees(q[[0, 1, 3, 4]])
@@ -353,7 +401,11 @@ def main():
                     for tag, value in dict(height_m=float(d["height"][0]), closure_gap_m=float(d["gap"][0]),
                         passive=float(d["passive"][0]), stable=float(d["stable"][0]), recovered=float(d["recovered"][0])).items():
                         writer.add_scalar(f"GetupViewer/{active}/{tag}", value, tick)
+                    render_start = time.monotonic()
                     env.sim.render()
+                    render_seconds.append(time.monotonic() - render_start)
+                    if tick <= 8:
+                        print(f"GUI120_TIMING tick={tick} step_ms={step_seconds[-1]*1000:.3f} render_ms={render_seconds[-1]*1000:.3f}", flush=True)
                     # Compare actual link translations to the USD display source.
                     if tick % 200 < 8 or tick == 8:
                         paths = ("base_link", "L_link1", "LL_link1", "R_link1", "RR_link1")

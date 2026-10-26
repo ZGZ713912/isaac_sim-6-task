@@ -1,0 +1,25 @@
+{
+  "schema": "scratch-wheel-encoder-feedback-probe-preflight-v1",
+  "checks": {
+    "nan_rejected_before_native": true,
+    "out_of_range_rejected_before_native": true,
+    "two_interventions_rejected_before_native": true,
+    "all_34_state_finite_differences_pass": true,
+    "all_sampled_wheel_command_gains_negative": true,
+    "four_legs_unchanged": true,
+    "zero_wheel_encoder_function_unchanged": true,
+    "CPU_only": true
+  },
+  "all_checks_pass": true,
+  "native_validation": false,
+  "new_PPO": 0,
+  "candidate_adopted": false,
+  "hardware_ready": false,
+  "CPU_source_report_sha256": "f0c5aca25be7ab65d8ff56f8a3f2647b59b8a346ace1f47c0aa13d7a2711481f",
+  "source_sha256": {
+    "scripts/evaluate_scratch_standing.py": "a8c5e5ff8410bc719836053a29758d9142fe2179e5778b3274aaf27cb15920a6",
+    "scripts/wheel_encoder_response_probe.py": "bdbcf18601d7d0b95e3525b991e857aaba04866adbeb0e0d7e95c67eda75adf4"
+  },
+  "next_native_condition": "Wait for original005 process572273/start29105875 and its own final evaluation to exit. If still failing, first inspect005 and match a native baseline before any single-factor encoder response probe.",
+  "scope": "Local gain prediction and input/ABI guards only. No actual physical damping or standing qualification."
+}

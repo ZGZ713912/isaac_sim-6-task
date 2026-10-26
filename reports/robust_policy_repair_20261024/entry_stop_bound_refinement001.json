@@ -1,0 +1,16 @@
+{
+  "schema": "entry-stop-bound-refinement-v1",
+  "predecessor": "reports/robust_policy_repair_20261024/entry_phase_constrained_feasibility001.json",
+  "predecessor_sha256": "857a18e432d013afd1d27e0f2c0d660ec709a0060e1a40e4b7e67a6426ae9504",
+  "reason": "Direction and retention passed, but physical near-leg target lead .00778446 exceeded unchanged .006 rad stop gate. Only tighten the common-logit stop bound from .12 to .06; decoder common increment is .075*tanh(raw), at most .004495rad before the existing symmetric shaping.",
+  "changed_parameter": "stopped_leg_common_bound",
+  "old": 0.12,
+  "new": 0.06,
+  "script": "reports/robust_policy_repair_20261024/fit_entry_phase_constrained002.py",
+  "script_sha256": "92f195e954e73c43f894b08d81fabfd2f49faa6ee8f0dff3f728060e4f2f88e0",
+  "all_native_gates_unchanged": true,
+  "new_PPO": 0,
+  "maximum_new_CPU_solves": 1,
+  "actual_experiment_consumed": 2603,
+  "created_unix": 1792885312.779358
+}

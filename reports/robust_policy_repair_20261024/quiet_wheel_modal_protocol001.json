@@ -1,0 +1,28 @@
+{
+  "schema": "quiet-wheel-common-preserved-diagonal-protocol-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "control": "runs/robust_policy_repair_20261024/diagnosis038_quiet_stance050_development",
+  "full_population": 51,
+  "seed": 241204,
+  "seconds": 8,
+  "scope": "Independent standing diagnosis, not an extension/adoption of016. Previously used development cases, not a fresh holdout;0PPO. Explicit in-memory mean intervention cannot qualify the saved checkpoint.",
+  "hypothesis": "Recorded unwanted yaw accompanies differential wheel coordinate accumulation; right wheel differential feedback nearly cancels. Test own-wheel diagonal displacement feedback while preserving each wheel row sum, to distinguish differential response from the rejected common gain increase.",
+  "intervention": "Replace each2x2 wheel submatrix by diag(its two row sums). All three existing height experts; all leg/other weights,.5 quiet authority,35D observations and physical guards retained. No observer modification.",
+  "evidence": "reports/robust_policy_repair_20261024/quiet_yaw_modes_audit001.json",
+  "gates": {
+    "standing_survived": 21,
+    "standing_pose_position_at_least": 19,
+    "lost_previous_development_passes_at_most": 0,
+    "max_gap_m": 0.003,
+    "passive_motor_peak_nm": 0
+  },
+  "physical_pairing": "Same full51 population, initial native states and rigid/material/sensor/actuator random draws.",
+  "decision_scope": "Pass permits further zero-PPO assessment only. Fail rejects this intervention; no PPO/adoption/export/qualification.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2654,
+  "repair_optimizer_updates": 274,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792910795.5314353
+}

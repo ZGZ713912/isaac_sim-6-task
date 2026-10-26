@@ -1,0 +1,83 @@
+{
+  "schema": "bounded-quiet-output-fixed-review-v1",
+  "checks": {
+    "endpoint_audit": true,
+    "frozen_inputs": true,
+    "standing": false,
+    "motion": true,
+    "entry_recovery": true,
+    "entry_followup": true,
+    "fallen_recovery": true,
+    "fallen_followup": true,
+    "entry_speed": true,
+    "fallen_speed": true,
+    "impacts": true,
+    "closure": true,
+    "passive": true,
+    "paired_initial": true
+  },
+  "metrics": {
+    "entry": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 9,
+      "followup_success": 9,
+      "stable90": 9,
+      "max_leg_speed_rad_s": 8.41594123840332,
+      "max_excursion_m": 1.9286303520202637,
+      "vx_mae_m_s": 0.08835777003938954,
+      "yaw_mae_rad_s": 0.07254379320268829
+    },
+    "standing": {
+      "episodes": 21,
+      "survived": 21,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 20,
+      "max_leg_speed_rad_s": 5.509780406951904,
+      "max_excursion_m": 0.07967200875282288,
+      "vx_mae_m_s": 0.019572589901231584,
+      "yaw_mae_rad_s": 0.03594019015352907,
+      "pose_and_position_pass": 19
+    },
+    "motion": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 11,
+      "max_leg_speed_rad_s": 5.228787422180176,
+      "max_excursion_m": 8.043540000915527,
+      "vx_mae_m_s": 0.12423261844863494,
+      "yaw_mae_rad_s": 0.034492504123287894
+    },
+    "fallen": {
+      "episodes": 6,
+      "survived": 5,
+      "recovered": 4,
+      "followup_success": 2,
+      "stable90": 4,
+      "max_leg_speed_rad_s": 24.11665153503418,
+      "max_excursion_m": 1.2513688802719116,
+      "vx_mae_m_s": 0.3084675073623657,
+      "yaw_mae_rad_s": 0.5739312494794527
+    },
+    "score": 0.7330789374169848,
+    "formal_acceptance": false
+  },
+  "standing_pass": 19,
+  "impacts": 1,
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot017_quiet_output/model_final.pt",
+  "checkpoint_sha256": "192348773d222d9cf10be193ca9c88cc82f64bace79a5f7b8b3d96777742e5f0",
+  "frozen_inputs": 706,
+  "decision": "reject_extension_and_adoption",
+  "target_behavior_still_required": "Development standing must improve above17/21, then full30s and original moving-fall/RMCS/heldout qualification. Neither stable loss nor frozen outside-scope actions proves this.",
+  "source_clock": 1501,
+  "candidate_clock": 1509,
+  "new_PPO": 8,
+  "actual_experiment_consumed": 2662,
+  "repair_optimizer_updates": 282,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792927825.249534
+}

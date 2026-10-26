@@ -1,0 +1,128 @@
+{
+  "schema": "quiet-output-preflight-v1",
+  "checks": {
+    "actual_parser_accepts_explicit_V7": true,
+    "strict_V7_decode": true,
+    "all_nonmetadata_initial_state_exact": true,
+    "actual_training_settings_allow_only_declared_fields": true,
+    "original_runtime_class": true,
+    "original_mean_bitexact": true,
+    "original_conditioned_std_bitexact": true,
+    "actual_native_freeze_six_existing_outputs": true,
+    "only1170_actor_parameters": true,
+    "all_six_outputs_have_finite_nonzero_gradient": true,
+    "nine_saved_state_tamper_controls_rejected": true,
+    "historical_V2_to_V6_still_decode": true
+  },
+  "command": [
+    "--output",
+    "runs/robust_policy_repair_20261024/quiet_output_prepare001",
+    "--bank",
+    "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+    "--resume",
+    "runs/robust_policy_repair_20261024/quiet_output_root001/model_initial.pt",
+    "--updates",
+    "8",
+    "--num-envs",
+    "256",
+    "--rollout-steps",
+    "512",
+    "--seed",
+    "241510",
+    "--isolated-origins",
+    "--gap-robustness",
+    "--gap-severity",
+    ".8",
+    "--gap-actuator-timing",
+    "native",
+    "--actor-lr",
+    ".0001",
+    "--friction-min",
+    ".3",
+    "--domain-scale",
+    ".35",
+    "--eval-seconds",
+    "2",
+    "--curriculum-updates",
+    "512",
+    "--curriculum-origin",
+    "569",
+    "--quiet-only",
+    "--quiet-output-only",
+    "--standing-support-training",
+    "--early-standing-position",
+    "--standing-drift-objective"
+  ],
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_output_root001/model_initial.pt",
+  "checkpoint_sha256": "32e871427e61f72dc8996a6536e536fa7f05fdec04925c473c701539c6e2b3a0",
+  "source": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "source_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "training_sha256": "c0fc706b0713a86d8726c649f513c1e563c44f897ca239962930fbf4af555121",
+  "export_sha256": "1553a860dddb6acd4f2de560546e63d7bb2b57ccd45576c3b84e718eae8fad19",
+  "contract_sha256": "86bc2adf76f99f67d28164207a348f0475ab7a5281f7d952ad1a4339aae09b60",
+  "settings_delta": {
+    "version": {
+      "before": "robust-gap-v1",
+      "after": "robust-v2.15-standing-drift"
+    },
+    "quiet_height_probabilities": {
+      "before": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "after": [
+        0.25,
+        0.25,
+        0.5
+      ]
+    },
+    "motion_fraction": {
+      "before": 0.5,
+      "after": 0.8
+    },
+    "quiet_training": {
+      "before": false,
+      "after": true
+    }
+  },
+  "trainable": {
+    "mlp.mean.quiet.2.weight": 384,
+    "mlp.mean.quiet.2.bias": 6,
+    "mlp.mean.quiet_low.2.weight": 384,
+    "mlp.mean.quiet_low.2.bias": 6,
+    "mlp.mean.quiet_high.2.weight": 384,
+    "mlp.mean.quiet_high.2.bias": 6
+  },
+  "gradients": {
+    "mlp.mean.quiet.2.weight": 0.03700472041964531,
+    "mlp.mean.quiet.2.bias": 0.0319819450378418,
+    "mlp.mean.quiet_low.2.weight": 0.06141408532857895,
+    "mlp.mean.quiet_low.2.bias": 0.04795901104807854,
+    "mlp.mean.quiet_high.2.weight": 0.05349982902407646,
+    "mlp.mean.quiet_high.2.bias": 0.046842336654663086
+  },
+  "rejections": {
+    "module_sha": "Quiet output contract source is missing or changed",
+    "root_sha": "Quiet output policy function root is missing or changed",
+    "scope": "Require explicit quiet-output function ancestry and optimizer layout",
+    "quiet_hidden": "Training changed a frozen actor tensor, feature basis, entry or std",
+    "feedback": "Training changed a frozen actor tensor, feature basis, entry or std",
+    "fallen": "Training changed a frozen actor tensor, feature basis, entry or std",
+    "motion": "Training changed a frozen actor tensor, feature basis, entry or std",
+    "std": "Training changed a frozen actor tensor, feature basis, entry or std",
+    "clock": "Quiet output PPO clocks are inconsistent"
+  },
+  "historical": {
+    "V2": "robust-getup-checkpoint-v2",
+    "V3": "robust-getup-checkpoint-v3",
+    "V4": "robust-getup-checkpoint-v4",
+    "V5": "robust-getup-checkpoint-v5",
+    "V6": "robust-getup-checkpoint-v6"
+  },
+  "paired_inputs": 8192,
+  "new_PPO": 0,
+  "qualification": null,
+  "simulator_started": false,
+  "created_unix": 1792926464.7434099
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "pilot006-final-checkpoint-audit-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot006_final_pairs_side/model_final.pt",
+  "sha256": "8da85d11ef2b6fb658831bec8402961b5046c002bd43f77fe64a0c08e6e826ab",
+  "clock": 1533,
+  "actual_new_updates": 32,
+  "actual_new_attempts": 32,
+  "changed_actor_tensors": [
+    "mlp.mean.recovery.0.weight",
+    "mlp.mean.recovery.0.bias",
+    "mlp.mean.recovery.2.weight",
+    "mlp.mean.recovery.2.bias",
+    "mlp.mean.recovery.4.weight",
+    "mlp.mean.recovery.4.bias"
+  ],
+  "other_actor_and_std_exact": true,
+  "deltas": {
+    "mlp.mean.recovery.0.weight": {
+      "max_abs": 0.005188122391700745,
+      "delta_L2": 0.07580814510583878,
+      "source_L2": 6.7072248458862305
+    },
+    "mlp.mean.recovery.0.bias": {
+      "max_abs": 0.0027876049280166626,
+      "delta_L2": 0.013959953561425209,
+      "source_L2": 1.129191517829895
+    },
+    "mlp.mean.recovery.2.weight": {
+      "max_abs": 0.0052583953365683556,
+      "delta_L2": 0.15626206994056702,
+      "source_L2": 7.107607364654541
+    },
+    "mlp.mean.recovery.2.bias": {
+      "max_abs": 0.0033708512783050537,
+      "delta_L2": 0.01439107209444046,
+      "source_L2": 0.6867671012878418
+    },
+    "mlp.mean.recovery.4.weight": {
+      "max_abs": 0.008409096859395504,
+      "delta_L2": 0.05699130892753601,
+      "source_L2": 0.937275767326355
+    },
+    "mlp.mean.recovery.4.bias": {
+      "max_abs": 0.0034020915627479553,
+      "delta_L2": 0.004705617669969797,
+      "source_L2": 0.07504191994667053
+    }
+  },
+  "critic_changed": true,
+  "initial_restore_all10_passed": true,
+  "qualification": null,
+  "hardware_started": false
+}

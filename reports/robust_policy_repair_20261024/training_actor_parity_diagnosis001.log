@@ -1,0 +1,53 @@
+{
+  "schema": "training-decoder-parity-diagnosis-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "checkpoint_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "training_source_sha256": "e20e23d0b170d1376fc72e901847023d9588b2bcfdc6b0fa87ca8f03e41ca00f",
+  "observed_training_factory": "EntryPreservingGapActor selected for split-entry, no selection of periodic encoder or motion damping classes",
+  "required_flags": {
+    "gap_entry_encoder_version": "periodic-chart-v1",
+    "motion_leg_damping_version": "motion-leg-damping-v1",
+    "motion_leg_damping_alpha": 0.8
+  },
+  "rows": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "sha256": "6d1816875765df7eb8849089a5c93b8e4b636a0e912b9e5ba6bc4e55ab549529",
+      "frames": 4080,
+      "different_frames": 1516,
+      "leg_target_difference_peak_rad": 0.029034137725830078,
+      "wheel_target_difference_peak_nm": 0.5077266693115234
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf",
+      "frames": 8400,
+      "different_frames": 6770,
+      "leg_target_difference_peak_rad": 0.029558897018432617,
+      "wheel_target_difference_peak_nm": 0.5100693702697754
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_rmcs/evaluation/trajectory.npz",
+      "sha256": "e17b2e540fc82d14249c47463b3a2198ab00cc4331bdcce1d9723a0c7442df85",
+      "frames": 5760,
+      "different_frames": 387,
+      "leg_target_difference_peak_rad": 0.02376556396484375,
+      "wheel_target_difference_peak_nm": 0.5069005489349365
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis024_entry_phase_fit_fixed/evaluation/trajectory.npz",
+      "sha256": "e8a5ab109b1832f9d098ce8cc8d0f4cafc89e28dae9d82ae443faa9a3a71acea",
+      "frames": 4080,
+      "different_frames": 1223,
+      "leg_target_difference_peak_rad": 0.01886102929711342,
+      "wheel_target_difference_peak_nm": 0.1570678949356079
+    }
+  ],
+  "scope": "Unbound forward of the inspected selected class, with exactly the checkpoint parameters and fields. CPU function diagnosis only, no native training rollout.",
+  "decision": "PPO closed until factory parity and learned-checkpoint serialization are implemented and checked",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792887410.529078
+}

@@ -1,0 +1,180 @@
+{
+  "schema": "quiet-wheel-opposite-differential-preflight-v1",
+  "checks": {
+    "neutral_state_exact": true,
+    "only_three_existing_feedback_tensors_changed": true,
+    "all_existing_leg_feedback_rows_exact": true,
+    "common_row_sums_exact": true,
+    "crossed_wheel_coordinates": true,
+    "recorded_legs_exact": true,
+    "outside_quiet_exact": true,
+    "neutral_function_exact": true,
+    "effect_present": true,
+    "unchanged_checkpoint": true,
+    "actual_wrapper_mean_matches_probe": true,
+    "explicit_unqualified_override": true
+  },
+  "weights": {
+    "low": {
+      "before": [
+        [
+          -0.041828274726867676,
+          -0.03557407483458519
+        ],
+        [
+          0.05291984975337982,
+          0.04323423653841019
+        ],
+        [
+          0.1355593204498291,
+          0.02931353449821472
+        ],
+        [
+          -0.07564818859100342,
+          -0.070469431579113
+        ]
+      ],
+      "after": [
+        [
+          -0.041828274726867676,
+          -0.03557407483458519
+        ],
+        [
+          0.05291984975337982,
+          0.04323423653841019
+        ],
+        [
+          0.0,
+          0.16487285494804382
+        ],
+        [
+          -0.14611762762069702,
+          0.0
+        ]
+      ],
+      "common_row_sum": [
+        0.16487285494804382,
+        -0.14611762762069702
+      ],
+      "changed_entries": 4
+    },
+    "mid": {
+      "before": [
+        [
+          -0.027202682569622993,
+          -0.024290932342410088
+        ],
+        [
+          0.035310134291648865,
+          0.02918280102312565
+        ],
+        [
+          0.09132808446884155,
+          0.021407248452305794
+        ],
+        [
+          -0.04948773235082626,
+          -0.047105468809604645
+        ]
+      ],
+      "after": [
+        [
+          -0.027202682569622993,
+          -0.024290932342410088
+        ],
+        [
+          0.035310134291648865,
+          0.02918280102312565
+        ],
+        [
+          0.0,
+          0.1127353310585022
+        ],
+        [
+          -0.09659320116043091,
+          0.0
+        ]
+      ],
+      "common_row_sum": [
+        0.1127353310585022,
+        -0.09659320116043091
+      ],
+      "changed_entries": 4
+    },
+    "high": {
+      "before": [
+        [
+          -0.013743715360760689,
+          -0.011524544097483158
+        ],
+        [
+          0.017344828695058823,
+          0.01433637272566557
+        ],
+        [
+          0.045632217079401016,
+          0.010609788820147514
+        ],
+        [
+          -0.026043638586997986,
+          -0.02449968084692955
+        ]
+      ],
+      "after": [
+        [
+          -0.013743715360760689,
+          -0.011524544097483158
+        ],
+        [
+          0.017344828695058823,
+          0.01433637272566557
+        ],
+        [
+          0.0,
+          0.05624200403690338
+        ],
+        [
+          -0.050543319433927536,
+          0.0
+        ]
+      ],
+      "common_row_sum": [
+        0.05624200403690338,
+        -0.050543319433927536
+      ],
+      "changed_entries": 4
+    }
+  },
+  "rows": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation/evaluation/trajectory.npz",
+      "trace_sha256": "aaf5863b9721ddb28354df9e7b8247c102ef9f9adec300816ae8158e03137f98",
+      "frames": 81600,
+      "legs_exact": true,
+      "outside_quiet_exact": true,
+      "neutral_exact": true,
+      "changed_frames": 47775,
+      "wheel_action_delta_peak": 0.07776492834091187
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis038_quiet_stance050_development/evaluation/trajectory.npz",
+      "trace_sha256": "9668e35b61b509fc2c77690ca7cc16f89093b94b9c0632ccaf1ffad816957c29",
+      "frames": 81600,
+      "legs_exact": true,
+      "outside_quiet_exact": true,
+      "neutral_exact": true,
+      "changed_frames": 47880,
+      "wheel_action_delta_peak": 0.07268603146076202
+    }
+  ],
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "wrapper_sha256": "dd71a71c394b16144186d54fd4f83e9a6f1f9c0f1a78a28cca78995b570a0ef6",
+  "probe_sha256": "20f5a69dd8041c99c4c64f32b7a72fd93108b0a44452c8a8699e64980472a364",
+  "proposed_development_gate": "All21 survive, no previous standing pass lost. Test>=50pct reduction of tail integrated yaw in low/mid roll cases versus original. Standing qualification still requires>=19/21; a mechanism diagnosis alone never admits PPO/adoption/export.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2654,
+  "accounting_scope": "CPU probe adds0PPO;016 completed and consumed8updates. Total2654, repair274.",
+  "qualification": null,
+  "created_unix": 1792911364.5541544
+}

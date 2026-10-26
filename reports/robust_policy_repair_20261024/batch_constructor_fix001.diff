@@ -1,0 +1,48 @@
+--- scripts/evaluate_robust_getup_batch.py
++++ scripts/evaluate_robust_getup_batch.py
+@@ -493,10 +493,23 @@
+                 return torch.cat([self.models[index % len(self.models)](obs[index * per_variant:(index + 1) * per_variant])
+                                   for index in range(len(self.models) * len(seeds))], 0)
+ 
++        case_bank = json.loads(config_args.bank.read_text())
++        groups = [(seed, name) for seed in seeds for name in args.variants]
++        cases = []
++        for seed, name in groups:
++            full = training.fixed_cases(case_bank, 35 * args.replicas, seed)
++            if args.stationary_push_cases:
++                cases.extend(fixed_stationary_push_cases(full, args.stationary_push_scales))
++            elif args.forward_speeds:
++                template = next(case for case in full if case["name"] == "forward")
++                cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas, args.forward_yaws))
++            else:
++                cases.extend(case for case in full if selected_names is None or case["name"] in selected_names)
++
+         manifest = json.loads((ROOT / cfg["asset_directory"] / "manifest.json").read_text())
+         env = RobustGetupEnv(cfg, manifest, load_chassis_control(ROOT / cfg["control_math_source"]), ROOT,
+             stage_name="speed", num_envs=count, device="cuda:0", seed=args.seed, level=1., run_role="train",
+-            bank=config_args.bank, settings=task)
++            bank=config_args.bank, settings=task, fixed_cases=cases)
+         env.actor_variant = "batched_" + "_".join(args.variants)
+         env.evaluation_checkpoint = args.checkpoint
+         env.evaluation_overrides = ({} if args.sensor_delay_policy_ticks is None else
+@@ -540,20 +553,9 @@
+                 env.evaluation_overrides["standing_command_feedback"].update(
+                     geometry_table_sha256="57d6516792a40f65c84f66c36d72f14b039b4b61a9779a7b210fe42465befb69",
+                     model_spec_sha256="0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997")
+-        groups = [(seed, name) for seed in seeds for name in args.variants]
+         for index, (_, name) in enumerate(groups):
+             if name == "raw_pd":
+                 env.paired_feedback_enabled[index * per_variant:(index + 1) * per_variant] = False
+-        cases = []
+-        for seed, name in groups:
+-            full = training.fixed_cases(env.bank, 35 * args.replicas, seed)
+-            if args.stationary_push_cases:
+-                cases.extend(fixed_stationary_push_cases(full, args.stationary_push_scales))
+-            elif args.forward_speeds:
+-                template = next(case for case in full if case["name"] == "forward")
+-                cases.extend(fixed_forward_cases(template, args.forward_speeds, args.replicas, args.forward_yaws))
+-            else:
+-                cases.extend(case for case in full if selected_names is None or case["name"] in selected_names)
+         report = training.evaluate(env, BatchMean().cuda(), args.output / "all", torch,
+                                    seed=args.seed, seconds=args.seconds, cases=cases)
+         arrays = dict(np.load(args.output / "all/trajectory.npz"))

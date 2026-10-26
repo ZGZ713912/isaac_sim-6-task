@@ -1,0 +1,100 @@
+{
+  "schema": "historical-recovery-neural-donor-result-v1",
+  "results": {
+    "robust": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 8,
+          "recovery_and_motion_success": 4,
+          "practical_recovery_and_motion_success": 8
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 2,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 2
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 0,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 0
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 42,
+      "practical_moving_fall_recoveries": 0,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0,
+      "strict_followup": 6,
+      "impacts": 8
+    },
+    "reference": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 8,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 8
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 4,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 4
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 2,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 2
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 42,
+      "practical_moving_fall_recoveries": 0,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0,
+      "strict_followup": 6,
+      "impacts": 4
+    }
+  },
+  "checks": {
+    "all_initial_native_states_exact": true,
+    "within_batch_initial_observations_exact": true,
+    "exact_same_SHA_control": true,
+    "only_six_existing_NN_tensors": true,
+    "current_decoder_retained": true,
+    "historical_function_not_claimed": true,
+    "explicit_unqualified_labels": true
+  },
+  "actual_moving_target_pass": false,
+  "decision": "reject_historical_weight_donor",
+  "reference_whole_lanes_exact_to026": 70,
+  "reference_nonidentical_lanes": [],
+  "reference_job_metadata_limit": {
+    "stale_template_reference_field": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+    "actual_executed_reference": "runs/robust_policy_repair_20261024/historical_donor_reference_alias001/model_reference.pt",
+    "evidence": "Frozen command, wrapper hash checks and native runtime/report identify the executed same-SHA9a control; stale job display field did not control native behavior."
+  },
+  "limits": "Counterfactual current-decoder mean, not historical096 reproduction or a saved-checkpoint qualification. Across-run replay differences are disclosed, never treated as complete determinism.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2654,
+  "repair_optimizer_updates": 274,
+  "qualification": null,
+  "hardware_ready": false,
+  "created_unix": 1792926153.5887926
+}

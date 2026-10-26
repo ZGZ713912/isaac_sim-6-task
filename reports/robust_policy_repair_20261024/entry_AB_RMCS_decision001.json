@@ -1,0 +1,51 @@
+{
+  "schema": "entry-AB-expanded-RMCS-decision-v1",
+  "arms": [
+    {
+      "pilot": 7,
+      "review": "reports/robust_policy_repair_20261024/pilot007_rmcs_review001.json",
+      "checks": {
+        "recovery_at_least55": false,
+        "followup_at_least36": true,
+        "tail90_at_least52": true,
+        "impacts_at_most2": true,
+        "leg_peak_nonregression": true
+      },
+      "decision": "reject_extension_and_adoption",
+      "metrics": {
+        "episodes": 72,
+        "survived": 70,
+        "recovered": 53,
+        "followup_success": 36,
+        "tail_stable90": 52
+      }
+    },
+    {
+      "pilot": 8,
+      "review": "reports/robust_policy_repair_20261024/pilot008_rmcs_review001.json",
+      "checks": {
+        "recovery_at_least55": false,
+        "followup_at_least36": false,
+        "tail90_at_least52": true,
+        "impacts_at_most2": true,
+        "leg_peak_nonregression": true
+      },
+      "decision": "reject_extension_and_adoption",
+      "metrics": {
+        "episodes": 72,
+        "survived": 70,
+        "recovered": 52,
+        "followup_success": 35,
+        "tail_stable90": 52
+      }
+    }
+  ],
+  "decision": "Both paired eight-update arms rejected by their predeclared RMCS gates. Nominal evaluation continues for diagnosis only.",
+  "new_PPO_completed": 16,
+  "actual_experiment_consumed": 2603,
+  "new_PPO_admitted": 0,
+  "adopted_checkpoint": null,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792882321.4478803
+}

@@ -43,25 +43,168 @@ def verify_native_pairing(candidate, baseline):
                 max_abs_support_coordinate_m=peak + 48.)
 
 
-def load_mean(checkpoint, *, migration_source_root=None):
+def load_mean(checkpoint, *, migration_source_root=None, _entry_ancestors=()):
     import torch
     from wheeled_algo.command_residual import mean_from_checkpoint
     from wheeled_algo.robust_getup import RobustGetupActor
+    resolved = str(Path(checkpoint).resolve())
+    if resolved in _entry_ancestors or len(_entry_ancestors) >= 32:
+        raise ValueError("Cyclic or excessive entry checkpoint ancestry")
     state = torch.load(checkpoint, map_location="cpu", weights_only=False)
     info = state["infos"]
+    if "standing_contact_training_contract" in info:
+        from wheeled_tasks.chassis.standing_contact_reward import validate_contract
+        if info.get("schema") not in ("robust-getup-checkpoint-v7", "robust-getup-checkpoint-v8"):
+            raise ValueError("Standing contact provenance requires an explicit V7/V8 quiet trial")
+        validate_contract(info["standing_contact_training_contract"], info["source_sha256"])
+    if "standing_contact_continuity_contract" in info:
+        from wheeled_tasks.chassis.standing_contact_continuity import validate_contract
+        if (info.get("schema") not in ("robust-getup-checkpoint-v7", "robust-getup-checkpoint-v8")
+                or "standing_contact_training_contract" not in info
+                or not info["standing_contact_training_contract"]["grounded_reset"]):
+            raise ValueError("Standing support-break provenance requires a grounded V7/V8 contact trial")
+        validate_contract(info["standing_contact_continuity_contract"], info["source_sha256"])
+    if "training_reward_contract" in info:
+        from wheeled_tasks.chassis.followup_continuity_reward import validate_contract
+        if info.get("schema") != "robust-getup-checkpoint-v6":
+            raise ValueError("Continuity reward provenance requires the explicit V6 trial")
+        validate_contract(info["training_reward_contract"], info["source_sha256"])
+    if info.get("schema") in ("robust-getup-checkpoint-v5", "robust-getup-checkpoint-v6", "robust-getup-checkpoint-v7", "robust-getup-checkpoint-v8"):
+        kind = {"robust-getup-checkpoint-v5": "Fallen", "robust-getup-checkpoint-v6": "Motion",
+                "robust-getup-checkpoint-v7": "Quiet", "robust-getup-checkpoint-v8": "Quiet full"}[info["schema"]]
+        if info["schema"] == "robust-getup-checkpoint-v8":
+            from wheeled_algo.quiet_full_checkpoint import MODULE, optimizer_actor_names, validate_state
+        elif info["schema"] == "robust-getup-checkpoint-v7":
+            from wheeled_algo.quiet_output_checkpoint import MODULE, optimizer_actor_names, validate_state
+        elif info["schema"] == "robust-getup-checkpoint-v6":
+            from wheeled_algo.motion_output_checkpoint import MODULE, optimizer_actor_names, validate_state
+        else:
+            from wheeled_algo.fallen_output_checkpoint import MODULE, optimizer_actor_names, validate_state
+        if info["source_sha256"].get(MODULE) != digest(ROOT / MODULE):
+            raise ValueError(f"{kind} output contract source is missing or changed")
+        for name, expected in info["source_sha256"].items():
+            if name.startswith("src/wheeled_algo/") and digest(ROOT / name) != expected:
+                raise ValueError(f"{kind} output policy dependency changed: " + name)
+        origin = info.get("policy_function_root", {})
+        root_path = Path(origin.get("checkpoint", ""))
+        if not root_path.is_file() or digest(root_path) != origin.get("sha256"):
+            raise ValueError(f"{kind} output policy function root is missing or changed")
+        mean, _ = load_mean(root_path, _entry_ancestors=(*_entry_ancestors, resolved))
+        names = optimizer_actor_names(mean)
+        record = info.get("policy_function_learning", {})
+        source = Path(record.get("source_checkpoint", ""))
+        if not source.is_file() or digest(source) != record.get("source_sha256"):
+            raise ValueError(f"{kind} output immediate source is missing or changed")
+        if source.resolve() != root_path.resolve():
+            load_mean(source, _entry_ancestors=(*_entry_ancestors, resolved))
+        validate_state(state, torch.load(root_path, map_location="cpu", weights_only=False),
+                       torch.load(source, map_location="cpu", weights_only=False), names)
+        weights = {k.removeprefix("mlp.mean."): v for k, v in state["actor_state_dict"].items()
+                   if k.startswith("mlp.mean.")}
+        mean.load_state_dict(weights, strict=True)
+        return mean.eval(), info
+    if info.get("schema") == "robust-getup-checkpoint-v4":
+        from wheeled_algo.quiet_stance_authority import MODULE, attach_stance_authority, validate_checkpoint
+        if info["source_sha256"].get(MODULE) != digest(ROOT / MODULE):
+            raise ValueError("Quiet stance authority source is missing or changed")
+        record = info.get("quiet_stance_authority_migration", {})
+        source = Path(record.get("source_checkpoint", ""))
+        if not source.is_file() or digest(source) != record.get("source_sha256"):
+            raise ValueError("Quiet stance authority source checkpoint is missing or changed")
+        mean, _ = load_mean(source, _entry_ancestors=(*_entry_ancestors, resolved))
+        validate_checkpoint(state, torch.load(source, map_location="cpu", weights_only=False))
+        mean = attach_stance_authority(mean, info["settings"]["quiet_stance_retained_authority"])
+        return mean.eval(), info
+    if info.get("schema") == "robust-getup-checkpoint-v3":
+        from wheeled_algo.function_root_checkpoint import MODULE, validate_state
+        if info["source_sha256"].get(MODULE) != digest(ROOT / MODULE):
+            raise ValueError("Learned function-root contract source is missing or changed")
+        origin = info.get("training_function_root", {})
+        root_path = Path(origin.get("checkpoint", ""))
+        if not root_path.is_file() or digest(root_path) != origin.get("sha256"):
+            raise ValueError("Learned policy function root is missing or changed")
+        mean, _ = load_mean(root_path, _entry_ancestors=(*_entry_ancestors, resolved))
+        root_state = torch.load(root_path, map_location="cpu", weights_only=False)
+        record = info.get("function_root_learning", {})
+        source = Path(record.get("source_checkpoint", ""))
+        if not source.is_file() or digest(source) != record.get("source_sha256"):
+            raise ValueError("Learned policy immediate source is missing or changed")
+        if source.resolve() == root_path.resolve():
+            source_state = root_state
+        else:
+            load_mean(source, _entry_ancestors=(*_entry_ancestors, resolved))
+            source_state = torch.load(source, map_location="cpu", weights_only=False)
+        validate_state(state, root_state, source_state)
+        weights = {k.removeprefix("mlp.mean."): v for k, v in state["actor_state_dict"].items()
+                   if k.startswith("mlp.mean.")}
+        mean.load_state_dict(weights, strict=True)
+        return mean.eval(), info
+    if any(key.startswith("quiet_stance_") for key in info.get("settings", {})):
+        raise ValueError("Quiet stance settings require an authenticated v4 checkpoint")
     if info["schema"] != "robust-getup-checkpoint-v2":
         raise ValueError("Expected a v2 training checkpoint")
     if info.get("actor_variant", "robust") != "robust":
         raise ValueError("Comparison variants are not deployment candidates")
-    from wheeled_algo.standing_reference_lifecycle import validate_observation_contract
+    validation_state = state
+    motion_damping = info["settings"].get("motion_leg_damping_version")
+    if motion_damping not in (None, "motion-leg-damping-v1"):
+        raise ValueError("Unknown motion leg damping version")
+    if motion_damping is None and "motion_leg_damping_alpha" in info["settings"]:
+        raise ValueError("Motion damping alpha requires an explicit version")
+    if motion_damping:
+        from wheeled_algo.motion_target_damping import MODULE, validate_motion_damping_checkpoint
+        if info["source_sha256"].get(MODULE) != digest(ROOT / MODULE):
+            raise ValueError("Motion damping source is missing or changed")
+        record = info.get("motion_leg_damping_migration", {})
+        source = Path(record.get("source_checkpoint", ""))
+        if not source.is_file() or digest(source) != record.get("source_sha256"):
+            raise ValueError("Motion damping source checkpoint is missing or changed")
+        load_mean(source, _entry_ancestors=(*_entry_ancestors, resolved))
+        validation_state = torch.load(source, map_location="cpu", weights_only=False)
+        validate_motion_damping_checkpoint(state, validation_state)
+    from wheeled_tasks.chassis.standing_recovery_reference import validate_observation_contract, SCHEMA as REFERENCE_SCHEMA
+    from wheeled_tasks.chassis.standing_sensor_uncertainty import SCHEMA as SENSOR_SCHEMA
+    from wheeled_tasks.chassis.standing_sensor_winding import SCHEMA as WINDING_SCHEMA
+    from wheeled_tasks.chassis.standing_geometry107 import SCHEMA
     validate_observation_contract(info["settings"])
+    observation_schema = (info["settings"].get("standing_position_observation") or {}).get("schema")
+    if observation_schema in (SCHEMA, WINDING_SCHEMA, SENSOR_SCHEMA, REFERENCE_SCHEMA):
+        observation_source = "src/wheeled_tasks/chassis/standing_geometry107.py"
+        if info["source_sha256"].get(observation_source) != digest(ROOT / observation_source):
+            raise ValueError("Extended observation source differs from the checkpoint contract")
+    if observation_schema in (WINDING_SCHEMA, SENSOR_SCHEMA, REFERENCE_SCHEMA):
+        for observation_source in ("src/wheeled_tasks/chassis/standing_sensor_winding.py",
+                                   "src/wheeled_tasks/chassis/continuous_encoders.py"):
+            if info["source_sha256"].get(observation_source) != digest(ROOT / observation_source):
+                raise ValueError("Continuous observation source differs from the checkpoint contract")
+    if observation_schema in (SENSOR_SCHEMA, REFERENCE_SCHEMA):
+        observation_source = "src/wheeled_tasks/chassis/standing_sensor_uncertainty.py"
+        if info["source_sha256"].get(observation_source) != digest(ROOT / observation_source):
+            raise ValueError("Sensor uncertainty source differs from the checkpoint contract")
+    if observation_schema == REFERENCE_SCHEMA:
+        observation_source = "src/wheeled_tasks/chassis/standing_recovery_reference.py"
+        if info["source_sha256"].get(observation_source) != digest(ROOT / observation_source):
+            raise ValueError("Standing recovery reference differs from the checkpoint contract")
+    if info["settings"].get("gap_entry_handoff_version") not in (None,"orbit-v2"):
+        raise ValueError("Unknown gap entry handoff version")
+    if info["settings"].get("gap_upright_target_limit_version") not in (None,"error-v1"):
+        raise ValueError("Unknown upright target limit version")
+    if info["settings"].get("gap_entry_recovery_split_version") not in (None,"frozen-v1"):
+        raise ValueError("Unknown frozen entry head version")
+    if info["settings"].get("gap_final_target_winding_version") not in (None, "paired-v1"):
+        raise ValueError("Unknown final target winding version")
+    if info["settings"].get("gap_entry_encoder_version") not in (None, "periodic-chart-v1"):
+        raise ValueError("Unknown entry encoder version")
     if any(not key.startswith("mlp.") for key in state["actor_state_dict"]):
         raise ValueError("Unsupported external actor normalization or distribution state")
     for actor_source, expected_sha in info["source_sha256"].items():
         if actor_source.startswith("src/wheeled_algo/") and digest(ROOT / actor_source) != expected_sha:
             # Only explicit migrations may read the archived implementation of
             # this backwards-compatible, opt-in actor extension.
-            if (actor_source != "src/wheeled_algo/robust_getup.py" or migration_source_root is None
+            migratable = ("src/wheeled_algo/robust_getup.py", "src/wheeled_algo/recovery_coordinates.py",
+                          "src/wheeled_algo/gap_entry_handoff.py", "src/wheeled_algo/gap_entry_preservation.py",
+                          "src/wheeled_algo/upright_target_limit.py")
+            if (actor_source not in migratable or migration_source_root is None
                     or digest(Path(migration_source_root) / actor_source) != expected_sha):
                 raise ValueError("Actor source differs from the trained source: " + actor_source)
     parent_file = Path(info["base_checkpoint"])
@@ -74,6 +217,43 @@ def load_mean(checkpoint, *, migration_source_root=None):
         from wheeled_algo.quiet_output_actor import QuietOutputGetupActor
         actor_type = QuietOutputGetupActor
         extra["quiet_output_wheel_alpha"] = info["settings"]["quiet_output_wheel_alpha"]
+    if info["settings"].get("gap_robustness_version"):
+        from wheeled_algo.gap_robust_actor import GapRobustGetupActor
+        actor_type = GapRobustGetupActor
+        extra["upright_entry_recovery"] = info["settings"]["upright_entry_recovery"]
+        if info["settings"].get("gap_entry_handoff_version") == "orbit-v2":
+            from wheeled_algo.gap_entry_handoff import HandoffGapGetupActor
+            actor_type = HandoffGapGetupActor
+        if info["settings"].get("gap_upright_target_limit_version"):
+            if info["settings"].get("gap_entry_handoff_version") != "orbit-v2":
+                raise ValueError("Final target limiter requires the authenticated orbit-v2 actor")
+            from wheeled_algo.upright_target_limit import UprightTargetLimitedGapActor
+            actor_type = UprightTargetLimitedGapActor
+            extra["final_target_winding_version"] = info["settings"].get("gap_final_target_winding_version")
+        if info["settings"].get("gap_entry_recovery_split_version"):
+            if info["settings"].get("gap_entry_handoff_version") != "orbit-v2" or info["settings"].get("gap_upright_target_limit_version") != "error-v1":
+                raise ValueError("Frozen entry requires orbit-v2 and the unchanged final target limit")
+            actor_source = "src/wheeled_algo/gap_entry_preservation.py"
+            if info["source_sha256"].get(actor_source) != digest(ROOT / actor_source):
+                if (migration_source_root is None or info["source_sha256"].get(actor_source)
+                        != digest(Path(migration_source_root) / actor_source)):
+                    raise ValueError("Frozen entry actor source is undeclared or changed")
+            from wheeled_algo.gap_entry_preservation import EntryPreservingGapActor
+            actor_type = EntryPreservingGapActor
+    if info["settings"].get("gap_entry_encoder_version"):
+        if not info["settings"].get("gap_entry_recovery_split_version"):
+            raise ValueError("Periodic entry requires the separate entry head")
+        module = "src/wheeled_algo/periodic_entry_actor.py"
+        if info["source_sha256"].get(module) != digest(ROOT / module):
+            raise ValueError("Periodic entry source is missing or changed")
+        from wheeled_algo.periodic_entry_actor import PeriodicEntryGapActor
+        actor_type = PeriodicEntryGapActor
+    if motion_damping:
+        from wheeled_algo.motion_target_damping import MotionTargetDampedGapActor
+        actor_type = MotionTargetDampedGapActor
+        extra["motion_leg_alpha"] = info["settings"]["motion_leg_damping_alpha"]
+    if info["settings"].get("gap_final_target_winding_version") and not info["settings"].get("gap_upright_target_limit_version"):
+        raise ValueError("Final target winding requires the final upright limiter")
     mean = actor_type(mean_from_checkpoint(parent, ROOT / plan["actor_bundle"] / "source.onnx"),
                            quiet_alpha=info["settings"]["quiet_actor_alpha"],
                            canonical_recovery=info["settings"].get("canonical_recovery", False),
@@ -83,6 +263,8 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            recovery_leg_step=info["settings"].get("recovery_leg_step", 1.2),
                            smooth_knee_targets=info["settings"].get("smooth_knee_targets", False),
                            recovery_knee_center=info["settings"].get("recovery_knee_center", [.924544, .924537]),
+                           recovery_knee_step=info["settings"].get("recovery_knee_step", .15),
+                           recovery_previous_common_version=info["settings"].get("recovery_previous_common_version"),
                            quiet_velocity_feature_scale=info["settings"].get("quiet_velocity_feature_scale"),
                            quiet_velocity_feature_gain=info["settings"].get("quiet_velocity_feature_gain", 1.),
                            quiet_velocity_feedback=info["settings"].get("quiet_velocity_feedback", False),
@@ -100,6 +282,37 @@ def load_mean(checkpoint, *, migration_source_root=None):
                            fast_forward_reference_yaw_fade=info["settings"].get("fast_forward_reference_yaw_fade", .25), **extra)
     weights = {k.removeprefix("mlp.mean."): v for k, v in state["actor_state_dict"].items() if k.startswith("mlp.mean.")}
     mean.load_state_dict(weights, strict=True)
+    if info["settings"].get("gap_entry_recovery_split_version"):
+        origin = info.get("entry_recovery_preservation")
+        if not isinstance(origin, dict) or origin.get("schema") != "gap-entry-recovery-preservation-v1":
+            raise ValueError("Frozen entry head requires its exact reference checkpoint")
+        reference_path = Path(origin["checkpoint"])
+        if digest(reference_path) != origin["sha256"]:
+            raise ValueError("Frozen entry reference checkpoint changed")
+        reference = torch.load(reference_path, map_location="cpu", weights_only=False)["actor_state_dict"]
+        learned = info.get("entry_recovery_learning")
+        if learned is None:
+            if any(not torch.equal(value, reference["mlp.mean.recovery." + key])
+                   for key, value in mean.entry_recovery.state_dict().items()):
+                raise ValueError("Frozen entry weights differ from their declared reference")
+        else:
+            module = "src/wheeled_algo/entry_checkpoint.py"
+            if info["source_sha256"].get(module) != digest(ROOT / module):
+                raise ValueError("Trained entry checkpoint contract source is missing or changed")
+            source = Path(learned["source_checkpoint"])
+            if digest(source) != learned["source_sha256"]:
+                raise ValueError("Trained entry source checkpoint changed")
+            load_mean(source, _entry_ancestors=(*_entry_ancestors, resolved))
+            from wheeled_algo.entry_checkpoint import validate_entry_learning
+            validate_entry_learning(validation_state, torch.load(source, map_location="cpu", weights_only=False))
+    if info["settings"].get("gap_entry_encoder_version"):
+        record = info.get("entry_encoder_migration", {})
+        source = Path(record.get("source_checkpoint", ""))
+        if not source.is_file() or digest(source) != record.get("source_sha256"):
+            raise ValueError("Periodic entry source checkpoint is missing or changed")
+        load_mean(source, _entry_ancestors=(*_entry_ancestors, resolved))
+        from wheeled_algo.periodic_entry_actor import validate_periodic_entry_checkpoint
+        validate_periodic_entry_checkpoint(validation_state, torch.load(source, map_location="cpu", weights_only=False))
     if info["settings"].get("quiet_velocity_feedback_mode") == "rolling_velocity":
         mean.rolling_velocity.verify_frozen_geometry()
     expected_bounds = torch.tensor([info["settings"]["leg_action_clip"]] * 4 + [info["settings"]["wheel_action_clip"]] * 2)
@@ -356,13 +569,14 @@ def main():
         required_runtime_changes=["bypass scripted recovery; policy owns all six motors from enable",
             "allow raw leg actions +/-16 (offsets +/-4 rad); the inspected RMCS policy.hpp/action.cpp still clip raw legs at +/-3",
             "use the confirmed actual 200 Hz policy clock and matching 5 ms history; do not reuse the inspected legacy 50 Hz compile-time policy period",
-            "a dedicated full-RL entry must allow recovery attitudes beyond the old 45-degree lost-upright guard while retaining actual hardware fault protections",
+            "allow all recovery attitudes without pose, motor-speed, measured-torque or hinge-overtravel shutdowns",
             "zero all six motor efforts before enable; retain gas springs",
             "at first enable seed previous leg actions from paired common-angle-wrapped measured nominal offsets / .25",
             "use exported actions as the next previous-action observation in policy order",
-            "retain paired_branch107 projection, torque limits and sensor freshness protections",
+            "retain paired_branch107 projection, command torque saturation and hip/knee relative-angle soft limits; saturation or overtravel must not disable or latch RL",
+            "retain remote stop and control-link validity checks for CAN/IMU receive timeout, non-finite data and invalid or expired inference",
             "retain RMCS wind_leg_feedback before paired target decoding and PD; never subtract independently wrapped leg encoder angles",
-            "retain yaw and reduce vx at abs(vx*yaw)>2.06; retain requested motion during recovery"],
+            "pass forward/yaw commands after per-axis clipping without an extra coupled motion envelope; retain requested motion during recovery"],
         quiet_filter="inside ONNX, using the previous action; no additional deployment filter",
         paired_feedback_winding=info["settings"].get("paired_feedback_winding", False),
         observation_layout=[
@@ -405,14 +619,16 @@ def main():
         "当前读取的 RMCS `rmcs_rl/src/policy.hpp` / `action.cpp` 仍将腿 raw action 限为 ±3（偏移 ±0.75 rad），会截断起身动作；"
         "运行端需要支持本合同的 ±16。用户已确认实际策略为 200 Hz；同时核对代码中仍为 50 Hz 的旧常量及其派生周期，"
         "确保本策略每 5 ms 执行和更新历史。保持 paired_branch107_v1 成对换绕与闭链投影、"
-        "160/2.5 反馈 PD、1000 Hz PD 和既有真实力矩/新鲜度保护。35 维观测中的腿角必须按相对名义角绕回 ±π。\n\n"
+        "160/2.5 反馈 PD、1000 Hz PD、输出力矩饱和及大小腿相对夹角软限位。"
+        "力矩饱和或夹角越界都不能退出或锁存 RL；夹角软限位只抑制向外力矩，保留向内恢复及整腿共同转动。"
+        "35 维观测中的腿角必须按相对名义角绕回 ±π。\n\n"
         "全 RL 入口需要在失能阶段保留气弹簧、六电机零力矩；使能首帧用测得腿角作成对共同角换绕，除以 0.25 播种动作历史，"
         "轮历史置零。之后每个 5 ms 输入上一帧导出的 raw action，不能输入加比例/名义角后的电机目标。"
         "使能后由同一策略控制六电机，不先执行旧转腿脚本。\n\n"
-        "组合命令遵守 abs(vx × yaw) ≤ 2.06 m/s²：例如 1 m/s + 1 rad/s 均保留，"
-        "3 m/s + 4 rad/s 会保留转速并把前进降到约 0.515 m/s。该限幅也必须在运行端一致。\n\n"
-        "RMCS 当前原生入口仍有准备姿态和 45° 失稳锁止；实车全 RL 起身需要专用入口允许恢复阶段的大倾角，"
-        "并保留编码器/IMU 新鲜度、真实机械和力矩保护。仅替换旧 ONNX 不会启用任意姿态自起。\n\n"
+        "前进/转向命令只按各自配置范围钳位，不附加组合运动包络。"
+        "全 RL 入口允许大倾角和倒扣，不因姿态、腿速、反馈力矩或夹角越界使车辆失能。"
+        "保留遥控停机、CAN/IMU 接收超时、非有限控制数据及推理无效/过期处理。"
+        "这些要求需要运行端控制器配合实现。\n\n"
         "静站平滑在 ONNX 内，姿态扰动时会释放；无需再叠加部署低通。静站验收允许约 5 cm 内缓慢调整，"
         "没有为 actor 增加位置输入，因而不能保证无限时长位置不漂移。"
         "当前仿真关闭自碰撞，域参数范围属于鲁棒性假设，尚未经过车辆辨识。"

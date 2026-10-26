@@ -1,0 +1,39 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3937178,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "native_common_projected_fixed",
+      "checkpoint": "runs/robust_policy_repair_20261024/native_common_projected001/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis031_native_common_projected_fixed",
+      "log": "reports/robust_policy_repair_20261024/diagnosis031_native_common_projected_fixed.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/native_common_projected001/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis031_native_common_projected_fixed",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792893793.0078344,
+      "pid": 3937180,
+      "returncode": 0,
+      "finished_unix": 1792894017.6740344
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792894017.674215,
+  "finished_unix": 1792894017.6742146
+}

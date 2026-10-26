@@ -1,0 +1,146 @@
+{
+  "schema": "strict-native-followup-break-audit-v1",
+  "models": [
+    {
+      "model": "corrected_source",
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "sha256": "6d1816875765df7eb8849089a5c93b8e4b636a0e912b9e5ba6bc4e55ab549529",
+      "rows": [
+        {
+          "name": "inverted_symmetric__clean",
+          "actual_family": "inverted",
+          "recovered_at_s": 2.669999837875366,
+          "survived": true,
+          "followup_success": true,
+          "longest_follow_s": 2.065,
+          "post4s_valid_frames": 801,
+          "post4s_failure_frames": {
+            "tilt": 0,
+            "body_angular_speed": 0,
+            "height": 0,
+            "both_wheel_force_contact": 6,
+            "leg_speed": 0,
+            "forward_tracking": 0,
+            "yaw_tracking": 0
+          },
+          "force_contact_break_wheel_clearance_peak_m": 0.0002505779266357422,
+          "force_contact_break_wheel_air_run_peak_s": 0.0
+        },
+        {
+          "name": "inverted_symmetric__combined",
+          "actual_family": "inverted",
+          "recovered_at_s": 3.0199999809265137,
+          "survived": true,
+          "followup_success": false,
+          "longest_follow_s": 1.645,
+          "post4s_valid_frames": 801,
+          "post4s_failure_frames": {
+            "tilt": 0,
+            "body_angular_speed": 0,
+            "height": 0,
+            "both_wheel_force_contact": 10,
+            "leg_speed": 0,
+            "forward_tracking": 0,
+            "yaw_tracking": 0
+          },
+          "force_contact_break_wheel_clearance_peak_m": 0.0001972578465938568,
+          "force_contact_break_wheel_air_run_peak_s": 0.0
+        }
+      ]
+    },
+    {
+      "model": "phase_constrained",
+      "trace": "runs/robust_policy_repair_20261024/diagnosis024_entry_phase_fit_fixed/evaluation/trajectory.npz",
+      "sha256": "e8a5ab109b1832f9d098ce8cc8d0f4cafc89e28dae9d82ae443faa9a3a71acea",
+      "rows": [
+        {
+          "name": "left_symmetric__combined",
+          "actual_family": "right",
+          "recovered_at_s": 2.365000009536743,
+          "survived": true,
+          "followup_success": false,
+          "longest_follow_s": 1.555,
+          "post4s_valid_frames": 801,
+          "post4s_failure_frames": {
+            "tilt": 0,
+            "body_angular_speed": 0,
+            "height": 0,
+            "both_wheel_force_contact": 7,
+            "leg_speed": 0,
+            "forward_tracking": 0,
+            "yaw_tracking": 0
+          },
+          "force_contact_break_wheel_clearance_peak_m": 0.00016254931688308716,
+          "force_contact_break_wheel_air_run_peak_s": 0.0
+        },
+        {
+          "name": "right_symmetric__combined",
+          "actual_family": "upright",
+          "recovered_at_s": 2.934999942779541,
+          "survived": true,
+          "followup_success": false,
+          "longest_follow_s": 0.935,
+          "post4s_valid_frames": 801,
+          "post4s_failure_frames": {
+            "tilt": 0,
+            "body_angular_speed": 250,
+            "height": 0,
+            "both_wheel_force_contact": 6,
+            "leg_speed": 0,
+            "forward_tracking": 0,
+            "yaw_tracking": 0
+          },
+          "force_contact_break_wheel_clearance_peak_m": 1.9323080778121948e-05,
+          "force_contact_break_wheel_air_run_peak_s": 0.0
+        },
+        {
+          "name": "inverted_symmetric__clean",
+          "actual_family": "inverted",
+          "recovered_at_s": 2.634999990463257,
+          "survived": true,
+          "followup_success": false,
+          "longest_follow_s": 1.435,
+          "post4s_valid_frames": 801,
+          "post4s_failure_frames": {
+            "tilt": 0,
+            "body_angular_speed": 0,
+            "height": 0,
+            "both_wheel_force_contact": 7,
+            "leg_speed": 0,
+            "forward_tracking": 0,
+            "yaw_tracking": 0
+          },
+          "force_contact_break_wheel_clearance_peak_m": 0.00027604401111602783,
+          "force_contact_break_wheel_air_run_peak_s": 0.0
+        },
+        {
+          "name": "inverted_symmetric__combined",
+          "actual_family": "inverted",
+          "recovered_at_s": 2.9749999046325684,
+          "survived": true,
+          "followup_success": false,
+          "longest_follow_s": 1.345,
+          "post4s_valid_frames": 801,
+          "post4s_failure_frames": {
+            "tilt": 0,
+            "body_angular_speed": 0,
+            "height": 0,
+            "both_wheel_force_contact": 7,
+            "leg_speed": 0,
+            "forward_tracking": 0,
+            "yaw_tracking": 0
+          },
+          "force_contact_break_wheel_clearance_peak_m": 0.000355549156665802,
+          "force_contact_break_wheel_air_run_peak_s": 0.0
+        }
+      ]
+    }
+  ],
+  "conclusion": "The phase edit increases completed recovery, but strict uninterrupted two-second followup fails. Most otherwise stable recovered lanes have brief force-contact breaks; the new right_symmetric combined lane also has real pitch-rate and leg-speed breaks. Neither the contact nor followup threshold is changed.",
+  "scope": "Recorded paired trajectories and condition decomposition; no unique causal claim about solver/contact/controller.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792886142.4395268
+}

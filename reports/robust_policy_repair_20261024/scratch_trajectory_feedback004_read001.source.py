@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""CPU-only local action derivatives at recorded native decision states.
+
+The PD matrices are algebraic command derivatives, not physical closed-loop
+poles. No optimizer, rollout, simulator or policy modification is constructed.
+"""
+import argparse
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+
+import numpy as np
+import torch
+from tensordict import TensorDict
+from rsl_rl.models import MLPModel
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def inspect(directory, times):
+    receipt = json.loads((directory / "receipt.json").read_text())
+    if (receipt["status"] != "completed_unqualified" or receipt["new_PPO"] != 0
+            or receipt["optimizer_constructed"]):
+        raise ValueError("Need a completed read-only native feedback evaluation")
+    checkpoint_path = Path(receipt["checkpoint"])
+    if sha(checkpoint_path) != receipt["checkpoint_sha256"]:
+        raise ValueError("Checkpoint SHA changed")
+    state = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    run = checkpoint_path.parent
+    infos = state["infos"]
+    agent_path = run / "agent_config.json"
+    if infos.get("agent_config_sha256") != sha(agent_path):
+        raise ValueError("Actor configuration SHA changed")
+    config_path = run / "config/contract.json"
+    if sha(config_path) != infos["mechanism_config_sha256"]:
+        raise ValueError("Mechanism SHA changed")
+    config = json.loads(config_path.read_text())
+    response = config.get("actuator_response", {})
+    if response.get("enabled") and (response["gain"] != 1. or any(response["time_constant_s"])):
+        raise ValueError("This algebraic PD diagnostic requires direct nominal torque response")
+    agent = json.loads(agent_path.read_text())
+    actor_cfg = dict(agent["actor"])
+    actor_name = actor_cfg.pop("class_name")
+    actor_class = MLPModel
+    if actor_name == "wheeled_algo.wheel_velocity_increment:WheelVelocityIncrementModel":
+        name = "src/wheeled_algo/wheel_velocity_increment.py"
+        model_file = run / "source_snapshot" / name
+        if sha(model_file) != infos["source_hashes"][name]:
+            raise ValueError("Frozen actor action model SHA changed")
+        spec = importlib.util.spec_from_file_location("frozen_trajectory_increment_actor", model_file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        actor_class = module.WheelVelocityIncrementModel
+    elif actor_name != "MLPModel":
+        raise ValueError("Unsupported actor action ABI")
+    dummy = TensorDict(dict(policy=torch.zeros(1, 35)), batch_size=[1])
+    actor = actor_class(dummy, agent["obs_groups"], "actor", 6, **actor_cfg)
+    actor.load_state_dict(state["actor_state_dict"], strict=True)
+    actor.eval()
+    result = receipt["evaluation"]
+    feedback_path = directory / "evaluation/feedback_trace.npz"
+    physical_path = directory / "evaluation/native_trace.npz"
+    if (sha(feedback_path) != result["feedback_trace"]["sha256"]
+            or sha(physical_path) != result["trace_sha256"]):
+        raise ValueError("Native trace SHA changed")
+
+    def mean(frame):
+        return actor(TensorDict(dict(policy=frame[None]), batch_size=[1]))[0]
+
+    rows = []
+    with np.load(feedback_path) as feedback, np.load(physical_path) as physical:
+        for lane, case in enumerate(result["cases"]):
+            if case["height_m"] != .305 or case["pitch_deg"] not in (0., -.5):
+                continue
+            for time in times:
+                index = round(time / .005)
+                if not physical["valid"][index, lane]:
+                    continue
+                frame = torch.tensor(feedback["observation_policy"][index, lane])
+                output = mean(frame)
+                recorded = torch.tensor(feedback["action_raw_policy"][index, lane])
+                error = float((output.detach() - recorded).abs().max())
+                if error > 2e-6:
+                    raise ValueError("CPU actor mean differs from the recorded native decision")
+                jac = torch.autograd.functional.jacobian(mean, frame)
+                # Policy axes: four legs then two wheels. Raw speeds are0.1*dq.
+                kp, kd = config["v5_control"]["leg_kp"], config["v5_control"]["leg_kd"]
+                leg_velocity_gain = kp * .25 * .1 * jac[:4, 16:20] - kd * torch.eye(4)
+                wheel_kd = .6  # Authenticated flat-base six-axis output-side contract.
+                wheel_velocity_gain = wheel_kd * (jac[4:, 20:22] - torch.eye(2))
+                previous = jac[:, 22:28]
+                torque = physical["torque"][index, :, lane]
+                force = physical["force"][index, :, lane]
+                row = dict(pitch_deg=case["pitch_deg"], decision_time_s=index*.005,
+                    CPU_mean_max_abs_difference=error,
+                    leg_command_torque_velocity_gain_nm_per_rad_s=leg_velocity_gain.tolist(),
+                    leg_command_gain_symmetric_eigenvalues=torch.linalg.eigvalsh(
+                        (leg_velocity_gain + leg_velocity_gain.T)*.5).tolist(),
+                    wheel_command_torque_velocity_gain_nm_per_rad_s=wheel_velocity_gain.tolist(),
+                    wheel_command_gain_symmetric_eigenvalues=torch.linalg.eigvalsh(
+                        (wheel_velocity_gain + wheel_velocity_gain.T)*.5).tolist(),
+                    previous_action_spectral_radius=float(torch.linalg.eigvals(previous).abs().max()),
+                    native_leg_effort_peak_next5ms_nm=float(np.abs(torque).max()),
+                    native_dual_support_next5ms=(np.linalg.norm(force, axis=-1) > 2.).all(-1).tolist(),
+                    actor_input_jacobian=jac.tolist())
+                rows.append(row)
+    return dict(schema="scratch-native-state-local-feedback-v1", checkpoint=str(checkpoint_path),
+        checkpoint_sha256=receipt["checkpoint_sha256"], feedback_trace_sha256=sha(feedback_path),
+        evaluation_receipt_sha256=sha(directory / "receipt.json"), rows=rows,
+        new_PPO=0, optimizer_constructed=False, hardware_ready=False,
+        source_sha256=sha(__file__),
+        scope="Unsaturated algebraic V5 PD action derivatives at recorded states, with other actor inputs fixed. "
+              "Positive symmetric gain can inject velocity-aligned command torque at a decision boundary. "
+              "Targets remain held for5 physical steps; this is not a physical damping matrix, closed-loop pole "
+              "test, isolated cause or behavior qualification.")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("evaluation_run", type=Path)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    torch.set_num_threads(2)
+    times = (0., .1, .5, 1., 2., 3., 3.7, 3.79, 3.8, 3.805, 4., 4.2, 4.5, 5., 5.5, 6., 7.)
+    report = inspect(args.evaluation_run, times)
+    if args.output.exists():
+        raise ValueError("Preserve old diagnostic reports")
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+    print(json.dumps([dict(pitch_deg=row["pitch_deg"], time_s=row["decision_time_s"],
+        leg_command_gain_max_eigenvalue=max(row["leg_command_gain_symmetric_eigenvalues"]),
+        wheel_command_gain_max_eigenvalue=max(row["wheel_command_gain_symmetric_eigenvalues"]),
+        previous_action_radius=row["previous_action_spectral_radius"])
+        for row in report["rows"]]))

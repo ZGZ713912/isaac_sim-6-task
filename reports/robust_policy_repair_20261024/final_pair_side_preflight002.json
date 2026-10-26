@@ -1,0 +1,96 @@
+{
+  "schema": "final-pair-side-preflight-v2",
+  "source": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+  "source_sha256": "3a4f183f46af00dcd25bb2d4bb69150154c95577c9999752012397ece237a519",
+  "mean_checks": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "frames": 81600,
+      "previous_crossings": 0,
+      "arithmetic_circular_means_exact_cpu": true
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "frames": 168000,
+      "previous_crossings": 0,
+      "arithmetic_circular_means_exact_cpu": true
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_rmcs/evaluation/trajectory.npz",
+      "frames": 115200,
+      "previous_crossings": 0,
+      "arithmetic_circular_means_exact_cpu": true
+    }
+  ],
+  "trainable": [
+    [
+      "recovery.0.weight",
+      4480
+    ],
+    [
+      "recovery.0.bias",
+      128
+    ],
+    [
+      "recovery.2.weight",
+      16384
+    ],
+    [
+      "recovery.2.bias",
+      128
+    ],
+    [
+      "recovery.4.weight",
+      768
+    ],
+    [
+      "recovery.4.bias",
+      6
+    ]
+  ],
+  "setting_differences": {
+    "motion_fraction": {
+      "before": 0.5,
+      "after": 0.2
+    },
+    "recovery_family_weights": {
+      "before": [
+        0.4,
+        0.05,
+        0.05,
+        0.125,
+        0.125,
+        0.2,
+        0.05
+      ],
+      "after": [
+        0.0,
+        0.05,
+        0.05,
+        0.35,
+        0.35,
+        0.15,
+        0.05
+      ]
+    },
+    "version": {
+      "before": "robust-gap-v1",
+      "after": "robust-v2.21-side-recovery-exposure"
+    },
+    "side_recovery_birth_focus": {
+      "before": false,
+      "after": true
+    },
+    "motion_push_fraction": {
+      "before": 0.25,
+      "after": 1.0
+    }
+  },
+  "source_clock": 1501,
+  "prior_experiment_consumed": 2555,
+  "reward_changed": false,
+  "physics_changed": false,
+  "new_PPO": 0,
+  "qualification": null,
+  "hardware_started": false
+}

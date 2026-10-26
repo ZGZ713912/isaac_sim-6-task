@@ -1,0 +1,70 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3722586,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "entry_preserving_fixed",
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_preserving_counterfactual001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/entry_preserving_counterfactual_eval001",
+      "log": "reports/robust_policy_repair_20261024/diagnosis003_entry_preserving_fixed.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/entry_preserving_counterfactual001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/entry_preserving_counterfactual_eval001",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201",
+        "--case-group",
+        "all"
+      ],
+      "status": "completed",
+      "started_unix": 1792866898.7995641,
+      "pid": 3722587,
+      "returncode": 0,
+      "finished_unix": 1792867109.9632492
+    },
+    {
+      "name": "entry_preserving_rmcs",
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_preserving_counterfactual001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/entry_preserving_counterfactual_rmcs001",
+      "log": "reports/robust_policy_repair_20261024/diagnosis003_entry_preserving_rmcs.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/entry_preserving_counterfactual001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/entry_preserving_counterfactual_rmcs001",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241203",
+        "--case-group",
+        "rmcs-inverted"
+      ],
+      "status": "completed",
+      "started_unix": 1792867109.9688518,
+      "pid": 3724009,
+      "returncode": 0,
+      "finished_unix": 1792867330.4365857
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792867330.4368272,
+  "finished_unix": 1792867330.4368267
+}

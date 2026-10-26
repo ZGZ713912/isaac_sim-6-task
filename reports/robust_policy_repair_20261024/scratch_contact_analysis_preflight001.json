@@ -1,0 +1,23 @@
+{
+  "schema": "scratch-contact-state-analysis-preflight-v1",
+  "observed_utc": "2026-10-25T23:39:26.546051+00:00",
+  "status": "prepared_not_run_on_native_contact_state",
+  "source_sha256": {
+    "scripts/analyze_scratch_contact_state.py": "f57b30595eb0db07f81c494e5a00c5662ff48686244eeaa0c45dc3f9ec50e2f0",
+    "tests/test_scratch_contact_state_analysis.py": "d81cf1f8c93a5d908026c0569db162fb8d0c72a0c30bd7130bf5eef685407999"
+  },
+  "frozen_sources": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_contact_analysis_preflight001",
+  "CPU_verification": {
+    "command": "OPENBLAS_NUM_THREADS=1 /home/noir/miniconda3/envs/isaacsim6/bin/python -m pytest -q tests/test_scratch_contact_state_analysis.py",
+    "exit_code": 0,
+    "passed": 8,
+    "observed_stdout": "........                                                                 [100%]\n8 passed in 0.08s\n"
+  },
+  "native_validation": false,
+  "new_PPO": 0,
+  "native_steps": 0,
+  "hardware_ready": false,
+  "expected_original_native_trace_sha256": "ecfe6479a904c1dfe0a1859479c0524e0d85f3735ade37c3718e9d96c5503a95",
+  "prerequisite": "Original006 process604203/start29631429 completes512 plus its own final evaluation and actually exits. Replay005 with unchanged actor, native reset and contact-state observer first.",
+  "scope": "Machine-readable evaluation classification only; existing strict2N force, original case denominators and exact baseline reproduction are mandatory. No curve source or TensorBoard server."
+}

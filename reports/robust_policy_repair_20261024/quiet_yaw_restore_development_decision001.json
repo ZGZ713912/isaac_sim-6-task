@@ -1,0 +1,153 @@
+{
+  "schema": "quiet-differential-sign-native-review-v1",
+  "checks": {
+    "frozen_inputs": true,
+    "native_pairing": true,
+    "standing_survived": true,
+    "no_previous_pass_lost": true,
+    "closure": true,
+    "passive": true,
+    "yaw_halved_stand_low__roll_plus2": true,
+    "yaw_halved_stand__roll_plus2": true
+  },
+  "native_tail_absolute_yaw_rad_s": {
+    "stand_low__roll_plus2": {
+      "before": 0.1540088802576065,
+      "after": 0.049181580543518066,
+      "after_before_ratio": 0.3193424980511082
+    },
+    "stand__roll_plus2": {
+      "before": 0.03990988805890083,
+      "after": 0.019318711012601852,
+      "after_before_ratio": 0.4840582610527601
+    }
+  },
+  "mechanism_gate_pass": true,
+  "standing_gate_pass": false,
+  "standing_pass": 17,
+  "gained_passes": [],
+  "lost_passes": [],
+  "failed_standing": [
+    {
+      "name": "stand_low__roll_plus2",
+      "case": "stand_low",
+      "survived": true,
+      "excursion_limit_m": 0.05,
+      "max_excursion_m": 0.1319240927696228,
+      "tail_stable_fraction": 0.9750312109862672,
+      "position_within_limit": false,
+      "pose_and_position_pass": false,
+      "leg_speed_peak_rad_s": 6.035062789916992,
+      "tail1s_leg_motion_3_95hz_rms_rad": 0.0062075345776975155,
+      "tail1s_leg_motion_20_95hz_rms_rad": 0.002439298201352358,
+      "tail1s_leg_speed_rms_rad_s": 0.08402349054813385,
+      "tail1s_leg_effort_rms_nm": 0.8275249600410461,
+      "tail1s_saturation_fraction": 0.0
+    },
+    {
+      "name": "stand__roll_plus2",
+      "case": "stand",
+      "survived": true,
+      "excursion_limit_m": 0.05,
+      "max_excursion_m": 0.055837757885456085,
+      "tail_stable_fraction": 1.0,
+      "position_within_limit": false,
+      "pose_and_position_pass": false,
+      "leg_speed_peak_rad_s": 2.2041332721710205,
+      "tail1s_leg_motion_3_95hz_rms_rad": 0.00028330457280389965,
+      "tail1s_leg_motion_20_95hz_rms_rad": 4.680430356529541e-05,
+      "tail1s_leg_speed_rms_rad_s": 0.011508294381201267,
+      "tail1s_leg_effort_rms_nm": 3.5644314289093018,
+      "tail1s_saturation_fraction": 0.0
+    },
+    {
+      "name": "stand_high__pitch_minus2",
+      "case": "stand_high",
+      "survived": true,
+      "excursion_limit_m": 0.1,
+      "max_excursion_m": 0.10539191961288452,
+      "tail_stable_fraction": 0.9900124843945068,
+      "position_within_limit": false,
+      "pose_and_position_pass": false,
+      "leg_speed_peak_rad_s": 5.08709192276001,
+      "tail1s_leg_motion_3_95hz_rms_rad": 0.0007882544887252152,
+      "tail1s_leg_motion_20_95hz_rms_rad": 0.00029188263579271734,
+      "tail1s_leg_speed_rms_rad_s": 0.04334738478064537,
+      "tail1s_leg_effort_rms_nm": 6.566563129425049,
+      "tail1s_saturation_fraction": 0.0
+    },
+    {
+      "name": "stand_high__combined",
+      "case": "stand_high",
+      "survived": true,
+      "excursion_limit_m": 0.1,
+      "max_excursion_m": 0.13173915445804596,
+      "tail_stable_fraction": 1.0,
+      "position_within_limit": false,
+      "pose_and_position_pass": false,
+      "leg_speed_peak_rad_s": 5.647135257720947,
+      "tail1s_leg_motion_3_95hz_rms_rad": 0.006460986565798521,
+      "tail1s_leg_motion_20_95hz_rms_rad": 5.853607945027761e-05,
+      "tail1s_leg_speed_rms_rad_s": 0.29059281945228577,
+      "tail1s_leg_effort_rms_nm": 3.998054265975952,
+      "tail1s_saturation_fraction": 0.0
+    }
+  ],
+  "metrics": {
+    "entry": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 12,
+      "followup_success": 9,
+      "stable90": 12,
+      "max_leg_speed_rad_s": 7.585491180419922,
+      "max_excursion_m": 0.8884961605072021,
+      "vx_mae_m_s": 0.07470420243528982,
+      "yaw_mae_rad_s": 0.030180311917016905
+    },
+    "standing": {
+      "episodes": 21,
+      "survived": 21,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 21,
+      "max_leg_speed_rad_s": 6.035062789916992,
+      "max_excursion_m": 0.1319240927696228,
+      "vx_mae_m_s": 0.029268126491279828,
+      "yaw_mae_rad_s": 0.02511273639365321,
+      "pose_and_position_pass": 17
+    },
+    "motion": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 12,
+      "max_leg_speed_rad_s": 5.5731120109558105,
+      "max_excursion_m": 7.887571334838867,
+      "vx_mae_m_s": 0.13615835178643465,
+      "yaw_mae_rad_s": 0.040786704630590975
+    },
+    "fallen": {
+      "episodes": 6,
+      "survived": 6,
+      "recovered": 5,
+      "followup_success": 1,
+      "stable90": 5,
+      "max_leg_speed_rad_s": 18.36008644104004,
+      "max_excursion_m": 1.5076022148132324,
+      "vx_mae_m_s": 0.21488514294226965,
+      "yaw_mae_rad_s": 0.2528694247206052
+    },
+    "score": 0.6786320382072811,
+    "formal_acceptance": false
+  },
+  "decision": "mechanism_only_no_candidate",
+  "eligible_for_checkpoint_mean_qualification": false,
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2654,
+  "repair_optimizer_updates": 274,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792911771.028776
+}

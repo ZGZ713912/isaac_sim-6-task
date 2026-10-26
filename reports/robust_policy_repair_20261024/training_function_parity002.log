@@ -1,0 +1,95 @@
+{
+  "schema": "actual-training-decoder-function-parity-v2",
+  "checks": {
+    "class_exact": true,
+    "settings_inherited": true,
+    "weights_and_buffers_exact": true,
+    "all_recorded_frames_exact": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/function_root_entry001/model_initial.pt",
+  "checkpoint_sha256": "b7733de1bcf5d3cfbc9781a849b016d08b8a6b02e49f6a8cb8235e0e74a12055",
+  "training_source_sha256": "c52a3d0141e928bbb61a818f6557d7e0815d7fb0735c9afee3a6730bf8347331",
+  "actor_class": "MotionTargetDampedGapActor",
+  "rows": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "sha256": "6d1816875765df7eb8849089a5c93b8e4b636a0e912b9e5ba6bc4e55ab549529",
+      "frames": 81600,
+      "different_frames": 0,
+      "action_error_peak": 0.0
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf",
+      "frames": 168000,
+      "different_frames": 0,
+      "action_error_peak": 0.0
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_rmcs/evaluation/trajectory.npz",
+      "sha256": "e17b2e540fc82d14249c47463b3a2198ab00cc4331bdcce1d9723a0c7442df85",
+      "frames": 115200,
+      "different_frames": 0,
+      "action_error_peak": 0.0
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis024_entry_phase_fit_fixed/evaluation/trajectory.npz",
+      "sha256": "e8a5ab109b1832f9d098ce8cc8d0f4cafc89e28dae9d82ae443faa9a3a71acea",
+      "frames": 81600,
+      "different_frames": 0,
+      "action_error_peak": 0.0
+    }
+  ],
+  "task_differences": {
+    "motion_fraction": [
+      0.5,
+      0.2
+    ],
+    "motion_push_fraction": [
+      0.25,
+      1.0
+    ],
+    "gap_entry_optimizer_layout": [
+      null,
+      "append-v1"
+    ],
+    "recovery_family_weights": [
+      [
+        0.4,
+        0.05,
+        0.05,
+        0.125,
+        0.125,
+        0.2,
+        0.05
+      ],
+      [
+        0.0,
+        0.05,
+        0.05,
+        0.35,
+        0.35,
+        0.15,
+        0.05
+      ]
+    ],
+    "version": [
+      "robust-gap-v1",
+      "robust-v2.21-side-recovery-exposure-entry-only"
+    ],
+    "recovery_support_weight": [
+      null,
+      0.0
+    ],
+    "side_recovery_birth_focus": [
+      false,
+      true
+    ]
+  },
+  "scope": "CPU execution of AST-extracted real parser and actor factory; complete recorded observation banks. Native rollout and optimizer restoration are separate checks.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792888445.9398305
+}

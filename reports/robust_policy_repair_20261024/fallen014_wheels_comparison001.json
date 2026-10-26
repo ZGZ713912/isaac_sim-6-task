@@ -1,0 +1,46 @@
+{
+  "schema": "counterfactual-physical-pairing-v1",
+  "checks": {
+    "settings": true,
+    "populations": true,
+    "cases": true,
+    "sensor_actuator_material": true,
+    "rigid": true,
+    "initial": true
+  },
+  "initial_exact": {
+    "actor_inputs_exact": true,
+    "passive_mask_exact": true,
+    "passive_poststep_motor_position_exact": true,
+    "passive_poststep_motor_velocity_exact": true,
+    "precontrol_root_pose_exact": true,
+    "precontrol_motor_position_exact": true,
+    "precontrol_motor_velocity_exact": true
+  },
+  "sensor_actuator_material_exact": true,
+  "rigid_parameters_exact": true,
+  "precontrol_physical_state_captured": true,
+  "intervention": {
+    "schema": "fallen-output-row-partition-probe-v1",
+    "retained_learned_rows": "wheels",
+    "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/pilot014_fallen_output/model_final.pt",
+    "checkpoint_sha256": "c79fc4740320c5f953305b3e81b0a126eb43d606a19f35496384c399284dbbdd",
+    "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/fallen_output_root001/model_initial.pt",
+    "source_sha256": "f1a98b917e430a040a595eb4487764abc9f73d3a5bf6784d71ee9fa72fd0b52f",
+    "runtime_weights_changed": true,
+    "checkpoint_file_changed": false,
+    "gaussian_mean_changed": true,
+    "sampling_std_changed": false,
+    "observer_changed": false,
+    "eligible_for_checkpoint_mean_qualification": false,
+    "wrapper_sha256": "bd44d4d721a27e3ac06656c9f2907a01abae266cb0cd6a2893f768d59daaddb5",
+    "probe_sha256": "54ac0c03cccc224c7c6e5e01b402636b031c4895cb6e02e23a9d18dd9d9a6aed",
+    "new_PPO": 0
+  },
+  "before_trajectory_sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+  "after_trajectory_sha256": "ba18766ca5dc2cc066b51e8c5204075c00d3b6718a9c04d50546bd82be63f76c",
+  "standard_policy_only_comparison_accepted": false,
+  "eligible_for_checkpoint_mean_qualification": false,
+  "qualification": null,
+  "hardware_ready": false
+}

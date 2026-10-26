@@ -1,0 +1,24 @@
+{
+  "schema": "entry-common-float32-roundoff-review-v1",
+  "preflight": "reports/robust_policy_repair_20261024/entry_phase_fit_preflight002.json",
+  "preflight_sha256": "6540dee98edf15aed7ac26135377f37edd6d9649b1810a25e6542a6d7de7176c",
+  "raw_pair_logit_difference_peak": 1.2159347534179688e-05,
+  "bounded_pair_request_lipschitz": 0.754920450233377,
+  "float32_allowance_rad": 5.7595857470005285e-06,
+  "bounded_pair_request_difference_upper_bound_rad": 1.493892586204756e-05,
+  "derivation": "desired=lo+width*sigmoid(2*sign*(raw_aux-raw_hip)+bias); max derivative wrt raw difference is width/2. The measured-relative bounded request has derivative <=1. An additional 32 float32 eps*width allowance is included.",
+  "reviewed_tolerance_rad": 2e-05,
+  "checks": {
+    "original_non_roundoff_checks_pass": true,
+    "decoded_pair_coordinate_bound_under_2e_5_rad": true,
+    "original_fixed_RMCS_nominal_gates_unchanged": true,
+    "original_failed_preflight_preserved": true
+  },
+  "scope": "This reviews FP32 preservation of the bounded requested pair coordinate only. It does not establish actual passive-knee tracking, contact safety or recovery; native 3mm closure, joint stops, speeds and unchanged behavior gates remain required.",
+  "decision": "admit_unchanged_fixed51_zero_PPO_gate",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792885545.07217
+}

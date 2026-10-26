@@ -1,0 +1,41 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3763228,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "circular_entry_baseline_fixed",
+      "checkpoint": "runs/robust_policy_repair_20261024/circular_entry_preserved_neutral001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/circular_entry_baseline_fixed001",
+      "log": "reports/robust_policy_repair_20261024/diagnosis011_baseline_fixed.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/circular_entry_preserved_neutral001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/circular_entry_baseline_fixed001",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201",
+        "--case-group",
+        "all"
+      ],
+      "status": "completed",
+      "started_unix": 1792871561.2494025,
+      "pid": 3763229,
+      "returncode": 0,
+      "finished_unix": 1792871777.8857746
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792871777.8859653,
+  "finished_unix": 1792871777.885965
+}

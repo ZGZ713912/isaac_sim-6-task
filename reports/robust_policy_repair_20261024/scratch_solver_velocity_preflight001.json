@@ -1,0 +1,77 @@
+{
+  "schema": "scratch-solver-velocity-preflight-v1",
+  "observed_utc": "2026-10-26T00:51:34.100051+00:00",
+  "status": "prepared_not_started",
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot005_static_load/model_final.pt",
+  "checkpoint_sha256": "44ddd2a037dd558bc739bb5721f722199ea1cd36deb1130aad7ac88f9d8cba27",
+  "frozen_checkpoint_source_count": 262,
+  "seed": 261101,
+  "output": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_velocity004_001",
+  "counterfactual": {
+    "schema": "scratch-solver-velocity-counterfactual-v1",
+    "position_iterations": 64,
+    "original_velocity_iterations": 32,
+    "requested_velocity_iterations": 4,
+    "physical_dt_s": 0.001,
+    "policy_dt_s": 0.005,
+    "adoption_by_training": false,
+    "mechanical_guards_unchanged": true,
+    "policy_unchanged": true,
+    "new_PPO": 0,
+    "scope": "Only articulation velocity iteration count changes before construction; frozen actor, position iterations, timestep, forces, geometry, reset and original strict evaluation remain."
+  },
+  "config_differences": [
+    "/velocity_iterations"
+  ],
+  "design_differences": [
+    "/stages/speed/roles/train/contract/velocity_iterations"
+  ],
+  "source_sha256": {
+    "scripts/evaluate_scratch_standing.py": "4d965fae5e28ebe42f7b3e4064907f7d7007a81d70fb12f3b07ed0fbc58d2684",
+    "scripts/solver_velocity_iteration_probe.py": "918b672577f057ec485c9fa062e5ffef544bd4425bfc909f69c8590f6b401cf1",
+    "tests/test_scratch_solver_velocity_probe.py": "2dbc78aefe703eb97d505dddae21be59f1b0f37a117c73fdc8cd3982a2286f8e"
+  },
+  "cpu_tests": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_solver_velocity_cpu_tests002.log",
+    "sha256": "4180455bfd3c95077fd59776dcae69c3a9a7cef18311fb2f922a413a55372c14",
+    "passed": 23
+  },
+  "CLI_rejections_before_App": [
+    {
+      "flags": [
+        "--velocity-iterations",
+        "0"
+      ],
+      "exit_code": 2,
+      "output_created": false,
+      "stderr": "usage: evaluate_scratch_standing.py [-h] --checkpoint CHECKPOINT --output\n                                    OUTPUT [--device DEVICE] [--seed SEED]\n                                    [--external-force-mode {native,every-iteration}]\n                                    [--wheel-response-scale WHEEL_RESPONSE_SCALE]\n                                    [--reset-observation-mode {native,refresh-final-pose}]\n                                    [--velocity-iterations {1,4}]\n                                    [--trace-feedback] [--trace-contact-state]\nevaluate_scratch_standing.py: error: argument --velocity-iterations: invalid choice: '0' (choose from 1, 4)\n"
+    },
+    {
+      "flags": [
+        "--velocity-iterations",
+        "4",
+        "--wheel-response-scale",
+        ".5"
+      ],
+      "exit_code": 2,
+      "output_created": false,
+      "stderr": "usage: evaluate_scratch_standing.py [-h] --checkpoint CHECKPOINT --output\n                                    OUTPUT [--device DEVICE] [--seed SEED]\n                                    [--external-force-mode {native,every-iteration}]\n                                    [--wheel-response-scale WHEEL_RESPONSE_SCALE]\n                                    [--reset-observation-mode {native,refresh-final-pose}]\n                                    [--velocity-iterations {1,4}]\n                                    [--trace-feedback] [--trace-contact-state]\nevaluate_scratch_standing.py: error: Use one declared counterfactual at a time\n"
+    }
+  ],
+  "native_GPU_jobs": [],
+  "original006_process_absent": true,
+  "prior_contact_replay_process_absent": true,
+  "native_validation": false,
+  "adopted": false,
+  "all_CPU_checks_pass": true,
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "hardware_ready": false,
+  "diagnostic_basis": {
+    "contact_analysis": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_contact_state005_analysis002.json",
+    "contact_analysis_sha256": "c1676318dc5741557564ceb1b979ddd4c523aa0453c141e9bf49bdbe2531de6a",
+    "all82_missing_samples_have_three_readouts_below2N": true,
+    "legacy_friction_maximum": 0.0,
+    "source": "Actual unchanged005 native replay; record current source/physics warning and previously saved official NVIDIA solver documentation."
+  }
+}

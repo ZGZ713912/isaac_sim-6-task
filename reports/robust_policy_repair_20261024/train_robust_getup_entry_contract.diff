@@ -1,0 +1,18 @@
+--- scripts/train_robust_getup.py.before
++++ scripts/train_robust_getup.py
+@@ -905,9 +905,14 @@
+                                 "observation_filter_migration", "feedback_scale_probe", "recovery_step_migration",
+                                 "pose_bank_migration", "recovery_knee_request_migration",
+                                 "recovery_exploration_migration", "entry_recovery_preservation",
+-                                "entry_optimizer_migration"):
++                                "entry_optimizer_migration", "entry_recovery_learning"):
+                         if key in state["infos"]:
+                             info[key] = deepcopy(state["infos"][key])
++                if args.entry_recovery_only:
++                    from wheeled_algo.entry_checkpoint import make_entry_learning_record
++                    info["entry_recovery_learning"] = make_entry_learning_record(
++                        args.resume, state, runner.alg.actor.state_dict(),
++                        report["completed_updates"], report["new_optimizer_updates"])
+                 target=Path(path)
+                 pending=target.with_suffix(target.suffix+".pending")
+                 original_save(str(pending), infos=info)

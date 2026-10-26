@@ -1,0 +1,117 @@
+{
+  "schema": "quiet-wheel-gain-single-variable-preflight-v1",
+  "checks": {
+    "neutral_state_exact": true,
+    "only_three_existing_feedback_tensors_changed": true,
+    "all_existing_leg_feedback_rows_exact": true,
+    "recorded_legs_exact": true,
+    "outside_quiet_exact": true,
+    "neutral_function_exact": true,
+    "effect_present": true,
+    "unchanged_checkpoint": true,
+    "actual_wrapper_mean_matches_probe": true,
+    "explicit_unqualified_override": true
+  },
+  "weights": [
+    {
+      "expert": "mid",
+      "before": [
+        [
+          0.09132808446884155,
+          0.021407248452305794
+        ],
+        [
+          -0.04948773235082626,
+          -0.047105468809604645
+        ]
+      ],
+      "after": [
+        [
+          0.27398425340652466,
+          0.06422174721956253
+        ],
+        [
+          -0.1484631896018982,
+          -0.14131641387939453
+        ]
+      ]
+    },
+    {
+      "expert": "low",
+      "before": [
+        [
+          0.1355593204498291,
+          0.02931353449821472
+        ],
+        [
+          -0.07564818859100342,
+          -0.070469431579113
+        ]
+      ],
+      "after": [
+        [
+          0.4066779613494873,
+          0.08794060349464417
+        ],
+        [
+          -0.22694456577301025,
+          -0.21140828728675842
+        ]
+      ]
+    },
+    {
+      "expert": "high",
+      "before": [
+        [
+          0.045632217079401016,
+          0.010609788820147514
+        ],
+        [
+          -0.026043638586997986,
+          -0.02449968084692955
+        ]
+      ],
+      "after": [
+        [
+          0.13689665496349335,
+          0.031829364597797394
+        ],
+        [
+          -0.07813091576099396,
+          -0.07349903881549835
+        ]
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation/evaluation/trajectory.npz",
+      "trace_sha256": "aaf5863b9721ddb28354df9e7b8247c102ef9f9adec300816ae8158e03137f98",
+      "frames": 81600,
+      "legs_exact": true,
+      "outside_quiet_exact": true,
+      "neutral_exact": true,
+      "changed_frames": 47832,
+      "wheel_action_delta_peak": 0.041733503341674805
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis038_quiet_stance050_development/evaluation/trajectory.npz",
+      "trace_sha256": "9668e35b61b509fc2c77690ca7cc16f89093b94b9c0632ccaf1ffad816957c29",
+      "frames": 81600,
+      "legs_exact": true,
+      "outside_quiet_exact": true,
+      "neutral_exact": true,
+      "changed_frames": 48807,
+      "wheel_action_delta_peak": 0.04169720411300659
+    }
+  ],
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "wrapper_sha256": "8a4b4a6a8d46f78a95166dc9c63095a37f10f5c7c80a2945c06bb8b6200280f5",
+  "probe_sha256": "4e0779fd03364885a821fd6f72e8b001d261d920f536d511b13b749e490bae10",
+  "proposed_development_gate": "All21 stand episodes survive; at least19/21 pose/position passes, no previous c025 development pass lost; same physical safeguards. Diagnostic only, no PPO/adoption/export.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2646,
+  "qualification": null,
+  "created_unix": 1792909075.828875
+}

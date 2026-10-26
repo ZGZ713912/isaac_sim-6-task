@@ -1,0 +1,154 @@
+{
+  "schema": "motion015-original-target-diagnostic-result-v1",
+  "results": {
+    "robust": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 6,
+          "recovery_and_motion_success": 4,
+          "practical_recovery_and_motion_success": 6
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 6,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 2,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 2
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 2,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 2
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 42,
+      "practical_moving_fall_recoveries": 0,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0,
+      "strict_followup": 14,
+      "impacts": 8
+    },
+    "reference": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 8,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 8
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 2,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 2
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 0,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 0
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 42,
+      "practical_moving_fall_recoveries": 0,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0,
+      "strict_followup": 4,
+      "impacts": 4
+    }
+  },
+  "pairing_checks": {
+    "all_precontrol_states_exact": true,
+    "robust_initial_observations_exact": true,
+    "cases_and_domains_exact": true
+  },
+  "replay": {
+    "reference_arrays_exact": {
+      "time": true,
+      "gravity": false,
+      "height": false,
+      "commands": true,
+      "requested_command": true,
+      "velocity": false,
+      "omega": false,
+      "actions": false,
+      "motor_effort": false,
+      "motor_velocity": false,
+      "gap": false,
+      "impact": false,
+      "impulse": false,
+      "passive": true,
+      "stable": true,
+      "done": true,
+      "terminated": true,
+      "enable_event": true,
+      "settled_family": true,
+      "recovered": true,
+      "followup_success": true,
+      "mechanical": true,
+      "closure_gap": true,
+      "impact_bad": true,
+      "boundary_bad": true,
+      "local_position": false,
+      "motor_position": false,
+      "wheel_contact": true,
+      "velocity_world": false,
+      "pushing": true,
+      "in_motion_fall": true,
+      "recovered_after_push": true,
+      "wheel_clearance": false,
+      "wheel_clearance_peak": false,
+      "wheel_contact_fraction": true,
+      "wheel_air_run_peak": true,
+      "dual_wheel_air_run_peak": true,
+      "wheel_air_seconds": true,
+      "leg_speed_peak_rad_s": false,
+      "leg_effort_peak_nm": false,
+      "leg_saturation_fraction": true,
+      "leg_effort_slew_rms_nm": false,
+      "leg_saturation_run_s": true,
+      "recovery_support_cost_density": true,
+      "native_reward": false,
+      "reward_density": false,
+      "reward_potential_progress": false,
+      "reward_recovery_active": true,
+      "standing_reference_active": true,
+      "standing_reference_anchor_m": true,
+      "standing_reference_filtered_m": true,
+      "standing_reference_severe_reset_count": true,
+      "standing_reference_output_valid": true,
+      "standing_reference_age_s": true,
+      "alive": true,
+      "observations": false
+    },
+    "reference_whole_lanes_exact": 69,
+    "reference_nonidentical_lanes": [
+      39
+    ],
+    "limit": "Reference lane39 first differs at physical contact at1.20s;69/70 reference lanes replay exactly. Initial native states and domains match, but whole-batch trajectory determinism is not established. No unique causal attribution or qualification."
+  },
+  "original_fixed_rejection_preserved": true,
+  "original_moving_fall_target_pass": false,
+  "decision": "reject_extension_and_adoption",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2646,
+  "repair_optimizer_updates": 266,
+  "qualification": null,
+  "hardware_ready": false,
+  "created_unix": 1792909511.447412
+}

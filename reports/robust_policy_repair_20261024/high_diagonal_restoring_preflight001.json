@@ -1,0 +1,48 @@
+{
+  "schema": "high-wheel-diagonal-zero-PPO-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/high_wheel_diagonal_restoring_probe001/model_probe.pt",
+  "sha256": "66a0823f787c06e53dc50caa02b6037d043a2f7a92de12b464b604088f7de609",
+  "source": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt",
+  "source_sha256": "3a4f183f46af00dcd25bb2d4bb69150154c95577c9999752012397ece237a519",
+  "checks": {
+    "only_one_tensor_changed": true,
+    "common_leg_and_off_diagonal_weights_exact": true,
+    "critic_Adam_and_clock_exact": true,
+    "recorded_legs_and_non_high_quiet_outputs_exact": true,
+    "bounded_wheel_delta": true
+  },
+  "rows": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "sha256": "6d1816875765df7eb8849089a5c93b8e4b636a0e912b9e5ba6bc4e55ab549529",
+      "frames": 81600,
+      "legs_exact": true,
+      "outside_high_quiet_exact": true,
+      "wheel_target_delta_peak_nm": 0.017066597938537598
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis015_development21_baseline/evaluation/trajectory.npz",
+      "sha256": "441c98fa5715ed45c9adcdf665e3f08c414679576964bd863115f7c0c5f56e8a",
+      "frames": 33600,
+      "legs_exact": true,
+      "outside_high_quiet_exact": true,
+      "wheel_target_delta_peak_nm": 0.04111826419830322
+    }
+  ],
+  "gates": {
+    "development_high_all7": true,
+    "development_no_lost_previous_pass": true,
+    "high_wobble_XY_at_most_m": 0.1,
+    "high_wobble_tail_stable_at_least": 0.95,
+    "fixed_high_all7_required_before_composition": true,
+    "closure_at_most_m": 0.003,
+    "passive_motor_peak_nm": 0.0,
+    "no_PPO": true
+  },
+  "scope": "A separate quiet component diagnosis, not a candidate replacing the successful entry policy.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2605,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792889214.7024086
+}

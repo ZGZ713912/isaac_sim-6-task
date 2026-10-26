@@ -1,0 +1,162 @@
+--- scripts/train_robust_getup.py
++++ scripts/train_robust_getup.py
+@@ -72,7 +72,8 @@
+                     "gap_entry_handoff_version", "gap_robustness_version", "upright_entry_recovery",
+                     "gap_actuator_timing_profile", "gap_severity", "gap_upright_target_limit_version",
+                     "gap_recovery_leg_exploration_fraction", "gap_entry_recovery_split_version",
+-                    "recovery_previous_common_version", "gap_final_target_winding_version"):
++                    "recovery_previous_common_version", "gap_final_target_winding_version",
++                    "gap_entry_optimizer_layout", "recovery_support_weight"):
+             if key in prior:
+                 task[key] = deepcopy(prior[key])
+         if prior.get("native_origin_mode") == "isolated_overlap_v1":
+@@ -147,6 +148,17 @@
+     if getattr(args, "motion_recovery_focus", False):
+         task.update(version="robust-v2.35-motion-recovery-exposure", motion_fraction=.8,
+                     motion_push_fraction=1.)
++    if getattr(args, "entry_recovery_only", False):
++        if task.get("gap_entry_optimizer_layout") != "append-v1":
++            raise ValueError("Entry-only training requires an explicit optimizer-layout migration")
++        task["version"] += "-entry-only"
++    if getattr(args, "recovery_support_weight", None) is not None:
++        task["recovery_support_weight"] = args.recovery_support_weight
++    if "recovery_support_weight" in task:
++        import math
++        weight = task["recovery_support_weight"]
++        if not math.isfinite(weight) or not 0. <= weight <= 2.:
++            raise ValueError("Recovery support weight must be finite within0..2")
+     if getattr(args, "episode_seconds", None) is not None:
+         task["episode_seconds"] = args.episode_seconds
+     # The fixed physics/control source remains pinned. The task overlay is a
+@@ -375,6 +387,8 @@
+                 keep += ("wheel_air_run_peak", "dual_wheel_air_run_peak", "wheel_air_seconds")
+                 keep += tuple(key for key in ("leg_speed_peak_rad_s", "leg_effort_peak_nm", "leg_saturation_fraction",
+                     "leg_effort_slew_rms_nm", "leg_saturation_run_s") if key in data)
++                keep += tuple(key for key in ("recovery_support_cost_density", "native_reward", "reward_density",
++                    "reward_potential_progress", "reward_recovery_active") if key in data)
+                 snapshots.append({k: data[k].detach().cpu().numpy() for k in keep}
+                                  | {k: value.detach().cpu().numpy() for k, value in reference_state.items()}
+                                  | {"alive": mask.cpu().numpy(), "observations": obs["policy"].cpu().numpy()})
+@@ -504,6 +518,10 @@
+     parser.add_argument("--arc-only", action="store_true", help="Tune only the shared motion head with extra moderate simultaneous requests")
+     parser.add_argument("--recovery-only", action="store_true",
+                         help="Tune recovery with bounded world coordinates and more motion disturbances; freeze quiet/motion/std")
++    parser.add_argument("--entry-recovery-only", action="store_true",
++                        help="Train only the explicitly migrated learned entry head; freeze fallen/motion/quiet/std")
++    parser.add_argument("--recovery-support-weight", type=float,
++                        help="Opt-in training density cost for near-upright unrecovered wheel clearance,0..2")
+     parser.add_argument("--side-recovery-focus", action="store_true",
+                         help="Recovery-only reset exposure: 70%% side, 15%% inverted, 15%% other falls; retain20%% upright motion births")
+     parser.add_argument("--motion-recovery-focus", action="store_true",
+@@ -561,6 +579,10 @@
+         parser.error("Arc-only tuning already freezes quiet/recovery/std; choose a single mode")
+     if args.recovery_only and (args.arc_only or args.quiet_only or args.freeze_quiet or args.focus_recovery_quiet):
+         parser.error("Recovery-only tuning already freezes quiet/motion/std; choose a single mode")
++    if args.entry_recovery_only and not (args.mode == "train" and args.recovery_only and args.resume):
++        parser.error("Entry-only learning requires train, recovery-only and an explicitly migrated resume")
++    if args.recovery_support_weight is not None and not args.entry_recovery_only:
++        parser.error("This reward pilot requires entry-only learning to preserve early fallen actions")
+     if args.side_recovery_focus and not args.recovery_only:
+         parser.error("Side recovery exposure requires --recovery-only")
+     if args.motion_recovery_focus and (not args.recovery_only or args.side_recovery_focus):
+@@ -721,6 +743,9 @@
+             if any(p.device != torch.device(args.device) for p in runner.alg.actor.parameters()):
+                 raise RuntimeError("Actor parameters must all reside on the policy device")
+             runner.alg.critic.load_state_dict(initialization["critic_state_dict"], strict=True)
++            if task.get("gap_entry_optimizer_layout") is not None:
++                from wheeled_algo.entry_optimizer import prepare_entry_optimizer_parameters
++                prepare_entry_optimizer_parameters(mean, task)
+             runner.alg.optimizer = torch.optim.Adam([
+                 dict(params=[p for p in runner.alg.actor.parameters() if p.requires_grad], lr=args.actor_lr, name="actor"),
+                 dict(params=runner.alg.critic.parameters(), lr=1e-3, name="critic")])
+@@ -786,6 +811,8 @@
+                         old_wheel_bound=old_bound, new_wheel_bound=task["quiet_wheel_bound"],
+                         purpose="preserve the small-signal initial action while improving quiet-head learning conditioning",
+                         optimizer="only rescaled quiet-head moments cleared")
++            if task.get("gap_entry_optimizer_layout") is not None:
++                mean.entry_recovery.requires_grad_(False)
+             if args.freeze_quiet:
+                 for head in quiet_heads + velocity_heads:
+                     head.requires_grad_(False)
+@@ -813,6 +840,10 @@
+                     head.requires_grad_(False)
+                 mean.arc.requires_grad_(False)
+                 runner.alg.actor.mlp.log_std.requires_grad_(False)
++            if args.entry_recovery_only:
++                from wheeled_algo.entry_optimizer import freeze_except_entry
++                freeze_except_entry(runner.alg.actor.mlp)
++            recovery_trainable_prefix = "entry_recovery." if args.entry_recovery_only else "recovery."
+             quiet_trainable_prefixes = (("quiet_velocity.",) if args.quiet_velocity_only
+                 else ("quiet_high.", "quiet_velocity.high.") if args.high_standing_only and mean.quiet_height_experts
+                 else ("quiet.", "quiet_low.", "quiet_high.", "quiet_velocity."))
+@@ -826,7 +857,7 @@
+                                if not k.startswith("arc.")} if args.arc_only else None)
+             frozen_arc_std = runner.alg.actor.mlp.log_std.detach().clone() if args.arc_only else None
+             frozen_non_recovery = ({k: v.detach().clone() for k, v in mean.state_dict().items()
+-                                    if not k.startswith("recovery.")} if args.recovery_only else None)
++                                    if not k.startswith(recovery_trainable_prefix)} if args.recovery_only else None)
+             frozen_recovery_std = runner.alg.actor.mlp.log_std.detach().clone() if args.recovery_only else None
+             report["trainable_actor_parameters"] = sum(p.numel() for p in runner.alg.actor.parameters() if p.requires_grad)
+             report["parent_updates"] = parent_updates
+@@ -863,6 +894,7 @@
+                     focus_recovery_quiet=args.focus_recovery_quiet,
+                     arc_only_tuning=args.arc_only,
+                     recovery_only_tuning=args.recovery_only,
++                    entry_recovery_only_tuning=args.entry_recovery_only,
+                     head_composition=(deepcopy(state["infos"].get("head_composition")) if args.resume else None),
+                     hardware_ready=False, prior_parent_updates=1346, initial_policy_training_updates="unknown")
+                 if args.resume:
+@@ -872,7 +904,8 @@
+                                 "observation_sensor_projection_migration", "observation_entry_reference_migration",
+                                 "observation_filter_migration", "feedback_scale_probe", "recovery_step_migration",
+                                 "pose_bank_migration", "recovery_knee_request_migration",
+-                                "recovery_exploration_migration", "entry_recovery_preservation"):
++                                "recovery_exploration_migration", "entry_recovery_preservation",
++                                "entry_optimizer_migration"):
+                         if key in state["infos"]:
+                             info[key] = deepcopy(state["infos"][key])
+                 target=Path(path)
+@@ -949,7 +982,7 @@
+                     if (any(not torch.equal(v, mean.state_dict()[k]) for k, v in frozen_non_recovery.items())
+                             or not torch.equal(frozen_recovery_std, runner.alg.actor.mlp.log_std)):
+                         raise RuntimeError("Recovery tuning changed frozen quiet, motion, parent or exploration")
+-                    report["frozen_non_recovery_and_std_unchanged"] = True
++                    report["frozen_non_entry_and_std_unchanged" if args.entry_recovery_only else "frozen_non_recovery_and_std_unchanged"] = True
+                 save(str(args.output / "model_final.pt"))
+                 env.evaluation_checkpoint = args.output / "model_final.pt"
+             else:
+--- src/wheeled_tasks/chassis/robust_getup_env.py
++++ src/wheeled_tasks/chassis/robust_getup_env.py
+@@ -540,13 +540,21 @@
+                    - .002 * action_delta
+                    - self.getup_cfg["recovery_leg_speed_cost"] * self.recovery_active * leg_speed
+                    - .0002 * (impact_peak - 400.).clamp_min(0.) - .5 * self.recovery_active - quiet_cost)
++        recovery_support_density = torch.zeros_like(density)
++        if self.getup_cfg.get("recovery_support_weight", 0.):
++            from .recovery_support_reward import recovery_support_cost
++            recovery_support_density = recovery_support_cost(wheel_clearance, gravity[:, 2],
++                self.recovery_active, self.getup_cfg["recovery_support_weight"])
++            density = density - recovery_support_density
+         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
+         timeout = self.episode_length_buf >= self.max_episode_length
+         done = terminated | timeout
+         reward -= 3. * terminated
+         info = dict(time_outs=timeout & ~terminated, policy_learning_mask=active_interval,
+                     policy_bootstrap_mask=~self.passive & ~terminated,
+-                    log={"UnifiedGetup/recovery_active_fraction": self.recovery_active.float().mean(),
++                    log={"UnifiedGetup/recovery_support_cost_density": recovery_support_density[active_interval].mean() if active_interval.any() else density.new_zeros(()),
++                         "UnifiedGetup/recovery_support_weight": density.new_tensor(self.getup_cfg.get("recovery_support_weight", 0.)),
++                         "UnifiedGetup/recovery_active_fraction": self.recovery_active.float().mean(),
+                          "UnifiedGetup/upright_fraction": stable.float().mean(),
+                          "UnifiedGetup/recovered_events": first.float().sum(),
+                          "UnifiedGetup/episode_success_events": (done & self.followup_success).float().sum(),
+@@ -630,6 +638,9 @@
+                 info["diagnostics"].update(leg_speed_peak_rad_s=leg_speed_peak.clone(),
+                     leg_effort_peak_nm=leg_effort_peak.clone(), leg_saturation_fraction=leg_saturation.clone(),
+                     leg_effort_slew_rms_nm=leg_slew_square.sqrt(), leg_saturation_run_s=leg_saturation_run.clone())
++            info["diagnostics"].update(recovery_support_cost_density=recovery_support_density.clone(),
++                native_reward=reward.clone(), reward_density=density.clone(),
++                reward_potential_progress=progress.clone(), reward_recovery_active=self.recovery_active.clone())
+             info["diagnostics"].update(wheel_clearance=wheel_clearance.clone(),
+                 wheel_clearance_peak=wheel_clearance_peak.clone(), wheel_contact_fraction=wheel_contact_fraction.clone(),
+                 wheel_air_run_peak=wheel_air_run_peak.clone(), dual_wheel_air_run_peak=dual_wheel_air_run_peak.clone(),

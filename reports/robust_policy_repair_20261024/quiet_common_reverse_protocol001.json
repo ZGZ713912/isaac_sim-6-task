@@ -1,0 +1,33 @@
+{
+  "schema": "quiet-common-sign-after-yaw-protocol-v1",
+  "control": "runs/robust_policy_repair_20261024/diagnosis038_quiet_stance050_development",
+  "differential_control": "runs/robust_policy_repair_20261024/diagnosis050_quiet_yaw_restore_development",
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "full_population": 51,
+  "seed": 241204,
+  "seconds": 8,
+  "hypothesis": "050 halves low/mid unintended yaw but leaves4 position failures. Retain its exact differential response and reverse only common translation response to test first-second overshoot/drift. No inference of closed-loop stability from actuator Jacobians.",
+  "intervention": "Wheel submatrix is negative diag(original row sums), hence the050 differential response is unchanged and its common response is reversed. Every leg/other weight,.5 authority,observer and physical guard unchanged.",
+  "gates": {
+    "standing_survived": 21,
+    "standing_pose_position_at_least": 19,
+    "lost_previous_development_passes_at_most": 0,
+    "max_gap_m": 0.003,
+    "passive_motor_peak_nm": 0,
+    "yaw_cases": [
+      "stand_low__roll_plus2",
+      "stand__roll_plus2"
+    ],
+    "yaw_tail_metric": "mean(abs(native_body_omega_z)) over6to8seconds,rad/s",
+    "yaw_at_most_fraction_of_original": 0.5
+  },
+  "scope": "Previously used development cases, not a fresh holdout. Saved mean modified only in memory; explicitly excluded from checkpoint qualification.",
+  "decision_scope": "Pass permits separate zero-PPO confirmation only. Fail rejects this intervention. No PPO/adoption/export.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2654,
+  "repair_optimizer_updates": 274,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792924907.001077
+}

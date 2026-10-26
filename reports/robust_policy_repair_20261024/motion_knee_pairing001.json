@@ -1,0 +1,46 @@
+{
+  "schema": "declared-mean-probe-physical-pairing-v1",
+  "checks": {
+    "settings": true,
+    "populations": true,
+    "cases": true,
+    "sensor_actuator_material": true,
+    "rigid": true,
+    "initial": true
+  },
+  "initial_exact": {
+    "actor_inputs_exact": true,
+    "passive_mask_exact": true,
+    "passive_poststep_motor_position_exact": true,
+    "passive_poststep_motor_velocity_exact": true,
+    "precontrol_root_pose_exact": true,
+    "precontrol_motor_position_exact": true,
+    "precontrol_motor_velocity_exact": true
+  },
+  "sensor_actuator_material_exact": true,
+  "rigid_parameters_exact": true,
+  "precontrol_physical_state_captured": true,
+  "intervention": {
+    "schema": "motion-knee-only-damping-probe-v1",
+    "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+    "source_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+    "knee_increment_alpha": 0.6,
+    "common_rotation_retained": true,
+    "scope": "Additional knee-only target increment damping on existing upright motion gate; scalar feasible correction preserves target error, action and paired-knee limits.",
+    "sensors": "Existing35D/previous applied action only; no case ID, timer or simulator state",
+    "gaussian_mean_changed": true,
+    "checkpoint_file_changed": false,
+    "sampling_std_changed": false,
+    "observer_changed": false,
+    "eligible_for_checkpoint_mean_qualification": false,
+    "wrapper_sha256": "a431e99ff3590977546dd0e4fc75fd53e6d574c5bb680d31b5cac6a4119a4de7",
+    "probe_sha256": "f476f83fc3f77d1c9b43c6699404c5e7479de3d6d3bbe2826672a985a786b0f6",
+    "new_PPO": 0
+  },
+  "before_trajectory_sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+  "after_trajectory_sha256": "c111e86544f647241a3e9f132ec84ffb63d6d253b88a063085976ae72a642c98",
+  "standard_policy_only_comparison_accepted": false,
+  "eligible_for_checkpoint_mean_qualification": false,
+  "qualification": null,
+  "hardware_ready": false
+}

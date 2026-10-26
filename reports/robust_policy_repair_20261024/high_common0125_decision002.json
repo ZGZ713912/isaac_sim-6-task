@@ -1,0 +1,31 @@
+{
+  "schema": "high-common0125-research-review-v2",
+  "checks": {
+    "standing19": true,
+    "high_combined_10cm": true,
+    "motion135": true,
+    "per_case_physical_vibration_nonregression": true
+  },
+  "standing_before": 18,
+  "standing_after": 19,
+  "decision": "advance_cross_seed_and_long_standing_diagnosis",
+  "vibration_regressions": [
+    {
+      "name": "stand_high__pitch_minus2",
+      "before": 0.0009528357186354697,
+      "after": 0.0011886709835380316
+    },
+    {
+      "name": "stand_high__roll_minus2",
+      "before": 0.0005599004216492176,
+      "after": 0.0015783540438860655
+    }
+  ],
+  "predeclared_gate_fully_passed": true,
+  "scope": "Preliminary8second behavior gate with the established formal Hann metric; not final qualification, PPO extension or hardware readiness.",
+  "new_PPO": 0,
+  "qualification": null,
+  "hardware_ready": false,
+  "supplements": "high_common0125_decision001.json retains rectangular last1s values and their two regressions",
+  "formal_spectral_method": "Existing analyze_robust_getup.hf_rms Hann/energy normalization, last4s at200Hz,3..95Hz"
+}

@@ -1,0 +1,119 @@
+{
+  "schema": "scratch-solver-investigation-v1",
+  "observed_utc": "2026-10-25T23:23:17.947059+00:00",
+  "sources": [
+    {
+      "url": "https://docs.omniverse.nvidia.com/kit/docs/omni_physics/latest/dev_guide/simulation_control/simulation_control.html",
+      "kind": "official_documentation",
+      "finding": "TGS favors very few velocity iterations; PGS and TGS have different convergence and overshoot behavior. General guidance does not prove this robot should change settings."
+    },
+    {
+      "url": "https://nvidia-omniverse.github.io/PhysX/physx/5.6.0/docs/MigrationTo53.html",
+      "kind": "official_migration_guide",
+      "finding": "PhysX5.3 stopped silently converting velocity iterations above4 into position iterations. Historical numeric settings need not reproduce older solver behavior."
+    },
+    {
+      "url": "https://github.com/NVIDIA-Omniverse/PhysX/issues/498",
+      "kind": "unverified_external_issue_report",
+      "finding": "Author reports legacy-friction fallback and position-rate/velocity disagreement under PhysX5.9CPU TGS. This has not been reproduced in the local GPU simulation and is not a diagnosis."
+    }
+  ],
+  "local_asset": {
+    "urdf_sha256": "04263bea83dc8d016fa4e27c5dfc4ebee531627a13c5f32361b2cd606df31a64",
+    "usd_sha256": "894d5ddcb93ddb0b66bbe649b17685fc06ad80ee8dcb4ff2b898bb1b8aa5218a",
+    "authored_URDF_joint_friction": {
+      "L_joint1": 0.0,
+      "R_joint1": 0.0,
+      "LL_joint1": 0.0,
+      "RR_joint1": 0.0,
+      "L_joint2": 0.0,
+      "R_jonit2": 0.0,
+      "LL_joint2": 0.0,
+      "RR_joint2": 0.0,
+      "L_joint3": 0.0,
+      "LLL_joint2": 0.0,
+      "R_joint3": 0.0,
+      "RRR_joint2": 0.0,
+      "LL_joint3": 0.0,
+      "RR_joint3": 0.0,
+      "L_spring_slide": 0.0,
+      "R_spring_slide": 0.0,
+      "LL_link4": 0.0,
+      "RR_joint4": 0.0
+    },
+    "USD_has_authored_jointFriction": false,
+    "installed_USD_schema_default_jointFriction": 0.0,
+    "actual_native_legacy_friction": "not_yet_observed",
+    "actual_native_new_friction": "not_yet_observed"
+  },
+  "context7_tools_available": false,
+  "documentation_fallback": "Official NVIDIA primary documentation and installed API source; no Context7 result claimed.",
+  "prior_counterfactual": "004 external-forces-every-iteration increased trained-height missing support771->1724ms and was rejected.",
+  "next_action": "After006 and its own evaluation actually exit, replay005 unchanged using the contact-state observer. Compare net/filter/packed forces and native joint/root state, read both friction APIs. Only then decide whether a bounded velocity-iteration counterfactual is justified.",
+  "native_validation": false,
+  "solver_changed": false,
+  "training_sources_changed": false,
+  "new_PPO": 0,
+  "hardware_ready": false,
+  "current_declared_configuration": {
+    "solver": "TGS",
+    "position_iterations": 64,
+    "velocity_iterations": 32,
+    "external_forces_every_iteration": false
+  },
+  "baseline005_native_physics_receipt": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_final256_feedback001/receipt.json",
+    "sha256": "38d028e567f6e801936915ae9e997d88ad7f5b2ad736a80d9f7549081d519de7",
+    "physics_runtime": {
+      "schema": "scratch-native-physics-settings-v1",
+      "physical_dt_s": 0.001,
+      "policy_dt_s": 0.005,
+      "scene_flags": {
+        "physxScene:solverType": "TGS",
+        "physxScene:enableExternalForcesEveryIteration": false,
+        "physxScene:enableStabilization": false,
+        "physxScene:enableCCD": false,
+        "physxScene:minPositionIterationCount": 1,
+        "physxScene:maxPositionIterationCount": 255,
+        "physxScene:minVelocityIterationCount": 0,
+        "physxScene:maxVelocityIterationCount": 255
+      },
+      "articulation_iterations": {
+        "physxArticulation:solverPositionIterationCount": 64,
+        "physxArticulation:solverVelocityIterationCount": 32
+      },
+      "cylinder_convex_approximation": {
+        "setting": "/physics/collisionApproximateCylinders",
+        "value": false,
+        "status": "observed"
+      },
+      "wheel_colliders": {
+        "L_link3": {
+          "path": "/World/envs/env_0/Robot/L_link3/Collision_000",
+          "valid": true,
+          "type": "Cylinder",
+          "attributes": {
+            "radius": 0.06,
+            "height": 0.02500000037252903,
+            "axis": "Z",
+            "physxConvexGeometry:margin": null
+          }
+        },
+        "R_link3": {
+          "path": "/World/envs/env_0/Robot/R_link3/Collision_000",
+          "valid": true,
+          "type": "Cylinder",
+          "attributes": {
+            "radius": 0.06,
+            "height": 0.02500000037252903,
+            "axis": "Z",
+            "physxConvexGeometry:margin": null
+          }
+        }
+      },
+      "source_sha256": "6b66d5af36e4f5c559878062bbf07a0d444432685c4a3320372ea1abdb37940a",
+      "scope": "Read-only runtime configuration; no contact, geometry, solver, action or acceptance changes"
+    }
+  },
+  "current006_stage_queried_by_this_reader": false
+}

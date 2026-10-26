@@ -1,0 +1,57 @@
+{
+  "schema": "fallen-output-code-integration-draft-v1",
+  "status": "not_applied",
+  "original_trainer_sha256": "458a450b35535ba8c7b0d16260865d1bdb8134bf6f8a319598a45af0895e0d64",
+  "original_export_sha256": "ecaa74ebf655458f24ebb5acd5a78687a6ad6862803e23622cce37aa9d00eace",
+  "trainer_draft_sha256": "366494bf33d9c13c4e0170cb929e0a7248b007fbe539d63452d205839d45d41d",
+  "export_draft_sha256": "0f9b79984019ffbf613d4dce7a75216319a5190bd3e4520df04fa892f42ed35f",
+  "trainer_edits": [
+    {
+      "before": "\"motion_leg_damping_version\", \"motion_leg_damping_alpha\"):",
+      "after": "\"motion_leg_damping_version\", \"motion_leg_damping_alpha\",\n                    \"quiet_stance_authority_version\", \"quiet_stance_retained_authority\", \"quiet_stance_recovery_threshold\"):"
+    },
+    {
+      "before": "        function_root = resume_info.get(\"schema\") == \"robust-getup-checkpoint-v3\"",
+      "after": "        function_root = resume_info.get(\"schema\") == \"robust-getup-checkpoint-v3\"\n        fallen_function_root = resume_info.get(\"schema\") == \"robust-getup-checkpoint-v5\"\n        if fallen_function_root and (args.mode != \"train\" or not args.recovery_only or args.entry_recovery_only):\n            parser.error(\"V5 resumes require the existing fallen output-only training mode\")"
+    },
+    {
+      "before": "        if args.mode == \"train\" and (function_root or revised_function):",
+      "after": "        if args.mode == \"train\" and (function_root or revised_function) and not fallen_function_root:"
+    },
+    {
+      "before": "        if function_root or revised_function:\n",
+      "after": "        if function_root or revised_function or fallen_function_root:\n"
+    },
+    {
+      "before": "    if args.resume and function_root:\n",
+      "after": "    if args.resume and (function_root or fallen_function_root):\n"
+    },
+    {
+      "before": "        from wheeled_algo.function_root_checkpoint import validate_training_settings\n        from export_robust_getup import load_mean as load_authenticated_mean\n        root_info = torch.load(resume_info[\"training_function_root\"][\"checkpoint\"],",
+      "after": "        if fallen_function_root:\n            from wheeled_algo.fallen_output_checkpoint import validate_training_settings\n            root_record = resume_info[\"policy_function_root\"]\n        else:\n            from wheeled_algo.function_root_checkpoint import validate_training_settings\n            root_record = resume_info[\"training_function_root\"]\n        from export_robust_getup import load_mean as load_authenticated_mean\n        root_info = torch.load(root_record[\"checkpoint\"],"
+    },
+    {
+      "before": "        mean.action_bound[:4].fill_(task[\"leg_action_clip\"])\n        env.actor_variant = args.actor_variant",
+      "after": "        mean.action_bound[:4].fill_(task[\"leg_action_clip\"])\n        if args.resume and fallen_function_root:\n            # Rebuild the authenticated complete runtime, including its explicit\n            # zero-strength stance extension. Optimizer layout stays legacy28.\n            mean, _ = load_authenticated_mean(args.resume)\n            mean = mean.to(args.device)\n        env.actor_variant = args.actor_variant"
+    },
+    {
+      "before": "(\"robust-getup-checkpoint-v2\", \"robust-getup-checkpoint-v3\") or state[\"infos\"][\"bank_sha256\"]",
+      "after": "(\"robust-getup-checkpoint-v2\", \"robust-getup-checkpoint-v3\", \"robust-getup-checkpoint-v5\") or state[\"infos\"][\"bank_sha256\"]"
+    },
+    {
+      "before": "            if args.entry_recovery_only:\n                from wheeled_algo.entry_optimizer import freeze_except_entry",
+      "after": "            if args.resume and fallen_function_root:\n                runner.alg.actor.requires_grad_(False)\n                mean.recovery[-1].requires_grad_(True)\n            if args.entry_recovery_only:\n                from wheeled_algo.entry_optimizer import freeze_except_entry"
+    },
+    {
+      "before": "                target=Path(path)\n",
+      "after": "                if args.resume and fallen_function_root:\n                    from wheeled_algo.fallen_output_checkpoint import SCHEMA, make_progress, environment_revision\n                    info.update(schema=SCHEMA,policy_function_root=deepcopy(state[\"infos\"][\"policy_function_root\"]),\n                        policy_function_stage=\"native-training\",\n                        policy_function_learning=make_progress(args.resume,state,runner.alg.actor.state_dict(),report[\"new_optimizer_updates\"]))\n                    revision=environment_revision(root_info[\"source_sha256\"],hashes,task)\n                    if revision is not None:\n                        info[\"policy_function_environment_revision\"]=revision\n                target=Path(path)\n"
+    },
+    {
+      "before": "                original_save(str(pending), infos=info)\n                pending.replace(target)",
+      "after": "                original_save(str(pending), infos=info)\n                if args.resume and fallen_function_root:\n                    from wheeled_algo.fallen_output_checkpoint import validate_state\n                    from export_robust_getup import load_mean as load_checked_mean\n                    root_path=state[\"infos\"][\"policy_function_root\"][\"checkpoint\"]\n                    root_state=torch.load(root_path,map_location=\"cpu\",weights_only=False)\n                    validate_state(torch.load(pending,map_location=\"cpu\",weights_only=False),root_state,\n                        torch.load(args.resume,map_location=\"cpu\",weights_only=False),state[\"infos\"][\"policy_function_root\"][\"optimizer_actor_parameter_names\"])\n                    load_checked_mean(pending)\n                pending.replace(target)"
+    }
+  ],
+  "new_PPO": 0,
+  "qualification": null,
+  "created_unix": 1792900351.204737
+}

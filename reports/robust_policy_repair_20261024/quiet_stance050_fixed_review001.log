@@ -1,0 +1,134 @@
+{
+  "schema": "policy-only-quiet-authority-diagnostic-decision-v1",
+  "checks": {
+    "declared_policy_override_exact": true,
+    "frozen_inputs": true,
+    "same_checkpoint": true,
+    "native_eval_recipe": true,
+    "case_names": true,
+    "sensor_actuator_material_exact": true,
+    "initial_actor_inputs_exact": true,
+    "passive_mask_exact": true,
+    "passive_poststep_motor_position": true,
+    "passive_poststep_motor_velocity": true,
+    "precontrol_root_pose": true,
+    "precontrol_motor_position": true,
+    "precontrol_motor_velocity": true,
+    "rigid_parameters_exact": true,
+    "same_loaded_checkpoint_actor_settings": true,
+    "all_task_settings_exact": true,
+    "current_control_exactly_reproduces_history": true,
+    "recovery_scope_explicit": true,
+    "standing": true,
+    "motion": true,
+    "entry_recovery": true,
+    "entry_followup": true,
+    "fallen_recovery": true,
+    "fallen_followup": true,
+    "entry_speed": true,
+    "fallen_speed": true,
+    "impacts": true,
+    "closure": true,
+    "passive": true,
+    "capture_oscillation_reduction": true,
+    "entry_followup_improvement": true
+  },
+  "metrics": {
+    "entry": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 9,
+      "followup_success": 9,
+      "stable90": 9,
+      "max_leg_speed_rad_s": 8.393475532531738,
+      "max_excursion_m": 1.9275097846984863,
+      "vx_mae_m_s": 0.08550951055561502,
+      "yaw_mae_rad_s": 0.0765592463624974
+    },
+    "standing": {
+      "episodes": 21,
+      "survived": 21,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 21,
+      "max_leg_speed_rad_s": 5.509819030761719,
+      "max_excursion_m": 0.08272552490234375,
+      "vx_mae_m_s": 0.019682840344363024,
+      "yaw_mae_rad_s": 0.035808554562252196,
+      "pose_and_position_pass": 20
+    },
+    "motion": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 11,
+      "max_leg_speed_rad_s": 5.228787422180176,
+      "max_excursion_m": 8.043540000915527,
+      "vx_mae_m_s": 0.12423261844863494,
+      "yaw_mae_rad_s": 0.034492504123287894
+    },
+    "fallen": {
+      "episodes": 6,
+      "survived": 5,
+      "recovered": 4,
+      "followup_success": 2,
+      "stable90": 4,
+      "max_leg_speed_rad_s": 24.11665153503418,
+      "max_excursion_m": 1.2513688802719116,
+      "vx_mae_m_s": 0.3084277758995692,
+      "yaw_mae_rad_s": 0.5738771557807922
+    },
+    "score": 0.7473645873296828,
+    "formal_acceptance": false
+  },
+  "standing_pass": 20,
+  "impacts": 1,
+  "capture": [
+    {
+      "name": "real_start_3__clean",
+      "angular_RMS_rad_s": 2.6471774578094482,
+      "survived": true
+    },
+    {
+      "name": "real_start_5__pitch_plus2",
+      "angular_RMS_rad_s": 0.016852714121341705,
+      "survived": true
+    },
+    {
+      "name": "real_start_6__pitch_plus2",
+      "angular_RMS_rad_s": 1.4798294305801392,
+      "survived": true
+    }
+  ],
+  "capture_angular_RMS_mean_rad_s": 1.3812865341703098,
+  "capture_angular_RMS_ratio": 0.5824803471692888,
+  "override": {
+    "quiet_gyro_stance_authority_probe": {
+      "schema": "policy-quiet-gyro-stance-authority-probe-v2",
+      "retained_quiet_authority": 0.5,
+      "intervention": "Retain half quiet authority only outside recovery: extra authority multiplied by clamp(1-max(entry,fallen)/.05,0,1). Native request/tilt fade and all physical guards remain.",
+      "recovery_zero_authority_threshold": 0.05,
+      "observer_changed": false,
+      "sampling_std_changed": false,
+      "gaussian_mean_changed": true,
+      "checkpoint_weights_changed": false,
+      "eligible_for_checkpoint_mean_qualification": false,
+      "wrapper_sha256": "073ba93ad5b822709ae29776e68ede9ddeffcc46e0197bba0a0de241fce98050",
+      "probe_sha256": "0014c2049ce28631c005b0d53e3a8bc770f3cd9aec04c4eb69f6467676ba4869"
+    }
+  },
+  "task_metadata_delta": {},
+  "fresh_current_source_control_completed": true,
+  "interpretation": "Explicit policy-method counterfactual; stored checkpoint mean unchanged. No actuator/sensor/observer intervention and no override normalization in original artifacts.",
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "checkpoint_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "frozen_inputs": 432,
+  "decision": "eligible_for_separate_policy_implementation_review_only",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "repair_optimizer_updates": 250,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792898428.7129872
+}

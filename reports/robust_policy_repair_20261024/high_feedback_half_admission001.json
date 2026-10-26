@@ -1,0 +1,25 @@
+{
+  "schema": "single-variable-zero-ppo-probe-admission-v1",
+  "source": "runs/robust_policy_repair_20261024/standing_filter005_migration001/model_migrated.pt",
+  "candidate": "runs/robust_policy_repair_20261024/high_feedback_half_probe001/model_probe.pt",
+  "change": "Only the8 high-standing displacement feedback weights multiply0.5; low/mid4x and every other tensor/state stay exact.",
+  "hypothesis": "High-standing gain4x was worse than1x; a smaller1x->0.5x may reduce feedback-induced instability under IMU wobble, with a possible cost in station keeping.",
+  "native_checks": [
+    {
+      "seed": 241201,
+      "episodes": 51,
+      "seconds": 8
+    },
+    {
+      "seed": 241204,
+      "episodes": 51,
+      "seconds": 8
+    }
+  ],
+  "do_not_adopt_if": "No added standing pass, worse motion or recovery mechanics, or new failures in previously passing high cases.",
+  "heldout_status": "241204 was initially fresh; once used to inspect further probes it becomes a development stress seed. A later truly fresh seed is required.",
+  "new_PPO": 0,
+  "qualification": null,
+  "hardware_ready": false,
+  "created_unix": 1792862242.5803452
+}

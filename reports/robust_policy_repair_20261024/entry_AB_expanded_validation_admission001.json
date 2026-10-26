@@ -1,0 +1,41 @@
+{
+  "schema": "entry-AB-expanded-zero-PPO-validation-v1",
+  "decision": "admit_only_serial_RMCS72_each_and_nominal_paired140",
+  "checks": {
+    "fixed_007": true,
+    "endpoint_007": true,
+    "fixed_008": true,
+    "endpoint_008": true,
+    "first_native_rollout_paired": true
+  },
+  "candidates": [
+    {
+      "role": "original_reward_control",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot007_entry_contract001/model_migrated.pt",
+      "sha256": "617c0d494d291343dc1778c87e1c81cedcd9e88307a92afae02ac266f87ea4e6"
+    },
+    {
+      "role": "support_cost1",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot008_entry_support1/model_final.pt",
+      "sha256": "8cc0ec98aa2cbf7e3c2f7c853487acf30aed9ebdf4cd40dae3b91be723a41584"
+    }
+  ],
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "gate": {
+    "RMCS_recovery_at_least55": true,
+    "RMCS_followup_at_least36": true,
+    "RMCS_tail90_at_least52": true,
+    "RMCS_impacts_at_most2": true,
+    "RMCS_leg_peak_at_most_rad_s": 18.907798767089844,
+    "nominal_actual_compound_followup_at_least8": true,
+    "nominal_actual_inverted_followup_at_least10": true,
+    "nominal_actual_right_followup_at_least2": true,
+    "nominal_motion_survival_at_least42of46": true,
+    "no_automatic_PPO": true
+  },
+  "formal_limitations": "Left recovery and moving-fall recovery remain required by the unchanged formal completion protocol even if a research continuation gate passes.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792881652.1186707
+}

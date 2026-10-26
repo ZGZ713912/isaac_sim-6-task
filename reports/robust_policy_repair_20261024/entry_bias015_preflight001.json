@@ -1,0 +1,52 @@
+{
+  "schema": "entry-bias015-head-separation-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/entry_bias015_preserved001/model_migrated.pt",
+  "sha256": "54dd7a01687849a2307fcd8ba664bf844ce3fce289dc54103bd79b4405d2ec08",
+  "source_sha256": "3a4f183f46af00dcd25bb2d4bb69150154c95577c9999752012397ece237a519",
+  "entry_reference_sha256": "54ec601bfe513b696554cd3df565726922ffeed958c3002c048ee67c8fe6a06d",
+  "checks": {
+    "original_actor_tensors_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "clock_exact": true,
+    "entry_all_frozen": true,
+    "domain_rng_exact": true,
+    "environment_rng_exact": true,
+    "torch_rng_exact": true,
+    "cuda_rng_exact": true
+  },
+  "replays": [
+    {
+      "run": "diagnosis012_final_circular_fixed",
+      "frames": 81600,
+      "trajectory_sha256": "f0c0e653377eb93412101566697b2ac70605a620d6ea5aae75fe1dd6a8d9a85e",
+      "entry_zero_different_frames": 0,
+      "wheels_different_frames": 0,
+      "entry_full_frames": 11405,
+      "entry_full_physical_target_max_delta_rad": 1.1920928955078125e-07
+    },
+    {
+      "run": "diagnosis012_final_arithmetic_nominal/robust",
+      "frames": 168000,
+      "trajectory_sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf",
+      "entry_zero_different_frames": 0,
+      "wheels_different_frames": 0,
+      "entry_full_frames": 9120,
+      "entry_full_physical_target_max_delta_rad": 2.384185791015625e-07
+    },
+    {
+      "run": "diagnosis012_final_arithmetic_rmcs",
+      "frames": 115200,
+      "trajectory_sha256": "e17b2e540fc82d14249c47463b3a2198ab00cc4331bdcce1d9723a0c7442df85",
+      "entry_zero_different_frames": 0,
+      "wheels_different_frames": 0,
+      "entry_full_frames": 10365,
+      "entry_full_physical_target_max_delta_rad": 1.1920928955078125e-07
+    }
+  ],
+  "scope": "Only learned upright-entry weights differ. Entry0 original bit exact; entry1 physically matches biased shared mean within float32 arithmetic.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2587,
+  "qualification": null,
+  "hardware_started": false
+}

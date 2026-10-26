@@ -1,0 +1,68 @@
+{
+  "schema": "entry-pilot-predeclared-fixed-gate-v1",
+  "plan": "reports/robust_policy_repair_20261024/plan008_entry_support1_contract002.json",
+  "checks": {
+    "standing_at_least19": true,
+    "motion_MAE": true,
+    "entry_peak": true,
+    "fallen_peak": true,
+    "fixed_impact_at_most2": true,
+    "improvement_in_recovery_or_followup": true,
+    "closure_3mm": true,
+    "zero_passive_effort": true
+  },
+  "before": {
+    "entry": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 6,
+      "followup": 5
+    },
+    "fallen": {
+      "episodes": 6,
+      "survived": 4,
+      "recovered": 2,
+      "followup": 1
+    },
+    "impacts": 2,
+    "passive_motor_peak_nm": 0.0,
+    "max_gap_m": 0.0001204588043037802
+  },
+  "after": {
+    "entry": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 6,
+      "followup": 6
+    },
+    "fallen": {
+      "episodes": 6,
+      "survived": 4,
+      "recovered": 2,
+      "followup": 2
+    },
+    "impacts": 2,
+    "passive_motor_peak_nm": 0.0,
+    "max_gap_m": 0.0001204588043037802
+  },
+  "standing_pass": 19,
+  "motion_MAE": 0.12205677976210912,
+  "entry_peak_rad_s": 8.376171112060547,
+  "fallen_peak_rad_s": 24.11665153503418,
+  "decision": "eligible_for_additional_zero_PPO_behavior_validation",
+  "paired_initial_exact": {
+    "actor_inputs_exact": true,
+    "passive_mask_exact": true,
+    "passive_poststep_motor_position_exact": true,
+    "passive_poststep_motor_velocity_exact": true,
+    "precontrol_root_pose_exact": true,
+    "precontrol_motor_position_exact": true,
+    "precontrol_motor_velocity_exact": true
+  },
+  "native_pairing_exact": true,
+  "new_PPO": 8,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792881581.9072025
+}

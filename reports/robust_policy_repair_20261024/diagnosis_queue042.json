@@ -1,0 +1,39 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 4036144,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "motion_knee_only060",
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis042_motion_knee060",
+      "log": "reports/robust_policy_repair_20261024/diagnosis042_motion_knee060.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_motion_knee_probe001.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis042_motion_knee060",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792905147.7625089,
+      "pid": 4036145,
+      "returncode": 0,
+      "finished_unix": 1792905369.6323972
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792905369.632583,
+  "finished_unix": 1792905369.6325824
+}

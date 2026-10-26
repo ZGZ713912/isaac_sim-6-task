@@ -1,0 +1,15 @@
+{
+  "schema": "motion-fit-unit-normalization-diagnosis-v1",
+  "hypothesis": "Raw ridge on differently scaled features suppresses small previous-action/velocity effects. Standardize feature variance using only training traces, solve the same objective once per basis, then map exactly back to original NN weights. No runtime input or policy function normalization is added.",
+  "paired_CPU_bases": [
+    "original64 hidden features plus affine",
+    "original64 plus35 existing normalized inputs plus affine"
+  ],
+  "fixed_ridge": 1e-05,
+  "feature_std_floor": 0.001,
+  "original_function_gates_unchanged": true,
+  "new_PPO": 0,
+  "maximum_CPU_solves": 2,
+  "actual_experiment_consumed": 2603,
+  "created_unix": 1792886532.7859156
+}

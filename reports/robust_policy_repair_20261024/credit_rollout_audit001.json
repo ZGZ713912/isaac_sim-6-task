@@ -1,0 +1,102 @@
+{
+  "schema": "native-rollout-credit-audit-v1",
+  "checks": {
+    "native_GAE_reconstructed": true,
+    "source_critic_reproduced": true,
+    "first_rollout_matches_prior": true,
+    "all_restore_and_no_PPO": true
+  },
+  "rows": [
+    {
+      "group": "all",
+      "transitions": 102748,
+      "predicted_value_mean": 4.668768882751465,
+      "target_return_mean": 5.3360137939453125,
+      "target_return_std": 5.18107271194458,
+      "value_RMSE": 2.587027072906494,
+      "value_bias": -0.6672446131706238,
+      "explained_variance": 0.7672624588012695,
+      "advantage_mean": 0.6672446131706238,
+      "advantage_std": 2.4994986057281494,
+      "local_wheel_down_common_score": -0.2144545316696167
+    },
+    {
+      "group": "full_entry",
+      "transitions": 9425,
+      "predicted_value_mean": 2.8021538257598877,
+      "target_return_mean": 3.881718397140503,
+      "target_return_std": 2.4925220012664795,
+      "value_RMSE": 1.9642256498336792,
+      "value_bias": -1.0795644521713257,
+      "explained_variance": 0.5665754079818726,
+      "advantage_mean": 1.0795644521713257,
+      "advantage_std": 1.6409517526626587,
+      "local_wheel_down_common_score": 0.12295432388782501
+    },
+    {
+      "group": "partial_entry",
+      "transitions": 25586,
+      "predicted_value_mean": 3.361485719680786,
+      "target_return_mean": 4.299375534057617,
+      "target_return_std": 4.219208717346191,
+      "value_RMSE": 2.2382774353027344,
+      "value_bias": -0.9378897547721863,
+      "explained_variance": 0.767985999584198,
+      "advantage_mean": 0.9378897547721863,
+      "advantage_std": 2.032301425933838,
+      "local_wheel_down_common_score": 0.14453008770942688
+    },
+    {
+      "group": "fallen",
+      "transitions": 10445,
+      "predicted_value_mean": 2.3064346313476562,
+      "target_return_mean": 2.1066789627075195,
+      "target_return_std": 3.669177532196045,
+      "value_RMSE": 3.2747740745544434,
+      "value_bias": 0.1997559815645218,
+      "explained_variance": 0.2063915729522705,
+      "advantage_mean": -0.1997559815645218,
+      "advantage_std": 3.2686758041381836,
+      "local_wheel_down_common_score": -0.5410469174385071
+    },
+    {
+      "group": "quiet",
+      "transitions": 11782,
+      "predicted_value_mean": 6.439319610595703,
+      "target_return_mean": 7.1653056144714355,
+      "target_return_std": 5.448988914489746,
+      "value_RMSE": 3.5113344192504883,
+      "value_bias": -0.7259855270385742,
+      "explained_variance": 0.6024982929229736,
+      "advantage_mean": 0.7259855270385742,
+      "advantage_std": 3.4354639053344727,
+      "local_wheel_down_common_score": null
+    }
+  ],
+  "return_reconstruction_peak_error": 0.0,
+  "source_critic_CPU_peak_error": 1.1444091796875e-05,
+  "first_rollout_exact": {
+    "observations/policy": true,
+    "observations/critic": true,
+    "actions": true,
+    "dones": true,
+    "rewards": true,
+    "values": true,
+    "actions_log_prob": true,
+    "learning_mask": true,
+    "bootstrap_mask": true,
+    "distribution_param_0": true,
+    "distribution_param_1": true
+  },
+  "data_sha256": "3edde0b14acc9a5a5ba3757d83e86b4c7870e6a04b737ef877b08989440d7dfc",
+  "source_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+  "native_advantage_normalization_per_minibatch": false,
+  "score_scope": "Local Gaussian mean-shift score times raw native GAE, not the shared-weight PPO gradient or a causal advantage estimate.",
+  "limitations": "GAE targets bootstrap from the source critic and are not independent Monte Carlo truth. Group errors and score alignment alone do not identify a reward or critic cause.",
+  "new_PPO": 0,
+  "optimizer_steps": 0,
+  "actual_experiment_consumed": 2622,
+  "repair_optimizer_updates": 242,
+  "qualification": null,
+  "created_unix": 1792894944.9657483
+}

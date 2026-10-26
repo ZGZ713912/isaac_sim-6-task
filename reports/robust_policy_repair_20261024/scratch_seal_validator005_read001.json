@@ -1,0 +1,68 @@
+{
+  "schema": "scratch-standing-integrity-seal-v2",
+  "observed_utc": "2026-10-26T02:25:27.712754+00:00",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot005_static_load",
+  "pid": 572273,
+  "start_ticks": 29105875,
+  "status": "completed_unqualified",
+  "completed_updates": 256,
+  "requested_updates": 256,
+  "native_Adam_calls_per_update": 12,
+  "Adam_parameter_states": 17,
+  "Adam_step_values": [
+    3072
+  ],
+  "source_count": 262,
+  "checks": {
+    "original_process_exited": true,
+    "recognized_scratch_checkpoint": true,
+    "initial_clock_zero": true,
+    "initial_Adam_empty": true,
+    "no_checkpoint_or_teacher_loaded": true,
+    "initialization_receipts_agree": true,
+    "initial_tensor_hashes_match": true,
+    "completed_update_clocks_agree": true,
+    "final_checkpoint_receipt_matches": true,
+    "Adam_covers_every_parameter": true,
+    "Adam_steps_match": true,
+    "checkpoint_and_Adam_finite": true,
+    "first_update_audited": true,
+    "source_manifest_and_archive_match": true,
+    "bank_matches": true,
+    "mechanism_matches": true,
+    "design_matches": true,
+    "agent_matches": true,
+    "complete_native_RSL_updates": true
+  },
+  "all_checks_pass": true,
+  "initial_checkpoint_sha256": "c2147ae20806ea2be3db07ca1b6379a17756bd0918181792896460da2cb86bc7",
+  "final_checkpoint_sha256": "44ddd2a037dd558bc739bb5721f722199ea1cd36deb1130aad7ac88f9d8cba27",
+  "frozen_source_mismatches": [],
+  "current_source_mismatches": [
+    "scripts/train_scratch_standing.py",
+    "src/wheeled_tasks/chassis/grounded_standing_reset.py",
+    "src/wheeled_tasks/chassis/standing_contact_continuity.py"
+  ],
+  "RSL_event_checks": {
+    "Train/mean_episode_length": true,
+    "ScratchStanding/dual_support_physical_fraction": true,
+    "ScratchStanding/leg_speed_rms_rad_s": true,
+    "PrecisionStanding/height_mae_m": true,
+    "PrecisionStanding/tilt_mean_deg": true,
+    "PrecisionStanding/planar_speed_rms_m_s": true
+  },
+  "RSL_event": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot005_static_load/events.out.tfevents.1792962525.ZGZ.572273.0",
+    "bytes": 1531400,
+    "sha256": "661e06fe56f515bde2e31aae0df66efc8f3955a5d91dbfc7dd7d7f283f659176"
+  },
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "native_steps": 0,
+  "hardware_ready": false,
+  "behavior_qualification": false,
+  "validator_sha256": "e8e46f2d7ce17d3c1b2fd27e0f8882fc0d794cd632ead8b37fa89035a95f56b9",
+  "scope": "CPU process/checkpoint/source/event integrity only. No standing, robustness, long-training or deployment qualification. Read-only checkpoint loading outside the exited learner.",
+  "identity_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_pilot005_closed_seal001.json",
+  "identity_file_sha256": "ad9cf672d063d4e2ed5e18f5caf91baca3177f7d4c90bc667befee1e64ada591"
+}

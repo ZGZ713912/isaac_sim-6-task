@@ -1,0 +1,78 @@
+{
+  "schema": "native-common-only-entry-endpoint-v1",
+  "checks": {
+    "one_completed_attempt": true,
+    "phase_guard_sealed": true,
+    "clock1502": true,
+    "only_final_common_tensors_changed": true,
+    "non_entry_and_basis_exact": true,
+    "wheel_rows_exact": true,
+    "all_old_actor_Adam_exact": true,
+    "all_six_entry_Adam_steps12": true,
+    "basis_Adam_moments_zero": true,
+    "critic_changed": true,
+    "frozen_inputs_exact": true,
+    "initial_restore_all": true,
+    "strict_V3_decode": true,
+    "outside_entry_function_exact": true,
+    "wheel_function_exact": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot012_common_entry002/model_stopped.pt",
+  "checkpoint_sha256": "06f755784fd8ec1ad36ceb172d43cb7e1ada4efa4146b0516d7e9c6ae7343427",
+  "source": "runs/robust_policy_repair_20261024/function_root_entry002/model_initial.pt",
+  "source_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+  "changed_actor_tensors": [
+    "mlp.mean.entry_recovery.4.weight",
+    "mlp.mean.entry_recovery.4.bias"
+  ],
+  "phase_guard": {
+    "metrics": {
+      "far_signed_lead_min_rad": 0.013125572353601456,
+      "stopped_target_peak_rad": 0.005830543115735054,
+      "knee_logit_delta_peak": 8.344650268554688e-06
+    },
+    "checks": {
+      "frozen_feature_basis_exact": true,
+      "wheel_rows_exact": true,
+      "far_margin": false,
+      "stopped_margin": true,
+      "knee_roundoff": true,
+      "finite": true
+    },
+    "completed_learning_clock": 1502,
+    "native_iteration": 1501,
+    "created_unix": 1792893470.8017316
+  },
+  "source_clock": 1501,
+  "branch_clock": 1502,
+  "actual_new_PPO": 1,
+  "actual_experiment_consumed": 2622,
+  "repair_optimizer_updates": 242,
+  "first_rollout_comparison_against009": {
+    "observations/policy": true,
+    "observations/critic": true,
+    "actions": true,
+    "dones": true,
+    "rewards": true,
+    "values": true,
+    "actions_log_prob": true,
+    "learning_mask": true,
+    "bootstrap_mask": true,
+    "distribution_param_0": true,
+    "distribution_param_1": true
+  },
+  "function_probe": {
+    "trace": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed/evaluation/trajectory.npz",
+    "sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+    "frames": 81600,
+    "outside_count": 75632,
+    "outside_different": 0,
+    "wheel_different": 0
+  },
+  "frozen_inputs": 375,
+  "decision": "Reject continuation and adoption: preset phase margin failed. Seven unused updates closed.",
+  "native_behavior_evaluation_performed": false,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792893582.6585388
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3901885,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "motion_damping060_fixed",
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping060001/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis029_motion_damping060_fixed",
+      "log": "reports/robust_policy_repair_20261024/diagnosis029_motion_damping060_fixed.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/motion_damping060001/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis029_motion_damping060_fixed",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792889714.263527,
+      "pid": 3901886,
+      "returncode": 0,
+      "finished_unix": 1792889936.2287962
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792889936.2290819,
+  "finished_unix": 1792889936.2290812
+}

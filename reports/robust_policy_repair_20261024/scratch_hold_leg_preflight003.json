@@ -1,0 +1,38 @@
+{
+  "schema": "scratch-hold-initial-leg-target-preflight-v1",
+  "status": "prepared_not_started",
+  "observed_utc": "2026-10-26T03:12:43.217618+00:00",
+  "checks": {
+    "recorded_native_actions_reproduce_on_CPU": true,
+    "first_action_unchanged": true,
+    "later_selected_leg_targets_held": true,
+    "native_wheels_unchanged": true,
+    "other_height_outputs_unchanged": true,
+    "later_intervention_nonzero": true,
+    "all1600_calls_accounted": true,
+    "selected_original_cases": true,
+    "actor_parameters_and_buffers_unchanged": true
+  },
+  "all_checks_pass": true,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero/model_final.pt",
+  "checkpoint_sha256": "02aad5dc894ac4f0c67b9b0ddd8d703d76be11e50aec47dd22eed87956bdc23d",
+  "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_contact_state001",
+  "recorded_feedback_sha256": "8521ac4006053bd2ad464ef402b910e8ac66a02e94ad688be7ab29fd122fa8a5",
+  "source_sha256": {
+    "scripts/evaluate_scratch_standing.py": "4195d9d8a5d67a488c013f1a7cc6fd436632e6e53fd5ffdbc2e06a0a1531d163",
+    "scripts/hold_initial_leg_target_probe.py": "008a49e678bab5c394f9a13689387c034c02e865798eed7f33945305820dc2b3",
+    "tests/test_scratch_hold_initial_leg_target_probe.py": "73d12a583e77bd68f2ed18acb5e5af67a395832c1bed9e6a9ecd40eff9eaebe4"
+  },
+  "reader_sha256": "2898a884ac7ab93546f4440f917c13b0eee34c608d5eda08f8701df4491ae01e",
+  "original_frozen_sources_verified": 262,
+  "CPU_to_original_GPU_maximum_action_error": 1.9073486328125e-06,
+  "maximum_leg_intervention_raw": 0.13480079174041748,
+  "new_PPO": 0,
+  "native_steps": 0,
+  "optimizer_constructed": false,
+  "adoption_by_training": false,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "prerequisite": "Verify the separately launched fresh-process original-policy baseline matches the contact observer, and verify its actual process/GPU exit before leg-hold.",
+  "scope": "CPU replay on original recorded observations validates the action intervention only. It does not predict the altered closed-loop trajectory or certify standing."
+}

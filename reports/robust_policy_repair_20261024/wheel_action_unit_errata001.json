@@ -1,0 +1,39 @@
+{
+  "schema": "wheel-action-unit-errata-v1",
+  "entries": [
+    {
+      "path": "reports/robust_policy_repair_20261024/partial_PPO_phase_audit001.json",
+      "sha256": "b0bb7250276981b8ae9e97c293c103959346f90d6f6ca5d8633e4a26e606b383",
+      "field": "changes.physical_wheel_target_delta_peak_nm",
+      "normalized_action_delta": 0.006312429904937744,
+      "wheel_speed_target_delta_rad_s": 0.06312429904937744
+    },
+    {
+      "path": "reports/robust_policy_repair_20261024/high_diagonal_restoring_preflight001.json",
+      "sha256": "119e2b529b6581029657806f1956b712e6f24a0214252adb136ef2044ecfd368",
+      "field": "rows[0].wheel_target_delta_peak_nm",
+      "normalized_action_delta": 0.017066597938537598,
+      "wheel_speed_target_delta_rad_s": 0.17066597938537598
+    },
+    {
+      "path": "reports/robust_policy_repair_20261024/high_diagonal_restoring_preflight001.json",
+      "sha256": "119e2b529b6581029657806f1956b712e6f24a0214252adb136ef2044ecfd368",
+      "field": "rows[1].wheel_target_delta_peak_nm",
+      "normalized_action_delta": 0.04111826419830322,
+      "wheel_speed_target_delta_rad_s": 0.4111826419830322
+    }
+  ],
+  "verified_contract": "runs/robust_policy_repair_20261024/pilot011_quiet_fixed/task_contract.json",
+  "contract_sha256": "82216e1dfbff480357353ed8ea0851d109a0b7e8a99ad147f74a60ae2648cee4",
+  "wheel_velocity_scale": 10.0,
+  "verified_decoder": "src/wheeled_tasks/chassis/v5_control.py",
+  "decoder_sha256": "ffcf4602a5e3deb9948386c52d87be62703b312256d7092aeb71237a16fcc943",
+  "correction": "Wheel actor outputs are normalized velocity commands; multiply by10 to obtain rad/s. These fields do not measure N m. Actual motor_effort arrays remain the torque evidence.",
+  "preserved_sealed_reports": true,
+  "unaffected": "Native physical torque, closure, speed and behavior gates; exact function comparison and candidate rankings.",
+  "uncertain_legacy_derivatives": "standing_feedback_gain_audit002 physical-units wheel rows require independent reconstruction before reuse; do not interpret as torque gain.",
+  "raw_autograd_units": "audit_quiet_local_feedback003.py differentiates normalized action with respect to normalized policy observation, without physical-unit conversion.",
+  "no_exploration_intervention_authorized_by_wrong_units": true,
+  "new_PPO": 0,
+  "created_unix": 1792893282.6795197
+}

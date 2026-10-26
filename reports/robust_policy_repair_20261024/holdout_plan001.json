@@ -1,0 +1,26 @@
+{
+  "schema": "predeclared-robustness-holdout-v1",
+  "seed": 241204,
+  "seconds": 8,
+  "case_group": "all",
+  "episodes": 51,
+  "severity": 1,
+  "actuator_timing": "native",
+  "friction_range": [
+    0.3,
+    0.5
+  ],
+  "bank": "reports/real_robot_robustness_20261024/pose_bank_gap002.json",
+  "selection": "Choose pilot004 only if fixed-case review preserves motion/mechanics and improves high stance; otherwise retain filter005 as research candidate",
+  "comparisons": [
+    "selected_candidate",
+    "stopped1501",
+    "original569"
+  ],
+  "pairing": "exact pre-control physical state and all randomized parameter draws; same case list",
+  "assessment": "Report per-height standing and every failed lane, motion MAE, entry/fallen recovery plus followup and actual mechanical peaks. An improvement only on the tuned seed is insufficient.",
+  "scope": "Independent stress confirmation, not a replacement for frozen two-seed formal and30s-standing protocol",
+  "qualification": null,
+  "hardware_ready": false,
+  "created_unix": 1792861362.2570586
+}

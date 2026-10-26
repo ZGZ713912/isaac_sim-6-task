@@ -1,0 +1,67 @@
+{
+  "schema": "fallen-output-trainer-prepare-draft-v1",
+  "checks": {
+    "only_exposure_changed": true,
+    "source_function_floor_zero": true,
+    "motion80pct": true,
+    "all_motion_pushes": true,
+    "previous_runtime_source_unedited": true
+  },
+  "draft_sha256": "366494bf33d9c13c4e0170cb929e0a7248b007fbe539d63452d205839d45d41d",
+  "command": [
+    "--output",
+    "runs/robust_policy_repair_20261024/fallen_prepare_draft001",
+    "--bank",
+    "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+    "--resume",
+    "runs/robust_policy_repair_20261024/quiet_stance000003/model_probe.pt",
+    "--updates",
+    "8",
+    "--num-envs",
+    "256",
+    "--rollout-steps",
+    "512",
+    "--seed",
+    "241510",
+    "--isolated-origins",
+    "--gap-robustness",
+    "--gap-severity",
+    ".8",
+    "--gap-actuator-timing",
+    "native",
+    "--actor-lr",
+    ".0001",
+    "--friction-min",
+    ".3",
+    "--domain-scale",
+    ".35",
+    "--eval-seconds",
+    "2",
+    "--curriculum-updates",
+    "512",
+    "--curriculum-origin",
+    "569",
+    "--recovery-only",
+    "--motion-recovery-focus"
+  ],
+  "settings_delta": {
+    "motion_push_fraction": {
+      "before": 0.25,
+      "after": 1.0
+    },
+    "version": {
+      "before": "robust-gap-v1",
+      "after": "robust-v2.35-motion-recovery-exposure"
+    },
+    "motion_fraction": {
+      "before": 0.5,
+      "after": 0.8
+    }
+  },
+  "source_checkpoint": "runs/robust_policy_repair_20261024/quiet_stance000003/model_probe.pt",
+  "source_sha256": "2a40c43e06366435f0ac5b5bd293fe32394bb819e5d45caac9587897a8d24397",
+  "new_PPO": 0,
+  "training_admitted": false,
+  "qualification": null,
+  "created_unix": 1792900422.8124998
+}

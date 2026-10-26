@@ -1,0 +1,51 @@
+{
+  "schema": "motion-output-actual-decoder-preflight-v1",
+  "checks": {
+    "strict_V6_decode": true,
+    "original_runtime_class": true,
+    "all_nonmetadata_saved_state_exact": true,
+    "mean_bit_exact": true,
+    "conditioned_std_bit_exact": true,
+    "historical_V2_V3_V4_V5_decode": true,
+    "six_actual_decoder_tamper_controls_rejected": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+  "checkpoint_sha256": "cba0099f92f4627d9d0bb77a186392eaea4e5a65eedaec286c7597ec2a177b5e",
+  "source_checkpoint": "runs/robust_policy_repair_20261024/quiet_stance000003/model_probe.pt",
+  "source_sha256": "2a40c43e06366435f0ac5b5bd293fe32394bb819e5d45caac9587897a8d24397",
+  "paired_recorded_inputs": 4096,
+  "historical": {
+    "V2": {
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+      "decoded_schema": "robust-getup-checkpoint-v2"
+    },
+    "V3": {
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot013_projected_entry/model_final.pt",
+      "sha256": "27c43e26dc37242948cca02939faa4494f00c7240b3ae942ed55cb4a428d90e6",
+      "decoded_schema": "robust-getup-checkpoint-v3"
+    },
+    "V4": {
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+      "sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+      "decoded_schema": "robust-getup-checkpoint-v4"
+    },
+    "V5": {
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot014_fallen_output/model_final.pt",
+      "sha256": "c79fc4740320c5f953305b3e81b0a126eb43d606a19f35496384c399284dbbdd",
+      "decoded_schema": "robust-getup-checkpoint-v5"
+    }
+  },
+  "rejections": {
+    "module_sha": "Motion output contract source is missing or changed",
+    "function_root_sha": "Motion output policy function root is missing or changed",
+    "scope": "Require explicit motion-output function ancestry and optimizer layout",
+    "motion_weight": "Learned output digest differs",
+    "fallen_weight": "Training changed a frozen actor tensor, feature basis, entry or std",
+    "wrong_schema": "Fallen output contract source is missing or changed"
+  },
+  "new_PPO": 0,
+  "simulator_started": false,
+  "qualification": null,
+  "created_unix": 1792906129.0186026
+}

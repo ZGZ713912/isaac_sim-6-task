@@ -1,0 +1,176 @@
+{
+  "schema": "entry-measured-encoder-seam-audit-v1",
+  "source": "runs/robust_policy_repair_20261024/entry_optimizer_support0_source001/model_migrated.pt",
+  "source_sha256": "2cc914b2b9b3b924b1c47d7bdcb4dc600997b03ef9f96483204bf07d55afc4f5",
+  "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+  "trace_sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf",
+  "probe": "offline-only periodic chart average of the SAME frozen entry NN; seam width .35 rad",
+  "rows": [
+    {
+      "name": "left_symmetric",
+      "actual_family": "right",
+      "survived": true,
+      "recovered": false,
+      "mean_height_m": 0.1727474480867386,
+      "mean_wheel_clearance_m": [
+        0.4469396471977234,
+        0.445961594581604
+      ],
+      "observed_chart_conditioned_output": {
+        "positive_hip": {
+          "frames": 283,
+          "common_logit_mean": [
+            0.1809353530406952,
+            -0.16130968928337097
+          ]
+        },
+        "negative_hip": {
+          "frames": 118,
+          "common_logit_mean": [
+            -0.612659752368927,
+            0.5478788614273071
+          ]
+        }
+      },
+      "counterfactual_seam_tests": [
+        {
+          "encoder_index": 10,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.040886640548706055,
+          "periodic_probe_physical_target_seam_max_rad": 0.001168966293334961
+        },
+        {
+          "encoder_index": 10,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.0401148796081543,
+          "periodic_probe_physical_target_seam_max_rad": 1.1205673217773438e-05
+        },
+        {
+          "encoder_index": 11,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.02488231658935547,
+          "periodic_probe_physical_target_seam_max_rad": 0.0019992031157016754
+        },
+        {
+          "encoder_index": 11,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.02488231658935547,
+          "periodic_probe_physical_target_seam_max_rad": 2.032915290328674e-05
+        },
+        {
+          "encoder_index": 12,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.044150352478027344,
+          "periodic_probe_physical_target_seam_max_rad": 0.0012245177058503032
+        },
+        {
+          "encoder_index": 12,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.04334282875061035,
+          "periodic_probe_physical_target_seam_max_rad": 1.2159347534179688e-05
+        },
+        {
+          "encoder_index": 13,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.02422785945236683,
+          "periodic_probe_physical_target_seam_max_rad": 0.0019996799528598785
+        },
+        {
+          "encoder_index": 13,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.02422785945236683,
+          "periodic_probe_physical_target_seam_max_rad": 2.032915290328674e-05
+        }
+      ]
+    },
+    {
+      "name": "right_asymmetric",
+      "actual_family": "left",
+      "survived": true,
+      "recovered": false,
+      "mean_height_m": 0.17274463176727295,
+      "mean_wheel_clearance_m": [
+        0.446058988571167,
+        0.4467412233352661
+      ],
+      "observed_chart_conditioned_output": {
+        "positive_hip": {
+          "frames": 229,
+          "common_logit_mean": [
+            0.28178200125694275,
+            -0.22592830657958984
+          ]
+        },
+        "negative_hip": {
+          "frames": 172,
+          "common_logit_mean": [
+            -0.4864654242992401,
+            0.4244077503681183
+          ]
+        }
+      },
+      "counterfactual_seam_tests": [
+        {
+          "encoder_index": 10,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.044467926025390625,
+          "periodic_probe_physical_target_seam_max_rad": 0.0012888908386230469
+        },
+        {
+          "encoder_index": 10,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.0436248779296875,
+          "periodic_probe_physical_target_seam_max_rad": 1.3113021850585938e-05
+        },
+        {
+          "encoder_index": 11,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.025490760803222656,
+          "periodic_probe_physical_target_seam_max_rad": 0.0019996799528598785
+        },
+        {
+          "encoder_index": 11,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.025490760803222656,
+          "periodic_probe_physical_target_seam_max_rad": 1.937547858688049e-05
+        },
+        {
+          "encoder_index": 12,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.04433155059814453,
+          "periodic_probe_physical_target_seam_max_rad": 0.0012173651484772563
+        },
+        {
+          "encoder_index": 12,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.04352593421936035,
+          "periodic_probe_physical_target_seam_max_rad": 1.1682510375976562e-05
+        },
+        {
+          "encoder_index": 13,
+          "physical_input_difference_rad": 0.002,
+          "old_physical_target_seam_max_rad": 0.024211645126342773,
+          "periodic_probe_physical_target_seam_max_rad": 0.0020001567900180817
+        },
+        {
+          "encoder_index": 13,
+          "physical_input_difference_rad": 2e-05,
+          "old_physical_target_seam_max_rad": 0.024211645126342773,
+          "periodic_probe_physical_target_seam_max_rad": 2.032915290328674e-05
+        }
+      ]
+    }
+  ],
+  "replay_frames": 8400,
+  "nonseam_frames": 7776,
+  "checks": {
+    "no_weight_or_clock_changes": true,
+    "nonseam_actions_bit_exact": true,
+    "finite": true,
+    "tiny_seam_probe_target_jump_under_1e_4_rad": true
+  },
+  "scope": "Recorded-state association and identical-state function continuity. No proof of physical recovery or native behavior improvement.",
+  "new_PPO": 0,
+  "qualification": null,
+  "hardware_started": false
+}

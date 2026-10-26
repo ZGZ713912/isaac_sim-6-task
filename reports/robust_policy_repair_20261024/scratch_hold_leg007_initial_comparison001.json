@@ -1,0 +1,40 @@
+{
+  "schema": "scratch-leg-hold-native-comparison-v1",
+  "observed_utc": "2026-10-26T03:19:46.871481+00:00",
+  "checks": {
+    "receipt_complete": true,
+    "native_process_exited": true,
+    "native_GPU_absent": true,
+    "new_PPO_zero": true,
+    "optimizer_not_constructed": true,
+    "physics_runtime_exact": true,
+    "checkpoint_exact": true,
+    "all1600_actor_calls": true,
+    "all_initial_native_fields_exact": true,
+    "first_actor_input_exact": true,
+    "first_action_exact": true,
+    "native_wheel_outputs_unchanged": true,
+    "selected_leg_targets_held": true,
+    "all_nonselected_native_trajectories_exact": true
+  },
+  "all_checks_pass": true,
+  "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_contact_state001",
+  "intervention": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_hold_initial_legs001",
+  "baseline_mid": {
+    "missing_ms": 190,
+    "passes": 0,
+    "mean_vibration_mrad": 0.06561223231256008,
+    "mean_forward_speed_rms_m_s": 0.0021633695079279797
+  },
+  "intervention_mid": {
+    "missing_ms": 454,
+    "passes": 0,
+    "mean_vibration_mrad": 0.28088925778865814,
+    "mean_forward_speed_rms_m_s": 0.13961533031293324
+  },
+  "new_PPO": 0,
+  "adoption_by_training": false,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "decision": "Reject initial-target hold as a repair; it removes the initial settling leg correction as well as later feedback. Next diagnostic keeps the first3s native and holds the leg targets only after settling; this result does not isolate quiet-state feedback."
+}

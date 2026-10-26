@@ -1,0 +1,355 @@
+{
+  "schema": "real-robot-robustness-iteration-v1",
+  "completed_unix": 1792788000.1213033,
+  "outcome": "not_qualified",
+  "full_training_admitted": false,
+  "hardware_ready": false,
+  "policy_hz": 200,
+  "physics_and_pd_hz": 1000,
+  "actor_observations": 35,
+  "actor_actions": 6,
+  "optimizer_updates_new": 64,
+  "optimizer_updates_by_branch": [
+    32,
+    32
+  ],
+  "actual_experiment_ppo_consumed": 1448,
+  "previous_offline_steps": 128,
+  "learning_lineages": {
+    "pilot001": [
+      569,
+      601
+    ],
+    "pilot002": [
+      569,
+      601
+    ],
+    "zero_ppo_limited": 569
+  },
+  "models": {
+    "pilot001": {
+      "path": "runs/real_robot_robustness_20261024/pilot001/model_final.pt",
+      "sha256": "66b56b0374d18387b1f837692914203b15ced6beb99851edac58f3856c71c2f4",
+      "adopted": false
+    },
+    "pilot002": {
+      "path": "runs/real_robot_robustness_20261024/pilot002/model_final.pt",
+      "sha256": "4752d078da2505f5d59cf15bfad8aaf423ab8181ed1c96f17aab3b826a5bad2a",
+      "adopted": false
+    },
+    "zero_ppo_limited": {
+      "path": "runs/real_robot_robustness_20261024/upright_limit005/model_migrated.pt",
+      "sha256": "eec83d3ed141da5907f8d7edc0c10d102ca319714a06b5bbce8800779f6032b2",
+      "adopted": false
+    }
+  },
+  "selected_deployment_model": null,
+  "new_onnx_exported": false,
+  "rmcs_changed": false,
+  "hardware_started": false,
+  "final_native": {
+    "run": "runs/real_robot_robustness_20261024/upright_limit_native001",
+    "cases": 51,
+    "seconds": 8,
+    "status": "completed",
+    "survived": 51,
+    "real_entry_recovered": 7,
+    "real_entry_episodes": 12,
+    "inverted_recovered": 2,
+    "inverted_episodes": 2,
+    "side_recovered": 0,
+    "side_episodes": 4,
+    "standing_pose_and_position_pass": 9,
+    "standing_episodes": 21,
+    "trajectory_sha256": "67e1448e0dc24a74005912b3f50be72189e62571b87edf094b2c1d1bfc28b198"
+  },
+  "controlled_prefix": {
+    "path": "reports/real_robot_robustness_20261024/upright_limit_prefix4s001.json",
+    "sha256": "f112cf61a5c55f4fff54ba453fab885f7477b116219c98ae9bc0f1896f6a1c45",
+    "seconds": 4,
+    "model_weights_exact": true,
+    "precontrol_state_exact": true,
+    "groups": {
+      "entry": {
+        "before": {
+          "episodes": 12,
+          "alive_at_end": 12,
+          "ever_recovered": 8,
+          "final_second_stable90": 8,
+          "whole_window_stable90": 0,
+          "pose_and_position_pass": 0,
+          "max_leg_speed_rad_s": {
+            "mean": 17.937439441680908,
+            "max": 26.002479553222656
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 14.194101333618164,
+            "max": 16.21320343017578
+          },
+          "saturation_fraction": {
+            "mean": 0.08507864140907866,
+            "max": 0.4062073528766632
+          },
+          "max_excursion_m": {
+            "mean": 0.21663800813257694,
+            "max": 0.4577849209308624
+          },
+          "vx_mae_m_s": {
+            "mean": 0.09394767197469871,
+            "max": 0.16239707171916962
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.16744070779532194,
+            "max": 0.38089272379875183
+          }
+        },
+        "after": {
+          "episodes": 12,
+          "alive_at_end": 12,
+          "ever_recovered": 6,
+          "final_second_stable90": 7,
+          "whole_window_stable90": 0,
+          "pose_and_position_pass": 0,
+          "max_leg_speed_rad_s": {
+            "mean": 7.605846166610718,
+            "max": 11.344139099121094
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 13.72429927190145,
+            "max": 15.931794166564941
+          },
+          "saturation_fraction": {
+            "mean": 0.07785027970870335,
+            "max": 0.3751705288887024
+          },
+          "max_excursion_m": {
+            "mean": 0.32367439071337384,
+            "max": 0.4889485239982605
+          },
+          "vx_mae_m_s": {
+            "mean": 0.11517407807211082,
+            "max": 0.21791979670524597
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.12353727485363682,
+            "max": 0.34230613708496094
+          }
+        }
+      },
+      "standing": {
+        "before": {
+          "episodes": 21,
+          "alive_at_end": 19,
+          "ever_recovered": 0,
+          "final_second_stable90": 18,
+          "whole_window_stable90": 17,
+          "pose_and_position_pass": 10,
+          "max_leg_speed_rad_s": {
+            "mean": 7.6621742362067815,
+            "max": 29.91002655029297
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 16.33816632770357,
+            "max": 22.08586311340332
+          },
+          "saturation_fraction": {
+            "mean": 0.0012665139622099343,
+            "max": 0.015603645704686642
+          },
+          "max_excursion_m": {
+            "mean": 0.1243351058857072,
+            "max": 0.5945823788642883
+          },
+          "vx_mae_m_s": {
+            "mean": 0.049571210385433266,
+            "max": 0.1904599368572235
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.08080713444256357,
+            "max": 0.49155306816101074
+          }
+        },
+        "after": {
+          "episodes": 21,
+          "alive_at_end": 21,
+          "ever_recovered": 0,
+          "final_second_stable90": 15,
+          "whole_window_stable90": 16,
+          "pose_and_position_pass": 10,
+          "max_leg_speed_rad_s": {
+            "mean": 4.511873631250291,
+            "max": 9.499467849731445
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 15.70081261226109,
+            "max": 21.330699920654297
+          },
+          "saturation_fraction": {
+            "mean": 0.0,
+            "max": 0.0
+          },
+          "max_excursion_m": {
+            "mean": 0.19282815898103373,
+            "max": 1.4522181749343872
+          },
+          "vx_mae_m_s": {
+            "mean": 0.06086476905537503,
+            "max": 0.356374591588974
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.04811734907949964,
+            "max": 0.10830221325159073
+          }
+        }
+      },
+      "fallen": {
+        "before": {
+          "episodes": 6,
+          "alive_at_end": 6,
+          "ever_recovered": 4,
+          "final_second_stable90": 3,
+          "whole_window_stable90": 0,
+          "pose_and_position_pass": 0,
+          "max_leg_speed_rad_s": {
+            "mean": 27.95942258834839,
+            "max": 42.1695671081543
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 24.988261540730793,
+            "max": 40.0
+          },
+          "saturation_fraction": {
+            "mean": 0.07467772241216153,
+            "max": 0.3273703157901764
+          },
+          "max_excursion_m": {
+            "mean": 0.6468375424544016,
+            "max": 1.0040067434310913
+          },
+          "vx_mae_m_s": {
+            "mean": 0.31888580073912937,
+            "max": 0.4377971887588501
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.6388838440179825,
+            "max": 1.0058672428131104
+          }
+        },
+        "after": {
+          "episodes": 6,
+          "alive_at_end": 6,
+          "ever_recovered": 1,
+          "final_second_stable90": 2,
+          "whole_window_stable90": 0,
+          "pose_and_position_pass": 0,
+          "max_leg_speed_rad_s": {
+            "mean": 20.56120030085246,
+            "max": 49.52788162231445
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 21.728976885477703,
+            "max": 27.103857040405273
+          },
+          "saturation_fraction": {
+            "mean": 0.07690690994058968,
+            "max": 0.2911449074745178
+          },
+          "max_excursion_m": {
+            "mean": 0.5458416317900022,
+            "max": 0.8921093940734863
+          },
+          "vx_mae_m_s": {
+            "mean": 0.3458416238427162,
+            "max": 0.4377591013908386
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.7750520457824072,
+            "max": 1.1189152002334595
+          }
+        }
+      },
+      "motion": {
+        "before": {
+          "episodes": 12,
+          "alive_at_end": 12,
+          "ever_recovered": 0,
+          "final_second_stable90": 11,
+          "whole_window_stable90": 10,
+          "pose_and_position_pass": 0,
+          "max_leg_speed_rad_s": {
+            "mean": 4.961820224920909,
+            "max": 8.777470588684082
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 17.341113487879436,
+            "max": 20.15772247314453
+          },
+          "saturation_fraction": {
+            "mean": 0.0,
+            "max": 0.0
+          },
+          "max_excursion_m": {
+            "mean": 2.5876814822355905,
+            "max": 3.9291887283325195
+          },
+          "vx_mae_m_s": {
+            "mean": 0.21473947167396545,
+            "max": 0.3621821701526642
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.045245953486301005,
+            "max": 0.10863356292247772
+          }
+        },
+        "after": {
+          "episodes": 12,
+          "alive_at_end": 12,
+          "ever_recovered": 0,
+          "final_second_stable90": 11,
+          "whole_window_stable90": 10,
+          "pose_and_position_pass": 0,
+          "max_leg_speed_rad_s": {
+            "mean": 4.493509074052175,
+            "max": 5.970825672149658
+          },
+          "initial_200ms_effort_peak_nm": {
+            "mean": 16.890679836273193,
+            "max": 20.13553810119629
+          },
+          "saturation_fraction": {
+            "mean": 0.0,
+            "max": 0.0
+          },
+          "max_excursion_m": {
+            "mean": 2.601648449897766,
+            "max": 3.926203489303589
+          },
+          "vx_mae_m_s": {
+            "mean": 0.21237392630428076,
+            "max": 0.36206158995628357
+          },
+          "yaw_mae_rad_s": {
+            "mean": 0.04577710333978757,
+            "max": 0.10504473000764847
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Two short PPO branches failed to improve robust behavior and were not adopted.",
+    "Final target soft limit reduces upright leg kick but harms recovery completion without retraining.",
+    "Some standing cases show metre-scale movement; survival is not standing qualification.",
+    "Bounded IMU wobble is not a calibrated flexible-platform model or online IMU/COM estimator.",
+    "No30s standing recentering gate or physical robot validation for these candidates."
+  ],
+  "checks": {
+    "cpu_tests": 108,
+    "cpu_log": "reports/real_robot_robustness_20261024/final_cpu005.log",
+    "cpu_log_sha256": "9250c1f646ef914bab70efea001803ab10abbce4d45aabf44734ee2aad89c193"
+  },
+  "active_training": null,
+  "active_native_evaluation": null,
+  "protections_preserved": true,
+  "next_work": "Train with final action transform active, and identify actuator/PD timing before widening delay domains; requires a new bounded pilot, no further PPO in this iteration."
+}

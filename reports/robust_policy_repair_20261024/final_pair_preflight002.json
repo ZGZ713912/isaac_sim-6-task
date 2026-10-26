@@ -1,0 +1,54 @@
+{
+  "schema": "final-pair-preflight-v1",
+  "checks": [
+    {
+      "tag": "arithmetic",
+      "frames": 364800,
+      "default_output_bitwise_exact": true
+    },
+    {
+      "tag": "arithmetic",
+      "frames": 364800,
+      "wheel_exact": true,
+      "noncrossing_pair_exact": true,
+      "target_pair_crossings": 5955,
+      "physical_angle_error_max_rad": 6.516827397717861e-07,
+      "frames_changed_by_retained_final_bound": 0,
+      "checkpoint": "runs/robust_policy_repair_20261024/final_pair_arithmetic_corrected002/model_migrated.pt"
+    },
+    {
+      "tag": "circular",
+      "frames": 364800,
+      "default_output_bitwise_exact": true
+    },
+    {
+      "tag": "circular",
+      "frames": 364800,
+      "wheel_exact": true,
+      "noncrossing_pair_exact": true,
+      "target_pair_crossings": 5955,
+      "physical_angle_error_max_rad": 6.516827397717861e-07,
+      "frames_changed_by_retained_final_bound": 0,
+      "checkpoint": "runs/robust_policy_repair_20261024/final_pair_circular_corrected002/model_migrated.pt"
+    },
+    {
+      "tag": "split",
+      "frames": 364800,
+      "default_output_bitwise_exact": true
+    },
+    {
+      "tag": "split",
+      "frames": 364800,
+      "wheel_exact": true,
+      "noncrossing_pair_exact": true,
+      "target_pair_crossings": 5955,
+      "physical_angle_error_max_rad": 6.516827397717861e-07,
+      "frames_changed_by_retained_final_bound": 0,
+      "checkpoint": "runs/robust_policy_repair_20261024/final_pair_split_corrected002/model_migrated.pt"
+    }
+  ],
+  "failed_first_replay_reason": "Changed matrix batch shapes; archived per-trace batching is required for CPU bitwise comparison. No native step or PPO in failed preflight.",
+  "new_PPO": 0,
+  "qualification": null,
+  "hardware_started": false
+}

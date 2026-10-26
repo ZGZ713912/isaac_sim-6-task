@@ -1,0 +1,50 @@
+{
+  "schema": "fallen014-native-midpoint-assessment-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot014_fallen_output/model_1504.pt",
+  "checkpoint_sha256": "aebf1b888147cccad06cccc1b730b00beac486a2eceebf3a9c0c473a6ed2c8f0",
+  "source_clock": 1501,
+  "midpoint_clock": 1505,
+  "midpoint_updates_already_counted": 4,
+  "native_Adam_step_increment": [
+    48.0,
+    48.0
+  ],
+  "hypothesis": "The failed8-update endpoint may have passed through a better intermediate mean. Evaluate the sole earlier sealed4-update checkpoint before excluding that learning interval. This fixed development selection is not heldout qualification.",
+  "gate": {
+    "standing_at_least": 19,
+    "motion_MAE_at_most": 0.135,
+    "entry_recovery_at_least": 8,
+    "entry_followup_at_least": 8,
+    "fallen_recovery_at_least": 4,
+    "fallen_followup_at_least": 2,
+    "entry_peak_at_most_rad_s": 8.911178255081177,
+    "fallen_peak_at_most_rad_s": 24.11665153503418,
+    "impacts_at_most": 2,
+    "max_gap_m": 0.003,
+    "passive_motor_peak_nm": 0,
+    "expanded_RMCS_recovery_at_least": 57,
+    "expanded_RMCS_followup_at_least": 36,
+    "expanded_RMCS_tail90_at_least": 56,
+    "expanded_RMCS_leg_peak_at_most_rad_s": 18.907798767089844,
+    "expanded_RMCS_survive_at_least": 70,
+    "expanded_RMCS_impacts_at_most": 2,
+    "nominal_families_followup_at_least": {
+      "compound": 8,
+      "inverted": 10,
+      "right": 4,
+      "left": 2
+    },
+    "motion_survival_at_least": 42,
+    "actual_moving_fall_recovery_at_least": 1,
+    "decision_order": "Fixed51 physical and behavior nonregression permits zero-PPO expanded tests only. A measured gain on the actual moving-fall target and expanded nonregression are required before adoption or further PPO.",
+    "qualification": "Original complete acceptance_protocol004, long standing and fresh holdouts still required."
+  },
+  "required_gain": "fallen recovery>=5 OR entry followup>=9 OR fallen followup>=3, plus every unchanged nonregression gate.",
+  "native_mean_unmodified": true,
+  "new_PPO": 0,
+  "repair_optimizer_updates": 258,
+  "actual_experiment_consumed": 2638,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792905533.302392
+}

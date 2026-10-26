@@ -1,0 +1,83 @@
+{
+  "schema": "bounded-motion-output-fixed-review-v1",
+  "checks": {
+    "endpoint_audit": true,
+    "frozen_inputs": true,
+    "standing": true,
+    "motion": true,
+    "entry_recovery": true,
+    "entry_followup": false,
+    "fallen_recovery": true,
+    "fallen_followup": false,
+    "entry_speed": true,
+    "fallen_speed": false,
+    "impacts": true,
+    "closure": true,
+    "passive": true,
+    "paired_initial": true
+  },
+  "metrics": {
+    "entry": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 8,
+      "followup_success": 7,
+      "stable90": 8,
+      "max_leg_speed_rad_s": 8.800276756286621,
+      "max_excursion_m": 2.304126501083374,
+      "vx_mae_m_s": 0.1227751076221466,
+      "yaw_mae_rad_s": 0.08193696895614266
+    },
+    "standing": {
+      "episodes": 21,
+      "survived": 21,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 20,
+      "max_leg_speed_rad_s": 5.521512985229492,
+      "max_excursion_m": 0.08431098610162735,
+      "vx_mae_m_s": 0.01935756247534993,
+      "yaw_mae_rad_s": 0.03580063498867232,
+      "pose_and_position_pass": 19
+    },
+    "motion": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 11,
+      "max_leg_speed_rad_s": 5.2189202308654785,
+      "max_excursion_m": 8.03913688659668,
+      "vx_mae_m_s": 0.12606574626018605,
+      "yaw_mae_rad_s": 0.034054556085417666
+    },
+    "fallen": {
+      "episodes": 6,
+      "survived": 6,
+      "recovered": 5,
+      "followup_success": 1,
+      "stable90": 5,
+      "max_leg_speed_rad_s": 25.03677749633789,
+      "max_excursion_m": 1.3073228597640991,
+      "vx_mae_m_s": 0.2704257344206174,
+      "yaw_mae_rad_s": 0.39800452440977097
+    },
+    "score": 0.641392716453189,
+    "formal_acceptance": false
+  },
+  "standing_pass": 19,
+  "impacts": 0,
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot015_motion_output/model_final.pt",
+  "checkpoint_sha256": "ef76b37717f1bdaa6729aa86e020f6af008bd8d68092a521c519db3e5e63c2c9",
+  "frozen_inputs": 577,
+  "decision": "reject_extension_and_adoption",
+  "target_behavior_still_required": "At least one actual moving fall recovery with continuation under unchanged original nominal protocol, plus RMCS and ordinary behavior nonregression.",
+  "source_clock": 1501,
+  "candidate_clock": 1509,
+  "new_PPO": 8,
+  "actual_experiment_consumed": 2646,
+  "repair_optimizer_updates": 266,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792907291.8370717
+}

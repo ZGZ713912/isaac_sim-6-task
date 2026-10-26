@@ -1,0 +1,65 @@
+{
+  "schema": "scratch-leg-target-payment-observation-v1",
+  "observed_utc": "2026-10-26T03:53:00.548734+00:00",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot008_leg_target_rate020",
+  "complete_updates": 71,
+  "event_prefix": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot008_leg_target_rate020/events.out.tfevents.1792985765.ZGZ.709399.0",
+    "bytes": 471188,
+    "sha256": "9fd4a3693ae14284b650fa18e8ddf3dbd6e6d2269f689916c2c8ef6964b84756"
+  },
+  "all_live_and_frozen_sources_match": true,
+  "source_count": 263,
+  "maximum_logged_weight_error": 2.980232227667301e-09,
+  "maximum_density_times_dt_payment_error": 2.5145709516352643e-10,
+  "maximum_delta_divided_by_dt_rate_error": 1.1175870895385742e-07,
+  "all_payment_checks_pass": true,
+  "windows": [
+    {
+      "PPO_update_numbers_inclusive": [
+        1,
+        32
+      ],
+      "means": {
+        "LegTargetRate/target_delta_rms_rad": 0.003994062863057479,
+        "LegTargetRate/target_delta_peak_rad": 0.02535679197171703,
+        "LegTargetRate/target_rate_rms_rad_s": 0.7988125775009394,
+        "LegTargetRate/cost_density_per_second": 0.381933300755918,
+        "LegTargetRate/paid_cost_per_policy_step": 0.001909666560095502,
+        "LegTargetRate/weight_density_per_second": 0.20000000298023224,
+        "PrecisionStanding/score_density_per_second": 5.413853406906128,
+        "PrecisionStanding/reward_per_policy_step": 0.0256589746568352,
+        "ScratchStanding/paid_speed_cost_per_policy_step": 0.0010158876375498949,
+        "ScratchStanding/paid_support_cost_per_policy_step": 0.0003898833247149014,
+        "Policy/mean_std": 0.023016265709884465
+      },
+      "paid_cost_divided_by_precise_reward": 0.07442489755087674
+    },
+    {
+      "PPO_update_numbers_inclusive": [
+        33,
+        64
+      ],
+      "means": {
+        "LegTargetRate/target_delta_rms_rad": 0.003876225593558047,
+        "LegTargetRate/target_delta_peak_rad": 0.02385334251448512,
+        "LegTargetRate/target_rate_rms_rad_s": 0.7752451151609421,
+        "LegTargetRate/cost_density_per_second": 0.3788379654288292,
+        "LegTargetRate/paid_cost_per_policy_step": 0.0018941898706543725,
+        "LegTargetRate/weight_density_per_second": 0.20000000298023224,
+        "PrecisionStanding/score_density_per_second": 4.999905049800873,
+        "PrecisionStanding/reward_per_policy_step": 0.024001049576327205,
+        "ScratchStanding/paid_speed_cost_per_policy_step": 0.0007043744917609729,
+        "ScratchStanding/paid_support_cost_per_policy_step": 0.00028978690852454747,
+        "Policy/mean_std": 0.022329305473249406
+      },
+      "paid_cost_divided_by_precise_reward": 0.07892112653784342
+    }
+  ],
+  "reader_sha256": "34960ea986acb89b547e00f56eca8ce32a6bfc61032e1732a1dc70d5ca01f30c",
+  "new_PPO": 0,
+  "native_steps": 0,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "scope": "Actual RSL scalar payment and unit checks. Target rates are commanded references, not measured motor velocity. Cost/base-reward ratio is a ratio of logged means; it does not attribute advantages, causality or standing success."
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "robust-repair-feedback-pilot-v1",
+  "created_unix": 1792855225.3613546,
+  "source": "runs/robust_policy_repair_20261024/geometry107_migration001/model_migrated.pt",
+  "prior_experiment_consumed": 2412,
+  "source_clock": 1501,
+  "new_updates": 64,
+  "training_population": 256,
+  "rollout_steps": 128,
+  "actor_lr": 0.0003,
+  "severity": 0.8,
+  "trainable": "24 weights in three bias-free standing displacement heads only",
+  "frozen": "All quiet MLP, locomotion, motion residual, recovery and exploration std",
+  "reward": "Same early-position6, drift2, spectral and leg-quality as source",
+  "exposure": "80% quiet upright; height25/25/50%;20% recovery rehearsal",
+  "hypothesis": "Improved position feedback with fixed balance MLP prevents standing forgetting and can learn a restoring response",
+  "zero_PPO_evidence": "geometry107_eval001:10/21 standing vs9/21 with exact physical/domain pairing; motion identical; high combined and recovery still fail",
+  "continuation_gate": ">=11/21 standing, <=.135m/s motion, no entry followup or mechanical regression; no unconditional extension",
+  "qualification": null,
+  "hardware_ready": false,
+  "source_sha256": {
+    "scripts/train_robust_getup.py": "d59dba04879aa41773a1693a67533f18dac8fea08b63dce6f22b8080da1200bb",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "7b24b5abd148dbeefe709debb59768032312d424439be44ed8ac0683d9d66363",
+    "src/wheeled_tasks/chassis/standing_geometry107.py": "4ba929cd6898b335b23e4d2e2a68724ded593d516302df9077e9bfdfc3a507af",
+    "contracts/standing_geometry107_v1.json": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216"
+  }
+}

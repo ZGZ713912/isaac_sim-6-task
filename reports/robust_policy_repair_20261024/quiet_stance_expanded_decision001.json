@@ -1,0 +1,116 @@
+{
+  "schema": "quiet-stance-expanded-decision-v1",
+  "checks": {
+    "RMCS_survival": true,
+    "RMCS_recovery": true,
+    "RMCS_followup": true,
+    "RMCS_tail90": true,
+    "RMCS_leg_peak": true,
+    "RMCS_impacts": true,
+    "RMCS_closure": true,
+    "RMCS_passive": true,
+    "RMCS_pairing": true,
+    "nominal_compound": true,
+    "nominal_inverted": true,
+    "nominal_right": true,
+    "nominal_left": true,
+    "nominal_motion": true,
+    "nominal_pairing": true,
+    "nominal_closure": true,
+    "nominal_passive": true
+  },
+  "RMCS": {
+    "episodes": 72,
+    "survived": 70,
+    "recovered": 59,
+    "followup": 39,
+    "tail90": 57,
+    "leg_peak": 18.907798767089844,
+    "impacts": 2,
+    "max_gap_m": 0.0003956707951147109,
+    "passive_motor_peak_nm": 0.0
+  },
+  "nominal": {
+    "robust": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 8,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 8
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 4,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 4
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 2,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 2
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 42,
+      "practical_moving_fall_recoveries": 0,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0
+    },
+    "reference": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 8,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 8
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 2,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 2
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 0,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 0
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 42,
+      "practical_moving_fall_recoveries": 0,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0
+    }
+  },
+  "pairing": {
+    "root_pose": true,
+    "motor_position": true,
+    "motor_velocity": true,
+    "initial_observations": true,
+    "cases": true,
+    "effective_domains": true,
+    "domains_disabled": true
+  },
+  "decision": "promote_development_candidate_only",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792899646.9311416
+}

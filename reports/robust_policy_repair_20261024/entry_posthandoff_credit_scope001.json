@@ -1,0 +1,38 @@
+{
+  "schema": "recorded-entry-direct-credit-scope-v1",
+  "checks": {
+    "all_posthandoff_gradients_exact_zero": true,
+    "positive_entry_contrast_nonzero": true
+  },
+  "rows": [
+    {
+      "name": "real_start_3__clean",
+      "eligible_frames": 284,
+      "audited_frames": 48,
+      "entry_weight_gradient_l2": 0.0
+    },
+    {
+      "name": "real_start_5__pitch_plus2",
+      "eligible_frames": 304,
+      "audited_frames": 48,
+      "entry_weight_gradient_l2": 0.0
+    },
+    {
+      "name": "real_start_6__pitch_plus2",
+      "eligible_frames": 274,
+      "audited_frames": 48,
+      "entry_weight_gradient_l2": 0.0
+    }
+  ],
+  "active_entry_contrast_gradient_l2": 3707.8291015625,
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "checkpoint_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "trace": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed/evaluation/trajectory.npz",
+  "trace_sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+  "interpretation": "At these observed gate-zero inputs, entry weights cannot directly change corrective actions. Entry PPO can still affect arrival states and therefore indirectly change later trajectories. No claim that the full closed-loop gradient is zero.",
+  "actual_optimizer_steps": 0,
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "qualification": null,
+  "created_unix": 1792897874.0165594
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "real-gap-training-initial-restore-v1",
+  "checks": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "Adam_moments_and_steps": true,
+    "optimizer_groups_except_lr": true,
+    "learning_clock": true,
+    "torch_rng": true,
+    "cuda_rng": true,
+    "environment_rng": true,
+    "domain_rng": true
+  },
+  "learning_rate_revision": [
+    {
+      "name": "actor",
+      "before": 1e-05,
+      "after": 0.0003
+    },
+    {
+      "name": "critic",
+      "before": 0.001,
+      "after": 0.001
+    }
+  ],
+  "parent_sha256": "0ef9faa2598d8da40565ab61952ac02f6a56fabae552700b4e11e0eb7b06b619",
+  "initial_sha256": "4e6df3a8e1927443358d5597be3a815f98c1e46130a6810f45eda147d2d8ddc7",
+  "environment_reset_distribution_changed": true,
+  "initial_readonly_check": "First generic whole-optimizer equality check rejected the declared learning-rate revision; no checkpoint or training changes made."
+}

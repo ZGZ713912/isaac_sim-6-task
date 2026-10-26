@@ -1,0 +1,84 @@
+{
+  "schema": "scratch-solver-velocity-native-comparison-v1",
+  "observed_utc": "2026-10-26T01:06:06.339641+00:00",
+  "baseline": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_final256_feedback001",
+  "counterfactual": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval005_velocity001_001",
+  "native_runtime_only_velocity_count_differs": true,
+  "initial_state_equal": {
+    "initial_position_local": true,
+    "initial_root_pose_local": true,
+    "initial_gravity": true,
+    "initial_omega": true,
+    "initial_motor_position_control": true,
+    "initial_motor_velocity_control": true,
+    "initial_action_control": true,
+    "first_actor_observation": true,
+    "first_actor_action": true
+  },
+  "initial_root_positions_equal": true,
+  "source_checkpoint_sha256": "44ddd2a037dd558bc739bb5721f722199ea1cd36deb1130aad7ac88f9d8cba27",
+  "native_iteration_count": 1,
+  "baseline_groups": [
+    {
+      "height_m": 0.23,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 3076,
+      "leg_peak": 6.316125869750977,
+      "leg_vibration_mean_mrad": 0.27911655391965595,
+      "first20ms_continuous": 7
+    },
+    {
+      "height_m": 0.305,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 82,
+      "leg_peak": 0.8887922167778015,
+      "leg_vibration_mean_mrad": 0.05980044390474047,
+      "first20ms_continuous": 7
+    },
+    {
+      "height_m": 0.42,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 2461,
+      "leg_peak": 12.163459777832031,
+      "leg_vibration_mean_mrad": 0.16375221418482916,
+      "first20ms_continuous": 0
+    }
+  ],
+  "counterfactual_groups": [
+    {
+      "height_m": 0.23,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 2914,
+      "leg_peak": 8.360404014587402,
+      "leg_vibration_mean_mrad": 0.32578582210200174,
+      "first20ms_continuous": 7
+    },
+    {
+      "height_m": 0.305,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 576,
+      "leg_peak": 0.4518735110759735,
+      "leg_vibration_mean_mrad": 0.5820444737161908,
+      "first20ms_continuous": 6
+    },
+    {
+      "height_m": 0.42,
+      "full_horizon": 7,
+      "standing_pass": 0,
+      "missing_ms": 2095,
+      "leg_peak": 12.188650131225586,
+      "leg_vibration_mean_mrad": 0.19168741362435476,
+      "first20ms_continuous": 0
+    }
+  ],
+  "adopted": false,
+  "decision": "Not adopted: support interruptions and vibration worsen at the trained height. Bounded solver sweep ends; proceed to the preflighted cost0 fresh512-update control.",
+  "new_PPO": 0,
+  "hardware_ready": false,
+  "receipt_sha256": "07aa7eed3c949cfa635ccd3f5cd2db7f23232fa9b9856b55dc9a04e12aa5d62d"
+}

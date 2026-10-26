@@ -1,0 +1,55 @@
+{
+  "schema": "quiet-pair-first-native-rollout-audit-v1",
+  "checks": {
+    "observations/policy": true,
+    "observations/critic": true,
+    "actions": true,
+    "dones": true,
+    "values": true,
+    "actions_log_prob": true,
+    "learning_mask": true,
+    "bootstrap_mask": true,
+    "distribution_param_0": true,
+    "distribution_param_1": true,
+    "native_rewards_differ": true,
+    "same_wrapper": true,
+    "same_measurement_phase": true
+  },
+  "receipt_paths": [
+    "runs/robust_policy_repair_20261024/pilot010_quiet_control/first_rollout_hashes.json",
+    "runs/robust_policy_repair_20261024/pilot011_quiet_tight/first_rollout_hashes.json"
+  ],
+  "receipt_sha256": [
+    "cb10e9975b0642e038c48362d924fdbab4d785666f7bf2b7affb0ed80bdb095c",
+    "328dbe163099cfdc4f32395245d44c64e9c98641b1701eb1b101006e5c5192f7"
+  ],
+  "sample_shape": [
+    512,
+    256,
+    6
+  ],
+  "rewards": [
+    {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "23655008cbf0970a3ef086067b7b0ec94198c19d9495768c7e8e6e8568112b11"
+    },
+    {
+      "shape": [
+        512,
+        256,
+        1
+      ],
+      "dtype": "float32",
+      "sha256": "21e7672c7fe49cd9c97605dcdf1240e08bbe636896af2b4b70f4020f71d118cc"
+    }
+  ],
+  "scope": "First512x256 native transitions before optimization: actor/critic observations, sampled actions, values, likelihoods, distribution parameters and masks exact; declared reward differs.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792891996.7092166
+}

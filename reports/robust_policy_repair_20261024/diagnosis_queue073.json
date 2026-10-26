@@ -1,0 +1,43 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 368409,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "height_matched_source019",
+      "checkpoint": "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis073_height_matched019",
+      "log": "reports/robust_policy_repair_20261024/diagnosis073_height_matched019.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_height_matched073.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis073_height_matched019",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+        "--seed",
+        "241201",
+        "--severity",
+        "1",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--case-group",
+        "standing"
+      ],
+      "status": "completed",
+      "started_unix": 1792944689.6334538,
+      "pid": 368410,
+      "returncode": 0,
+      "finished_unix": 1792944860.6452007
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792944860.6454256,
+  "finished_unix": 1792944860.645425
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3972979,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "current_source_control",
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis035_current_source_control",
+      "log": "reports/robust_policy_repair_20261024/diagnosis035_current_source_control.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis035_current_source_control",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792897721.7866905,
+      "pid": 3972980,
+      "returncode": 0,
+      "finished_unix": 1792897943.8468964
+    },
+    {
+      "name": "stance_authority050_fixed",
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis035_stance_authority050_fixed",
+      "log": "reports/robust_policy_repair_20261024/diagnosis035_stance_authority050_fixed.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_quiet_stance_authority_probe001.py",
+        "--retained-quiet-authority",
+        ".5",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis035_stance_authority050_fixed",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201"
+      ],
+      "status": "completed",
+      "started_unix": 1792897943.8774168,
+      "pid": 3974649,
+      "returncode": 0,
+      "finished_unix": 1792898166.4215732
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792898166.4217844,
+  "finished_unix": 1792898166.421784
+}

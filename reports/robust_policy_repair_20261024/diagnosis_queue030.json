@@ -1,0 +1,70 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3907264,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "quiet_reward_control",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_reward_control001/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis030_quiet_reward_control",
+      "log": "reports/robust_policy_repair_20261024/diagnosis030_quiet_reward_control.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/quiet_reward_control001/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis030_quiet_reward_control",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241204",
+        "--case-group",
+        "standing"
+      ],
+      "status": "completed",
+      "started_unix": 1792890497.353892,
+      "pid": 3907265,
+      "returncode": 0,
+      "finished_unix": 1792890696.5420332
+    },
+    {
+      "name": "quiet_reward_tight",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_reward_tight001/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis030_quiet_reward_tight",
+      "log": "reports/robust_policy_repair_20261024/diagnosis030_quiet_reward_tight.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/quiet_reward_tight001/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis030_quiet_reward_tight",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241204",
+        "--case-group",
+        "standing"
+      ],
+      "status": "completed",
+      "started_unix": 1792890696.567839,
+      "pid": 3908699,
+      "returncode": 0,
+      "finished_unix": 1792890895.7208104
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792890895.7210274,
+  "finished_unix": 1792890895.721027
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "motion-output-native-zero-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+  "checkpoint_sha256": "cba0099f92f4627d9d0bb77a186392eaea4e5a65eedaec286c7597ec2a177b5e",
+  "source_clock": 1501,
+  "intended_trainable_actor_tensors": [
+    "mlp.mean.arc.4.weight",
+    "mlp.mean.arc.4.bias"
+  ],
+  "intended_trainable_actor_parameters": 390,
+  "hypothesis": "The existing motion output layer directly controls recorded post-recovery failures while the fallen output layer has zero sensitivity there. Change only the native learning scope; retain runtime function and source state.",
+  "required": "Original mean/conditioned std bit-exact on all131072 native rollout frames; actor/critic/Adam/RNG restored; zero optimizer attempts. Compare every native sampled rollout/GAE tensor to the preceding039 reference before admitting new PPO.",
+  "callback_order": "Native compute_returns before the outer attempted-PPO counter; update is forbidden in this collector.",
+  "historical_reference": "runs/robust_policy_repair_20261024/diagnosis039_fallen_output_native_zero/rollout_diagnosis.json",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2638,
+  "repair_optimizer_updates": 258,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792906174.5378296
+}

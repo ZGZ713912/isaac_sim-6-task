@@ -1,0 +1,100 @@
+{
+  "schema": "entry-only-real-checkpoint-preflight-v1",
+  "source_sha256": "01f82e0b22556cba6417f4ff1f6ebfc7e301240136b5b8a177dab453110733e7",
+  "rows": [
+    {
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_optimizer_support0_source001/model_migrated.pt",
+      "sha256": "2cc914b2b9b3b924b1c47d7bdcb4dc600997b03ef9f96483204bf07d55afc4f5",
+      "support_weight": 0,
+      "checks": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "clock_exact": true,
+        "domain_rng_exact": true,
+        "environment_rng_exact": true,
+        "torch_rng_exact": true,
+        "cuda_rng_exact": true,
+        "old_Adam_slots_and_steps_exact_by_group_order": true,
+        "native_Adam_load_save_layout_exact": true,
+        "trainable_entry_only": true,
+        "entry_parameter_count": true,
+        "nonzero_entry_gradient": true,
+        "entry_zero_gradient_exactly_zero": true
+      },
+      "replays": [
+        {
+          "run": "diagnosis012_final_circular_fixed/evaluation",
+          "frames": 81600,
+          "means_bit_exact": true,
+          "sha256": "f0c0e653377eb93412101566697b2ac70605a620d6ea5aae75fe1dd6a8d9a85e"
+        },
+        {
+          "run": "diagnosis012_final_arithmetic_nominal/robust",
+          "frames": 168000,
+          "means_bit_exact": true,
+          "sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf"
+        },
+        {
+          "run": "diagnosis012_final_arithmetic_rmcs/evaluation",
+          "frames": 115200,
+          "means_bit_exact": true,
+          "sha256": "e17b2e540fc82d14249c47463b3a2198ab00cc4331bdcce1d9723a0c7442df85"
+        }
+      ],
+      "gradient": {
+        "entry_full_L2": 1.1019013332669054,
+        "entry_zero_L2": 0.0
+      }
+    },
+    {
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_optimizer_support1_source001/model_migrated.pt",
+      "sha256": "9c1353081af1519d01d70927c551081b47bbc0abb26388ae4fbe2873ef734ee0",
+      "support_weight": 1,
+      "checks": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "clock_exact": true,
+        "domain_rng_exact": true,
+        "environment_rng_exact": true,
+        "torch_rng_exact": true,
+        "cuda_rng_exact": true,
+        "old_Adam_slots_and_steps_exact_by_group_order": true,
+        "native_Adam_load_save_layout_exact": true,
+        "trainable_entry_only": true,
+        "entry_parameter_count": true,
+        "nonzero_entry_gradient": true,
+        "entry_zero_gradient_exactly_zero": true
+      },
+      "replays": [
+        {
+          "run": "diagnosis012_final_circular_fixed/evaluation",
+          "frames": 81600,
+          "means_bit_exact": true,
+          "sha256": "f0c0e653377eb93412101566697b2ac70605a620d6ea5aae75fe1dd6a8d9a85e"
+        },
+        {
+          "run": "diagnosis012_final_arithmetic_nominal/robust",
+          "frames": 168000,
+          "means_bit_exact": true,
+          "sha256": "76e65fce0f20005d2598733796da2238ef3cd4508382567f708a2a9e94caa6cf"
+        },
+        {
+          "run": "diagnosis012_final_arithmetic_rmcs/evaluation",
+          "frames": 115200,
+          "means_bit_exact": true,
+          "sha256": "e17b2e540fc82d14249c47463b3a2198ab00cc4331bdcce1d9723a0c7442df85"
+        }
+      ],
+      "gradient": {
+        "entry_full_L2": 1.1019013332669054,
+        "entry_zero_L2": 0.0
+      }
+    }
+  ],
+  "optimizer_updates": 0,
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2587,
+  "native_equality_still_required": true,
+  "qualification": null,
+  "hardware_ready": false
+}

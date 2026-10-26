@@ -1,0 +1,67 @@
+{
+  "schema": "quiet-reward-deadband-preflight-v1",
+  "source": "runs/robust_policy_repair_20261024/low_wheel_diagonal_restoring_probe001/model_probe.pt",
+  "source_sha256": "c3542311daadc47bd99930a54b5fdda4cb76660966a42167782cd1d2cfcf1342",
+  "checkpoints": [
+    {
+      "name": "control",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_reward_control001/model_probe.pt",
+      "sha256": "52916f523047c95f1d5f97e498b5bd583cce5c2a9fd8476cfa4230ffcb05dbca",
+      "sway_m": 0.05
+    },
+    {
+      "name": "tight",
+      "checkpoint": "runs/robust_policy_repair_20261024/quiet_reward_tight001/model_probe.pt",
+      "sha256": "d66dc66d31fe587c60a2786b589359c70e16c4d148da9debf82b75f2ac9d01be",
+      "sway_m": 0.02
+    }
+  ],
+  "checks": {
+    "all_non_metadata_state_exact": true,
+    "actor_function_exact": true,
+    "no_new_inputs_or_actions": true,
+    "original_acceptance_unchanged": true
+  },
+  "position_radius_m": [
+    0.0,
+    0.009999999776482582,
+    0.019999999552965164,
+    0.029999999329447746,
+    0.03999999910593033,
+    0.05000000074505806,
+    0.054999999701976776,
+    0.10000000149011612,
+    0.20000000298023224
+  ],
+  "position_cost_density": {
+    "0.05": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.059701960533857346,
+      4.158883094787598,
+      13.815510749816895
+    ],
+    "0.02": [
+      0.0,
+      0.0,
+      0.0,
+      1.3388612270355225,
+      4.158883094787598,
+      7.071930885314941,
+      8.410791397094727,
+      16.999279022216797,
+      26.44031524658203
+    ]
+  },
+  "hypothesis": "A smaller reward deadband supplies displacement credit before the unchanged5cm acceptance limit.",
+  "next_gate": "Matched native21 standing trajectories, sensors, physics and actions exact; reward difference only at standing position cost, before any PPO admission.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2605,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792890480.2434444
+}

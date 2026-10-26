@@ -1,0 +1,47 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3940047,
+  "status": "failed",
+  "jobs": [
+    {
+      "name": "entry_noise_control",
+      "checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis032_entry_noise_control",
+      "log": "reports/robust_policy_repair_20261024/diagnosis032_entry_noise_control.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "reports/robust_policy_repair_20261024/evaluate_entry_exploration_probe001.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis032_entry_noise_control",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201",
+        "--case-group",
+        "entry",
+        "--sampled-policy",
+        "--sample-seed",
+        "241507",
+        "--entry-leg-std-ratio",
+        "1.0"
+      ],
+      "status": "failed",
+      "started_unix": 1792894207.3305607,
+      "pid": 3940049,
+      "returncode": 1,
+      "finished_unix": 1792894208.2583404
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792894208.258539,
+  "error": "Native job failed: entry_noise_control",
+  "finished_unix": 1792894208.2585385
+}

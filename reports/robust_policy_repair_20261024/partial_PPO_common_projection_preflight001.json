@@ -1,0 +1,53 @@
+{
+  "schema": "partial-PPO-common-projection-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot009_common_projection001/model_probe.pt",
+  "sha256": "3b713f13bffa9077cab355a6f49e66fcb94ecd22ab3b4572418d81932fd8491e",
+  "source": "runs/robust_policy_repair_20261024/pilot009_contract002/model_migrated.pt",
+  "source_sha256": "5e24f163310182db64a1af59ec4223414142392d746a91ef1ba2834a9521b114",
+  "reference": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "reference_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "checks": {
+    "strict_existing_V3_decoder_accepts": true,
+    "old_critic_Adam_RNG_clock_exact": true,
+    "only_last_two_entry_tensors_changed": true,
+    "original_far_direction_margin": true,
+    "original_stop_constraint": true,
+    "original_knee_roundoff_bound": true,
+    "wheels_exact": true,
+    "outside_entry_exact": true,
+    "bounded_change": true
+  },
+  "phase_frames": 54450,
+  "recorded_frames": 196800,
+  "statistics": {
+    "far_actual_signed_lead_min_rad": 0.01460305042564869,
+    "far_actual_correct_fraction": 1.0,
+    "stopped_actual_target_peak_rad": 0.004495494067668915,
+    "knee_logit_change_peak": 7.62939453125e-06,
+    "physical_leg_change_peak_rad": 1.239776611328125e-05
+  },
+  "hypothesis": "Test whether the known stopped-phase constraint loss came from allowing the feature basis/knee/wheel outputs to change. Only the learned final common-row increment is retained.",
+  "native_gate": {
+    "standing_at_least": 19,
+    "motion_MAE_at_most": 0.135,
+    "entry_recovery_at_least": 8,
+    "entry_followup_at_least": 8,
+    "fallen_recovery_at_least": 4,
+    "fallen_followup_at_least": 2,
+    "entry_leg_peak_at_most_rad_s": 8.911178255081177,
+    "fallen_leg_peak_at_most_rad_s": 24.11666153503418,
+    "impact_terminations_at_most": 1,
+    "closure_at_most_m": 0.003,
+    "passive_motor_peak_nm": 0.0,
+    "improvement_required": "entry_recovery>=9 OR fallen_recovery>=5 OR entry_followup>=9 OR fallen_followup>=3"
+  },
+  "admission": "native_only_if_all_checks_pass; no PPO",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2605,
+  "actual_learning_clock": 1503,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792891164.3809748,
+  "accounting_note": "2605 is the pre-quiet-pair total. This zero-PPO CPU composition overlaps the separately charged quiet-pair training; see progress.json for the live total.",
+  "decision": "Keep as CPU mechanism evidence only. Physical change1.24e-5rad is near the independently reviewed roundoff bound; no native benefit asserted and no native/PPO job admitted."
+}

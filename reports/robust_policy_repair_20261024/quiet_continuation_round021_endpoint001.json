@@ -1,0 +1,2471 @@
+{
+  "schema": "native-quiet-output-endpoint-v1",
+  "checks": {
+    "native_contact_TensorBoard_seven_tags": true,
+    "native_contact_TensorBoard_exact_steps": true,
+    "contact_penalty_actually_paid": true,
+    "endpoint_clock": true,
+    "declared_budget": true,
+    "attempted_charged_exact": true,
+    "all_native_update_rows": true,
+    "all_native_step_and_finite_checks": true,
+    "native_update_row_clocks": true,
+    "wrapper_bound": true,
+    "source_bound": true,
+    "first_rollout_native_exact": true,
+    "exactly_twelve_existing_actor_tensors_changed": true,
+    "frozen_actor_and_basis_and_std_exact": true,
+    "all16_frozen_actor_Adam_slots_exact": true,
+    "learned_and_critic_Adam_steps_exact": true,
+    "critic_changed": true,
+    "frozen_inputs_exact": true,
+    "initial_restore_all": true,
+    "exact_contact_contract": true,
+    "strict_V8_decode": true,
+    "outside_quiet_function_exact": true,
+    "quiet_function_changed": true,
+    "native_TensorBoard_seven_tags": true,
+    "native_TensorBoard_exact_steps": true,
+    "native_TensorBoard_step_checks_pass": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot021_quiet_continuation/model_final.pt",
+  "checkpoint_sha256": "4a6c33ed501720090727efc3ced1024056f29ec412b8ff1e5406c395ce5d74f8",
+  "source": "runs/robust_policy_repair_20261024/pilot019_quiet_full/model_final.pt",
+  "source_sha256": "fdecda7ddf8ef298da8d38b8f0086c1fe45cee22f9903b020a9e48de6ce0c96a",
+  "changed_actor_tensors": [
+    "mlp.mean.quiet.0.weight",
+    "mlp.mean.quiet.0.bias",
+    "mlp.mean.quiet.2.weight",
+    "mlp.mean.quiet.2.bias",
+    "mlp.mean.quiet_low.0.weight",
+    "mlp.mean.quiet_low.0.bias",
+    "mlp.mean.quiet_low.2.weight",
+    "mlp.mean.quiet_low.2.bias",
+    "mlp.mean.quiet_high.0.weight",
+    "mlp.mean.quiet_high.0.bias",
+    "mlp.mean.quiet_high.2.weight",
+    "mlp.mean.quiet_high.2.bias"
+  ],
+  "source_clock": 1517,
+  "branch_clock": 1549,
+  "real_PPO_attempts": 32,
+  "real_PPO_completed": 32,
+  "actual_experiment_consumed": 2742,
+  "repair_optimizer_updates": 362,
+  "native_update_rows": [
+    {
+      "completed_updates": 1,
+      "learning_clock": 1518,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108020,
+        "encoder_displacement_rms_m": 0.039527710527181625,
+        "output_parameter_update_L2": 0.02081259712576866,
+        "output_gradient_L2": 0.8419969081878662,
+        "native_Adam_step_min": 972.0,
+        "native_Adam_step_max": 1728.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942313.043405
+    },
+    {
+      "completed_updates": 2,
+      "learning_clock": 1519,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111924,
+        "encoder_displacement_rms_m": 0.07071801275014877,
+        "output_parameter_update_L2": 0.018516115844249725,
+        "output_gradient_L2": 0.9999993443489075,
+        "native_Adam_step_min": 984.0,
+        "native_Adam_step_max": 1740.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942365.9401586
+    },
+    {
+      "completed_updates": 3,
+      "learning_clock": 1520,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108191,
+        "encoder_displacement_rms_m": 0.09451203793287277,
+        "output_parameter_update_L2": 0.013081361539661884,
+        "output_gradient_L2": 0.4528086185455322,
+        "native_Adam_step_min": 996.0,
+        "native_Adam_step_max": 1752.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942418.8872108
+    },
+    {
+      "completed_updates": 4,
+      "learning_clock": 1521,
+      "metrics": {
+        "observed_upright_zero_request_frames": 113112,
+        "encoder_displacement_rms_m": 0.11099352687597275,
+        "output_parameter_update_L2": 0.0130279790610075,
+        "output_gradient_L2": 0.6653537154197693,
+        "native_Adam_step_min": 1008.0,
+        "native_Adam_step_max": 1764.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942469.9844103
+    },
+    {
+      "completed_updates": 5,
+      "learning_clock": 1522,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110046,
+        "encoder_displacement_rms_m": 0.1062808558344841,
+        "output_parameter_update_L2": 0.01296570710837841,
+        "output_gradient_L2": 0.9999995231628418,
+        "native_Adam_step_min": 1020.0,
+        "native_Adam_step_max": 1776.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942534.8611233
+    },
+    {
+      "completed_updates": 6,
+      "learning_clock": 1523,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108765,
+        "encoder_displacement_rms_m": 0.0649557113647461,
+        "output_parameter_update_L2": 0.014021412469446659,
+        "output_gradient_L2": 0.9715186357498169,
+        "native_Adam_step_min": 1032.0,
+        "native_Adam_step_max": 1788.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942590.043827
+    },
+    {
+      "completed_updates": 7,
+      "learning_clock": 1524,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108159,
+        "encoder_displacement_rms_m": 0.08437464386224747,
+        "output_parameter_update_L2": 0.013232745230197906,
+        "output_gradient_L2": 0.8121458292007446,
+        "native_Adam_step_min": 1044.0,
+        "native_Adam_step_max": 1800.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942643.6127605
+    },
+    {
+      "completed_updates": 8,
+      "learning_clock": 1525,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110546,
+        "encoder_displacement_rms_m": 0.0905105471611023,
+        "output_parameter_update_L2": 0.013494499027729034,
+        "output_gradient_L2": 0.7952985763549805,
+        "native_Adam_step_min": 1056.0,
+        "native_Adam_step_max": 1812.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942696.0648897
+    },
+    {
+      "completed_updates": 9,
+      "learning_clock": 1526,
+      "metrics": {
+        "observed_upright_zero_request_frames": 112132,
+        "encoder_displacement_rms_m": 0.11370708048343658,
+        "output_parameter_update_L2": 0.01213971246033907,
+        "output_gradient_L2": 0.9999992251396179,
+        "native_Adam_step_min": 1068.0,
+        "native_Adam_step_max": 1824.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942748.0682068
+    },
+    {
+      "completed_updates": 10,
+      "learning_clock": 1527,
+      "metrics": {
+        "observed_upright_zero_request_frames": 107611,
+        "encoder_displacement_rms_m": 0.08764468878507614,
+        "output_parameter_update_L2": 0.014223028905689716,
+        "output_gradient_L2": 0.7171419858932495,
+        "native_Adam_step_min": 1080.0,
+        "native_Adam_step_max": 1836.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942803.9857907
+    },
+    {
+      "completed_updates": 11,
+      "learning_clock": 1528,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111267,
+        "encoder_displacement_rms_m": 0.0796629786491394,
+        "output_parameter_update_L2": 0.01574035920202732,
+        "output_gradient_L2": 0.5168687105178833,
+        "native_Adam_step_min": 1092.0,
+        "native_Adam_step_max": 1848.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942859.1932306
+    },
+    {
+      "completed_updates": 12,
+      "learning_clock": 1529,
+      "metrics": {
+        "observed_upright_zero_request_frames": 109322,
+        "encoder_displacement_rms_m": 0.08823053538799286,
+        "output_parameter_update_L2": 0.01498930249363184,
+        "output_gradient_L2": 0.9999991059303284,
+        "native_Adam_step_min": 1104.0,
+        "native_Adam_step_max": 1860.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942915.7761736
+    },
+    {
+      "completed_updates": 13,
+      "learning_clock": 1530,
+      "metrics": {
+        "observed_upright_zero_request_frames": 112734,
+        "encoder_displacement_rms_m": 0.08772217482328415,
+        "output_parameter_update_L2": 0.018113628029823303,
+        "output_gradient_L2": 0.9999992251396179,
+        "native_Adam_step_min": 1116.0,
+        "native_Adam_step_max": 1872.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792942979.504166
+    },
+    {
+      "completed_updates": 14,
+      "learning_clock": 1531,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110864,
+        "encoder_displacement_rms_m": 0.1037014052271843,
+        "output_parameter_update_L2": 0.01613825187087059,
+        "output_gradient_L2": 0.9999992847442627,
+        "native_Adam_step_min": 1128.0,
+        "native_Adam_step_max": 1884.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943036.6381798
+    },
+    {
+      "completed_updates": 15,
+      "learning_clock": 1532,
+      "metrics": {
+        "observed_upright_zero_request_frames": 106151,
+        "encoder_displacement_rms_m": 0.06876576691865921,
+        "output_parameter_update_L2": 0.01565397158265114,
+        "output_gradient_L2": 0.9355950951576233,
+        "native_Adam_step_min": 1140.0,
+        "native_Adam_step_max": 1896.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943096.4782977
+    },
+    {
+      "completed_updates": 16,
+      "learning_clock": 1533,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111236,
+        "encoder_displacement_rms_m": 0.09241938591003418,
+        "output_parameter_update_L2": 0.01488904282450676,
+        "output_gradient_L2": 0.9999991655349731,
+        "native_Adam_step_min": 1152.0,
+        "native_Adam_step_max": 1908.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943152.3884547
+    },
+    {
+      "completed_updates": 17,
+      "learning_clock": 1534,
+      "metrics": {
+        "observed_upright_zero_request_frames": 113550,
+        "encoder_displacement_rms_m": 0.09150060266256332,
+        "output_parameter_update_L2": 0.013206624425947666,
+        "output_gradient_L2": 0.9999990463256836,
+        "native_Adam_step_min": 1164.0,
+        "native_Adam_step_max": 1920.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943208.294285
+    },
+    {
+      "completed_updates": 18,
+      "learning_clock": 1535,
+      "metrics": {
+        "observed_upright_zero_request_frames": 115494,
+        "encoder_displacement_rms_m": 0.1099076047539711,
+        "output_parameter_update_L2": 0.01815120130777359,
+        "output_gradient_L2": 0.9999992847442627,
+        "native_Adam_step_min": 1176.0,
+        "native_Adam_step_max": 1932.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943261.3570988
+    },
+    {
+      "completed_updates": 19,
+      "learning_clock": 1536,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110980,
+        "encoder_displacement_rms_m": 0.10596727579832077,
+        "output_parameter_update_L2": 0.013841966167092323,
+        "output_gradient_L2": 0.9999991059303284,
+        "native_Adam_step_min": 1188.0,
+        "native_Adam_step_max": 1944.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943323.769816
+    },
+    {
+      "completed_updates": 20,
+      "learning_clock": 1537,
+      "metrics": {
+        "observed_upright_zero_request_frames": 107991,
+        "encoder_displacement_rms_m": 0.074478879570961,
+        "output_parameter_update_L2": 0.016128547489643097,
+        "output_gradient_L2": 0.7877576947212219,
+        "native_Adam_step_min": 1200.0,
+        "native_Adam_step_max": 1956.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943380.4306476
+    },
+    {
+      "completed_updates": 21,
+      "learning_clock": 1538,
+      "metrics": {
+        "observed_upright_zero_request_frames": 109454,
+        "encoder_displacement_rms_m": 0.09569118916988373,
+        "output_parameter_update_L2": 0.015277789905667305,
+        "output_gradient_L2": 0.9999995231628418,
+        "native_Adam_step_min": 1212.0,
+        "native_Adam_step_max": 1968.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943446.7051847
+    },
+    {
+      "completed_updates": 22,
+      "learning_clock": 1539,
+      "metrics": {
+        "observed_upright_zero_request_frames": 112191,
+        "encoder_displacement_rms_m": 0.09086275845766068,
+        "output_parameter_update_L2": 0.015527158044278622,
+        "output_gradient_L2": 0.971718966960907,
+        "native_Adam_step_min": 1224.0,
+        "native_Adam_step_max": 1980.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943502.1870553
+    },
+    {
+      "completed_updates": 23,
+      "learning_clock": 1540,
+      "metrics": {
+        "observed_upright_zero_request_frames": 113586,
+        "encoder_displacement_rms_m": 0.11129989475011826,
+        "output_parameter_update_L2": 0.014161125756800175,
+        "output_gradient_L2": 0.9999995231628418,
+        "native_Adam_step_min": 1236.0,
+        "native_Adam_step_max": 1992.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943559.2967548
+    },
+    {
+      "completed_updates": 24,
+      "learning_clock": 1541,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110542,
+        "encoder_displacement_rms_m": 0.08676210045814514,
+        "output_parameter_update_L2": 0.01438966765999794,
+        "output_gradient_L2": 0.9999993443489075,
+        "native_Adam_step_min": 1248.0,
+        "native_Adam_step_max": 2004.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943628.9067647
+    },
+    {
+      "completed_updates": 25,
+      "learning_clock": 1542,
+      "metrics": {
+        "observed_upright_zero_request_frames": 112470,
+        "encoder_displacement_rms_m": 0.08658140152692795,
+        "output_parameter_update_L2": 0.010807407088577747,
+        "output_gradient_L2": 0.9999991655349731,
+        "native_Adam_step_min": 1260.0,
+        "native_Adam_step_max": 2016.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943710.5988076
+    },
+    {
+      "completed_updates": 26,
+      "learning_clock": 1543,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110372,
+        "encoder_displacement_rms_m": 0.09392298758029938,
+        "output_parameter_update_L2": 0.011085513979196548,
+        "output_gradient_L2": 0.9999992251396179,
+        "native_Adam_step_min": 1272.0,
+        "native_Adam_step_max": 2028.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943801.6369164
+    },
+    {
+      "completed_updates": 27,
+      "learning_clock": 1544,
+      "metrics": {
+        "observed_upright_zero_request_frames": 111462,
+        "encoder_displacement_rms_m": 0.0905090793967247,
+        "output_parameter_update_L2": 0.014099200256168842,
+        "output_gradient_L2": 0.7848913669586182,
+        "native_Adam_step_min": 1284.0,
+        "native_Adam_step_max": 2040.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943870.2417252
+    },
+    {
+      "completed_updates": 28,
+      "learning_clock": 1545,
+      "metrics": {
+        "observed_upright_zero_request_frames": 109576,
+        "encoder_displacement_rms_m": 0.0981348380446434,
+        "output_parameter_update_L2": 0.011673533357679844,
+        "output_gradient_L2": 0.9999994039535522,
+        "native_Adam_step_min": 1296.0,
+        "native_Adam_step_max": 2052.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943927.1468847
+    },
+    {
+      "completed_updates": 29,
+      "learning_clock": 1546,
+      "metrics": {
+        "observed_upright_zero_request_frames": 108397,
+        "encoder_displacement_rms_m": 0.07358910888433456,
+        "output_parameter_update_L2": 0.013864823617041111,
+        "output_gradient_L2": 0.9999992847442627,
+        "native_Adam_step_min": 1308.0,
+        "native_Adam_step_max": 2064.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792943999.1170456
+    },
+    {
+      "completed_updates": 30,
+      "learning_clock": 1547,
+      "metrics": {
+        "observed_upright_zero_request_frames": 110699,
+        "encoder_displacement_rms_m": 0.09375259280204773,
+        "output_parameter_update_L2": 0.01266660075634718,
+        "output_gradient_L2": 0.9999993443489075,
+        "native_Adam_step_min": 1320.0,
+        "native_Adam_step_max": 2076.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792944057.7720346
+    },
+    {
+      "completed_updates": 31,
+      "learning_clock": 1548,
+      "metrics": {
+        "observed_upright_zero_request_frames": 105649,
+        "encoder_displacement_rms_m": 0.08589598536491394,
+        "output_parameter_update_L2": 0.01340023148804903,
+        "output_gradient_L2": 0.9999992847442627,
+        "native_Adam_step_min": 1332.0,
+        "native_Adam_step_max": 2088.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792944114.0000317
+    },
+    {
+      "completed_updates": 32,
+      "learning_clock": 1549,
+      "metrics": {
+        "observed_upright_zero_request_frames": 113332,
+        "encoder_displacement_rms_m": 0.09340847283601761,
+        "output_parameter_update_L2": 0.01444602943956852,
+        "output_gradient_L2": 0.9094181656837463,
+        "native_Adam_step_min": 1344.0,
+        "native_Adam_step_max": 2100.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792944168.0857131
+    }
+  ],
+  "native_TensorBoard": {
+    "QuietFullTraining/encoder_displacement_rms_m": [
+      {
+        "step": 1517,
+        "value": 0.039527710527181625
+      },
+      {
+        "step": 1518,
+        "value": 0.07071801275014877
+      },
+      {
+        "step": 1519,
+        "value": 0.09451203793287277
+      },
+      {
+        "step": 1520,
+        "value": 0.11099352687597275
+      },
+      {
+        "step": 1521,
+        "value": 0.1062808558344841
+      },
+      {
+        "step": 1522,
+        "value": 0.0649557113647461
+      },
+      {
+        "step": 1523,
+        "value": 0.08437464386224747
+      },
+      {
+        "step": 1524,
+        "value": 0.0905105471611023
+      },
+      {
+        "step": 1525,
+        "value": 0.11370708048343658
+      },
+      {
+        "step": 1526,
+        "value": 0.08764468878507614
+      },
+      {
+        "step": 1527,
+        "value": 0.0796629786491394
+      },
+      {
+        "step": 1528,
+        "value": 0.08823053538799286
+      },
+      {
+        "step": 1529,
+        "value": 0.08772217482328415
+      },
+      {
+        "step": 1530,
+        "value": 0.1037014052271843
+      },
+      {
+        "step": 1531,
+        "value": 0.06876576691865921
+      },
+      {
+        "step": 1532,
+        "value": 0.09241938591003418
+      },
+      {
+        "step": 1533,
+        "value": 0.09150060266256332
+      },
+      {
+        "step": 1534,
+        "value": 0.1099076047539711
+      },
+      {
+        "step": 1535,
+        "value": 0.10596727579832077
+      },
+      {
+        "step": 1536,
+        "value": 0.074478879570961
+      },
+      {
+        "step": 1537,
+        "value": 0.09569118916988373
+      },
+      {
+        "step": 1538,
+        "value": 0.09086275845766068
+      },
+      {
+        "step": 1539,
+        "value": 0.11129989475011826
+      },
+      {
+        "step": 1540,
+        "value": 0.08676210045814514
+      },
+      {
+        "step": 1541,
+        "value": 0.08658140152692795
+      },
+      {
+        "step": 1542,
+        "value": 0.09392298758029938
+      },
+      {
+        "step": 1543,
+        "value": 0.0905090793967247
+      },
+      {
+        "step": 1544,
+        "value": 0.0981348380446434
+      },
+      {
+        "step": 1545,
+        "value": 0.07358910888433456
+      },
+      {
+        "step": 1546,
+        "value": 0.09375259280204773
+      },
+      {
+        "step": 1547,
+        "value": 0.08589598536491394
+      },
+      {
+        "step": 1548,
+        "value": 0.09340847283601761
+      }
+    ],
+    "QuietFullTraining/native_Adam_step_max": [
+      {
+        "step": 1517,
+        "value": 1728.0
+      },
+      {
+        "step": 1518,
+        "value": 1740.0
+      },
+      {
+        "step": 1519,
+        "value": 1752.0
+      },
+      {
+        "step": 1520,
+        "value": 1764.0
+      },
+      {
+        "step": 1521,
+        "value": 1776.0
+      },
+      {
+        "step": 1522,
+        "value": 1788.0
+      },
+      {
+        "step": 1523,
+        "value": 1800.0
+      },
+      {
+        "step": 1524,
+        "value": 1812.0
+      },
+      {
+        "step": 1525,
+        "value": 1824.0
+      },
+      {
+        "step": 1526,
+        "value": 1836.0
+      },
+      {
+        "step": 1527,
+        "value": 1848.0
+      },
+      {
+        "step": 1528,
+        "value": 1860.0
+      },
+      {
+        "step": 1529,
+        "value": 1872.0
+      },
+      {
+        "step": 1530,
+        "value": 1884.0
+      },
+      {
+        "step": 1531,
+        "value": 1896.0
+      },
+      {
+        "step": 1532,
+        "value": 1908.0
+      },
+      {
+        "step": 1533,
+        "value": 1920.0
+      },
+      {
+        "step": 1534,
+        "value": 1932.0
+      },
+      {
+        "step": 1535,
+        "value": 1944.0
+      },
+      {
+        "step": 1536,
+        "value": 1956.0
+      },
+      {
+        "step": 1537,
+        "value": 1968.0
+      },
+      {
+        "step": 1538,
+        "value": 1980.0
+      },
+      {
+        "step": 1539,
+        "value": 1992.0
+      },
+      {
+        "step": 1540,
+        "value": 2004.0
+      },
+      {
+        "step": 1541,
+        "value": 2016.0
+      },
+      {
+        "step": 1542,
+        "value": 2028.0
+      },
+      {
+        "step": 1543,
+        "value": 2040.0
+      },
+      {
+        "step": 1544,
+        "value": 2052.0
+      },
+      {
+        "step": 1545,
+        "value": 2064.0
+      },
+      {
+        "step": 1546,
+        "value": 2076.0
+      },
+      {
+        "step": 1547,
+        "value": 2088.0
+      },
+      {
+        "step": 1548,
+        "value": 2100.0
+      }
+    ],
+    "QuietFullTraining/native_Adam_step_min": [
+      {
+        "step": 1517,
+        "value": 972.0
+      },
+      {
+        "step": 1518,
+        "value": 984.0
+      },
+      {
+        "step": 1519,
+        "value": 996.0
+      },
+      {
+        "step": 1520,
+        "value": 1008.0
+      },
+      {
+        "step": 1521,
+        "value": 1020.0
+      },
+      {
+        "step": 1522,
+        "value": 1032.0
+      },
+      {
+        "step": 1523,
+        "value": 1044.0
+      },
+      {
+        "step": 1524,
+        "value": 1056.0
+      },
+      {
+        "step": 1525,
+        "value": 1068.0
+      },
+      {
+        "step": 1526,
+        "value": 1080.0
+      },
+      {
+        "step": 1527,
+        "value": 1092.0
+      },
+      {
+        "step": 1528,
+        "value": 1104.0
+      },
+      {
+        "step": 1529,
+        "value": 1116.0
+      },
+      {
+        "step": 1530,
+        "value": 1128.0
+      },
+      {
+        "step": 1531,
+        "value": 1140.0
+      },
+      {
+        "step": 1532,
+        "value": 1152.0
+      },
+      {
+        "step": 1533,
+        "value": 1164.0
+      },
+      {
+        "step": 1534,
+        "value": 1176.0
+      },
+      {
+        "step": 1535,
+        "value": 1188.0
+      },
+      {
+        "step": 1536,
+        "value": 1200.0
+      },
+      {
+        "step": 1537,
+        "value": 1212.0
+      },
+      {
+        "step": 1538,
+        "value": 1224.0
+      },
+      {
+        "step": 1539,
+        "value": 1236.0
+      },
+      {
+        "step": 1540,
+        "value": 1248.0
+      },
+      {
+        "step": 1541,
+        "value": 1260.0
+      },
+      {
+        "step": 1542,
+        "value": 1272.0
+      },
+      {
+        "step": 1543,
+        "value": 1284.0
+      },
+      {
+        "step": 1544,
+        "value": 1296.0
+      },
+      {
+        "step": 1545,
+        "value": 1308.0
+      },
+      {
+        "step": 1546,
+        "value": 1320.0
+      },
+      {
+        "step": 1547,
+        "value": 1332.0
+      },
+      {
+        "step": 1548,
+        "value": 1344.0
+      }
+    ],
+    "QuietFullTraining/observed_upright_zero_request_frames": [
+      {
+        "step": 1517,
+        "value": 108020.0
+      },
+      {
+        "step": 1518,
+        "value": 111924.0
+      },
+      {
+        "step": 1519,
+        "value": 108191.0
+      },
+      {
+        "step": 1520,
+        "value": 113112.0
+      },
+      {
+        "step": 1521,
+        "value": 110046.0
+      },
+      {
+        "step": 1522,
+        "value": 108765.0
+      },
+      {
+        "step": 1523,
+        "value": 108159.0
+      },
+      {
+        "step": 1524,
+        "value": 110546.0
+      },
+      {
+        "step": 1525,
+        "value": 112132.0
+      },
+      {
+        "step": 1526,
+        "value": 107611.0
+      },
+      {
+        "step": 1527,
+        "value": 111267.0
+      },
+      {
+        "step": 1528,
+        "value": 109322.0
+      },
+      {
+        "step": 1529,
+        "value": 112734.0
+      },
+      {
+        "step": 1530,
+        "value": 110864.0
+      },
+      {
+        "step": 1531,
+        "value": 106151.0
+      },
+      {
+        "step": 1532,
+        "value": 111236.0
+      },
+      {
+        "step": 1533,
+        "value": 113550.0
+      },
+      {
+        "step": 1534,
+        "value": 115494.0
+      },
+      {
+        "step": 1535,
+        "value": 110980.0
+      },
+      {
+        "step": 1536,
+        "value": 107991.0
+      },
+      {
+        "step": 1537,
+        "value": 109454.0
+      },
+      {
+        "step": 1538,
+        "value": 112191.0
+      },
+      {
+        "step": 1539,
+        "value": 113586.0
+      },
+      {
+        "step": 1540,
+        "value": 110542.0
+      },
+      {
+        "step": 1541,
+        "value": 112470.0
+      },
+      {
+        "step": 1542,
+        "value": 110372.0
+      },
+      {
+        "step": 1543,
+        "value": 111462.0
+      },
+      {
+        "step": 1544,
+        "value": 109576.0
+      },
+      {
+        "step": 1545,
+        "value": 108397.0
+      },
+      {
+        "step": 1546,
+        "value": 110699.0
+      },
+      {
+        "step": 1547,
+        "value": 105649.0
+      },
+      {
+        "step": 1548,
+        "value": 113332.0
+      }
+    ],
+    "QuietFullTraining/output_gradient_L2": [
+      {
+        "step": 1517,
+        "value": 0.8419969081878662
+      },
+      {
+        "step": 1518,
+        "value": 0.9999993443489075
+      },
+      {
+        "step": 1519,
+        "value": 0.4528086185455322
+      },
+      {
+        "step": 1520,
+        "value": 0.6653537154197693
+      },
+      {
+        "step": 1521,
+        "value": 0.9999995231628418
+      },
+      {
+        "step": 1522,
+        "value": 0.9715186357498169
+      },
+      {
+        "step": 1523,
+        "value": 0.8121458292007446
+      },
+      {
+        "step": 1524,
+        "value": 0.7952985763549805
+      },
+      {
+        "step": 1525,
+        "value": 0.9999992251396179
+      },
+      {
+        "step": 1526,
+        "value": 0.7171419858932495
+      },
+      {
+        "step": 1527,
+        "value": 0.5168687105178833
+      },
+      {
+        "step": 1528,
+        "value": 0.9999991059303284
+      },
+      {
+        "step": 1529,
+        "value": 0.9999992251396179
+      },
+      {
+        "step": 1530,
+        "value": 0.9999992847442627
+      },
+      {
+        "step": 1531,
+        "value": 0.9355950951576233
+      },
+      {
+        "step": 1532,
+        "value": 0.9999991655349731
+      },
+      {
+        "step": 1533,
+        "value": 0.9999990463256836
+      },
+      {
+        "step": 1534,
+        "value": 0.9999992847442627
+      },
+      {
+        "step": 1535,
+        "value": 0.9999991059303284
+      },
+      {
+        "step": 1536,
+        "value": 0.7877576947212219
+      },
+      {
+        "step": 1537,
+        "value": 0.9999995231628418
+      },
+      {
+        "step": 1538,
+        "value": 0.971718966960907
+      },
+      {
+        "step": 1539,
+        "value": 0.9999995231628418
+      },
+      {
+        "step": 1540,
+        "value": 0.9999993443489075
+      },
+      {
+        "step": 1541,
+        "value": 0.9999991655349731
+      },
+      {
+        "step": 1542,
+        "value": 0.9999992251396179
+      },
+      {
+        "step": 1543,
+        "value": 0.7848913669586182
+      },
+      {
+        "step": 1544,
+        "value": 0.9999994039535522
+      },
+      {
+        "step": 1545,
+        "value": 0.9999992847442627
+      },
+      {
+        "step": 1546,
+        "value": 0.9999993443489075
+      },
+      {
+        "step": 1547,
+        "value": 0.9999992847442627
+      },
+      {
+        "step": 1548,
+        "value": 0.9094181656837463
+      }
+    ],
+    "QuietFullTraining/output_parameter_update_L2": [
+      {
+        "step": 1517,
+        "value": 0.02081259712576866
+      },
+      {
+        "step": 1518,
+        "value": 0.018516115844249725
+      },
+      {
+        "step": 1519,
+        "value": 0.013081361539661884
+      },
+      {
+        "step": 1520,
+        "value": 0.0130279790610075
+      },
+      {
+        "step": 1521,
+        "value": 0.01296570710837841
+      },
+      {
+        "step": 1522,
+        "value": 0.014021412469446659
+      },
+      {
+        "step": 1523,
+        "value": 0.013232745230197906
+      },
+      {
+        "step": 1524,
+        "value": 0.013494499027729034
+      },
+      {
+        "step": 1525,
+        "value": 0.01213971246033907
+      },
+      {
+        "step": 1526,
+        "value": 0.014223028905689716
+      },
+      {
+        "step": 1527,
+        "value": 0.01574035920202732
+      },
+      {
+        "step": 1528,
+        "value": 0.01498930249363184
+      },
+      {
+        "step": 1529,
+        "value": 0.018113628029823303
+      },
+      {
+        "step": 1530,
+        "value": 0.01613825187087059
+      },
+      {
+        "step": 1531,
+        "value": 0.01565397158265114
+      },
+      {
+        "step": 1532,
+        "value": 0.01488904282450676
+      },
+      {
+        "step": 1533,
+        "value": 0.013206624425947666
+      },
+      {
+        "step": 1534,
+        "value": 0.01815120130777359
+      },
+      {
+        "step": 1535,
+        "value": 0.013841966167092323
+      },
+      {
+        "step": 1536,
+        "value": 0.016128547489643097
+      },
+      {
+        "step": 1537,
+        "value": 0.015277789905667305
+      },
+      {
+        "step": 1538,
+        "value": 0.015527158044278622
+      },
+      {
+        "step": 1539,
+        "value": 0.014161125756800175
+      },
+      {
+        "step": 1540,
+        "value": 0.01438966765999794
+      },
+      {
+        "step": 1541,
+        "value": 0.010807407088577747
+      },
+      {
+        "step": 1542,
+        "value": 0.011085513979196548
+      },
+      {
+        "step": 1543,
+        "value": 0.014099200256168842
+      },
+      {
+        "step": 1544,
+        "value": 0.011673533357679844
+      },
+      {
+        "step": 1545,
+        "value": 0.013864823617041111
+      },
+      {
+        "step": 1546,
+        "value": 0.01266660075634718
+      },
+      {
+        "step": 1547,
+        "value": 0.01340023148804903
+      },
+      {
+        "step": 1548,
+        "value": 0.01444602943956852
+      }
+    ],
+    "QuietFullTraining/passed": [
+      {
+        "step": 1517,
+        "value": 1.0
+      },
+      {
+        "step": 1518,
+        "value": 1.0
+      },
+      {
+        "step": 1519,
+        "value": 1.0
+      },
+      {
+        "step": 1520,
+        "value": 1.0
+      },
+      {
+        "step": 1521,
+        "value": 1.0
+      },
+      {
+        "step": 1522,
+        "value": 1.0
+      },
+      {
+        "step": 1523,
+        "value": 1.0
+      },
+      {
+        "step": 1524,
+        "value": 1.0
+      },
+      {
+        "step": 1525,
+        "value": 1.0
+      },
+      {
+        "step": 1526,
+        "value": 1.0
+      },
+      {
+        "step": 1527,
+        "value": 1.0
+      },
+      {
+        "step": 1528,
+        "value": 1.0
+      },
+      {
+        "step": 1529,
+        "value": 1.0
+      },
+      {
+        "step": 1530,
+        "value": 1.0
+      },
+      {
+        "step": 1531,
+        "value": 1.0
+      },
+      {
+        "step": 1532,
+        "value": 1.0
+      },
+      {
+        "step": 1533,
+        "value": 1.0
+      },
+      {
+        "step": 1534,
+        "value": 1.0
+      },
+      {
+        "step": 1535,
+        "value": 1.0
+      },
+      {
+        "step": 1536,
+        "value": 1.0
+      },
+      {
+        "step": 1537,
+        "value": 1.0
+      },
+      {
+        "step": 1538,
+        "value": 1.0
+      },
+      {
+        "step": 1539,
+        "value": 1.0
+      },
+      {
+        "step": 1540,
+        "value": 1.0
+      },
+      {
+        "step": 1541,
+        "value": 1.0
+      },
+      {
+        "step": 1542,
+        "value": 1.0
+      },
+      {
+        "step": 1543,
+        "value": 1.0
+      },
+      {
+        "step": 1544,
+        "value": 1.0
+      },
+      {
+        "step": 1545,
+        "value": 1.0
+      },
+      {
+        "step": 1546,
+        "value": 1.0
+      },
+      {
+        "step": 1547,
+        "value": 1.0
+      },
+      {
+        "step": 1548,
+        "value": 1.0
+      }
+    ]
+  },
+  "native_contact_TensorBoard": {
+    "StrictStanding/maximum_wheel_separation_m": [
+      {
+        "step": 1517,
+        "value": 0.001090518431738019
+      },
+      {
+        "step": 1518,
+        "value": 0.0027612887788563967
+      },
+      {
+        "step": 1519,
+        "value": 0.20207343995571136
+      },
+      {
+        "step": 1520,
+        "value": 0.0029059764929115772
+      },
+      {
+        "step": 1521,
+        "value": 0.18124055862426758
+      },
+      {
+        "step": 1522,
+        "value": 0.001677255379036069
+      },
+      {
+        "step": 1523,
+        "value": 0.13901787996292114
+      },
+      {
+        "step": 1524,
+        "value": 0.11482542008161545
+      },
+      {
+        "step": 1525,
+        "value": 0.06494741141796112
+      },
+      {
+        "step": 1526,
+        "value": 0.14188964664936066
+      },
+      {
+        "step": 1527,
+        "value": 0.009623240679502487
+      },
+      {
+        "step": 1528,
+        "value": 0.3047599792480469
+      },
+      {
+        "step": 1529,
+        "value": 0.0009747830335982144
+      },
+      {
+        "step": 1530,
+        "value": 0.19494906067848206
+      },
+      {
+        "step": 1531,
+        "value": 0.04363550990819931
+      },
+      {
+        "step": 1532,
+        "value": 0.15572357177734375
+      },
+      {
+        "step": 1533,
+        "value": 0.18317806720733643
+      },
+      {
+        "step": 1534,
+        "value": 0.06626611948013306
+      },
+      {
+        "step": 1535,
+        "value": 0.298997163772583
+      },
+      {
+        "step": 1536,
+        "value": 0.002229806035757065
+      },
+      {
+        "step": 1537,
+        "value": 0.2477317601442337
+      },
+      {
+        "step": 1538,
+        "value": 0.021424587815999985
+      },
+      {
+        "step": 1539,
+        "value": 0.15337228775024414
+      },
+      {
+        "step": 1540,
+        "value": 0.10694684088230133
+      },
+      {
+        "step": 1541,
+        "value": 0.08822116255760193
+      },
+      {
+        "step": 1542,
+        "value": 0.3619755208492279
+      },
+      {
+        "step": 1543,
+        "value": 0.06389982998371124
+      },
+      {
+        "step": 1544,
+        "value": 0.26528260111808777
+      },
+      {
+        "step": 1545,
+        "value": 0.012908273376524448
+      },
+      {
+        "step": 1546,
+        "value": 0.29539746046066284
+      },
+      {
+        "step": 1547,
+        "value": 0.2679014801979065
+      },
+      {
+        "step": 1548,
+        "value": 0.08030985295772552
+      }
+    ],
+    "StrictStanding/minimum_wheel_vertical_load_n": [
+      {
+        "step": 1517,
+        "value": 0.0
+      },
+      {
+        "step": 1518,
+        "value": 0.0
+      },
+      {
+        "step": 1519,
+        "value": 0.0
+      },
+      {
+        "step": 1520,
+        "value": 0.0
+      },
+      {
+        "step": 1521,
+        "value": 0.0
+      },
+      {
+        "step": 1522,
+        "value": 0.0
+      },
+      {
+        "step": 1523,
+        "value": 0.0
+      },
+      {
+        "step": 1524,
+        "value": 0.0
+      },
+      {
+        "step": 1525,
+        "value": 0.0
+      },
+      {
+        "step": 1526,
+        "value": 0.0
+      },
+      {
+        "step": 1527,
+        "value": 0.0
+      },
+      {
+        "step": 1528,
+        "value": 0.0
+      },
+      {
+        "step": 1529,
+        "value": 0.0
+      },
+      {
+        "step": 1530,
+        "value": 0.0
+      },
+      {
+        "step": 1531,
+        "value": 0.0
+      },
+      {
+        "step": 1532,
+        "value": 0.0
+      },
+      {
+        "step": 1533,
+        "value": 0.0
+      },
+      {
+        "step": 1534,
+        "value": 0.0
+      },
+      {
+        "step": 1535,
+        "value": 0.0
+      },
+      {
+        "step": 1536,
+        "value": 0.0
+      },
+      {
+        "step": 1537,
+        "value": 0.0
+      },
+      {
+        "step": 1538,
+        "value": 0.0
+      },
+      {
+        "step": 1539,
+        "value": 0.0
+      },
+      {
+        "step": 1540,
+        "value": 0.0
+      },
+      {
+        "step": 1541,
+        "value": 0.0
+      },
+      {
+        "step": 1542,
+        "value": 0.0
+      },
+      {
+        "step": 1543,
+        "value": 0.0
+      },
+      {
+        "step": 1544,
+        "value": 0.0
+      },
+      {
+        "step": 1545,
+        "value": 0.0
+      },
+      {
+        "step": 1546,
+        "value": 0.0
+      },
+      {
+        "step": 1547,
+        "value": 0.0
+      },
+      {
+        "step": 1548,
+        "value": 0.0
+      }
+    ],
+    "StrictStanding/missing_physical_ms_per_policy_step": [
+      {
+        "step": 1517,
+        "value": 0.13734450936317444
+      },
+      {
+        "step": 1518,
+        "value": 0.19488584995269775
+      },
+      {
+        "step": 1519,
+        "value": 0.4822417199611664
+      },
+      {
+        "step": 1520,
+        "value": 0.15434427559375763
+      },
+      {
+        "step": 1521,
+        "value": 0.2112598717212677
+      },
+      {
+        "step": 1522,
+        "value": 0.130527526140213
+      },
+      {
+        "step": 1523,
+        "value": 0.3890131711959839
+      },
+      {
+        "step": 1524,
+        "value": 0.20066937804222107
+      },
+      {
+        "step": 1525,
+        "value": 0.21401889622211456
+      },
+      {
+        "step": 1526,
+        "value": 0.18153633177280426
+      },
+      {
+        "step": 1527,
+        "value": 0.1424548625946045
+      },
+      {
+        "step": 1528,
+        "value": 0.33427828550338745
+      },
+      {
+        "step": 1529,
+        "value": 0.12132130563259125
+      },
+      {
+        "step": 1530,
+        "value": 0.25127995014190674
+      },
+      {
+        "step": 1531,
+        "value": 0.17637857794761658
+      },
+      {
+        "step": 1532,
+        "value": 0.20133304595947266
+      },
+      {
+        "step": 1533,
+        "value": 0.3106132745742798
+      },
+      {
+        "step": 1534,
+        "value": 0.18955741822719574
+      },
+      {
+        "step": 1535,
+        "value": 0.29854369163513184
+      },
+      {
+        "step": 1536,
+        "value": 0.15785232186317444
+      },
+      {
+        "step": 1537,
+        "value": 0.27354180812835693
+      },
+      {
+        "step": 1538,
+        "value": 0.14508116245269775
+      },
+      {
+        "step": 1539,
+        "value": 0.1856796145439148
+      },
+      {
+        "step": 1540,
+        "value": 0.17964011430740356
+      },
+      {
+        "step": 1541,
+        "value": 0.1760372519493103
+      },
+      {
+        "step": 1542,
+        "value": 0.33174681663513184
+      },
+      {
+        "step": 1543,
+        "value": 0.15537771582603455
+      },
+      {
+        "step": 1544,
+        "value": 0.29085442423820496
+      },
+      {
+        "step": 1545,
+        "value": 0.13755309581756592
+      },
+      {
+        "step": 1546,
+        "value": 0.28994426131248474
+      },
+      {
+        "step": 1547,
+        "value": 0.3696621060371399
+      },
+      {
+        "step": 1548,
+        "value": 0.16122761368751526
+      }
+    ],
+    "StrictStanding/paid_penalty_per_policy_step": [
+      {
+        "step": 1517,
+        "value": 0.001583888428285718
+      },
+      {
+        "step": 1518,
+        "value": 0.00403014849871397
+      },
+      {
+        "step": 1519,
+        "value": 0.029053669422864914
+      },
+      {
+        "step": 1520,
+        "value": 0.002289628377184272
+      },
+      {
+        "step": 1521,
+        "value": 0.006040006875991821
+      },
+      {
+        "step": 1522,
+        "value": 0.0015913952374830842
+      },
+      {
+        "step": 1523,
+        "value": 0.0247158445417881
+      },
+      {
+        "step": 1524,
+        "value": 0.006122035905718803
+      },
+      {
+        "step": 1525,
+        "value": 0.009593678638339043
+      },
+      {
+        "step": 1526,
+        "value": 0.005729387979954481
+      },
+      {
+        "step": 1527,
+        "value": 0.0021684346720576286
+      },
+      {
+        "step": 1528,
+        "value": 0.019487246870994568
+      },
+      {
+        "step": 1529,
+        "value": 0.001390469609759748
+      },
+      {
+        "step": 1530,
+        "value": 0.013754284009337425
+      },
+      {
+        "step": 1531,
+        "value": 0.002971493173390627
+      },
+      {
+        "step": 1532,
+        "value": 0.007041512988507748
+      },
+      {
+        "step": 1533,
+        "value": 0.015059078112244606
+      },
+      {
+        "step": 1534,
+        "value": 0.004068042151629925
+      },
+      {
+        "step": 1535,
+        "value": 0.015389777719974518
+      },
+      {
+        "step": 1536,
+        "value": 0.0019708401523530483
+      },
+      {
+        "step": 1537,
+        "value": 0.011792962439358234
+      },
+      {
+        "step": 1538,
+        "value": 0.0019146115519106388
+      },
+      {
+        "step": 1539,
+        "value": 0.006346583366394043
+      },
+      {
+        "step": 1540,
+        "value": 0.00516132777556777
+      },
+      {
+        "step": 1541,
+        "value": 0.003928615711629391
+      },
+      {
+        "step": 1542,
+        "value": 0.01830958016216755
+      },
+      {
+        "step": 1543,
+        "value": 0.0028845726046711206
+      },
+      {
+        "step": 1544,
+        "value": 0.015694301575422287
+      },
+      {
+        "step": 1545,
+        "value": 0.0020675265695899725
+      },
+      {
+        "step": 1546,
+        "value": 0.014050734229385853
+      },
+      {
+        "step": 1547,
+        "value": 0.018752984702587128
+      },
+      {
+        "step": 1548,
+        "value": 0.003781854175031185
+      }
+    ],
+    "StrictStanding/support_cost_density_per_second": [
+      {
+        "step": 1517,
+        "value": 0.03959721326828003
+      },
+      {
+        "step": 1518,
+        "value": 0.10075370967388153
+      },
+      {
+        "step": 1519,
+        "value": 0.726341724395752
+      },
+      {
+        "step": 1520,
+        "value": 0.05724070966243744
+      },
+      {
+        "step": 1521,
+        "value": 0.15100017189979553
+      },
+      {
+        "step": 1522,
+        "value": 0.039784882217645645
+      },
+      {
+        "step": 1523,
+        "value": 0.6178961396217346
+      },
+      {
+        "step": 1524,
+        "value": 0.15305089950561523
+      },
+      {
+        "step": 1525,
+        "value": 0.2398419976234436
+      },
+      {
+        "step": 1526,
+        "value": 0.14323469996452332
+      },
+      {
+        "step": 1527,
+        "value": 0.05421086773276329
+      },
+      {
+        "step": 1528,
+        "value": 0.4871812164783478
+      },
+      {
+        "step": 1529,
+        "value": 0.034761738032102585
+      },
+      {
+        "step": 1530,
+        "value": 0.34385713934898376
+      },
+      {
+        "step": 1531,
+        "value": 0.07428733259439468
+      },
+      {
+        "step": 1532,
+        "value": 0.17603783309459686
+      },
+      {
+        "step": 1533,
+        "value": 0.3764769434928894
+      },
+      {
+        "step": 1534,
+        "value": 0.1017010509967804
+      },
+      {
+        "step": 1535,
+        "value": 0.38474443554878235
+      },
+      {
+        "step": 1536,
+        "value": 0.049271006137132645
+      },
+      {
+        "step": 1537,
+        "value": 0.2948240637779236
+      },
+      {
+        "step": 1538,
+        "value": 0.04786529019474983
+      },
+      {
+        "step": 1539,
+        "value": 0.15866458415985107
+      },
+      {
+        "step": 1540,
+        "value": 0.1290331929922104
+      },
+      {
+        "step": 1541,
+        "value": 0.09821540117263794
+      },
+      {
+        "step": 1542,
+        "value": 0.45773953199386597
+      },
+      {
+        "step": 1543,
+        "value": 0.07211431860923767
+      },
+      {
+        "step": 1544,
+        "value": 0.39235755801200867
+      },
+      {
+        "step": 1545,
+        "value": 0.051688164472579956
+      },
+      {
+        "step": 1546,
+        "value": 0.35126838088035583
+      },
+      {
+        "step": 1547,
+        "value": 0.4688246250152588
+      },
+      {
+        "step": 1548,
+        "value": 0.0945463627576828
+      }
+    ],
+    "StrictStanding/support_every_1ms_fraction": [
+      {
+        "step": 1517,
+        "value": 0.9222162961959839
+      },
+      {
+        "step": 1518,
+        "value": 0.9111328125
+      },
+      {
+        "step": 1519,
+        "value": 0.8456272482872009
+      },
+      {
+        "step": 1520,
+        "value": 0.9206708669662476
+      },
+      {
+        "step": 1521,
+        "value": 0.9050458669662476
+      },
+      {
+        "step": 1522,
+        "value": 0.9272887706756592
+      },
+      {
+        "step": 1523,
+        "value": 0.8775125741958618
+      },
+      {
+        "step": 1524,
+        "value": 0.9184997081756592
+      },
+      {
+        "step": 1525,
+        "value": 0.9175231456756592
+      },
+      {
+        "step": 1526,
+        "value": 0.91685950756073
+      },
+      {
+        "step": 1527,
+        "value": 0.9254114627838135
+      },
+      {
+        "step": 1528,
+        "value": 0.8902647495269775
+      },
+      {
+        "step": 1529,
+        "value": 0.9318965673446655
+      },
+      {
+        "step": 1530,
+        "value": 0.9091323018074036
+      },
+      {
+        "step": 1531,
+        "value": 0.9142805337905884
+      },
+      {
+        "step": 1532,
+        "value": 0.9152097702026367
+      },
+      {
+        "step": 1533,
+        "value": 0.8872497081756592
+      },
+      {
+        "step": 1534,
+        "value": 0.9110190272331238
+      },
+      {
+        "step": 1535,
+        "value": 0.8921799659729004
+      },
+      {
+        "step": 1536,
+        "value": 0.9158923625946045
+      },
+      {
+        "step": 1537,
+        "value": 0.8932986855506897
+      },
+      {
+        "step": 1538,
+        "value": 0.9211828708648682
+      },
+      {
+        "step": 1539,
+        "value": 0.9195520877838135
+      },
+      {
+        "step": 1540,
+        "value": 0.9176748991012573
+      },
+      {
+        "step": 1541,
+        "value": 0.9196943044662476
+      },
+      {
+        "step": 1542,
+        "value": 0.8868324756622314
+      },
+      {
+        "step": 1543,
+        "value": 0.923098087310791
+      },
+      {
+        "step": 1544,
+        "value": 0.9011491537094116
+      },
+      {
+        "step": 1545,
+        "value": 0.9281989932060242
+      },
+      {
+        "step": 1546,
+        "value": 0.8955931663513184
+      },
+      {
+        "step": 1547,
+        "value": 0.8757110834121704
+      },
+      {
+        "step": 1548,
+        "value": 0.9249089956283569
+      }
+    ],
+    "StrictStanding/weight_density_per_second": [
+      {
+        "step": 1517,
+        "value": 8.0
+      },
+      {
+        "step": 1518,
+        "value": 8.0
+      },
+      {
+        "step": 1519,
+        "value": 8.0
+      },
+      {
+        "step": 1520,
+        "value": 8.0
+      },
+      {
+        "step": 1521,
+        "value": 8.0
+      },
+      {
+        "step": 1522,
+        "value": 8.0
+      },
+      {
+        "step": 1523,
+        "value": 8.0
+      },
+      {
+        "step": 1524,
+        "value": 8.0
+      },
+      {
+        "step": 1525,
+        "value": 8.0
+      },
+      {
+        "step": 1526,
+        "value": 8.0
+      },
+      {
+        "step": 1527,
+        "value": 8.0
+      },
+      {
+        "step": 1528,
+        "value": 8.0
+      },
+      {
+        "step": 1529,
+        "value": 8.0
+      },
+      {
+        "step": 1530,
+        "value": 8.0
+      },
+      {
+        "step": 1531,
+        "value": 8.0
+      },
+      {
+        "step": 1532,
+        "value": 8.0
+      },
+      {
+        "step": 1533,
+        "value": 8.0
+      },
+      {
+        "step": 1534,
+        "value": 8.0
+      },
+      {
+        "step": 1535,
+        "value": 8.0
+      },
+      {
+        "step": 1536,
+        "value": 8.0
+      },
+      {
+        "step": 1537,
+        "value": 8.0
+      },
+      {
+        "step": 1538,
+        "value": 8.0
+      },
+      {
+        "step": 1539,
+        "value": 8.0
+      },
+      {
+        "step": 1540,
+        "value": 8.0
+      },
+      {
+        "step": 1541,
+        "value": 8.0
+      },
+      {
+        "step": 1542,
+        "value": 8.0
+      },
+      {
+        "step": 1543,
+        "value": 8.0
+      },
+      {
+        "step": 1544,
+        "value": 8.0
+      },
+      {
+        "step": 1545,
+        "value": 8.0
+      },
+      {
+        "step": 1546,
+        "value": 8.0
+      },
+      {
+        "step": 1547,
+        "value": 8.0
+      },
+      {
+        "step": 1548,
+        "value": 8.0
+      }
+    ]
+  },
+  "frozen_inputs": 258,
+  "function_probe": {
+    "trace": "runs/robust_policy_repair_20261024/diagnosis036_quiet_stance050_implementation/evaluation/trajectory.npz",
+    "sha256": "aaf5863b9721ddb28354df9e7b8247c102ef9f9adec300816ae8158e03137f98",
+    "frames": 81600,
+    "outside_count": 32045,
+    "outside_different": 0,
+    "active_different": 49034,
+    "peak_action_delta": 0.0056378841400146484
+  },
+  "interpretation": "Engineering readback only; frozen recorded observations do not prove closed-loop behavior or qualification.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792944292.0298202
+}

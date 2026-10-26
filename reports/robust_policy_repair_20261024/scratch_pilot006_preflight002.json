@@ -1,0 +1,93 @@
+{
+  "schema": "scratch-standing-fresh006-preflight-v1",
+  "observed_utc": "2026-10-25T22:35:41.189900+00:00",
+  "checks": {
+    "exact_declared_source_changes": true,
+    "same_mechanics": true,
+    "same_agent": true,
+    "same_settings_except_version": true,
+    "same_native_evaluation_AST": true,
+    "same_bank": true,
+    "same_static_fresh_initializer": true,
+    "reset_fix_matches_native_tested_candidate": true,
+    "event_cost_correct": true,
+    "zero_startup_grace": true,
+    "unchanged_contact_threshold": true
+  },
+  "all_checks_pass": true,
+  "changed_sources": [
+    "scripts/train_scratch_standing.py",
+    "src/wheeled_tasks/chassis/grounded_standing_reset.py",
+    "src/wheeled_tasks/chassis/standing_contact_continuity.py"
+  ],
+  "source_count": 262,
+  "CPU_tests_passed": 48,
+  "invalid_configuration_tests": [
+    {
+      "value": "nan",
+      "exit_code": 2,
+      "rejected_before_AppLauncher": true
+    },
+    {
+      "value": "-.01",
+      "exit_code": 2,
+      "rejected_before_AppLauncher": true
+    },
+    {
+      "value": ".21",
+      "exit_code": 2,
+      "rejected_before_AppLauncher": true
+    }
+  ],
+  "requested_updates": 512,
+  "from_zero": true,
+  "training_checkpoint_loading_forbidden": true,
+  "measured_old_trace_event_counts": [
+    {
+      "pitch_deg": 0.0,
+      "missing_ms": 4,
+      "break_events": 3,
+      "hypothetical_event_cost": 0.30000000000000004
+    },
+    {
+      "pitch_deg": -0.25,
+      "missing_ms": 10,
+      "break_events": 9,
+      "hypothetical_event_cost": 0.9
+    },
+    {
+      "pitch_deg": 0.25,
+      "missing_ms": 3,
+      "break_events": 2,
+      "hypothetical_event_cost": 0.2
+    },
+    {
+      "pitch_deg": -0.5,
+      "missing_ms": 7,
+      "break_events": 6,
+      "hypothetical_event_cost": 0.6000000000000001
+    },
+    {
+      "pitch_deg": 0.5,
+      "missing_ms": 28,
+      "break_events": 28,
+      "hypothetical_event_cost": 2.8000000000000003
+    },
+    {
+      "pitch_deg": -1.0,
+      "missing_ms": 16,
+      "break_events": 15,
+      "hypothetical_event_cost": 1.5
+    },
+    {
+      "pitch_deg": 1.0,
+      "missing_ms": 14,
+      "break_events": 14,
+      "hypothetical_event_cost": 1.4000000000000001
+    }
+  ],
+  "event_cost_scope": "Hypothetical accounting on005 evidence only. New006 learns this additional cost from random actor/critic and empty Adam.",
+  "native_validation": false,
+  "new_PPO": 0,
+  "hardware_ready": false
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3819509,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "entry_support0_native",
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_optimizer_support0_source001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis018_entry_support0_native",
+      "log": "reports/robust_policy_repair_20261024/diagnosis018_entry_support0_native.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/entry_optimizer_support0_source001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis018_entry_support0_native",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201",
+        "--case-group",
+        "all"
+      ],
+      "status": "completed",
+      "started_unix": 1792878666.1600368,
+      "pid": 3819510,
+      "returncode": 0,
+      "finished_unix": 1792878886.634136
+    },
+    {
+      "name": "entry_support1_native",
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_optimizer_support1_source001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis018_entry_support1_native",
+      "log": "reports/robust_policy_repair_20261024/diagnosis018_entry_support1_native.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/entry_optimizer_support1_source001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis018_entry_support1_native",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201",
+        "--case-group",
+        "all"
+      ],
+      "status": "completed",
+      "started_unix": 1792878886.6506135,
+      "pid": 3821039,
+      "returncode": 0,
+      "finished_unix": 1792879107.7477865
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792879107.7479808,
+  "finished_unix": 1792879107.7479804
+}

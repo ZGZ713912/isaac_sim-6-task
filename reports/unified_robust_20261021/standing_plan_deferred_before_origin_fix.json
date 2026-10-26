@@ -1,0 +1,40 @@
+{
+  "schema": "robust-standing-pilot-021-plan-v1",
+  "parent_checkpoint": "runs/unified_robust_20261022/reference_range020/model_migrated.pt",
+  "parent_sha256": "d58d77472a53def56486d7cebaa70e13e718b5cc6e11455af3e563bc70938ce0",
+  "hypothesis": "After leg observation prediction restores high-height stability, early position deadband cost can reduce startup displacement without strengthening filters.",
+  "new_updates_requested": 32,
+  "num_envs": 128,
+  "rollout_policy_steps": 128,
+  "simulated_training_seconds_per_environment": 20.48,
+  "actor_lr": 1e-05,
+  "domain_scale": 0.35,
+  "ground_friction_range": [
+    0.3,
+    0.5
+  ],
+  "effective_wheel_friction_range": [
+    0.2,
+    0.3
+  ],
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "only_actor_head": "quiet",
+  "parent_motion_recovery_std_frozen": true,
+  "early_position_cost_weight": 6.0,
+  "position_deadband_m": 0.05,
+  "support_cost_enabled": true,
+  "quiet_high_leg_prediction_s": 0.005,
+  "fast_forward_reference": true,
+  "preexisting_robust_consumption": 353,
+  "parent_selected_lineage": 313,
+  "run_started": false,
+  "long_training_admitted": false,
+  "hardware_motion": false,
+  "deferred_reason": "1.5 m/s gap discovered during 019 seam validation; no training has started",
+  "reference_speed_transition_m_s": [
+    1.0,
+    1.5
+  ],
+  "motion_diagnostics": "Iteration020 native 96-lane speed/yaw matrix is running; quiet pilot will freeze all motion/recovery tensors."
+}

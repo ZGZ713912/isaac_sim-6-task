@@ -1,0 +1,59 @@
+{
+  "schema": "quiet-stance-implementation-replay-v1",
+  "checks": {
+    "payload_weights_critic_optimizer_rng_exact": true,
+    "namespaces_exact": true,
+    "actor_tensors_exact": true,
+    "learning_clock_exact": true,
+    "static_policy_no_global_patch": true,
+    "zero_strength_full_function_exact": true,
+    "diagnostic_output_bit_exact": true,
+    "active_function_change_nonempty": true,
+    "native_methods_restored": true,
+    "shared_observer_and_std_gate_unchanged": true,
+    "six_actual_decoder_negative_controls": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "source_checkpoint": "runs/robust_policy_repair_20261024/motion_damping080002/model_probe.pt",
+  "source_sha256": "9a3610dc396c97d5bf3a0965f2be1217ac3e225e857604554c84b991d7f9eee9",
+  "module_sha256": "16e03653c85228a349b4eecc5dd241e19b0098452eb28af85ae9861bd48c3d5c",
+  "frames": 163200,
+  "zero_strength_different": 0,
+  "diagnostic_output_different": 0,
+  "active_changed_frames": 8238,
+  "diagnostic_delta_peak": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "traces": [
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis035_current_source_control/evaluation/trajectory.npz",
+      "sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+      "frames": 81600
+    },
+    {
+      "path": "runs/robust_policy_repair_20261024/diagnosis035_stance_authority050_fixed/evaluation/trajectory.npz",
+      "sha256": "aaf5863b9721ddb28354df9e7b8247c102ef9f9adec300816ae8158e03137f98",
+      "frames": 81600
+    }
+  ],
+  "rejections": {
+    "weights": "Quiet authority migration changed weights, optimizer or saved state",
+    "optimizer": "Quiet authority migration changed weights, optimizer or saved state",
+    "source_sha": "Quiet stance authority source checkpoint is missing or changed",
+    "module_sha": "Quiet stance authority source is missing or changed",
+    "schema_downgrade": "Quiet stance settings require an authenticated v4 checkpoint",
+    "self_cycle": "Quiet stance authority source checkpoint is missing or changed"
+  },
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "repair_optimizer_updates": 250,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792898717.6157205
+}

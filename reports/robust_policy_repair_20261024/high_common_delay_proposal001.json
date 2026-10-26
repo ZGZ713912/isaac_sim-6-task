@@ -1,0 +1,27 @@
+{
+  "schema": "high-common-delay-probe-proposal-v1",
+  "source": "runs/robust_policy_repair_20261024/pilot005_recovery/model_final.pt",
+  "setting": "quiet_high_common_alpha",
+  "before": null,
+  "proposed": 0.5,
+  "effective_old_alpha": 0.25,
+  "recorded_frames": 8160,
+  "outside_high_quiet_frames": 7166,
+  "outside_high_quiet_mean_exact": true,
+  "same_input_wheels_exact": true,
+  "changed_frames": 994,
+  "max_leg_target_change_rad": 0.011699318885803223,
+  "weights_optimizer_rng_unchanged": true,
+  "new_PPO": 0,
+  "native_not_started": true,
+  "hypothesis": "Reduce high-stance common-leg action smoothing delay while retaining paired knee smoothing and wheel output filtering. Existing authenticated option; no new sensor or actuation path.",
+  "required_native_gate": {
+    "standing_pass_at_least": 19,
+    "high_combined_max_excursion_at_most_m": 0.1,
+    "nonhigh_cases_unchanged": true,
+    "no_new_mechanical_failures": true,
+    "no_3_95Hz_physical_motion_regression": true
+  },
+  "scope": "CPU functional scope only, no closed-loop benefit claim",
+  "qualification": null
+}

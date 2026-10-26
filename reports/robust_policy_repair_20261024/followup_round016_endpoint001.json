@@ -1,0 +1,694 @@
+{
+  "schema": "native-followup-reward-endpoint-v1",
+  "checks": {
+    "endpoint_clock": true,
+    "declared_budget": true,
+    "attempted_charged_exact": true,
+    "all_native_update_rows": true,
+    "all_native_step_and_finite_checks": true,
+    "native_update_row_clocks": true,
+    "wrapper_bound": true,
+    "source_bound": true,
+    "first_rollout_native_exact": true,
+    "exactly_two_existing_actor_tensors_changed": true,
+    "frozen_actor_and_basis_and_std_exact": true,
+    "all26_frozen_actor_Adam_slots_exact": true,
+    "learned_and_critic_Adam_steps_exact": true,
+    "critic_changed": true,
+    "frozen_inputs_exact": true,
+    "initial_restore_all": true,
+    "strict_V6_decode": true,
+    "zero_request_function_exact": true,
+    "nonzero_request_function_changed": true,
+    "native_TensorBoard_eight_tags": true,
+    "native_TensorBoard_exact_steps": true,
+    "native_TensorBoard_step_checks_pass": true,
+    "explicit_reward_contract": true,
+    "six_native_reward_tags": true,
+    "native_reward_log_steps": true,
+    "native_reward_weight5": true,
+    "native_moving_fall_bonus_observed": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot016_followup_reward/model_final.pt",
+  "checkpoint_sha256": "f779b69d9c1e761ff7708966bdcbe5ff65c27c8c989806b0461bc0dd83579ff2",
+  "source": "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+  "source_sha256": "cba0099f92f4627d9d0bb77a186392eaea4e5a65eedaec286c7597ec2a177b5e",
+  "changed_actor_tensors": [
+    "mlp.mean.arc.4.weight",
+    "mlp.mean.arc.4.bias"
+  ],
+  "source_clock": 1501,
+  "branch_clock": 1509,
+  "real_PPO_attempts": 8,
+  "real_PPO_completed": 8,
+  "actual_experiment_consumed": 2654,
+  "repair_optimizer_updates": 274,
+  "native_update_rows": [
+    {
+      "completed_updates": 1,
+      "learning_clock": 1502,
+      "metrics": {
+        "push_frames": 0.0,
+        "in_motion_fall_history_frames": 0.0,
+        "recovered_events": 11.0,
+        "observed_gravity_fallen_frames": 457,
+        "output_parameter_update_L2": 0.0038392203859984875,
+        "output_gradient_L2": 0.06373120099306107,
+        "native_Adam_step": 3192.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792909916.6176262
+    },
+    {
+      "completed_updates": 2,
+      "learning_clock": 1503,
+      "metrics": {
+        "push_frames": 4944.0,
+        "in_motion_fall_history_frames": 0.0,
+        "recovered_events": 15.0,
+        "observed_gravity_fallen_frames": 0,
+        "output_parameter_update_L2": 0.003500893712043762,
+        "output_gradient_L2": 0.307634562253952,
+        "native_Adam_step": 3204.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792909982.7942889
+    },
+    {
+      "completed_updates": 3,
+      "learning_clock": 1504,
+      "metrics": {
+        "push_frames": 7622.0,
+        "in_motion_fall_history_frames": 36640.0,
+        "recovered_events": 16.0,
+        "observed_gravity_fallen_frames": 14835,
+        "output_parameter_update_L2": 0.003157533472403884,
+        "output_gradient_L2": 0.06693725287914276,
+        "native_Adam_step": 3216.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792910049.5409582
+    },
+    {
+      "completed_updates": 4,
+      "learning_clock": 1505,
+      "metrics": {
+        "push_frames": 0.0,
+        "in_motion_fall_history_frames": 31232.0,
+        "recovered_events": 30.0,
+        "observed_gravity_fallen_frames": 0,
+        "output_parameter_update_L2": 0.00423057796433568,
+        "output_gradient_L2": 0.2428089827299118,
+        "native_Adam_step": 3228.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792910113.681491
+    },
+    {
+      "completed_updates": 5,
+      "learning_clock": 1506,
+      "metrics": {
+        "push_frames": 7987.0,
+        "in_motion_fall_history_frames": 39646.0,
+        "recovered_events": 11.0,
+        "observed_gravity_fallen_frames": 9368,
+        "output_parameter_update_L2": 0.002977066906169057,
+        "output_gradient_L2": 0.244244784116745,
+        "native_Adam_step": 3240.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792910190.1680665
+    },
+    {
+      "completed_updates": 6,
+      "learning_clock": 1507,
+      "metrics": {
+        "push_frames": 0.0,
+        "in_motion_fall_history_frames": 18944.0,
+        "recovered_events": 31.0,
+        "observed_gravity_fallen_frames": 2115,
+        "output_parameter_update_L2": 0.0034371735528111458,
+        "output_gradient_L2": 0.1891285926103592,
+        "native_Adam_step": 3252.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792910257.7590306
+    },
+    {
+      "completed_updates": 7,
+      "learning_clock": 1508,
+      "metrics": {
+        "push_frames": 9879.0,
+        "in_motion_fall_history_frames": 32309.0,
+        "recovered_events": 22.0,
+        "observed_gravity_fallen_frames": 10560,
+        "output_parameter_update_L2": 0.0032940092496573925,
+        "output_gradient_L2": 0.14447572827339172,
+        "native_Adam_step": 3264.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792910326.4626403
+    },
+    {
+      "completed_updates": 8,
+      "learning_clock": 1509,
+      "metrics": {
+        "push_frames": 0.0,
+        "in_motion_fall_history_frames": 22424.0,
+        "recovered_events": 21.0,
+        "observed_gravity_fallen_frames": 548,
+        "output_parameter_update_L2": 0.004135649651288986,
+        "output_gradient_L2": 0.1685541719198227,
+        "native_Adam_step": 3276.0
+      },
+      "checks": {
+        "exact_native_Adam_steps": true,
+        "finite_output_parameters": true
+      },
+      "native_update_completed": true,
+      "created_unix": 1792910393.0755126
+    }
+  ],
+  "native_TensorBoard": {
+    "MotionOutputTraining/in_motion_fall_history_frames": [
+      {
+        "step": 1501,
+        "value": 0.0
+      },
+      {
+        "step": 1502,
+        "value": 0.0
+      },
+      {
+        "step": 1503,
+        "value": 36640.0
+      },
+      {
+        "step": 1504,
+        "value": 31232.0
+      },
+      {
+        "step": 1505,
+        "value": 39646.0
+      },
+      {
+        "step": 1506,
+        "value": 18944.0
+      },
+      {
+        "step": 1507,
+        "value": 32309.0
+      },
+      {
+        "step": 1508,
+        "value": 22424.0
+      }
+    ],
+    "MotionOutputTraining/native_Adam_step": [
+      {
+        "step": 1501,
+        "value": 3192.0
+      },
+      {
+        "step": 1502,
+        "value": 3204.0
+      },
+      {
+        "step": 1503,
+        "value": 3216.0
+      },
+      {
+        "step": 1504,
+        "value": 3228.0
+      },
+      {
+        "step": 1505,
+        "value": 3240.0
+      },
+      {
+        "step": 1506,
+        "value": 3252.0
+      },
+      {
+        "step": 1507,
+        "value": 3264.0
+      },
+      {
+        "step": 1508,
+        "value": 3276.0
+      }
+    ],
+    "MotionOutputTraining/observed_gravity_fallen_frames": [
+      {
+        "step": 1501,
+        "value": 457.0
+      },
+      {
+        "step": 1502,
+        "value": 0.0
+      },
+      {
+        "step": 1503,
+        "value": 14835.0
+      },
+      {
+        "step": 1504,
+        "value": 0.0
+      },
+      {
+        "step": 1505,
+        "value": 9368.0
+      },
+      {
+        "step": 1506,
+        "value": 2115.0
+      },
+      {
+        "step": 1507,
+        "value": 10560.0
+      },
+      {
+        "step": 1508,
+        "value": 548.0
+      }
+    ],
+    "MotionOutputTraining/output_gradient_L2": [
+      {
+        "step": 1501,
+        "value": 0.06373120099306107
+      },
+      {
+        "step": 1502,
+        "value": 0.307634562253952
+      },
+      {
+        "step": 1503,
+        "value": 0.06693725287914276
+      },
+      {
+        "step": 1504,
+        "value": 0.2428089827299118
+      },
+      {
+        "step": 1505,
+        "value": 0.244244784116745
+      },
+      {
+        "step": 1506,
+        "value": 0.1891285926103592
+      },
+      {
+        "step": 1507,
+        "value": 0.14447572827339172
+      },
+      {
+        "step": 1508,
+        "value": 0.1685541719198227
+      }
+    ],
+    "MotionOutputTraining/output_parameter_update_L2": [
+      {
+        "step": 1501,
+        "value": 0.0038392203859984875
+      },
+      {
+        "step": 1502,
+        "value": 0.003500893712043762
+      },
+      {
+        "step": 1503,
+        "value": 0.003157533472403884
+      },
+      {
+        "step": 1504,
+        "value": 0.00423057796433568
+      },
+      {
+        "step": 1505,
+        "value": 0.002977066906169057
+      },
+      {
+        "step": 1506,
+        "value": 0.0034371735528111458
+      },
+      {
+        "step": 1507,
+        "value": 0.0032940092496573925
+      },
+      {
+        "step": 1508,
+        "value": 0.004135649651288986
+      }
+    ],
+    "MotionOutputTraining/passed": [
+      {
+        "step": 1501,
+        "value": 1.0
+      },
+      {
+        "step": 1502,
+        "value": 1.0
+      },
+      {
+        "step": 1503,
+        "value": 1.0
+      },
+      {
+        "step": 1504,
+        "value": 1.0
+      },
+      {
+        "step": 1505,
+        "value": 1.0
+      },
+      {
+        "step": 1506,
+        "value": 1.0
+      },
+      {
+        "step": 1507,
+        "value": 1.0
+      },
+      {
+        "step": 1508,
+        "value": 1.0
+      }
+    ],
+    "MotionOutputTraining/push_frames": [
+      {
+        "step": 1501,
+        "value": 0.0
+      },
+      {
+        "step": 1502,
+        "value": 4944.0
+      },
+      {
+        "step": 1503,
+        "value": 7622.0
+      },
+      {
+        "step": 1504,
+        "value": 0.0
+      },
+      {
+        "step": 1505,
+        "value": 7987.0
+      },
+      {
+        "step": 1506,
+        "value": 0.0
+      },
+      {
+        "step": 1507,
+        "value": 9879.0
+      },
+      {
+        "step": 1508,
+        "value": 0.0
+      }
+    ],
+    "MotionOutputTraining/recovered_events": [
+      {
+        "step": 1501,
+        "value": 11.0
+      },
+      {
+        "step": 1502,
+        "value": 15.0
+      },
+      {
+        "step": 1503,
+        "value": 16.0
+      },
+      {
+        "step": 1504,
+        "value": 30.0
+      },
+      {
+        "step": 1505,
+        "value": 11.0
+      },
+      {
+        "step": 1506,
+        "value": 31.0
+      },
+      {
+        "step": 1507,
+        "value": 22.0
+      },
+      {
+        "step": 1508,
+        "value": 21.0
+      }
+    ]
+  },
+  "native_reward_TensorBoard": {
+    "FollowupReward/bonus_per_policy_step": [
+      {
+        "step": 1501,
+        "value": 9.468452049077314e-07
+      },
+      {
+        "step": 1502,
+        "value": 9.470609074924141e-05
+      },
+      {
+        "step": 1503,
+        "value": 0.00025776674738153815
+      },
+      {
+        "step": 1504,
+        "value": 0.0003801329294219613
+      },
+      {
+        "step": 1505,
+        "value": 0.0009783246787264943
+      },
+      {
+        "step": 1506,
+        "value": 3.0222881832742132e-05
+      },
+      {
+        "step": 1507,
+        "value": 0.00025981804355978966
+      },
+      {
+        "step": 1508,
+        "value": 0.0002698942553251982
+      }
+    ],
+    "FollowupReward/moving_fall_bonus_per_policy_step": [
+      {
+        "step": 1501,
+        "value": 0.0
+      },
+      {
+        "step": 1502,
+        "value": 0.0
+      },
+      {
+        "step": 1503,
+        "value": 5.717166118301975e-07
+      },
+      {
+        "step": 1504,
+        "value": 8.79685758263804e-05
+      },
+      {
+        "step": 1505,
+        "value": 0.00026477023493498564
+      },
+      {
+        "step": 1506,
+        "value": 1.945965959748719e-05
+      },
+      {
+        "step": 1507,
+        "value": 0.0002050074253929779
+      },
+      {
+        "step": 1508,
+        "value": 6.210474566614721e-06
+      }
+    ],
+    "FollowupReward/native_hold_mean_seconds": [
+      {
+        "step": 1501,
+        "value": 0.0005747220711782575
+      },
+      {
+        "step": 1502,
+        "value": 0.0154052022844553
+      },
+      {
+        "step": 1503,
+        "value": 0.04354915767908096
+      },
+      {
+        "step": 1504,
+        "value": 0.06433610618114471
+      },
+      {
+        "step": 1505,
+        "value": 0.13707900047302246
+      },
+      {
+        "step": 1506,
+        "value": 0.010725397616624832
+      },
+      {
+        "step": 1507,
+        "value": 0.0453018993139267
+      },
+      {
+        "step": 1508,
+        "value": 0.04080069810152054
+      }
+    ],
+    "FollowupReward/paid_density_per_second": [
+      {
+        "step": 1501,
+        "value": 0.0001893690205179155
+      },
+      {
+        "step": 1502,
+        "value": 0.01894121803343296
+      },
+      {
+        "step": 1503,
+        "value": 0.05155334621667862
+      },
+      {
+        "step": 1504,
+        "value": 0.07602658867835999
+      },
+      {
+        "step": 1505,
+        "value": 0.1956649124622345
+      },
+      {
+        "step": 1506,
+        "value": 0.0060445768758654594
+      },
+      {
+        "step": 1507,
+        "value": 0.05196360871195793
+      },
+      {
+        "step": 1508,
+        "value": 0.05397885665297508
+      }
+    ],
+    "FollowupReward/two_second_hold_fraction": [
+      {
+        "step": 1501,
+        "value": 0.0
+      },
+      {
+        "step": 1502,
+        "value": 0.00138092041015625
+      },
+      {
+        "step": 1503,
+        "value": 0.00337982177734375
+      },
+      {
+        "step": 1504,
+        "value": 0.00469970703125
+      },
+      {
+        "step": 1505,
+        "value": 0.02147674560546875
+      },
+      {
+        "step": 1506,
+        "value": 0.0
+      },
+      {
+        "step": 1507,
+        "value": 0.00286102294921875
+      },
+      {
+        "step": 1508,
+        "value": 0.00424957275390625
+      }
+    ],
+    "FollowupReward/weight_density_per_second": [
+      {
+        "step": 1501,
+        "value": 5.0
+      },
+      {
+        "step": 1502,
+        "value": 5.0
+      },
+      {
+        "step": 1503,
+        "value": 5.0
+      },
+      {
+        "step": 1504,
+        "value": 5.0
+      },
+      {
+        "step": 1505,
+        "value": 5.0
+      },
+      {
+        "step": 1506,
+        "value": 5.0
+      },
+      {
+        "step": 1507,
+        "value": 5.0
+      },
+      {
+        "step": 1508,
+        "value": 5.0
+      }
+    ]
+  },
+  "frozen_inputs": 628,
+  "function_probe": {
+    "trace": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed/evaluation/trajectory.npz",
+    "sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+    "frames": 81600,
+    "outside_count": 52800,
+    "outside_different": 0,
+    "active_different": 26697,
+    "peak_action_delta": 0.012839794158935547
+  },
+  "interpretation": "Engineering readback only; frozen recorded observations do not prove closed-loop behavior or qualification.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792910512.4938731
+}

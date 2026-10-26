@@ -1,0 +1,92 @@
+{
+  "schema": "bounded-quiet-fixed-review-v1",
+  "role": "control",
+  "checks": {
+    "endpoint": true,
+    "frozen_inputs": true,
+    "no_lost_standing_pass": true,
+    "standing": true,
+    "standing_all_survive": true,
+    "motion_mae": true,
+    "entry_recovery": true,
+    "entry_followup": true,
+    "fallen_recovery": true,
+    "fallen_followup": true,
+    "entry_leg_peak": true,
+    "fallen_leg_peak": true,
+    "standing_leg_peak": true,
+    "impacts": true,
+    "closure": true,
+    "passive": true,
+    "paired_initial": true,
+    "measured_improvement": false
+  },
+  "metrics": {
+    "entry": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 6,
+      "followup_success": 5,
+      "stable90": 6,
+      "max_leg_speed_rad_s": 8.486836433410645,
+      "max_excursion_m": 2.240607976913452,
+      "vx_mae_m_s": 0.09396197429547708,
+      "yaw_mae_rad_s": 0.06146693501311044
+    },
+    "standing": {
+      "episodes": 21,
+      "survived": 21,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 21,
+      "max_leg_speed_rad_s": 5.521512985229492,
+      "max_excursion_m": 0.08441037684679031,
+      "vx_mae_m_s": 0.01981139262872083,
+      "yaw_mae_rad_s": 0.031246108684821854,
+      "pose_and_position_pass": 20
+    },
+    "motion": {
+      "episodes": 12,
+      "survived": 12,
+      "recovered": 0,
+      "followup_success": 0,
+      "stable90": 11,
+      "max_leg_speed_rad_s": 5.610012531280518,
+      "max_excursion_m": 8.01203727722168,
+      "vx_mae_m_s": 0.12205677976210912,
+      "yaw_mae_rad_s": 0.0355182170169428
+    },
+    "fallen": {
+      "episodes": 6,
+      "survived": 4,
+      "recovered": 2,
+      "followup_success": 1,
+      "stable90": 2,
+      "max_leg_speed_rad_s": 24.11665153503418,
+      "max_excursion_m": 0.8741283416748047,
+      "vx_mae_m_s": 0.3542812342445056,
+      "yaw_mae_rad_s": 0.8390860830744108
+    },
+    "score": 0.59734509740557,
+    "formal_acceptance": false
+  },
+  "lost_standing_passes": [],
+  "failing_case_comparison": {
+    "stand_low__roll_plus2": {
+      "before_m": 0.054039109498262405,
+      "after_m": 0.05353737622499466
+    }
+  },
+  "impacts": 2,
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot010_quiet_control/model_final.pt",
+  "checkpoint_sha256": "a5133736d3d5f6abf4b683de1caea63341da484deafbde1e97f1c648c3994e2e",
+  "all_frozen_inputs_exact": 362,
+  "decision": "reject_extension_and_adoption",
+  "new_PPO_completed": 8,
+  "actual_experiment_consumed": 2613,
+  "source_clock": 1501,
+  "branch_clock": 1509,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792891853.374835
+}

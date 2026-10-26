@@ -1,0 +1,65 @@
+{
+  "schema": "quiet-stance-standing-review-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "development_seed": 241204,
+  "development_scope": "Previously used development seed, not a fresh holdout.",
+  "formal_protocol": "reports/unified_robust_20261021/acceptance_protocol004.json",
+  "formal_protocol_sha256": "05e6469f6da54b726fc2bfb5e53ff7f90f996bfbcceaf942e453f6437ee39ab3",
+  "formal_long_standing": {
+    "required_seeds": [
+      211322,
+      211626
+    ],
+    "minimum_seconds": 30.0,
+    "cases": [
+      "stand_low",
+      "stand",
+      "stand_high"
+    ],
+    "replicas_per_case": 16,
+    "domain_scale": 0.35,
+    "ground_friction_range": [
+      0.3,
+      0.5
+    ],
+    "native_origin_mode": "isolated_overlap_v1",
+    "require_all_survive": true,
+    "wheel_clearance_after_02s_max_m": 0.003,
+    "actual_hf_baseline": {
+      "report_sha256": "d28fb726b694326ee33d668d9aac540acd2f9f26c5323dad2eaecbe901ca86f4",
+      "trajectory_sha256": "5d0cc1e2a9536ddba0afae7abf64bec0b49cf798bb1fe70c4e11df47b6a28b46",
+      "path": "runs/unified_robust_20261022/quiet_velocity_baseline036/robust",
+      "by_case": {
+        "stand_low": {
+          "leg_motion_fast_rms_rad_3_95": 0.0002827847757359142,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.05773825775879396
+        },
+        "stand": {
+          "leg_motion_fast_rms_rad_3_95": 0.00066162157733623,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.1259505566183204
+        },
+        "stand_high": {
+          "leg_motion_fast_rms_rad_3_95": 0.0012038745695525334,
+          "wheel_motion_fast_rms_rad_s_3_95": 0.22590185687713893
+        }
+      }
+    },
+    "high_recentering": {
+      "tail_seconds": 10.0,
+      "outward_radial_slope_max_m_s": 0.001,
+      "near_reference_radius_m": 0.05,
+      "minimum_peak_return_fraction": 0.2,
+      "definition": "True simulatorXY relative to first active frame; all30s within10cm. Final10s mean radial offset <=max(5cm,80percent of peak) and final10s outward radial linear trend<=1mm/s. Slow inward motion is allowed.",
+      "scope": "Finite30s behavioral check, not a claim of infinite-time station keeping or wheel-odometry accuracy"
+    }
+  },
+  "criteria": "Call the existing assess_extended_standing without modifying any original threshold or success definition.",
+  "full_goal_remaining": "Moving-fall success and full nominal confirmation, plus fresh fullDR/RMCS holdouts remain required even if long standing passes.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "repair_optimizer_updates": 250,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792899736.9656253
+}

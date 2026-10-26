@@ -1,0 +1,87 @@
+{
+  "schema": "entry-AB-nominal-complete-review-v1",
+  "pairing": {
+    "root_pose": true,
+    "motor_position": true,
+    "motor_velocity": true,
+    "cases_equal": true,
+    "domain_equal": false,
+    "effective_nominal_domains_exact": true,
+    "initial_observations_exact": true
+  },
+  "rows": {
+    "robust": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 8,
+          "recovery_and_motion_success": 3,
+          "practical_recovery_and_motion_success": 8
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 4,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 2,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 2
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 0,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 0
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 42,
+      "practical_moving_fall_recoveries": 0,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0
+    },
+    "reference": {
+      "actual_settled_attitudes": {
+        "compound": {
+          "episodes": 8,
+          "recovered": 8,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 8
+        },
+        "inverted": {
+          "episodes": 10,
+          "recovered": 10,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 10
+        },
+        "right": {
+          "episodes": 4,
+          "recovered": 2,
+          "recovery_and_motion_success": 2,
+          "practical_recovery_and_motion_success": 2
+        },
+        "left": {
+          "episodes": 2,
+          "recovered": 0,
+          "recovery_and_motion_success": 0,
+          "practical_recovery_and_motion_success": 0
+        }
+      },
+      "motion_episodes": 46,
+      "motion_survived": 44,
+      "practical_moving_fall_recoveries": 2,
+      "max_gap_m": 0.0005509243928827345,
+      "passive_motor_peak_nm": 0.0
+    }
+  },
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "conclusion": "Both retain the same 4/24 unresolved side recoveries. Control has two moving-fall practical recoveries; cost1 has zero. Both remain rejected by prior RMCS gates.",
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792882721.6494536,
+  "pairing_note": "Raw domain receipts differ only in disabled zero-amplitude wobble frequency and phase; both domain_enabled false, all effective fields and initial observations/precontrol states exact."
+}

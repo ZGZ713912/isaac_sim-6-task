@@ -1,0 +1,60 @@
+{
+  "schema": "entry-periodic-chart-zero-PPO-protocol-v1",
+  "status": "admitted_fixed51_only",
+  "source": "runs/robust_policy_repair_20261024/entry_optimizer_support0_source001/model_migrated.pt",
+  "source_sha256": "2cc914b2b9b3b924b1c47d7bdcb4dc600997b03ef9f96483204bf07d55afc4f5",
+  "evidence": "reports/robust_policy_repair_20261024/entry_encoder_seam_audit001.json",
+  "evidence_sha256": "1c2c26e489e0120d632575e26974d86e062880a68f6f967006c27a7b991f2871",
+  "hypothesis": "Periodic continuation of the existing learned entry NN removes the observed measured-encoder seam stall. This is a single preprocessing/function change, with the SAME weights, state, rate, gates, torque/target/mechanical bounds.",
+  "intervention": {
+    "version": "periodic-chart-v1",
+    "seam_width_rad": 0.35,
+    "encoder_indices": [
+      10,
+      11,
+      12,
+      13
+    ],
+    "charts": 16,
+    "active_path": "existing upright entry NN only",
+    "new_parameters": 0,
+    "new_inputs": 0,
+    "new_state": 0
+  },
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "stages": [
+    "CPU seam/equivariance/bit-exact regression and strict checkpoint migration",
+    "fixed51 only; stop expansion after failure",
+    "paired complete nominal35x2 and RMCS72 only if fixed passes"
+  ],
+  "gate": {
+    "fixed_standing_at_least": 19,
+    "fixed_motion_mae_at_most": 0.135,
+    "fixed_fallen_recovery_at_least": 3,
+    "fixed_fallen_followup_at_least": 2,
+    "fixed_entry_recovery_at_least": 6,
+    "fixed_entry_followup_at_least": 6,
+    "fixed_entry_leg_peak_at_most_rad_s": 8.911178255081177,
+    "fixed_fallen_leg_peak_at_most_rad_s": 24.11665153503418,
+    "fixed_impacts_at_most": 2,
+    "RMCS_recovery_at_least": 55,
+    "RMCS_followup_at_least": 36,
+    "RMCS_tail90_at_least": 52,
+    "RMCS_impacts_at_most": 2,
+    "RMCS_leg_peak_at_most_rad_s": 18.907798767089844,
+    "nominal_compound_followup_at_least": 8,
+    "nominal_inverted_followup_at_least": 10,
+    "nominal_right_followup_at_least": 2,
+    "nominal_left_followup_at_least": 2,
+    "nominal_motion_survival_at_least": 42,
+    "no_automatic_PPO": true
+  },
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792882366.4740272,
+  "checkpoint": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "preflight": "reports/robust_policy_repair_20261024/periodic_entry_preflight001.json",
+  "updated_unix": 1792882794.9665546
+}

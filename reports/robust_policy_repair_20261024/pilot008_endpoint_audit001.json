@@ -1,0 +1,41 @@
+{
+  "schema": "entry-only-PPO-endpoint-audit-v1",
+  "plan": "reports/robust_policy_repair_20261024/plan008_entry_support1_contract002.json",
+  "source": "runs/robust_policy_repair_20261024/entry_optimizer_support1_source001/model_migrated.pt",
+  "source_sha256": "9c1353081af1519d01d70927c551081b47bbc0abb26388ae4fbe2873ef734ee0",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot008_entry_support1/model_final.pt",
+  "checkpoint_sha256": "8cc0ec98aa2cbf7e3c2f7c853487acf30aed9ebdf4cd40dae3b91be723a41584",
+  "checks": {
+    "restore_all10": true,
+    "completed8": true,
+    "lineage1501to1509": true,
+    "only6_entry_tensors_change": true,
+    "old_actor_and_std_exact": true,
+    "old_actor_Adam_exact": true,
+    "entry_Adam_created": true,
+    "actor_optimizer_IDs_exact": true,
+    "critic_changed": true,
+    "all_actor_critic_Adam_finite": true,
+    "native_freeze_check": true,
+    "trainable21894": true
+  },
+  "changed_actor_tensors": [
+    "mlp.mean.entry_recovery.0.weight",
+    "mlp.mean.entry_recovery.0.bias",
+    "mlp.mean.entry_recovery.2.weight",
+    "mlp.mean.entry_recovery.2.bias",
+    "mlp.mean.entry_recovery.4.weight",
+    "mlp.mean.entry_recovery.4.bias"
+  ],
+  "entry_tensor_delta_l2": {
+    "mlp.mean.entry_recovery.0.weight": 0.06773446500301361,
+    "mlp.mean.entry_recovery.0.bias": 0.00257822941057384,
+    "mlp.mean.entry_recovery.2.weight": 0.1066526249051094,
+    "mlp.mean.entry_recovery.2.bias": 0.002648394787684083,
+    "mlp.mean.entry_recovery.4.weight": 0.031139377504587173,
+    "mlp.mean.entry_recovery.4.bias": 0.0031052196864038706
+  },
+  "new_PPO_updates": 8,
+  "qualification": null,
+  "hardware_started": false
+}

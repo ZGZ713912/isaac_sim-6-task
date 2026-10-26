@@ -1,0 +1,30 @@
+{
+  "schema": "quiet-stance-expanded-zero-PPO-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "checkpoint_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "baseline_RMCS": "runs/robust_policy_repair_20261024/diagnosis026_motion_damping080_rmcs",
+  "baseline_nominal": "runs/robust_policy_repair_20261024/diagnosis026_motion_damping080_nominal_pair",
+  "gate": {
+    "RMCS_recovery_at_least": 57,
+    "RMCS_followup_at_least": 36,
+    "RMCS_tail90_at_least": 56,
+    "RMCS_survival_at_least": 70,
+    "RMCS_leg_peak_at_most_rad_s": 18.907798767089844,
+    "RMCS_impacts_at_most": 2,
+    "nominal_compound_followup_at_least": 8,
+    "nominal_inverted_followup_at_least": 10,
+    "nominal_right_followup_at_least": 4,
+    "nominal_left_followup_at_least": 2,
+    "nominal_motion_survival_at_least": 42,
+    "closure_at_most_m": 0.003,
+    "passive_motor_peak_nm": 0.0
+  },
+  "gate_origin": "Nonregression to best9a actual native results, stricter than the older55-recovery gate. Fixed stance gain remains a development result.",
+  "remaining": "Moving-fall recovery, original30s standing, fresh DR/RMCS holdouts and both formal nominal seeds remain required; no automatic PPO admission.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2630,
+  "repair_optimizer_updates": 250,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792899033.9783697
+}

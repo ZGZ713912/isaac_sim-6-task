@@ -1,0 +1,22 @@
+{
+  "schema": "sampled-exposure-bounded-pilot-admission-v1",
+  "declared_unix": 1792864762.3595295,
+  "noise015_native_result_available": false,
+  "mean_reference": "v7_rmcs_review001.json",
+  "sampled_reference": "diagnosis002_v7_sample_original",
+  "candidate": "diagnosis002_v7_sample_noise015",
+  "candidate_max_PPO_updates": 32,
+  "requirements": {
+    "recovered_at_least": 40,
+    "followup_at_least": 20,
+    "impact_terminations_at_most": 8,
+    "additional_mechanical_closure_boundary_terminations": 0,
+    "recovery_or_followup_better_than_original_noise": true,
+    "peak_leg_speed_not_higher_than_original_noise": true,
+    "initial_state_and_domain_exact": true,
+    "private_sampling_seed_and_state_match": true
+  },
+  "scope": "Admission only to one bounded recovery pilot; sampled behavior never qualifies a deterministic deployment mean",
+  "qualification": null,
+  "hardware_started": false
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "native-quiet24-endpoint-audit-v1",
+  "checks": {
+    "exactly_three_feedback_tensors_changed": true,
+    "all_other_actor_and_buffers_exact": true,
+    "completed_updates": true,
+    "eight_updates_charged": true,
+    "only24_parameters": true,
+    "frozen_actor_runtime_assertions": true,
+    "source_hash": true,
+    "reward_setting_exact": true,
+    "old_actor_Adam_exact": true,
+    "three_fresh_feedback_Adam_steps96": true,
+    "critic_actually_changed": true,
+    "finite_actor_critic": true,
+    "outside_quiet_function_exact": true
+  },
+  "source": "runs/robust_policy_repair_20261024/quiet_training_control001/model_initial.pt",
+  "source_sha256": "33698a8a46d7829c610bf544a6192fe58e613878171a028c4f7ca28e7144d55f",
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot010_quiet_control/model_final.pt",
+  "checkpoint_sha256": "a5133736d3d5f6abf4b683de1caea63341da484deafbde1e97f1c648c3994e2e",
+  "changed_actor_tensors": [
+    "mlp.mean.quiet_velocity.mid.weight",
+    "mlp.mean.quiet_velocity.low.weight",
+    "mlp.mean.quiet_velocity.high.weight"
+  ],
+  "feedback_weight_change_peak": 0.023498181253671646,
+  "recorded_function_probe": {
+    "trace": "runs/robust_policy_repair_20261024/diagnosis013_low_diagonal_fixed/evaluation/trajectory.npz",
+    "sha256": "53fdb0beb0d10e89fbc78b6ebfe3e6745a700925f4995d94b27af58bb0b40596",
+    "frames": 81600,
+    "outside_count": 32407,
+    "outside_different": 0,
+    "all_output_change_peak": 0.007538795471191406
+  },
+  "new_PPO_completed": 8,
+  "source_clock": 1501,
+  "branch_clock": 1509,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792891656.2143064
+}

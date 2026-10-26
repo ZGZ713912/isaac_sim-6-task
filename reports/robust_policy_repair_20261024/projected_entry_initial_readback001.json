@@ -1,0 +1,60 @@
+{
+  "schema": "native-projected-entry-initial-readback-v1",
+  "checks": {
+    "strict_V3_decode": true,
+    "native_restore_all": true,
+    "clock1501": true,
+    "projection_count_zero": true,
+    "projection_source_exact": true,
+    "projection_wrapper_exact": true,
+    "projection_module_exact": true,
+    "first_native_rollout_all11_exact": true,
+    "motion_function": true,
+    "frozen_inputs_now_exact": true
+  },
+  "checkpoint": "runs/robust_policy_repair_20261024/pilot013_projected_entry/model_initial.pt",
+  "sha256": "238bd0232e41da67c256227b0937043e5c852e14f7d5e26009815888986a5026",
+  "actor_class": "MotionTargetDampedGapActor",
+  "native_restore": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "Adam_moments_and_steps": true,
+    "optimizer_group_0_except_lr": true,
+    "optimizer_group_1_except_lr": true,
+    "completed_updates": true,
+    "environment_rng": true,
+    "domain_rng": true,
+    "torch_rng": true,
+    "cuda_rng": true
+  },
+  "projection_metadata": {
+    "schema": "fixed-basis-common-projected-Adam-v1",
+    "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/function_root_entry002/model_initial.pt",
+    "source_sha256": "5c990107752ed19291a2a2a2c73673ea0a1018aae1828fff8cbe3e0faf4d3ebd",
+    "source_clock": 1501,
+    "completed_projected_PPO_updates": 0,
+    "updates": [],
+    "effective_parameters": 258,
+    "wrapper_sha256": "99e09c9a8d21a0c3cd21ef450758face7728aeaff19e31f556a56387eae88f5a",
+    "projector_sha256": "26c8726810935a8deea538fb050e9de0ac2f637a3b4492280f50094a4b4844aa",
+    "phase_dataset_sha256": "d7bfa37723fba515641526d55eb01466a2f7ccdf7c5e16348441eb6c3ea87df8",
+    "algorithm": "Unchanged native sampling/likelihood/GAE/PPO gradient/Adam with fixed-basis common gradient mask; final258 coefficients projected after each full native update.",
+    "Adam": "Native Adam moments retained as projected-Adam state; this is an explicit optimizer intervention, not an equivalent ordinary-Adam continuation.",
+    "runtime": "Existing NN weights only; no projection, trajectory or pose table at inference"
+  },
+  "first_native_rollout_comparison": {
+    "observations/policy": true,
+    "observations/critic": true,
+    "actions": true,
+    "dones": true,
+    "rewards": true,
+    "values": true,
+    "actions_log_prob": true,
+    "learning_mask": true,
+    "bootstrap_mask": true,
+    "distribution_param_0": true,
+    "distribution_param_1": true
+  },
+  "frozen_inputs": 408,
+  "created_unix": 1792895791.8810058
+}

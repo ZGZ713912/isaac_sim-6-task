@@ -1,0 +1,44 @@
+{
+  "schema": "robust-policy-repair-plan-v1",
+  "created_unix": 1792854016.6822703,
+  "authorization": "2026-10-24 user requests autonomous multi-round diagnosis, training and reward/weight optimization; later asks to consult RMCS dev/wheel_leg_rl posture lookup",
+  "prior_experiment_consumed": 2380,
+  "prior_lineage": 1501,
+  "initial_checkpoint": "runs/robust_policy_repair_20261024/upright_restore001/model_composed.pt",
+  "initial_ancestry": "Recovery from stopped1501; quiet/motion weights AND their Adam states from baseline569; all previous consumption retained",
+  "first_pilot": {
+    "new_updates": 32,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "actor_lr": 3e-05,
+    "severity": 0.8,
+    "friction": [
+      0.3,
+      0.5
+    ],
+    "trainable": "quiet three-height MLP and displacement heads only",
+    "frozen": "locomotion parent, motion residual, recovery and exploration std",
+    "reward": "unchanged from resumed long training",
+    "exposure": "80% upright standing and 20% recovery rehearsal"
+  },
+  "continuation_gate": {
+    "standing_pose_and_position_min": 11,
+    "out_of": 21,
+    "motion_vx_mae_max": 0.135,
+    "entry_followup_no_regression": true,
+    "mechanical_protections_unchanged": true
+  },
+  "first_review": "same51cases,seed241201,8seconds,fullseverity1,actualprecontrolanddomainsmatched",
+  "max_new_PPO_for_current_repair_plan": 4096,
+  "full_training_admitted": false,
+  "source_sha256": {
+    "scripts/train_robust_getup.py": "ddd15ffb0a904002fc6129b4540743f7e34cac496a2c017391b880d3629befb6",
+    "scripts/compose_gap_checkpoint.py": "4f169da7de4414bb108d770b2f2d43ab1fbc45895d987dde7fd509f037938fc6",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "8524af88c02a8a00754bdd2eb83e8515ff0b89757c3d3162c1481dffa9947e31",
+    "src/wheeled_tasks/chassis/gap_robustness.py": "5778a89c1cf9159b4454c8d526330b880811803a9c75d6ef6bdb0e0f4f135b74"
+  },
+  "reference_receipt": "reports/robust_policy_repair_20261024/rmcs_reference/reference_receipt.json",
+  "hardware_started": false,
+  "hardware_ready": false,
+  "local_tensorboard_server": false
+}

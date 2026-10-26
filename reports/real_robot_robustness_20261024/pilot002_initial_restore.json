@@ -1,0 +1,32 @@
+{
+  "schema": "real-gap-training-initial-restore-v1",
+  "checks": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "Adam_moments_and_steps": true,
+    "group_actor_except_lr": true,
+    "group_critic_except_lr": true,
+    "completed_updates": true,
+    "torch_rng": true,
+    "cuda_rng": true,
+    "environment_rng": true,
+    "domain_rng": true
+  },
+  "learning_rate_revision": [
+    {
+      "name": "actor",
+      "before": 1e-05,
+      "after": 3e-05
+    },
+    {
+      "name": "critic",
+      "before": 0.001,
+      "after": 0.001
+    }
+  ],
+  "parent_sha256": "04666bc924eb701627582568f8a5c70310c5866d8b4bb3aaa07df3a7f3f844dd",
+  "initial_sha256": "869377fe2788cf6643eeb648c32e91eefcf1c54f0865bdcc79edd77733027f23",
+  "new_model_parameters": 0,
+  "actor_implementation": "orbit-v2 with inherited native actuator timing; unchanged35D/6D",
+  "environment_reset_distribution_changed": true
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "entry-opposite-bias-periodic-preflight-v1",
+  "checkpoint": "runs/robust_policy_repair_20261024/entry_positive030_periodic001/model_probe.pt",
+  "sha256": "4b8aa03d96ff6b16e5375e8e4ee637b4a33e9e2878f58c80cc0d96e51dfff47b",
+  "reference": "runs/robust_policy_repair_20261024/periodic_entry_encoder001/model_probe.pt",
+  "reference_sha256": "fa5293738407d1413f90bd5ae5399a12cca608c9afca0d94fd222587602aff59",
+  "checks": {
+    "exact_other_weights": true,
+    "only_four_entry_bias_values_changed": true,
+    "clocks_equal": true,
+    "entry0_all_bit_exact": true,
+    "all_wheel_outputs_exact": true,
+    "all_finite": true
+  },
+  "replays": [
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_fixed/evaluation/trajectory.npz",
+      "frames": 81600,
+      "entry0_frames": 67848,
+      "entry0_frames_bit_exact": 67848,
+      "wheel_outputs_bit_exact": true,
+      "finite": true,
+      "maximum_physical_target_delta_rad": 0.022267818450927734
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_nominal/robust/trajectory.npz",
+      "frames": 168000,
+      "entry0_frames": 156356,
+      "entry0_frames_bit_exact": 156356,
+      "wheel_outputs_bit_exact": true,
+      "finite": true,
+      "maximum_physical_target_delta_rad": 0.02218317985534668
+    },
+    {
+      "trace": "runs/robust_policy_repair_20261024/diagnosis012_final_arithmetic_rmcs/evaluation/trajectory.npz",
+      "frames": 115200,
+      "entry0_frames": 94612,
+      "entry0_frames_bit_exact": 94612,
+      "wheel_outputs_bit_exact": true,
+      "finite": true,
+      "maximum_physical_target_delta_rad": 0.022196531295776367
+    }
+  ],
+  "intervention": "Only the four existing entry NN common-output biases: +.30 left / -.30 right, opposite to earlier -.30 / +.30. Both use periodic-chart-v1.",
+  "hypothesis": "The seam-smoothed NN settles with wheels above the body. Test the untested opposite common-drive sign, inferred from measured common angles and the table support configuration.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2603,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792883313.3648102
+}

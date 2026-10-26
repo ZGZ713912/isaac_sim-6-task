@@ -1,0 +1,53 @@
+{
+  "schema": "scratch-leg-encoder-comparator-calibration-v1",
+  "observed_utc": "2026-10-26T05:17:05.591734+00:00",
+  "checks": {
+    "real_matched_fresh_observers_accepted": true,
+    "real_warm_vs_fresh_known_mismatch_rejected": true,
+    "missing_channel_rejected": true,
+    "actual_live008_identity_detected": true,
+    "actual_ended007_identity_absent": true,
+    "all_original_support_outcomes_recomputed": true
+  },
+  "all_checks_pass": true,
+  "matched_fresh_pair": {
+    "first_five_physical_samples_exact": true,
+    "all_nonselected_native_trajectories_exact": true
+  },
+  "rejected_warm_vs_fresh_pair": {
+    "first_five_physical_samples_exact": false,
+    "all_nonselected_native_trajectories_exact": false
+  },
+  "original_missing_ms": {
+    "eval007_final512_feedback002": 190,
+    "eval007_final512_contact_state001": 190,
+    "pilot007_contact_cost_zero": 217
+  },
+  "sources_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_feedback002/evaluation/native_trace.npz": "6fab3674dc77877c761022388ebc689e1bf677272c9c6e7fff206748105f8640",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_feedback002/evaluation/result.json": "e0c941c1d90157e94a909bf50d79f1225e8cf104cec4034a2cbbdc5ea3a22ede",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_contact_state001/evaluation/native_trace.npz": "6fab3674dc77877c761022388ebc689e1bf677272c9c6e7fff206748105f8640",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval007_final512_contact_state001/evaluation/result.json": "34e9cd2110e38d1edc47b50c4e9fb6ed96a2dcb73569970c76214621f916b071",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero/evaluation/native_trace.npz": "cf62e8db672e2356b35197c48b7a0dfa79235227a783cab3602af6a582eb0057",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero/evaluation/result.json": "4ab67437e7eac87542b965bcd1fbf7053234424d471e10e7d1fa4d295d997ca3",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/compare_scratch_leg_encoder_probe.py": "d3a4f6fe580dec052d55979a35a6e32ee1db086c8f49012393148f5c2479b4ba",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/inspect_scratch_support_breaks.py": "83eb79e5ceb0a36e8cfd7d34ef3d4d49217c2e7ab4d2265161c461b84c6e8b38",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_pilot008_launch_identity001.json": "d28d740ea4a13131a1a68e1d13152f963eb7d67960308630547dca10657dcc14",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_pilot007_launch_identity001.json": "fec1065f5918653f896e4f221b1c5e68ef46c249f67f4344dd1b2ca7fbb6b2f2"
+  },
+  "tensorboard": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_leg_encoder_comparator_calibration001.events",
+    "files_sha256": {
+      "events.out.tfevents.1792991825.ZGZ.742025.0": "0d7751e6f57546ae40606ddb999799a08c2ba04895d2a8bfb2e2b61283496dda"
+    }
+  },
+  "reader_sha256": "6b0a6ea854f6461d13b45f1d8ebeaa06f9f33703a2e58372853a09fe15a7c469",
+  "pair_check_calibrated_on_existing_native_data": true,
+  "native_leg_encoder_probe_validation": false,
+  "new_PPO": 0,
+  "native_steps": 0,
+  "optimizer_constructed": false,
+  "behavior_qualification": false,
+  "hardware_ready": false,
+  "scope": "Read-only actual positive/negative controls for the comparator. The leg-speed intervention has not run; a working comparison tool is not evidence of a physical repair."
+}

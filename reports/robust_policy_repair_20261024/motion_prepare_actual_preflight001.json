@@ -1,0 +1,67 @@
+{
+  "schema": "motion-output-trainer-prepare-v1",
+  "checks": {
+    "only_exposure_changed": true,
+    "source_function_floor_zero": true,
+    "motion80pct": true,
+    "all_motion_pushes": true,
+    "motion_output_scope_requested": true
+  },
+  "draft_sha256": "690579e7fd556bca3f769be6ce5ec7f38e7e50602fe0ae1824c7deb8b15d20dc",
+  "command": [
+    "--output",
+    "runs/robust_policy_repair_20261024/motion_prepare_actual001",
+    "--bank",
+    "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+    "--resume",
+    "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+    "--updates",
+    "8",
+    "--num-envs",
+    "256",
+    "--rollout-steps",
+    "512",
+    "--seed",
+    "241510",
+    "--isolated-origins",
+    "--gap-robustness",
+    "--gap-severity",
+    ".8",
+    "--gap-actuator-timing",
+    "native",
+    "--actor-lr",
+    ".0001",
+    "--friction-min",
+    ".3",
+    "--domain-scale",
+    ".35",
+    "--eval-seconds",
+    "2",
+    "--curriculum-updates",
+    "512",
+    "--curriculum-origin",
+    "569",
+    "--motion-output-only",
+    "--motion-recovery-focus"
+  ],
+  "settings_delta": {
+    "version": {
+      "before": "robust-gap-v1",
+      "after": "robust-v2.35-motion-recovery-exposure"
+    },
+    "motion_fraction": {
+      "before": 0.5,
+      "after": 0.8
+    },
+    "motion_push_fraction": {
+      "before": 0.25,
+      "after": 1.0
+    }
+  },
+  "source_checkpoint": "runs/robust_policy_repair_20261024/motion_output_root001/model_initial.pt",
+  "source_sha256": "cba0099f92f4627d9d0bb77a186392eaea4e5a65eedaec286c7597ec2a177b5e",
+  "new_PPO": 0,
+  "training_admitted": false,
+  "qualification": null,
+  "created_unix": 1792906031.165796
+}

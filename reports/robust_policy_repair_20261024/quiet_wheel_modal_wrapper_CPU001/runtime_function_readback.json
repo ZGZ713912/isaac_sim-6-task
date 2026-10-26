@@ -1,0 +1,156 @@
+{
+  "schema": "quiet-wheel-common-preserved-diagonal-v1",
+  "source_checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/robust_policy_repair_20261024/quiet_stance050003/model_probe.pt",
+  "source_sha256": "c025624014b5ff47d0967f47291d7c9aa16e2d4f89d4ba1de30d9a1c90deb5e9",
+  "common_response_preserved": true,
+  "changed_tensors": [
+    "quiet_velocity.low.weight",
+    "quiet_velocity.mid.weight",
+    "quiet_velocity.high.weight"
+  ],
+  "changed_rows": [
+    2,
+    3
+  ],
+  "changed_entries": 12,
+  "gaussian_mean_changed": true,
+  "checkpoint_file_changed": false,
+  "sampling_std_changed": false,
+  "observer_changed": false,
+  "eligible_for_checkpoint_mean_qualification": false,
+  "new_PPO": 0,
+  "rationale": "Test differential feedback without increasing common response: replace wheel rows with diag(each original row sum), preserving leg weights,.5 quiet authority,35D sensors and physical guards. Recorded yaw/coordinate association is not causal proof.",
+  "wrapper_sha256": "1c402f2ac2c69dbbb134419c3e6d721c32fa5187c83c9277a170d09bd3756c04",
+  "probe_sha256": "61d925ebc9c61776f9b6266a3a100c0b03521519b7721457fc2dbb9d3794411e",
+  "weights": {
+    "low": {
+      "before": [
+        [
+          -0.041828274726867676,
+          -0.03557407483458519
+        ],
+        [
+          0.05291984975337982,
+          0.04323423653841019
+        ],
+        [
+          0.1355593204498291,
+          0.02931353449821472
+        ],
+        [
+          -0.07564818859100342,
+          -0.070469431579113
+        ]
+      ],
+      "after": [
+        [
+          -0.041828274726867676,
+          -0.03557407483458519
+        ],
+        [
+          0.05291984975337982,
+          0.04323423653841019
+        ],
+        [
+          0.16487285494804382,
+          0.0
+        ],
+        [
+          0.0,
+          -0.14611762762069702
+        ]
+      ],
+      "common_row_sum": [
+        0.16487285494804382,
+        -0.14611762762069702
+      ],
+      "changed_entries": 4
+    },
+    "mid": {
+      "before": [
+        [
+          -0.027202682569622993,
+          -0.024290932342410088
+        ],
+        [
+          0.035310134291648865,
+          0.02918280102312565
+        ],
+        [
+          0.09132808446884155,
+          0.021407248452305794
+        ],
+        [
+          -0.04948773235082626,
+          -0.047105468809604645
+        ]
+      ],
+      "after": [
+        [
+          -0.027202682569622993,
+          -0.024290932342410088
+        ],
+        [
+          0.035310134291648865,
+          0.02918280102312565
+        ],
+        [
+          0.1127353310585022,
+          0.0
+        ],
+        [
+          0.0,
+          -0.09659320116043091
+        ]
+      ],
+      "common_row_sum": [
+        0.1127353310585022,
+        -0.09659320116043091
+      ],
+      "changed_entries": 4
+    },
+    "high": {
+      "before": [
+        [
+          -0.013743715360760689,
+          -0.011524544097483158
+        ],
+        [
+          0.017344828695058823,
+          0.01433637272566557
+        ],
+        [
+          0.045632217079401016,
+          0.010609788820147514
+        ],
+        [
+          -0.026043638586997986,
+          -0.02449968084692955
+        ]
+      ],
+      "after": [
+        [
+          -0.013743715360760689,
+          -0.011524544097483158
+        ],
+        [
+          0.017344828695058823,
+          0.01433637272566557
+        ],
+        [
+          0.05624200403690338,
+          0.0
+        ],
+        [
+          0.0,
+          -0.050543319433927536
+        ]
+      ],
+      "common_row_sum": [
+        0.05624200403690338,
+        -0.050543319433927536
+      ],
+      "changed_entries": 4
+    }
+  }
+}

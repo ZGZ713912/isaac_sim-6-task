@@ -1,0 +1,88 @@
+{
+  "schema": "interim-versus-original-endpoint-metric-audit-v1",
+  "original_protocol": "reports/unified_robust_20261021/acceptance_protocol004.json",
+  "original_protocol_sha256": "05e6469f6da54b726fc2bfb5e53ff7f90f996bfbcceaf942e453f6437ee39ab3",
+  "original_complete_definition": "completed 12 s episode; last 2 s >=95% frames stable and abs(vx error)<.25 m/s and abs(yaw error)<.4 rad/s",
+  "original_preserved_metrics": "Keep original uninterrupted 2 s success counts alongside practical endpoint. This is a metric correction, not a policy improvement.",
+  "models": [
+    {
+      "label": "best9a",
+      "evaluation": "runs/robust_policy_repair_20261024/diagnosis025_motion_damping080_fixed/evaluation",
+      "report_sha256": "8a941a13efea272034fd5188ccfddce021b8161e5c0b7b22620bea9caf903f97",
+      "trajectory_sha256": "71783e08cb3d26e9049a5463437f47db022589f93c2197319f27fdc94c7c0a6f",
+      "duration_seconds": 8.0,
+      "groups": {
+        "entry": {
+          "episodes": 12,
+          "survived": 12,
+          "recovered": 8,
+          "uninterrupted_two_second_success": 8,
+          "diagnostic_8s_tail95_success": 8
+        },
+        "fallen": {
+          "episodes": 6,
+          "survived": 5,
+          "recovered": 4,
+          "uninterrupted_two_second_success": 2,
+          "diagnostic_8s_tail95_success": 4
+        }
+      },
+      "original_12s_protocol_qualification": false
+    },
+    {
+      "label": "fallen014",
+      "evaluation": "runs/robust_policy_repair_20261024/pilot014_fallen_fixed/evaluation",
+      "report_sha256": "60006a0c2d1b30504bfbd2aa03f78b79ff9c05d1a35c83d2fa4ebcb5982fd06e",
+      "trajectory_sha256": "c71c9b08817542b0dbf67e1cc974fca632f714a7f45cd0de55dbe84a76e495fd",
+      "duration_seconds": 8.0,
+      "groups": {
+        "entry": {
+          "episodes": 12,
+          "survived": 12,
+          "recovered": 10,
+          "uninterrupted_two_second_success": 8,
+          "diagnostic_8s_tail95_success": 8
+        },
+        "fallen": {
+          "episodes": 6,
+          "survived": 5,
+          "recovered": 4,
+          "uninterrupted_two_second_success": 0,
+          "diagnostic_8s_tail95_success": 4
+        }
+      },
+      "original_12s_protocol_qualification": false
+    },
+    {
+      "label": "motion015",
+      "evaluation": "runs/robust_policy_repair_20261024/pilot015_motion_fixed/evaluation",
+      "report_sha256": "33e433584d4eea5d5cbf0f84f90877f7103795ed730106ea028cf418d15a6aaf",
+      "trajectory_sha256": "6be39489ed10947e3b2137e870647175e33e2ca740ea620203bc0cf93ad13dd8",
+      "duration_seconds": 8.0,
+      "groups": {
+        "entry": {
+          "episodes": 12,
+          "survived": 12,
+          "recovered": 8,
+          "uninterrupted_two_second_success": 7,
+          "diagnostic_8s_tail95_success": 8
+        },
+        "fallen": {
+          "episodes": 6,
+          "survived": 6,
+          "recovered": 5,
+          "uninterrupted_two_second_success": 1,
+          "diagnostic_8s_tail95_success": 5
+        }
+      },
+      "original_12s_protocol_qualification": false
+    }
+  ],
+  "interpretation": "The completed8s diagnostic tail is not the required12s complete metric. Original strict failure decisions remain unchanged; this audit grants no adoption, expanded-test admission or PPO extension.",
+  "new_PPO": 0,
+  "actual_experiment_consumed": 2646,
+  "repair_optimizer_updates": 266,
+  "qualification": null,
+  "hardware_started": false,
+  "created_unix": 1792908506.4131186
+}

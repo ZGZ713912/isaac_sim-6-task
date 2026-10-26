@@ -1,0 +1,70 @@
+{
+  "schema": "serial-native-diagnosis-v2",
+  "pid": 3807725,
+  "status": "completed",
+  "jobs": [
+    {
+      "name": "entry_bias015_fixed",
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_bias015_preserved001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis016_entry_bias015_fixed",
+      "log": "reports/robust_policy_repair_20261024/diagnosis016_entry_bias015_fixed.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/entry_bias015_preserved001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis016_entry_bias015_fixed",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241201",
+        "--case-group",
+        "all"
+      ],
+      "status": "completed",
+      "started_unix": 1792877018.8571804,
+      "pid": 3807726,
+      "returncode": 0,
+      "finished_unix": 1792877240.293647
+    },
+    {
+      "name": "entry_bias015_rmcs",
+      "checkpoint": "runs/robust_policy_repair_20261024/entry_bias015_preserved001/model_migrated.pt",
+      "output": "runs/robust_policy_repair_20261024/diagnosis016_entry_bias015_rmcs",
+      "log": "reports/robust_policy_repair_20261024/diagnosis016_entry_bias015_rmcs.log",
+      "command": [
+        "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+        "scripts/evaluate_gap_robustness.py",
+        "--checkpoint",
+        "runs/robust_policy_repair_20261024/entry_bias015_preserved001/model_migrated.pt",
+        "--output",
+        "runs/robust_policy_repair_20261024/diagnosis016_entry_bias015_rmcs",
+        "--bank",
+        "reports/robust_policy_repair_20261024/pose_bank_rmcs003.json",
+        "--actuator-timing",
+        "native",
+        "--seconds",
+        "8",
+        "--seed",
+        "241203",
+        "--case-group",
+        "rmcs-inverted"
+      ],
+      "status": "completed",
+      "started_unix": 1792877240.3052888,
+      "pid": 3809360,
+      "returncode": 0,
+      "finished_unix": 1792877463.4216435
+    }
+  ],
+  "new_PPO": 0,
+  "hardware_started": false,
+  "qualification": null,
+  "updated_unix": 1792877463.4219139,
+  "finished_unix": 1792877463.4219136
+}

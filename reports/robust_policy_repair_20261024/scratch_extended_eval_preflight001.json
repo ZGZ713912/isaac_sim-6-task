@@ -1,0 +1,80 @@
+{
+  "schema": "scratch-extended-standing-preflight-v1",
+  "status": "prepared_not_started",
+  "observed_utc": "2026-10-26T01:58:17.603173+00:00",
+  "source_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero",
+  "source_archive_count": 262,
+  "frozen_training_sha256": "5a6b26b3b5c3e111509e0821bfd8249715d67c48473948694fb0c3ff74ca05bf",
+  "source_sha256": {
+    "scripts/evaluate_scratch_standing.py": "4195d9d8a5d67a488c013f1a7cc6fd436632e6e53fd5ffdbc2e06a0a1531d163",
+    "scripts/extended_scratch_standing_evaluation.py": "6bc05d4f4e92b4b16ffb0c16c8453915647277ed3513c388652144c50e6aea20",
+    "tests/test_extended_scratch_standing_evaluation.py": "168eb3cff137f8baf8a84d13ab5123ac6a0307744cef0b4ea202954fc49d4b9c"
+  },
+  "original_function_sha256": "7b1ceedfb02cde1beb785cd1a83d9338ce425bdf18c889b97e6b7e45a062736d",
+  "config_changes": [
+    "/episode_seconds"
+  ],
+  "design_changes": [
+    "/stages/speed/roles/train/contract/episode_seconds"
+  ],
+  "settings_changes": [
+    "/episode_seconds"
+  ],
+  "checks": {
+    "only_three_timeout_fields_change": true,
+    "exact_archived_function_AST_restored": true,
+    "original_function_signature_preserved": true,
+    "original_frozen_source_unchanged": true,
+    "required_native_frames": true,
+    "first_millisecond_no_grace": true,
+    "original_contact_threshold": true,
+    "CPU_tests_completed": true,
+    "all5_invalid_CLI_configurations_rejected": true
+  },
+  "all_checks_pass": true,
+  "duration_contract": {
+    "schema": "scratch-extended-standing-evaluation-v1",
+    "original_duration_s": 8,
+    "duration_s": 30,
+    "policy_frames": 6000,
+    "physical_frames": 30000,
+    "policy_dt_s": 0.005,
+    "physical_dt_s": 0.001,
+    "first_ms_included": true,
+    "contact_threshold_n": 2.0,
+    "startup_grace_s": 0.0,
+    "acceptance_unchanged": true,
+    "new_PPO": 0,
+    "optimizer_constructed": false,
+    "adoption_by_training": false,
+    "scope": "Explicit longer read-only evaluation. Only episode timeout and archived loop horizon extend8->30s; original21 cases, physics, controller, reset, protection and strict criteria remain.",
+    "original_function_sha256": "7b1ceedfb02cde1beb785cd1a83d9338ce425bdf18c889b97e6b7e45a062736d",
+    "original_ast_sha256": "40ac5a52cabde8f73453e2f6efcc80397a407ca54ea85a7a14b334ddc87ae4d2",
+    "extended_ast_sha256": "820d5f0070cfd290aa03ea03194a7e1d6f52dbaea15618adaf030a08f121be92",
+    "extended_source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_extended_eval_preflight001/extended_evaluate.py",
+    "extended_source_sha256": "fb9f88f1e64b457f1ca82893afa016e360607df8a72c79d86952adbfa7f41ff5",
+    "semantic_change": "Only evaluate.horizon numerator8.0->30.0; restoring it restores the entire archived AST"
+  },
+  "new_RSL_protocol_tags": [
+    "EvalScratchProtocol/duration_s",
+    "EvalScratchProtocol/startup_grace_s",
+    "EvalScratchProtocol/contact_threshold_n"
+  ],
+  "CPU_tests": {
+    "total": 42,
+    "new_extended_protocol": 18,
+    "log": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_extended_eval_cpu_tests001.log"
+  },
+  "CLI_rejections": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_extended_eval_cli_rejections001.json",
+  "native_validation": false,
+  "native_steps": 0,
+  "new_PPO": 0,
+  "actor_constructed": false,
+  "optimizer_constructed": false,
+  "checkpoint_reads": 0,
+  "hardware_ready": false,
+  "behavior_qualification": false,
+  "prerequisite": "Do not interrupt/restart007 or run native jobs in parallel. Finish its512 updates and original8s fixed evaluation, verify actual exit/seal. Use30s only after a native8s candidate passes the standing/contact foundation; source checks alone are not admission or behavior evidence.",
+  "scope": "Explicit stronger evaluation protocol only. No train code/weights/reward/control/physics parameters are modified. Restoring the one horizon literal restores the full archived AST.",
+  "preflight_reader_sha256": "0ba2b105842576081f0becc54f763f647e9c3cfe4504402193048b53cfce64c9"
+}
