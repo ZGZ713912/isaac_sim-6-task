@@ -2,8 +2,10 @@
 
 ## 轮腿长期能力与验收入口
 
-- 用户于2026-10-26要求长期固定的能力清单见 `docs/WHEEL_LEG_ACCEPTANCE.md`，机器可读版本为 `contracts/wheel_leg_acceptance_requirements_v1.json`。必须逐项汇报自起/运动中摔倒恢复、静站接地/漂移、低高速直行、四向弧线、原地自旋、静止/运动/自旋变高、急刹、流畅度与随机域鲁棒性；未测不能算通过。静站首1ms起双轮接地必须100%，自旋目标100rpm、最低80rpm，均指实际车体转速且两方向都测。
+- 用户于2026-10-26要求长期固定的能力清单见 `docs/WHEEL_LEG_ACCEPTANCE.md`，当前机器可读版本为 `contracts/wheel_leg_acceptance_requirements_v2.json`（v1为历史严格口径）。必须逐项汇报全部既有能力，未测不能算通过。接地从实际自起完成后的站立段开始，翻倒/自起过程不计入；单次连续≤2ms失载仅作原始诊断记录、不单独判失败，超过2ms仍计入。不要将接触力≤2N直接等同于明显离地。自旋目标100rpm、最低80rpm保持，按实际车体转速且两方向都测。
+- 用户明确认为约0.0625mrad（0.0036°）腿角RMS及其微小差异可忽略，不再为此单独判失败或继续追求名义减振；静止漂移约1cm内很好，作为优良目标而非新增硬性淘汰线。优先验证电机/编码器/IMU噪声与逐级域随机化下能否保持稳定。先前“必须零1ms失载”的要求已被本次用户修订覆盖，历史原始数据保持。
 - 后续训练全新actor、critic、空Adam，从零开始，不续训旧权重、不使用旧策略teacher/donor；旧checkpoint仅作只读比较。髋膝改变轮心相对车体前后位置与轮速的协调是长期设计要求，不能只控制轮速或冻结腿替代。最新效果另见 `docs/WHEEL_LEG_CAPABILITY_STATUS_20261026.md`；旧历史协议不覆盖新要求。
+- 域随机化强度核查与调节入口见 `docs/WHEEL_LEG_RANDOMIZATION_DIAGNOSIS_20261026.md`、`contracts/wheel_leg_randomization_study_v1.json`。旧长训`domain_scale=.35`后被`gap_severity=.6/.8`部分覆盖，不能再称所有域仅35%。新的从零研究项显式分组、禁止叠加旧gap覆盖；配置预检不等于原生/鲁棒性通过，未验证强度不能称最优或实车包络。
 
 ## 训练指标与图表
 
