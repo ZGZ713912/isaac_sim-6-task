@@ -10,6 +10,8 @@ import math
 
 GROUPS = ("observation_noise", "encoder_bias", "imu_alignment", "imu_wobble",
           "actuator_gains", "rigid_body", "ground_friction")
+REQUESTED_GROUPS = ("observation_noise", "encoder_bias", "imu_alignment", "motor_strength",
+                    "mass_com", "independent_inertia", "ground_friction", "timing")
 
 
 def unit(value, name):
@@ -20,6 +22,12 @@ def unit(value, name):
 
 def resolve(spec, profile=None, strength=1.):
     """Return final task/mechanism values; no second severity can overwrite them."""
+    if spec.get("schema") == "wheel-leg-randomization-study-v2":
+        return _resolve_requested(spec, profile, strength)
+    return _resolve_v1(spec, profile, strength)
+
+
+def _resolve_v1(spec, profile, strength):
     if spec.get("schema") != "wheel-leg-randomization-study-v1" or tuple(spec.get("groups", ())) != GROUPS:
         raise ValueError("Unsupported randomization study or group order")
     strength = unit(strength, "strength")
@@ -84,12 +92,100 @@ def resolve(spec, profile=None, strength=1.):
         hardware_identified=False, behavior_qualified=False)
 
 
+def _resolve_requested(spec, profile, strength):
+    """User-requested final ranges, independent of the historical gap severity."""
+    if tuple(spec.get("groups", ())) != REQUESTED_GROUPS:
+        raise ValueError("Unsupported requested-domain groups or order")
+    if (spec.get("fixed") != dict(leg_kp_scale=1, leg_kd_scale=1, spring_strength_scale=1, imu_wobble=False)
+            or type(spec["fixed"]["imu_wobble"]) is not bool):
+        raise ValueError("Requested P/D/spring must be one and IMU wobble must be disabled")
+    strength = unit(strength, "strength")
+    nominal = unit(spec["nominal_fraction"], "nominal_fraction")
+    profile = spec["default_profile"] if profile is None else profile
+    values = spec["profiles"].get(profile)
+    if not isinstance(values, dict) or set(values) != set(REQUESTED_GROUPS):
+        raise ValueError("One explicit scale is required per requested domain group")
+    scales = {name: unit(values[name], name)*strength for name in REQUESTED_GROUPS}
+    reference = spec["reference"]
+    radii = ("motor_strength_fraction", "mass_fraction", "independent_inertia_fraction",
+             "encoder_bias_rad", "encoder_noise_rad", "gyro_bias_rad_s", "gyro_noise_rad_s",
+             "gravity_noise", "leg_velocity_noise_rad_s", "wheel_velocity_noise_rad_s")
+    if set(reference) != set(radii) | {"base_com_offset_m", "imu_fixed_degrees", "ground_friction_range"}:
+        raise ValueError("All requested-domain reference ranges must be explicit")
+    for name in radii:
+        unit(reference[name], name)
+    if any(reference[name] >= 1. for name in radii[:3]):
+        raise ValueError("Mass, inertia and motor strengths must stay strictly positive")
+    com = reference["base_com_offset_m"]
+    if set(com) != {"x", "y", "z"}:
+        raise ValueError("Three explicit COM radii are required")
+    for axis, radius in com.items():
+        if not 0. <= unit(radius, "COM " + axis) <= .05:
+            raise ValueError("COM radius exceeds the supported study range")
+    imu = reference["imu_fixed_degrees"]
+    if (not isinstance(imu, list) or len(imu) != 3
+            or any(type(v) not in (int, float) or not math.isfinite(v) or not 0. <= v <= 10. for v in imu)):
+        raise ValueError("Invalid fixed IMU alignment bounds")
+    ground = reference["ground_friction_range"]
+    if (not isinstance(ground, list) or len(ground) != 2
+            or any(type(v) not in (int, float) or not math.isfinite(v) for v in ground)
+            or not 0. < ground[0] <= ground[1] <= 1.):
+        raise ValueError("Invalid ground friction range")
+    if values["timing"] not in (0., 1.):
+        raise ValueError("Discrete timing is explicitly on or off, not an amplitude")
+    # Reuse only v1's timing/history validation and neutral construction. None
+    # of its gain/noise/dynamics radii or legacy gap overlays are applied.
+    neutral = dict(schema="wheel-leg-randomization-study-v1", groups=list(GROUPS),
+        nominal_fraction=nominal, default_profile="neutral",
+        profiles={"neutral": dict.fromkeys(GROUPS, 0.)}, timing=deepcopy(spec["timing"]))
+    result = _resolve_v1(neutral, "neutral", 1.)
+    timing = {key: deepcopy(result["task"][key]) for key in spec["timing"]}
+    if not scales["timing"]:
+        timing = {key: [1, 1] if key == "pd_feedback_period_ms" else [0, 0] for key in timing}
+    active = any(scales.values())
+    noise, bias, align, motor, mass, inertia, friction, _ = (scales[k] for k in REQUESTED_GROUPS)
+    def around(radius, scale):
+        return [1.-radius*scale, 1.+radius*scale]
+    task = result["task"]
+    task.update(domains_enabled=active, motor_strength_range=around(reference["motor_strength_fraction"], motor),
+        leg_kp_scale_range=[1., 1.], leg_kd_scale_range=[1., 1.], spring_strength_range=[1., 1.],
+        encoder_bias_rad=reference["encoder_bias_rad"]*bias,
+        pd_encoder_bias_rad=reference["encoder_bias_rad"]*bias,
+        encoder_noise_rad=reference["encoder_noise_rad"]*noise,
+        gyro_bias_rad_s=reference["gyro_bias_rad_s"]*noise,
+        gyro_noise_rad_s=reference["gyro_noise_rad_s"]*noise,
+        gravity_noise=reference["gravity_noise"]*noise,
+        velocity_noise_rad_s=[reference["leg_velocity_noise_rad_s"]*noise,
+                              reference["wheel_velocity_noise_rad_s"]*noise], **timing)
+    task["imu_mount"] = (dict(fixed_degrees=[v*align for v in imu],
+        wobble_degrees=[0., 0.], wobble_hz=[1., 1.]) if align else None)
+    dynamics = result["dynamics_randomization"]
+    dynamics.update(enabled=active,
+        base_mass_scale=around(reference["mass_fraction"], mass),
+        leg_mass_scale=around(reference["mass_fraction"], mass),
+        wheel_mass_scale=around(reference["mass_fraction"], mass),
+        inertia_scale=around(reference["independent_inertia_fraction"], inertia),
+        base_com_offset_m={axis: [-radius*mass, radius*mass] for axis, radius in com.items()},
+        source_reference="2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled")
+    ground = [.5+(v-.5)*friction for v in ground]
+    result.update(schema="wheel-leg-resolved-randomization-study-v2", profile=profile, strength=strength,
+        group_scales=scales, ground_friction_range=ground,
+        effective_wheel_ground_friction_range=[(v+.1)/2. for v in ground],
+        effective_unsaturated_leg_kp_scale_bounds=deepcopy(task["motor_strength_range"]),
+        effective_unsaturated_leg_kd_scale_bounds=deepcopy(task["motor_strength_range"]),
+        imu_wobble_single_axis_gyro_peak_bound_rad_s=0.,
+        policy_PD_encoder_bias_disagreement_bound_rad=2.*task["encoder_bias_rad"],
+        imu_wobble_enabled=False, leg_gain_randomization_enabled=False,
+        spring_strength_randomization_enabled=False)
+    return result
+
+
 def apply(config, task, resolved):
     if task.get("gap_robustness_version") or task.get("randomization_study"):
         raise ValueError("Do not stack two domain profiles or apply a study twice")
     task.update(deepcopy(resolved["task"]))
     task.pop("domain_scale", None)
-    task["version"] += "-domain-study-v1"
+    task["version"] += "-domain-study-" + resolved["schema"].rsplit("-", 1)[-1]
     task["randomization_study"] = deepcopy(resolved)
     config["dynamics_randomization"] = deepcopy(resolved["dynamics_randomization"])
     for key in ("ground_static_friction_range", "ground_dynamic_friction_range"):
@@ -109,4 +205,34 @@ def scalar_metrics(resolved):
         for label, value in zip(("min", "max"), task[key], strict=True):
             values[f"{key}/{label}"] = value
     values["imu_wobble_single_axis_gyro_peak_bound_rad_s"] = resolved["imu_wobble_single_axis_gyro_peak_bound_rad_s"]
+    for key in ("base_mass_scale", "leg_mass_scale", "wheel_mass_scale", "inertia_scale"):
+        for label, value in zip(("min", "max"), resolved["dynamics_randomization"][key], strict=True):
+            values[f"{key}/{label}"] = value
+    for axis, values_m in resolved["dynamics_randomization"]["base_com_offset_m"].items():
+        for label, value in zip(("min", "max"), values_m, strict=True):
+            values[f"base_com_offset_m/{axis}/{label}"] = value
+    mount = task["imu_mount"]
+    for axis, value in zip(("roll", "pitch", "yaw"), mount["fixed_degrees"] if mount else [0., 0., 0.], strict=True):
+        values[f"imu_fixed_bound_deg/{axis}"] = value
+    for label, value in zip(("min", "max"), resolved["ground_friction_range"], strict=True):
+        values[f"ground_friction/{label}"] = value
     return values
+
+
+def runtime_samples(env):
+    """Store actual startup draws, not only requested endpoints or averages."""
+    d = env.domain
+    fields = dict(enabled=d.enabled, motor_strength=d.strength, leg_kp_scale=d.kp,
+        leg_kd_scale=d.kd, spring_strength=d.spring, policy_sensor_delay_ticks=d.sensor_delay,
+        policy_bias=d.bias, policy_noise_sigma=d.sigma, pd_encoder_bias=env.getup_feedback.bias)
+    if d.imu_mount is not None:
+        fields.update(d.imu_mount.parameters())
+    rigid = env.dynamics_randomization
+    if rigid is not None:
+        fields.update(rigid_enabled=rigid.enabled, mass_scale=rigid.mass_scale,
+            independent_inertia_scale=rigid.inertia_scale, base_com_offset_m=rigid.com_offset)
+    return dict(schema="wheel-leg-domain-startup-samples-v1",
+        samples={key: value.detach().cpu().tolist() for key, value in fields.items()},
+        rigid_summary=rigid.summary() if rigid is not None else None,
+        contact_material=env.contact_material.summary() if env.contact_material is not None else None,
+        scope="actual sampled model arrays; does not replace native property or behavior verification")

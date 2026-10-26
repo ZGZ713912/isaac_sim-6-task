@@ -136,6 +136,7 @@ def review(run, requirements):
             mean_leg_angle_band_rms_deg=math.degrees(vib*.001)))
     return dict(schema="standing-user-acceptance-review-v2", observed_utc=datetime.now(timezone.utc).isoformat(),
         run=str(run), completed_updates=result["completed_updates"], requirements=str(requirements.resolve()),
+        native_protocol=result.get("protocol"), domain_intervention=result.get("domain_intervention"),
         requirements_sha256=sha(requirements), original_result_sha256=sha(result_path), native_trace_sha256=sha(trace),
         review_source_sha256=sha(__file__), cases=rows, groups=groups,
         standing_pass_v2_count=sum(r["standing_pass_v2"] for r in rows),
@@ -149,7 +150,15 @@ def write_events(report, directory):
     from rsl_rl.utils.logger import Logger
     from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
     run = Path(report["run"])
-    logger = Logger(log_dir=str(directory), cfg=json.loads((run/"agent_config.json").read_text()),
+    agent = run / "agent_config.json"
+    if not agent.exists():
+        receipt = json.loads((run / "receipt.json").read_text())
+        if (receipt.get("schema") != "scratch-standing-readonly-evaluation-v1"
+                or receipt.get("new_PPO") != 0 or receipt.get("optimizer_constructed") is not False
+                or sha(receipt["checkpoint"]) != receipt["checkpoint_sha256"]):
+            raise ValueError("Missing authenticated read-only evaluation agent source")
+        agent = Path(receipt["checkpoint"]).parent / "agent_config.json"
+    logger = Logger(log_dir=str(directory), cfg=json.loads(agent.read_text()),
         env_cfg=json.loads((run/"config/contract.json").read_text()), num_envs=1,
         is_distributed=False, gpu_world_size=1, gpu_global_rank=0, device="cpu")
     logger.init_logging_writer()

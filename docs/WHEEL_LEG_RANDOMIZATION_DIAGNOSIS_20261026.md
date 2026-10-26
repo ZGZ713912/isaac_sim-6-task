@@ -1,5 +1,7 @@
 # 轮腿随机化范围、退化证据和调节入口
 
+后续用户已指定第二版范围，当前入口改为 [wheel_leg_randomization_study_v2.json](../contracts/wheel_leg_randomization_study_v2.json)，完整修改和验证状态见 [新版说明](WHEEL_LEG_RANDOMIZATION_V2_20261026.md)。下文v1准备项及旧审计均为保留的历史记录，不再作为当前训练默认研究项。
+
 2026-10-26。当前009仅证明名义中高度8秒基础静站；其域随机化、噪声、运输延迟关闭。用户将后续重点转向噪声与随机域鲁棒性。本次核对停止的旧长训真实合同、启动读回和冻结源码，并准备可分组调节的新配置；没有新原生仿真、PPO或实车动作。
 
 机器证据：[randomization_audit_20261026_read003.json](../reports/robust_policy_repair_20261024/randomization_audit_20261026_read003.json)，同名`.source.py`和`.resolver.py`保存核查及范围解析源码。实际旧任务合同来自`runs/real_robot_robustness_long_20261024/campaign001/train_001..004/`，不是仅依据命令行推测。

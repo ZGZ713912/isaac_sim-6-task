@@ -88,6 +88,7 @@ def prepare(args):
     material = deepcopy(cfg["contact_material"])
     for key in ("ground_static_friction_range", "ground_dynamic_friction_range"):
         material[key] = [.5, .5]
+    nominal_material = deepcopy(material)
     changes["contact_material"] = material
     study_path = getattr(args, "randomization_study", None)
     study = None
@@ -105,8 +106,18 @@ def prepare(args):
         from wheeled_algo.standing_load_initialization import load_prior
         reference = ROOT / "reports/robust_policy_repair_20261024/scratch_nominal_static_load001.json"
         native_pair = ROOT / "reports/robust_policy_repair_20261024/scratch_static_load_native_pair001.json"
-        current = dict(cfg, **changes)
-        static_prior = load_prior(reference, native_pair, mechanism=current, bank_path=args.bank, root=ROOT)
+        # The offline holding-torque prior is authenticated only at the nominal
+        # mechanism. It initializes a trainable bias, not compensation for the
+        # sampled domains. A changed friction range must not silently be claimed
+        # as part of the old native validation.
+        nominal_mechanism = dict(cfg, **changes)
+        nominal_mechanism["contact_material"] = nominal_material
+        static_prior = load_prior(reference, native_pair, mechanism=nominal_mechanism, bank_path=args.bank, root=ROOT)
+        if study is not None:
+            static_prior["domain_scope"] = dict(nominal_contact_material=nominal_material,
+                training_contact_material=deepcopy(material),
+                randomized_domain_native_validation=False,
+                initialization_only="nominal load prior; all six outputs remain trainable")
         (args.output / "static_load_reference.json").write_bytes(reference.read_bytes())
         (args.output / "static_load_native_pair.json").write_bytes(native_pair.read_bytes())
     row = design["stages"]["speed"]["roles"]["train"]
@@ -362,6 +373,7 @@ def main():
     launcher = env = runner = audit = None
     start = time.monotonic()
     report = dict(schema="scratch-standing-progress-v1", status="starting",
+        pid=os.getpid(), start_ticks=int(Path("/proc/self/stat").read_text().rsplit(")", 1)[1].split()[19]),
         started_utc=datetime.now(timezone.utc).isoformat(), seed=args.seed,
         completed_updates=0, optimizer_attempts=0, checkpoint_reads=[],
         committed_source=committed_source,
@@ -443,6 +455,9 @@ def main():
         report["initialization"]["wheel_velocity_increment"] = args.wheel_velocity_increment
         report["initialization"]["separate_leg_velocity_feedback"] = args.separate_leg_velocity_feedback
         write_json(args.output / "initialization.json", report["initialization"])
+        if task.get("randomization_study") is not None:
+            from wheeled_tasks.chassis.randomization_study import runtime_samples
+            write_json(args.output / "randomization_study.initial_samples.json", runtime_samples(env))
         initial_actor = {key: value.detach().cpu().clone() for key, value in runner.alg.actor.state_dict().items()}
         initial_critic = {key: value.detach().cpu().clone() for key, value in runner.alg.critic.state_dict().items()}
         mask = RecoveryRolloutMask(runner.alg, num_envs=args.num_envs)
@@ -480,6 +495,11 @@ def main():
                 if any(not torch.isfinite(parameter).all() for parameter in model.parameters()):
                     raise RuntimeError("Nonfinite fresh PPO parameter")
             if report["completed_updates"] == 1:
+                if task.get("randomization_study") is not None:
+                    from wheeled_tasks.chassis.randomization_study import scalar_metrics
+                    for key, value in scalar_metrics(task["randomization_study"]).items():
+                        runner.logger.writer.add_scalar("DomainStudyConfig/" + key, value, 0)
+                    runner.logger.writer.flush()
                 audit.close()
                 audit_result = audit.report()
                 audit_result.update(actor_changed_tensors=sum(not torch.equal(initial_actor[key], value.cpu()) for key, value in runner.alg.actor.state_dict().items()),
