@@ -1,5 +1,10 @@
 # 项目协作约定
 
+## 轮腿长期能力与验收入口
+
+- 用户于2026-10-26要求长期固定的能力清单见 `docs/WHEEL_LEG_ACCEPTANCE.md`，机器可读版本为 `contracts/wheel_leg_acceptance_requirements_v1.json`。必须逐项汇报自起/运动中摔倒恢复、静站接地/漂移、低高速直行、四向弧线、原地自旋、静止/运动/自旋变高、急刹、流畅度与随机域鲁棒性；未测不能算通过。静站首1ms起双轮接地必须100%，自旋目标100rpm、最低80rpm，均指实际车体转速且两方向都测。
+- 后续训练全新actor、critic、空Adam，从零开始，不续训旧权重、不使用旧策略teacher/donor；旧checkpoint仅作只读比较。髋膝改变轮心相对车体前后位置与轮速的协调是长期设计要求，不能只控制轮速或冻结腿替代。最新效果另见 `docs/WHEEL_LEG_CAPABILITY_STATUS_20261026.md`；旧历史协议不覆盖新要求。
+
 ## 训练指标与图表
 
 - 训练曲线和图表数据统一使用 **TensorBoard** 记录与查看。
