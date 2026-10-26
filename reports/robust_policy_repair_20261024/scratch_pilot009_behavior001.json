@@ -1,0 +1,97 @@
+{
+  "schema": "scratch-standing-analysis-v1",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated",
+  "status": "completed_unqualified",
+  "completed_updates": 512,
+  "checkpoint_reads_during_training": [],
+  "fixed_target_probe": false,
+  "protocol": "nominal dynamics; seven held-out pitch starts per height; no startup grace; every 1 ms",
+  "groups": [
+    {
+      "height_m": 0.23,
+      "cases": 7,
+      "full_horizon": 7,
+      "continuous_support_pass": 0,
+      "standing_pass": 0,
+      "first20ms_continuous": 6,
+      "total_missing_ms": 26372,
+      "worst_dual_support_fraction": 0.475625,
+      "mean_leg_vibration_mrad": 2.6035653863634383,
+      "maximum_leg_speed_rad_s": 8.406119346618652,
+      "mean_height_mae_m": 0.043080871658665795,
+      "maximum_tilt_deg": 45.93019485473633,
+      "mean_forward_speed_rms_m_s": 0.4358670434781483
+    },
+    {
+      "height_m": 0.305,
+      "cases": 7,
+      "full_horizon": 7,
+      "continuous_support_pass": 1,
+      "standing_pass": 1,
+      "first20ms_continuous": 7,
+      "total_missing_ms": 42,
+      "worst_dual_support_fraction": 0.997,
+      "mean_leg_vibration_mrad": 0.0629382279834577,
+      "maximum_leg_speed_rad_s": 0.8632603883743286,
+      "mean_height_mae_m": 0.00013837972697469274,
+      "maximum_tilt_deg": 1.0294561386108398,
+      "mean_forward_speed_rms_m_s": 0.0016222074461568678
+    },
+    {
+      "height_m": 0.42,
+      "cases": 7,
+      "full_horizon": 7,
+      "continuous_support_pass": 0,
+      "standing_pass": 0,
+      "first20ms_continuous": 0,
+      "total_missing_ms": 21100,
+      "worst_dual_support_fraction": 0.600875,
+      "mean_leg_vibration_mrad": 0.7584960801260812,
+      "maximum_leg_speed_rad_s": 15.147332191467285,
+      "mean_height_mae_m": 0.1464511411530631,
+      "maximum_tilt_deg": 39.71479797363281,
+      "mean_forward_speed_rms_m_s": 0.4578214543206351
+    }
+  ],
+  "training_event_summary": {
+    "UnifiedGetup/upright_fraction": {
+      "count": 512,
+      "first8_mean": 0.7859306335449219,
+      "last8_mean": 0.9996185302734375
+    },
+    "UnifiedGetup/vx_mae_m_s": {
+      "count": 512,
+      "first8_mean": 0.06526666367426515,
+      "last8_mean": 0.0003647476332844235
+    },
+    "ScratchStanding/dual_support_physical_fraction": {
+      "count": 512,
+      "first8_mean": 0.9927887171506882,
+      "last8_mean": 0.9996673613786697
+    },
+    "ScratchStanding/leg_speed_rms_rad_s": {
+      "count": 512,
+      "first8_mean": 0.07651909068226814,
+      "last8_mean": 0.019036979414522648
+    },
+    "ScratchStanding/speed_cost_density_per_second": {
+      "count": 512,
+      "first8_mean": 0.22588110528886318,
+      "last8_mean": 0.0170791691634804
+    },
+    "ScratchStanding/support_cost_density_per_second": {
+      "count": 512,
+      "first8_mean": 0.10005622077733278,
+      "last8_mean": 0.004564668808598071
+    }
+  },
+  "artifacts_sha256": {
+    "runs/scratch_standing_20261026/pilot009_leg_velocity_separated/progress.json": "eed9c197ab88ad31cd6b1d2f56eaaaadb7a2550535eb99be3e8b6eac91d6f47f",
+    "runs/scratch_standing_20261026/pilot009_leg_velocity_separated/initialization.json": "c09d9ac9ef07d69d59284b169b63b4b06d7b7024589b034de802c73dd3fee08d",
+    "runs/scratch_standing_20261026/pilot009_leg_velocity_separated/evaluation/result.json": "8f286591ea12abee114e2d5e38eb76bda2d4fcea9135841433031a0f7bc1d856",
+    "runs/scratch_standing_20261026/pilot009_leg_velocity_separated/model_initial.pt": "866993660a7e42ee0a8ccb1c276c3c0eb300a4cc4f7734b2624aa028a87bf51f",
+    "runs/scratch_standing_20261026/pilot009_leg_velocity_separated/model_final.pt": "569b48dab80500db8d08ca53c840f32e8cbf03b82fda8f8d580d983913cb3469",
+    "runs/scratch_standing_20261026/pilot009_leg_velocity_separated/events.out.tfevents.1792994106.ZGZ.759032.0": "b9ac8a84942c18ced0778086f7ad5ece8448c9f0e56c14dbfffc39792f515bae"
+  },
+  "hardware_ready": false
+}
