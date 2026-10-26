@@ -1,0 +1,340 @@
+{
+  "schema": "scratch-native-first-update-verification-v1",
+  "observed_utc": "2026-10-26T05:57:33.280232+00:00",
+  "identity": {
+    "schema": "scratch-from-zero-launch-identity-v1",
+    "observed_utc": "2026-10-26T05:55:17.295846+00:00",
+    "pid": 759032,
+    "start_ticks": 32263952,
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated",
+    "command": [
+      "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+      "-u",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/train_scratch_standing.py",
+      "--output",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated",
+      "--updates",
+      "512",
+      "--num-envs",
+      "256",
+      "--rollout-steps",
+      "128",
+      "--seed",
+      "261001",
+      "--all-heights-after",
+      "512",
+      "--precise-objective",
+      "--normalize-observations",
+      "--desync-episodes",
+      "--standing-failures",
+      "--wheel-velocity-increment",
+      "--separate-leg-velocity-feedback",
+      "--static-load-initialization",
+      "--contact-break-cost",
+      "0"
+    ],
+    "training_origin": "fresh actor, critic and empty Adam; no old policy, teacher, checkpoint reads or continuation",
+    "source_preflight": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_separated009_preflight002.json",
+    "commit": "643a0de0d61f049cd0ffe2007d52dd85fffbf6e6",
+    "source_archive_sha256": "575e9339432d484197a5bc7741dea718b9e4cf8324685fe1fca46aa1aba893e5",
+    "source_count": 264,
+    "requested_updates": 512,
+    "prior_from_zero_completed": 2433,
+    "previous_run_seal": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_pilot008_closed_seal001.json",
+    "fixed_evaluation_AST_unchanged": true,
+    "exec_session_id": 60194,
+    "hardware_ready": false
+  },
+  "observed_completed_updates": 10,
+  "checks": {
+    "original_native_process_live": true,
+    "original_native_GPU_present": true,
+    "committed_source_and_archive_match_launch": true,
+    "all264_frozen_source_hashes_authentic": true,
+    "checkpoint_embeds_actual_committed_source": true,
+    "all_initial_update_clocks_zero": true,
+    "initial_Adam_empty": true,
+    "checkpoint_and_teacher_initialization_forbidden": true,
+    "seed_matched_fresh_actor_common_tensors_exact": true,
+    "seed_matched_fresh_critic_exact": true,
+    "only_extra_actor_ABI_state": true,
+    "initial_state_has_no_additional_learned_parameters": true,
+    "first_saved_checkpoint_is_one_update": true,
+    "all17_first_Adam_states_have12_steps": true,
+    "first_native_audit_has12_committed_finite_calls": true,
+    "first_native_update_changes_all_actor_critic_parameter_tensors": true,
+    "first_native_minibatches_have8192_samples": true,
+    "actual_trained_leg_means_have_zero_direct_leg_speed_response": true,
+    "actual_trained_wheels_keep_full_current_observations": true,
+    "actual_trained_JIT_and_export_forward_exact": true,
+    "actual_initial_and_first_model_Adam_finite": true,
+    "training_process_checkpoint_reads_still_empty": true,
+    "original_six_training_event_tags_present_finite": true,
+    "original_fixed_budget_and_from_zero_launch": true
+  },
+  "all_checks_pass": true,
+  "model_initial_sha256": "866993660a7e42ee0a8ccb1c276c3c0eb300a4cc4f7734b2624aa028a87bf51f",
+  "first_model_sha256": "ce349f7fad335247d9e02c7e908242ae539757d1549d18260924b78f5ebff1c2",
+  "first_audit_sha256": "7daf577621ff95c6fa0606e9fd521488ae728468cec3962903989018cf955157",
+  "event_prefix_bytes": 61812,
+  "event_prefix_sha256": "8995149bb1f2db0a0e6d67e048ff6b7f914aac5bde8c6c61df889cd7ec106b74",
+  "event_rows": {
+    "Train/mean_episode_length": [
+      {
+        "step": 0,
+        "value": 100.09589385986328
+      },
+      {
+        "step": 1,
+        "value": 166.0800018310547
+      },
+      {
+        "step": 2,
+        "value": 162.55999755859375
+      },
+      {
+        "step": 3,
+        "value": 157.97000122070312
+      },
+      {
+        "step": 4,
+        "value": 157.22999572753906
+      },
+      {
+        "step": 5,
+        "value": 151.30999755859375
+      },
+      {
+        "step": 6,
+        "value": 158.69000244140625
+      },
+      {
+        "step": 7,
+        "value": 158.0399932861328
+      },
+      {
+        "step": 8,
+        "value": 156.27000427246094
+      },
+      {
+        "step": 9,
+        "value": 165.74000549316406
+      }
+    ],
+    "ScratchStanding/dual_support_physical_fraction": [
+      {
+        "step": 0,
+        "value": 0.994152843952179
+      },
+      {
+        "step": 1,
+        "value": 0.992785632610321
+      },
+      {
+        "step": 2,
+        "value": 0.9928528070449829
+      },
+      {
+        "step": 3,
+        "value": 0.9927124381065369
+      },
+      {
+        "step": 4,
+        "value": 0.9921509027481079
+      },
+      {
+        "step": 5,
+        "value": 0.99224853515625
+      },
+      {
+        "step": 6,
+        "value": 0.9930176138877869
+      },
+      {
+        "step": 7,
+        "value": 0.9923889636993408
+      },
+      {
+        "step": 8,
+        "value": 0.9916199445724487
+      },
+      {
+        "step": 9,
+        "value": 0.9925903081893921
+      }
+    ],
+    "ScratchStanding/leg_speed_rms_rad_s": [
+      {
+        "step": 0,
+        "value": 0.0678686797618866
+      },
+      {
+        "step": 1,
+        "value": 0.07766841351985931
+      },
+      {
+        "step": 2,
+        "value": 0.07751956582069397
+      },
+      {
+        "step": 3,
+        "value": 0.0775907039642334
+      },
+      {
+        "step": 4,
+        "value": 0.07909353077411652
+      },
+      {
+        "step": 5,
+        "value": 0.07786108553409576
+      },
+      {
+        "step": 6,
+        "value": 0.07733771950006485
+      },
+      {
+        "step": 7,
+        "value": 0.07721302658319473
+      },
+      {
+        "step": 8,
+        "value": 0.07730290293693542
+      },
+      {
+        "step": 9,
+        "value": 0.0752704069018364
+      }
+    ],
+    "PrecisionStanding/height_mae_m": [
+      {
+        "step": 0,
+        "value": 0.0007911416469141841
+      },
+      {
+        "step": 1,
+        "value": 0.0014422363601624966
+      },
+      {
+        "step": 2,
+        "value": 0.0014872167957946658
+      },
+      {
+        "step": 3,
+        "value": 0.0014424403198063374
+      },
+      {
+        "step": 4,
+        "value": 0.0013883602805435658
+      },
+      {
+        "step": 5,
+        "value": 0.0013825660571455956
+      },
+      {
+        "step": 6,
+        "value": 0.0014319125330075622
+      },
+      {
+        "step": 7,
+        "value": 0.0013066462706774473
+      },
+      {
+        "step": 8,
+        "value": 0.001314445398747921
+      },
+      {
+        "step": 9,
+        "value": 0.0013604419073089957
+      }
+    ],
+    "PrecisionStanding/tilt_mean_deg": [
+      {
+        "step": 0,
+        "value": 2.2010293006896973
+      },
+      {
+        "step": 1,
+        "value": 3.4621829986572266
+      },
+      {
+        "step": 2,
+        "value": 3.5050723552703857
+      },
+      {
+        "step": 3,
+        "value": 3.6010236740112305
+      },
+      {
+        "step": 4,
+        "value": 3.637455701828003
+      },
+      {
+        "step": 5,
+        "value": 3.52707839012146
+      },
+      {
+        "step": 6,
+        "value": 3.595564842224121
+      },
+      {
+        "step": 7,
+        "value": 3.557769298553467
+      },
+      {
+        "step": 8,
+        "value": 3.551332950592041
+      },
+      {
+        "step": 9,
+        "value": 3.537830352783203
+      }
+    ],
+    "PrecisionStanding/planar_speed_rms_m_s": [
+      {
+        "step": 0,
+        "value": 0.05387108027935028
+      },
+      {
+        "step": 1,
+        "value": 0.1126653403043747
+      },
+      {
+        "step": 2,
+        "value": 0.11417791247367859
+      },
+      {
+        "step": 3,
+        "value": 0.11638887226581573
+      },
+      {
+        "step": 4,
+        "value": 0.11739356815814972
+      },
+      {
+        "step": 5,
+        "value": 0.11537016928195953
+      },
+      {
+        "step": 6,
+        "value": 0.11729696393013
+      },
+      {
+        "step": 7,
+        "value": 0.11769312620162964
+      },
+      {
+        "step": 8,
+        "value": 0.11877232044935226
+      },
+      {
+        "step": 9,
+        "value": 0.11832715570926666
+      }
+    ]
+  },
+  "verification_checkpoint_reads_only_in_this_separate_CPU_reader": true,
+  "new_native_steps_by_reader": 0,
+  "qualified": false,
+  "hardware_ready": false,
+  "reader_sha256": "b095eede28726bb6bab07c424be7980d7bfc74a7045dc6d3282eeee8c50e20da"
+}

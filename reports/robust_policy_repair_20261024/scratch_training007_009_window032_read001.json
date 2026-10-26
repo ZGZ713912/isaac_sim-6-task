@@ -1,0 +1,51 @@
+{
+  "schema": "scratch-training-event-window-comparison-v1",
+  "observed_utc": "2026-10-26T06:03:39.718514+00:00",
+  "new_PPO": 0,
+  "sources": {
+    "pilot007_contact_cost_zero": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot007_contact_cost_zero/events.out.tfevents.1792976829.ZGZ.654223.0",
+      "observed_prefix_bytes": 3203970,
+      "observed_prefix_sha256": "a5c04a94a87dd8b988b5c8e9192ed6662f437b22ecf447229b184e7c588c17af"
+    },
+    "pilot009_leg_velocity_separated": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated/events.out.tfevents.1792994106.ZGZ.759032.0",
+      "observed_prefix_bytes": 222778,
+      "observed_prefix_sha256": "e4e64a04a8a528e421533ee580c3174d02c8017fe501219c7ff47c15d1949c32"
+    }
+  },
+  "common_complete_updates": 36,
+  "windows": [
+    {
+      "PPO_update_numbers_inclusive": [
+        1,
+        32
+      ],
+      "runs": {
+        "pilot007_contact_cost_zero": {
+          "Train/mean_episode_length": 175.35667252540588,
+          "ScratchStanding/dual_support_physical_fraction": 0.9941955767571926,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.07063247472979128,
+          "PrecisionStanding/height_mae_m": 0.001386945823469432,
+          "PrecisionStanding/tilt_mean_deg": 3.5352266132831573,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.12716968276072294,
+          "StandingFailure/episode_events": 1.4248046875,
+          "logged_episode_mean_seconds": 0.8767833626270294
+        },
+        "pilot009_leg_velocity_separated": {
+          "Train/mean_episode_length": 177.62205815315247,
+          "ScratchStanding/dual_support_physical_fraction": 0.9943576939404011,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.06982588488608599,
+          "PrecisionStanding/height_mae_m": 0.0014258034607337322,
+          "PrecisionStanding/tilt_mean_deg": 3.5387637317180634,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.12828242871910334,
+          "StandingFailure/episode_events": 1.406982421875,
+          "logged_episode_mean_seconds": 0.8881102907657623
+        }
+      }
+    }
+  ],
+  "hardware_ready": false,
+  "scope": "Stochastic training with failure autoresets. Native episode length is a rolling mean of completed episodes, not a deterministic standing pass. No new curve data source or TensorBoard server.",
+  "reader_sha256": "4e0aebd0fd95addf614915597b591c1cbd2e4f4dda85f90d0044a1cedfd8c5f6"
+}
