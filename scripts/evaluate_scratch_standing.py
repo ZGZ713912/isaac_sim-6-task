@@ -26,6 +26,10 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--seed", type=int, default=261101)
+    parser.add_argument("--randomization-study", type=Path,
+                        help="Explicit read-only domain counterfactual; the actor and frozen physics stay authenticated")
+    parser.add_argument("--randomization-profile")
+    parser.add_argument("--randomization-strength", type=float, default=1.)
     parser.add_argument("--duration-seconds", type=int, choices=(8, 30), default=8,
                         help="Read-only horizon;30 explicitly extends the archived8s loop and episode timeout")
     parser.add_argument("--external-force-mode", choices=("native", "every-iteration"), default="native",
@@ -47,6 +51,8 @@ def main():
     parser.add_argument("--trace-contact-state", action="store_true",
                         help="With trace-feedback, read native full joint state and contact buffers at every existing1ms boundary")
     args = parser.parse_args()
+    if args.randomization_study is None and (args.randomization_profile is not None or args.randomization_strength != 1.):
+        parser.error("Domain profile/strength requires the study JSON")
     if args.trace_contact_state and not args.trace_feedback:
         parser.error("The native contact-state observer requires trace-feedback")
     if args.hold_initial_leg_targets and not args.trace_feedback:
@@ -62,7 +68,7 @@ def main():
     if sum((args.wheel_response_scale != 1., args.external_force_mode != "native",
             args.reset_observation_mode != "native", args.velocity_iterations is not None,
             args.hold_initial_leg_targets, args.duration_seconds != 8,
-            args.leg_speed_response_scale != 1.)) > 1:
+            args.leg_speed_response_scale != 1., args.randomization_study is not None)) > 1:
         parser.error("Use one declared counterfactual at a time")
     args.checkpoint, args.output = args.checkpoint.resolve(), args.output.resolve()
     args.output.mkdir(parents=True, exist_ok=False)
@@ -134,6 +140,13 @@ def main():
         solver_counterfactual = configure_velocity_probe(cfg, design, args.velocity_iterations)
         design["review_basis"]["only_runtime_override"]["velocity_iterations"] = [32, args.velocity_iterations]
     task = deepcopy(infos["settings"])
+    domain_intervention = domain_resolver = None
+    if args.randomization_study is not None:
+        from scratch_domain_evaluation import configure as configure_domains
+        domain_intervention, domain_resolver = configure_domains(cfg, design, task,
+            args.randomization_study, args.randomization_profile, args.randomization_strength)
+        training.write_json(args.output / "randomization_study.resolved.json", domain_intervention["resolved"])
+        (args.output / "randomization_study.input.json").write_bytes(args.randomization_study.read_bytes())
     duration_extension = None
     if args.duration_seconds != 8:
         from extended_scratch_standing_evaluation import configure as configure_duration
@@ -149,6 +162,7 @@ def main():
     if digest(bank) != infos["bank_sha256"]:
         raise ValueError("Reset geometry changed")
     progress = dict(schema="scratch-standing-readonly-evaluation-v1", status="starting",
+        pid=os.getpid(), start_ticks=int(Path("/proc/self/stat").read_text().rsplit(")", 1)[1].split()[19]),
         checkpoint=str(args.checkpoint), checkpoint_sha256=digest(args.checkpoint),
         completed_updates=infos["completed_updates"], new_PPO=0, optimizer_constructed=False,
         evaluator_sha256=digest(Path(__file__)), seed=args.seed,
@@ -164,6 +178,8 @@ def main():
         progress["duration_extension"] = duration_extension
     if solver_counterfactual is not None:
         progress["solver_counterfactual"] = solver_counterfactual
+    if domain_intervention is not None:
+        progress["domain_intervention"] = domain_intervention
     diagnostic_sources = ("evaluate_scratch_standing.py", "record_scratch_physics.py",
                           "capture_scratch_feedback.py", "analyze_scratch_feedback_trace.py",
                           "wheel_encoder_response_probe.py", "final_pose_observation_probe.py")
@@ -177,6 +193,8 @@ def main():
         diagnostic_sources += ("leg_encoder_response_probe.py",)
     if duration_extension is not None:
         diagnostic_sources += ("extended_scratch_standing_evaluation.py",)
+    if domain_intervention is not None:
+        diagnostic_sources += ("scratch_domain_evaluation.py",)
     frozen_diagnostics = args.output / "diagnostic_sources"
     frozen_diagnostics.mkdir()
     progress["diagnostic_source_hashes"] = {}
@@ -184,6 +202,10 @@ def main():
         data = (ROOT / "scripts" / name).read_bytes()
         (frozen_diagnostics / name).write_bytes(data)
         progress["diagnostic_source_hashes"][name] = hashlib.sha256(data).hexdigest()
+    if domain_intervention is not None:
+        data = (ROOT / "src/wheeled_tasks/chassis/randomization_study.py").read_bytes()
+        (frozen_diagnostics / "randomization_study.py").write_bytes(data)
+        progress["diagnostic_source_hashes"]["randomization_study.py"] = hashlib.sha256(data).hexdigest()
     if args.reset_observation_mode != "native":
         from final_pose_observation_probe import prepare as prepare_reset_probe
         progress["reset_counterfactual"] = prepare_reset_probe(archive, frozen_diagnostics)
@@ -282,6 +304,9 @@ def main():
         writer.add_scalar("EvalScratchProtocol/duration_s", args.duration_seconds, infos["completed_updates"])
         writer.add_scalar("EvalScratchProtocol/startup_grace_s", 0., infos["completed_updates"])
         writer.add_scalar("EvalScratchProtocol/contact_threshold_n", 2., infos["completed_updates"])
+        if domain_intervention is not None:
+            for tag, value in domain_resolver.scalar_metrics(domain_intervention["resolved"]).items():
+                writer.add_scalar("DomainStudyConfig/" + tag, value, infos["completed_updates"])
         evaluation = training.evaluate
         if args.trace_contact_state:
             from capture_scratch_contact_state import evaluate_with_contact_state
@@ -298,6 +323,12 @@ def main():
             progress["evaluation"] = evaluation(env, actor, args.output / "evaluation", writer, infos["completed_updates"])
         progress["evaluation"].update(checkpoint_loaded=True, checkpoint_loading_scope="read-only actor evaluation",
             new_PPO=0, optimizer_constructed=False)
+        if domain_intervention is not None:
+            from scratch_domain_evaluation import samples as domain_samples
+            progress["evaluation"].update(protocol="explicit read-only domain study; seven held-out pitch starts per height; native1ms trace",
+                domain_intervention=domain_intervention,
+                actual_domain_samples=domain_samples(env, progress["evaluation"]["case_count"]),
+                behavior_qualification=False)
         if duration_extension is not None:
             from extended_scratch_standing_evaluation import assert_result as verify_duration_result
             verify_duration_result(progress["evaluation"], duration_extension)
