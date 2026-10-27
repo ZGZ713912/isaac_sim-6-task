@@ -602,7 +602,8 @@ class RobustGetupEnv(ChassisEnv):
             _, route_scores = route_potential(gravity, prone_route["knee_deg"], prone_route["support_error_m"],
                 height, prone_task, geometry_valid=prone_route["encoder_valid"].all(-1))
             prone_terms = prone_density(gravity, velocity, omega, tau, upright_leg_speed_square,
-                                        prone_route["xy_excursion_m"], stable, prone_task, route_scores=route_scores)
+                                        prone_route["xy_excursion_m"], stable, prone_task,
+                                        route_scores=route_scores, recovered=self.ever_recovered)
             density = sum(prone_terms.values())
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
         timeout = self.episode_length_buf >= self.max_episode_length
@@ -652,6 +653,13 @@ class RobustGetupEnv(ChassisEnv):
                 "Prone/xy_excursion_mean_m": prone_route["xy_excursion_m"].mean(),
                 "Prone/xy_excursion_peak_m": prone_route["xy_excursion_m"].max(),
                 "Prone/stable_fraction": stable.float().mean(),
+                "Prone/body_tilt_mean_deg": torch.rad2deg(torch.acos((-gravity[:, 2]).clamp(-1., 1.))).mean(),
+                "Prone/body_tilt_population_peak_deg": torch.rad2deg(torch.acos((-gravity[:, 2]).clamp(-1., 1.))).max(),
+                "Prone/body_rate_rms_rad_s": omega.square().sum(-1).mean().sqrt(),
+                "Prone/stable_hold_mean_s": self.stable_hold.mean(),
+                "Prone/unrecovered_fraction": (~self.ever_recovered).float().mean(),
+                "Prone/completion_events": first.float().sum(),
+                "Prone/completion_time_sum_s": torch.where(first, elapsed, 0.).sum(),
                 "Prone/wheel_velocity_abs_mean_rad_s": dq[:, list(self.v5.WHEELS)].abs().mean(),
                 "Prone/wheel_velocity_population_peak_rad_s": dq[:, list(self.v5.WHEELS)].abs().max(),
                 "Prone/wheel_target_velocity_abs_mean_rad_s": wheels.abs().mean(),
