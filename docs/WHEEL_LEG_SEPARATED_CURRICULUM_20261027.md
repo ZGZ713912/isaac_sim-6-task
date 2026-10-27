@@ -193,3 +193,9 @@ PYTHONPATH=src /home/noir/miniconda3/envs/isaacsim6/bin/python scripts/train_sta
 冷测另保存六轴模型关节角/速度、实际施加的电机力矩及裁剪后的六轴动作，供检查腿轮协调。
 这些六轴快照为200Hz，每个policy区间的最后一个物理控制样本，不能冒充轮子完整1kHz峰值；
 双轮接触和四腿速度/力矩的原1kHz流仍单独保留。
+
+当前实际运行已为`pilot004_prelift42_rise_dr025_u512_e256`，冻结源
+`d0e258b7653cfcc492ee7577af567a2775e3df89`。89项定向测试、256环境600步低抓地完整v2
+零PPO接线检查，以及单独的短时冷测六轴记录检查通过。该代新actor、critic、空Adam，
+初始张量与同seed的pilot003相同；训练进程没有读取checkpoint，四腿和两轮的首更新输出行均实际改变。
+它的行为资格尚待训练后冷测，实时进度以运行目录`progress.json`为准。
