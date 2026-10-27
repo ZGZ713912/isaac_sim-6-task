@@ -13,13 +13,14 @@ from wheeled_tasks.chassis.scut_observation import CONTROL_FROM_POLICY
 def native_probe(env, steps, output):
     action = nominal_action(env).expand(env.num_envs, -1).clone()
     reset_q = env.bank_joints[env.initialization_pose_index, env.ids].expand(env.num_envs, -1)
+    target_q = env.bank_joints[env.initialization_target_pose_index, env.ids].expand(env.num_envs, -1)
     control_action = action[:, CONTROL_FROM_POLICY]
     initial_legs, initial_wheels, _ = env.v5.decode(control_action, reset_q)
-    target_error = initial_legs-reset_q[:, list(env.v5.LEGS)]
+    target_error = initial_legs-target_q[:, list(env.v5.LEGS)]
     target_error = torch.atan2(target_error.sin(), target_error.cos())
     checks = dict(native_rates=env.dt == .001 and env.policy_dt == .005,
         all_births_standard_prone=bool(env.recovery_lane.all()),
-        initial_motor_targets_match_prone_pose=bool(target_error.abs().max() < 1e-5 and initial_wheels.abs().max() == 0.))
+        initial_motor_targets_match_declared_bias_geometry=bool(target_error.abs().max() < 1e-5 and initial_wheels.abs().max() == 0.))
     checks["initial_leg_exploration_is_not_clipped"] = bool(
         (control_action[:, list(env.v5.LEGS)].abs()+3.*env.prone_task["initial_std_policy_order"][0]
          < env.v5.action_bounds[list(env.v5.LEGS)]).all())
@@ -73,7 +74,7 @@ def native_probe(env, steps, output):
     output = Path(output)
     np.savez_compressed(output / "native_probe_trace.npz", **{key: np.stack(value) for key, value in trace.items()})
     result = dict(schema="standard-prone-native-wiring-probe-v1", new_PPO=0, learned_policy=False,
-        control="constant authenticated prone geometry; no learned actor or optimizer",
+        control="constant declared initialization target; physical reset stays disabled prone; no learned actor or optimizer",
         num_envs=env.num_envs, physics_steps=steps*env.decimation, active_control_samples=active_samples,
         allowed_body_contact_samples=body_contact_samples, checks=checks, all_wiring_checks_pass=all(checks.values()),
         contact_material=material, transitions=rows, actual_task=env.prone_task,
@@ -96,7 +97,8 @@ def evaluate(env, actor, output, writer, completed):
     env.max_episode_length = horizon = round(evaluation["seconds"] / env.policy_dt)
     observation = env.get_observations()
     keys = ("position", "velocity", "gravity", "height", "time", "recovered_at", "terminated", "valid",
-            "force", "clearance", "dq", "torque", "gap", "knees", "support_error", "excursion", "completed_event", "recovery_timeout")
+            "force", "clearance", "dq", "torque", "gap", "knees", "support_error", "excursion", "completed_event", "recovery_timeout",
+            "motor_position", "motor_velocity", "motor_effort", "control_actions")
     trace = {key: [] for key in keys}
     with torch.inference_mode():
         for _ in range(horizon):
@@ -113,7 +115,9 @@ def evaluate(env, actor, output, writer, completed):
                 dq=physical["dq"][:, :count], torque=physical["torque"][:, :count], gap=state["gap"][:count],
                 knees=route["knee_deg"][:count], support_error=route["support_error_m"][:count],
                 excursion=route["xy_excursion_m"][:count], completed_event=state["recovery_completed_event"][:count],
-                recovery_timeout=recovery_timeout[:count])
+                recovery_timeout=recovery_timeout[:count], motor_position=state["motor_position"][:count],
+                motor_velocity=state["motor_velocity"][:count], motor_effort=state["motor_effort"][:count],
+                control_actions=state["actions"][:count])
             for key, value in values.items():
                 trace[key].append(value.cpu().numpy())
             #40s total minus30s required standing leaves10s for completion.
@@ -136,6 +140,10 @@ def evaluate(env, actor, output, writer, completed):
             minimum_physical_knee_deg=float(arrays["knees"][valid, lane].min()),
             leg_speed_peak_rad_s=float(np.abs(arrays["dq"][valid, :, lane]).max()),
             closure_gap_peak_m=float(arrays["gap"][valid, lane].max()), baseline_pass=False)
+        row["in_place_screen_pass"] = row["maximum_xy_excursion_from_prone_m"] <= evaluation["getup_xy_max_m"]
+        row["wheel_velocity_peak_rad_s_at_policy_rate"] = float(np.abs(arrays["motor_velocity"][valid, lane][:, [2, 5]]).max())
+        row["wheel_effort_peak_nm_at_policy_rate"] = float(np.abs(arrays["motor_effort"][valid, lane][:, [2, 5]]).max())
+        row["wheel_control_action_peak_at_policy_rate"] = float(np.abs(arrays["control_actions"][valid, lane][:, [2, 5]]).max())
         if len(events):
             start = int(events[0])
             selected = valid & (np.arange(len(valid)) > start)
@@ -150,7 +158,7 @@ def evaluate(env, actor, output, writer, completed):
                 row["standing_tilt_peak_deg"] = float(np.degrees(np.arccos(np.clip(-arrays["gravity"][selected, lane, 2], -1., 1.))).max())
                 row["standing_speed_rms_m_s"] = float(np.sqrt(np.mean(np.sum(arrays["velocity"][selected, lane, :2]**2, axis=-1))))
                 row["standing_height_mae_m"] = float(np.abs(arrays["height"][selected, lane] - .305).mean())
-                row["baseline_pass"] = bool(not row["terminated"] and row["standing_seconds"] >= evaluation["post_completion_standing_seconds"] - 1e-6
+                row["baseline_pass"] = bool(row["in_place_screen_pass"] and not row["terminated"] and row["standing_seconds"] >= evaluation["post_completion_standing_seconds"] - 1e-6
                     and row["support"]["support_pass"] and row["standing_xy_excursion_m"] <= evaluation["standing_xy_max_m"]
                     and row["standing_tilt_peak_deg"] <= 10. and row["standing_speed_rms_m_s"] <= .03
                     and row["standing_height_mae_m"] <= .01 and row["closure_gap_peak_m"] <= .003)
@@ -159,6 +167,9 @@ def evaluate(env, actor, output, writer, completed):
         recovery_completed=sum(r["recovery_completed"] for r in rows), baseline_pass=sum(r["baseline_pass"] for r in rows),
         cases=rows, same_initial_state_replicas_are_not_independent_seeds=True,
         support_start="First complete physical interval after actual completion event; no post-hoc suffix selection",
+        getup_xy_limit_m=evaluation["getup_xy_max_m"], getup_xy_limit_authority=evaluation["getup_xy_limit_authority"],
+        motor_sample_order=list(env.v5.ACTIVE), motor_sample_hz=1./env.policy_dt,
+        motor_sample_scope="Last physical-control sample per policy interval; policy-rate wheel peaks are not full1kHz extrema. Raw contact and four-leg streams remain separate1kHz traces.",
         source_scope=evaluation["scope"], full_capability_qualified=False, hardware_ready=False,
         trace_sha256=digest(output / "native_trace.npz"))
     write_json(output / "result.json", result)
