@@ -79,6 +79,68 @@ def test_dense_route_reward_credits_folding_before_rising_and_releases_it_after_
     assert route_reward(40., standing=True) == route_reward(100., standing=True) == 0.
 
 
+def test_support_capture_releases_folding_before_the_body_reaches_standing_height():
+    gravity = torch.tensor([[0., 0., -1.]]).repeat(3, 1)
+    _, scores = route_potential(gravity, torch.full((3, 2), 43.),
+        torch.tensor([.3, .06, 0.]), torch.full((3,), .215), SPEC)
+    weight = scores["folding_guidance_weight"]
+    assert weight[0] > weight[1] > weight[2] == 0.
+    assert weight[1] < .06
+    # At aligned support, extending does not sacrifice a held-fold reward
+    # while waiting for the body's dynamics to produce actual upward motion.
+    assert potential(43., 0.)[0] == potential(64., 0.)[0]
+
+
+def test_level_cost_resolves_small_tilt_and_never_rewards_upside_down():
+    angles = torch.deg2rad(torch.tensor([0., 2., 5., 10., 18., 180.]))
+    gravity = torch.stack((angles.sin(), torch.zeros_like(angles), -angles.cos()), -1)
+    height = torch.full_like(angles, .305)
+    _, scores = route_potential(gravity, torch.full((6, 2), 64.), torch.zeros(6), height, SPEC)
+    terms = density(gravity, torch.zeros(6, 3), torch.zeros(6, 3), torch.zeros(6, 6),
+        torch.zeros(6), torch.zeros(6), torch.ones(6, dtype=torch.bool), SPEC, route_scores=scores)
+    assert terms["level_error_cost"][0] == 0.
+    assert (torch.diff(terms["level_error_cost"]) < 0.).all()
+    assert terms["level_error_cost"][4] < -6.
+
+
+def test_real_supported_leg_extension_geometry_has_dense_credit_without_completion():
+    from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
+    from wheeled_tasks.chassis.standing_geometry107 import table_path
+    bank = json.loads((ROOT / "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json").read_text())
+    names = ("L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3")
+    pose = next(p for p in bank["poses"] if p["name"] == SPEC["initial_target_pose_name"])
+    fold = initialization_motor_target(torch.tensor([pose["full_joint_positions"][n] for n in names]),
+        SPEC["initial_target_common_rotation_rad"])
+    stand = bank["poses"][bank["diagnostic_height_starts"]["mapping"]["stand"]]
+    target = torch.tensor([stand["full_joint_positions"][n] for n in names])
+    q = torch.lerp(fold, target, torch.linspace(0., 1., 11)[:, None])[:, [0, 1, 3, 4]]
+    geometry = EncoderLegGeometry(json.loads(table_path().read_text()))(q, torch.zeros_like(q))
+    assert geometry["valid"].all()
+    # Flat wheel support with the sealed60mm wheel radius. This is a feasible
+    # geometry audit, not a claim that all interpolated states are dynamically reachable.
+    height = .06-geometry["wheel_body_m"][:, :, 2].mean(-1)
+    gravity = torch.tensor([[0., 0., -1.]]).repeat(11, 1)
+    error = geometry["wheel_body_m"][:, :, :2].mean(1).norm(dim=-1)
+    _, scores = route_potential(gravity, geometry["knee_deg"], error, height, SPEC)
+    terms = density(gravity, torch.zeros(11, 3), torch.zeros(11, 3), torch.zeros(11, 6),
+        torch.zeros(11), torch.zeros(11), torch.zeros(11, dtype=torch.bool), SPEC,
+        route_scores=scores, recovered=torch.zeros(11, dtype=torch.bool))
+    assert (torch.diff(sum(terms.values())) > 0.).all()
+
+
+def test_unrecovered_time_cost_ends_only_after_actual_completion_and_favors_faster_recovery():
+    times = torch.arange(1000)*.005
+    def cost(completion):
+        terms = density(torch.tensor([[0., 0., -1.]]).repeat(len(times), 1),
+            torch.zeros(len(times), 3), torch.zeros(len(times), 3), torch.zeros(len(times), 6),
+            torch.zeros(len(times)), torch.zeros(len(times)), torch.zeros(len(times), dtype=torch.bool),
+            SPEC, recovered=times >= completion)
+        return terms["unrecovered_time_cost"]
+    early, late = cost(1.5), cost(3.)
+    assert (early[times < 1.5] == -1.).all() and not early[times >= 1.5].any()
+    assert early.sum()*.005 > late.sum()*.005
+
+
 def test_horizontal_alignment_above_the_com_does_not_count_as_support_below_it():
     com = torch.tensor([[0., 0., .3], [0., 0., .3]])
     wheel = torch.tensor([[0., 0., .1], [0., 0., .5]])
