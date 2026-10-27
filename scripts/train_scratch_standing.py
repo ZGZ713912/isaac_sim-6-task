@@ -154,7 +154,7 @@ def prepare(args):
             task["randomization_study"] = deepcopy(study)
             write_json(args.output / "randomization_study.resolved.json", study)
         task.update(version="standard-prone-in-place-v1", standard_prone=prone,
-            reward_potential_gain=3., reward_gamma=.9974905699336811, recovery_leg_speed_cost=0.,
+            reward_potential_gain=prone["route_potential_gain"], reward_gamma=.9974905699336811, recovery_leg_speed_cost=0.,
             motion_fraction=0., motion_push_fraction=0., hold_motion_during_recovery=True,
             stable_seconds=prone["stable_seconds"], episode_seconds=prone["episode_seconds"], curriculum_updates=1,
             leg_action_clip=prone["leg_action_clip"])

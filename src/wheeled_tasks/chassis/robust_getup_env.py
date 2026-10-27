@@ -373,6 +373,7 @@ class RobustGetupEnv(ChassisEnv):
         leg_saturation_run = torch.zeros_like(gap_peak)
         wheel_clearance_peak = torch.full((self.num_envs, 2), -torch.inf, device=self.device)
         wheel_contact_fraction = torch.zeros_like(wheel_clearance_peak)
+        dual_support_fraction = torch.zeros_like(gap_peak)
         wheel_air_run_peak = self.wheel_air_run.clone()
         dual_wheel_air_run_peak = self.dual_wheel_air_run.clone()
         wheel_air_seconds = torch.zeros_like(wheel_clearance_peak)
@@ -427,6 +428,7 @@ class RobustGetupEnv(ChassisEnv):
             wheel_clearance = wheel_bottom_clearance(self.wheel_centers(), wheel_pose[:, :, 3:], self.origins[:, 2:3])
             wheel_clearance_peak = torch.maximum(wheel_clearance_peak, wheel_clearance)
             wheel_contact_fraction += (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).float() / self.decimation
+            dual_support_fraction += (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).all(-1).float() / self.decimation
             geometric_air = wheel_clearance > .003
             self.wheel_air_run = torch.where(geometric_air, self.wheel_air_run + self.dt, 0.)
             self.dual_wheel_air_run = torch.where(geometric_air.all(-1), self.dual_wheel_air_run + self.dt, 0.)
@@ -598,12 +600,9 @@ class RobustGetupEnv(ChassisEnv):
         prone_terms = None
         if prone_task is not None:
             from .standard_prone import density as prone_density
-            from .standard_prone import route_potential
-            _, route_scores = route_potential(gravity, prone_route["knee_deg"], prone_route["support_error_m"],
-                height, prone_task, geometry_valid=prone_route["encoder_valid"].all(-1))
-            prone_terms = prone_density(gravity, velocity, omega, tau, upright_leg_speed_square,
-                                        prone_route["xy_excursion_m"], stable, prone_task,
-                                        route_scores=route_scores, recovered=self.ever_recovered)
+            prone_terms = prone_density(gravity, height, velocity, omega, tau, action_delta,
+                upright_leg_speed_square, prone_route["xy_excursion_m"], dual_support_fraction,
+                nonwheel_force_peak, self.ever_recovered, prone_task)
             density = sum(prone_terms.values())
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
         timeout = self.episode_length_buf >= self.max_episode_length
@@ -643,6 +642,13 @@ class RobustGetupEnv(ChassisEnv):
         if prone_terms is not None:
             info["log"].update({"ProneReward/" + key + "_per_second": value.mean()
                                 for key, value in prone_terms.items()})
+            info["log"].update({"ProneRewardPaid/" + key + "_per_policy_step":
+                (value*self.policy_dt*active_interval).mean() for key, value in prone_terms.items()})
+            info["log"]["ProneRewardPaid/potential_per_policy_step"] = (progress*active_interval).mean()
+            info["log"]["ProneRewardPaid/completion_per_policy_step"] = (3.*first*active_interval).mean()
+            info["log"]["ProneActive/body_height_mean_m"] = height[active_interval].mean() if active_interval.any() else height.new_zeros(())
+            info["log"]["ProneActive/body_tilt_mean_deg"] = torch.rad2deg(torch.acos(
+                (-gravity[active_interval, 2]).clamp(-1., 1.))).mean() if active_interval.any() else height.new_zeros(())
             info["log"].update({
                 "Prone/knee_angle_mean_deg": prone_route["knee_deg"].mean(),
                 "Prone/knee_angle_min_deg": prone_route["knee_deg"].min(),
@@ -653,6 +659,8 @@ class RobustGetupEnv(ChassisEnv):
                 "Prone/xy_excursion_mean_m": prone_route["xy_excursion_m"].mean(),
                 "Prone/xy_excursion_peak_m": prone_route["xy_excursion_m"].max(),
                 "Prone/stable_fraction": stable.float().mean(),
+                "Prone/dual_support_physical_fraction": dual_support_fraction.mean(),
+                "Prone/planar_speed_rms_m_s": velocity[:, :2].square().sum(-1).mean().sqrt(),
                 "Prone/body_tilt_mean_deg": torch.rad2deg(torch.acos((-gravity[:, 2]).clamp(-1., 1.))).mean(),
                 "Prone/body_tilt_population_peak_deg": torch.rad2deg(torch.acos((-gravity[:, 2]).clamp(-1., 1.))).max(),
                 "Prone/body_rate_rms_rad_s": omega.square().sum(-1).mean().sqrt(),
@@ -743,6 +751,9 @@ class RobustGetupEnv(ChassisEnv):
                     prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),
                     prone_invalid_start=prone_invalid_start.clone(), belly_force_peak_n=belly_force_peak.clone(),
                     prone_reward_terms={key: value.clone() for key, value in prone_terms.items()},
+                    action_delta=action_delta.clone(),
+                    leg_speed_square_1ms=upright_leg_speed_square.clone(),
+                    dual_support_physical_fraction=dual_support_fraction.clone(),
                     nonwheel_force_peak_n=nonwheel_force_peak.clone())
             if gap_quality is not None:
                 info["diagnostics"].update(leg_speed_peak_rad_s=leg_speed_peak.clone(),

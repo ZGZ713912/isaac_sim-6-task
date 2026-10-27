@@ -37,20 +37,40 @@ def native_probe(env, steps, output):
                     + 3.*state["recovery_completed_event"]) * extra["policy_learning_mask"] - 3.*state["terminated"]
         checks["independent_guided_reward"] = checks.get("independent_guided_reward", True) and bool(torch.allclose(reward, expected))
         task, terms = env.prone_task, state["prone_reward_terms"]
-        lift = ((state["height"]-task["belly_height_m"])
-                / (task["target_height_m"]-task["belly_height_m"])).clamp(0., 1.)
-        level_weight = task["level_cost_min_lift_weight"]+(1.-task["level_cost_min_lift_weight"])*lift
-        expected_level = (-task["level_error_cost_per_second"]*level_weight
-            * (state["gravity"]-state["gravity"].new_tensor([0., 0., -1.])).square().sum(-1)
-            / np.sin(np.deg2rad(task["level_error_scale_deg"]))**2)
+        gravity, velocity, omega = state["gravity"], state["velocity"], state["omega"]
+        error = state["height"]-task["target_height_m"]
         expected_height = (-task["height_error_cost_per_second"]
-            * ((state["height"]-task["target_height_m"])
-               / (task["target_height_m"]-task["belly_height_m"])).square())
+            * (error/(task["target_height_m"]-task["belly_height_m"])).square())
         expected_time = -task["unrecovered_time_cost_per_second"]*(~state["recovered"]).float()
-        checks["level_height_and_recovery_time_costs_paid"] = checks.get(
-            "level_height_and_recovery_time_costs_paid", True) and all(bool(torch.allclose(terms[key], value))
-                for key, value in (("level_error_cost", expected_level), ("height_error_cost", expected_height),
-                                   ("unrecovered_time_cost", expected_time)))
+        physical = env.physical_standing_last
+        dual_support = (env.standing_contact_monitor.last["force"].norm(dim=-1) > 2.).all(-1).float().mean(0)
+        expected_goal = task["quiet_goal_reward_per_second"]*torch.exp(
+            -(error/task["quiet_goal_height_width_m"]).square()
+            -(gravity-gravity.new_tensor([0., 0., -1.])).square().sum(-1)
+                / np.sin(np.deg2rad(task["quiet_goal_level_scale_deg"]))**2
+            -(velocity/task["stable_planar_speed_m_s"]).square().sum(-1)
+            -(omega/task["stable_body_rate_rad_s"]).square().sum(-1))
+        expected_goal *= dual_support*(state["nonwheel_force_peak_n"] <= 2.)
+        checks["normal_quiet_standing_reward_paid"] = checks.get(
+            "normal_quiet_standing_reward_paid", True) and all(bool(torch.allclose(terms[key], value, atol=1e-5, rtol=1e-5))
+                for key, value in dict(
+                    upright=2.*(-gravity[:, 2]).clamp(0., 1.),
+                    height=1.5*torch.exp(-(error/.02).square()),
+                    forward_tracking=2.*torch.exp(-(velocity[:, 0]/.25).square()),
+                    yaw_tracking=torch.exp(-(omega[:, 2]/.5).square()),
+                    tilt_cost=-2.*gravity[:, :2].square().sum(-1)/np.sin(np.deg2rad(15.))**2,
+                    velocity_error_cost=-(velocity[:, 0]/.5).square()-.5*(velocity[:, 1]/.2).square(),
+                    angular_cost=-.05*omega[:, :2].square().sum(-1),
+                    effort_cost=-.0001*state["motor_effort"].square().mean(-1),
+                    action_rate_cost=-.002*state["action_delta"],
+                    leg_speed_cost=-.001*physical["dq"].square().mean((0, 2)),
+                    height_error_cost=expected_height,
+                    unrecovered_time_cost=expected_time,
+                    quiet_standing=expected_goal,
+                    inversion_cost=-task["inversion_cost_per_second"]*gravity[:, 2].clamp_min(0.).square()).items())
+        checks["no_sustained_folding_or_partial_lift_reward"] = not bool(
+            {"folding_progress", "support_alignment", "rise_progress"}.intersection(terms))
+        checks["small_route_potential_auxiliary"] = env.getup_cfg["reward_potential_gain"] == task["route_potential_gain"] == .1
         checks["all_1ms_contact_samples"] = checks.get("all_1ms_contact_samples", True) and (
             env.standing_contact_monitor.last["force"].shape == (5, env.num_envs, 2, 3))
         checks["finite_sensors_and_route"] = checks.get("finite_sensors_and_route", True) and all(
