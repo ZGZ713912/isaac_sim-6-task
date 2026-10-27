@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 
-from wheeled_tasks.chassis.standard_prone import physical_knee_degrees, route_potential, stable, support_error, valid_disabled_start
+from wheeled_tasks.chassis.standard_prone import physical_knee_degrees, route_potential, stable, support_error, valid_disabled_start, density
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = json.loads((ROOT / "contracts/wheel_leg_standard_prone_v1.json").read_text())
@@ -29,6 +29,7 @@ def test_fold_and_under_com_improvements_receive_dense_credit_from_extended_legs
     assert potential(107.)[0] < potential(85.)[0] < potential(65.)[0] < potential(43.)[0]
     assert potential(65., .3)[0] < potential(65., .2)[0] < potential(65., .1)[0]
     assert potential(107.)[1]["fold_score"].item() > .01
+    assert (potential(106.)[1]["fold_score"]-potential(107.)[1]["fold_score"]).item() > .01
 
 
 def test_reward_near_stop_does_not_prefer_driving_through_the40deg_stop():
@@ -40,6 +41,16 @@ def test_folding_guidance_stays_on_for_belly_grounded_upright_body_but_fades_at_
     assert potential(40.)[0] > potential(100.)[0]
     torch.testing.assert_close(potential(40., standing=True)[0], potential(100., standing=True)[0])
     assert not potential(40., standing=True)[1]["folding_guidance_weight"].any()
+
+
+def test_dense_route_reward_credits_folding_before_rising_and_releases_it_after_lift():
+    def route_reward(knee, standing=False):
+        scores = potential(knee, standing=standing)[1]
+        terms = density(torch.tensor([[0., 0., -1.]]), torch.zeros(1, 3), torch.zeros(1, 3),
+            torch.zeros(1, 6), torch.zeros(1), torch.zeros(1), torch.tensor([False]), SPEC, route_scores=scores)
+        return terms["folding_progress"]+terms["support_alignment"]
+    assert route_reward(43.) > route_reward(85.) > route_reward(107.)
+    assert route_reward(40., standing=True) == route_reward(100., standing=True) == 0.
 
 
 def test_horizontal_alignment_above_the_com_does_not_count_as_support_below_it():
