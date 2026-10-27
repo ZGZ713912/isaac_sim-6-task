@@ -36,6 +36,21 @@ def native_probe(env, steps, output):
         expected = (state["reward_density"] * env.policy_dt + state["reward_potential_progress"]
                     + 3.*state["recovery_completed_event"]) * extra["policy_learning_mask"] - 3.*state["terminated"]
         checks["independent_guided_reward"] = checks.get("independent_guided_reward", True) and bool(torch.allclose(reward, expected))
+        task, terms = env.prone_task, state["prone_reward_terms"]
+        lift = ((state["height"]-task["belly_height_m"])
+                / (task["target_height_m"]-task["belly_height_m"])).clamp(0., 1.)
+        level_weight = task["level_cost_min_lift_weight"]+(1.-task["level_cost_min_lift_weight"])*lift
+        expected_level = (-task["level_error_cost_per_second"]*level_weight
+            * (state["gravity"]-state["gravity"].new_tensor([0., 0., -1.])).square().sum(-1)
+            / np.sin(np.deg2rad(task["level_error_scale_deg"]))**2)
+        expected_height = (-task["height_error_cost_per_second"]
+            * ((state["height"]-task["target_height_m"])
+               / (task["target_height_m"]-task["belly_height_m"])).square())
+        expected_time = -task["unrecovered_time_cost_per_second"]*(~state["recovered"]).float()
+        checks["level_height_and_recovery_time_costs_paid"] = checks.get(
+            "level_height_and_recovery_time_costs_paid", True) and all(bool(torch.allclose(terms[key], value))
+                for key, value in (("level_error_cost", expected_level), ("height_error_cost", expected_height),
+                                   ("unrecovered_time_cost", expected_time)))
         checks["all_1ms_contact_samples"] = checks.get("all_1ms_contact_samples", True) and (
             env.standing_contact_monitor.last["force"].shape == (5, env.num_envs, 2, 3))
         checks["finite_sensors_and_route"] = checks.get("finite_sensors_and_route", True) and all(

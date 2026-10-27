@@ -45,14 +45,19 @@ def route_potential(gravity, knee_deg, support_error_m, height, spec, geometry_v
         folded = folded * geometry_valid
         aligned = aligned * geometry_valid
     lift = ((height - spec["belly_height_m"]) / (spec["target_height_m"] - spec["belly_height_m"])).clamp(0., 1.)
-    folding_weight = 1. - lift
+    # Once the wheels reach the support region, extension must no longer lose
+    # a large held-fold bonus before the body can physically respond upward.
+    folding_weight = (1. - lift) * (1. - aligned).pow(spec["fold_capture_release_power"])
     standing_height = torch.exp(-((height - spec["target_height_m"]) / spec["target_height_width_m"]).square())
     # A belly-grounded body already has upright IMU gravity. Use actual lift,
     # rather than attitude alone, to fade the folding guidance during rising.
-    potential = 4.*up + folding_weight*folded*(1.+aligned) + 2.*up*aligned + 8.*up*lift + up*standing_height
+    potential = 4.*up + folding_weight*folded + 2.*up*aligned + 8.*up*lift + up*standing_height
     return potential, dict(fold_score=folded, support_alignment=aligned, upright_score=up,
                            folding_guidance_weight=folding_weight, lift_progress=lift,
-                           standing_height_score=standing_height)
+                           support_guidance_weight=1.-lift,
+                           standing_height_score=standing_height,
+                           normalized_height_error=(height-spec["target_height_m"])
+                               / (spec["target_height_m"]-spec["belly_height_m"]))
 
 
 def stable(gravity, height, omega, velocity, wheel_contact, leg_velocity, spec):
@@ -63,7 +68,8 @@ def stable(gravity, height, omega, velocity, wheel_contact, leg_velocity, spec):
         & wheel_contact.all(-1) & (leg_velocity.abs().amax(-1) < spec["stable_leg_speed_rad_s"]))
 
 
-def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stable_now, spec, route_scores=None):
+def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stable_now, spec,
+            route_scores=None, recovered=None):
     result = dict(
         upright=.5 * ((1.-gravity[:, 2])*.5).clamp(0., 1.),
         stable_standing=8.*stable_now.float(),
@@ -75,7 +81,17 @@ def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stabl
     if route_scores is not None:
         weight = route_scores["folding_guidance_weight"]
         result.update(folding_progress=2.*weight*route_scores["fold_score"],
-                      support_alignment=weight*route_scores["support_alignment"],
+                      support_alignment=route_scores["support_guidance_weight"]*route_scores["support_alignment"],
                       rise_progress=spec["rise_progress_reward_per_second"]*route_scores["upright_score"]*route_scores["lift_progress"],
-                      target_height=spec["target_height_reward_per_second"]*route_scores["upright_score"]*route_scores["standing_height_score"])
+                      target_height=spec["target_height_reward_per_second"]*route_scores["upright_score"]*route_scores["standing_height_score"],
+                      height_error_cost=-spec["height_error_cost_per_second"]*route_scores["normalized_height_error"].square())
+        level_weight = spec["level_cost_min_lift_weight"] + (
+            1.-spec["level_cost_min_lift_weight"])*route_scores["lift_progress"]
+        # Squared distance to level gravity penalizes small roll/pitch errors
+        # explicitly and does not make a fully inverted body look level.
+        level_error = (gravity-gravity.new_tensor([0., 0., -1.])).square().sum(-1)
+        result["level_error_cost"] = (-spec["level_error_cost_per_second"]*level_weight*level_error
+                                      / math.sin(math.radians(spec["level_error_scale_deg"]))**2)
+    if recovered is not None:
+        result["unrecovered_time_cost"] = -spec["unrecovered_time_cost_per_second"]*(~recovered).float()
     return result
