@@ -1,0 +1,136 @@
+{
+  "schema": "wheel-leg-resolved-randomization-study-v2",
+  "profile": "nominal",
+  "strength": 1.0,
+  "group_scales": {
+    "observation_noise": 0.0,
+    "encoder_bias": 0.0,
+    "imu_alignment": 0.0,
+    "motor_strength": 0.0,
+    "mass_com": 0.0,
+    "independent_inertia": 0.0,
+    "ground_friction": 0.0,
+    "timing": 0.0
+  },
+  "task": {
+    "domains_enabled": false,
+    "nominal_fraction": 0.25,
+    "motor_strength_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kp_scale_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kd_scale_range": [
+      1.0,
+      1.0
+    ],
+    "spring_strength_range": [
+      1.0,
+      1.0
+    ],
+    "encoder_bias_rad": 0.0,
+    "pd_encoder_bias_rad": 0.0,
+    "encoder_noise_rad": 0.0,
+    "gyro_bias_rad_s": 0.0,
+    "gyro_noise_rad_s": 0.0,
+    "gravity_noise": 0.0,
+    "velocity_noise_rad_s": [
+      0.0,
+      0.0
+    ],
+    "sensor_noise_scale": 1.0,
+    "gap_correct_pd_scaling": true,
+    "torque_delay_ms": [
+      0,
+      0
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      0
+    ],
+    "motor_tau_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_delay_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      1
+    ],
+    "imu_mount": null
+  },
+  "dynamics_randomization": {
+    "enabled": false,
+    "sampling": "startup",
+    "enabled_fraction": 0.75,
+    "base_body": "base_link",
+    "wheel_bodies": [
+      "L_link3",
+      "R_link3"
+    ],
+    "base_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "leg_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "wheel_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "inertia_scale": [
+      1.0,
+      1.0
+    ],
+    "base_com_offset_m": {
+      "x": [
+        -0.0,
+        0.0
+      ],
+      "y": [
+        -0.0,
+        0.0
+      ],
+      "z": [
+        -0.0,
+        0.0
+      ]
+    },
+    "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+  },
+  "ground_friction_range": [
+    0.5,
+    0.5
+  ],
+  "effective_wheel_ground_friction_range": [
+    0.3,
+    0.3
+  ],
+  "effective_unsaturated_leg_kp_scale_bounds": [
+    1.0,
+    1.0
+  ],
+  "effective_unsaturated_leg_kd_scale_bounds": [
+    1.0,
+    1.0
+  ],
+  "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+  "policy_PD_encoder_bias_disagreement_bound_rad": 0.0,
+  "physical_encoder_white_noise_coverage": false,
+  "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+  "hardware_identified": false,
+  "behavior_qualified": false,
+  "imu_wobble_enabled": false,
+  "leg_gain_randomization_enabled": false,
+  "spring_strength_randomization_enabled": false,
+  "input_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+  "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157"
+}

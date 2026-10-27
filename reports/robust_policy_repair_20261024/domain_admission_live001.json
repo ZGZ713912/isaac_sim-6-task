@@ -1,0 +1,73 @@
+{
+  "schema": "domain-admission-live-observation-v1",
+  "observed_utc": "2026-10-26T20:38:42.468429+00:00",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot013_gradual_admission_requested001",
+  "pid": 599642,
+  "start_ticks": 3112307,
+  "exec_session_id": 1230,
+  "completed_updates": 22,
+  "requested_updates": 512,
+  "prior_closed_fresh_updates": 3713,
+  "total_observed_fresh_updates": 3735,
+  "all266_training_sources_unchanged": true,
+  "training_source_commit": "55b3b07e6872764fefa33fe7d42fd5481e7267e1",
+  "first_real_native_PPO_verification": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/domain_admission_first_verification001.json",
+  "first16_event_comparison": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/domain_admission_first16_002.json",
+  "first16_event_comparison_sha256": "7f7c9c77663f8f765c2c191bc59f2561fa93d6dc05cb91118bc8af918dbbab60",
+  "first16_windows": [
+    {
+      "fresh_PPO_update_numbers_inclusive": [
+        1,
+        16
+      ],
+      "groups": {
+        "nominal": {
+          "sample_count": 79.0,
+          "episode_end_events": 0.490234375,
+          "planar_speed_rms_m_s": 0.11219710484147072,
+          "tilt_mean_deg": 3.4842785000801086,
+          "height_mae_m": 0.0013647063060489018
+        },
+        "randomized": {
+          "sample_count": 177.0,
+          "episode_end_events": 1.79443359375,
+          "planar_speed_rms_m_s": 0.15820682747289538,
+          "tilt_mean_deg": 4.722733065485954,
+          "height_mae_m": 0.0020512546398094855
+        },
+        "admitted": {
+          "sample_count": 79.0,
+          "episode_end_events": 0.490234375,
+          "planar_speed_rms_m_s": 0.11219710484147072,
+          "tilt_mean_deg": 3.4842785000801086,
+          "height_mae_m": 0.0013647063060489018
+        }
+      },
+      "admitted_lane_count_at_first_and_last_update": {
+        "admitted_nominal_lanes": [
+          79.0,
+          79.0
+        ],
+        "admitted_randomized_lanes": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "queue": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_v2_evaluation_queue005",
+    "pid": 601306,
+    "start_ticks": 3119635,
+    "exec_session_id": 46155,
+    "status": "waiting_for_exact_training_process_exit",
+    "all12_evaluation_sources_unchanged": true
+  },
+  "conclusion": "The optional admission and shared PPO/normalizer population are verified in actual native learning. First16 stochastic nominal/randomized metrics are not stable standing; no claimed robustness improvement.",
+  "remaining": "Finish warmup, ramp and full-population phases; cold tests, all permanent capabilities, near-full qualification, fresh long training, ONNX parity and RMCS deployment integration.",
+  "long_training_started": false,
+  "ONNX_exported": false,
+  "qualified": false,
+  "hardware_ready": false,
+  "producer_sha256": "b6d66ba35face0a8e838711aad2ec66ea9b33f549838d1c4c75188d911124f29"
+}

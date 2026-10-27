@@ -1,0 +1,88 @@
+{
+  "schema": "fresh-deployment-interface-audit-v1",
+  "observed_utc": "2026-10-26T23:54:03.226229+00:00",
+  "checked_yaml": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml",
+  "training_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot016_scoped_failure_requested_mixed1536",
+  "rmcs_commit": "ca287d91b016284bea84a5d57281a2d35f3e4637",
+  "rmcs_rl_submodule_commit": "a1ef5f5872305f08d674283bad0b91aeb7256369",
+  "checked_source_sha256": {
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "261e757ba3349d826e9a0150667affe7ce572c3066e0521f23779538ce651848",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/action.cpp": "8f1dfafe26256dd0d74dd5b1d5b2fe321bd26d1bba0eee71cb9fff10636f4469",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/configuration.cpp": "08722af6edc75475c410af11b1d8008bd8655022c04e82a0ff4daffb1a9b0817",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/observation.cpp": "626fed4372448f71a65941a81ee71fea1d750224fee1d978c19048b98b47ca10",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/policy_model.cpp": "4ff656a6abcb613003dc7851a0025e263864b974b75973d49656e2b6103acc53",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_rl/src/policy/onnx_runtime.cpp": "bec2b53639e93d1b50946e7e40912f77c8b3f2013d444866c37e088063a5fcf6"
+  },
+  "training_task_sha256": "52608efb5426027d746234eb64a40d9cd16a9d428b34c0c1306472ad3dd981c9",
+  "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+  "model_spec_matches": true,
+  "current_file_configuration": {
+    "policy_hz": 50.0,
+    "pd_hz": 1000.0,
+    "input_dim": 35,
+    "history": 1,
+    "action_dim": 6,
+    "max_action_age_s": 0.06,
+    "bridge_timeout_s": 0.06,
+    "chassis_timeout_s": 0.06,
+    "leg_target_clip_rad": [
+      "-0.75:0.75",
+      "-0.75:0.75",
+      "-0.75:0.75",
+      "-0.75:0.75"
+    ],
+    "wheel_target_clip_rad_s": [
+      "-90:90",
+      "-90:90"
+    ],
+    "chassis_yaw_cap_rad_s": 4.0,
+    "input_yaw_cap_rad_s": 4.0,
+    "input_spin_rad_s": 4.0,
+    "input_spin_rpm": 38.197186342054884
+  },
+  "required_future_export": {
+    "policy_hz": 200.0,
+    "physical_hz": 1000.0,
+    "input": {
+      "name": "obs",
+      "shape": [
+        1,
+        35
+      ],
+      "dtype": "float32"
+    },
+    "output": {
+      "name": "actions",
+      "shape": [
+        1,
+        6
+      ],
+      "dtype": "float32"
+    },
+    "deterministic_mean": true,
+    "three_policy_periods_action_age_s": 0.015,
+    "actual_getup_leg_action_clip": 16.0,
+    "leg_target_clip_rad": [
+      -4.0,
+      4.0
+    ],
+    "wheel_action_clip": 9.0,
+    "wheel_target_clip_rad_s": [
+      -90.0,
+      90.0
+    ],
+    "spin_target_rpm": 100.0,
+    "spin_target_rad_s": 10.471975511965978,
+    "minimum_body_rpm": 80.0,
+    "height_coefficients_and_normalization": "Embed the exact archived actor mean, normalization, height coefficients and wheel velocity increment once",
+    "metadata_normalization": "Do not add rmcs_obs_mean/std to an already normalized ONNX graph",
+    "leg_clipping_source": "Use checkpoint infos.settings leg_action_clip16; cfg.v5_control.action_clip3 is overridden by RobustGetupEnv at construction",
+    "safety": "Retain remote reset/loss, CAN/IMU timeout, clear_error, nonfinite/stale inference stops, relative-angle torque projection and40Nm saturation"
+  },
+  "export_or_deployment_performed": false,
+  "policy_quality_or_hardware_qualification": false,
+  "limitation": "Read-only file configuration audit. The running vehicle process and its selected YAML were not inspected. No trained candidate has completed the full capability tests or been selected for deployment.",
+  "new_PPO": 0,
+  "native_steps": 0,
+  "producer_sha256": "be930d979d375551571bcb2d882a5fc745b188b740294d03875f570c773b9a1a"
+}

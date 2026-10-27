@@ -1,0 +1,89 @@
+{
+  "schema": "fresh-diagnostic-mean-export-v1",
+  "observed_utc": "2026-10-27T04:19:52.569223+00:00",
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot017_dense_pose_physical_speed_mixed1536/model_stopped.pt",
+  "checkpoint_sha256": "76a4d00a0028163d62330f2fc7c8faab80a7a9f1c6c639236af6b48e48d82556",
+  "completed_updates": 456,
+  "diagnostic_only": true,
+  "actor_class": "height_initialization_candidate:HeightInitializedModel",
+  "source_chain": [
+    "scripts/height_initialization_candidate.py",
+    "src/wheeled_algo/leg_velocity_separated.py",
+    "src/wheeled_algo/wheel_velocity_increment.py"
+  ],
+  "archived_actor_sources_verified": true,
+  "all_actor_state_unchanged": true,
+  "native_receipt_sha256": "33a666b84838ff1a5af45caf001efb17874a8cd110c9e0ede4fbb01adc6e9007",
+  "native_samples_sha256": "41aea11494b85dafed2d6d63d784e336262f5a83064ebbab3e70e8b78241478b",
+  "native_receipt_had_parity_hash": false,
+  "sample_provenance_note": "Original native receipt may predate failure-safe parity hash persistence; current file hash and all recorded input/output pairs are independently verified here.",
+  "input": {
+    "name": "obs",
+    "shape": [
+      1,
+      35
+    ],
+    "dtype": "float32"
+  },
+  "output": {
+    "name": "actions",
+    "shape": [
+      1,
+      6
+    ],
+    "dtype": "float32",
+    "semantics": "Unclipped deterministic mean in native policy motor order"
+  },
+  "policy_hz": 200.0,
+  "physical_hz": 1000.0,
+  "normalization_embedded_once": true,
+  "learned_height_terms_embedded": true,
+  "raw_wheel_velocity_increment_embedded": true,
+  "leg_velocity_separation_embedded": true,
+  "onnx_sha256": "4da32d57da6be59f43ce540caf7e84286000a2a757a09b99de6800ba370e94f5",
+  "onnx_vs_native_max_abs_by_output": [
+    5.364418029785156e-07,
+    4.172325134277344e-07,
+    5.960464477539062e-07,
+    5.960464477539062e-07,
+    9.5367431640625e-07,
+    3.814697265625e-06
+  ],
+  "cpu_vs_native_max_abs_by_output": [
+    4.76837158203125e-07,
+    4.172325134277344e-07,
+    5.960464477539062e-07,
+    4.76837158203125e-07,
+    9.5367431640625e-07,
+    1.9073486328125e-06
+  ],
+  "numeric_absolute_tolerance_raw_action": 5e-05,
+  "worst_valid_flat_sample_index": 1206,
+  "metrics": {
+    "valid_native_vectors": 54535,
+    "sampled_policy_instants": 300,
+    "native_cases": 198,
+    "cpu_vs_native_max_abs_raw_action": 1.9073486328125e-06,
+    "inference_vs_cpu_max_abs_raw_action": 0.0,
+    "onnx_vs_native_max_abs_raw_action": 3.814697265625e-06,
+    "omitted_wrapper_negative_control_max_abs_raw_action": 8.984907150268555,
+    "double_normalization_negative_control_max_abs_raw_action": 172.86949157714844
+  },
+  "RSL_metrics_read_back": 8,
+  "new_PPO": 0,
+  "new_native_steps": 0,
+  "optimizer_constructed": false,
+  "policy_behavior_qualified": false,
+  "hardware_ready": false,
+  "rmcs_modified": false,
+  "policy_installed": false,
+  "versions": {
+    "torch": "2.11.0+cu128",
+    "onnx": "1.23.0rc1",
+    "onnxruntime": "1.30.0"
+  },
+  "source_sha256": {
+    "scripts/verify_fresh_export_parity.py": "29bb68d845c7c11b32549a340ac13a10b6afaaff2ac4268789102694ed79c315",
+    "scripts/evaluate_fresh_full_suite.py": "160fa8fb0998f5670a323261427cffdfaac2f9c5c1703099283f787266457fb7"
+  }
+}

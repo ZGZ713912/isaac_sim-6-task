@@ -1,0 +1,94 @@
+{
+  "schema": "isolated-sensor-live-observation-v1",
+  "observed_utc": "2026-10-26T19:57:19.767690+00:00",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot012_isolated_sensor_requested001",
+  "pid": 547601,
+  "start_ticks": 2829913,
+  "completed_updates": 46,
+  "requested_updates": 128,
+  "prior_closed_fresh_updates": 3585,
+  "total_observed_fresh_updates": 3631,
+  "all265_live_and_archived_sources_unchanged": true,
+  "committed_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "9d3d30f94459d8b196e2cb64784c7afa78d5ea7a",
+    "source_count": 265,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot012_isolated_sensor_requested001/committed_source.tar",
+    "archive_sha256": "fd0a63b94d584f2477dbae54efae045de8960c5d691edf3e52606cc2ef85ff87"
+  },
+  "first32_event_comparison": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/isolated_sensor_first32_001.json",
+  "first32_event_comparison_sha256": "1f52fa46fbb0421600673efd896035a820caea2a29ceaaacf6ceb7918a29d3cf",
+  "first32_windows": [
+    {
+      "PPO_update_numbers_inclusive": [
+        1,
+        32
+      ],
+      "runs": {
+        "pilot010_requested_domains_retry001": {
+          "Train/mean_episode_length": 114.12437462806702,
+          "ScratchStanding/dual_support_physical_fraction": 0.9909580387175083,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.086710938019678,
+          "PrecisionStanding/height_mae_m": 0.0019037155725527555,
+          "PrecisionStanding/tilt_mean_deg": 4.347230389714241,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.15046708146110177,
+          "StandingFailure/episode_events": 2.222412109375,
+          "logged_episode_mean_seconds": 0.5706218731403351
+        },
+        "pilot011_joint_tail_requested001": {
+          "Train/mean_episode_length": 116.03218746185303,
+          "ScratchStanding/dual_support_physical_fraction": 0.9913250133395195,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.08442699862644076,
+          "PrecisionStanding/height_mae_m": 0.0019069691734330263,
+          "PrecisionStanding/tilt_mean_deg": 4.362698197364807,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.1536890184506774,
+          "StandingFailure/episode_events": 2.173828125,
+          "logged_episode_mean_seconds": 0.5801609373092651
+        },
+        "pilot012_isolated_sensor_requested001": {
+          "Train/mean_episode_length": 117.72562432289124,
+          "ScratchStanding/dual_support_physical_fraction": 0.991345040500164,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.08204707712866366,
+          "PrecisionStanding/height_mae_m": 0.0018891553299908992,
+          "PrecisionStanding/tilt_mean_deg": 4.375104054808617,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.15449949423782527,
+          "StandingFailure/episode_events": 2.164794921875,
+          "logged_episode_mean_seconds": 0.5886281216144562
+        }
+      }
+    }
+  ],
+  "first_verification": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/isolated_sensor_first_verification001.json",
+  "native_sensor_reset_proof": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/isolated_sensor_native_verification001.json",
+  "queue": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_v2_evaluation_queue004",
+    "pid": 552501,
+    "start_ticks": 2858880,
+    "status": "waiting_for_exact_training_process_exit",
+    "frozen_source_count": 12
+  },
+  "conclusion": "The sensor-cache implementation leak is fixed; common first32 training speed/tilt metrics still do not show a balance improvement. Complete the bounded run and assess no-autoreset native behavior before any robustness claim.",
+  "next_if_failed": "Fresh nominal-population PPO warmup followed by gradual inclusion of full-width randomized lanes, with the same native PPO and normalizer masks; CPU candidate only, not used by012.",
+  "full_goal_remaining": [
+    "three-height robust standing",
+    "all initial falls with stable followup",
+    "actual moving fall recovery and resume",
+    "low/high forward/reverse straight tracking",
+    "four-way arcs and transitions",
+    "both80/100rpm spins",
+    "standing/moving/spinning height changes",
+    "high-speed braking",
+    "smooth leg/wheel coordination",
+    "held-out domains/seeds",
+    "near-full integrated qualification",
+    "fresh long training",
+    "ONNX parity",
+    "RMCS deployment contract/integration"
+  ],
+  "long_training_started": false,
+  "ONNX_exported": false,
+  "qualified": false,
+  "hardware_ready": false,
+  "producer_sha256": "26bff18ebb92a14acefb6d05c17feb1b72999ac55e689948228c6c2ea8dcd2de"
+}

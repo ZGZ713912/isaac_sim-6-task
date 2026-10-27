@@ -1,0 +1,119 @@
+{
+  "status": "static_passed",
+  "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh018_rmuc_play_preflight003/design.json",
+  "stage": "speed",
+  "role": "train",
+  "seed": 271301,
+  "block_index": 0,
+  "num_envs": 1,
+  "physics_dt": 0.001,
+  "policy_dt": 0.005,
+  "decimation": 5,
+  "runtime_expected": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.005,
+    "pc_control_dt": 0.001,
+    "decimation": 5,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "wheel_velocity_p": 0.6,
+    "seed": 271301,
+    "action_difference_reference_dt": 0.02,
+    "precision_tracking": true,
+    "actuator_response": {
+      "enabled": true,
+      "schema": "chassis-actuator-response",
+      "version": 1,
+      "joint_names": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "gain": 1.0,
+      "armature": [
+        0.0,
+        0.0,
+        0.0038669808882082915,
+        0.0,
+        0.0,
+        0.003818453742910773
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.049507400779663126,
+        0.0,
+        0.0,
+        0.06957712078102896
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0006085318417485766,
+        0.0,
+        0.0,
+        0.0003429025559035852
+      ],
+      "time_constant_s": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "locomotion_quality_rewards": {
+      "stand_still_lin_vel": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      },
+      "locomotion_posture": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    "modules": {
+      "usb_transport": false,
+      "command_transport": false,
+      "signal_perturbations": false,
+      "dynamics_randomization": false,
+      "contact_domain": false,
+      "contact_material": true,
+      "step_assist": false,
+      "actuator_response": true,
+      "stand_still_lin_vel": true,
+      "locomotion_posture_floor": true
+    },
+    "contact_material": {
+      "enabled": true,
+      "combine_mode": "average",
+      "ground_static_friction_range": [
+        0.5,
+        0.5
+      ],
+      "ground_dynamic_friction_range": [
+        0.5,
+        0.5
+      ],
+      "wheel_static_friction": 0.1,
+      "wheel_dynamic_friction": 0.1,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25
+    }
+  },
+  "actuator_response_evidence": {
+    "status": "authenticated",
+    "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+    "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+    "validated_file_count": 4
+  },
+  "design_sha256": "2292b709db7d3e7fc0ec0c4068babae6363f17e7f0f4df0e28b3d4e9c0bdaca3",
+  "environment_stage": "speed"
+}

@@ -1,0 +1,144 @@
+{
+  "schema": "requested-domain-v2-readonly-comparison-v1",
+  "observed_utc": "2026-10-26T15:53:31.256967+00:00",
+  "checkpoint_sha256": "569b48dab80500db8d08ca53c840f32e8cbf03b82fda8f8d580d983913cb3469",
+  "seed": 261201,
+  "paired_non_IMU_draws_equal": {
+    "enabled": true,
+    "motor_strength": true,
+    "leg_kp_scale": true,
+    "leg_kd_scale": true,
+    "spring_strength": true,
+    "policy_sensor_delay_ticks": true,
+    "policy_bias": true,
+    "policy_noise_sigma": true,
+    "pd_encoder_bias": true,
+    "imu_wobble_amplitude_rad": true,
+    "imu_wobble_frequency_hz": true,
+    "imu_wobble_phase_rad": true
+  },
+  "physics_runtime_equal": true,
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "rows": [
+    {
+      "profile": "nominal",
+      "mid": {
+        "height_m": 0.305,
+        "case_count": 7,
+        "old_strict_standing_pass_count": 1,
+        "standing_pass_v2_count": 7,
+        "contact_pass_v2_count": 7,
+        "raw_loss_ms": 49,
+        "raw_loss_events": 48,
+        "ignored_loss_ms": 49,
+        "retained_loss_ms": 0,
+        "retained_loss_events": 0,
+        "longest_raw_loss_ms": 2,
+        "absent_wheel_sample_count": 49,
+        "absent_wheel_zero_force_samples": 49,
+        "absent_wheel_positive_clearance_samples": 4,
+        "absent_wheel_clearance_over_0p1mm_samples": 2,
+        "absent_wheel_estimated_clearance_max_m": 0.0004597306251525879,
+        "max_xy_excursion_m": 0.015578553500450013,
+        "max_terminal_xy_offset_m": 0.014483704801920575,
+        "max_excursion_within_1cm_cases": 3,
+        "terminal_offset_within_1cm_cases": 4,
+        "mean_leg_angle_band_rms_mrad": 0.06318635786218303,
+        "mean_leg_angle_band_rms_rad": 6.318635786218303e-05,
+        "mean_leg_angle_band_rms_deg": 0.0036203116283063546
+      },
+      "all_heights_standing_pass": 7,
+      "forward_speed_rms_mean_m_s": 0.0016362325487924473,
+      "leg_speed_peak_rad_s": 0.8632603883743286
+    },
+    {
+      "profile": "requested",
+      "mid": {
+        "height_m": 0.305,
+        "case_count": 7,
+        "old_strict_standing_pass_count": 0,
+        "standing_pass_v2_count": 0,
+        "contact_pass_v2_count": 1,
+        "raw_loss_ms": 631,
+        "raw_loss_events": 505,
+        "ignored_loss_ms": 553,
+        "retained_loss_ms": 78,
+        "retained_loss_events": 24,
+        "longest_raw_loss_ms": 5,
+        "absent_wheel_sample_count": 636,
+        "absent_wheel_zero_force_samples": 636,
+        "absent_wheel_positive_clearance_samples": 395,
+        "absent_wheel_clearance_over_0p1mm_samples": 162,
+        "absent_wheel_estimated_clearance_max_m": 0.0005621761083602905,
+        "max_xy_excursion_m": 2.124239510984803,
+        "max_terminal_xy_offset_m": 2.124239510984803,
+        "max_excursion_within_1cm_cases": 0,
+        "terminal_offset_within_1cm_cases": 0,
+        "mean_leg_angle_band_rms_mrad": 0.3913468633379255,
+        "mean_leg_angle_band_rms_rad": 0.0003913468633379255,
+        "mean_leg_angle_band_rms_deg": 0.02242252359494614
+      },
+      "all_heights_standing_pass": 0,
+      "forward_speed_rms_mean_m_s": 0.1037404693197459,
+      "leg_speed_peak_rad_s": 1.5193672180175781
+    },
+    {
+      "profile": "without_alignment_paired",
+      "mid": {
+        "height_m": 0.305,
+        "case_count": 7,
+        "old_strict_standing_pass_count": 0,
+        "standing_pass_v2_count": 1,
+        "contact_pass_v2_count": 2,
+        "raw_loss_ms": 635,
+        "raw_loss_events": 524,
+        "ignored_loss_ms": 582,
+        "retained_loss_ms": 53,
+        "retained_loss_events": 16,
+        "longest_raw_loss_ms": 5,
+        "absent_wheel_sample_count": 640,
+        "absent_wheel_zero_force_samples": 640,
+        "absent_wheel_positive_clearance_samples": 428,
+        "absent_wheel_clearance_over_0p1mm_samples": 190,
+        "absent_wheel_estimated_clearance_max_m": 0.0005621761083602905,
+        "max_xy_excursion_m": 1.6530973359630106,
+        "max_terminal_xy_offset_m": 1.6530973359630106,
+        "max_excursion_within_1cm_cases": 0,
+        "terminal_offset_within_1cm_cases": 0,
+        "mean_leg_angle_band_rms_mrad": 0.37654939719608854,
+        "mean_leg_angle_band_rms_rad": 0.0003765493971960886,
+        "mean_leg_angle_band_rms_deg": 0.02157469123753115
+      },
+      "all_heights_standing_pass": 1,
+      "forward_speed_rms_mean_m_s": 0.08598201938106545,
+      "leg_speed_peak_rad_s": 1.4712401628494263
+    }
+  ],
+  "evidence_sha256": {
+    "nominal": {
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval009_v2_nominal_seed261201/receipt.json": "dbdbb8697f8530f9046a90a6029f27e8c3d38cfe88ae3fbf6704129256281f41",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval009_v2_nominal_seed261201/evaluation/result.json": "e5f401eced0d19a43a671056043561262a044218fc873fb25c28f8145b7a0348",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/eval009_v2_nominal_seed261201_review001.json": "1fb965e3a2ee089951b4458b2fba99a1ea630131d1a0c0ea43a5c9b7e1ec3272"
+    },
+    "requested": {
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval009_v2_requested_seed261201/receipt.json": "5be7c362e9a612a86a5608957a806c674d88a2c15b71c0b0da59277c6690caa8",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval009_v2_requested_seed261201/evaluation/result.json": "e851471c05b9a0bdd7280de743ab6bfdb90dc64733a663a4d8d077583f3d4e9e",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/eval009_v2_requested_seed261201_review001.json": "b8b88c5064e049db4ff741530545d2b106680407a61e309d4aee4fd4fc951136"
+    },
+    "without_alignment_paired": {
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval009_v2_without_alignment_paired_seed261201/receipt.json": "f43b9fd58c88d845c623a6ad956a8183c192b120faebb517cabae7e1ed467429",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/eval009_v2_without_alignment_paired_seed261201/evaluation/result.json": "c45c632c0185d9eab35e89abed80fec392e8aa606446e86fb3fdf9014f7af4fb",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/eval009_v2_without_alignment_paired_seed261201_review001.json": "0a575678cc18104b6a4d37ee2ae1d96166d926911684a942e992d411091dcf07"
+    }
+  },
+  "verifier_sha256": "e98fbeed720c7e9dd5640166a0f57c8aefeb8eab5ddae9ba35a09eb27648a221",
+  "findings": [
+    "Nominal-only009 is sensitive to requested domains: nominal middle-height7/7, requested0/7.",
+    "Paired removal of fixed IMU alignment gives1/7, still1.653m worst drift. IMU alignment does not explain all sensitivity.",
+    "Earlier unpaired3/7 result changed later random draws and is excluded from causal attribution.",
+    "Low/high heights were not trained in009. This experiment is not the score of a newly trained robust policy."
+  ],
+  "qualified": false,
+  "hardware_ready": false
+}

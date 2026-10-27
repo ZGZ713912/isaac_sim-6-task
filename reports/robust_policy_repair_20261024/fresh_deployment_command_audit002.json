@@ -1,0 +1,42 @@
+{
+  "schema": "fresh-deployment-command-interface-readonly-audit-v1",
+  "observed_utc": "2026-10-27T02:31:19.258815+00:00",
+  "RMCS_root": "/home/noir/Documents/workspace/RMCS",
+  "RMCS_HEAD": "ca287d91b016284bea84a5d57281a2d35f3e4637",
+  "source_sha256": {
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/observation.cpp": "626fed4372448f71a65941a81ee71fea1d750224fee1d978c19048b98b47ca10",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/configuration.cpp": "08722af6edc75475c410af11b1d8008bd8655022c04e82a0ff4daffb1a9b0817",
+    "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "261e757ba3349d826e9a0150667affe7ce572c3066e0521f23779538ce651848"
+  },
+  "frozen_training_source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot017_dense_pose_physical_speed_mixed1536/source_snapshot/src/wheeled_tasks/chassis/robust_getup_env.py",
+  "frozen_training_source_sha256": "d3cf1d2fbfdc65aeba083d94377a2d60cbbb149494ee77b631f3a39ec3f060ba",
+  "task_contract_sha256": "60a9ea48739c5f224a4376bf066ddda85dccd66e8f59c1a48cfb57b0ed5c4c33",
+  "differences": [
+    {
+      "item": "motion commands while fallen/recovering",
+      "training": "pending forward/yaw retained but actor receives zeros during passive or recovery_active; completion requires native stable/contact hold0.5s",
+      "inspected_RMCS": "Requested velocity/yaw go through mode clamp and optional heading hold without the corresponding recovery/passive predicate",
+      "required_work": "Resolve the observation-command contract in fresh training/evaluation and deployment before treating simulation recovery as transferable"
+    },
+    {
+      "item": "straight heading loop",
+      "training": "zero-yaw raw straight request; no world-heading correction in actor command",
+      "inspected_RMCS": "heading_hold_enabled defaults true; yaw correction gain5, capped at2pi then profile yaw limit",
+      "required_work": "Explicitly align configuration with behavior evaluation; do not silently attribute the external loop to the learned policy"
+    },
+    {
+      "item": "height reference",
+      "training": "reset-time scheduled height steps enter the actor command",
+      "inspected_RMCS": "height_command_is_reference true; continuous reference rate capped0.6666667m/s",
+      "required_work": "Bind the eventual deployment reference protocol to the exact exported actor"
+    }
+  ],
+  "RMCS_files_modified_by_audit": false,
+  "training_changed": false,
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "physical_robot_motion": false,
+  "observed_running_hardware_profile": false,
+  "hardware_ready": false,
+  "scope": "Static source/config inspection only; not a claim about which profile is running on the vehicle. Existing50vs200Hz,4rad/s yaw and leg clipping mismatches remain documented in audit001."
+}

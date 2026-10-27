@@ -1,0 +1,112 @@
+{
+  "schema": "joint-tail-reward-only-live-observation-v1",
+  "observed_utc": "2026-10-26T19:02:49.937667+00:00",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot011_joint_tail_requested001",
+  "pid": 486293,
+  "start_ticks": 2465012,
+  "completed_updates": 72,
+  "requested_updates": 128,
+  "prior_closed_fresh_updates": 3457,
+  "total_observed_fresh_updates": 3529,
+  "actual_GPU_process_present": true,
+  "all265_live_and_archived_sources_unchanged": true,
+  "committed_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "cbcf99bdf080874163e6eb82a0ad954cb2afee49",
+    "source_count": 265,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot011_joint_tail_requested001/committed_source.tar",
+    "archive_sha256": "36112055ea56276139431fedcd4dd335ca8c869325a1d2aeb750ea6146718c7c"
+  },
+  "first_verification_sha256": "fb1150e3fc5d794746e636523b2d15f9fb3ef1ca980dcdb36c771c163f7664d6",
+  "first64_comparison_sha256": "03dfa75a386421d9e555d00aa9bc0f135189e93c1aadce2b6b391c30b1ec8cf5",
+  "first64_windows": [
+    {
+      "PPO_update_numbers_inclusive": [
+        1,
+        32
+      ],
+      "runs": {
+        "pilot010_requested_domains_retry001": {
+          "Train/mean_episode_length": 114.12437462806702,
+          "ScratchStanding/dual_support_physical_fraction": 0.9909580387175083,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.086710938019678,
+          "PrecisionStanding/height_mae_m": 0.0019037155725527555,
+          "PrecisionStanding/tilt_mean_deg": 4.347230389714241,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.15046708146110177,
+          "StandingFailure/episode_events": 2.222412109375,
+          "logged_episode_mean_seconds": 0.5706218731403351
+        },
+        "pilot011_joint_tail_requested001": {
+          "Train/mean_episode_length": 116.03218746185303,
+          "ScratchStanding/dual_support_physical_fraction": 0.9913250133395195,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.08442699862644076,
+          "PrecisionStanding/height_mae_m": 0.0019069691734330263,
+          "PrecisionStanding/tilt_mean_deg": 4.362698197364807,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.1536890184506774,
+          "StandingFailure/episode_events": 2.173828125,
+          "logged_episode_mean_seconds": 0.5801609373092651
+        }
+      }
+    },
+    {
+      "PPO_update_numbers_inclusive": [
+        33,
+        64
+      ],
+      "runs": {
+        "pilot010_requested_domains_retry001": {
+          "Train/mean_episode_length": 140.70031309127808,
+          "ScratchStanding/dual_support_physical_fraction": 0.9952789470553398,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.07099614758044481,
+          "PrecisionStanding/height_mae_m": 0.0019818764012597967,
+          "PrecisionStanding/tilt_mean_deg": 4.414056718349457,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.1806210521608591,
+          "StandingFailure/episode_events": 1.81494140625,
+          "logged_episode_mean_seconds": 0.7035015654563904
+        },
+        "pilot011_joint_tail_requested001": {
+          "Train/mean_episode_length": 146.46593761444092,
+          "ScratchStanding/dual_support_physical_fraction": 0.9942194111645222,
+          "ScratchStanding/leg_speed_rms_rad_s": 0.07050162111409009,
+          "PrecisionStanding/height_mae_m": 0.002075095533655258,
+          "PrecisionStanding/tilt_mean_deg": 4.4015607833862305,
+          "PrecisionStanding/planar_speed_rms_m_s": 0.1860161512158811,
+          "StandingFailure/episode_events": 1.73828125,
+          "logged_episode_mean_seconds": 0.7323296880722046
+        }
+      }
+    }
+  ],
+  "queue": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_v2_evaluation_queue003",
+    "pid": 499678,
+    "start_ticks": 2549835,
+    "frozen_source_count": 12,
+    "status": "waiting_for_exact_training_process_exit"
+  },
+  "conclusion": "First64 exploratory updates do not show a standing-speed improvement. Finish the fixed128 budget, preserve the same weights for cold nominal/requested evaluation, and do not call this a successful reward repair.",
+  "next_candidate_if_failed": "Fresh nominal-sample learning warmup followed by gradual admission of the already sampled full-width randomized lanes, with matching normalization and PPO masks; retain final requested domains and all permanent capabilities. Not implemented or adopted.",
+  "full_goal_remaining": [
+    "three-height robust standing",
+    "all initial falls and stable followup",
+    "actual moving fall recovery",
+    "low/high forward/reverse straight tracking",
+    "four-way arcs and transitions",
+    "both80/100rpm spins",
+    "standing/moving/spinning height changes",
+    "high-speed braking",
+    "smooth leg/wheel coordination",
+    "held-out domains/seeds",
+    "near-full integrated qualification",
+    "fresh long training",
+    "ONNX parity",
+    "RMCS offline integration and deployment contract"
+  ],
+  "qualification": false,
+  "hardware_ready": false,
+  "long_training_started": false,
+  "ONNX_exported": false,
+  "RMCS_deployed": false,
+  "producer_sha256": "aea442e8760e45e9a5cc0d5ab22666baae6b0eb00d4f406ed6744464f9a3a654"
+}

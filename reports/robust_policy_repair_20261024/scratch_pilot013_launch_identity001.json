@@ -1,0 +1,160 @@
+{
+  "schema": "scratch-from-zero-launch-identity-v2",
+  "observed_utc": "2026-10-26T20:33:45.631326+00:00",
+  "pid": 599642,
+  "start_ticks": 3112307,
+  "command": [
+    "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+    "-u",
+    "scripts/train_scratch_standing.py",
+    "--output",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot013_gradual_admission_requested001",
+    "--bank",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+    "--updates",
+    "512",
+    "--num-envs",
+    "256",
+    "--rollout-steps",
+    "128",
+    "--seed",
+    "261001",
+    "--all-heights-after",
+    "512",
+    "--randomization-study",
+    "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+    "--randomization-profile",
+    "requested",
+    "--randomization-strength",
+    "1",
+    "--precise-objective",
+    "--standing-reward-shape",
+    "gaussian",
+    "--normalize-observations",
+    "--desync-episodes",
+    "--standing-failures",
+    "--wheel-velocity-increment",
+    "--separate-leg-velocity-feedback",
+    "--static-load-initialization",
+    "--contact-break-cost",
+    "0",
+    "--domain-admission-warmup-updates",
+    "192",
+    "--domain-admission-ramp-updates",
+    "128",
+    "--domain-admission-seed",
+    "261501"
+  ],
+  "source_checkout": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot013_gradual_admission_requested001",
+  "commit": "55b3b07e6872764fefa33fe7d42fd5481e7267e1",
+  "source_archive_sha256": "74b9d27f33248c47fb5ae59978250e1a8fa70895fbc5e7eb086a0e1e2d580414",
+  "source_count": 266,
+  "requested_updates": 512,
+  "prior_closed_fresh_updates": 3713,
+  "exec_session_id": 1230,
+  "initialization": {
+    "schema": "scratch-ppo-initialization-v1",
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "actor_updates": 0,
+    "critic_updates": 0,
+    "optimizer_states": 0,
+    "actor_tensor_sha256": "d3e40fdd298cd2d6072a4ecfc06c987453c2811fe55bbadcff66e56b3f25e095",
+    "critic_tensor_sha256": "bba66fe18caca514de1f7603a4316b0459c45f6ea759c7ed5653e6d056c22c87",
+    "actor_trainable_parameters": 29772,
+    "critic_trainable_parameters": 35585,
+    "output_bias_source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+    "output_bias_policy_order": [
+      0.39714956283569336,
+      -0.1700170785188675,
+      -0.3971973955631256,
+      0.170059934258461,
+      0.0,
+      0.0
+    ],
+    "initial_std_policy_order": [
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.05,
+      0.05
+    ],
+    "static_load_initialization": {
+      "schema": "scratch-static-load-initialization-v1",
+      "reference_sha256": "7d144218dd509d6e8cd1ec4aa813cce2f67cb6960841398638a9b14b08ffe728",
+      "native_pair_sha256": "88259d94013b904bbd8bee071a6694d17513e08bed3f96c41e5ec483b1f93ea0",
+      "geometry_policy_raw": [
+        0.29959918300456945,
+        -0.05938980783276504,
+        -0.29959918300456945,
+        0.05939136655550859,
+        0.0,
+        0.0
+      ],
+      "offset_policy_raw": [
+        0.09755037610874084,
+        -0.11062725925258295,
+        -0.09759822002341223,
+        0.11066859127489273,
+        0.0,
+        0.0
+      ],
+      "biased_policy_raw": [
+        0.3971495591133103,
+        -0.17001706708534797,
+        -0.3971974030279817,
+        0.17005995783040131,
+        0.0,
+        0.0
+      ],
+      "runtime_compensation": false,
+      "all_outputs_trainable": true,
+      "source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+      "scope": "Startup initialization prior; no standing, robustness or hardware qualification",
+      "domain_scope": {
+        "nominal_contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.5,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.5,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        },
+        "training_contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.3,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.3,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        },
+        "randomized_domain_native_validation": false,
+        "initialization_only": "nominal load prior; all six outputs remain trainable"
+      }
+    },
+    "actor_class": "wheeled_algo.leg_velocity_separated:LegVelocitySeparatedModel",
+    "wheel_velocity_increment": true,
+    "separate_leg_velocity_feedback": true
+  },
+  "first_verification": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/domain_admission_first_verification001.json",
+  "scope": "Gradual full-width domain admission, fresh middle-height foundation only",
+  "hardware_ready": false
+}

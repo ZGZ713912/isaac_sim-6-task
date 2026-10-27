@@ -1,0 +1,235 @@
+{
+  "schema": "fresh-unified-native-runtime-preparation-v1",
+  "observed_utc": "2026-10-26T21:49:45.556305+00:00",
+  "live_learner": {
+    "pid": 599642,
+    "start_ticks": 3112307,
+    "completed_updates": 330,
+    "requested_updates": 512,
+    "source_commit": "55b3b07e6872764fefa33fe7d42fd5481e7267e1",
+    "frozen_training_files": 266,
+    "all_sources_unchanged": true
+  },
+  "waiting_queue": {
+    "pid": 601306,
+    "start_ticks": 3119635,
+    "frozen_files": 12,
+    "all_sources_unchanged": true
+  },
+  "actual_RSL_observations": [
+    {
+      "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/domain_admission_ramp256_011.json",
+      "sha256": "776111edfc1c202969718181cbd141fffc829a0a1884e1baecccbb4614534ad9",
+      "updates": 263,
+      "complete_window_endpoint": 256
+    },
+    {
+      "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/domain_admission_ramp288_012.json",
+      "sha256": "1a92397bb1bff52848b18815a9590fb9d2c33a8fad54eab13a5eeb8eb649de80",
+      "updates": 322,
+      "complete_window_endpoint": 320
+    }
+  ],
+  "actual_latest_population": {
+    "fresh_PPO_update_number": 322,
+    "admitted_nominal_lanes": 79.0,
+    "admitted_randomized_lanes": 177.0,
+    "population_fraction": 1.0,
+    "completed_actor_updates": 321.0
+  },
+  "CPU_tests_passed": 16,
+  "CPU_xml_sha256": "9da3474eacd8e9f7ddbb739db79dfe3551862bbc61de4edc80a2691299d9cd44",
+  "CPU_scope": "Actual native sequence/timeout/autoreset blocks and grounding selector executed on CPU; environment factory uses synthetic protocol feedback, not Isaac physics.",
+  "candidate": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/unified_training_runtime_candidate001",
+  "candidate_receipt": {
+    "schema": "fresh-unified-training-runtime-candidate-v1",
+    "source": {
+      "src/wheeled_tasks/chassis/robust_getup_env.py": {
+        "original_sha256": "a7bc648859a42b12abfbed97eefc268a1abd9dbf18a1850ccbefee34b9daaad1",
+        "candidate_sha256": "d3cf1d2fbfdc65aeba083d94377a2d60cbbb149494ee77b631f3a39ec3f060ba"
+      },
+      "src/wheeled_tasks/chassis/grounded_standing_reset.py": {
+        "original_sha256": "067a09ec144c9064908b61e11c3f798a6b955e11f13f6107d469ddaa1529cc02",
+        "candidate_sha256": "33c0cd96527433709ccf987215cf41f63f81d0d4a0124a24195ffbe5856ed98e"
+      }
+    },
+    "version": "case-sequences-and-timeouts-v1",
+    "candidate_applied": false,
+    "new_native_steps": 0,
+    "new_PPO": 0,
+    "actual_native_class_constructed": false,
+    "live_source_changed": false,
+    "qualified": false,
+    "hardware_ready": false
+  },
+  "source_sha256": {
+    "scripts/unified_training_cases_candidate.py": "17672aa850984dc44d3a2c0cf48d240bf48a78c1b520846818f59a403bbe8673",
+    "scripts/unified_training_runtime_candidate.py": "aa9274425e6a5f43b20f06c2fc280a447a681435e77fa29482c43886a0f9d0e4",
+    "tests/test_unified_training_cases_candidate.py": "e989172ffa5edc35ef008b5488f011ca1d8d127833b596c95d493931642fd6b2",
+    "tests/test_unified_training_runtime_candidate.py": "bf7250a1851ba12e7680b66b32eaa82566b188ddbbabee3604d84b26eba1bf20"
+  },
+  "phases": [
+    {
+      "schema": "fresh-unified-training-cases-candidate-v1",
+      "completed_updates": 0,
+      "exposure": 0.0,
+      "final_quota": {
+        "standing": 64,
+        "initial_recovery": 51,
+        "low_speed_straight": 26,
+        "high_speed_straight": 21,
+        "stationary_spin": 21,
+        "four_direction_arcs": 20,
+        "standing_height_change": 13,
+        "moving_height_change": 10,
+        "spinning_height_change": 10,
+        "high_speed_braking": 10,
+        "moving_fall_recovery": 10
+      },
+      "current_tasks": {
+        "standing": 256
+      },
+      "foundation_updates": 192,
+      "full_tasks_at": 768,
+      "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+      "independent_training_seed": 271701,
+      "required_task_categories_present_at_final": true,
+      "smoothness_and_robustness": "cross-cutting; measured under every task",
+      "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+      "training_adopted": false,
+      "native_verified": false,
+      "qualified": false,
+      "hardware_ready": false
+    },
+    {
+      "schema": "fresh-unified-training-cases-candidate-v1",
+      "completed_updates": 192,
+      "exposure": 0.0,
+      "final_quota": {
+        "standing": 64,
+        "initial_recovery": 51,
+        "low_speed_straight": 26,
+        "high_speed_straight": 21,
+        "stationary_spin": 21,
+        "four_direction_arcs": 20,
+        "standing_height_change": 13,
+        "moving_height_change": 10,
+        "spinning_height_change": 10,
+        "high_speed_braking": 10,
+        "moving_fall_recovery": 10
+      },
+      "current_tasks": {
+        "standing": 256
+      },
+      "foundation_updates": 192,
+      "full_tasks_at": 768,
+      "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+      "independent_training_seed": 271701,
+      "required_task_categories_present_at_final": true,
+      "smoothness_and_robustness": "cross-cutting; measured under every task",
+      "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+      "training_adopted": false,
+      "native_verified": false,
+      "qualified": false,
+      "hardware_ready": false
+    },
+    {
+      "schema": "fresh-unified-training-cases-candidate-v1",
+      "completed_updates": 480,
+      "exposure": 0.5,
+      "final_quota": {
+        "standing": 64,
+        "initial_recovery": 51,
+        "low_speed_straight": 26,
+        "high_speed_straight": 21,
+        "stationary_spin": 21,
+        "four_direction_arcs": 20,
+        "standing_height_change": 13,
+        "moving_height_change": 10,
+        "spinning_height_change": 10,
+        "high_speed_braking": 10,
+        "moving_fall_recovery": 10
+      },
+      "current_tasks": {
+        "standing": 162,
+        "initial_recovery": 25,
+        "low_speed_straight": 13,
+        "high_speed_straight": 10,
+        "stationary_spin": 10,
+        "four_direction_arcs": 10,
+        "standing_height_change": 6,
+        "moving_height_change": 5,
+        "spinning_height_change": 5,
+        "high_speed_braking": 5,
+        "moving_fall_recovery": 5
+      },
+      "foundation_updates": 192,
+      "full_tasks_at": 768,
+      "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+      "independent_training_seed": 271701,
+      "required_task_categories_present_at_final": true,
+      "smoothness_and_robustness": "cross-cutting; measured under every task",
+      "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+      "training_adopted": false,
+      "native_verified": false,
+      "qualified": false,
+      "hardware_ready": false
+    },
+    {
+      "schema": "fresh-unified-training-cases-candidate-v1",
+      "completed_updates": 768,
+      "exposure": 1.0,
+      "final_quota": {
+        "standing": 64,
+        "initial_recovery": 51,
+        "low_speed_straight": 26,
+        "high_speed_straight": 21,
+        "stationary_spin": 21,
+        "four_direction_arcs": 20,
+        "standing_height_change": 13,
+        "moving_height_change": 10,
+        "spinning_height_change": 10,
+        "high_speed_braking": 10,
+        "moving_fall_recovery": 10
+      },
+      "current_tasks": {
+        "standing": 64,
+        "initial_recovery": 51,
+        "low_speed_straight": 26,
+        "high_speed_straight": 21,
+        "stationary_spin": 21,
+        "four_direction_arcs": 20,
+        "standing_height_change": 13,
+        "moving_height_change": 10,
+        "spinning_height_change": 10,
+        "high_speed_braking": 10,
+        "moving_fall_recovery": 10
+      },
+      "foundation_updates": 192,
+      "full_tasks_at": 768,
+      "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+      "independent_training_seed": 271701,
+      "required_task_categories_present_at_final": true,
+      "smoothness_and_robustness": "cross-cutting; measured under every task",
+      "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+      "training_adopted": false,
+      "native_verified": false,
+      "qualified": false,
+      "hardware_ready": false
+    }
+  ],
+  "command_curriculum": "Requests and transition amplitudes ramp only in reset data; final80/100rpm and3/-2.5m/s remain unchanged. Native reward at rest otherwise has negligible tracking signal.",
+  "combined_reward_and_runtime_patch_check_passed": true,
+  "candidate_applied": false,
+  "actual_native_class_constructed": false,
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "qualified": false,
+  "hardware_ready": false,
+  "integration_remaining": [
+    "Actual013 exit and integrity seal before any frozen source change",
+    "Fresh full-task entry, height coefficient/source authentication and extended integrity seal",
+    "Real native sequence/autoreset/phase/grounded-birth verification before fresh PPO",
+    "Same-policy full13 capabilities, independent seeds and held-out domains before long training/ONNX"
+  ]
+}

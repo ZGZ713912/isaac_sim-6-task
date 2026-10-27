@@ -1,0 +1,4846 @@
+{
+  "schema": "scratch-standing-readonly-evaluation-v1",
+  "status": "completed_unqualified",
+  "pid": 522173,
+  "start_ticks": 2666352,
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot011_joint_tail_requested001/model_final.pt",
+  "checkpoint_sha256": "f3de95f8f1df97ea90a64fdfe1522b210b8bfdcf5438d95acb18df15c774bfa0",
+  "completed_updates": 128,
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "evaluator_sha256": "7ee0428e1e04834b0d8bfe3c1957980dc5834dda5b0329f558d87c9dcdd781e6",
+  "seed": 261201,
+  "frozen_source_hashes_verified": 265,
+  "hardware_ready": false,
+  "external_force_mode": "native",
+  "wheel_response_scale": 1.0,
+  "leg_speed_response_scale": 1.0,
+  "reset_observation_mode": "native",
+  "hold_initial_leg_targets": false,
+  "leg_hold_after_seconds": 0,
+  "evaluation_duration_s": 8,
+  "encoder_bias_mode": "native",
+  "domain_intervention": {
+    "resolved": {
+      "schema": "wheel-leg-resolved-randomization-study-v2",
+      "profile": "nominal",
+      "strength": 1.0,
+      "group_scales": {
+        "observation_noise": 0.0,
+        "encoder_bias": 0.0,
+        "imu_alignment": 0.0,
+        "motor_strength": 0.0,
+        "mass_com": 0.0,
+        "independent_inertia": 0.0,
+        "ground_friction": 0.0,
+        "timing": 0.0
+      },
+      "task": {
+        "domains_enabled": false,
+        "nominal_fraction": 0.25,
+        "motor_strength_range": [
+          1.0,
+          1.0
+        ],
+        "leg_kp_scale_range": [
+          1.0,
+          1.0
+        ],
+        "leg_kd_scale_range": [
+          1.0,
+          1.0
+        ],
+        "spring_strength_range": [
+          1.0,
+          1.0
+        ],
+        "encoder_bias_rad": 0.0,
+        "pd_encoder_bias_rad": 0.0,
+        "encoder_noise_rad": 0.0,
+        "gyro_bias_rad_s": 0.0,
+        "gyro_noise_rad_s": 0.0,
+        "gravity_noise": 0.0,
+        "velocity_noise_rad_s": [
+          0.0,
+          0.0
+        ],
+        "sensor_noise_scale": 1.0,
+        "gap_correct_pd_scaling": true,
+        "torque_delay_ms": [
+          0,
+          0
+        ],
+        "sensor_delay_policy_ticks": [
+          0,
+          0
+        ],
+        "motor_tau_ms": [
+          0,
+          0
+        ],
+        "pd_feedback_delay_ms": [
+          0,
+          0
+        ],
+        "pd_feedback_period_ms": [
+          1,
+          1
+        ],
+        "imu_mount": null
+      },
+      "dynamics_randomization": {
+        "enabled": false,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "leg_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "wheel_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "inertia_scale": [
+          1.0,
+          1.0
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.0,
+            0.0
+          ],
+          "y": [
+            -0.0,
+            0.0
+          ],
+          "z": [
+            -0.0,
+            0.0
+          ]
+        },
+        "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+      },
+      "ground_friction_range": [
+        0.5,
+        0.5
+      ],
+      "effective_wheel_ground_friction_range": [
+        0.3,
+        0.3
+      ],
+      "effective_unsaturated_leg_kp_scale_bounds": [
+        1.0,
+        1.0
+      ],
+      "effective_unsaturated_leg_kd_scale_bounds": [
+        1.0,
+        1.0
+      ],
+      "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+      "policy_PD_encoder_bias_disagreement_bound_rad": 0.0,
+      "physical_encoder_white_noise_coverage": false,
+      "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+      "hardware_identified": false,
+      "behavior_qualified": false,
+      "imu_wobble_enabled": false,
+      "leg_gain_randomization_enabled": false,
+      "spring_strength_randomization_enabled": false,
+      "input_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+      "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157"
+    },
+    "replaced_study": {
+      "schema": "wheel-leg-resolved-randomization-study-v2",
+      "profile": "requested",
+      "strength": 1.0,
+      "group_scales": {
+        "observation_noise": 1.0,
+        "encoder_bias": 1.0,
+        "imu_alignment": 1.0,
+        "motor_strength": 1.0,
+        "mass_com": 1.0,
+        "independent_inertia": 1.0,
+        "ground_friction": 1.0,
+        "timing": 1.0
+      },
+      "task": {
+        "domains_enabled": true,
+        "nominal_fraction": 0.25,
+        "motor_strength_range": [
+          0.84,
+          1.16
+        ],
+        "leg_kp_scale_range": [
+          1.0,
+          1.0
+        ],
+        "leg_kd_scale_range": [
+          1.0,
+          1.0
+        ],
+        "spring_strength_range": [
+          1.0,
+          1.0
+        ],
+        "encoder_bias_rad": 0.004,
+        "pd_encoder_bias_rad": 0.004,
+        "encoder_noise_rad": 0.00035,
+        "gyro_bias_rad_s": 0.00525,
+        "gyro_noise_rad_s": 0.0035,
+        "gravity_noise": 0.0014,
+        "velocity_noise_rad_s": [
+          0.0175,
+          0.0875
+        ],
+        "sensor_noise_scale": 1.0,
+        "gap_correct_pd_scaling": true,
+        "torque_delay_ms": [
+          0,
+          0
+        ],
+        "sensor_delay_policy_ticks": [
+          0,
+          1
+        ],
+        "motor_tau_ms": [
+          0.0,
+          0.0
+        ],
+        "pd_feedback_delay_ms": [
+          0,
+          0
+        ],
+        "pd_feedback_period_ms": [
+          1,
+          1
+        ],
+        "imu_mount": {
+          "fixed_degrees": [
+            0.8,
+            0.8,
+            0.26666666666666666
+          ],
+          "wobble_degrees": [
+            0.0,
+            0.0
+          ],
+          "wobble_hz": [
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "dynamics_randomization": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.92,
+          1.08
+        ],
+        "leg_mass_scale": [
+          0.92,
+          1.08
+        ],
+        "wheel_mass_scale": [
+          0.92,
+          1.08
+        ],
+        "inertia_scale": [
+          0.94,
+          1.06
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.012,
+            0.012
+          ],
+          "y": [
+            -0.0064,
+            0.0064
+          ],
+          "z": [
+            -0.008,
+            0.008
+          ]
+        },
+        "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+      },
+      "ground_friction_range": [
+        0.3,
+        0.5
+      ],
+      "effective_wheel_ground_friction_range": [
+        0.2,
+        0.3
+      ],
+      "effective_unsaturated_leg_kp_scale_bounds": [
+        0.84,
+        1.16
+      ],
+      "effective_unsaturated_leg_kd_scale_bounds": [
+        0.84,
+        1.16
+      ],
+      "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+      "policy_PD_encoder_bias_disagreement_bound_rad": 0.008,
+      "physical_encoder_white_noise_coverage": false,
+      "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+      "hardware_identified": false,
+      "behavior_qualified": false,
+      "imu_wobble_enabled": false,
+      "leg_gain_randomization_enabled": false,
+      "spring_strength_randomization_enabled": false,
+      "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+      "input_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json"
+    },
+    "resolver_sha256": "80ec179c8af89f85f0439c0fd15e78815860a78c98ec2ab99eb6de6af187dec1",
+    "scope": "read-only environmental sensitivity; no claim of learning from these domains"
+  },
+  "diagnostic_source_hashes": {
+    "evaluate_scratch_standing.py": "7ee0428e1e04834b0d8bfe3c1957980dc5834dda5b0329f558d87c9dcdd781e6",
+    "record_scratch_physics.py": "6b66d5af36e4f5c559878062bbf07a0d444432685c4a3320372ea1abdb37940a",
+    "capture_scratch_feedback.py": "eb1bd4c836b5a9e190edb786a04f8f36a73ce57a258ce184777e7f6af4defdc5",
+    "analyze_scratch_feedback_trace.py": "7cc48eb54c23965c20720fd0a88009bdf9049a6d0229ab9198969fb20dda9d41",
+    "wheel_encoder_response_probe.py": "bdbcf18601d7d0b95e3525b991e857aaba04866adbeb0e0d7e95c67eda75adf4",
+    "final_pose_observation_probe.py": "af6c43bf4be7e55cecef37b8a8e1312cc471d1d7dde315ff046aca6fa2a4142e",
+    "scratch_domain_evaluation.py": "42240b2bf66d170472b3d74b0ba569a65528d09960c6735bcb94c76bf8af6ed8",
+    "randomization_study.py": "80ec179c8af89f85f0439c0fd15e78815860a78c98ec2ab99eb6de6af187dec1"
+  },
+  "physics_runtime": {
+    "schema": "scratch-native-physics-settings-v1",
+    "physical_dt_s": 0.001,
+    "policy_dt_s": 0.005,
+    "scene_flags": {
+      "physxScene:solverType": "TGS",
+      "physxScene:enableExternalForcesEveryIteration": false,
+      "physxScene:enableStabilization": false,
+      "physxScene:enableCCD": false,
+      "physxScene:minPositionIterationCount": 1,
+      "physxScene:maxPositionIterationCount": 255,
+      "physxScene:minVelocityIterationCount": 0,
+      "physxScene:maxVelocityIterationCount": 255
+    },
+    "articulation_iterations": {
+      "physxArticulation:solverPositionIterationCount": 64,
+      "physxArticulation:solverVelocityIterationCount": 32
+    },
+    "cylinder_convex_approximation": {
+      "setting": "/physics/collisionApproximateCylinders",
+      "value": false,
+      "status": "observed"
+    },
+    "wheel_colliders": {
+      "L_link3": {
+        "path": "/World/envs/env_0/Robot/L_link3/Collision_000",
+        "valid": true,
+        "type": "Cylinder",
+        "attributes": {
+          "radius": 0.06,
+          "height": 0.02500000037252903,
+          "axis": "Z",
+          "physxConvexGeometry:margin": null
+        }
+      },
+      "R_link3": {
+        "path": "/World/envs/env_0/Robot/R_link3/Collision_000",
+        "valid": true,
+        "type": "Cylinder",
+        "attributes": {
+          "radius": 0.06,
+          "height": 0.02500000037252903,
+          "axis": "Z",
+          "physxConvexGeometry:margin": null
+        }
+      }
+    },
+    "source_sha256": "6b66d5af36e4f5c559878062bbf07a0d444432685c4a3320372ea1abdb37940a",
+    "scope": "Read-only runtime configuration; no contact, geometry, solver, action or acceptance changes"
+  },
+  "evaluation": {
+    "schema": "scratch-standing-native-evaluation-v1",
+    "completed_updates": 128,
+    "protocol": "explicit read-only domain study; seven held-out pitch starts per height; native1ms trace",
+    "fixed_target_probe": false,
+    "learned_policy": true,
+    "checkpoint_loaded": true,
+    "initial_root_positions": [
+      [
+        2.7939677238464355e-09,
+        -2.3166649043560028e-08,
+        0.22994989156723022
+      ],
+      [
+        3.725290298461914e-09,
+        -2.1595042198896408e-08,
+        0.2300299108028412
+      ],
+      [
+        3.725290298461914e-09,
+        -2.2759195417165756e-08,
+        0.2298666089773178
+      ],
+      [
+        4.6566128730773926e-09,
+        -2.3283064365386963e-08,
+        0.2301066815853119
+      ],
+      [
+        3.725290298461914e-09,
+        -2.130400389432907e-08,
+        0.22978012263774872
+      ],
+      [
+        4.6566128730773926e-09,
+        -1.9150320440530777e-08,
+        0.23025056719779968
+      ],
+      [
+        4.6566128730773926e-09,
+        -1.9150320440530777e-08,
+        0.22959747910499573
+      ],
+      [
+        3.725290298461914e-09,
+        -2.450542524456978e-08,
+        0.3049498200416565
+      ],
+      [
+        4.6566128730773926e-09,
+        -2.444721758365631e-08,
+        0.3050263226032257
+      ],
+      [
+        5.587935447692871e-09,
+        -2.5436747819185257e-08,
+        0.3048686683177948
+      ],
+      [
+        5.587935447692871e-09,
+        -2.4156179279088974e-08,
+        0.30509817600250244
+      ],
+      [
+        2.7939677238464355e-09,
+        -2.6891939342021942e-08,
+        0.30478283762931824
+      ],
+      [
+        4.6566128730773926e-09,
+        -2.5262124836444855e-08,
+        0.3052278459072113
+      ],
+      [
+        5.587935447692871e-09,
+        -2.5494955480098724e-08,
+        0.3045971691608429
+      ],
+      [
+        5.587935447692871e-09,
+        -2.264278009533882e-08,
+        0.41994979977607727
+      ],
+      [
+        5.587935447692871e-09,
+        -1.996522769331932e-08,
+        0.4200141727924347
+      ],
+      [
+        5.587935447692871e-09,
+        -2.3457687348127365e-08,
+        0.41987866163253784
+      ],
+      [
+        8.381903171539307e-09,
+        -2.5029294192790985e-08,
+        0.42007163166999817
+      ],
+      [
+        4.6566128730773926e-09,
+        -2.4097971618175507e-08,
+        0.41980063915252686
+      ],
+      [
+        4.6566128730773926e-09,
+        -2.1944288164377213e-08,
+        0.420166015625
+      ],
+      [
+        4.6566128730773926e-09,
+        -2.5553163141012192e-08,
+        0.4196239709854126
+      ]
+    ],
+    "case_count": 21,
+    "continuous_support_pass": 0,
+    "standing_pass": 0,
+    "cases": [
+      {
+        "height_m": 0.23,
+        "pitch_deg": 0.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 576,
+        "dual_support_fraction": 0.928,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.06097398325800896,
+        "leg_speed_peak_rad_s": 6.7537922859191895,
+        "leg_speed_rms_rad_s": 0.5381508469581604,
+        "leg_vibration_3_95hz_rms_mrad": 0.1190074160695076,
+        "height_mae_m": 0.04465055093169212,
+        "tilt_peak_deg": 39.754398345947266,
+        "closure_gap_peak_m": 3.766614099731669e-05,
+        "forward_speed_rms_m_s": 0.053959138691425323,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.23,
+        "pitch_deg": -0.25,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 512,
+        "dual_support_fraction": 0.936,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.06150412932038307,
+        "leg_speed_peak_rad_s": 6.609061241149902,
+        "leg_speed_rms_rad_s": 0.5345669984817505,
+        "leg_vibration_3_95hz_rms_mrad": 0.12127313017845154,
+        "height_mae_m": 0.04464951530098915,
+        "tilt_peak_deg": 39.68113708496094,
+        "closure_gap_peak_m": 3.7714165955549106e-05,
+        "forward_speed_rms_m_s": 0.057418644428253174,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.23,
+        "pitch_deg": 0.25,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 565,
+        "dual_support_fraction": 0.929375,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.060709308832883835,
+        "leg_speed_peak_rad_s": 7.171060562133789,
+        "leg_speed_rms_rad_s": 0.5391032695770264,
+        "leg_vibration_3_95hz_rms_mrad": 0.10898385941982269,
+        "height_mae_m": 0.04465169087052345,
+        "tilt_peak_deg": 39.904632568359375,
+        "closure_gap_peak_m": 3.7725701986346394e-05,
+        "forward_speed_rms_m_s": 0.053672973066568375,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.23,
+        "pitch_deg": -0.5,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 507,
+        "dual_support_fraction": 0.936625,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0618688128888607,
+        "leg_speed_peak_rad_s": 6.393342018127441,
+        "leg_speed_rms_rad_s": 0.5341076254844666,
+        "leg_vibration_3_95hz_rms_mrad": 0.10918909311294556,
+        "height_mae_m": 0.044648054987192154,
+        "tilt_peak_deg": 39.484962463378906,
+        "closure_gap_peak_m": 3.746867150766775e-05,
+        "forward_speed_rms_m_s": 0.057597965002059937,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.23,
+        "pitch_deg": 0.5,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 766,
+        "dual_support_fraction": 0.90425,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0603066086769104,
+        "leg_speed_peak_rad_s": 7.022730827331543,
+        "leg_speed_rms_rad_s": 0.5407655239105225,
+        "leg_vibration_3_95hz_rms_mrad": 0.16071085631847382,
+        "height_mae_m": 0.0446723997592926,
+        "tilt_peak_deg": 40.031158447265625,
+        "closure_gap_peak_m": 3.743372508324683e-05,
+        "forward_speed_rms_m_s": 0.05235346779227257,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.23,
+        "pitch_deg": -1.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 433,
+        "dual_support_fraction": 0.945875,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.06254830956459045,
+        "leg_speed_peak_rad_s": 6.31906270980835,
+        "leg_speed_rms_rad_s": 0.5286389589309692,
+        "leg_vibration_3_95hz_rms_mrad": 0.12692701816558838,
+        "height_mae_m": 0.04463686794042587,
+        "tilt_peak_deg": 39.04328536987305,
+        "closure_gap_peak_m": 3.7401277950266376e-05,
+        "forward_speed_rms_m_s": 0.06044735014438629,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.23,
+        "pitch_deg": 1.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 536,
+        "dual_support_fraction": 0.933,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0595974400639534,
+        "leg_speed_peak_rad_s": 7.232151031494141,
+        "leg_speed_rms_rad_s": 0.5422391295433044,
+        "leg_vibration_3_95hz_rms_mrad": 0.1377442330121994,
+        "height_mae_m": 0.04466057941317558,
+        "tilt_peak_deg": 39.91606521606445,
+        "closure_gap_peak_m": 3.634161112131551e-05,
+        "forward_speed_rms_m_s": 0.047902755439281464,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.305,
+        "pitch_deg": 0.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 93,
+        "dual_support_fraction": 0.988375,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0004231855273246765,
+        "leg_speed_peak_rad_s": 3.0621676445007324,
+        "leg_speed_rms_rad_s": 0.08032137900590897,
+        "leg_vibration_3_95hz_rms_mrad": 0.07654095441102982,
+        "height_mae_m": 0.03777967393398285,
+        "tilt_peak_deg": 33.70680236816406,
+        "closure_gap_peak_m": 4.6409882088482846e-06,
+        "forward_speed_rms_m_s": 0.2145807147026062,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.305,
+        "pitch_deg": -0.25,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 85,
+        "dual_support_fraction": 0.989375,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.001915115863084793,
+        "leg_speed_peak_rad_s": 2.7345008850097656,
+        "leg_speed_rms_rad_s": 0.09911734610795975,
+        "leg_vibration_3_95hz_rms_mrad": 0.019100476056337357,
+        "height_mae_m": 0.02780177630484104,
+        "tilt_peak_deg": 39.01962661743164,
+        "closure_gap_peak_m": 4.652814368455438e-06,
+        "forward_speed_rms_m_s": 0.11416218429803848,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.305,
+        "pitch_deg": 0.25,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 69,
+        "dual_support_fraction": 0.991375,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0003802292048931122,
+        "leg_speed_peak_rad_s": 3.099599599838257,
+        "leg_speed_rms_rad_s": 0.07848597317934036,
+        "leg_vibration_3_95hz_rms_mrad": 0.037613771855831146,
+        "height_mae_m": 0.03942916914820671,
+        "tilt_peak_deg": 33.712833404541016,
+        "closure_gap_peak_m": 4.466397967917146e-06,
+        "forward_speed_rms_m_s": 0.21900108456611633,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.305,
+        "pitch_deg": -0.5,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 80,
+        "dual_support_fraction": 0.99,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.001996763050556183,
+        "leg_speed_peak_rad_s": 2.6895668506622314,
+        "leg_speed_rms_rad_s": 0.10061610490083694,
+        "leg_vibration_3_95hz_rms_mrad": 0.019150665029883385,
+        "height_mae_m": 0.029018649831414223,
+        "tilt_peak_deg": 39.034637451171875,
+        "closure_gap_peak_m": 4.457813702174462e-06,
+        "forward_speed_rms_m_s": 0.11232869327068329,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.305,
+        "pitch_deg": 0.5,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 85,
+        "dual_support_fraction": 0.989375,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0004211440682411194,
+        "leg_speed_peak_rad_s": 3.1966707706451416,
+        "leg_speed_rms_rad_s": 0.08545096218585968,
+        "leg_vibration_3_95hz_rms_mrad": 0.07668447494506836,
+        "height_mae_m": 0.04006693884730339,
+        "tilt_peak_deg": 33.72474670410156,
+        "closure_gap_peak_m": 4.488194008445134e-06,
+        "forward_speed_rms_m_s": 0.22051145136356354,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.305,
+        "pitch_deg": -1.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 79,
+        "dual_support_fraction": 0.990125,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0020074397325515747,
+        "leg_speed_peak_rad_s": 2.7526698112487793,
+        "leg_speed_rms_rad_s": 0.0997389703989029,
+        "leg_vibration_3_95hz_rms_mrad": 0.012264004908502102,
+        "height_mae_m": 0.029919419437646866,
+        "tilt_peak_deg": 39.03632354736328,
+        "closure_gap_peak_m": 4.467889084480703e-06,
+        "forward_speed_rms_m_s": 0.11228709667921066,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.305,
+        "pitch_deg": 1.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 85,
+        "dual_support_fraction": 0.989375,
+        "first20ms_continuous": true,
+        "maximum_wheel_clearance_m": 0.0004520788788795471,
+        "leg_speed_peak_rad_s": 3.118035316467285,
+        "leg_speed_rms_rad_s": 0.08333071321249008,
+        "leg_vibration_3_95hz_rms_mrad": 0.04803985729813576,
+        "height_mae_m": 0.04085683822631836,
+        "tilt_peak_deg": 33.73932647705078,
+        "closure_gap_peak_m": 4.497016561799683e-06,
+        "forward_speed_rms_m_s": 0.222733736038208,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.42,
+        "pitch_deg": 0.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 308,
+        "dual_support_fraction": 0.9615,
+        "first20ms_continuous": false,
+        "maximum_wheel_clearance_m": 0.08203651010990143,
+        "leg_speed_peak_rad_s": 15.04542350769043,
+        "leg_speed_rms_rad_s": 0.7938601970672607,
+        "leg_vibration_3_95hz_rms_mrad": 0.12555836141109467,
+        "height_mae_m": 0.15243932604789734,
+        "tilt_peak_deg": 34.319122314453125,
+        "closure_gap_peak_m": 2.1216857930994593e-05,
+        "forward_speed_rms_m_s": 0.24403667449951172,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.42,
+        "pitch_deg": -0.25,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 330,
+        "dual_support_fraction": 0.95875,
+        "first20ms_continuous": false,
+        "maximum_wheel_clearance_m": 0.08206018805503845,
+        "leg_speed_peak_rad_s": 15.045843124389648,
+        "leg_speed_rms_rad_s": 0.7938750982284546,
+        "leg_vibration_3_95hz_rms_mrad": 0.10059552639722824,
+        "height_mae_m": 0.15216030180454254,
+        "tilt_peak_deg": 34.28265380859375,
+        "closure_gap_peak_m": 2.128905543941073e-05,
+        "forward_speed_rms_m_s": 0.24273380637168884,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.42,
+        "pitch_deg": 0.25,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 314,
+        "dual_support_fraction": 0.96075,
+        "first20ms_continuous": false,
+        "maximum_wheel_clearance_m": 0.08201193064451218,
+        "leg_speed_peak_rad_s": 15.045029640197754,
+        "leg_speed_rms_rad_s": 0.7940947413444519,
+        "leg_vibration_3_95hz_rms_mrad": 0.10667206346988678,
+        "height_mae_m": 0.15268085896968842,
+        "tilt_peak_deg": 34.24470520019531,
+        "closure_gap_peak_m": 2.1124038539710455e-05,
+        "forward_speed_rms_m_s": 0.2446601539850235,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.42,
+        "pitch_deg": -0.5,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 331,
+        "dual_support_fraction": 0.958625,
+        "first20ms_continuous": false,
+        "maximum_wheel_clearance_m": 0.08208276331424713,
+        "leg_speed_peak_rad_s": 15.046194076538086,
+        "leg_speed_rms_rad_s": 0.7933323383331299,
+        "leg_vibration_3_95hz_rms_mrad": 0.15037141740322113,
+        "height_mae_m": 0.1517794281244278,
+        "tilt_peak_deg": 34.18657684326172,
+        "closure_gap_peak_m": 2.118979682563804e-05,
+        "forward_speed_rms_m_s": 0.2416289746761322,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.42,
+        "pitch_deg": 0.5,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 319,
+        "dual_support_fraction": 0.960125,
+        "first20ms_continuous": false,
+        "maximum_wheel_clearance_m": 0.08198466897010803,
+        "leg_speed_peak_rad_s": 15.044717788696289,
+        "leg_speed_rms_rad_s": 0.7925573587417603,
+        "leg_vibration_3_95hz_rms_mrad": 0.11776679754257202,
+        "height_mae_m": 0.15287162363529205,
+        "tilt_peak_deg": 34.10438537597656,
+        "closure_gap_peak_m": 2.124127422575839e-05,
+        "forward_speed_rms_m_s": 0.24450857937335968,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.42,
+        "pitch_deg": -1.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 371,
+        "dual_support_fraction": 0.953625,
+        "first20ms_continuous": false,
+        "maximum_wheel_clearance_m": 0.08212180435657501,
+        "leg_speed_peak_rad_s": 15.046829223632812,
+        "leg_speed_rms_rad_s": 0.7936580777168274,
+        "leg_vibration_3_95hz_rms_mrad": 0.12405042350292206,
+        "height_mae_m": 0.148581862449646,
+        "tilt_peak_deg": 34.17915725708008,
+        "closure_gap_peak_m": 2.1213492800598033e-05,
+        "forward_speed_rms_m_s": 0.23710617423057556,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      },
+      {
+        "height_m": 0.42,
+        "pitch_deg": 1.0,
+        "full_horizon": true,
+        "physical_ms": 8000,
+        "missing_physical_ms": 314,
+        "dual_support_fraction": 0.96075,
+        "first20ms_continuous": false,
+        "maximum_wheel_clearance_m": 0.08192514628171921,
+        "leg_speed_peak_rad_s": 15.043938636779785,
+        "leg_speed_rms_rad_s": 0.7914976477622986,
+        "leg_vibration_3_95hz_rms_mrad": 0.10820970684289932,
+        "height_mae_m": 0.15318498015403748,
+        "tilt_peak_deg": 34.19971466064453,
+        "closure_gap_peak_m": 2.1251602447591722e-05,
+        "forward_speed_rms_m_s": 0.24591529369354248,
+        "continuous_support_pass": false,
+        "standing_pass": false
+      }
+    ],
+    "trace_sha256": "6c6182aa0ae6f5c4f4c4adddb13fadbc4d23bc4773a6dd1a3518f20a5cbed715",
+    "hardware_ready": false,
+    "feedback_trace": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_v2_evaluation_queue003/eval_nominal/evaluation/feedback_trace.npz",
+      "sha256": "49639f37827f2222766dce0556c17ae9d0e8acfb2d2a9ae3af13dc4ec51027b7",
+      "source_sha256": "eb1bd4c836b5a9e190edb786a04f8f36a73ce57a258ce184777e7f6af4defdc5",
+      "policy_hz": 200,
+      "input_timing": "exact actor argument before native step",
+      "initial_state_timing": "native final reset pose and sensors before the first physical step; no observation-cache query",
+      "output_timing": "native diagnostics before any autoreset",
+      "action_policy_order": [
+        "L_joint1",
+        "LL_joint1",
+        "R_joint1",
+        "RR_joint1",
+        "L_joint3",
+        "R_joint3"
+      ],
+      "action_control_order": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "scope": "read-only standing sensor/action diagnosis; evaluator receipt declares nominal/randomized domains; no action, reward, reset or acceptance changes"
+    },
+    "tensorboard_native_mid_trace": {
+      "case_index": 7,
+      "height_m": 0.305,
+      "pitch_deg": 0.0,
+      "physical_frames": 8000,
+      "policy_frames": 1600,
+      "steps": "one-based sample index; divide by tag rate to obtain seconds",
+      "source": "original native samples; every valid frame from the first millisecond"
+    },
+    "feedback_explanation": {
+      "schema": "scratch-standing-feedback-explanation-v1",
+      "cases": [
+        {
+          "height_m": 0.23,
+          "pitch_deg": 0.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.066,
+          "wheel_target_rms_rad_s": 17.826290130615234,
+          "wheel_speed_rms_rad_s": 16.805620193481445,
+          "wheel_target_peak_rad_s": 32.44096374511719,
+          "wheel_speed_peak_rad_s": 31.509445190429688,
+          "roll_pitch_gyro_rms_rad_s": 0.5034820437431335,
+          "roll_pitch_gyro_peak_rad_s": 6.491263389587402,
+          "yaw_rms_rad_s": 0.18957413733005524,
+          "body_xy_max_excursion_m": 0.03127523139119148,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.14499999582767487,
+              "tilt_deg": 5.300529479980469,
+              "omega_rad_s": [
+                0.043796561658382416,
+                -1.229541301727295,
+                0.7575564980506897
+              ],
+              "wheel_target_rad_s": [
+                -1.047347903251648,
+                -24.066743850708008
+              ],
+              "wheel_velocity_rad_s": [
+                -1.1041529178619385,
+                -23.562915802001953
+              ],
+              "actor_gravity_input": [
+                -0.08624868094921112,
+                -0.0023917306680232286,
+                -0.9962707757949829
+              ],
+              "raw_leg_target_delta_rad": [
+                0.1024923324584961,
+                -0.03849545866250992,
+                -0.09506211429834366,
+                0.03813154995441437
+              ]
+            },
+            "10": {
+              "time_s": 0.2149999886751175,
+              "tilt_deg": 10.210761070251465,
+              "omega_rad_s": [
+                0.07092832773923874,
+                -1.2360883951187134,
+                0.7567524313926697
+              ],
+              "wheel_target_rad_s": [
+                -0.35106492042541504,
+                -27.086227416992188
+              ],
+              "wheel_velocity_rad_s": [
+                -0.27710217237472534,
+                -26.82581329345703
+              ],
+              "actor_gravity_input": [
+                -0.17123660445213318,
+                0.000654054747428745,
+                -0.9852297306060791
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10118928551673889,
+                -0.03778119757771492,
+                -0.09486939013004303,
+                0.03938533365726471
+              ]
+            },
+            "20": {
+              "time_s": 0.3349999785423279,
+              "tilt_deg": 20.425460815429688,
+              "omega_rad_s": [
+                0.49641191959381104,
+                -3.6931967735290527,
+                1.3023065328598022
+              ],
+              "wheel_target_rad_s": [
+                6.3971099853515625,
+                -22.926464080810547
+              ],
+              "wheel_velocity_rad_s": [
+                7.645182132720947,
+                -21.83786964416504
+              ],
+              "actor_gravity_input": [
+                -0.33256983757019043,
+                0.009083406068384647,
+                -0.9430349469184875
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09235226362943649,
+                -0.03322912007570267,
+                -0.08835382759571075,
+                0.03780904412269592
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.23,
+          "pitch_deg": -0.25,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.066,
+          "wheel_target_rms_rad_s": 17.775177001953125,
+          "wheel_speed_rms_rad_s": 16.75095558166504,
+          "wheel_target_peak_rad_s": 31.466398239135742,
+          "wheel_speed_peak_rad_s": 30.41782569885254,
+          "roll_pitch_gyro_rms_rad_s": 0.509911298751831,
+          "roll_pitch_gyro_peak_rad_s": 6.675517559051514,
+          "yaw_rms_rad_s": 0.18644143640995026,
+          "body_xy_max_excursion_m": 0.030009906738996506,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.13499999046325684,
+              "tilt_deg": 5.107758045196533,
+              "omega_rad_s": [
+                0.03521563857793808,
+                -1.2886319160461426,
+                0.7643111348152161
+              ],
+              "wheel_target_rad_s": [
+                -1.340436339378357,
+                -23.266380310058594
+              ],
+              "wheel_velocity_rad_s": [
+                -1.41657292842865,
+                -22.698352813720703
+              ],
+              "actor_gravity_input": [
+                -0.08262372761964798,
+                -0.002122655278071761,
+                -0.996578574180603
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10298329591751099,
+                -0.03874332085251808,
+                -0.09508799761533737,
+                0.03776390105485916
+              ]
+            },
+            "10": {
+              "time_s": 0.20499999821186066,
+              "tilt_deg": 10.17745590209961,
+              "omega_rad_s": [
+                0.06545831263065338,
+                -1.2790404558181763,
+                0.7654445171356201
+              ],
+              "wheel_target_rad_s": [
+                -0.442655086517334,
+                -26.7482852935791
+              ],
+              "wheel_velocity_rad_s": [
+                -0.3736186921596527,
+                -26.4704532623291
+              ],
+              "actor_gravity_input": [
+                -0.17042341828346252,
+                0.0012410731287673116,
+                -0.9853701591491699
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10123395174741745,
+                -0.03780531883239746,
+                -0.09488888829946518,
+                0.03939671814441681
+              ]
+            },
+            "20": {
+              "time_s": 0.32999998331069946,
+              "tilt_deg": 20.31618881225586,
+              "omega_rad_s": [
+                0.41910070180892944,
+                -3.167104482650757,
+                1.0827476978302002
+              ],
+              "wheel_target_rad_s": [
+                5.3112640380859375,
+                -25.032485961914062
+              ],
+              "wheel_velocity_rad_s": [
+                6.166863441467285,
+                -23.413354873657227
+              ],
+              "actor_gravity_input": [
+                -0.3332478404045105,
+                0.011235130950808525,
+                -0.9427723288536072
+              ],
+              "raw_leg_target_delta_rad": [
+                0.0936957374215126,
+                -0.03462424501776695,
+                -0.0901063084602356,
+                0.038622014224529266
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.23,
+          "pitch_deg": 0.25,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.067,
+          "wheel_target_rms_rad_s": 17.830270767211914,
+          "wheel_speed_rms_rad_s": 16.814720153808594,
+          "wheel_target_peak_rad_s": 31.942522048950195,
+          "wheel_speed_peak_rad_s": 30.936477661132812,
+          "roll_pitch_gyro_rms_rad_s": 0.5262187123298645,
+          "roll_pitch_gyro_peak_rad_s": 6.672032356262207,
+          "yaw_rms_rad_s": 0.1904703676700592,
+          "body_xy_max_excursion_m": 0.03187774121761322,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.14999999105930328,
+              "tilt_deg": 5.096967697143555,
+              "omega_rad_s": [
+                0.03610921651124954,
+                -1.1844124794006348,
+                0.7506148815155029
+              ],
+              "wheel_target_rad_s": [
+                -1.0016311407089233,
+                -24.43024444580078
+              ],
+              "wheel_velocity_rad_s": [
+                -1.0487319231033325,
+                -23.951766967773438
+              ],
+              "actor_gravity_input": [
+                -0.08296379446983337,
+                -0.002065598499029875,
+                -0.996550440788269
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10219524055719376,
+                -0.038433436304330826,
+                -0.09521212428808212,
+                0.03840123116970062
+              ]
+            },
+            "10": {
+              "time_s": 0.22499999403953552,
+              "tilt_deg": 10.153481483459473,
+              "omega_rad_s": [
+                0.06443297863006592,
+                -1.195981740951538,
+                0.7497191429138184
+              ],
+              "wheel_target_rad_s": [
+                -0.38790640234947205,
+                -27.36707878112793
+              ],
+              "wheel_velocity_rad_s": [
+                -0.30869194865226746,
+                -27.121578216552734
+              ],
+              "actor_gravity_input": [
+                -0.17047569155693054,
+                0.0015573400305584073,
+                -0.9853606224060059
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10101056098937988,
+                -0.03776891157031059,
+                -0.09498539566993713,
+                0.039550311863422394
+              ]
+            },
+            "20": {
+              "time_s": 0.3400000035762787,
+              "tilt_deg": 20.6740665435791,
+              "omega_rad_s": [
+                0.5661314725875854,
+                -4.222358703613281,
+                1.3582240343093872
+              ],
+              "wheel_target_rad_s": [
+                7.916942596435547,
+                -21.57952308654785
+              ],
+              "wheel_velocity_rad_s": [
+                9.484721183776855,
+                -21.132080078125
+              ],
+              "actor_gravity_input": [
+                -0.33411911129951477,
+                0.008608750067651272,
+                -0.9424915313720703
+              ],
+              "raw_leg_target_delta_rad": [
+                0.0907122790813446,
+                -0.032534271478652954,
+                -0.08745751529932022,
+                0.037090983241796494
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.23,
+          "pitch_deg": -0.5,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.067,
+          "wheel_target_rms_rad_s": 17.76325798034668,
+          "wheel_speed_rms_rad_s": 16.73318099975586,
+          "wheel_target_peak_rad_s": 31.454814910888672,
+          "wheel_speed_peak_rad_s": 30.401784896850586,
+          "roll_pitch_gyro_rms_rad_s": 0.488506019115448,
+          "roll_pitch_gyro_peak_rad_s": 6.3952178955078125,
+          "yaw_rms_rad_s": 0.18177065253257751,
+          "body_xy_max_excursion_m": 0.029364315792918205,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.12999999523162842,
+              "tilt_deg": 5.267786026000977,
+              "omega_rad_s": [
+                0.036631323397159576,
+                -1.3433003425598145,
+                0.7635431885719299
+              ],
+              "wheel_target_rad_s": [
+                -1.417637586593628,
+                -22.833892822265625
+              ],
+              "wheel_velocity_rad_s": [
+                -1.4989583492279053,
+                -22.231441497802734
+              ],
+              "actor_gravity_input": [
+                -0.08513142913579941,
+                -0.002249491633847356,
+                -0.9963672161102295
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10339362174272537,
+                -0.03895771503448486,
+                -0.09503158181905746,
+                0.037389032542705536
+              ]
+            },
+            "10": {
+              "time_s": 0.19499999284744263,
+              "tilt_deg": 10.1369047164917,
+              "omega_rad_s": [
+                0.06841279566287994,
+                -1.3209834098815918,
+                0.7656881809234619
+              ],
+              "wheel_target_rad_s": [
+                -0.4417787790298462,
+                -26.411205291748047
+              ],
+              "wheel_velocity_rad_s": [
+                -0.3812717795372009,
+                -26.111997604370117
+              ],
+              "actor_gravity_input": [
+                -0.1695708930492401,
+                0.000671609363052994,
+                -0.9855177402496338
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10142125934362411,
+                -0.03789374604821205,
+                -0.09481944888830185,
+                0.039192721247673035
+              ]
+            },
+            "20": {
+              "time_s": 0.32499998807907104,
+              "tilt_deg": 20.423738479614258,
+              "omega_rad_s": [
+                0.3194102942943573,
+                -2.689042329788208,
+                0.9427992701530457
+              ],
+              "wheel_target_rad_s": [
+                4.3713812828063965,
+                -26.55950927734375
+              ],
+              "wheel_velocity_rad_s": [
+                4.843044757843018,
+                -24.85310173034668
+              ],
+              "actor_gravity_input": [
+                -0.33720603585243225,
+                0.01142811682075262,
+                -0.9413615465164185
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09629359096288681,
+                -0.0361371785402298,
+                -0.09141749888658524,
+                0.038473859429359436
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.23,
+          "pitch_deg": 0.5,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.066,
+          "wheel_target_rms_rad_s": 17.729036331176758,
+          "wheel_speed_rms_rad_s": 16.702983856201172,
+          "wheel_target_peak_rad_s": 32.37635040283203,
+          "wheel_speed_peak_rad_s": 31.38836097717285,
+          "roll_pitch_gyro_rms_rad_s": 0.5378528237342834,
+          "roll_pitch_gyro_peak_rad_s": 6.757352828979492,
+          "yaw_rms_rad_s": 0.19534249603748322,
+          "body_xy_max_excursion_m": 0.03294546902179718,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.1599999964237213,
+              "tilt_deg": 5.12885046005249,
+              "omega_rad_s": [
+                0.03274401277303696,
+                -1.133387565612793,
+                0.7386689782142639
+              ],
+              "wheel_target_rad_s": [
+                -0.8342535495758057,
+                -25.11610221862793
+              ],
+              "wheel_velocity_rad_s": [
+                -0.8576300740242004,
+                -24.686904907226562
+              ],
+              "actor_gravity_input": [
+                -0.08376555144786835,
+                -0.0019693609792739153,
+                -0.996483564376831
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10182952135801315,
+                -0.0383479930460453,
+                -0.09533632546663284,
+                0.0387008860707283
+              ]
+            },
+            "10": {
+              "time_s": 0.23999999463558197,
+              "tilt_deg": 10.302077293395996,
+              "omega_rad_s": [
+                0.06377924233675003,
+                -1.1471331119537354,
+                0.7373288869857788
+              ],
+              "wheel_target_rad_s": [
+                -0.3832746148109436,
+                -27.760814666748047
+              ],
+              "wheel_velocity_rad_s": [
+                -0.29879045486450195,
+                -27.534042358398438
+              ],
+              "actor_gravity_input": [
+                -0.17326919734477997,
+                0.00203049392439425,
+                -0.9848724603652954
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10088156163692474,
+                -0.037776198238134384,
+                -0.09504425525665283,
+                0.03962739557027817
+              ]
+            },
+            "20": {
+              "time_s": 0.3449999988079071,
+              "tilt_deg": 20.85574722290039,
+              "omega_rad_s": [
+                0.6404445171356201,
+                -4.545349597930908,
+                1.4759410619735718
+              ],
+              "wheel_target_rad_s": [
+                8.726248741149902,
+                -20.93824005126953
+              ],
+              "wheel_velocity_rad_s": [
+                10.510881423950195,
+                -20.81430435180664
+              ],
+              "actor_gravity_input": [
+                -0.3354671001434326,
+                0.007592919282615185,
+                -0.9420213103294373
+              ],
+              "raw_leg_target_delta_rad": [
+                0.08944986760616302,
+                -0.031532835215330124,
+                -0.08635305613279343,
+                0.03679206967353821
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.23,
+          "pitch_deg": -1.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.066,
+          "wheel_target_rms_rad_s": 17.71287727355957,
+          "wheel_speed_rms_rad_s": 16.675392150878906,
+          "wheel_target_peak_rad_s": 29.751928329467773,
+          "wheel_speed_peak_rad_s": 28.57929039001465,
+          "roll_pitch_gyro_rms_rad_s": 0.470686674118042,
+          "roll_pitch_gyro_peak_rad_s": 6.284735202789307,
+          "yaw_rms_rad_s": 0.17507001757621765,
+          "body_xy_max_excursion_m": 0.026137515902519226,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.11499999463558197,
+              "tilt_deg": 5.063801288604736,
+              "omega_rad_s": [
+                0.028183408081531525,
+                -1.4538406133651733,
+                0.7717705368995667
+              ],
+              "wheel_target_rad_s": [
+                -1.7426254749298096,
+                -21.40723991394043
+              ],
+              "wheel_velocity_rad_s": [
+                -1.8337914943695068,
+                -20.685287475585938
+              ],
+              "actor_gravity_input": [
+                -0.08103986829519272,
+                -0.002974427305161953,
+                -0.996706485748291
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10475171357393265,
+                -0.03962205350399017,
+                -0.09501174837350845,
+                0.03625800460577011
+              ]
+            },
+            "10": {
+              "time_s": 0.17999999225139618,
+              "tilt_deg": 10.271535873413086,
+              "omega_rad_s": [
+                0.08078397065401077,
+                -1.399490237236023,
+                0.7755042910575867
+              ],
+              "wheel_target_rad_s": [
+                -0.44196373224258423,
+                -25.83652114868164
+              ],
+              "wheel_velocity_rad_s": [
+                -0.3985815942287445,
+                -25.499563217163086
+              ],
+              "actor_gravity_input": [
+                -0.17151163518428802,
+                -0.00046636798651888967,
+                -0.985181987285614
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10178250074386597,
+                -0.03796188533306122,
+                -0.09458470344543457,
+                0.03882294520735741
+              ]
+            },
+            "20": {
+              "time_s": 0.3050000071525574,
+              "tilt_deg": 20.237451553344727,
+              "omega_rad_s": [
+                0.15711069107055664,
+                -1.399309515953064,
+                0.7698559165000916
+              ],
+              "wheel_target_rad_s": [
+                -0.7820920944213867,
+                -28.466320037841797
+              ],
+              "wheel_velocity_rad_s": [
+                -0.6671589016914368,
+                -28.27651596069336
+              ],
+              "actor_gravity_input": [
+                -0.33929136395454407,
+                0.01035310048609972,
+                -0.9406244158744812
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10104971379041672,
+                -0.03786281496286392,
+                -0.0940304547548294,
+                0.03953903540968895
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.23,
+          "pitch_deg": 1.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.041,
+          "wheel_target_rms_rad_s": 17.84356117248535,
+          "wheel_speed_rms_rad_s": 16.83314323425293,
+          "wheel_target_peak_rad_s": 33.16133499145508,
+          "wheel_speed_peak_rad_s": 32.5937385559082,
+          "roll_pitch_gyro_rms_rad_s": 0.5423623919487,
+          "roll_pitch_gyro_peak_rad_s": 6.66023588180542,
+          "yaw_rms_rad_s": 0.20194797217845917,
+          "body_xy_max_excursion_m": 0.035503748804330826,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.17999999225139618,
+              "tilt_deg": 5.230494499206543,
+              "omega_rad_s": [
+                0.026879943907260895,
+                -1.066129446029663,
+                0.7414029836654663
+              ],
+              "wheel_target_rad_s": [
+                -0.592039942741394,
+                -26.114397048950195
+              ],
+              "wheel_velocity_rad_s": [
+                -0.5720880627632141,
+                -25.763324737548828
+              ],
+              "actor_gravity_input": [
+                -0.08584940433502197,
+                -0.0016237201634794474,
+                -0.9963067770004272
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10127682238817215,
+                -0.03806120902299881,
+                -0.09549246728420258,
+                0.03927809000015259
+              ]
+            },
+            "10": {
+              "time_s": 0.25999999046325684,
+              "tilt_deg": 10.108710289001465,
+              "omega_rad_s": [
+                0.060978423804044724,
+                -1.072912335395813,
+                0.7399616837501526
+              ],
+              "wheel_target_rad_s": [
+                -0.3863990902900696,
+                -28.136981964111328
+              ],
+              "wheel_velocity_rad_s": [
+                -0.2977871000766754,
+                -27.928810119628906
+              ],
+              "actor_gravity_input": [
+                -0.17026056349277496,
+                0.0026720587629824877,
+                -0.9853955507278442
+              ],
+              "raw_leg_target_delta_rad": [
+                0.1006900742650032,
+                -0.03765515238046646,
+                -0.09512364864349365,
+                0.03984329104423523
+              ]
+            },
+            "20": {
+              "time_s": 0.3499999940395355,
+              "tilt_deg": 20.188493728637695,
+              "omega_rad_s": [
+                0.7116578817367554,
+                -4.668118953704834,
+                1.6089940071105957
+              ],
+              "wheel_target_rad_s": [
+                9.512592315673828,
+                -20.685693740844727
+              ],
+              "wheel_velocity_rad_s": [
+                11.233072280883789,
+                -20.814725875854492
+              ],
+              "actor_gravity_input": [
+                -0.32381802797317505,
+                0.004834120627492666,
+                -0.9461069703102112
+              ],
+              "raw_leg_target_delta_rad": [
+                0.08784785121679306,
+                -0.030175531283020973,
+                -0.08544404804706573,
+                0.03713206574320793
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.305,
+          "pitch_deg": 0.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 1.129,
+          "wheel_target_rms_rad_s": 4.899993419647217,
+          "wheel_speed_rms_rad_s": 4.02048397064209,
+          "wheel_target_peak_rad_s": 7.120034217834473,
+          "wheel_speed_peak_rad_s": 5.685738563537598,
+          "roll_pitch_gyro_rms_rad_s": 0.34485867619514465,
+          "roll_pitch_gyro_peak_rad_s": 3.2898917198181152,
+          "yaw_rms_rad_s": 0.08035339415073395,
+          "body_xy_max_excursion_m": 1.4572734832763672,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 1.0049999952316284,
+              "tilt_deg": 5.089620113372803,
+              "omega_rad_s": [
+                0.003528077155351639,
+                0.4575127959251404,
+                -0.021593809127807617
+              ],
+              "wheel_target_rad_s": [
+                0.45133230090141296,
+                0.030280370265245438
+              ],
+              "wheel_velocity_rad_s": [
+                3.784848377108574e-05,
+                0.17809748649597168
+              ],
+              "actor_gravity_input": [
+                0.08640038222074509,
+                -0.004586334340274334,
+                -0.9962500333786011
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09941425919532776,
+                -0.04254109412431717,
+                -0.10033812373876572,
+                0.04291333258152008
+              ]
+            },
+            "10": {
+              "time_s": 1.1399999856948853,
+              "tilt_deg": 10.138127326965332,
+              "omega_rad_s": [
+                0.0024594487622380257,
+                0.9311537146568298,
+                -0.026128560304641724
+              ],
+              "wheel_target_rad_s": [
+                0.4444352984428406,
+                -0.15531706809997559
+              ],
+              "wheel_velocity_rad_s": [
+                -0.24949157238006592,
+                0.3518691956996918
+              ],
+              "actor_gravity_input": [
+                0.17148001492023468,
+                -0.004542726557701826,
+                -0.9851770997047424
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09882676601409912,
+                -0.043054357171058655,
+                -0.10145829617977142,
+                0.04335033521056175
+              ]
+            },
+            "20": {
+              "time_s": 1.2699999809265137,
+              "tilt_deg": 20.37579917907715,
+              "omega_rad_s": [
+                -0.005870159715414047,
+                1.993350625038147,
+                0.007892207242548466
+              ],
+              "wheel_target_rad_s": [
+                -0.5376266837120056,
+                0.2981046438217163
+              ],
+              "wheel_velocity_rad_s": [
+                -1.5066077709197998,
+                1.3696891069412231
+              ],
+              "actor_gravity_input": [
+                0.33893904089927673,
+                -0.004347866866737604,
+                -0.940798282623291
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09716229140758514,
+                -0.04323723167181015,
+                -0.10377033799886703,
+                0.04605935886502266
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.305,
+          "pitch_deg": -0.25,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.358,
+          "wheel_target_rms_rad_s": 1.0457720756530762,
+          "wheel_speed_rms_rad_s": 0.6109486222267151,
+          "wheel_target_peak_rad_s": 7.500565052032471,
+          "wheel_speed_peak_rad_s": 7.356400012969971,
+          "roll_pitch_gyro_rms_rad_s": 0.3754929006099701,
+          "roll_pitch_gyro_peak_rad_s": 3.397648334503174,
+          "yaw_rms_rad_s": 0.015622715465724468,
+          "body_xy_max_excursion_m": 0.23404476046562195,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 1.0299999713897705,
+              "tilt_deg": 5.1091389656066895,
+              "omega_rad_s": [
+                -0.003735051956027746,
+                -0.4471583068370819,
+                -0.03953031823039055
+              ],
+              "wheel_target_rad_s": [
+                -0.14713606238365173,
+                0.8409847021102905
+              ],
+              "wheel_velocity_rad_s": [
+                0.03810196742415428,
+                0.27676284313201904
+              ],
+              "actor_gravity_input": [
+                -0.08679341524839401,
+                -0.004584662616252899,
+                -0.9962158799171448
+              ],
+              "raw_leg_target_delta_rad": [
+                0.1012948527932167,
+                -0.04241134971380234,
+                -0.09821545332670212,
+                0.04212554171681404
+              ]
+            },
+            "10": {
+              "time_s": 1.1699999570846558,
+              "tilt_deg": 10.18122386932373,
+              "omega_rad_s": [
+                -0.009248233400285244,
+                -0.8889297246932983,
+                -0.05299673229455948
+              ],
+              "wheel_target_rad_s": [
+                -0.5571105480194092,
+                1.275710940361023
+              ],
+              "wheel_velocity_rad_s": [
+                1.341052120551467e-05,
+                0.35685840249061584
+              ],
+              "actor_gravity_input": [
+                -0.17244262993335724,
+                -0.0045350538566708565,
+                -0.9850091934204102
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10190612077713013,
+                -0.042719513177871704,
+                -0.09760445356369019,
+                0.04201212152838707
+              ]
+            },
+            "20": {
+              "time_s": 1.309999942779541,
+              "tilt_deg": 20.43975257873535,
+              "omega_rad_s": [
+                -0.021058671176433563,
+                -1.7963790893554688,
+                -0.04402714595198631
+              ],
+              "wheel_target_rad_s": [
+                -1.1533350944519043,
+                1.6686854362487793
+              ],
+              "wheel_velocity_rad_s": [
+                0.07249351590871811,
+                0.24057142436504364
+              ],
+              "actor_gravity_input": [
+                -0.34091928601264954,
+                -0.004330058116465807,
+                -0.9400826096534729
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10200871527194977,
+                -0.042847976088523865,
+                -0.09718270599842072,
+                0.04323823004961014
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.305,
+          "pitch_deg": 0.25,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.07,
+          "wheel_target_rms_rad_s": 5.0125908851623535,
+          "wheel_speed_rms_rad_s": 4.115425109863281,
+          "wheel_target_peak_rad_s": 7.137711048126221,
+          "wheel_speed_peak_rad_s": 5.706276893615723,
+          "roll_pitch_gyro_rms_rad_s": 0.34423938393592834,
+          "roll_pitch_gyro_peak_rad_s": 3.2705790996551514,
+          "yaw_rms_rad_s": 0.08281727880239487,
+          "body_xy_max_excursion_m": 1.5318918228149414,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.7099999785423279,
+              "tilt_deg": 5.110787391662598,
+              "omega_rad_s": [
+                0.003176856553182006,
+                0.46010589599609375,
+                -0.02166105806827545
+              ],
+              "wheel_target_rad_s": [
+                0.43469172716140747,
+                0.0328628346323967
+              ],
+              "wheel_velocity_rad_s": [
+                -0.002028188668191433,
+                0.17985899746418
+              ],
+              "actor_gravity_input": [
+                0.08675183355808258,
+                -0.0045873611234128475,
+                -0.9962193965911865
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09941179305315018,
+                -0.042538322508335114,
+                -0.10035914182662964,
+                0.04292614758014679
+              ]
+            },
+            "10": {
+              "time_s": 0.8449999690055847,
+              "tilt_deg": 10.175097465515137,
+              "omega_rad_s": [
+                0.0030605457723140717,
+                0.9343255162239075,
+                -0.023856699466705322
+              ],
+              "wheel_target_rad_s": [
+                0.41253310441970825,
+                -0.13746194541454315
+              ],
+              "wheel_velocity_rad_s": [
+                -0.26657241582870483,
+                0.3751946687698364
+              ],
+              "actor_gravity_input": [
+                0.1721007227897644,
+                -0.004544421564787626,
+                -0.9850689172744751
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09871729463338852,
+                -0.04301492124795914,
+                -0.1014811173081398,
+                0.04343482479453087
+              ]
+            },
+            "20": {
+              "time_s": 0.9749999642372131,
+              "tilt_deg": 20.423473358154297,
+              "omega_rad_s": [
+                0.0013640038669109344,
+                1.9861863851547241,
+                0.002918287878856063
+              ],
+              "wheel_target_rad_s": [
+                -0.7000737190246582,
+                0.3314351439476013
+              ],
+              "wheel_velocity_rad_s": [
+                -1.7683244943618774,
+                1.3667583465576172
+              ],
+              "actor_gravity_input": [
+                0.33977869153022766,
+                -0.00441273907199502,
+                -0.9404950737953186
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09747260808944702,
+                -0.04325117543339729,
+                -0.10349653661251068,
+                0.04583173245191574
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.305,
+          "pitch_deg": -0.5,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.402,
+          "wheel_target_rms_rad_s": 1.0579023361206055,
+          "wheel_speed_rms_rad_s": 0.6086155772209167,
+          "wheel_target_peak_rad_s": 7.467215061187744,
+          "wheel_speed_peak_rad_s": 7.325772762298584,
+          "roll_pitch_gyro_rms_rad_s": 0.36733588576316833,
+          "roll_pitch_gyro_peak_rad_s": 3.3040401935577393,
+          "yaw_rms_rad_s": 0.01468984130769968,
+          "body_xy_max_excursion_m": 0.2302982062101364,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.73499995470047,
+              "tilt_deg": 5.017704486846924,
+              "omega_rad_s": [
+                -0.003504446940496564,
+                -0.4388832449913025,
+                -0.04065016284584999
+              ],
+              "wheel_target_rad_s": [
+                -0.20514395833015442,
+                0.8723875880241394
+              ],
+              "wheel_velocity_rad_s": [
+                0.004379800986498594,
+                0.28120896220207214
+              ],
+              "actor_gravity_input": [
+                -0.085207499563694,
+                -0.00458539417013526,
+                -0.9963527321815491
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10133859515190125,
+                -0.04245556518435478,
+                -0.09820132702589035,
+                0.042058076709508896
+              ]
+            },
+            "10": {
+              "time_s": 0.8799999952316284,
+              "tilt_deg": 10.224064826965332,
+              "omega_rad_s": [
+                -0.009268847294151783,
+                -0.8902619481086731,
+                -0.05081181228160858
+              ],
+              "wheel_target_rad_s": [
+                -0.5560663938522339,
+                1.269316554069519
+              ],
+              "wheel_velocity_rad_s": [
+                0.00894196331501007,
+                0.3500019609928131
+              ],
+              "actor_gravity_input": [
+                -0.17315836250782013,
+                -0.0045350296422839165,
+                -0.9848835468292236
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10183943063020706,
+                -0.04266504943370819,
+                -0.09760686755180359,
+                0.04208593815565109
+              ]
+            },
+            "20": {
+              "time_s": 1.0149999856948853,
+              "tilt_deg": 20.00410270690918,
+              "omega_rad_s": [
+                -0.020003506913781166,
+                -1.7563601732254028,
+                -0.04520973190665245
+              ],
+              "wheel_target_rad_s": [
+                -1.1378694772720337,
+                1.6742849349975586
+              ],
+              "wheel_velocity_rad_s": [
+                0.05402228236198425,
+                0.2567377984523773
+              ],
+              "actor_gravity_input": [
+                -0.3339412212371826,
+                -0.0043385569006204605,
+                -0.9425839185714722
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10196197777986526,
+                -0.04279092326760292,
+                -0.09718102961778641,
+                0.043256375938653946
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.305,
+          "pitch_deg": 0.5,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.146,
+          "wheel_target_rms_rad_s": 5.057918548583984,
+          "wheel_speed_rms_rad_s": 4.1530842781066895,
+          "wheel_target_peak_rad_s": 7.061141014099121,
+          "wheel_speed_peak_rad_s": 5.757363319396973,
+          "roll_pitch_gyro_rms_rad_s": 0.34183380007743835,
+          "roll_pitch_gyro_peak_rad_s": 3.257467031478882,
+          "yaw_rms_rad_s": 0.08298969268798828,
+          "body_xy_max_excursion_m": 1.5626262426376343,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.5949999690055847,
+              "tilt_deg": 5.097928524017334,
+              "omega_rad_s": [
+                0.002376795746386051,
+                0.45605796575546265,
+                -0.02256646193563938
+              ],
+              "wheel_target_rad_s": [
+                0.43579399585723877,
+                0.03975549712777138
+              ],
+              "wheel_velocity_rad_s": [
+                -0.0007905219681560993,
+                0.18479648232460022
+              ],
+              "actor_gravity_input": [
+                0.08657258003950119,
+                -0.004589130636304617,
+                -0.9962350130081177
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09948506951332092,
+                -0.042557574808597565,
+                -0.10033146291971207,
+                0.042883336544036865
+              ]
+            },
+            "10": {
+              "time_s": 0.7299999594688416,
+              "tilt_deg": 10.135390281677246,
+              "omega_rad_s": [
+                0.0037852837704122066,
+                0.9297939538955688,
+                -0.023590441793203354
+              ],
+              "wheel_target_rad_s": [
+                0.41290417313575745,
+                -0.12001760303974152
+              ],
+              "wheel_velocity_rad_s": [
+                -0.259372740983963,
+                0.38475024700164795
+              ],
+              "actor_gravity_input": [
+                0.17145007848739624,
+                -0.004543832503259182,
+                -0.9851823449134827
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09866727143526077,
+                -0.0430234931409359,
+                -0.10150904953479767,
+                0.04344791918992996
+              ]
+            },
+            "20": {
+              "time_s": 0.85999995470047,
+              "tilt_deg": 20.32235336303711,
+              "omega_rad_s": [
+                8.032098412513733e-05,
+                1.9694862365722656,
+                -0.002220920752733946
+              ],
+              "wheel_target_rad_s": [
+                -0.6407434940338135,
+                0.323648601770401
+              ],
+              "wheel_velocity_rad_s": [
+                -1.601902961730957,
+                1.3616636991500854
+              ],
+              "actor_gravity_input": [
+                0.33817845582962036,
+                -0.0043351673521101475,
+                -0.9410720467567444
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09738744795322418,
+                -0.04337216913700104,
+                -0.10354682058095932,
+                0.045685235410928726
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.305,
+          "pitch_deg": -1.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.681,
+          "wheel_target_rms_rad_s": 1.0636552572250366,
+          "wheel_speed_rms_rad_s": 0.6091002821922302,
+          "wheel_target_peak_rad_s": 7.346686840057373,
+          "wheel_speed_peak_rad_s": 7.232396125793457,
+          "roll_pitch_gyro_rms_rad_s": 0.3675768971443176,
+          "roll_pitch_gyro_peak_rad_s": 3.312302589416504,
+          "yaw_rms_rad_s": 0.01371057890355587,
+          "body_xy_max_excursion_m": 0.22569137811660767,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.5199999809265137,
+              "tilt_deg": 5.080411434173584,
+              "omega_rad_s": [
+                -0.0020112497732043266,
+                -0.43521997332572937,
+                -0.03883056342601776
+              ],
+              "wheel_target_rad_s": [
+                -0.19594542682170868,
+                0.8596840500831604
+              ],
+              "wheel_velocity_rad_s": [
+                6.591342389583588e-05,
+                0.2741989493370056
+              ],
+              "actor_gravity_input": [
+                -0.08634276688098907,
+                -0.004588967189192772,
+                -0.9962549209594727
+              ],
+              "raw_leg_target_delta_rad": [
+                0.1013709083199501,
+                -0.042419254779815674,
+                -0.09819527715444565,
+                0.04210689663887024
+              ]
+            },
+            "10": {
+              "time_s": 0.6599999666213989,
+              "tilt_deg": 10.023265838623047,
+              "omega_rad_s": [
+                -0.010163743048906326,
+                -0.8681511878967285,
+                -0.048791348934173584
+              ],
+              "wheel_target_rad_s": [
+                -0.5525438785552979,
+                1.2506271600723267
+              ],
+              "wheel_velocity_rad_s": [
+                4.576414357870817e-05,
+                0.34157341718673706
+              ],
+              "actor_gravity_input": [
+                -0.16981790959835052,
+                -0.004537385888397694,
+                -0.9854650497436523
+              ],
+              "raw_leg_target_delta_rad": [
+                0.10175545513629913,
+                -0.04260886460542679,
+                -0.09763948619365692,
+                0.04215697571635246
+              ]
+            },
+            "20": {
+              "time_s": 0.7999999523162842,
+              "tilt_deg": 20.068485260009766,
+              "omega_rad_s": [
+                -0.01894427463412285,
+                -1.760757327079773,
+                -0.043984100222587585
+              ],
+              "wheel_target_rad_s": [
+                -1.131287693977356,
+                1.6774784326553345
+              ],
+              "wheel_velocity_rad_s": [
+                0.057761646807193756,
+                0.24713930487632751
+              ],
+              "actor_gravity_input": [
+                -0.33497095108032227,
+                -0.004341847263276577,
+                -0.9422184824943542
+              ],
+              "raw_leg_target_delta_rad": [
+                0.1020214706659317,
+                -0.04281299561262131,
+                -0.09717608988285065,
+                0.04322993755340576
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.305,
+          "pitch_deg": 1.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.803,
+          "wheel_target_rms_rad_s": 5.112980842590332,
+          "wheel_speed_rms_rad_s": 4.19987678527832,
+          "wheel_target_peak_rad_s": 7.24503231048584,
+          "wheel_speed_peak_rad_s": 6.099691390991211,
+          "roll_pitch_gyro_rms_rad_s": 0.34373408555984497,
+          "roll_pitch_gyro_peak_rad_s": 3.2851715087890625,
+          "yaw_rms_rad_s": 0.08402359485626221,
+          "body_xy_max_excursion_m": 1.6054719686508179,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.44999998807907104,
+              "tilt_deg": 5.055204391479492,
+              "omega_rad_s": [
+                0.0034342044964432716,
+                0.44450923800468445,
+                -0.02367475815117359
+              ],
+              "wheel_target_rad_s": [
+                0.4044732451438904,
+                0.07228763401508331
+              ],
+              "wheel_velocity_rad_s": [
+                -0.0069022756069898605,
+                0.1960536241531372
+              ],
+              "actor_gravity_input": [
+                0.08584986627101898,
+                -0.00458746450021863,
+                -0.9962975382804871
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09945155680179596,
+                -0.04256173223257065,
+                -0.10034292191267014,
+                0.04289383441209793
+              ]
+            },
+            "10": {
+              "time_s": 0.5899999737739563,
+              "tilt_deg": 10.22889232635498,
+              "omega_rad_s": [
+                0.003187348134815693,
+                0.932468593120575,
+                -0.02368602342903614
+              ],
+              "wheel_target_rad_s": [
+                0.41505491733551025,
+                -0.12065406888723373
+              ],
+              "wheel_velocity_rad_s": [
+                -0.2723468542098999,
+                0.38700050115585327
+              ],
+              "actor_gravity_input": [
+                0.17303913831710815,
+                -0.004540428053587675,
+                -0.9849045276641846
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09872100502252579,
+                -0.04301401227712631,
+                -0.10147202759981155,
+                0.04342985153198242
+              ]
+            },
+            "20": {
+              "time_s": 0.7199999690055847,
+              "tilt_deg": 20.47648048400879,
+              "omega_rad_s": [
+                9.614042937755585e-05,
+                1.9827346801757812,
+                -0.0028957845643162727
+              ],
+              "wheel_target_rad_s": [
+                -0.6664772033691406,
+                0.34181350469589233
+              ],
+              "wheel_velocity_rad_s": [
+                -1.638224720954895,
+                1.3919028043746948
+              ],
+              "actor_gravity_input": [
+                0.3406605124473572,
+                -0.004340050742030144,
+                -0.9401764273643494
+              ],
+              "raw_leg_target_delta_rad": [
+                0.09744540601968765,
+                -0.04334341734647751,
+                -0.10350620746612549,
+                0.04571403190493584
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.42,
+          "pitch_deg": 0.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.001,
+          "wheel_target_rms_rad_s": 6.454491138458252,
+          "wheel_speed_rms_rad_s": 5.569350719451904,
+          "wheel_target_peak_rad_s": 24.157705307006836,
+          "wheel_speed_peak_rad_s": 22.108591079711914,
+          "roll_pitch_gyro_rms_rad_s": 0.41714268922805786,
+          "roll_pitch_gyro_peak_rad_s": 3.816826820373535,
+          "yaw_rms_rad_s": 0.24781042337417603,
+          "body_xy_max_excursion_m": 1.8724079132080078,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.4599999785423279,
+              "tilt_deg": 5.094814777374268,
+              "omega_rad_s": [
+                -0.06907742470502853,
+                0.8579112887382507,
+                0.47917261719703674
+              ],
+              "wheel_target_rad_s": [
+                -6.230979919433594,
+                2.7404019832611084
+              ],
+              "wheel_velocity_rad_s": [
+                -6.001094818115234,
+                2.938429594039917
+              ],
+              "actor_gravity_input": [
+                0.08403544127941132,
+                -0.011095085181295872,
+                -0.9964010119438171
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06432145833969116,
+                -0.02610749751329422,
+                -0.08395349979400635,
+                0.04848308861255646
+              ]
+            },
+            "10": {
+              "time_s": 0.5399999618530273,
+              "tilt_deg": 10.301867485046387,
+              "omega_rad_s": [
+                -0.06501775979995728,
+                1.3152329921722412,
+                0.5339146852493286
+              ],
+              "wheel_target_rad_s": [
+                -8.476969718933105,
+                3.80395770072937
+              ],
+              "wheel_velocity_rad_s": [
+                -8.722525596618652,
+                4.524895191192627
+              ],
+              "actor_gravity_input": [
+                0.17210184037685394,
+                -0.0110164238139987,
+                -0.9850175380706787
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06933053582906723,
+                -0.02902521938085556,
+                -0.0827564150094986,
+                0.044425688683986664
+              ]
+            },
+            "20": {
+              "time_s": 0.6549999713897705,
+              "tilt_deg": 20.41861915588379,
+              "omega_rad_s": [
+                -0.23373544216156006,
+                2.149275779724121,
+                0.8189643621444702
+              ],
+              "wheel_target_rad_s": [
+                -9.561197280883789,
+                1.4559004306793213
+              ],
+              "wheel_velocity_rad_s": [
+                -9.747791290283203,
+                2.7296881675720215
+              ],
+              "actor_gravity_input": [
+                0.3386770188808441,
+                -0.016374528408050537,
+                -0.9407601952552795
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06697520613670349,
+                -0.026983052492141724,
+                -0.08373282104730606,
+                0.04745117947459221
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.42,
+          "pitch_deg": -0.25,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.001,
+          "wheel_target_rms_rad_s": 6.447057723999023,
+          "wheel_speed_rms_rad_s": 5.567387580871582,
+          "wheel_target_peak_rad_s": 24.157752990722656,
+          "wheel_speed_peak_rad_s": 22.107969284057617,
+          "roll_pitch_gyro_rms_rad_s": 0.42590516805648804,
+          "roll_pitch_gyro_peak_rad_s": 3.802116632461548,
+          "yaw_rms_rad_s": 0.252254456281662,
+          "body_xy_max_excursion_m": 1.8649007081985474,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.5,
+              "tilt_deg": 5.192709445953369,
+              "omega_rad_s": [
+                -0.043997760862112045,
+                0.9150974750518799,
+                0.4407386779785156
+              ],
+              "wheel_target_rad_s": [
+                -7.405989170074463,
+                3.8457226753234863
+              ],
+              "wheel_velocity_rad_s": [
+                -7.376324653625488,
+                4.122199535369873
+              ],
+              "actor_gravity_input": [
+                0.0855199471116066,
+                -0.00998742040246725,
+                -0.9962864518165588
+              ],
+              "raw_leg_target_delta_rad": [
+                0.0658629760146141,
+                -0.027368713170289993,
+                -0.08333870768547058,
+                0.04665891081094742
+              ]
+            },
+            "10": {
+              "time_s": 0.5849999785423279,
+              "tilt_deg": 10.007733345031738,
+              "omega_rad_s": [
+                -0.06391400098800659,
+                1.054535150527954,
+                0.541461169719696
+              ],
+              "wheel_target_rad_s": [
+                -7.285373210906982,
+                2.4359378814697266
+              ],
+              "wheel_velocity_rad_s": [
+                -7.409611701965332,
+                3.069567918777466
+              ],
+              "actor_gravity_input": [
+                0.16828827559947968,
+                -0.01135745644569397,
+                -0.9856724143028259
+              ],
+              "raw_leg_target_delta_rad": [
+                0.07198251783847809,
+                -0.029948050156235695,
+                -0.0828082263469696,
+                0.043561678379774094
+              ]
+            },
+            "20": {
+              "time_s": 0.7049999833106995,
+              "tilt_deg": 20.487890243530273,
+              "omega_rad_s": [
+                -0.26406130194664,
+                2.417931318283081,
+                0.8828319907188416
+              ],
+              "wheel_target_rad_s": [
+                -10.671201705932617,
+                2.2623751163482666
+              ],
+              "wheel_velocity_rad_s": [
+                -11.022911071777344,
+                3.709038019180298
+              ],
+              "actor_gravity_input": [
+                0.33857262134552,
+                -0.016387594863772392,
+                -0.9407975673675537
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06470464915037155,
+                -0.025955377146601677,
+                -0.08372876793146133,
+                0.04845065623521805
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.42,
+          "pitch_deg": 0.25,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.001,
+          "wheel_target_rms_rad_s": 6.440428256988525,
+          "wheel_speed_rms_rad_s": 5.546995639801025,
+          "wheel_target_peak_rad_s": 24.157642364501953,
+          "wheel_speed_peak_rad_s": 22.10904312133789,
+          "roll_pitch_gyro_rms_rad_s": 0.4114573001861572,
+          "roll_pitch_gyro_peak_rad_s": 3.652543544769287,
+          "yaw_rms_rad_s": 0.24464862048625946,
+          "body_xy_max_excursion_m": 1.8736400604248047,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.41999998688697815,
+              "tilt_deg": 5.030728816986084,
+              "omega_rad_s": [
+                -0.06524845212697983,
+                0.6370675563812256,
+                0.4310564398765564
+              ],
+              "wheel_target_rad_s": [
+                -4.299985885620117,
+                0.5064785480499268
+              ],
+              "wheel_velocity_rad_s": [
+                -3.91573166847229,
+                0.9713688492774963
+              ],
+              "actor_gravity_input": [
+                0.08376161754131317,
+                -0.012774299830198288,
+                -0.9964039325714111
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06885045766830444,
+                -0.027944032102823257,
+                -0.08422720432281494,
+                0.04680226370692253
+              ]
+            },
+            "10": {
+              "time_s": 0.5049999952316284,
+              "tilt_deg": 10.356473922729492,
+              "omega_rad_s": [
+                -0.08381004631519318,
+                1.5284439325332642,
+                0.5295642018318176
+              ],
+              "wheel_target_rad_s": [
+                -8.846426963806152,
+                4.183192253112793
+              ],
+              "wheel_velocity_rad_s": [
+                -9.141386985778809,
+                5.004189491271973
+              ],
+              "actor_gravity_input": [
+                0.17203983664512634,
+                -0.011181802488863468,
+                -0.9850265383720398
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06592515110969543,
+                -0.02751866541802883,
+                -0.08320054411888123,
+                0.04629211872816086
+              ]
+            },
+            "20": {
+              "time_s": 0.6100000143051147,
+              "tilt_deg": 20.54429054260254,
+              "omega_rad_s": [
+                -0.21040046215057373,
+                1.9893540143966675,
+                0.7672224044799805
+              ],
+              "wheel_target_rad_s": [
+                -9.15306282043457,
+                1.5751962661743164
+              ],
+              "wheel_velocity_rad_s": [
+                -9.27087688446045,
+                2.651123523712158
+              ],
+              "actor_gravity_input": [
+                0.3414468765258789,
+                -0.015873879194259644,
+                -0.9397670030593872
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06930722296237946,
+                -0.02832939475774765,
+                -0.0836077481508255,
+                0.0460343174636364
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.42,
+          "pitch_deg": -0.5,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.001,
+          "wheel_target_rms_rad_s": 6.424285888671875,
+          "wheel_speed_rms_rad_s": 5.547930717468262,
+          "wheel_target_peak_rad_s": 24.15773582458496,
+          "wheel_speed_peak_rad_s": 22.107315063476562,
+          "roll_pitch_gyro_rms_rad_s": 0.42442068457603455,
+          "roll_pitch_gyro_peak_rad_s": 3.610964775085449,
+          "yaw_rms_rad_s": 0.2566887438297272,
+          "body_xy_max_excursion_m": 1.8633350133895874,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.550000011920929,
+              "tilt_deg": 5.120898246765137,
+              "omega_rad_s": [
+                -0.01838437095284462,
+                0.7319154143333435,
+                0.4013741612434387
+              ],
+              "wheel_target_rad_s": [
+                -7.021886825561523,
+                3.642885208129883
+              ],
+              "wheel_velocity_rad_s": [
+                -7.0648980140686035,
+                3.9806606769561768
+              ],
+              "actor_gravity_input": [
+                0.08519216626882553,
+                -0.009566991589963436,
+                -0.9963186979293823
+              ],
+              "raw_leg_target_delta_rad": [
+                0.07111438363790512,
+                -0.029957402497529984,
+                -0.08278700709342957,
+                0.043538790196180344
+              ]
+            },
+            "10": {
+              "time_s": 0.6599999666213989,
+              "tilt_deg": 10.117656707763672,
+              "omega_rad_s": [
+                -0.08330284059047699,
+                1.0649192333221436,
+                0.608059823513031
+              ],
+              "wheel_target_rad_s": [
+                -7.00883150100708,
+                1.363673210144043
+              ],
+              "wheel_velocity_rad_s": [
+                -7.049254894256592,
+                2.1032538414001465
+              ],
+              "actor_gravity_input": [
+                0.17020779848098755,
+                -0.011667490936815739,
+                -0.9853391051292419
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06917542219161987,
+                -0.028126025572419167,
+                -0.08320751041173935,
+                0.04578639566898346
+              ]
+            },
+            "20": {
+              "time_s": 0.7649999856948853,
+              "tilt_deg": 20.13391876220703,
+              "omega_rad_s": [
+                -0.24754364788532257,
+                2.33546781539917,
+                0.9007391929626465
+              ],
+              "wheel_target_rad_s": [
+                -11.379138946533203,
+                2.744295120239258
+              ],
+              "wheel_velocity_rad_s": [
+                -11.797039031982422,
+                4.154664516448975
+              ],
+              "actor_gravity_input": [
+                0.3330895006656647,
+                -0.01617099530994892,
+                -0.9427565336227417
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06534126400947571,
+                -0.026378266513347626,
+                -0.08329460024833679,
+                0.04767683520913124
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.42,
+          "pitch_deg": 0.5,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.001,
+          "wheel_target_rms_rad_s": 6.440438270568848,
+          "wheel_speed_rms_rad_s": 5.543734073638916,
+          "wheel_target_peak_rad_s": 24.157419204711914,
+          "wheel_speed_peak_rad_s": 22.10948371887207,
+          "roll_pitch_gyro_rms_rad_s": 0.4132705330848694,
+          "roll_pitch_gyro_peak_rad_s": 3.4835946559906006,
+          "yaw_rms_rad_s": 0.2414442002773285,
+          "body_xy_max_excursion_m": 1.8707329034805298,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.3799999952316284,
+              "tilt_deg": 5.0510172843933105,
+              "omega_rad_s": [
+                -0.009025933220982552,
+                0.40999937057495117,
+                0.20137661695480347
+              ],
+              "wheel_target_rad_s": [
+                -4.353975772857666,
+                -0.7197444438934326
+              ],
+              "wheel_velocity_rad_s": [
+                -3.9193568229675293,
+                -0.02438284642994404
+              ],
+              "actor_gravity_input": [
+                0.08510436117649078,
+                -0.013396346010267735,
+                -0.9962819814682007
+              ],
+              "raw_leg_target_delta_rad": [
+                0.07882587611675262,
+                -0.03329664468765259,
+                -0.08381536602973938,
+                0.04074045643210411
+              ]
+            },
+            "10": {
+              "time_s": 0.47999998927116394,
+              "tilt_deg": 10.363481521606445,
+              "omega_rad_s": [
+                -0.10117949545383453,
+                1.594009280204773,
+                0.5272324085235596
+              ],
+              "wheel_target_rad_s": [
+                -8.377994537353516,
+                3.8377685546875
+              ],
+              "wheel_velocity_rad_s": [
+                -8.608972549438477,
+                4.6586809158325195
+              ],
+              "actor_gravity_input": [
+                0.1718500554561615,
+                -0.011854767799377441,
+                -0.9850518107414246
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06415849924087524,
+                -0.02657225728034973,
+                -0.08365033566951752,
+                0.04760587960481644
+              ]
+            },
+            "20": {
+              "time_s": 0.5699999928474426,
+              "tilt_deg": 20.039005279541016,
+              "omega_rad_s": [
+                -0.1872623860836029,
+                2.0624403953552246,
+                0.7257466316223145
+              ],
+              "wheel_target_rad_s": [
+                -9.870891571044922,
+                2.949397563934326
+              ],
+              "wheel_velocity_rad_s": [
+                -10.135082244873047,
+                4.048757553100586
+              ],
+              "actor_gravity_input": [
+                0.33274349570274353,
+                -0.014804213307797909,
+                -0.9429011940956116
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06964705884456635,
+                -0.02895328775048256,
+                -0.08324051648378372,
+                0.04507860913872719
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.42,
+          "pitch_deg": -1.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.001,
+          "wheel_target_rms_rad_s": 6.3820414543151855,
+          "wheel_speed_rms_rad_s": 5.551673889160156,
+          "wheel_target_peak_rad_s": 24.157373428344727,
+          "wheel_speed_peak_rad_s": 22.105714797973633,
+          "roll_pitch_gyro_rms_rad_s": 0.420757532119751,
+          "roll_pitch_gyro_peak_rad_s": 3.7552857398986816,
+          "yaw_rms_rad_s": 0.3077836334705353,
+          "body_xy_max_excursion_m": 1.7919236421585083,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 1.0799999237060547,
+              "tilt_deg": 5.042632102966309,
+              "omega_rad_s": [
+                -0.04212890565395355,
+                0.5113107562065125,
+                0.6505892872810364
+              ],
+              "wheel_target_rad_s": [
+                -7.274133682250977,
+                1.8669980764389038
+              ],
+              "wheel_velocity_rad_s": [
+                -7.208303451538086,
+                2.2371737957000732
+              ],
+              "actor_gravity_input": [
+                0.08470195531845093,
+                -0.011300686746835709,
+                -0.9963423013687134
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06876447051763535,
+                -0.027723073959350586,
+                -0.08261068165302277,
+                0.045823607593774796
+              ]
+            },
+            "10": {
+              "time_s": 1.1999999284744263,
+              "tilt_deg": 10.027365684509277,
+              "omega_rad_s": [
+                -0.11986044049263,
+                1.058980107307434,
+                0.8534539341926575
+              ],
+              "wheel_target_rad_s": [
+                -8.847725868225098,
+                1.4553440809249878
+              ],
+              "wheel_velocity_rad_s": [
+                -8.92414665222168,
+                2.209015369415283
+              ],
+              "actor_gravity_input": [
+                0.1685476452112198,
+                -0.01350621972233057,
+                -0.985601007938385
+              ],
+              "raw_leg_target_delta_rad": [
+                0.0669681578874588,
+                -0.0264439657330513,
+                -0.08256426453590393,
+                0.046973321586847305
+              ]
+            },
+            "20": {
+              "time_s": 1.3149999380111694,
+              "tilt_deg": 20.2480411529541,
+              "omega_rad_s": [
+                -0.33995068073272705,
+                2.209857940673828,
+                1.1843976974487305
+              ],
+              "wheel_target_rad_s": [
+                -12.398017883300781,
+                1.4800629615783691
+              ],
+              "wheel_velocity_rad_s": [
+                -12.578502655029297,
+                2.881063222885132
+              ],
+              "actor_gravity_input": [
+                0.3354223072528839,
+                -0.01945704221725464,
+                -0.941866934299469
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06384357810020447,
+                -0.024574320763349533,
+                -0.08306194841861725,
+                0.049250904470682144
+              ]
+            }
+          }
+        },
+        {
+          "height_m": 0.42,
+          "pitch_deg": 1.0,
+          "observed_policy_frames": 1600,
+          "original_standing_pass": false,
+          "first_missing_support_s": 0.001,
+          "wheel_target_rms_rad_s": 6.4408979415893555,
+          "wheel_speed_rms_rad_s": 5.54338264465332,
+          "wheel_target_peak_rad_s": 24.156591415405273,
+          "wheel_speed_peak_rad_s": 22.1099853515625,
+          "roll_pitch_gyro_rms_rad_s": 0.43095073103904724,
+          "roll_pitch_gyro_peak_rad_s": 3.3455824851989746,
+          "yaw_rms_rad_s": 0.2356419414281845,
+          "body_xy_max_excursion_m": 1.8812707662582397,
+          "raw_to_applied_maximum_difference": 0.0,
+          "first_tilt_crossings": {
+            "5": {
+              "time_s": 0.3100000023841858,
+              "tilt_deg": 5.123193740844727,
+              "omega_rad_s": [
+                -0.03131329268217087,
+                0.6163549423217773,
+                0.1564691662788391
+              ],
+              "wheel_target_rad_s": [
+                -6.514009475708008,
+                3.7497262954711914
+              ],
+              "wheel_velocity_rad_s": [
+                -6.540314674377441,
+                3.9349594116210938
+              ],
+              "actor_gravity_input": [
+                0.08530425280332565,
+                -0.012930168770253658,
+                -0.9962711334228516
+              ],
+              "raw_leg_target_delta_rad": [
+                0.07894986867904663,
+                -0.03442339599132538,
+                -0.08298279345035553,
+                0.03881858289241791
+              ]
+            },
+            "10": {
+              "time_s": 0.4350000023841858,
+              "tilt_deg": 10.117229461669922,
+              "omega_rad_s": [
+                -0.10537905991077423,
+                1.329748511314392,
+                0.49401551485061646
+              ],
+              "wheel_target_rad_s": [
+                -5.950516700744629,
+                1.6755306720733643
+              ],
+              "wheel_velocity_rad_s": [
+                -5.896021366119385,
+                2.4468994140625
+              ],
+              "actor_gravity_input": [
+                0.16888120770454407,
+                -0.013228664174675941,
+                -0.985547661781311
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06603291630744934,
+                -0.026808997616171837,
+                -0.0843040719628334,
+                0.047922298312187195
+              ]
+            },
+            "20": {
+              "time_s": 0.5249999761581421,
+              "tilt_deg": 20.697309494018555,
+              "omega_rad_s": [
+                -0.18924176692962646,
+                2.5639848709106445,
+                0.6887069344520569
+              ],
+              "wheel_target_rad_s": [
+                -11.542750358581543,
+                4.529556751251221
+              ],
+              "wheel_velocity_rad_s": [
+                -12.125910758972168,
+                5.92930269241333
+              ],
+              "actor_gravity_input": [
+                0.3412665128707886,
+                -0.01417020708322525,
+                -0.9398598670959473
+              ],
+              "raw_leg_target_delta_rad": [
+                0.06687389314174652,
+                -0.028196590021252632,
+                -0.08333037793636322,
+                0.04584833234548569
+              ]
+            }
+          }
+        }
+      ],
+      "qualification": false,
+      "scope": "Measured wheel response and failure order; no counterfactual control, acceptance change or causal attribution",
+      "source_sha256": "7cc48eb54c23965c20720fd0a88009bdf9049a6d0229ab9198969fb20dda9d41"
+    },
+    "checkpoint_loading_scope": "read-only actor evaluation",
+    "new_PPO": 0,
+    "optimizer_constructed": false,
+    "domain_intervention": {
+      "resolved": {
+        "schema": "wheel-leg-resolved-randomization-study-v2",
+        "profile": "nominal",
+        "strength": 1.0,
+        "group_scales": {
+          "observation_noise": 0.0,
+          "encoder_bias": 0.0,
+          "imu_alignment": 0.0,
+          "motor_strength": 0.0,
+          "mass_com": 0.0,
+          "independent_inertia": 0.0,
+          "ground_friction": 0.0,
+          "timing": 0.0
+        },
+        "task": {
+          "domains_enabled": false,
+          "nominal_fraction": 0.25,
+          "motor_strength_range": [
+            1.0,
+            1.0
+          ],
+          "leg_kp_scale_range": [
+            1.0,
+            1.0
+          ],
+          "leg_kd_scale_range": [
+            1.0,
+            1.0
+          ],
+          "spring_strength_range": [
+            1.0,
+            1.0
+          ],
+          "encoder_bias_rad": 0.0,
+          "pd_encoder_bias_rad": 0.0,
+          "encoder_noise_rad": 0.0,
+          "gyro_bias_rad_s": 0.0,
+          "gyro_noise_rad_s": 0.0,
+          "gravity_noise": 0.0,
+          "velocity_noise_rad_s": [
+            0.0,
+            0.0
+          ],
+          "sensor_noise_scale": 1.0,
+          "gap_correct_pd_scaling": true,
+          "torque_delay_ms": [
+            0,
+            0
+          ],
+          "sensor_delay_policy_ticks": [
+            0,
+            0
+          ],
+          "motor_tau_ms": [
+            0,
+            0
+          ],
+          "pd_feedback_delay_ms": [
+            0,
+            0
+          ],
+          "pd_feedback_period_ms": [
+            1,
+            1
+          ],
+          "imu_mount": null
+        },
+        "dynamics_randomization": {
+          "enabled": false,
+          "sampling": "startup",
+          "enabled_fraction": 0.75,
+          "base_body": "base_link",
+          "wheel_bodies": [
+            "L_link3",
+            "R_link3"
+          ],
+          "base_mass_scale": [
+            1.0,
+            1.0
+          ],
+          "leg_mass_scale": [
+            1.0,
+            1.0
+          ],
+          "wheel_mass_scale": [
+            1.0,
+            1.0
+          ],
+          "inertia_scale": [
+            1.0,
+            1.0
+          ],
+          "base_com_offset_m": {
+            "x": [
+              -0.0,
+              0.0
+            ],
+            "y": [
+              -0.0,
+              0.0
+            ],
+            "z": [
+              -0.0,
+              0.0
+            ]
+          },
+          "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+        },
+        "ground_friction_range": [
+          0.5,
+          0.5
+        ],
+        "effective_wheel_ground_friction_range": [
+          0.3,
+          0.3
+        ],
+        "effective_unsaturated_leg_kp_scale_bounds": [
+          1.0,
+          1.0
+        ],
+        "effective_unsaturated_leg_kd_scale_bounds": [
+          1.0,
+          1.0
+        ],
+        "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+        "policy_PD_encoder_bias_disagreement_bound_rad": 0.0,
+        "physical_encoder_white_noise_coverage": false,
+        "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+        "hardware_identified": false,
+        "behavior_qualified": false,
+        "imu_wobble_enabled": false,
+        "leg_gain_randomization_enabled": false,
+        "spring_strength_randomization_enabled": false,
+        "input_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+        "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157"
+      },
+      "replaced_study": {
+        "schema": "wheel-leg-resolved-randomization-study-v2",
+        "profile": "requested",
+        "strength": 1.0,
+        "group_scales": {
+          "observation_noise": 1.0,
+          "encoder_bias": 1.0,
+          "imu_alignment": 1.0,
+          "motor_strength": 1.0,
+          "mass_com": 1.0,
+          "independent_inertia": 1.0,
+          "ground_friction": 1.0,
+          "timing": 1.0
+        },
+        "task": {
+          "domains_enabled": true,
+          "nominal_fraction": 0.25,
+          "motor_strength_range": [
+            0.84,
+            1.16
+          ],
+          "leg_kp_scale_range": [
+            1.0,
+            1.0
+          ],
+          "leg_kd_scale_range": [
+            1.0,
+            1.0
+          ],
+          "spring_strength_range": [
+            1.0,
+            1.0
+          ],
+          "encoder_bias_rad": 0.004,
+          "pd_encoder_bias_rad": 0.004,
+          "encoder_noise_rad": 0.00035,
+          "gyro_bias_rad_s": 0.00525,
+          "gyro_noise_rad_s": 0.0035,
+          "gravity_noise": 0.0014,
+          "velocity_noise_rad_s": [
+            0.0175,
+            0.0875
+          ],
+          "sensor_noise_scale": 1.0,
+          "gap_correct_pd_scaling": true,
+          "torque_delay_ms": [
+            0,
+            0
+          ],
+          "sensor_delay_policy_ticks": [
+            0,
+            1
+          ],
+          "motor_tau_ms": [
+            0.0,
+            0.0
+          ],
+          "pd_feedback_delay_ms": [
+            0,
+            0
+          ],
+          "pd_feedback_period_ms": [
+            1,
+            1
+          ],
+          "imu_mount": {
+            "fixed_degrees": [
+              0.8,
+              0.8,
+              0.26666666666666666
+            ],
+            "wobble_degrees": [
+              0.0,
+              0.0
+            ],
+            "wobble_hz": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "dynamics_randomization": {
+          "enabled": true,
+          "sampling": "startup",
+          "enabled_fraction": 0.75,
+          "base_body": "base_link",
+          "wheel_bodies": [
+            "L_link3",
+            "R_link3"
+          ],
+          "base_mass_scale": [
+            0.92,
+            1.08
+          ],
+          "leg_mass_scale": [
+            0.92,
+            1.08
+          ],
+          "wheel_mass_scale": [
+            0.92,
+            1.08
+          ],
+          "inertia_scale": [
+            0.94,
+            1.06
+          ],
+          "base_com_offset_m": {
+            "x": [
+              -0.012,
+              0.012
+            ],
+            "y": [
+              -0.0064,
+              0.0064
+            ],
+            "z": [
+              -0.008,
+              0.008
+            ]
+          },
+          "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+        },
+        "ground_friction_range": [
+          0.3,
+          0.5
+        ],
+        "effective_wheel_ground_friction_range": [
+          0.2,
+          0.3
+        ],
+        "effective_unsaturated_leg_kp_scale_bounds": [
+          0.84,
+          1.16
+        ],
+        "effective_unsaturated_leg_kd_scale_bounds": [
+          0.84,
+          1.16
+        ],
+        "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+        "policy_PD_encoder_bias_disagreement_bound_rad": 0.008,
+        "physical_encoder_white_noise_coverage": false,
+        "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+        "hardware_identified": false,
+        "behavior_qualified": false,
+        "imu_wobble_enabled": false,
+        "leg_gain_randomization_enabled": false,
+        "spring_strength_randomization_enabled": false,
+        "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+        "input_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json"
+      },
+      "resolver_sha256": "80ec179c8af89f85f0439c0fd15e78815860a78c98ec2ab99eb6de6af187dec1",
+      "scope": "read-only environmental sensitivity; no claim of learning from these domains"
+    },
+    "actual_domain_samples": {
+      "enabled": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "motor_strength": [
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      ],
+      "leg_kp_scale": [
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ]
+      ],
+      "leg_kd_scale": [
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ]
+      ],
+      "spring_strength": [
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ],
+        [
+          1.0
+        ]
+      ],
+      "policy_sensor_delay_ticks": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "policy_bias": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "policy_noise_sigma": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "pd_encoder_bias": [
+        [
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.0,
+          0.0,
+          -0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          -0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          0.0,
+          -0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          -0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.0,
+          0.0
+        ]
+      ],
+      "ground_static_friction": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "ground_dynamic_friction": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "behavior_qualification": false
+  }
+}

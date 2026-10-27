@@ -1,0 +1,830 @@
+{
+  "schema": "scratch-standing-task-v1",
+  "settings": {
+    "schema": "wheel-leg-unified-getup-v1",
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "actor_dim": 35,
+    "action_dim": 6,
+    "passive_min_seconds": 0.2,
+    "passive_max_seconds": 1.2,
+    "passive_hold_seconds": 0.08,
+    "episode_seconds": 30.0,
+    "stable_seconds": 0.5,
+    "followup_seconds": 2.0,
+    "recovery_timeout_seconds": 9.0,
+    "leg_action_clip": 16.0,
+    "wheel_action_clip": 9.0,
+    "leg_position_scale": 0.25,
+    "closure_gap_m": 0.003,
+    "impact_limit_n": 3500.0,
+    "impact_window_seconds": 0.02,
+    "impact_impulse_limit_ns": 20.0,
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "motion_push_fraction": 0.0,
+    "motion_fraction": 1.0,
+    "arc_fraction_within_motion": 0.4,
+    "lateral_acceleration_m_s2": 2.06,
+    "wheel_radius_m": 0.06,
+    "wheel_track_m": 0.4373,
+    "wheel_speed_limit_rad_s": 90.0,
+    "friction_start": [
+      0.5,
+      0.5
+    ],
+    "friction_final": [
+      0.2,
+      0.5
+    ],
+    "curriculum_updates": 192,
+    "origin_updates": 0,
+    "motor_control": "six_axis_RL_after_zero_effort_settling",
+    "input_source": "IMU_encoders_commands_previous_action",
+    "fallback_script": false,
+    "state_writes": "episode_reset_only",
+    "version": "scratch-standing-v3-coupled-selective-sensor-reset-v1-wheel-increment-v1-separated-leg-velocity-v1-static-load-init-v1-domain-study-v2-gradual-domain-admission-v1-fresh-unified-mixed-tasks-v1",
+    "stance_aware_recovery": true,
+    "recovery_shape_aware": false,
+    "paired_feedback_winding": true,
+    "cyclic_leg_targets": true,
+    "recovery_leg_step": 0.3,
+    "smooth_knee_targets": true,
+    "recovery_knee_center": [
+      0.924544,
+      0.924537
+    ],
+    "recovery_leg_speed_cost": 0.0005,
+    "recovery_family_weights": [
+      0.0,
+      0.1,
+      0.1,
+      0.2,
+      0.2,
+      0.3,
+      0.1
+    ],
+    "side_recovery_birth_focus": false,
+    "standing_drift_speed_scale_m_s": 0.02,
+    "quiet_native_height_anchors": false,
+    "quiet_exploration_fraction": 0.35,
+    "quiet_wheel_exploration_fraction": null,
+    "quiet_velocity_feature_gain": 1.0,
+    "quiet_velocity_feedback": false,
+    "quiet_velocity_feedback_mode": "all",
+    "nominal_fraction": 0.25,
+    "motor_strength_range": [
+      0.84,
+      1.16
+    ],
+    "leg_kp_scale_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kd_scale_range": [
+      1.0,
+      1.0
+    ],
+    "spring_strength_range": [
+      1.0,
+      1.0
+    ],
+    "torque_delay_ms": [
+      0,
+      0
+    ],
+    "motor_tau_ms": [
+      0.0,
+      0.0
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      1
+    ],
+    "encoder_bias_rad": 0.004,
+    "encoder_noise_rad": 0.00035,
+    "gyro_bias_rad_s": 0.00525,
+    "gyro_noise_rad_s": 0.0035,
+    "gravity_noise": 0.0014,
+    "velocity_noise_rad_s": [
+      0.0175,
+      0.0875
+    ],
+    "sensor_noise_scale": 1.0,
+    "domains_enabled": true,
+    "quiet_action_rate_cost": 0.0,
+    "quiet_motor_speed_cost": 0.0,
+    "quiet_effort_delta_cost": 0.0,
+    "quiet_actor_alpha": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.65,
+      0.65
+    ],
+    "boundary_xy_m": [
+      60.0,
+      56.0
+    ],
+    "push_torque_direction": -1.0,
+    "hold_motion_during_recovery": true,
+    "canonical_recovery": true,
+    "motion_residual_fraction": 0.25,
+    "pd_feedback_delay_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      1
+    ],
+    "pd_encoder_bias_rad": 0.004,
+    "reward_gamma": 0.998,
+    "reward_potential_gain": 5.0,
+    "quiet_frozen": false,
+    "quiet_training": false,
+    "quiet_sway_m": 0.05,
+    "quiet_spectral_cost": false,
+    "quiet_critic_anchor": true,
+    "quiet_velocity_feature_scale": null,
+    "quiet_wheel_bound": 0.5,
+    "arc_tuning_fraction": 0.0,
+    "standing_support_training": false,
+    "quiet_position_weight": 0.5,
+    "quiet_height_probabilities": [
+      0.5,
+      0.25,
+      0.25
+    ],
+    "quiet_high_common_alpha": null,
+    "quiet_high_leg_prediction_s": 0.0,
+    "standing_early_position_weight": 0.0,
+    "standing_drift_weight": 0.0,
+    "quiet_height_experts": false,
+    "fast_forward_reference": false,
+    "fast_forward_reference_range": [
+      1.5,
+      2.0
+    ],
+    "fast_forward_reference_yaw_fade": 0.25,
+    "native_origin_mode": "isolated_overlap_v1",
+    "standing_reward_shape": "gaussian",
+    "domain_sensor_clock_version": "one-sample-per-tick-selective-reset-v1",
+    "gap_correct_pd_scaling": true,
+    "imu_mount": {
+      "fixed_degrees": [
+        0.8,
+        0.8,
+        0.26666666666666666
+      ],
+      "wobble_degrees": [
+        0.0,
+        0.0
+      ],
+      "wobble_hz": [
+        1.0,
+        1.0
+      ]
+    },
+    "randomization_study": {
+      "schema": "wheel-leg-resolved-randomization-study-v2",
+      "profile": "requested",
+      "strength": 1.0,
+      "group_scales": {
+        "observation_noise": 1.0,
+        "encoder_bias": 1.0,
+        "imu_alignment": 1.0,
+        "motor_strength": 1.0,
+        "mass_com": 1.0,
+        "independent_inertia": 1.0,
+        "ground_friction": 1.0,
+        "timing": 1.0
+      },
+      "task": {
+        "domains_enabled": true,
+        "nominal_fraction": 0.25,
+        "motor_strength_range": [
+          0.84,
+          1.16
+        ],
+        "leg_kp_scale_range": [
+          1.0,
+          1.0
+        ],
+        "leg_kd_scale_range": [
+          1.0,
+          1.0
+        ],
+        "spring_strength_range": [
+          1.0,
+          1.0
+        ],
+        "encoder_bias_rad": 0.004,
+        "pd_encoder_bias_rad": 0.004,
+        "encoder_noise_rad": 0.00035,
+        "gyro_bias_rad_s": 0.00525,
+        "gyro_noise_rad_s": 0.0035,
+        "gravity_noise": 0.0014,
+        "velocity_noise_rad_s": [
+          0.0175,
+          0.0875
+        ],
+        "sensor_noise_scale": 1.0,
+        "gap_correct_pd_scaling": true,
+        "torque_delay_ms": [
+          0,
+          0
+        ],
+        "sensor_delay_policy_ticks": [
+          0,
+          1
+        ],
+        "motor_tau_ms": [
+          0.0,
+          0.0
+        ],
+        "pd_feedback_delay_ms": [
+          0,
+          0
+        ],
+        "pd_feedback_period_ms": [
+          1,
+          1
+        ],
+        "imu_mount": {
+          "fixed_degrees": [
+            0.8,
+            0.8,
+            0.26666666666666666
+          ],
+          "wobble_degrees": [
+            0.0,
+            0.0
+          ],
+          "wobble_hz": [
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "dynamics_randomization": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.92,
+          1.08
+        ],
+        "leg_mass_scale": [
+          0.92,
+          1.08
+        ],
+        "wheel_mass_scale": [
+          0.92,
+          1.08
+        ],
+        "inertia_scale": [
+          0.94,
+          1.06
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.012,
+            0.012
+          ],
+          "y": [
+            -0.0064,
+            0.0064
+          ],
+          "z": [
+            -0.008,
+            0.008
+          ]
+        },
+        "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+      },
+      "ground_friction_range": [
+        0.3,
+        0.5
+      ],
+      "effective_wheel_ground_friction_range": [
+        0.2,
+        0.3
+      ],
+      "effective_unsaturated_leg_kp_scale_bounds": [
+        0.84,
+        1.16
+      ],
+      "effective_unsaturated_leg_kd_scale_bounds": [
+        0.84,
+        1.16
+      ],
+      "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+      "policy_PD_encoder_bias_disagreement_bound_rad": 0.008,
+      "physical_encoder_white_noise_coverage": false,
+      "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+      "hardware_identified": false,
+      "behavior_qualified": false,
+      "imu_wobble_enabled": false,
+      "leg_gain_randomization_enabled": false,
+      "spring_strength_randomization_enabled": false,
+      "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+      "input_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json"
+    },
+    "domain_learning_admission": {
+      "schema": "standing-domain-learning-admission-plan-v1",
+      "warmup_updates": 192,
+      "ramp_updates": 128,
+      "total_updates": 1536,
+      "priority_seed": 271501,
+      "full_population_at_completed_update": 320,
+      "physical_domain_widths_changed": false,
+      "normalization_and_PPO_use_same_mask": true,
+      "native_behavior_verified": false,
+      "hardware_ready": false
+    },
+    "fresh_unified_training": {
+      "schema": "fresh-unified-mixed-task-training-v1",
+      "completed_updates": 0,
+      "exposure": 0.0,
+      "final_quota": {
+        "standing": 32,
+        "initial_recovery": 26,
+        "low_speed_straight": 13,
+        "high_speed_straight": 10,
+        "stationary_spin": 10,
+        "four_direction_arcs": 10,
+        "standing_height_change": 7,
+        "moving_height_change": 5,
+        "spinning_height_change": 5,
+        "high_speed_braking": 5,
+        "moving_fall_recovery": 5
+      },
+      "current_tasks": {
+        "standing": 128
+      },
+      "foundation_updates": 192,
+      "full_tasks_at": 768,
+      "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+      "recovery_difficulty": "Select validated same-family/same-leg-shape bank poses from minimum tilt to declared final tilt; no pose interpolation. Full endpoint keeps original90/180/compound65deg pools.",
+      "independent_training_seed": 271701,
+      "required_task_categories_present_at_final": true,
+      "smoothness_and_robustness": "cross-cutting; measured under every task",
+      "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+      "training_adopted": false,
+      "native_verified": false,
+      "qualified": false,
+      "hardware_ready": false,
+      "phase_reward_required": "pre-interval-and-pre-reset-recovery-v1",
+      "native_runtime_required": "case-sequences-and-timeouts-v1",
+      "final_stage": {
+        "schema": "fresh-unified-training-cases-candidate-v1",
+        "completed_updates": 768,
+        "exposure": 1.0,
+        "final_quota": {
+          "standing": 32,
+          "initial_recovery": 26,
+          "low_speed_straight": 13,
+          "high_speed_straight": 10,
+          "stationary_spin": 10,
+          "four_direction_arcs": 10,
+          "standing_height_change": 7,
+          "moving_height_change": 5,
+          "spinning_height_change": 5,
+          "high_speed_braking": 5,
+          "moving_fall_recovery": 5
+        },
+        "current_tasks": {
+          "standing": 32,
+          "initial_recovery": 26,
+          "low_speed_straight": 13,
+          "high_speed_straight": 10,
+          "stationary_spin": 10,
+          "four_direction_arcs": 10,
+          "standing_height_change": 7,
+          "moving_height_change": 5,
+          "spinning_height_change": 5,
+          "high_speed_braking": 5,
+          "moving_fall_recovery": 5
+        },
+        "foundation_updates": 192,
+        "full_tasks_at": 768,
+        "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+        "recovery_difficulty": "Select validated same-family/same-leg-shape bank poses from minimum tilt to declared final tilt; no pose interpolation. Full endpoint keeps original90/180/compound65deg pools.",
+        "independent_training_seed": 271701,
+        "required_task_categories_present_at_final": true,
+        "smoothness_and_robustness": "cross-cutting; measured under every task",
+        "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+        "training_adopted": false,
+        "native_verified": false,
+        "qualified": false,
+        "hardware_ready": false
+      },
+      "no_mid_episode_physical_state_writes": true,
+      "actual_episode_clock": true
+    }
+  },
+  "training_origin": "seeded random actor and critic; empty Adam; no checkpoint reads",
+  "bank": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+  "bank_sha256": "e85ae674548eb76101d8591726d24378a6be74cd9b3240b01150f9e28358d76a",
+  "mechanism_config_sha256": "fb1814b0a67964c4099db35b35483fc8987ead4b0584b769d000ee96b90e3eae",
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "action_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "leg_position_scale_rad": 0.25,
+  "wheel_velocity_scale_rad_s": 10.0,
+  "state_writes": "reset only",
+  "initial_pitch_range_deg": [
+    -0.5,
+    0.5
+  ],
+  "curriculum": {
+    "schema": "fresh-unified-mixed-task-training-v1",
+    "completed_updates": 0,
+    "exposure": 0.0,
+    "final_quota": {
+      "standing": 32,
+      "initial_recovery": 26,
+      "low_speed_straight": 13,
+      "high_speed_straight": 10,
+      "stationary_spin": 10,
+      "four_direction_arcs": 10,
+      "standing_height_change": 7,
+      "moving_height_change": 5,
+      "spinning_height_change": 5,
+      "high_speed_braking": 5,
+      "moving_fall_recovery": 5
+    },
+    "current_tasks": {
+      "standing": 128
+    },
+    "foundation_updates": 192,
+    "full_tasks_at": 768,
+    "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+    "recovery_difficulty": "Select validated same-family/same-leg-shape bank poses from minimum tilt to declared final tilt; no pose interpolation. Full endpoint keeps original90/180/compound65deg pools.",
+    "independent_training_seed": 271701,
+    "required_task_categories_present_at_final": true,
+    "smoothness_and_robustness": "cross-cutting; measured under every task",
+    "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+    "training_adopted": false,
+    "native_verified": false,
+    "qualified": false,
+    "hardware_ready": false,
+    "phase_reward_required": "pre-interval-and-pre-reset-recovery-v1",
+    "native_runtime_required": "case-sequences-and-timeouts-v1",
+    "final_stage": {
+      "schema": "fresh-unified-training-cases-candidate-v1",
+      "completed_updates": 768,
+      "exposure": 1.0,
+      "final_quota": {
+        "standing": 32,
+        "initial_recovery": 26,
+        "low_speed_straight": 13,
+        "high_speed_straight": 10,
+        "stationary_spin": 10,
+        "four_direction_arcs": 10,
+        "standing_height_change": 7,
+        "moving_height_change": 5,
+        "spinning_height_change": 5,
+        "high_speed_braking": 5,
+        "moving_fall_recovery": 5
+      },
+      "current_tasks": {
+        "standing": 32,
+        "initial_recovery": 26,
+        "low_speed_straight": 13,
+        "high_speed_straight": 10,
+        "stationary_spin": 10,
+        "four_direction_arcs": 10,
+        "standing_height_change": 7,
+        "moving_height_change": 5,
+        "spinning_height_change": 5,
+        "high_speed_braking": 5,
+        "moving_fall_recovery": 5
+      },
+      "foundation_updates": 192,
+      "full_tasks_at": 768,
+      "request_difficulty": "reset-time speed/yaw and height-transition amplitude ramp with exposure",
+      "recovery_difficulty": "Select validated same-family/same-leg-shape bank poses from minimum tilt to declared final tilt; no pose interpolation. Full endpoint keeps original90/180/compound65deg pools.",
+      "independent_training_seed": 271701,
+      "required_task_categories_present_at_final": true,
+      "smoothness_and_robustness": "cross-cutting; measured under every task",
+      "actor_critic_and_Adam": "fresh only; no checkpoint or teacher",
+      "training_adopted": false,
+      "native_verified": false,
+      "qualified": false,
+      "hardware_ready": false
+    },
+    "no_mid_episode_physical_state_writes": true,
+    "actual_episode_clock": true
+  },
+  "current_scope": "fresh full-task training; native full13 capabilities and hardware remain unqualified",
+  "randomization_study": {
+    "schema": "wheel-leg-resolved-randomization-study-v2",
+    "profile": "requested",
+    "strength": 1.0,
+    "group_scales": {
+      "observation_noise": 1.0,
+      "encoder_bias": 1.0,
+      "imu_alignment": 1.0,
+      "motor_strength": 1.0,
+      "mass_com": 1.0,
+      "independent_inertia": 1.0,
+      "ground_friction": 1.0,
+      "timing": 1.0
+    },
+    "task": {
+      "domains_enabled": true,
+      "nominal_fraction": 0.25,
+      "motor_strength_range": [
+        0.84,
+        1.16
+      ],
+      "leg_kp_scale_range": [
+        1.0,
+        1.0
+      ],
+      "leg_kd_scale_range": [
+        1.0,
+        1.0
+      ],
+      "spring_strength_range": [
+        1.0,
+        1.0
+      ],
+      "encoder_bias_rad": 0.004,
+      "pd_encoder_bias_rad": 0.004,
+      "encoder_noise_rad": 0.00035,
+      "gyro_bias_rad_s": 0.00525,
+      "gyro_noise_rad_s": 0.0035,
+      "gravity_noise": 0.0014,
+      "velocity_noise_rad_s": [
+        0.0175,
+        0.0875
+      ],
+      "sensor_noise_scale": 1.0,
+      "gap_correct_pd_scaling": true,
+      "torque_delay_ms": [
+        0,
+        0
+      ],
+      "sensor_delay_policy_ticks": [
+        0,
+        1
+      ],
+      "motor_tau_ms": [
+        0.0,
+        0.0
+      ],
+      "pd_feedback_delay_ms": [
+        0,
+        0
+      ],
+      "pd_feedback_period_ms": [
+        1,
+        1
+      ],
+      "imu_mount": {
+        "fixed_degrees": [
+          0.8,
+          0.8,
+          0.26666666666666666
+        ],
+        "wobble_degrees": [
+          0.0,
+          0.0
+        ],
+        "wobble_hz": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "dynamics_randomization": {
+      "enabled": true,
+      "sampling": "startup",
+      "enabled_fraction": 0.75,
+      "base_body": "base_link",
+      "wheel_bodies": [
+        "L_link3",
+        "R_link3"
+      ],
+      "base_mass_scale": [
+        0.92,
+        1.08
+      ],
+      "leg_mass_scale": [
+        0.92,
+        1.08
+      ],
+      "wheel_mass_scale": [
+        0.92,
+        1.08
+      ],
+      "inertia_scale": [
+        0.94,
+        1.06
+      ],
+      "base_com_offset_m": {
+        "x": [
+          -0.012,
+          0.012
+        ],
+        "y": [
+          -0.0064,
+          0.0064
+        ],
+        "z": [
+          -0.008,
+          0.008
+        ]
+      },
+      "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+    },
+    "ground_friction_range": [
+      0.3,
+      0.5
+    ],
+    "effective_wheel_ground_friction_range": [
+      0.2,
+      0.3
+    ],
+    "effective_unsaturated_leg_kp_scale_bounds": [
+      0.84,
+      1.16
+    ],
+    "effective_unsaturated_leg_kd_scale_bounds": [
+      0.84,
+      1.16
+    ],
+    "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+    "policy_PD_encoder_bias_disagreement_bound_rad": 0.008,
+    "physical_encoder_white_noise_coverage": false,
+    "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+    "hardware_identified": false,
+    "behavior_qualified": false,
+    "imu_wobble_enabled": false,
+    "leg_gain_randomization_enabled": false,
+    "spring_strength_randomization_enabled": false,
+    "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+    "input_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json"
+  },
+  "domain_learning_admission": {
+    "schema": "standing-domain-learning-admission-plan-v1",
+    "warmup_updates": 192,
+    "ramp_updates": 128,
+    "total_updates": 1536,
+    "priority_seed": 271501,
+    "full_population_at_completed_update": 320,
+    "physical_domain_widths_changed": false,
+    "normalization_and_PPO_use_same_mask": true,
+    "native_behavior_verified": false,
+    "hardware_ready": false
+  },
+  "precise_standing_objective": true,
+  "normalized_observations": true,
+  "standing_reward_shape": "gaussian",
+  "desynchronized_initial_episode_lengths": false,
+  "standing_failure_resets": false,
+  "wheel_action_parameterization": "encoder_velocity_plus_learned_increment_v1",
+  "static_load_initialization": {
+    "schema": "scratch-static-load-initialization-v1",
+    "reference_sha256": "7d144218dd509d6e8cd1ec4aa813cce2f67cb6960841398638a9b14b08ffe728",
+    "native_pair_sha256": "88259d94013b904bbd8bee071a6694d17513e08bed3f96c41e5ec483b1f93ea0",
+    "geometry_policy_raw": [
+      0.29959918300456945,
+      -0.05938980783276504,
+      -0.29959918300456945,
+      0.05939136655550859,
+      0.0,
+      0.0
+    ],
+    "offset_policy_raw": [
+      0.09755037610874084,
+      -0.11062725925258295,
+      -0.09759822002341223,
+      0.11066859127489273,
+      0.0,
+      0.0
+    ],
+    "biased_policy_raw": [
+      0.3971495591133103,
+      -0.17001706708534797,
+      -0.3971974030279817,
+      0.17005995783040131,
+      0.0,
+      0.0
+    ],
+    "runtime_compensation": false,
+    "all_outputs_trainable": true,
+    "source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+    "scope": "Startup initialization prior; no standing, robustness or hardware qualification",
+    "domain_scope": {
+      "nominal_contact_material": {
+        "enabled": true,
+        "combine_mode": "average",
+        "ground_static_friction_range": [
+          0.5,
+          0.5
+        ],
+        "ground_dynamic_friction_range": [
+          0.5,
+          0.5
+        ],
+        "wheel_static_friction": 0.1,
+        "wheel_dynamic_friction": 0.1,
+        "body_static_friction": 0.25,
+        "body_dynamic_friction": 0.25
+      },
+      "training_contact_material": {
+        "enabled": true,
+        "combine_mode": "average",
+        "ground_static_friction_range": [
+          0.3,
+          0.5
+        ],
+        "ground_dynamic_friction_range": [
+          0.3,
+          0.5
+        ],
+        "wheel_static_friction": 0.1,
+        "wheel_dynamic_friction": 0.1,
+        "body_static_friction": 0.25,
+        "body_dynamic_friction": 0.25
+      },
+      "randomized_domain_native_validation": false,
+      "initialization_only": "nominal load prior; all six outputs remain trainable"
+    }
+  },
+  "standing_contact_continuity_contract": null,
+  "standing_leg_target_rate_contract": null,
+  "hardware_ready": false,
+  "leg_velocity_feedback_architecture": {
+    "schema": "separated-neural-leg-velocity-v1",
+    "neutral_raw_features": [
+      16,
+      17,
+      18,
+      19
+    ],
+    "leg_policy_outputs": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "native_full_feedback_outputs": [
+      4,
+      5
+    ],
+    "physical_PD_velocity_feedback_hz": 1000,
+    "final_Gaussian_mean_before_sampling": true,
+    "action_filter": false,
+    "state_writes": "reset only",
+    "scope": "Fresh trainable six-output actor; no checkpoint, teacher or running target hold."
+  },
+  "terminal_evaluation": "separate cold full suite; no terminal standing-only qualification",
+  "trainable_height_initialization": {
+    "schema": "fresh-trainable-height-initialization-v1",
+    "prior_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/three_height_static_prior002.result.json",
+    "prior_sha256": "808e0f23746e60cae5f6e8166a6e50a8d8af97ba7739d541574e40ca3fd7e851",
+    "height_coefficients": [
+      [
+        -1.523378792965992,
+        1.2070159098029365,
+        1.5233677950803477,
+        -1.2070204665116642
+      ],
+      [
+        0.006059387996945008,
+        0.0844317964572038,
+        -0.006051423922232257,
+        -0.08443071417970613
+      ]
+    ],
+    "constant_leg_bias": [
+      0.3971495591133105,
+      -0.17001706708534792,
+      -0.3971974030279817,
+      0.1700599578304013
+    ],
+    "source": "declared mechanism static load and validated reset geometry; no policy",
+    "dynamic_or_randomized_validation_claimed": false,
+    "all_coefficients_trainable": true
+  }
+}

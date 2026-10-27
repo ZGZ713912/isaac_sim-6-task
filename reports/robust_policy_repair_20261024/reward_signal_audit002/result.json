@@ -1,0 +1,94 @@
+{
+  "schema": "standing-reward-signal-replay-audit-v1",
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001/model_final.pt",
+  "checkpoint_sha256": "53040bcd1f9e50a9cc04a7be56d12dba0f1b1bff1b65f35f575146ffcbd9a863",
+  "profiles": [
+    {
+      "profile": "nominal",
+      "case_indices": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "windows": [
+        {
+          "window": "whole_0_to_8s",
+          "observed_samples": 11200,
+          "gaussian_density_mean_per_s": 0.5131356077045327,
+          "long_tail_density_mean_per_s": 0.5880180301176723,
+          "joint_long_tail_density_mean_per_s": 0.7352308208822277,
+          "joint_speed_partial_abs_mean": 11.554112060281962,
+          "gaussian_stationary_fraction_below_1e_6": 0.5395535714285714,
+          "gaussian_speed_partial_abs_mean": 13.156182192712487,
+          "long_tail_speed_partial_abs_mean": 11.133997533320013
+        },
+        {
+          "window": "declared_3_to_8s",
+          "observed_samples": 7000,
+          "gaussian_density_mean_per_s": -7.803249988655781e-05,
+          "long_tail_density_mean_per_s": -7.803249988655781e-05,
+          "joint_long_tail_density_mean_per_s": 0.14775740607039928,
+          "joint_speed_partial_abs_mean": 0.29372178261971393,
+          "gaussian_stationary_fraction_below_1e_6": 0.5714285714285714,
+          "gaussian_speed_partial_abs_mean": 2.3875448326487263e-23,
+          "long_tail_speed_partial_abs_mean": 2.6176358789645076e-21
+        }
+      ],
+      "native_trace_sha256": "bbed1b921c2bf055f2faa3277d733691ea6531b9027079ecdad8dd0b7f22d13f",
+      "feedback_trace_sha256": "7892096a92fb21ab2761229091c1b27281eb0474db0e7fd528743a5eb9f9db32"
+    },
+    {
+      "profile": "requested",
+      "case_indices": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "windows": [
+        {
+          "window": "whole_0_to_8s",
+          "observed_samples": 11200,
+          "gaussian_density_mean_per_s": 0.3610503160415126,
+          "long_tail_density_mean_per_s": 0.4235855908884594,
+          "joint_long_tail_density_mean_per_s": 0.5586810386323829,
+          "joint_speed_partial_abs_mean": 8.194165076469696,
+          "gaussian_stationary_fraction_below_1e_6": 0.6555357142857143,
+          "gaussian_speed_partial_abs_mean": 8.972514200182587,
+          "long_tail_speed_partial_abs_mean": 7.769082404886307
+        },
+        {
+          "window": "declared_3_to_8s",
+          "observed_samples": 7000,
+          "gaussian_density_mean_per_s": -0.00012461437753067696,
+          "long_tail_density_mean_per_s": -0.00012461437753067696,
+          "joint_long_tail_density_mean_per_s": 0.13260578094452652,
+          "joint_speed_partial_abs_mean": 0.357332782752518,
+          "gaussian_stationary_fraction_below_1e_6": 0.7142857142857143,
+          "gaussian_speed_partial_abs_mean": 3.128724195632415e-23,
+          "long_tail_speed_partial_abs_mean": 2.9226962856404964e-21
+        }
+      ],
+      "native_trace_sha256": "f3bb0d63cd471a6ffad7d666a08dbd658e40821c24261187b9f534103c7f03d8",
+      "feedback_trace_sha256": "535105c0420aa642e0a2ed124ac3192be349923f6dfe7f31ac54e3a54b079a69"
+    }
+  ],
+  "gaussian_source_sha256": "2a714c3d78e547339e4998453bcc4a9b998549596fd15b0963893b53ee30709e",
+  "candidate_source_sha256": "cef827ca8294cb2bde42ccff4e7011a5bd73efaf686bd5d61db6797bf91b0a65",
+  "producer_sha256": "13ba503fb3c143284a65afb48a5ef14c84dcab5a9dba32cedebd6c0e9d267812",
+  "all_RSL_scalars_readback_verified": 32,
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "candidate_adopted": false,
+  "scope": "All seven middle-height cases, with whole0..8s and a declared3..8s window. Speed partials describe only the mathematical reward function, not a PPO gradient or a unique cause. Re-evaluating recorded states does not demonstrate improved behavior.",
+  "qualification": false,
+  "hardware_ready": false
+}

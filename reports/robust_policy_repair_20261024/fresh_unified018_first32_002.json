@@ -1,0 +1,247 @@
+{
+  "schema": "fresh-unified018-live-observation-v1",
+  "observed_utc": "2026-10-27T03:45:21.138403+00:00",
+  "checks": {
+    "exact_live_training_identity": true,
+    "all274_current_and_archive_sources_kept": true,
+    "exact_GPU_owner": true,
+    "no_prior_checkpoint_read": true,
+    "same_campaign_owner": true,
+    "queue_sources_kept": true,
+    "queue_same_owner": true
+  },
+  "all_checks_pass": true,
+  "progress_completed_updates": 33,
+  "population": {
+    "schema": "domain-admission-RSL-native-progress-v1",
+    "observed_utc": "2026-10-27T03:45:21.033733+00:00",
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot018_velocity_quartic_physical_speed_mixed1536",
+    "pid": 1079271,
+    "start_ticks": 5655760,
+    "original_process_live": true,
+    "progress_status": "training",
+    "progress_completed_updates": 33,
+    "common_complete_RSL_updates": 33,
+    "requested_updates": 1536,
+    "actual_startup_nominal_lanes": 68,
+    "actual_startup_randomized_lanes": 188,
+    "frozen_source_count": 274,
+    "current_source_mismatches": [],
+    "RSL_schedule_matches_every_complete_update": true,
+    "plan": {
+      "schema": "standing-domain-learning-admission-plan-v1",
+      "warmup_updates": 192,
+      "ramp_updates": 128,
+      "total_updates": 1536,
+      "priority_seed": 271501,
+      "full_population_at_completed_update": 320,
+      "physical_domain_widths_changed": false,
+      "normalization_and_PPO_use_same_mask": true,
+      "native_behavior_verified": false,
+      "hardware_ready": false
+    },
+    "window_updates": 32,
+    "windows": [
+      {
+        "fresh_PPO_update_numbers_inclusive": [
+          1,
+          32
+        ],
+        "groups": {
+          "nominal": {
+            "sample_count": 68.0,
+            "episode_end_events": 0.378173828125,
+            "planar_speed_rms_m_s": 0.11568249459378421,
+            "tilt_mean_deg": 4.428451910614967,
+            "height_mae_m": 0.0021502572344616055
+          },
+          "randomized": {
+            "sample_count": 188.0,
+            "episode_end_events": 1.470947265625,
+            "planar_speed_rms_m_s": 0.14998465171083808,
+            "tilt_mean_deg": 7.383408576250076,
+            "height_mae_m": 0.004188374434306752
+          },
+          "admitted": {
+            "sample_count": 68.0,
+            "episode_end_events": 0.378173828125,
+            "planar_speed_rms_m_s": 0.11568249459378421,
+            "tilt_mean_deg": 4.428451910614967,
+            "height_mae_m": 0.0021502572344616055
+          }
+        },
+        "admitted_lane_count_at_first_and_last_update": {
+          "admitted_nominal_lanes": [
+            68.0,
+            68.0
+          ],
+          "admitted_randomized_lanes": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "latest_complete_native_population": {
+      "fresh_PPO_update_number": 33,
+      "admitted_nominal_lanes": 68.0,
+      "admitted_randomized_lanes": 0.0,
+      "population_fraction": 0.265625,
+      "completed_actor_updates": 32.0
+    },
+    "event_prefix": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot018_velocity_quartic_physical_speed_mixed1536/events.out.tfevents.1793072226.ZGZ.1079271.0",
+      "bytes": 479183,
+      "sha256": "e12f99f14b9223af4db2e75a41140721ffe836c23340dcb834323882579fc1bc"
+    },
+    "new_PPO_by_reader": 0,
+    "native_steps_by_reader": 0,
+    "optimizer_constructed": false,
+    "behavior_qualified": false,
+    "hardware_ready": false,
+    "scope": "Pre-reset true states under stochastic training and failure autoresets. These means are not fixed standing, recovery or hardware passes; nominal lanes retain requested ground friction.",
+    "reader_sha256": "af2c34c49cc947d7401606b7466bd7d278105e9c31ea1b88bcd1d07572a33f9d"
+  },
+  "pure_standing_and_objective_windows": [
+    {
+      "updates": [
+        1,
+        32
+      ],
+      "pure_standing_and_objective": {
+        "FreshTasks/standing/active_lanes": 256.0,
+        "FreshTasks/standing/episode_end_events": 1.84912109375,
+        "FreshTasks/standing/planar_speed_rms_m_s": 0.14203554787673056,
+        "FreshTasks/standing/tilt_mean_deg": 6.598498493432999,
+        "FreshTasks/standing/height_mae_m": 0.003646999703050824,
+        "FreshObjective/pure_standing_lanes": 256.0,
+        "FreshObjective/active_lanes": 256.0,
+        "FreshObjective/attitude_paid_cost_per_policy_step": 0.00921601610025391,
+        "FreshObjective/velocity_paid_cost_per_policy_step": 0.0028336947798379697,
+        "FreshObjective/active_speed_paid_cost_per_policy_step": 5.639953748470816e-07,
+        "FreshObjective/attitude_density_per_second": 1.8432032726705074,
+        "FreshObjective/velocity_density_per_second": 0.5667389649897814,
+        "FreshObjective/active_speed_density_per_second": 0.00011279907926109445
+      }
+    }
+  ],
+  "pure_standing_and_objective_latest": {
+    "FreshTasks/standing/active_lanes": 256.0,
+    "FreshTasks/standing/episode_end_events": 1.7265625,
+    "FreshTasks/standing/planar_speed_rms_m_s": 0.14213517308235168,
+    "FreshTasks/standing/tilt_mean_deg": 7.510379791259766,
+    "FreshTasks/standing/height_mae_m": 0.0042544142343103886,
+    "FreshObjective/pure_standing_lanes": 256.0,
+    "FreshObjective/active_lanes": 256.0,
+    "FreshObjective/attitude_paid_cost_per_policy_step": 0.010528777725994587,
+    "FreshObjective/velocity_paid_cost_per_policy_step": 0.0026828888803720474,
+    "FreshObjective/active_speed_paid_cost_per_policy_step": 5.126008773004287e-07,
+    "FreshObjective/attitude_density_per_second": 2.105755567550659,
+    "FreshObjective/velocity_density_per_second": 0.5365777015686035,
+    "FreshObjective/active_speed_density_per_second": 0.00010252017818856984
+  },
+  "all_task_latest": {
+    "FreshTasks/exposure_fraction": 0.0,
+    "FreshTasks/standing/active_lanes": 256.0,
+    "FreshTasks/standing/episode_end_events": 1.7265625,
+    "FreshTasks/standing/planar_speed_rms_m_s": 0.14213517308235168,
+    "FreshTasks/standing/tilt_mean_deg": 7.510379791259766,
+    "FreshTasks/standing/height_mae_m": 0.0042544142343103886,
+    "FreshTasks/initial_recovery/active_lanes": 0.0,
+    "FreshTasks/initial_recovery/episode_end_events": 0.0,
+    "FreshTasks/initial_recovery/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/initial_recovery/tilt_mean_deg": 0.0,
+    "FreshTasks/initial_recovery/height_mae_m": 0.0,
+    "FreshTasks/low_speed_straight/active_lanes": 0.0,
+    "FreshTasks/low_speed_straight/episode_end_events": 0.0,
+    "FreshTasks/low_speed_straight/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/low_speed_straight/tilt_mean_deg": 0.0,
+    "FreshTasks/low_speed_straight/height_mae_m": 0.0,
+    "FreshTasks/high_speed_straight/active_lanes": 0.0,
+    "FreshTasks/high_speed_straight/episode_end_events": 0.0,
+    "FreshTasks/high_speed_straight/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/high_speed_straight/tilt_mean_deg": 0.0,
+    "FreshTasks/high_speed_straight/height_mae_m": 0.0,
+    "FreshTasks/stationary_spin/active_lanes": 0.0,
+    "FreshTasks/stationary_spin/episode_end_events": 0.0,
+    "FreshTasks/stationary_spin/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/stationary_spin/tilt_mean_deg": 0.0,
+    "FreshTasks/stationary_spin/height_mae_m": 0.0,
+    "FreshTasks/four_direction_arcs/active_lanes": 0.0,
+    "FreshTasks/four_direction_arcs/episode_end_events": 0.0,
+    "FreshTasks/four_direction_arcs/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/four_direction_arcs/tilt_mean_deg": 0.0,
+    "FreshTasks/four_direction_arcs/height_mae_m": 0.0,
+    "FreshTasks/standing_height_change/active_lanes": 0.0,
+    "FreshTasks/standing_height_change/episode_end_events": 0.0,
+    "FreshTasks/standing_height_change/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/standing_height_change/tilt_mean_deg": 0.0,
+    "FreshTasks/standing_height_change/height_mae_m": 0.0,
+    "FreshTasks/moving_height_change/active_lanes": 0.0,
+    "FreshTasks/moving_height_change/episode_end_events": 0.0,
+    "FreshTasks/moving_height_change/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/moving_height_change/tilt_mean_deg": 0.0,
+    "FreshTasks/moving_height_change/height_mae_m": 0.0,
+    "FreshTasks/spinning_height_change/active_lanes": 0.0,
+    "FreshTasks/spinning_height_change/episode_end_events": 0.0,
+    "FreshTasks/spinning_height_change/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/spinning_height_change/tilt_mean_deg": 0.0,
+    "FreshTasks/spinning_height_change/height_mae_m": 0.0,
+    "FreshTasks/high_speed_braking/active_lanes": 0.0,
+    "FreshTasks/high_speed_braking/episode_end_events": 0.0,
+    "FreshTasks/high_speed_braking/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/high_speed_braking/tilt_mean_deg": 0.0,
+    "FreshTasks/high_speed_braking/height_mae_m": 0.0,
+    "FreshTasks/moving_fall_recovery/active_lanes": 0.0,
+    "FreshTasks/moving_fall_recovery/episode_end_events": 0.0,
+    "FreshTasks/moving_fall_recovery/planar_speed_rms_m_s": 0.0,
+    "FreshTasks/moving_fall_recovery/tilt_mean_deg": 0.0,
+    "FreshTasks/moving_fall_recovery/height_mae_m": 0.0
+  },
+  "queue": {
+    "pid": 1083123,
+    "start_ticks": 5676007,
+    "status": "waiting_for_exact_training_process_exit",
+    "active_child": null
+  },
+  "extrema": {
+    "complete_RSL_updates": 33,
+    "peak_leg_speed_rad_s": 3.3194663524627686,
+    "peak_update_one_based": 2,
+    "global_peak_witness": {
+      "speed_rad_s": 3.3194663524627686,
+      "signed_speed_rad_s": 3.3194663524627686,
+      "applied_torque_nm": -4.144506454467773,
+      "motor_power_w": -13.757549285888672,
+      "lane": 227.0,
+      "leg_policy_index": 1.0,
+      "physical_substep_one_based": 1.0,
+      "policy_interval_zero_based": 93.0,
+      "phase_code": 2.0,
+      "training_role_index": 0.0,
+      "episode_physical_time_s": 0.3009999692440033
+    },
+    "phase_counts_at_rollout_maxima": {
+      "0": 0,
+      "1": 0,
+      "2": 33,
+      "3": 0
+    },
+    "leg_motor_samples_at_or_above_50_rad_s": 0.0,
+    "samples_per_update": 655360
+  },
+  "event_prefix": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot018_velocity_quartic_physical_speed_mixed1536/events.out.tfevents.1793072226.ZGZ.1079271.0",
+    "bytes": 479183,
+    "sha256": "e12f99f14b9223af4db2e75a41140721ffe836c23340dcb834323882579fc1bc"
+  },
+  "prior_actual_consumed_updates": 5068,
+  "total_actual_consumed_updates_observed": 5101,
+  "new_PPO_by_reader": 0,
+  "native_steps_by_reader": 0,
+  "optimizer_constructed": false,
+  "qualified": false,
+  "hardware_ready": false,
+  "scope": "Training means contain real failure resets; pure-standing tags contain all native active standing lanes, including not-yet-PPO-admitted random lanes. DomainAdmission means mix task roles after192. No cold behavior pass.",
+  "producer_sha256": "bc5eb839ce6350874466ed25aa4d63db33b9d07b246f3cb9ef7e4a48fcee91b1"
+}

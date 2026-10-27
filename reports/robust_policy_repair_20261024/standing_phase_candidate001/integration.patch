@@ -1,0 +1,54 @@
+--- a/src/wheeled_tasks/chassis/precise_standing_reward.py
++++ b/src/wheeled_tasks/chassis/precise_standing_reward.py
+@@ -42,15 +42,16 @@
+     native_step = env.step
+ 
+     def step(actions):
++        recovery_at_interval_start = env.recovery_active.clone()
+         observation, reward, done, extras = native_step(actions)
+         state = extras["diagnostics"]
+         density = scores(state["height"], state["gravity"], state["velocity"], state["omega"],
+             state["commands"][:, 2], shape=shape)
+         eligible = extras["policy_learning_mask"] & (state["requested_command"][:, :2].abs() < .01).all(-1)
+-        if shape == "joint-long-tail":
+-            # Preserve the actual native get-up objective until recovery ends.
+-            # This is a reward mask on pre-reset diagnostics, not a controller.
+-            eligible &= ~state["reward_recovery_active"]
++        # Preserve all recovery intervals, including the transition that
++        # earns the native completion bonus. Post-reset env state alone
++        # cannot identify the physical interval that just elapsed.
++        eligible &= ~recovery_at_interval_start & ~state["reward_recovery_active"]
+         physical = env.physical_standing_last
+         total_cost = physical["paid_speed"] + physical["paid_contact"] + physical["paid_slew"]
+         exact = density * env.policy_dt - total_cost - 3. * state["terminated"]
+@@ -75,4 +76,9 @@
+             composition="12*upright/(1+tilt_error+height_error+planar_speed_error+yaw_error)-angular_cost",
+             native_recovery_potential_retained_during_recovery=True)
+     env.precise_standing_reward["shape"] = shape
++    env.precise_standing_reward.update(
++        native_recovery_potential_retained_during_recovery=True,
++        native_completion_transition_retained=True,
++        phase_eligibility_version="pre-interval-and-pre-reset-recovery-v1")
++    env.precise_standing_reward["version"] += "-phase-consistent-v1"
+     return env.precise_standing_reward
+--- a/src/wheeled_tasks/chassis/physical_standing_reward.py
++++ b/src/wheeled_tasks/chassis/physical_standing_reward.py
+@@ -51,7 +51,7 @@
+ 
+     def step(actions):
+         nonlocal inside
+-        requested = (~env.recovery_lane) & ~env.passive & (env.pending_command[:, :2].abs() < .01).all(-1)
++        requested = (~env.recovery_active) & ~env.passive & (env.pending_command[:, :2].abs() < .01).all(-1)
+         # A reset has zero actuator state; do not charge a cross-episode delta.
+         previous_torque[env.episode_length_buf == 0] = 0.
+         velocities.clear()
+@@ -95,7 +95,8 @@
+ 
+     env.step, env.closure_gap = step, gap
+     env.actuator_response.apply_torque = apply_torque
+-    env.physical_standing_reward = dict(version="physical-standing-cost-v1", physical_dt_s=.001,
++    env.physical_standing_reward = dict(version="physical-standing-cost-v1-phase-consistent-v1", physical_dt_s=.001,
++        eligibility="zero-request interval starts out of recovery; birth family never excludes completed recovery",
+         speed_scale_rad_s=.2, torque_delta_scale_nm=2., speed_weight=speed_weight,
+         contact_weight=contact_weight, torque_weight=torque_weight, deadband_rad_s=0., startup_grace_s=0.)
+     return env.physical_standing_reward

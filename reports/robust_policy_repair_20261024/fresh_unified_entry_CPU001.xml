@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="0.928" timestamp="2026-10-27T05:54:58.316665+08:00" hostname="ZGZ"><testcase classname="tests.test_fresh_unified_entry" name="test_real_independent_design_and_geometry_preflight_covers_full_task_world" time="0.754"><failure message="KeyError: 'passed'">prepared = (namespace(output=PosixPath('/tmp/pytest-of-noir/pytest-17/test_real_independent_design_a0'), bank=PosixPath('/home/no...el-leg-domain-v2/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json', ...}))
+
+    def test_real_independent_design_and_geometry_preflight_covers_full_task_world(prepared):
+        args, (cfg, task, contract) = prepared
+        check = json.loads((args.output/'mechanism_preflight.json').read_text())
+        geometry = json.loads((args.output/'floor_geometry.json').read_text())
+&gt;       assert check['passed'] and geometry['points'] &gt; 0 and geometry['triangles'] &gt; 0
+               ^^^^^^^^^^^^^^^
+E       KeyError: 'passed'
+
+tests/test_fresh_unified_entry.py:30: KeyError</failure></testcase><testcase classname="tests.test_fresh_unified_entry" name="test_requested_domains_survive_full_task_configuration_without_old_gap_overlay" time="0.025" /><testcase classname="tests.test_fresh_unified_entry" name="test_mechanical_initialization_refuses_another_bank_or_asset[bank_sha256]" time="0.025" /><testcase classname="tests.test_fresh_unified_entry" name="test_mechanical_initialization_refuses_another_bank_or_asset[asset_manifest_sha256]" time="0.025" /><testcase classname="tests.test_fresh_unified_entry" name="test_height_initialization_cannot_silently_change_the_authenticated_midpoint" time="0.026" /><testcase classname="tests.test_fresh_unified_entry" name="test_actual_launch_rejects_missing_declared_native_patch_and_snapshots_new_dependencies" time="0.011" /></testsuite></testsuites>

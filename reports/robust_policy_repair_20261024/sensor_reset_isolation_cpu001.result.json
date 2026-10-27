@@ -1,0 +1,109 @@
+{
+  "schema": "partial-reset-sensor-clock-leak-CPU-proof-v1",
+  "observed_utc": "2026-10-26T19:22:28.930012+00:00",
+  "producer_sha256": "889fc83d5ee6031e519f803c7762cff5953d289e191ba9fb8c9af9dc9f80e861",
+  "source_sha256": {
+    "src/wheeled_tasks/chassis/robust_getup.py": "3a8199b34c58118e0617628319a7238dac03f3742ca5963d491243841cfec3e9",
+    "src/wheeled_tasks/chassis/grounded_standing_reset.py": "06b2715d6b8c68e89dd38ff52c74cdbb39b8788aff777b9eb8e0fbb80c5fe44b",
+    "src/wheeled_tasks/chassis/standing_failure_termination.py": "516ff33f5504eaeda0549287dddde58c6004b87fb09b1addc53463dae8a96f0e",
+    "scripts/selective_sensor_refresh_candidate.py": "3f7c4719e9d6a45dfc7d1a1bc4e181b7e70c285afd6d5cbfa968fef82ed362a3",
+    "tests/test_selective_sensor_refresh_candidate.py": "8c3ff855585e193e62b519ef1d74998891efd4d471c78078c532efc09344e0b2"
+  },
+  "study": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+  "study_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+  "base_profile": "requested",
+  "explicit_CPU_isolation_overrides": {
+    "nominal_fraction": 0.0,
+    "sensor_delay_policy_ticks": [
+      1,
+      1
+    ],
+    "sensor_noise_scale": 0.0
+  },
+  "resets": {
+    "policy_tick": 1,
+    "reset_lane_ids": [
+      0
+    ],
+    "untouched_lane_ids": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "true_joint_sensor_delta_rad": 0.123
+  },
+  "legacy": {
+    "sensor_cursor_before": 2,
+    "sensor_cursor_after": 0,
+    "untouched_lane_encoder_before": [
+      -0.003952675964683294,
+      0.0007978943176567554,
+      0.0005727773532271385,
+      0.0010434598661959171,
+      0.001244505401700735
+    ],
+    "untouched_lane_encoder_after": [
+      0.11904732882976532,
+      0.12379790097475052,
+      0.12357278168201447,
+      0.12404346466064453,
+      0.12424451112747192
+    ],
+    "untouched_lane_delta_rad": [
+      0.12300000339746475,
+      0.12300000339746475,
+      0.12300000339746475,
+      0.12300000339746475,
+      0.12300000339746475
+    ],
+    "untouched_observation_unchanged": false,
+    "untouched_history_unchanged": false
+  },
+  "candidate": {
+    "sensor_cursor_before": 2,
+    "sensor_cursor_after": 2,
+    "untouched_lane_encoder_before": [
+      -0.003952675964683294,
+      0.0007978943176567554,
+      0.0005727773532271385,
+      0.0010434598661959171,
+      0.001244505401700735
+    ],
+    "untouched_lane_encoder_after": [
+      -0.003952675964683294,
+      0.0007978943176567554,
+      0.0005727773532271385,
+      0.0010434598661959171,
+      0.001244505401700735
+    ],
+    "untouched_lane_delta_rad": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "untouched_observation_unchanged": true,
+    "untouched_history_unchanged": true
+  },
+  "checks": {
+    "legacy_same_tick_delay_collapses": true,
+    "legacy_global_cursor_advances": true,
+    "candidate_keeps_untouched_sample": true,
+    "candidate_keeps_untouched_history": true,
+    "candidate_does_not_advance_global_cursor": true,
+    "actual_sampled_domain_parameters_paired": true,
+    "native_domain_RNG_consumption_paired": true
+  },
+  "all_checks_pass": true,
+  "CPU_test_receipt": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/sensor_and_admission_candidates_CPU002.xml",
+  "source_bug_confirmed": true,
+  "causal_training_improvement_proven": false,
+  "candidate_adopted": false,
+  "new_PPO": 0,
+  "native_physics_steps": 0,
+  "hardware_ready": false,
+  "scope": "Exact local RobustDomain sampler only. No live source or randomization-width mutation; native behavior and fresh training are still required."
+}

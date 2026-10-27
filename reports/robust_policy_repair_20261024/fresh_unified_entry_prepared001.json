@@ -1,0 +1,133 @@
+{
+  "schema": "fresh-unified-entry-preparation-v1",
+  "observed_utc": "2026-10-26T22:11:22.539359+00:00",
+  "entry": "scripts/train_fresh_unified.py",
+  "preflight": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_unified_entry_preflight004",
+  "source_count": 272,
+  "preflight_sha256": {
+    "config/contract.json": "d965ebf6995702f5629ce2fd73c59e3af310b64f240db2134b33ec901091294a",
+    "config/design.json": "37671734abe0bc849716072d2f81c9e8890a81e7b7c8f1e78ba13b3a72580c72",
+    "task_contract.json": "0dbfb1022c073f37d3318c81be19340688af04c2ee24d1ff1ac4f17f3e844d4b",
+    "source_hashes.json": "8cd126eeb091ff1a96a1684c5396bb6de740905178f63470a82ed4bea91bea37",
+    "height_initialization_reference.json": "808e0f23746e60cae5f6e8166a6e50a8d8af97ba7739d541574e40ca3fd7e851"
+  },
+  "entry_sha256": "ef563d1a75cb18c1a8a51543930d53aac870841bb180355de9274f63a6114c4c",
+  "CPU_tests": {
+    "fresh_unified_entry_CPU003.xml": {
+      "passed": 7,
+      "sha256": "2e12f1877a8fccca70aec5d76f14bd2425ddded29e8aaabef6b9864a532d9209"
+    },
+    "fresh_integrity_contract_CPU001.xml": {
+      "passed": 2,
+      "sha256": "0dd02c3122b2935ebd0151297de11a7392ac88d0a1e03f0ede4018a366bbfb3e"
+    }
+  },
+  "prior_rejected_test": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_unified_entry_CPU001.xml",
+    "sha256": "78ac911952e163216162d46fd3a80645a561533833e46af4d78e70b0f4efc893",
+    "reason": "Test incorrectly expected a passed boolean; actual independent preflight returns status=static_passed. Corrected before successful runs."
+  },
+  "unadopted_native_source_gate_rejected": true,
+  "old128_update_seal_backward_check": {
+    "schema": "scratch-standing-integrity-seal-v2",
+    "observed_utc": "2026-10-26T22:10:17.113987+00:00",
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot012_isolated_sensor_requested001",
+    "pid": 547601,
+    "start_ticks": 2829913,
+    "status": "completed_unqualified",
+    "completed_updates": 128,
+    "requested_updates": 128,
+    "native_Adam_calls_per_update": 12,
+    "Adam_parameter_states": 17,
+    "Adam_step_values": [
+      1536
+    ],
+    "source_count": 265,
+    "checks": {
+      "original_process_exited": true,
+      "recognized_scratch_checkpoint": true,
+      "initial_clock_zero": true,
+      "initial_Adam_empty": true,
+      "no_checkpoint_or_teacher_loaded": true,
+      "initialization_receipts_agree": true,
+      "initial_tensor_hashes_match": true,
+      "completed_update_clocks_agree": true,
+      "final_checkpoint_receipt_matches": true,
+      "Adam_covers_every_parameter": true,
+      "Adam_steps_match": true,
+      "checkpoint_and_Adam_finite": true,
+      "first_update_audited": true,
+      "source_manifest_and_archive_match": true,
+      "bank_matches": true,
+      "mechanism_matches": true,
+      "design_matches": true,
+      "agent_matches": true,
+      "complete_native_RSL_updates": true
+    },
+    "all_checks_pass": true,
+    "initial_checkpoint_sha256": "38d65d230f8dd101bbb364083261945440193d63cd4fe42b07604d8588b6af50",
+    "final_checkpoint_sha256": "274dcf7cca2b351a890cd84fa0cfb995e7a790da52f07d724e1bce95993c3fd9",
+    "frozen_source_mismatches": [],
+    "current_source_mismatches": [
+      "scripts/train_scratch_standing.py"
+    ],
+    "RSL_event_checks": {
+      "ScratchStanding/dual_support_physical_fraction": true,
+      "ScratchStanding/leg_speed_rms_rad_s": true,
+      "Train/mean_episode_length": true,
+      "PrecisionStanding/height_mae_m": true,
+      "PrecisionStanding/tilt_mean_deg": true,
+      "PrecisionStanding/planar_speed_rms_m_s": true
+    },
+    "RSL_event": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot012_isolated_sensor_requested001/events.out.tfevents.1793043967.ZGZ.547601.0",
+      "bytes": 802365,
+      "sha256": "04214fc498861868f7c7321035d0af910c28aa77819726208b37ecdce7e33c6c"
+    },
+    "new_PPO": 0,
+    "optimizer_constructed": false,
+    "native_steps": 0,
+    "hardware_ready": false,
+    "behavior_qualification": false,
+    "validator_sha256": "aabd0e58fc10923e4d61f6fcd1886969ead12c48c1aded7c5310fefaa50b6254",
+    "scope": "CPU process/checkpoint/source/event integrity only. No standing, robustness, long-training or deployment qualification. Read-only checkpoint loading outside the exited learner.",
+    "identity_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_pilot012_launch_identity001.json",
+    "identity_file_sha256": "8582e0efe8585b62b972a5ac8be78c4d56f086c4cfa70811e30e48485904b813"
+  },
+  "fresh_plan": {
+    "updates": 1536,
+    "curriculum": "three heights from start; task population and request amplitudes192..768; permanent full tasks thereafter",
+    "source_archive": "272 committed files required before any native PPO; every actor/critic parameter trainable; empty Adam and no checkpoint reads",
+    "initialization": "ordinary trainable static-mechanics height coefficients; no policy donor or teacher",
+    "randomization": "full requested v2; same192+128 domain admission candidate",
+    "actual_episode_clock": true,
+    "standing_failure_resets": false,
+    "true_leg_speed_extrema": "every five1ms samples per policy interval; direct RSL writer once per completed rollout",
+    "terminal_evaluation": "separate cold full13 same-policy suite; no standing-only success inference"
+  },
+  "active013": {
+    "pid": 599642,
+    "start_ticks": 3112307,
+    "completed_updates": 434,
+    "requested_updates": 512,
+    "frozen_source_count": 266,
+    "all_sources_unchanged": true,
+    "waiting_queue_pid": 601306,
+    "frozen_queue_count": 12,
+    "queue_sources_unchanged": true
+  },
+  "RSL_observation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/domain_admission_full416_014.json",
+  "RSL_observation_sha256": "290894308347e6e6591878e6a1697b276e8ced7fc222e2bd44055222603b4774",
+  "new_entry_native_steps": 0,
+  "new_entry_PPO": 0,
+  "training_started": false,
+  "native_full_task_verification": false,
+  "qualified": false,
+  "hardware_ready": false,
+  "remaining": [
+    "Actual013 exit/seal and its cold queue results",
+    "Apply verified phase/runtime patches, then native sequence/partial-reset/grounded-birth/phase checks",
+    "Cold evaluator height-actor support and actual full13 same-checkpoint evaluation",
+    "Behavior-based selection before long training, ONNX parity and deployment"
+  ]
+}

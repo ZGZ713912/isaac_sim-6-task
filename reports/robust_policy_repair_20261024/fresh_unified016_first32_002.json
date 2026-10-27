@@ -1,0 +1,90 @@
+{
+  "schema": "domain-admission-RSL-native-progress-v1",
+  "observed_utc": "2026-10-26T23:46:56.015977+00:00",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot016_scoped_failure_requested_mixed1536",
+  "pid": 807101,
+  "start_ticks": 4222621,
+  "original_process_live": true,
+  "progress_status": "training",
+  "progress_completed_updates": 35,
+  "common_complete_RSL_updates": 35,
+  "requested_updates": 1536,
+  "actual_startup_nominal_lanes": 68,
+  "actual_startup_randomized_lanes": 188,
+  "frozen_source_count": 273,
+  "current_source_mismatches": [],
+  "RSL_schedule_matches_every_complete_update": true,
+  "plan": {
+    "schema": "standing-domain-learning-admission-plan-v1",
+    "warmup_updates": 192,
+    "ramp_updates": 128,
+    "total_updates": 1536,
+    "priority_seed": 271501,
+    "full_population_at_completed_update": 320,
+    "physical_domain_widths_changed": false,
+    "normalization_and_PPO_use_same_mask": true,
+    "native_behavior_verified": false,
+    "hardware_ready": false
+  },
+  "window_updates": 32,
+  "windows": [
+    {
+      "fresh_PPO_update_numbers_inclusive": [
+        1,
+        32
+      ],
+      "groups": {
+        "nominal": {
+          "sample_count": 68.0,
+          "episode_end_events": 0.39306640625,
+          "planar_speed_rms_m_s": 0.11833767802454531,
+          "tilt_mean_deg": 3.840949699282646,
+          "height_mae_m": 0.0017065970205294434
+        },
+        "randomized": {
+          "sample_count": 188.0,
+          "episode_end_events": 1.57763671875,
+          "planar_speed_rms_m_s": 0.15547965560108423,
+          "tilt_mean_deg": 6.6584712862968445,
+          "height_mae_m": 0.003628011472756043
+        },
+        "admitted": {
+          "sample_count": 68.0,
+          "episode_end_events": 0.39306640625,
+          "planar_speed_rms_m_s": 0.11833767802454531,
+          "tilt_mean_deg": 3.840949699282646,
+          "height_mae_m": 0.0017065970205294434
+        }
+      },
+      "admitted_lane_count_at_first_and_last_update": {
+        "admitted_nominal_lanes": [
+          68.0,
+          68.0
+        ],
+        "admitted_randomized_lanes": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "latest_complete_native_population": {
+    "fresh_PPO_update_number": 35,
+    "admitted_nominal_lanes": 68.0,
+    "admitted_randomized_lanes": 0.0,
+    "population_fraction": 0.265625,
+    "completed_actor_updates": 34.0
+  },
+  "event_prefix": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot016_scoped_failure_requested_mixed1536/events.out.tfevents.1793057894.ZGZ.807101.0",
+    "bytes": 456660,
+    "sha256": "01dd8d56dd3cdd5c4fa866443c44a5802e458d732872de7badbf7ad03ed0b444"
+  },
+  "new_PPO_by_reader": 0,
+  "native_steps_by_reader": 0,
+  "optimizer_constructed": false,
+  "behavior_qualified": false,
+  "hardware_ready": false,
+  "scope": "Pre-reset true states under stochastic training and failure autoresets. These means are not fixed standing, recovery or hardware passes; nominal lanes retain requested ground friction.",
+  "reader_sha256": "af2c34c49cc947d7401606b7466bd7d278105e9c31ea1b88bcd1d07572a33f9d"
+}

@@ -1,0 +1,381 @@
+{
+  "schema": "fresh016-native-short-peak-comparison-v1",
+  "observed_utc": "2026-10-27T01:07:14.601797+00:00",
+  "runs": [
+    {
+      "profile": "nominal",
+      "pid": 902716,
+      "exited": true,
+      "receipt_path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh016_peak_native_nominal001/receipt.json",
+      "receipt_sha256": "47ab84723180b3298595db3c96d5a609a53f2c9c613e795664a7a5610c0ddc50",
+      "result_sha256": "e98d3c203d678e1ede90e46212ee3d6dacbfb275f80442e2e51e84af6d08ec3b",
+      "trace_sha256": "c7551fd01b7af5c7626a3d8f52fd7843374f28277d75714de35c5dfebd60742a",
+      "global_phases": [
+        {
+          "role": "all",
+          "phase": "passive_placement",
+          "physical_leg_motor_samples": 142800,
+          "peak_leg_speed_rad_s": 35.46900939941406,
+          "samples_at_or_above_15_rad_s": 1720,
+          "samples_at_or_above_30_rad_s": 78,
+          "samples_at_or_above_50_rad_s": 0,
+          "witness": {
+            "policy_interval": 9,
+            "physical_substep_one_based": 1,
+            "physical_time_s": 0.046,
+            "lane": 105,
+            "leg_policy_index": 1,
+            "case": {
+              "name": "getup_back_asymmetric_stand",
+              "capability": "initial_recovery",
+              "capabilities": [
+                "initial_recovery",
+                "smoothness",
+                "robustness"
+              ],
+              "replica": 1,
+              "duration_seconds": 30,
+              "pose_index": 93,
+              "recovery": true,
+              "command": [
+                0.0,
+                0.0,
+                0.305
+              ],
+              "pitch_deg": 0.0,
+              "requested_spawn_family": "back",
+              "followup": "stand"
+            },
+            "signed_leg_speed_rad_s": 35.46900939941406,
+            "actual_leg_torque_nm_same_1ms": 0.0,
+            "all_leg_speed_rad_s_same_1ms": [
+              -21.716594696044922,
+              35.46900939941406,
+              -2.777848482131958,
+              -2.8004438877105713
+            ],
+            "all_leg_torque_nm_same_1ms": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "policy_end_gravity": [
+              -0.9998117685317993,
+              -0.003337191417813301,
+              0.019122667610645294
+            ],
+            "policy_end_height_m": 0.2812744379043579
+          }
+        },
+        {
+          "role": "all",
+          "phase": "active_recovery",
+          "physical_leg_motor_samples": 358720,
+          "peak_leg_speed_rad_s": 46.91853713989258,
+          "samples_at_or_above_15_rad_s": 5114,
+          "samples_at_or_above_30_rad_s": 1704,
+          "samples_at_or_above_50_rad_s": 0,
+          "witness": {
+            "policy_interval": 121,
+            "physical_substep_one_based": 3,
+            "physical_time_s": 0.608,
+            "lane": 115,
+            "leg_policy_index": 3,
+            "case": {
+              "name": "getup_inverted_symmetric_stand",
+              "capability": "initial_recovery",
+              "capabilities": [
+                "initial_recovery",
+                "smoothness",
+                "robustness"
+              ],
+              "replica": 1,
+              "duration_seconds": 30,
+              "pose_index": 402,
+              "recovery": true,
+              "command": [
+                0.0,
+                0.0,
+                0.305
+              ],
+              "pitch_deg": 0.0,
+              "requested_spawn_family": "inverted",
+              "followup": "stand"
+            },
+            "signed_leg_speed_rad_s": 46.91853713989258,
+            "actual_leg_torque_nm_same_1ms": 23.626602172851562,
+            "all_leg_speed_rad_s_same_1ms": [
+              -20.481422424316406,
+              -45.953651428222656,
+              20.62079620361328,
+              46.91853713989258
+            ],
+            "all_leg_torque_nm_same_1ms": [
+              32.83993911743164,
+              -22.10926055908203,
+              -32.81428909301758,
+              23.626602172851562
+            ],
+            "policy_end_gravity": [
+              0.13536763191223145,
+              0.012040645815432072,
+              0.9907222986221313
+            ],
+            "policy_end_height_m": 0.06991883367300034
+          }
+        },
+        {
+          "role": "all",
+          "phase": "ordinary_active_control",
+          "physical_leg_motor_samples": 1082480,
+          "peak_leg_speed_rad_s": 13.310112953186035,
+          "samples_at_or_above_15_rad_s": 0,
+          "samples_at_or_above_30_rad_s": 0,
+          "samples_at_or_above_50_rad_s": 0,
+          "witness": {
+            "policy_interval": 196,
+            "physical_substep_one_based": 3,
+            "physical_time_s": 0.983,
+            "lane": 73,
+            "leg_policy_index": 1,
+            "case": {
+              "name": "spin_100rpm_h0.305",
+              "capability": "stationary_spin",
+              "capabilities": [
+                "stationary_spin",
+                "smoothness",
+                "robustness"
+              ],
+              "replica": 0,
+              "duration_seconds": 30,
+              "pose_index": 430,
+              "recovery": false,
+              "command": [
+                0.0,
+                10.471975511965978,
+                0.305
+              ],
+              "pitch_deg": 0.0,
+              "requested_rpm": 100.0
+            },
+            "signed_leg_speed_rad_s": -13.310112953186035,
+            "actual_leg_torque_nm_same_1ms": 3.749110221862793,
+            "all_leg_speed_rad_s_same_1ms": [
+              -5.620272636413574,
+              -13.310112953186035,
+              -0.33885735273361206,
+              0.7210917472839355
+            ],
+            "all_leg_torque_nm_same_1ms": [
+              8.00243091583252,
+              3.749110221862793,
+              -7.651435375213623,
+              4.241163730621338
+            ],
+            "policy_end_gravity": [
+              -0.4045632481575012,
+              0.13418376445770264,
+              -0.9046124815940857
+            ],
+            "policy_end_height_m": 0.24815265834331512
+          }
+        }
+      ],
+      "RSL_values_read_back": 108
+    },
+    {
+      "profile": "requested",
+      "pid": 904055,
+      "exited": true,
+      "receipt_path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh016_peak_native_requested001/receipt.json",
+      "receipt_sha256": "32727d1f29662f930b0b16bcacf24f5da6be64192e51f333b0fc2fdb637c2801",
+      "result_sha256": "5391eb65e6fe6f5c9e14de9e18a5539bfec771d893fc78fe8066aad44b376fa5",
+      "trace_sha256": "bc982c7a28cb69f219098831d2e777502038e569e921f4af464b88b70a244bd6",
+      "global_phases": [
+        {
+          "role": "all",
+          "phase": "passive_placement",
+          "physical_leg_motor_samples": 141760,
+          "peak_leg_speed_rad_s": 36.534481048583984,
+          "samples_at_or_above_15_rad_s": 1860,
+          "samples_at_or_above_30_rad_s": 78,
+          "samples_at_or_above_50_rad_s": 0,
+          "witness": {
+            "policy_interval": 9,
+            "physical_substep_one_based": 1,
+            "physical_time_s": 0.046,
+            "lane": 105,
+            "leg_policy_index": 1,
+            "case": {
+              "name": "getup_back_asymmetric_stand",
+              "capability": "initial_recovery",
+              "capabilities": [
+                "initial_recovery",
+                "smoothness",
+                "robustness"
+              ],
+              "replica": 1,
+              "duration_seconds": 30,
+              "pose_index": 93,
+              "recovery": true,
+              "command": [
+                0.0,
+                0.0,
+                0.305
+              ],
+              "pitch_deg": 0.0,
+              "requested_spawn_family": "back",
+              "followup": "stand"
+            },
+            "signed_leg_speed_rad_s": 36.534481048583984,
+            "actual_leg_torque_nm_same_1ms": 0.0,
+            "all_leg_speed_rad_s_same_1ms": [
+              -22.518667221069336,
+              36.534481048583984,
+              -3.1693332195281982,
+              -3.197953462600708
+            ],
+            "all_leg_torque_nm_same_1ms": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "policy_end_gravity": [
+              -0.9998505115509033,
+              0.00013328343629837036,
+              0.01728222146630287
+            ],
+            "policy_end_height_m": 0.2815091609954834
+          }
+        },
+        {
+          "role": "all",
+          "phase": "active_recovery",
+          "physical_leg_motor_samples": 346280,
+          "peak_leg_speed_rad_s": 69.31969451904297,
+          "samples_at_or_above_15_rad_s": 4989,
+          "samples_at_or_above_30_rad_s": 1490,
+          "samples_at_or_above_50_rad_s": 63,
+          "witness": {
+            "policy_interval": 250,
+            "physical_substep_one_based": 4,
+            "physical_time_s": 1.254,
+            "lane": 103,
+            "leg_policy_index": 3,
+            "case": {
+              "name": "getup_back_symmetric_stand",
+              "capability": "initial_recovery",
+              "capabilities": [
+                "initial_recovery",
+                "smoothness",
+                "robustness"
+              ],
+              "replica": 1,
+              "duration_seconds": 30,
+              "pose_index": 238,
+              "recovery": true,
+              "command": [
+                0.0,
+                0.0,
+                0.305
+              ],
+              "pitch_deg": 0.0,
+              "requested_spawn_family": "back",
+              "followup": "stand"
+            },
+            "signed_leg_speed_rad_s": -69.31969451904297,
+            "actual_leg_torque_nm_same_1ms": 35.7567253112793,
+            "all_leg_speed_rad_s_same_1ms": [
+              34.10416793823242,
+              13.016022682189941,
+              -62.19812774658203,
+              -69.31969451904297
+            ],
+            "all_leg_torque_nm_same_1ms": [
+              40.0,
+              -9.197546005249023,
+              -37.92045211791992,
+              35.7567253112793
+            ],
+            "policy_end_gravity": [
+              -0.48277604579925537,
+              0.033377788960933685,
+              -0.8751074075698853
+            ],
+            "policy_end_height_m": 0.2535231411457062
+          }
+        },
+        {
+          "role": "all",
+          "phase": "ordinary_active_control",
+          "physical_leg_motor_samples": 1092900,
+          "peak_leg_speed_rad_s": 15.592510223388672,
+          "samples_at_or_above_15_rad_s": 1,
+          "samples_at_or_above_30_rad_s": 0,
+          "samples_at_or_above_50_rad_s": 0,
+          "witness": {
+            "policy_interval": 58,
+            "physical_substep_one_based": 1,
+            "physical_time_s": 0.291,
+            "lane": 97,
+            "leg_policy_index": 1,
+            "case": {
+              "name": "fall_spin_negative_push-1",
+              "capability": "moving_fall_recovery",
+              "capabilities": [
+                "moving_fall_recovery",
+                "smoothness",
+                "robustness"
+              ],
+              "replica": 0,
+              "duration_seconds": 30,
+              "pose_index": 430,
+              "recovery": false,
+              "command": [
+                0.0,
+                -10.471975511965978,
+                0.305
+              ],
+              "pitch_deg": 0.0,
+              "push": true,
+              "push_sign": -1.0
+            },
+            "signed_leg_speed_rad_s": 15.592510223388672,
+            "actual_leg_torque_nm_same_1ms": -14.78118896484375,
+            "all_leg_speed_rad_s_same_1ms": [
+              1.9679665565490723,
+              15.592510223388672,
+              -0.5920234322547913,
+              0.147246852517128
+            ],
+            "all_leg_torque_nm_same_1ms": [
+              4.5420637130737305,
+              -14.78118896484375,
+              -5.949800968170166,
+              14.595309257507324
+            ],
+            "policy_end_gravity": [
+              0.5425115823745728,
+              -0.006444040685892105,
+              -0.8400235772132874
+            ],
+            "policy_end_height_m": 0.26085546612739563
+          }
+        }
+      ],
+      "RSL_values_read_back": 108
+    }
+  ],
+  "all_checks_pass": true,
+  "case_seed": 271301,
+  "cases_per_profile": 198,
+  "policy_steps_per_profile": 400,
+  "physical_steps_per_profile": 2000,
+  "new_PPO": 0,
+  "exact_training_peak_event_replay": false,
+  "full_behavior_qualification": false,
+  "hardware_ready": false,
+  "scope": "Independent fixed cases only. Passive peaks pair with zero actual motor torque. Active requested69.32rad/s peak pairs with opposing35.76Nm torque; magnitude alone is not a speed command or proof of positive motor work. No isolated domain-width or policy-gain causal claim."
+}

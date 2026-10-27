@@ -1,0 +1,101 @@
+{
+  "schema": "unadopted-fresh-density-candidate-prepared-v2",
+  "observed_utc": "2026-10-27T02:54:28.310889+00:00",
+  "contract": {
+    "schema": "unadopted-fresh-objective-density-candidate-v2",
+    "pure_standing_velocity_formula": "0.5*log1p((vx^2+vy^2)/0.05^2+(wz/0.2)^2)",
+    "pure_standing_scope": "upright-born standing; outside pre-interval and pre-reset recovery",
+    "active_speed_formula": "0.2*mean_all5physical_samples_and4legs((dq/5)^2+(dq/5)^4)",
+    "active_speed_scope": "valid active-control roles only; no passive or fixed-evaluation cost",
+    "unchanged_attitude_formula": "2*log1p(2*clamp(1+gravity_z,0,2)/sin(5deg)^2)",
+    "physical_dt_s": 0.001,
+    "policy_dt_s": 0.005,
+    "candidate_adopted": false,
+    "physical_model_changed": false,
+    "action_changed": false,
+    "PD_changed": false,
+    "actual_joint_speed_clamped": false,
+    "domain_widths_changed": false,
+    "native_verified": false,
+    "behavior_qualified": false
+  },
+  "candidate_source_sha256": "ec60cc3839aa809d3f9e33a94a7d1d999b6a99cbb82e12f6073baa7f87deefdc",
+  "test_source_sha256": "b5f5d13f768b3840fb14adcffb5f79972bf52a9de94d333ba86d40e45235e917",
+  "test_xml_path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_objective_density_candidate_cpu002.xml",
+  "test_xml_sha256": "33899518ca40b701503f05f8c0975ad0e8531a5aca8ca85aa1ac4db38540b9a3",
+  "CPU_tests_passed": 6,
+  "first_CPU_failure": "Test attempted NumPy conversion of a tensor requiring gradient. Assertion now detaches scalar; cost mathematics unchanged. Original XML kept.",
+  "standing_velocity_examples": [
+    {
+      "planar_speed_m_s": 0.0,
+      "extra_cost_density_per_second": 0.0
+    },
+    {
+      "planar_speed_m_s": 0.01,
+      "extra_cost_density_per_second": 0.019610356576640644
+    },
+    {
+      "planar_speed_m_s": 0.03,
+      "extra_cost_density_per_second": 0.1537423498739803
+    },
+    {
+      "planar_speed_m_s": 0.1,
+      "extra_cost_density_per_second": 0.8047189562170501
+    },
+    {
+      "planar_speed_m_s": 0.17,
+      "extra_cost_density_per_second": 1.2652585805200263
+    },
+    {
+      "planar_speed_m_s": 0.3,
+      "extra_cost_density_per_second": 1.8054589563221122
+    },
+    {
+      "planar_speed_m_s": 1.0,
+      "extra_cost_density_per_second": 2.9969807136532847
+    }
+  ],
+  "single_1ms_peak_examples": [
+    {
+      "single_1ms_single_motor_peak_rad_s": 1.0,
+      "old_interval_cost": 2.0000000000000003e-06,
+      "candidate_interval_cost": 2.080000000000001e-06
+    },
+    {
+      "single_1ms_single_motor_peak_rad_s": 5.0,
+      "old_interval_cost": 5e-05,
+      "candidate_interval_cost": 0.00010000000000000002
+    },
+    {
+      "single_1ms_single_motor_peak_rad_s": 10.0,
+      "old_interval_cost": 0.0002,
+      "candidate_interval_cost": 0.001
+    },
+    {
+      "single_1ms_single_motor_peak_rad_s": 15.0,
+      "old_interval_cost": 0.00045000000000000004,
+      "candidate_interval_cost": 0.0045000000000000005
+    },
+    {
+      "single_1ms_single_motor_peak_rad_s": 20.0,
+      "old_interval_cost": 0.0008,
+      "candidate_interval_cost": 0.013600000000000001
+    },
+    {
+      "single_1ms_single_motor_peak_rad_s": 50.0,
+      "old_interval_cost": 0.005,
+      "candidate_interval_cost": 0.505
+    },
+    {
+      "single_1ms_single_motor_peak_rad_s": 71.45880889892578,
+      "old_interval_cost": 0.01021272273850639,
+      "candidate_interval_cost": 2.096206837410615
+    }
+  ],
+  "training274_and_queue12_kept": true,
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "adopted": false,
+  "qualification": false,
+  "scope": "Numeric reward-shape preparation only; not a direct PPO gradient or behavior gain. Native phase/termination and completion preservation need verification before any future fresh launch. All013/016/017 policy bytes and current live training remain untouched."
+}

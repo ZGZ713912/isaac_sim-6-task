@@ -1,0 +1,1508 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="65" failures="8" skipped="0" tests="111" time="3.217" timestamp="2026-10-27T06:35:33.984705+08:00" hostname="ZGZ"><testcase classname="tests.test_precise_standing_reward" name="test_exact_stationary_target_has_maximum_density" time="0.001" /><testcase classname="tests.test_precise_standing_reward" name="test_small_pose_and_motion_errors_are_visible_before_a_fall" time="0.001" /><testcase classname="tests.test_precise_standing_reward" name="test_upside_down_stationary_floor_is_not_a_standing_reward" time="0.001" /><testcase classname="tests.test_precise_standing_reward" name="test_quiet_but_tilted_pose_cannot_collect_separate_velocity_reward" time="0.000" /><testcase classname="tests.test_precise_standing_reward" name="test_bad_state_fails_closed" time="0.000" /><testcase classname="tests.test_precise_standing_reward" name="test_terminal_cost_uses_pre_reset_diagnostics" time="0.000"><failure message="AttributeError: 'types.SimpleNamespace' object has no attribute 'recovery_active'">def test_terminal_cost_uses_pre_reset_diagnostics():
+        from wheeled_tasks.chassis.precise_standing_reward import install
+        diagnostic = dict(height=torch.tensor([.1]), gravity=torch.tensor([[1., 0., 0.]]),
+            velocity=torch.zeros(1, 3), omega=torch.zeros(1, 3),
+            commands=torch.tensor([[0., 0., .305]]), requested_command=torch.tensor([[0., 0., .305]]),
+            terminated=torch.tensor([True]))
+        observation = {"policy": torch.ones(1, 35)}  # Native step already returned the reset frame.
+        env = SimpleNamespace(cfg={}, policy_dt=.005, physical_standing_reward={},
+            physical_standing_last=dict(paid_speed=torch.zeros(1), paid_contact=torch.zeros(1), paid_slew=torch.zeros(1)),
+            step=lambda action: (observation, torch.tensor([99.]), torch.tensor([True]),
+                dict(diagnostics=diagnostic, policy_learning_mask=torch.tensor([True]), log={})))
+        install(env)
+&gt;       obs, reward, done, _ = env.step(torch.zeros(1, 6))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_precise_standing_reward.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actions = tensor([[0., 0., 0., 0., 0., 0.]])
+
+    def step(actions):
+&gt;       recovery_at_interval_start = env.recovery_active.clone()
+                                     ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'recovery_active'
+
+src/wheeled_tasks/chassis/precise_standing_reward.py:45: AttributeError</failure></testcase><testcase classname="tests.test_precise_standing_reward" name="test_long_tail_does_not_replace_native_recovery_reward_or_nonzero_requests" time="0.001"><failure message="AttributeError: 'types.SimpleNamespace' object has no attribute 'recovery_active'">def test_long_tail_does_not_replace_native_recovery_reward_or_nonzero_requests():
+        from wheeled_tasks.chassis.precise_standing_reward import install
+        diagnostic = dict(height=torch.full((3,),.305),gravity=torch.tensor([[0.,0.,-1.]]).repeat(3,1),
+            velocity=torch.zeros(3,3),omega=torch.zeros(3,3),commands=torch.tensor([[0.,0.,.305]]).repeat(3,1),
+            requested_command=torch.tensor([[0.,0.,.305],[0.,0.,.305],[1.,0.,.305]]),
+            terminated=torch.zeros(3,dtype=torch.bool),reward_recovery_active=torch.tensor([False,True,False]))
+        env=SimpleNamespace(cfg={},policy_dt=.005,physical_standing_reward={},
+            physical_standing_last=dict(paid_speed=torch.tensor([.1,.1,.1]),paid_contact=torch.zeros(3),paid_slew=torch.zeros(3)),
+            step=lambda action: ({},torch.tensor([21.,22.,23.]),torch.zeros(3,dtype=torch.bool),
+                dict(diagnostics=diagnostic,policy_learning_mask=torch.ones(3,dtype=torch.bool),log={})))
+        report=install(env,shape='joint-long-tail')
+&gt;       reward=env.step(torch.zeros(3,6))[1]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_precise_standing_reward.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+actions = tensor([[0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0.]])
+
+    def step(actions):
+&gt;       recovery_at_interval_start = env.recovery_active.clone()
+                                     ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'recovery_active'
+
+src/wheeled_tasks/chassis/precise_standing_reward.py:45: AttributeError</failure></testcase><testcase classname="tests.test_standing_reward_candidates" name="test_zero_speed_same_maximum_and_local_curvature" time="0.001" /><testcase classname="tests.test_standing_reward_candidates" name="test_velocity_tail_is_informative_and_monotonic_without_separate_tilt_reward" time="0.001" /><testcase classname="tests.test_standing_reward_candidates" name="test_height_yaw_and_angular_motion_are_still_penalized" time="0.001" /><testcase classname="tests.test_standing_reward_candidates" name="test_joint_tail_retains_recovery_signal_for_the_observed_tilted_drifting_state" time="0.011" /><testcase classname="tests.test_standing_reward_candidates" name="test_joint_tail_same_local_shape_peak_and_no_separate_quiet_tilt_bonus" time="0.001" /><testcase classname="tests.test_standing_reward_candidates" name="test_native_opt_in_shape_matches_the_reviewed_candidate_on_nontrivial_states" time="0.001" /><testcase classname="tests.test_standing_contact_objective" name="test_grounding_corrects_both_initial_gaps_without_changing_xy" time="0.008" /><testcase classname="tests.test_standing_contact_objective" name="test_support_cost_detects_a_single_bad_ms_and_worst_wheel" time="0.001" /><testcase classname="tests.test_standing_contact_objective" name="test_adding_lateral_force_does_not_hide_missing_vertical_support" time="0.000" /><testcase classname="tests.test_standing_contact_objective" name="test_bad_reward_units_and_nonfinite_contacts_are_rejected" time="0.000" /><testcase classname="tests.test_standing_contact_objective" name="test_training_contract_rejects_changed_objective_reset_and_sources" time="0.001" /><testcase classname="tests.test_standing_contact_continuity" name="test_substep_breaks_count_events_and_preserve_boundary_memory" time="0.000" /><testcase classname="tests.test_standing_contact_continuity" name="test_invalid_units_or_changed_provenance_are_rejected" time="0.000" /><testcase classname="tests.test_standing_contact_continuity" name="test_reset_during_native_step_does_not_merge_support_events_across_episodes" time="0.001" /><testcase classname="tests.test_standing_contact_continuity" name="test_continued_outage_is_dense_cost_only_and_zero_event_cost_retains_reward_identity" time="0.001" /><testcase classname="tests.test_standing_contact_continuity" name="test_physical_substep_objective_supports_each_first_ms_break" time="0.001" /><testcase classname="tests.test_standing_contact_continuity" name="test_fixed_evaluation_reward_and_raw_contact_remain_native" time="0.000" /><testcase classname="tests.test_scratch_standing" name="test_first_four_substeps_are_not_aliased_out" time="0.000" /><testcase classname="tests.test_scratch_standing" name="test_no_deadband_or_sign_preference" time="0.001" /><testcase classname="tests.test_scratch_standing" name="test_invalid_physics_fails_before_ppo[nan]" time="0.001" /><testcase classname="tests.test_scratch_standing" name="test_invalid_physics_fails_before_ppo[inf]" time="0.000" /><testcase classname="tests.test_scratch_standing" name="test_fresh_initialization_is_reproducible_and_seed_specific" time="0.150" /><testcase classname="tests.test_scratch_standing" name="test_existing_adam_state_is_rejected" time="0.002" /><testcase classname="tests.test_scratch_standing" name="test_normalized_models_are_fresh_and_store_their_own_statistics" time="0.002" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_real_24500_strict_actor_std_no_optimizer_or_cuda" time="0.001"><failure message="ValueError: Pinned checkpoint SHA mismatch/missing file">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3e08235e80&gt;
+
+    def test_real_24500_strict_actor_std_no_optimizer_or_cuda(monkeypatch):
+        def reject(*args, **kwargs):
+            raise AssertionError("Authentication must not create Adam")
+        monkeypatch.setattr(torch.optim, "Adam", reject)
+        before = torch.random.get_rng_state().clone()
+        cuda_before = torch.cuda.is_initialized()
+&gt;       result = fixture.authenticate_inputs(ROOT, INPUT)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</failure></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_hash_rejection_before_deserialization[model.pt-checkpoint]" time="0.001"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'">tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3dfd92f380&gt;
+filename = 'model.pt', label = 'checkpoint'
+
+    @pytest.mark.parametrize("filename,label", [("model.pt","checkpoint"),("contract.json","contract"),
+        ("model.checkpoint.json","seal"),("agent_config.json","agent_config")])
+    def test_hash_rejection_before_deserialization(tmp_path, monkeypatch, filename, label):
+        for name in ("model.pt","contract.json","model.checkpoint.json","agent_config.json"):
+&gt;           shutil.copyfile(INPUT/name, tmp_path/name)
+
+tests/test_locomotion_exploration_fixture.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+src = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+dst = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des0/model.pt')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+&gt;           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/shutil.py:260: FileNotFoundError</failure></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_hash_rejection_before_deserialization[contract.json-contract]" time="0.001"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'">tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3dfd92d730&gt;
+filename = 'contract.json', label = 'contract'
+
+    @pytest.mark.parametrize("filename,label", [("model.pt","checkpoint"),("contract.json","contract"),
+        ("model.checkpoint.json","seal"),("agent_config.json","agent_config")])
+    def test_hash_rejection_before_deserialization(tmp_path, monkeypatch, filename, label):
+        for name in ("model.pt","contract.json","model.checkpoint.json","agent_config.json"):
+&gt;           shutil.copyfile(INPUT/name, tmp_path/name)
+
+tests/test_locomotion_exploration_fixture.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+src = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+dst = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des1/model.pt')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+&gt;           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/shutil.py:260: FileNotFoundError</failure></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_hash_rejection_before_deserialization[model.checkpoint.json-seal]" time="0.001"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'">tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3dfd92e330&gt;
+filename = 'model.checkpoint.json', label = 'seal'
+
+    @pytest.mark.parametrize("filename,label", [("model.pt","checkpoint"),("contract.json","contract"),
+        ("model.checkpoint.json","seal"),("agent_config.json","agent_config")])
+    def test_hash_rejection_before_deserialization(tmp_path, monkeypatch, filename, label):
+        for name in ("model.pt","contract.json","model.checkpoint.json","agent_config.json"):
+&gt;           shutil.copyfile(INPUT/name, tmp_path/name)
+
+tests/test_locomotion_exploration_fixture.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+src = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+dst = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des2/model.pt')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+&gt;           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/shutil.py:260: FileNotFoundError</failure></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_hash_rejection_before_deserialization[agent_config.json-agent_config]" time="0.001"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'">tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3dfd92d760&gt;
+filename = 'agent_config.json', label = 'agent_config'
+
+    @pytest.mark.parametrize("filename,label", [("model.pt","checkpoint"),("contract.json","contract"),
+        ("model.checkpoint.json","seal"),("agent_config.json","agent_config")])
+    def test_hash_rejection_before_deserialization(tmp_path, monkeypatch, filename, label):
+        for name in ("model.pt","contract.json","model.checkpoint.json","agent_config.json"):
+&gt;           shutil.copyfile(INPUT/name, tmp_path/name)
+
+tests/test_locomotion_exploration_fixture.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+src = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+dst = PosixPath('/tmp/pytest-of-noir/pytest-24/test_hash_rejection_before_des3/model.pt')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+&gt;           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/shutil.py:260: FileNotFoundError</failure></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_infos_tamper_rejected[successful_updates_total-24501-clock mismatch]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'&quot;">@pytest.fixture(scope="module")
+    def saved():
+&gt;       return torch.load(INPUT / "model.pt", map_location="cpu", weights_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:1530: in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:795: in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;torch.serialization._open_file object at 0x7f3e0ac7d0a0&gt;
+name = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+mode = 'rb'
+
+    def __init__(self, name: str | os.PathLike[str], mode: str) -&gt; None:
+&gt;       super().__init__(open(name, mode))  # noqa: SIM115
+                         ^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:776: FileNotFoundError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_infos_tamper_rejected[task_actor_update-4186-clock mismatch]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'&quot;">@pytest.fixture(scope="module")
+    def saved():
+&gt;       return torch.load(INPUT / "model.pt", map_location="cpu", weights_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:1530: in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:795: in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;torch.serialization._open_file object at 0x7f3e0ac7d0a0&gt;
+name = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+mode = 'rb'
+
+    def __init__(self, name: str | os.PathLike[str], mode: str) -&gt; None:
+&gt;       super().__init__(open(name, mode))  # noqa: SIM115
+                         ^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:776: FileNotFoundError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_infos_tamper_rejected[asset_manifest_sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-infos ABI]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'&quot;">@pytest.fixture(scope="module")
+    def saved():
+&gt;       return torch.load(INPUT / "model.pt", map_location="cpu", weights_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:1530: in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:795: in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;torch.serialization._open_file object at 0x7f3e0ac7d0a0&gt;
+name = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+mode = 'rb'
+
+    def __init__(self, name: str | os.PathLike[str], mode: str) -&gt; None:
+&gt;       super().__init__(open(name, mode))  # noqa: SIM115
+                         ^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:776: FileNotFoundError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_invalid_saved_std_rejected[invalid0]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'&quot;">@pytest.fixture(scope="module")
+    def saved():
+&gt;       return torch.load(INPUT / "model.pt", map_location="cpu", weights_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:1530: in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:795: in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;torch.serialization._open_file object at 0x7f3e0ac7d0a0&gt;
+name = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+mode = 'rb'
+
+    def __init__(self, name: str | os.PathLike[str], mode: str) -&gt; None:
+&gt;       super().__init__(open(name, mode))  # noqa: SIM115
+                         ^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:776: FileNotFoundError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_invalid_saved_std_rejected[invalid1]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'&quot;">@pytest.fixture(scope="module")
+    def saved():
+&gt;       return torch.load(INPUT / "model.pt", map_location="cpu", weights_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:1530: in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:795: in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;torch.serialization._open_file object at 0x7f3e0ac7d0a0&gt;
+name = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+mode = 'rb'
+
+    def __init__(self, name: str | os.PathLike[str], mode: str) -&gt; None:
+&gt;       super().__init__(open(name, mode))  # noqa: SIM115
+                         ^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:776: FileNotFoundError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_invalid_saved_std_rejected[invalid2]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'&quot;">@pytest.fixture(scope="module")
+    def saved():
+&gt;       return torch.load(INPUT / "model.pt", map_location="cpu", weights_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:1530: in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:795: in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;torch.serialization._open_file object at 0x7f3e0ac7d0a0&gt;
+name = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+mode = 'rb'
+
+    def __init__(self, name: str | os.PathLike[str], mode: str) -&gt; None:
+&gt;       super().__init__(open(name, mode))  # noqa: SIM115
+                         ^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:776: FileNotFoundError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_missing_native_actor_tensor_is_not_transferred" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'&quot;">@pytest.fixture(scope="module")
+    def saved():
+&gt;       return torch.load(INPUT / "model.pt", map_location="cpu", weights_only=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:1530: in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:795: in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;torch.serialization._open_file object at 0x7f3e0ac7d0a0&gt;
+name = PosixPath('/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt')
+mode = 'rb'
+
+    def __init__(self, name: str | os.PathLike[str], mode: str) -&gt; None:
+&gt;       super().__init__(open(name, mode))  # noqa: SIM115
+                         ^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/serialization.py:776: FileNotFoundError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_policy_axis_order_rejected" time="0.001"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'axis order'&#10;  Actual message: 'Pinned checkpoint SHA mismatch/missing file'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3dfd9d71d0&gt;
+
+    def test_policy_axis_order_rejected(monkeypatch):
+        read = fixture.read_json
+        def alter(path):
+            value = read(path)
+            if Path(path).name == "contract.json":
+                value["policy_action_order"] = list(reversed(value["policy_action_order"]))
+            return value
+        monkeypatch.setattr(fixture,"read_json",alter)
+&gt;       with pytest.raises(ValueError, match="axis order"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'axis order'
+E         Actual message: 'Pinned checkpoint SHA mismatch/missing file'
+
+tests/test_locomotion_exploration_fixture.py:104: AssertionError</failure></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_clean_fixture_complete_overrides_and_source_unchanged" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_source_abi_change_rejected_before_output" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_no_overwrite_of_existing_fixture" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_projection_passes_frozen_b4_preflight_without_dirty_playback[low_speed_305mm-clean]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_projection_passes_frozen_b4_preflight_without_dirty_playback[low_speed_305mm-pipeline_age_only]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_projection_passes_frozen_b4_preflight_without_dirty_playback[high_speed_braking_v1-clean]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_projection_passes_frozen_b4_preflight_without_dirty_playback[high_speed_braking_v1-pipeline_age_only]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_population_wide_native_loop_constraints[4]" time="0.000" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_population_wide_native_loop_constraints[12]" time="0.000" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_population_wide_native_loop_constraints[64]" time="0.000" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_exact_native_constructor_projection_preserves_every_other_field" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unapproved_native_config_change_has_failure_receipt[seed-seed]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unapproved_native_config_change_has_failure_receipt[level-terrain_level]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unapproved_native_config_change_has_failure_receipt[missing-asset_manifest_sha256]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unapproved_native_config_change_has_failure_receipt[extra-unapproved_runtime_override]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unapproved_native_config_change_has_failure_receipt[module-signal_delay.enabled]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unapproved_native_config_change_has_failure_receipt[shared-signal_delay.enabled]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_runtime_config_identity_failures_saved[population]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_runtime_config_identity_failures_saved[contract_sha]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_runtime_config_identity_failures_saved[invocation]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_only_restores_exact_frozen_delay" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_default_clean_and_wrapper_are_identical" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unknown_role_and_clean_wrapper_reject_pipeline" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_native_cpu_pipeline_readback_never_draws_or_advances" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[clock-task actor delay clock]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[instance-PhysicalSignalDelay instance]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[cfg-PhysicalSignalDelay instance]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[append_clock-physics append clock]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[strength-pipeline strength]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[profile-samples are invalid]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[bounds-profile/base delay]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[nonfinite-samples are invalid]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[lag-jitter/clip/quantization]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_pipeline_native_readback_rejects_corruption[lag_dtype-sample ABI]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_delay_policy_physics_clock_coupling_rejects[0-1]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_delay_policy_physics_clock_coupling_rejects[1-5]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_delay_policy_physics_clock_coupling_rejects[2-0]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_native_environment_policy_clock_is_observed" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_high_suite_projection_is_bounded_and_birth_remains_nominal[clean]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_high_suite_projection_is_bounded_and_birth_remains_nominal[pipeline_age_only]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_default_protocol_still_has_exact_original_case_and_constructor_values" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unknown_suite_fails_before_creating_output[clean]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unknown_suite_fails_before_creating_output[pipeline_age_only]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_catalog_snapshot_cannot_be_mutated_into_ad_hoc_runtime[horizon_s]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_catalog_snapshot_cannot_be_mutated_into_ad_hoc_runtime[num_envs]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_catalog_snapshot_cannot_be_mutated_into_ad_hoc_runtime[physics_steps]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_native_constructor_produces_high_episode_limits_without_hot_writes" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_high_native_cpu_delay_sample_population_and_no_observer_draws" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_named_suite_delay_clocks_allow_exact_horizon_and_reject_beyond[low_speed_305mm]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_named_suite_delay_clocks_allow_exact_horizon_and_reject_beyond[high_speed_braking_v1]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_only_two_explicit_checkpoint_hash_clock_tuples[24500-4185-78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7-854566d4c71f7294efca35d15c00a54d9845a65db5ab8b196b80f61ec51fdfbf]" time="0.000" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_only_two_explicit_checkpoint_hash_clock_tuples[25000-4685-c4586d5360fe5abe7631a1b4db551dc01bd915b5c908abf49323e26683f0318e-634cef47f3612cc5b5ae06eee3af21d726184da7d5659611d0473956b9b848b7]" time="0.000" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_ad_hoc_checkpoint_clock_rejected_before_output[24000]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_ad_hoc_checkpoint_clock_rejected_before_output[25001]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_ad_hoc_checkpoint_clock_rejected_before_output[25000.0]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_ad_hoc_checkpoint_clock_rejected_before_output[True]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_ad_hoc_checkpoint_clock_rejected_before_output[25000]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_ad_hoc_checkpoint_clock_rejected_before_output[None]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_selected_25000_tuple_still_checks_all_files_before_pt_load[seal]" time="0.001" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_selected_25000_tuple_still_checks_all_files_before_pt_load[contract]" time="0.001" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_selected_25000_tuple_still_checks_all_files_before_pt_load[agent_config]" time="0.001" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_unknown_pt_hash_cannot_select_even_a_known_clock" time="0.001" /><testcase classname="tests.test_locomotion_exploration_fixture" name="test_25000_projection_and_native_delay_clock_come_from_fixed_snapshot[clean-low_speed_305mm]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_25000_projection_and_native_delay_clock_come_from_fixed_snapshot[clean-high_speed_braking_v1]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_25000_projection_and_native_delay_clock_come_from_fixed_snapshot[pipeline_age_only-low_speed_305mm]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_25000_projection_and_native_delay_clock_come_from_fixed_snapshot[pipeline_age_only-high_speed_braking_v1]" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase><testcase classname="tests.test_locomotion_exploration_fixture" name="test_25000_tuple_rejects_forged_task_actor_metadata" time="0.000"><error message="failed on setup with &quot;ValueError: Pinned checkpoint SHA mismatch/missing file&quot;">@pytest.fixture(scope="module")
+    def authenticated():
+&gt;       return fixture.authenticate_inputs(ROOT, INPUT)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_locomotion_exploration_fixture.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/locomotion_exploration_fixture.py:181: in authenticate_inputs
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'Pinned checkpoint SHA mismatch/missing file'
+
+    def require(condition, message):
+        if not condition:
+&gt;           raise ValueError(message)
+E           ValueError: Pinned checkpoint SHA mismatch/missing file
+
+scripts/locomotion_exploration_fixture.py:56: ValueError</error></testcase></testsuite></testsuites>

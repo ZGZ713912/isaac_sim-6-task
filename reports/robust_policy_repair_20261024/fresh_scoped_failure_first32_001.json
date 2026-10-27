@@ -1,0 +1,53 @@
+{
+  "schema": "fresh-scoped-failure-training-plot-v1",
+  "observed_utc": "2026-10-26T23:46:55.641968+00:00",
+  "provenance": {
+    "without_scoped_failure": {
+      "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot015_requested_mixed1536",
+      "event": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot015_requested_mixed1536/events.out.tfevents.1793055474.ZGZ.768754.0",
+      "bytes": 692822,
+      "sha256": "618a5c0d7e52d74eb63910d173be0849b734e3d5dad9b983c8a5ebfb4bc9c735",
+      "complete_updates_used": 32,
+      "source_count": 272,
+      "committed_source": "8d626c760698c4fd56f60b2d14470be1ae212277"
+    },
+    "with_scoped_failure": {
+      "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot016_scoped_failure_requested_mixed1536",
+      "event": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot016_scoped_failure_requested_mixed1536/events.out.tfevents.1793057894.ZGZ.807101.0",
+      "bytes": 456660,
+      "sha256": "01dd8d56dd3cdd5c4fa866443c44a5802e458d732872de7badbf7ad03ed0b444",
+      "complete_updates_used": 32,
+      "source_count": 273,
+      "committed_source": "199fbb87381d8b79e046595ed182cdb99bcba18c"
+    }
+  },
+  "window_updates": 8,
+  "nominal_lanes": 68,
+  "same_initial_actor_critic_and_domain_draws": true,
+  "final8_update_means": {
+    "without_scoped_failure": {
+      "tilt_mean_deg": 34.42163133621216,
+      "height_mae_m": 0.05560660967603326,
+      "planar_speed_rms_m_s": 0.0022376458800863475,
+      "episode_end_events": 0.0
+    },
+    "with_scoped_failure": {
+      "tilt_mean_deg": 4.126572847366333,
+      "height_mae_m": 0.0019713712827069685,
+      "planar_speed_rms_m_s": 0.1231077816337347,
+      "episode_end_events": 0.373046875
+    }
+  },
+  "images": {
+    ".png": "a772ef130ad0a0dad01cbe74580844180e9e7defbc969a75da8d9ebf7c32761c",
+    ".svg": "4aff91db95384236da3c63abb9e0e43cc8cf518b6855a5f0b6e9489420d3bf0d"
+  },
+  "interpretation": "Failure termination changes the trajectory distribution. These curves measure training signal and reset frequency, not uninterrupted standing, fixed contact/drift acceptance or a unique cause.",
+  "new_PPO": 0,
+  "native_steps": 0,
+  "qualified": false,
+  "hardware_ready": false,
+  "producer_sha256": "070f8e7b0cc602cac24a06115958722b21911ae29a99476e2a3321e8e766d929",
+  "raw_matplotlib_svg_sha256": "3372f250711ff4913571477800e4b610ec0cffaef939445a9507c9b12190a087",
+  "svg_trailing_whitespace_normalized": true
+}
