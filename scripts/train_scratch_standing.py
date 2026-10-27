@@ -154,9 +154,13 @@ def prepare(args):
         task.update(version="standard-prone-in-place-v1", standard_prone=prone,
             reward_potential_gain=3., reward_gamma=.9974905699336811, recovery_leg_speed_cost=0.,
             motion_fraction=0., motion_push_fraction=0., hold_motion_during_recovery=True,
-            stable_seconds=prone["stable_seconds"], episode_seconds=prone["episode_seconds"], curriculum_updates=1)
+            stable_seconds=prone["stable_seconds"], episode_seconds=prone["episode_seconds"], curriculum_updates=1,
+            leg_action_clip=prone["leg_action_clip"])
         changes.update(episode_seconds=prone["episode_seconds"], record_diagnostics=True,
             curriculum="standard_prone_in_place", contact_material=material)
+        if prone["leg_action_clip"] != 16.:
+            raise ValueError("Prone recovery retains the native full-revolution range16")
+        changes["v5_control"] = dict(cfg["v5_control"], action_clip=prone["leg_action_clip"])
         (args.output / "standard_prone_task.input.json").write_bytes(spec_path.read_bytes())
     static_prior = None
     if args.static_load_initialization:
@@ -240,7 +244,7 @@ def prepare(args):
         value.update(schema="standard-prone-task-v1", standard_prone=prone,
             recovery_training_enabled=True, automatic_task_or_height_curriculum=False,
             curriculum=dict(reset_pose=prone["reset_pose_name"], target_height_m=.305, automatic_changes=False),
-            initial_pitch_range_deg=[90., 90.], current_scope="One standard prone family; guided in-place six-motor RL",
+            initial_pitch_range_deg=[0., 0.], current_scope="One standard prone family; guided in-place six-motor RL",
             terminal_evaluation="Actual recovery completion, then30s standing, with all failures and raw1ms samples retained")
         write_json(contract_path, value)
     if upright is not None or prone is not None:

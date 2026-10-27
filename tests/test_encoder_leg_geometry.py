@@ -61,3 +61,12 @@ def test_outside_closed_chain_branch_is_marked_invalid():
     q = observer.nominal[None].clone()
     q[0, 1] = q[0, 0]+3.
     assert observer(q, torch.zeros_like(q))["valid"].tolist() == [[False, True]]
+
+
+def test_small_native_endpoint_residual_is_tolerated_but_real_out_of_branch_input_is_invalid():
+    observer = model()
+    q = observer.nominal[None].repeat(2, 1)
+    q[:, 1] = q[:, 0]+observer.side0_delta_rad[-1]+torch.tensor([.0005, .002])
+    state = observer(q, torch.zeros_like(q))
+    assert state["valid"][:, 0].tolist() == [True, False]
+    torch.testing.assert_close(state["knee_deg"][:, 0], observer.side0_passive_inner_deg[-1].expand(2))

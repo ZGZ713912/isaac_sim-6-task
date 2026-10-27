@@ -16,7 +16,8 @@ class StandardProneEnv(RobustGetupEnv):
         self.prone_task = self.getup_cfg["standard_prone"]
         from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
         from .standing_geometry107 import table_path
-        self.prone_encoder_geometry = EncoderLegGeometry(json.loads(table_path().read_text())).to(self.device)
+        self.prone_encoder_geometry = EncoderLegGeometry(json.loads(table_path().read_text()),
+            relative_margin_rad=self.prone_task["encoder_geometry"]["relative_angle_numerical_margin_rad"]).to(self.device)
         matches = [i for i, p in enumerate(self.poses) if p["name"] == self.prone_task["reset_pose_name"]]
         if len(matches) != 1:
             raise ValueError("Need one authenticated standard prone reset geometry")
