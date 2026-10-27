@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Cold-review a frozen prone actor without constructing PPO or an optimizer."""
 import argparse
+import base64
 from copy import deepcopy
 from datetime import datetime, timezone
 import hashlib
 import importlib.util
+from importlib.metadata import distribution
 import inspect
 import json
 import os
@@ -111,7 +113,32 @@ def main():
         actor_class, actor_cfg = resolve_class(agent["actor"])
         actor_file = Path(inspect.getsourcefile(actor_class)).resolve()
         if not actor_file.is_relative_to(runtime):
-            raise ValueError("Actor implementation must come from frozen runtime")
+            # Plain MLP actors live in the installed official RSL dependency,
+            # whereas custom actors must still come from the frozen task tree.
+            if (actor_class.__module__ != "rsl_rl.models.mlp_model"
+                    or actor_class.__name__ != info["actor_class"] or info["actor_class"] != "MLPModel"):
+                raise ValueError("Custom actor implementation must come from frozen runtime")
+            dependency = distribution("rsl-rl-lib")
+            hashes = {}
+            for member in dependency.files:
+                name = str(member)
+                if not name.startswith("rsl_rl/") or not name.endswith(".py"):
+                    continue
+                source = Path(dependency.locate_file(member)).resolve()
+                actual = sha(source)
+                if (member.hash is None or member.hash.mode != "sha256"
+                        or base64.urlsafe_b64encode(bytes.fromhex(actual)).decode().rstrip("=") != member.hash.value):
+                    raise ValueError("Installed RSL dependency differs from its distribution RECORD: " + name)
+                hashes[name] = actual
+                destination = output / "inference_dependency_snapshot" / name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(source.read_bytes())
+            if not hashes or not any(Path(dependency.locate_file(name)).resolve() == actor_file for name in hashes):
+                raise ValueError("Official actor is outside authenticated RSL distribution")
+            progress["external_actor_dependency"] = dict(distribution="rsl-rl-lib", version_used=dependency.version,
+                distribution_RECORD_matches=True, source_hashes=hashes,
+                training_time_dependency_snapshot_available=False,
+                scope="Current official inference dependency authenticated and copied; not a claim of a training-time package snapshot")
         actor = actor_class(env.get_observations(), agent["obs_groups"], "actor", 6, **actor_cfg).to(args.device)
         actor.load_state_dict(state["actor_state_dict"], strict=True)
         actor.eval()
