@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 
-from wheeled_tasks.chassis.standard_prone import physical_knee_degrees, route_potential, stable, support_error, valid_disabled_start
+from wheeled_tasks.chassis.standard_prone import physical_knee_degrees, route_potential, stable, support_error, valid_disabled_start, density
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = json.loads((ROOT / "contracts/wheel_leg_standard_prone_v1.json").read_text())
@@ -29,6 +29,7 @@ def test_fold_and_under_com_improvements_receive_dense_credit_from_extended_legs
     assert potential(107.)[0] < potential(85.)[0] < potential(65.)[0] < potential(43.)[0]
     assert potential(65., .3)[0] < potential(65., .2)[0] < potential(65., .1)[0]
     assert potential(107.)[1]["fold_score"].item() > .01
+    assert (potential(106.)[1]["fold_score"]-potential(107.)[1]["fold_score"]).item() > .01
 
 
 def test_reward_near_stop_does_not_prefer_driving_through_the40deg_stop():
@@ -42,11 +43,53 @@ def test_folding_guidance_stays_on_for_belly_grounded_upright_body_but_fades_at_
     assert not potential(40., standing=True)[1]["folding_guidance_weight"].any()
 
 
+def test_dense_route_reward_credits_folding_before_rising_and_releases_it_after_lift():
+    def route_reward(knee, standing=False):
+        scores = potential(knee, standing=standing)[1]
+        terms = density(torch.tensor([[0., 0., -1.]]), torch.zeros(1, 3), torch.zeros(1, 3),
+            torch.zeros(1, 6), torch.zeros(1), torch.zeros(1), torch.tensor([False]), SPEC, route_scores=scores)
+        return terms["folding_progress"]+terms["support_alignment"]
+    assert route_reward(43.) > route_reward(85.) > route_reward(107.)
+    assert route_reward(40., standing=True) == route_reward(100., standing=True) == 0.
+
+
 def test_horizontal_alignment_above_the_com_does_not_count_as_support_below_it():
     com = torch.tensor([[0., 0., .3], [0., 0., .3]])
     wheel = torch.tensor([[0., 0., .1], [0., 0., .5]])
     error = support_error(wheel, com, SPEC["support_min_below_com_m"])
     assert error[0] == 0. and error[1] > .2
+
+
+def test_rising_toward305mm_does_not_lose_dense_reward_before_completion_credit():
+    heights = torch.tensor([SPEC["belly_height_m"], .20, .23, .26, .285, .305])
+    gravity = torch.tensor([[0., 0., -1.]]).expand(len(heights), -1)
+    _, scores = route_potential(gravity, torch.full((len(heights), 2), 43.),
+        torch.zeros_like(heights), heights, SPEC)
+    terms = density(gravity, torch.zeros(len(heights), 3), torch.zeros(len(heights), 3),
+        torch.zeros(len(heights), 6), torch.zeros_like(heights), torch.zeros_like(heights),
+        torch.zeros_like(heights, dtype=torch.bool), SPEC, route_scores=scores)
+    # Completion has not happened in any row. This checks the transition goal,
+    # independently of the sparse stable-standing bonus and potential shaping.
+    assert (torch.diff(sum(terms.values())) > 0.).all()
+
+
+def test_height_credit_does_not_prefer_overshooting305mm():
+    gravity = torch.tensor([[0., 0., -1.]]).repeat(2, 1)
+    _, scores = route_potential(gravity, torch.full((2, 2), 64.), torch.zeros(2),
+                               torch.tensor([.305, .42]), SPEC)
+    terms = density(gravity, torch.zeros(2, 3), torch.zeros(2, 3), torch.zeros(2, 6),
+                    torch.zeros(2), torch.zeros(2), torch.zeros(2, dtype=torch.bool), SPEC, route_scores=scores)
+    assert sum(terms.values())[0] > sum(terms.values())[1]
+
+
+def test_user_allowed10cm_rise_translation_has_no_position_penalty_but_larger_travel_does():
+    excursion = torch.tensor([0., .05, .10, .12, .20])
+    terms = density(torch.tensor([[0., 0., -1.]]).repeat(5, 1), torch.zeros(5, 3),
+        torch.zeros(5, 3), torch.zeros(5, 6), torch.zeros(5), excursion,
+        torch.zeros(5, dtype=torch.bool), SPEC)
+    cost = terms["in_place_cost"]
+    assert (cost[:3] == 0.).all()
+    assert cost[2] > cost[3] > cost[4]
 
 
 def test_raising_from_folded_belly_to_unfolded_standing_increases_route_potential():
