@@ -1,0 +1,81 @@
+{
+  "schema": "wheel-reduction-verification-v1",
+  "date": "2026-10-27",
+  "wheel_gear_ratio": 15.62,
+  "freeze": {
+    "schema": "wheel-reduction-freeze-v1",
+    "gear_ratio": 15.62,
+    "parent_files_sha256": {
+      "contracts/flat_base_200hz_control_v1.json": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+      "contracts/scratch_standing_base_design_v1.json": "e5161d0cedc6f607e20d64819979e1a689c42493f1f9858ef99f2a5c50cb30d3",
+      "contracts/scratch_standing_base_mechanism_v1.json": "44a0fd70f78a4ccbcd1f8e083efb271b2c96ac72d5ced03f5e5c75ca0ed7adb9"
+    },
+    "files_sha256": {
+      "contracts/flat_base_200hz_control_v2.json": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+      "contracts/scratch_standing_base_design_v2.json": "6979ee0d37ab0746b0207323a6459c0a335d4cc8e596523d68bd910dbaf2a953",
+      "contracts/scratch_standing_base_mechanism_v2.json": "2eef31f27a1b5993fb3b106e0452d01c1616022b91ce22c59b5ee4cffb69edf6"
+    },
+    "new_native_validation": false,
+    "new_hardware_identification": false
+  },
+  "preflights": [
+    {
+      "name": "preflight_nominal002",
+      "status": "static_passed",
+      "wheel_gear_ratio": 15.62,
+      "control_sha256": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+      "config_sha256": "de031fba9411fb0c5429598fb281b69ae90bf560c7b307c320f8d31fb5fbd829",
+      "design_sha256": "c2f833abed2a33a545ab1d62004399556ba874db87afa9b832c07c4e04095ddb",
+      "decimation": 5,
+      "source_count": 265,
+      "static_load_prior_control_migration": {
+        "source_control_sha256": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+        "control_sha256": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+        "wheel_gear_ratio": 15.62,
+        "scope": "Nominal leg-static bias only; no new-wheel motion or response validation"
+      },
+      "requested_randomization": false,
+      "checkpoint_reads": 0,
+      "native_physics_steps": 0,
+      "PPO_updates": 0
+    },
+    {
+      "name": "preflight_requested001",
+      "status": "static_passed",
+      "wheel_gear_ratio": 15.62,
+      "control_sha256": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+      "config_sha256": "b9d580b9b1ef47b253d3a6c188406ffddb5148fba8d548d395a41c287a863e46",
+      "design_sha256": "59dbf70a88cb50e20956174d4d0f4b7abc982a2c8022be6d7e42907e847b666b",
+      "decimation": 5,
+      "source_count": 265,
+      "static_load_prior_control_migration": {
+        "source_control_sha256": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+        "control_sha256": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+        "wheel_gear_ratio": 15.62,
+        "scope": "Nominal leg-static bias only; no new-wheel motion or response validation"
+      },
+      "requested_randomization": true,
+      "checkpoint_reads": 0,
+      "native_physics_steps": 0,
+      "PPO_updates": 0
+    }
+  ],
+  "preserved_historical_files_sha256": {
+    "contracts/flat_base_200hz_control_v1.json": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+    "contracts/scratch_standing_base_mechanism_v1.json": "44a0fd70f78a4ccbcd1f8e083efb271b2c96ac72d5ced03f5e5c75ca0ed7adb9",
+    "contracts/scratch_standing_base_design_v1.json": "e5161d0cedc6f607e20d64819979e1a689c42493f1f9858ef99f2a5c50cb30d3",
+    "contracts/v6_wheel_response_evidence_v1.json": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+    "model/纯底盘_v7_flat_base107/urdf/manifest.json": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690"
+  },
+  "tests": {
+    "command": "env PYTHONPATH=src /home/noir/miniconda3/envs/isaaclab6/bin/python -m pytest -q tests/test_wheel_reduction.py tests/test_wheel_response_identification.py tests/test_capacity_probe_contract.py tests/test_response_preflight.py tests/test_scratch_committed_source.py tests/test_standing_load_initialization.py",
+    "passed": 84,
+    "failed": 0
+  },
+  "new_native_validation": false,
+  "new_wheel_response_identified": false,
+  "new_training_started": false,
+  "staged": false,
+  "committed": false,
+  "limitation": "Historical wheel-output inertia/friction remain a prior for replacement hardware; ratio conversion is not new-wheel identification."
+}
