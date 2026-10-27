@@ -295,10 +295,11 @@ def main():
                         check["height_trials_not_killed_for_target_error"] = not bool(state["terminated"][learning].any())
                         check["paid_height_cost_nonzero_on_requested_transition"] = bool((env.tracking009_last["paid_height"][learning] > 0.).all())
                         check["standing_rehearsal_clock_30s"] = bool((env.episode_limits[env.course_role_masks["stand"]] == 6000).all())
-                        columns = [env.cfg["actor_frame_dim"]+6+env.ids[i] for i in (2, 5)]
+                        wheel_columns = [env.cfg["actor_frame_dim"]+6+env.ids[i] for i in (2, 5)]
                         error_xy = env.robot.data.root_link_pose_w.torch[:, :2]-env.origins[:, :2]-env.course_anchor
-                        check["privileged_critic_anchor_matches_true_position"] = bool(torch.allclose(obs["critic"][:, columns], (error_xy*10.).clamp(-10., 10.), atol=1e-6))
-                        check["original_actor35_critic81_widths"] = obs["policy"].shape[-1] == 35 and obs["critic"].shape[-1] == 81
+                        check["privileged_critic_anchor_matches_true_position"] = bool(torch.allclose(obs["critic"][:, -2:], (error_xy*20.).clamp(-5., 5.), atol=1e-6))
+                        check["original_critic_wheel_position_entries_still_zero"] = bool(obs["critic"][:, wheel_columns].eq(0.).all())
+                        check["original_actor35_critic83_widths"] = obs["policy"].shape[-1] == 35 and obs["critic"].shape[-1] == 83
                 probes.append(dict(task=task, profile=profile, strength=strength, policy_steps=steps,
                     checks=check, all_checks_pass=all(check.values()), requested_command_abs_peak=requested_peak.cpu().tolist(),
                     enabled_environments=int(env.domain.enabled.sum()), new_PPO=0, learned_policy=False,

@@ -30,8 +30,8 @@ def height_failure(height, command_height, learning_height, plan):
     return unsafe | (target_error & ~learning_height)
 
 
-def critic_anchor(critic, error_xy, columns):
-    """Use only the two formerly-zero privileged wheel-position entries."""
+def critic_anchor(critic, error_xy):
+    """Keep the original009 two privileged XY entries, scale and clipping."""
     result = critic.clone()
-    result[:, list(columns)] = (error_xy*10.).clamp(-10., 10.)
+    result[:, -2:] = (error_xy*20.).clamp(-5., 5.)
     return result
