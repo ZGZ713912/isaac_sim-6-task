@@ -598,8 +598,11 @@ class RobustGetupEnv(ChassisEnv):
         prone_terms = None
         if prone_task is not None:
             from .standard_prone import density as prone_density
+            from .standard_prone import route_potential
+            _, route_scores = route_potential(gravity, prone_route["knee_deg"], prone_route["support_error_m"],
+                height, prone_task, geometry_valid=prone_route["encoder_valid"].all(-1))
             prone_terms = prone_density(gravity, velocity, omega, tau, upright_leg_speed_square,
-                                        prone_route["xy_excursion_m"], stable, prone_task)
+                                        prone_route["xy_excursion_m"], stable, prone_task, route_scores=route_scores)
             density = sum(prone_terms.values())
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
         timeout = self.episode_length_buf >= self.max_episode_length

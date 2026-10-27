@@ -13,13 +13,14 @@ from wheeled_tasks.chassis.scut_observation import CONTROL_FROM_POLICY
 def native_probe(env, steps, output):
     action = nominal_action(env).expand(env.num_envs, -1).clone()
     reset_q = env.bank_joints[env.initialization_pose_index, env.ids].expand(env.num_envs, -1)
+    target_q = env.bank_joints[env.initialization_target_pose_index, env.ids].expand(env.num_envs, -1)
     control_action = action[:, CONTROL_FROM_POLICY]
     initial_legs, initial_wheels, _ = env.v5.decode(control_action, reset_q)
-    target_error = initial_legs-reset_q[:, list(env.v5.LEGS)]
+    target_error = initial_legs-target_q[:, list(env.v5.LEGS)]
     target_error = torch.atan2(target_error.sin(), target_error.cos())
     checks = dict(native_rates=env.dt == .001 and env.policy_dt == .005,
         all_births_standard_prone=bool(env.recovery_lane.all()),
-        initial_motor_targets_match_prone_pose=bool(target_error.abs().max() < 1e-5 and initial_wheels.abs().max() == 0.))
+        initial_motor_targets_match_declared_bias_geometry=bool(target_error.abs().max() < 1e-5 and initial_wheels.abs().max() == 0.))
     checks["initial_leg_exploration_is_not_clipped"] = bool(
         (control_action[:, list(env.v5.LEGS)].abs()+3.*env.prone_task["initial_std_policy_order"][0]
          < env.v5.action_bounds[list(env.v5.LEGS)]).all())
@@ -73,7 +74,7 @@ def native_probe(env, steps, output):
     output = Path(output)
     np.savez_compressed(output / "native_probe_trace.npz", **{key: np.stack(value) for key, value in trace.items()})
     result = dict(schema="standard-prone-native-wiring-probe-v1", new_PPO=0, learned_policy=False,
-        control="constant authenticated prone geometry; no learned actor or optimizer",
+        control="constant declared initialization target; physical reset stays disabled prone; no learned actor or optimizer",
         num_envs=env.num_envs, physics_steps=steps*env.decimation, active_control_samples=active_samples,
         allowed_body_contact_samples=body_contact_samples, checks=checks, all_wiring_checks_pass=all(checks.values()),
         contact_material=material, transitions=rows, actual_task=env.prone_task,

@@ -26,7 +26,7 @@ def route_potential(gravity, knee_deg, support_error_m, height, spec, geometry_v
     # A band next to the stop has no incentive to drive into/past the stop.
     fold_error = ((knee_deg - spec["fold_target_deg"] - spec["fold_soft_band_deg"]).clamp_min(0.)
                   + (spec["fold_target_deg"] - knee_deg).clamp_min(0.))
-    folded = (1. / (1. + (fold_error / spec["fold_width_deg"]).square())).mean(-1)
+    folded = (1. - fold_error / spec["fold_guidance_span_deg"]).clamp_min(0.).mean(-1)
     aligned = 1. / (1. + (support_error_m / spec["support_alignment_width_m"]).square())
     if geometry_valid is not None:
         folded = folded * geometry_valid
@@ -49,8 +49,8 @@ def stable(gravity, height, omega, velocity, wheel_contact, leg_velocity, spec):
         & wheel_contact.all(-1) & (leg_velocity.abs().amax(-1) < spec["stable_leg_speed_rad_s"]))
 
 
-def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stable_now, spec):
-    return dict(
+def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stable_now, spec, route_scores=None):
+    result = dict(
         upright=.5 * ((1.-gravity[:, 2])*.5).clamp(0., 1.),
         stable_standing=8.*stable_now.float(),
         in_place_cost=-(excursion/spec["position_cost_scale_m"]).square(),
@@ -58,3 +58,8 @@ def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stabl
         angular_cost=-.02*omega.square().sum(-1),
         leg_speed_cost=-.001*leg_speed_square,
         effort_cost=-.0001*torque.square().mean(-1))
+    if route_scores is not None:
+        weight = route_scores["folding_guidance_weight"]
+        result.update(folding_progress=2.*weight*route_scores["fold_score"],
+                      support_alignment=weight*route_scores["support_alignment"])
+    return result

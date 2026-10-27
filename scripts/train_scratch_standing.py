@@ -292,7 +292,7 @@ def archive_committed_sources(source_hashes, output, *, root=ROOT):
 
 def nominal_action(env, height=.305):
     from wheeled_tasks.chassis.scut_observation import POLICY_FROM_CONTROL
-    index = getattr(env, "initialization_pose_index", env.height_pose[height])
+    index = getattr(env, "initialization_target_pose_index", getattr(env, "initialization_pose_index", env.height_pose[height]))
     pose = env.bank_joints[index, env.ids]
     delta = pose - env.v5.nominal
     result = delta.clone().zero_()
@@ -596,7 +596,7 @@ def main(*, upright_entry=False, prone_entry=False):
         write_json(args.output / "agent_config.json", runner_cfg)
         runner = OnPolicyRunner(env, runner_cfg, log_dir=str(args.output), device=args.device)
         initial = nominal_action(env)
-        bias_source = ("authenticated standard-prone reset joint geometry; all six outputs trainable"
+        bias_source = ("authenticated closed-chain pre-lift geometry " + task["standard_prone"]["initial_target_pose_name"] + "; all six outputs trainable, no scripted sequence"
                        if args.standard_prone_task is not None else None)
         if args.static_load_initialization:
             from wheeled_algo.standing_load_initialization import initial_action
