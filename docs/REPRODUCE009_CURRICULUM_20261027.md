@@ -1,5 +1,7 @@
 # 009静站复现与基本跟随课程
 
+首代扩课失败及下一代明确修复见[静站保留与高度课程修复](REPRODUCE009_RETENTION_REPAIR_20261028.md)。下文v1保留为首代配置记录；新训练显式使用v2合同，不修改旧run或沿用其权重。
+
 用户要求查历史commit、复现009配置，恢复站立并训练前进、旋转和高度跟随，给足训练时间并中途检查、必要时停止优化。历史源为643a0de0d61f049cd0ffe2007d52dd85fffbf6e6；原009只有305mm、8秒名义静站通过证据，运动、三高度和30秒不是其已验证能力。
 
 新入口为`scripts/train_009_curriculum.py`，合同为`contracts/wheel_leg_009_reproduction_v1.json`。配置复核中第一阶段全部task settings与009逐项相同，静力初始化bias相同，actor/critic和PPO配置相同；两个actor模块及precise站立奖励源与历史commit逐字节一致。四腿位置、两轮“实测轮速＋学习增量”、腿神经速度反馈分离、静力承重的可训练bias、归一化、探索、200Hz/1kHz、PD160/2.5、64/32、摩擦0.1/0.5全部恢复。
