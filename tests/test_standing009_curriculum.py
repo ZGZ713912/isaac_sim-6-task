@@ -124,6 +124,7 @@ def test_never_executed_motion_or_height_request_cannot_pass_as_standing(role):
 
 
 def test_initial_configuration_keeps_original_material_and_current_wheel_ratio(tmp_path):
+    tmp_path = tmp_path/"new_native_context"/"configuration"
     cfg, settings = configuration(tmp_path,PLAN)
     contract = json.loads((tmp_path/"task_contract.json").read_text())
     assert settings["domains_enabled"] is False and "standing009_curriculum" not in settings
