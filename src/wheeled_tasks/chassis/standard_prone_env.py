@@ -22,6 +22,10 @@ class StandardProneEnv(RobustGetupEnv):
         if len(matches) != 1:
             raise ValueError("Need one authenticated standard prone reset geometry")
         self.initialization_pose_index = matches[0]
+        targets = [i for i, p in enumerate(self.poses) if p["name"] == self.prone_task["initial_target_pose_name"]]
+        if len(targets) != 1:
+            raise ValueError("Need one declared closed-chain initialization target")
+        self.initialization_target_pose_index = targets[0]
         self.height_pose = {.305: self.bank["diagnostic_height_starts"]["mapping"]["stand"]}
         self.prone_start_xy = torch.zeros(self.num_envs, 2, device=self.device)
         self.prone_ready = True
@@ -29,7 +33,7 @@ class StandardProneEnv(RobustGetupEnv):
         self.startup_report["standard_prone"] = dict(task=self.prone_task,
             knee_coordinate="physical passive knee angle; lower stop40deg, upper107deg",
             support_alignment="Horizontal COM alignment plus penalty when the wheel midpoint is not below the mass-weighted whole-robot COM",
-            initial_output_bias="prone reset joint geometry; all six outputs trainable",
+            initial_output_bias="declared closed-chain42deg pre-lift geometry; all six outputs trainable; physical reset unchanged",
             encoder_geometry="Four calibrated motor angles/speeds, sealed40..107deg closed-chain lookup; native FK/passive knees retained only for independent error diagnostics",
             scripted_target_or_motor_takeover=False, state_writes="episode reset only")
 
