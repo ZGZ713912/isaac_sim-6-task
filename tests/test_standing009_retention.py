@@ -64,15 +64,14 @@ def test_physical_height_safety_remains_for_every_role(height):
                           torch.tensor([True,False]),PLAN).all()
 
 
-def test_anchor_is_privileged_and_changes_only_two_previously_unused_entries():
-    original = torch.randn(4,81)
-    original[:,[43,46]] = 0.
+def test_anchor_keeps_the_existing_two_privileged_xy_entries_and_scaling():
+    original = torch.randn(4,83)
     error = torch.tensor([[.01,.02],[1.,-1.],[3.,-3.],[0.,0.]])
-    changed = critic_anchor(original,error,(43,46))
-    keep = [i for i in range(81) if i not in [43,46]]
-    assert torch.equal(changed[:,keep],original[:,keep])
-    assert torch.equal(original[:,[43,46]],torch.zeros(4,2))
-    assert torch.equal(changed[:,[43,46]],(error*10).clamp(-10,10))
+    before = original.clone()
+    changed = critic_anchor(original,error)
+    assert torch.equal(changed[:,:-2],original[:,:-2])
+    assert torch.equal(original,before)
+    assert torch.equal(changed[:,-2:],(error*20).clamp(-5,5))
 
 
 def test_v1_keeps_original_paid_costs_zero():
