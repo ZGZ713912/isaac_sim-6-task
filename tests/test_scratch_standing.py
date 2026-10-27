@@ -64,6 +64,21 @@ def test_existing_adam_state_is_rejected():
         initialize_fresh(algorithm, torch.zeros(6))
 
 
+def test_absolute_wheel_actor_has_no_unconditional_encoder_velocity_identity():
+    algorithm, _ = make_algorithm(261003)
+    with torch.no_grad():
+        for layer in algorithm.actor.mlp.modules():
+            if isinstance(layer, torch.nn.Linear):
+                layer.weight.zero_()
+                layer.bias.zero_()
+        obs = TensorDict(dict(policy=torch.zeros(8, 35), critic=torch.zeros(8, 83)), batch_size=[8])
+        obs["policy"][:, 20:22] = torch.tensor([8., -8.])
+        action = algorithm.actor(obs)
+    # Encoder velocities remain available as inputs. An untrained zero neural
+    # function must request zero speed rather than preserve80rad/s wheel spin.
+    assert (action[:, 4:] == 0.).all()
+
+
 def test_prone_exploration_is_explicit_fresh_and_does_not_inherit_standing_micro_noise():
     algorithm, _ = make_algorithm(261001)
     std = [.2]*4 + [.05]*2

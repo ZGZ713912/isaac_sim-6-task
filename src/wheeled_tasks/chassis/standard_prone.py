@@ -4,6 +4,19 @@ import math
 import torch
 
 
+def initialization_motor_target(base_control_positions, common_rotation):
+    """A fixed, trainable mechanical bias; no sensed state or action clock."""
+    rotation = base_control_positions.new_tensor(common_rotation)
+    if (base_control_positions.shape != (6,) or rotation.shape != (2,)
+            or not torch.isfinite(base_control_positions).all() or not torch.isfinite(rotation).all()
+            or (rotation.abs() > math.pi).any()):
+        raise ValueError("Need six finite model positions and two bounded common rotations")
+    target = base_control_positions.clone()
+    target[:2] += rotation[0]
+    target[3:5] += rotation[1]
+    return target
+
+
 def physical_knee_degrees(knee_positions, left_lower_limit):
     zero = math.radians(40.) - left_lower_limit
     return torch.rad2deg(knee_positions * knee_positions.new_tensor([1., -1.]) + zero)

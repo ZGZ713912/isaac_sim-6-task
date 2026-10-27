@@ -4,11 +4,37 @@ import math
 from pathlib import Path
 
 import torch
+import pytest
 
-from wheeled_tasks.chassis.standard_prone import physical_knee_degrees, route_potential, stable, support_error, valid_disabled_start, density
+from wheeled_tasks.chassis.standard_prone import initialization_motor_target, physical_knee_degrees, route_potential, stable, support_error, valid_disabled_start, density
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = json.loads((ROOT / "contracts/wheel_leg_standard_prone_v1.json").read_text())
+
+
+def test_fixed_common_rotation_moves_the_wheels_toward_support_without_changing_fold():
+    from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
+    from wheeled_tasks.chassis.standing_geometry107 import table_path
+    bank = json.loads((ROOT / "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json").read_text())
+    pose = next(p for p in bank["poses"] if p["name"] == SPEC["initial_target_pose_name"])
+    names = ("L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3")
+    base = torch.tensor([pose["full_joint_positions"][name] for name in names])
+    before = base.clone()
+    target = initialization_motor_target(base, SPEC["initial_target_common_rotation_rad"])
+    geometry = EncoderLegGeometry(json.loads(table_path().read_text()))
+    q = torch.stack((base, target))[:, [0, 1, 3, 4]]
+    state = geometry(q, torch.zeros_like(q))
+    torch.testing.assert_close(base, before)
+    torch.testing.assert_close(state["knee_deg"][0], state["knee_deg"][1], atol=.001, rtol=0.)
+    assert state["valid"].all()
+    assert state["wheel_body_m"][1, :, 0].mean() > state["wheel_body_m"][0, :, 0].mean()+.08
+    assert torch.equal(target[[2, 5]], base[[2, 5]])
+
+
+@pytest.mark.parametrize("rotation", [[float("nan"), 0.], [4., 0.], [0.]])
+def test_invalid_initialization_rotations_fail_before_native_or_training(rotation):
+    with pytest.raises(ValueError):
+        initialization_motor_target(torch.zeros(6), rotation)
 
 
 def test_passive_included_angle_respects_opposing_joint_signs_and_model_zero():

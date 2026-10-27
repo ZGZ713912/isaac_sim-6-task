@@ -135,6 +135,8 @@ def prepare(args):
         prone = json.loads(spec_path.read_text())
         if prone.get("schema") != "wheel-leg-standard-prone-v1" or prone["fold_target_deg"] != 40.:
             raise ValueError("Need the explicit physical-knee40deg standard prone task")
+        if prone.get("wheel_action_parameterization") is not None and args.wheel_velocity_increment:
+            raise ValueError("This prone contract requires fresh absolute wheel-velocity targets")
         prone.update(input_sha256=digest(spec_path), input_file=str(spec_path),
                      friction_profile=args.upright_friction_profile)
         friction = prone["friction_profiles"][args.upright_friction_profile]
@@ -292,8 +294,10 @@ def archive_committed_sources(source_hashes, output, *, root=ROOT):
 
 def nominal_action(env, height=.305):
     from wheeled_tasks.chassis.scut_observation import POLICY_FROM_CONTROL
-    index = getattr(env, "initialization_target_pose_index", getattr(env, "initialization_pose_index", env.height_pose[height]))
-    pose = env.bank_joints[index, env.ids]
+    pose = getattr(env, "initialization_target_motor_q", None)
+    if pose is None:
+        index = getattr(env, "initialization_target_pose_index", getattr(env, "initialization_pose_index", env.height_pose[height]))
+        pose = env.bank_joints[index, env.ids]
     delta = pose - env.v5.nominal
     result = delta.clone().zero_()
     result[list(env.v5.LEGS)] = torch.atan2(delta[list(env.v5.LEGS)].sin(), delta[list(env.v5.LEGS)].cos()) / .25
@@ -435,7 +439,7 @@ def main(*, upright_entry=False, prone_entry=False):
     parser.add_argument("--native-probe-steps", type=int, default=0,
         help="Zero-PPO diagnostic of upright mechanics and task wiring; requires --updates 0")
     if upright_entry or prone_entry:
-        parser.set_defaults(normalize_observations=True, wheel_velocity_increment=True,
+        parser.set_defaults(normalize_observations=True, wheel_velocity_increment=not prone_entry,
                             static_load_initialization=not prone_entry)
     if prone_entry:
         parser.set_defaults(rollout_steps=256)
@@ -596,7 +600,9 @@ def main(*, upright_entry=False, prone_entry=False):
         write_json(args.output / "agent_config.json", runner_cfg)
         runner = OnPolicyRunner(env, runner_cfg, log_dir=str(args.output), device=args.device)
         initial = nominal_action(env)
-        bias_source = ("authenticated closed-chain pre-lift geometry " + task["standard_prone"]["initial_target_pose_name"] + "; all six outputs trainable, no scripted sequence"
+        bias_source = ("authenticated closed-chain pre-lift geometry " + task["standard_prone"]["initial_target_pose_name"]
+                       + "; fixed trainable common rotations=" + str(task["standard_prone"].get("initial_target_common_rotation_rad", [0., 0.]))
+                       + "; all six outputs trainable, no scripted sequence"
                        if args.standard_prone_task is not None else None)
         if args.static_load_initialization:
             from wheeled_algo.standing_load_initialization import initial_action

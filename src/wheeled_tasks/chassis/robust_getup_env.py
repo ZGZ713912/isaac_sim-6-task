@@ -652,6 +652,9 @@ class RobustGetupEnv(ChassisEnv):
                 "Prone/xy_excursion_mean_m": prone_route["xy_excursion_m"].mean(),
                 "Prone/xy_excursion_peak_m": prone_route["xy_excursion_m"].max(),
                 "Prone/stable_fraction": stable.float().mean(),
+                "Prone/wheel_velocity_abs_mean_rad_s": dq[:, list(self.v5.WHEELS)].abs().mean(),
+                "Prone/wheel_velocity_population_peak_rad_s": dq[:, list(self.v5.WHEELS)].abs().max(),
+                "Prone/wheel_target_velocity_abs_mean_rad_s": wheels.abs().mean(),
                 "Prone/nonwheel_force_peak_n": nonwheel_force_peak.max(),
                 "Prone/large_excursion_events": prone_large_excursion.float().sum(),
                 "Prone/refall_events": prone_refall.float().sum()})
