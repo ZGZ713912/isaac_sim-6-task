@@ -1,0 +1,230 @@
+{
+  "schema": "historical-standing-vs-standard-prone-readonly-comparison-v1",
+  "observed_utc": "2026-10-27T15:20:13.368209+00:00",
+  "historical_standing": {
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated",
+    "status": "completed_unqualified",
+    "completed_updates": 512,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "nominal_collected_policy_samples": 16777216,
+    "precise_standing_objective": true,
+    "actor_class": "wheeled_algo.leg_velocity_separated:LegVelocitySeparatedModel",
+    "wheel_action_parameterization": "encoder_velocity_plus_learned_increment_v1",
+    "separate_leg_velocity_feedback": true,
+    "wheel_velocity_increment": true,
+    "initial_optimizer_states": 0,
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "bias_source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+    "static_load_initialization_enabled": true,
+    "physical_reward": {
+      "version": "physical-standing-cost-v1",
+      "physical_dt_s": 0.001,
+      "speed_scale_rad_s": 0.2,
+      "torque_delta_scale_nm": 2.0,
+      "speed_weight": 2.0,
+      "contact_weight": 8.0,
+      "torque_weight": 0.05,
+      "deadband_rad_s": 0.0,
+      "startup_grace_s": 0.0
+    },
+    "precise_reward": {
+      "version": "precise-standing-reward-v2-coupled",
+      "target_height_width_m": 0.015,
+      "tilt_width_deg": 5.0,
+      "stationary_velocity_width_m_s": 0.03,
+      "yaw_width_rad_s": 0.2,
+      "density_maximum_per_second": 12.0,
+      "native_termination_cost": 3.0,
+      "composition": "12*attitude_score*height_score*stationary_score-angular_cost",
+      "physical_costs": {
+        "version": "physical-standing-cost-v1",
+        "physical_dt_s": 0.001,
+        "speed_scale_rad_s": 0.2,
+        "torque_delta_scale_nm": 2.0,
+        "speed_weight": 2.0,
+        "contact_weight": 8.0,
+        "torque_weight": 0.05,
+        "deadband_rad_s": 0.0,
+        "startup_grace_s": 0.0
+      },
+      "startup_grace_s": 0.0,
+      "native_recovery_potential_retained_on_standing": false
+    },
+    "domains_enabled": false,
+    "randomization_study": {
+      "profile": null,
+      "strength": null
+    },
+    "curriculum": {
+      "mid_height_until_update": 512,
+      "then_heights_m": [
+        0.23,
+        0.305,
+        0.42
+      ]
+    },
+    "acceptance_305mm_8s": {
+      "height_m": 0.305,
+      "case_count": 7,
+      "old_strict_standing_pass_count": 1,
+      "standing_pass_v2_count": 7,
+      "contact_pass_v2_count": 7,
+      "raw_loss_ms": 42,
+      "raw_loss_events": 40,
+      "ignored_loss_ms": 42,
+      "retained_loss_ms": 0,
+      "retained_loss_events": 0,
+      "longest_raw_loss_ms": 2,
+      "absent_wheel_sample_count": 42,
+      "absent_wheel_zero_force_samples": 42,
+      "absent_wheel_positive_clearance_samples": 4,
+      "absent_wheel_clearance_over_0p1mm_samples": 2,
+      "absent_wheel_estimated_clearance_max_m": 0.0004597306251525879,
+      "max_xy_excursion_m": 0.015578553500450013,
+      "max_terminal_xy_offset_m": 0.014483704801920575,
+      "max_excursion_within_1cm_cases": 3,
+      "terminal_offset_within_1cm_cases": 4,
+      "mean_leg_angle_band_rms_mrad": 0.0629382279834577,
+      "mean_leg_angle_band_rms_rad": 6.29382279834577e-05,
+      "mean_leg_angle_band_rms_deg": 0.0036060948334843005
+    }
+  },
+  "current_prone": {
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256",
+    "status": "completed_unqualified",
+    "completed_updates": 128,
+    "num_envs": 256,
+    "rollout_steps": 256,
+    "nominal_collected_policy_samples": 8388608,
+    "precise_standing_objective": false,
+    "actor_class": "MLPModel",
+    "wheel_action_parameterization": "learned_absolute_velocity_v1",
+    "separate_leg_velocity_feedback": false,
+    "wheel_velocity_increment": false,
+    "initial_optimizer_states": 0,
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "bias_source": "authenticated closed-chain pre-lift geometry floor_knee42_42_orbit0.8_r0_p0; fixed trainable common rotations=[-0.6, 0.6]; all six outputs trainable, no scripted sequence",
+    "static_load_initialization_enabled": false,
+    "physical_reward": {
+      "version": "physical-standing-cost-v1",
+      "physical_dt_s": 0.001,
+      "speed_scale_rad_s": 0.2,
+      "torque_delta_scale_nm": 2.0,
+      "speed_weight": 0.0,
+      "contact_weight": 0.0,
+      "torque_weight": 0.0,
+      "deadband_rad_s": 0.0,
+      "startup_grace_s": 0.0
+    },
+    "precise_reward": null,
+    "domains_enabled": true,
+    "randomization_study": {
+      "profile": "requested",
+      "strength": 0.25
+    },
+    "curriculum": {
+      "reset_pose": "floor_knee103_103_orbit1.6_r0_p0",
+      "target_height_m": 0.305,
+      "automatic_changes": false
+    },
+    "behavior": {
+      "schema": "prone-frozen-cold-behavior-summary-v1",
+      "observed_utc": "2026-10-27T14:59:00.342970+00:00",
+      "completed_updates": 128,
+      "case_count": 21,
+      "recovery_completed": 0,
+      "baseline_pass": 0,
+      "recovery_deadline_missed": 0,
+      "terminated": 21,
+      "in_place_screen_pass": 0,
+      "height_peak_m": 0.2701132297515869,
+      "height_peak_time_s": 0.4050000011920929,
+      "after1s_height_median_m": 0.20004861056804657,
+      "after1s_tilt_median_deg": 14.015392303466797,
+      "after1s_planar_speed_median_m_s": 0.05908316373825073,
+      "final_height_mean_m": 0.20004718005657196,
+      "final_tilt_mean_deg": 14.015355110168457,
+      "final_physical_knee_mean_deg": 43.33081817626953,
+      "xy_peak_m": 0.5002692937850952,
+      "wheel_velocity_peak_rad_s_at_policy_rate": 9.71644401550293,
+      "leg_speed_peak_rad_s": 38.63701248168945,
+      "closure_gap_peak_m": 8.262231858680025e-05,
+      "recovery_event_samples": 0,
+      "trial_duration_min_s": 8.529999732971191,
+      "trial_duration_max_s": 9.114999771118164,
+      "result_sha256": "63442741b4353751b8edae31c8d4c0a2f0b1cd83c2bc6f49553da5fcd57eab8e",
+      "trace_sha256": "ae8862f413c9cf077f9af68af65fcad5cae9555174897cf63e1d6ec734d5c5c3",
+      "new_PPO": 0,
+      "optimizer_constructed": false,
+      "standing_contact_window_available": false,
+      "scope": "Same-start nominal replicas, not independent seeds. No recovery completion, therefore no post-completion standing-contact qualification; raw <=2N contact is not treated as geometric lift.",
+      "terminal_step_matches_first_0p5m_crossing_cases": 21,
+      "termination_attribution": "All21 terminate on the first sampled crossing of0.5m. This is timing alignment; not a claim that no simultaneous guard existed."
+    },
+    "stable_fraction_rollout_maximum": 0.0,
+    "quiet_reward_paid_last_per_policy_step": 5.192751784122152e-10,
+    "quiet_reward_paid_rollout_mean_maximum": 2.316261173973544e-07
+  },
+  "sources": [
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated/task_contract.json",
+      "sha256": "7736cce508a201f83b8e925f1b688ece2231c2398026ab707b8ea496db51fe76"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated/agent_config.json",
+      "sha256": "11def3b00ee452f07bd6fbc2ee228b040507ca1a1fc01e888419311c71af0c0c"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated/initialization.json",
+      "sha256": "c09d9ac9ef07d69d59284b169b63b4b06d7b7024589b034de802c73dd3fee08d"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated/progress.json",
+      "sha256": "eed9c197ab88ad31cd6b1d2f56eaaaadb7a2550535eb99be3e8b6eac91d6f47f"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/task_contract.json",
+      "sha256": "996f50b96d27913f1d3807411cc86d25cd4cbffde804bf67265c526cea9c1628"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/agent_config.json",
+      "sha256": "1e3d49f12de1afa7ab667dd9d77919d44089760dcaf6b32df3f781c5d526fe97"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/initialization.json",
+      "sha256": "a64f07a46daf89ba0224e972bd274ebdf276820556f647114abfbbb289bdf5ed"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/progress.json",
+      "sha256": "92c22468d2cbebf7217b7dcbe98f914650312b02bacf67d21c5d781eaf7a26b9"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/scratch_pilot009_acceptance_v2_read001.json",
+      "sha256": "fc69ec348be03c8bd30b4210bea3b45cf8d77d378e2e04c4fb2da7751c87d897"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_final_behavior_summary001.json",
+      "sha256": "4a348ca58d2bcf067a933b9ba668ec33af6999ab188bfaac02d41846f5c17d70"
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_status_tb001.json",
+      "sha256": "fefffa0bcaae7d61b3c9ae5a1d6421875243fab847dae2aa7da600dd003d4879"
+    }
+  ],
+  "new_PPO": 0,
+  "new_native_steps": 0,
+  "optimizer_constructed": false,
+  "old_checkpoints_loaded": false,
+  "sources_or_models_modified": false,
+  "existing_sealed_manifest_modified": false,
+  "findings": [
+    "009 established initialized-standing 305mm nominal 8-second behavior, 7/7 under current v2 contact rules; this was not a prone-to-stand or full 30-second qualification.",
+    "007 did not reproduce the historical successful training recipe: task resets, reward, action/feedback architecture, initialization and randomization schedule differ.",
+    "007 has no actual stable completion. Near-zero coupled standing payout and persistent approximately 200mm/14deg are behavioral evidence; individual causal contributions are not isolated.",
+    "Fresh model requirement permits reusing verified source/configuration and a within-run curriculum, without loading historical policy/critic/Adam/teacher/donor."
+  ],
+  "correction_direction": "Re-establish initialized-standing learning using the verified recipe in a fresh run, preserve standing rehearsal while introducing prone rise and progressive separated domain randomization; validate each behavior on that same generation. No training launched by this diagnosis."
+}

@@ -1,8 +1,8 @@
 {
   "schema": "wheel-leg-separated-curriculum-receipt-v1",
-  "recorded_utc": "2026-10-27T14:33:07.122184+00:00",
+  "recorded_utc": "2026-10-27T15:10:15.392653+00:00",
   "user_confirmed_reset": "Normally facing up, chassis belly touching the floor, six motors disabled before RL enable",
-  "current_focus": "Primary ordinary quiet standing at305mm from disabled belly-grounded start; fixed initial geometry unchanged; folding/support only small potential auxiliary",
+  "current_focus": "pilot007 ended and reviewed: ordinary quiet-standing reward candidate failed standard-prone recovery; no continuation or new learner launched",
   "source": {
     "worktree": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train",
     "branch": "codex/standard-prone-training",
@@ -81,14 +81,14 @@
   "current_pilot": {
     "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256",
     "progress_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/progress.json",
-    "observed_utc": "2026-10-27T14:33:07.122184+00:00",
-    "status": "training",
+    "observed_utc": "2026-10-27T15:09:14.171113+00:00",
+    "status": "completed_unqualified",
     "pid": 2074081,
     "start_ticks": 9273247,
     "process_identity_verified": true,
     "source_commit": "b48a5139e9e0ffdf37cc214b36de7fe80930c1d3",
     "requested_updates": 128,
-    "completed_updates": 94,
+    "completed_updates": 128,
     "checkpoint_reads_by_training": [],
     "initialization": {
       "schema": "scratch-ppo-initialization-v1",
@@ -126,8 +126,21 @@
     "randomization": "v2 requested strength0.25; full v2 and independent-seed matrix still required",
     "user_allowed_getup_translation_m": 0.1,
     "wheel_control": "Two absolute wheel-velocity outputs and four hip/knee position outputs, all six trainable",
-    "cold_evaluation": null,
-    "completion": "Automatic full completion-anchored cold review after128; never resume a checkpoint",
+    "cold_evaluation": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/evaluation/result.json",
+      "trace": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/evaluation/native_trace.npz",
+      "summary": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_final_behavior_summary001.json",
+      "case_count": 21,
+      "recovery_completed": 0,
+      "baseline_pass": 0,
+      "terminated": 21,
+      "recovery_deadline_missed": 0,
+      "in_place_screen_pass": 0,
+      "standing_contact_window_available": false,
+      "result_sha256": "63442741b4353751b8edae31c8d4c0a2f0b1cd83c2bc6f49553da5fcd57eab8e",
+      "trace_sha256": "ae8862f413c9cf077f9af68af65fcad5cae9555174897cf63e1d6ec734d5c5c3"
+    },
+    "completion": "Naturally completed128 updates and fixed cold review; frozen model only, no resume or replacement learner",
     "excluded_initial_samples": "Disabled passive settling only; no motor script",
     "initial_geometry_changed": false,
     "first_update_audit": {
@@ -140,136 +153,400 @@
     },
     "all_six_outputs_changed_audit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_six_axis_audit001.json",
     "last_checkpoint": {
-      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/model_80.pt",
-      "sha256": "a907ff25caee616ad2926dbd8762fc1e7ed4d3fb1a7ba5b76f29b0616251f15b",
-      "updates": 81
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot007_quiet_standing_dr025_u128_e256/model_final.pt",
+      "sha256": "b6025a4c47e5a00533cc4252773ad2de591a24bc0056415b50e64c0c1ec6282a",
+      "updates": 128
     },
     "tensorboard_status": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_status_tb001.json",
     "latest_metrics": {
-      "ProneActive/body_height_mean_m": {
-        "step": 93,
-        "value": 0.21500711143016815,
-        "maximum_logged_value": 0.23556126654148102,
-        "points": 94
+      "ProneRewardPaid/upright_per_policy_step": {
+        "step": 127,
+        "value": 0.009673921391367912,
+        "maximum_logged_value": 0.009673921391367912,
+        "minimum_logged_value": 0.0077751451171934605,
+        "points": 128
       },
-      "ProneActive/body_tilt_mean_deg": {
-        "step": 93,
-        "value": 16.439655303955078,
-        "maximum_logged_value": 19.195579528808594,
-        "points": 94
+      "ProneRewardPaid/height_per_policy_step": {
+        "step": 127,
+        "value": 5.0177222132071625e-14,
+        "maximum_logged_value": 0.0007672181236557662,
+        "minimum_logged_value": 4.9377182572730993e-14,
+        "points": 128
       },
-      "Prone/stable_fraction": {
-        "step": 93,
-        "value": 0.0,
-        "maximum_logged_value": 0.0,
-        "points": 94
+      "ProneRewardPaid/forward_tracking_per_policy_step": {
+        "step": 127,
+        "value": 0.009884277358651161,
+        "maximum_logged_value": 0.00988430343568325,
+        "minimum_logged_value": 0.006328327115625143,
+        "points": 128
       },
-      "Prone/completion_events": {
-        "step": 93,
-        "value": 0.0,
-        "maximum_logged_value": 0.0,
-        "points": 94
+      "ProneRewardPaid/yaw_tracking_per_policy_step": {
+        "step": 127,
+        "value": 0.004517401102930307,
+        "maximum_logged_value": 0.004517401102930307,
+        "minimum_logged_value": 0.0026131183840334415,
+        "points": 128
       },
-      "Prone/xy_excursion_mean_m": {
-        "step": 93,
-        "value": 0.12511877715587616,
-        "maximum_logged_value": 0.2886584997177124,
-        "points": 94
+      "ProneRewardPaid/tilt_cost_per_policy_step": {
+        "step": 127,
+        "value": -0.009576468728482723,
+        "maximum_logged_value": -0.008737004362046719,
+        "minimum_logged_value": -0.01620282232761383,
+        "points": 128
       },
-      "Prone/planar_speed_rms_m_s": {
-        "step": 93,
-        "value": 0.06188378483057022,
-        "maximum_logged_value": 0.14004749059677124,
-        "points": 94
+      "ProneRewardPaid/velocity_error_cost_per_policy_step": {
+        "step": 127,
+        "value": -5.905338184675202e-05,
+        "maximum_logged_value": -5.365606557461433e-05,
+        "minimum_logged_value": -0.0009959136368706822,
+        "points": 128
       },
-      "Prone/body_rate_rms_rad_s": {
-        "step": 93,
-        "value": 0.7032448053359985,
-        "maximum_logged_value": 1.2380942106246948,
-        "points": 94
+      "ProneRewardPaid/angular_cost_per_policy_step": {
+        "step": 127,
+        "value": -2.771294748526998e-05,
+        "maximum_logged_value": -2.651514660101384e-05,
+        "minimum_logged_value": -0.0008781292126514018,
+        "points": 128
+      },
+      "ProneRewardPaid/effort_cost_per_policy_step": {
+        "step": 127,
+        "value": -2.2509892005473375e-05,
+        "maximum_logged_value": -1.9678831449709833e-05,
+        "minimum_logged_value": -4.57908863609191e-05,
+        "points": 128
+      },
+      "ProneRewardPaid/action_rate_cost_per_policy_step": {
+        "step": 127,
+        "value": -1.3593446510640206e-06,
+        "maximum_logged_value": -1.2025354862998938e-06,
+        "minimum_logged_value": -2.0430115910130553e-06,
+        "points": 128
+      },
+      "ProneRewardPaid/leg_speed_cost_per_policy_step": {
+        "step": 127,
+        "value": -8.737370080780238e-06,
+        "maximum_logged_value": -8.10197161627002e-06,
+        "minimum_logged_value": -0.00010451707930769771,
+        "points": 128
       },
       "ProneRewardPaid/quiet_standing_per_policy_step": {
-        "step": 93,
-        "value": 1.3367967843791462e-10,
+        "step": 127,
+        "value": 5.192751784122152e-10,
         "maximum_logged_value": 2.316261173973544e-07,
-        "points": 94
+        "minimum_logged_value": 3.716427339484074e-12,
+        "points": 128
+      },
+      "ProneRewardPaid/inversion_cost_per_policy_step": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "ProneRewardPaid/height_error_cost_per_policy_step": {
+        "step": 127,
+        "value": -0.01195433922111988,
+        "maximum_logged_value": -0.006029624957591295,
+        "minimum_logged_value": -0.011961804702877998,
+        "points": 128
+      },
+      "ProneRewardPaid/in_place_cost_per_policy_step": {
+        "step": 127,
+        "value": -3.6358750321596744e-07,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": -0.008547072298824787,
+        "points": 128
+      },
+      "ProneRewardPaid/unrecovered_time_cost_per_policy_step": {
+        "step": 127,
+        "value": -0.004999999888241291,
+        "maximum_logged_value": -0.004101562313735485,
+        "minimum_logged_value": -0.004999999888241291,
+        "points": 128
+      },
+      "ProneRewardPaid/potential_per_policy_step": {
+        "step": 127,
+        "value": -0.0018096738494932652,
+        "maximum_logged_value": 0.0016984365647658706,
+        "minimum_logged_value": -0.00408640131354332,
+        "points": 128
+      },
+      "ProneRewardPaid/completion_per_policy_step": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "ProneActive/body_height_mean_m": {
+        "step": 127,
+        "value": 0.20295922458171844,
+        "maximum_logged_value": 0.23556126654148102,
+        "minimum_logged_value": 0.17509913444519043,
+        "points": 128
+      },
+      "ProneActive/body_tilt_mean_deg": {
+        "step": 127,
+        "value": 14.667940139770508,
+        "maximum_logged_value": 19.195579528808594,
+        "minimum_logged_value": 13.553540229797363,
+        "points": 128
+      },
+      "Prone/knee_angle_mean_deg": {
+        "step": 127,
+        "value": 43.75486373901367,
+        "maximum_logged_value": 60.07752990722656,
+        "minimum_logged_value": 43.59370422363281,
+        "points": 128
+      },
+      "Prone/knee_angle_min_deg": {
+        "step": 127,
+        "value": 41.64992141723633,
+        "maximum_logged_value": 57.322349548339844,
+        "minimum_logged_value": 41.49333190917969,
+        "points": 128
+      },
+      "Prone/body_height_mean_m": {
+        "step": 127,
+        "value": 0.20295922458171844,
+        "maximum_logged_value": 0.22771871089935303,
+        "minimum_logged_value": 0.2000739872455597,
+        "points": 128
+      },
+      "Prone/body_height_population_peak_m": {
+        "step": 127,
+        "value": 0.20746752619743347,
+        "maximum_logged_value": 0.24937188625335693,
+        "minimum_logged_value": 0.20746752619743347,
+        "points": 128
+      },
+      "Prone/support_com_alignment_mean_m": {
+        "step": 127,
+        "value": 0.06676490604877472,
+        "maximum_logged_value": 0.12254291772842407,
+        "minimum_logged_value": 0.05410858988761902,
+        "points": 128
+      },
+      "Prone/wheel_below_com_mean_m": {
+        "step": 127,
+        "value": 0.09699931740760803,
+        "maximum_logged_value": 0.10996522009372711,
+        "minimum_logged_value": 0.08440466225147247,
+        "points": 128
+      },
+      "Prone/xy_excursion_mean_m": {
+        "step": 127,
+        "value": 0.0663866251707077,
+        "maximum_logged_value": 0.2886584997177124,
+        "minimum_logged_value": 0.010793713852763176,
+        "points": 128
+      },
+      "Prone/xy_excursion_peak_m": {
+        "step": 127,
+        "value": 0.1191665381193161,
+        "maximum_logged_value": 0.44905737042427063,
+        "minimum_logged_value": 0.03623705357313156,
+        "points": 128
+      },
+      "Prone/stable_fraction": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "Prone/dual_support_physical_fraction": {
+        "step": 127,
+        "value": 0.6980499029159546,
+        "maximum_logged_value": 0.7613677978515625,
+        "minimum_logged_value": 0.37176513671875,
+        "points": 128
+      },
+      "Prone/planar_speed_rms_m_s": {
+        "step": 127,
+        "value": 0.038008011877536774,
+        "maximum_logged_value": 0.14004749059677124,
+        "minimum_logged_value": 0.03776790574193001,
+        "points": 128
+      },
+      "Prone/body_tilt_mean_deg": {
+        "step": 127,
+        "value": 14.667940139770508,
+        "maximum_logged_value": 19.195579528808594,
+        "minimum_logged_value": 12.65001392364502,
+        "points": 128
+      },
+      "Prone/body_tilt_population_peak_deg": {
+        "step": 127,
+        "value": 15.71318531036377,
+        "maximum_logged_value": 25.916969299316406,
+        "minimum_logged_value": 15.71318531036377,
+        "points": 128
+      },
+      "Prone/body_rate_rms_rad_s": {
+        "step": 127,
+        "value": 0.3731633424758911,
+        "maximum_logged_value": 1.2380942106246948,
+        "minimum_logged_value": 0.3631817102432251,
+        "points": 128
+      },
+      "Prone/stable_hold_mean_s": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "Prone/unrecovered_fraction": {
+        "step": 127,
+        "value": 1.0,
+        "maximum_logged_value": 1.0,
+        "minimum_logged_value": 1.0,
+        "points": 128
+      },
+      "Prone/completion_events": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "Prone/completion_time_sum_s": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "Prone/wheel_velocity_abs_mean_rad_s": {
+        "step": 127,
+        "value": 1.9534238576889038,
+        "maximum_logged_value": 1.9954041242599487,
+        "minimum_logged_value": 1.210877776145935,
+        "points": 128
+      },
+      "Prone/wheel_velocity_population_peak_rad_s": {
+        "step": 127,
+        "value": 7.362954139709473,
+        "maximum_logged_value": 7.410014629364014,
+        "minimum_logged_value": 5.196584701538086,
+        "points": 128
+      },
+      "Prone/wheel_target_velocity_abs_mean_rad_s": {
+        "step": 127,
+        "value": 2.111635684967041,
+        "maximum_logged_value": 2.2106757164001465,
+        "minimum_logged_value": 1.5867125988006592,
+        "points": 128
+      },
+      "Prone/nonwheel_force_peak_n": {
+        "step": 127,
+        "value": 479.969970703125,
+        "maximum_logged_value": 942.1279296875,
+        "minimum_logged_value": 479.969970703125,
+        "points": 128
+      },
+      "Prone/large_excursion_events": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.00390625,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "Prone/refall_events": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
+      },
+      "Prone/invalid_disabled_start_events": {
+        "step": 127,
+        "value": 0.0,
+        "maximum_logged_value": 0.0,
+        "minimum_logged_value": 0.0,
+        "points": 128
       }
     },
-    "all275_live_sources_still_match": true
+    "all275_live_sources_still_match": true,
+    "process_exited": true,
+    "GPU_context_exited": true,
+    "process_identity_scope": "Authenticated while active; terminal /proc absence and GPU release verified after completion",
+    "completion_integrity": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_completion_integrity001.json"
   },
   "all_final_capabilities": [
     {
       "id": "initial_recovery",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Standard prone failed0/21; other fallen/asymmetric families unmeasured in this generation."
     },
     {
       "id": "moving_fall_recovery",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Not measured; no real in-motion fall and recovery test."
     },
     {
       "id": "standing",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "No recovery-completed event, so no post-completion30s standing window; independent low/mid/high upright tests unmeasured."
     },
     {
       "id": "low_speed_straight",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Not measured in this generation."
     },
     {
       "id": "high_speed_straight",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Not measured in this generation."
     },
     {
       "id": "stationary_spin",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Actual body100rpm/at least80rpm, both directions, unmeasured."
     },
     {
       "id": "four_direction_arcs",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "All four translation/yaw quadrants and transitions unmeasured."
     },
     {
       "id": "standing_height_change",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Not measured; no accepted standing anchor."
     },
     {
       "id": "moving_height_change",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Not measured."
     },
     {
       "id": "spinning_height_change",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Not measured."
     },
     {
       "id": "high_speed_braking",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Not measured; no demonstrated preceding high speed."
     },
     {
       "id": "smoothness",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Raw get-up leg/wheel diagnostics retained; full task spectrum and post-completion standing smoothness unmeasured."
     },
     {
       "id": "robustness",
       "new_campaign_status": "not_qualified",
-      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+      "reason": "Training requested v2 strength0.25 only; nominal same-start cold failed0/21, full requested/low-grip/held-out groups/independent seeds unmeasured."
     }
   ],
-  "new_PPO_completed_total": 525,
+  "new_PPO_completed_total": 559,
   "curves": {
-    "figure": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/prone_tensorboard_comparison.png",
-    "provenance": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/prone_tensorboard_comparison.provenance.json",
+    "figure": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_final_training.png",
+    "provenance": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot007_final_training.provenance.json",
     "source": "TensorBoard event only",
-    "generation_policy": "Distinct fresh runs labeled separately; initial bias and rewards differ; not causal single-factor proof",
+    "generation_policy": "Current figure is pilot007 only; prior generation plots remain separate, never causal or integrated qualification",
     "pilot003_cold_trace_figure": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot003_cold_trace.png",
     "pilot005_final_behavior_figure": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot005_final_behavior.png",
     "pilot005_final_behavior_provenance": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot005_final_behavior.provenance.json"
@@ -663,6 +940,19 @@
     "automation_id": "automation",
     "interval_minutes": 5,
     "notify": "Actual completion event, material failure, training/evaluation completion or required user decision only",
-    "same_run_only": true
+    "same_run_only": true,
+    "status": "deleted",
+    "deleted_utc": "2026-10-27T15:10:15.392653+00:00",
+    "delete_reason": "This128-update pilot and fixed cold evaluation finished and were fully reviewed; no new learner launched"
+  },
+  "outcome": {
+    "standing_learned": false,
+    "recovery_learned": false,
+    "root_cause_proven": false,
+    "all128_logged_stable_fractions_zero": true,
+    "all128_logged_completion_event_means_zero": true,
+    "interpretation": "Observed policy remains near200mm/14deg and drifts to0.5m; changing to ordinary quiet-standing reward alone did not solve this bounded fresh pilot. Early/late windows are descriptive, not a causal comparison.",
+    "next_diagnostic": "Independent fresh305mm upright balance baseline, then assess prone-to-standing sample curriculum; proposal only, no new learner launched",
+    "no_resume": true
   }
 }
