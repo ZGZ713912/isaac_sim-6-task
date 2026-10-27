@@ -36,6 +36,7 @@ def arguments(output, plan, *, num_envs=256, seed=None, profile="nominal", stren
 
 def configuration(output, plan, *, task="standing", profile="nominal", strength=0., num_envs=256,
                   seed=None, fully_randomized=False):
+    output.mkdir(parents=True, exist_ok=True)
     args = arguments(output, plan, num_envs=num_envs, seed=seed, profile=profile, strength=strength)
     cfg, settings = base.prepare(args)
     if task != "standing":
