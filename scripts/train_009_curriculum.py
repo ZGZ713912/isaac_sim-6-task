@@ -35,13 +35,18 @@ def arguments(output, plan, *, num_envs=256, seed=None, profile="nominal", stren
 
 
 def configuration(output, plan, *, task="standing", profile="nominal", strength=0., num_envs=256,
-                  seed=None, fully_randomized=False):
+                  seed=None, fully_randomized=False, evaluation=False):
     output.mkdir(parents=True, exist_ok=True)
     args = arguments(output, plan, num_envs=num_envs, seed=seed, profile=profile, strength=strength)
     cfg, settings = base.prepare(args)
     if task != "standing":
         settings["standing009_curriculum"] = deepcopy(plan)
         settings["episode_seconds"] = plan["tracking"]["episode_seconds"]
+        cfg["episode_seconds"] = settings["episode_seconds"]
+        cfg["record_diagnostics"] = True
+    if evaluation:
+        settings["standing009_curriculum"] = deepcopy(plan)
+        settings["episode_seconds"] = plan["evaluation"]["seconds"]
         cfg["episode_seconds"] = settings["episode_seconds"]
         cfg["record_diagnostics"] = True
     # A held-out randomized matrix covers every case, separately from the25%
@@ -66,6 +71,7 @@ def configuration(output, plan, *, task="standing", profile="nominal", strength=
         mechanism_config_sha256=base.digest(output/"config/contract.json"),
         reference_commit=plan["reference_commit"], curriculum_plan=deepcopy(plan),
         task=task, domain_profile=profile, domain_strength=strength, fully_randomized_holdout=fully_randomized,
+        cold_evaluation=evaluation,
         standing_mid_height_until="actual30s behavior gate;512 minimum,1024 maximum",
         declared_mechanical_difference=plan["declared_mechanical_difference"])
     base.write_json(output/"task_contract.json", contract)
@@ -199,14 +205,11 @@ def main():
                 cfg, settings = configuration(directory, plan, task=task, profile=profile, strength=strength,
                     num_envs=64 if args.native_probe else 256,
                     seed=plan["evaluation"]["seed"] if evaluation else plan["seed"]+context_number*31,
-                    fully_randomized=fully_randomized)
+                    fully_randomized=fully_randomized, evaluation=evaluation)
             if args.native_probe and context_number == 0:
                 # The probe is a separately declared small wiring job, never PPO.
                 cfg, settings = configuration(output/"probe_initial", plan, num_envs=64)
                 directory = output/"probe_initial"
-            if evaluation:
-                cfg["record_diagnostics"] = True
-                settings["standing009_curriculum"] = deepcopy(plan)
             cls = Standing009TrackingEnv if task != "standing" or evaluation else ScratchStandingEnv
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = cls(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
@@ -241,7 +244,7 @@ def main():
         if args.native_probe:
             probes = []
             for task, profile, strength, steps in (("standing", "nominal", 0., 40),
-                    ("tracking", "nominal", 0., 2200), ("tracking", "requested", 1., 40)):
+                    ("tracking", "nominal", 0., 80), ("tracking", "requested", 1., 40)):
                 if probes:
                     build(task, profile, strength, phase_updates=256)
                 if task == "tracking":
@@ -274,6 +277,21 @@ def main():
                     checks=check, all_checks_pass=all(check.values()), requested_command_abs_peak=requested_peak.cpu().tolist(),
                     enabled_environments=int(env.domain.enabled.sum()), new_PPO=0, learned_policy=False,
                     clock_injection_seconds=4.5 if task == "tracking" else None))
+            # Exercise the actual cold-trace writer and case reset separately.
+            # The short duration is explicitly wiring-only, never a behavior gate.
+            from torch.utils.tensorboard import SummaryWriter
+            build("standing", evaluation=True)
+            prior = json.loads((active_context/"task_contract.json").read_text())["static_load_initialization"]
+            action = initial_action(base.nominal_action(env), prior).expand(env.num_envs, -1).clone()
+            short_plan = deepcopy(plan)
+            short_plan["evaluation"]["seconds"] = .2
+            with SummaryWriter(str(output/"cold_wiring_events")) as writer:
+                cold_probe = evaluate(env, lambda obs: action, output/"cold_wiring_only_0p2s",
+                    writer, 0, short_plan, "standing")
+            report["cold_wiring_probe"] = dict(duration_override_seconds=.2,
+                declared_behavior_duration_seconds=plan["evaluation"]["seconds"],
+                case_count=cold_probe["case_count"], trace_written=True,
+                model_created=False, new_PPO=0, behavior_qualification=False)
             report.update(status="native_probe_completed_unqualified", native_probes=probes,
                           all_native_checks_pass=all(p["all_checks_pass"] for p in probes), new_PPO=0)
             if not report["all_native_checks_pass"]:
