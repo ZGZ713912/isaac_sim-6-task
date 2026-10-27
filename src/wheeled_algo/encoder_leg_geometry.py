@@ -9,6 +9,12 @@ from .rolling_velocity import RollingBaseVelocity
 
 
 class EncoderLegGeometry(RollingBaseVelocity):
+    def __init__(self, table, relative_margin_rad=.001):
+        super().__init__(table)
+        if not 0. <= relative_margin_rad <= .001:
+            raise ValueError("Encoder geometry margin must be within0..1mrad")
+        self.relative_margin_rad = relative_margin_rad
+
     def forward(self, positions, velocities):
         if positions.shape != velocities.shape or positions.ndim != 2 or positions.shape[1] != 4:
             raise ValueError("Need four aligned hip/auxiliary motor angles and velocities")
@@ -21,7 +27,8 @@ class EncoderLegGeometry(RollingBaseVelocity):
             delta = torch.atan2(difference.sin(), difference.cos())
             valid = (torch.isfinite(positions[:, i:i+2]).all(-1)
                      & torch.isfinite(velocities[:, i:i+2]).all(-1)
-                     & (delta >= knots[0]-1e-5) & (delta <= knots[-1]+1e-5))
+                     & (delta >= knots[0]-self.relative_margin_rad)
+                     & (delta <= knots[-1]+self.relative_margin_rad))
             upper = torch.searchsorted(knots, delta.contiguous()).clamp(1, len(knots)-1)
             lower = upper-1
             width = knots[upper]-knots[lower]

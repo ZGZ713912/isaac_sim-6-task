@@ -69,3 +69,31 @@ def test_disabled_start_rejects_front_inverted_standing_and_body_not_grounded():
     height = torch.tensor([.173, .173, .173, .305, .173])
     force = torch.tensor([100., 100., 100., 100., 0.])
     assert valid_disabled_start(gravity, height, force, SPEC).tolist() == [True, False, False, False, False]
+
+
+def test_cold_trial_budget_declares_recovery_deadline_and_full_post_completion_standing():
+    evaluation = SPEC["evaluation"]
+    assert evaluation["seconds"] == evaluation["recovery_deadline_seconds"]+evaluation["post_completion_standing_seconds"]
+
+
+def test_prone_geometry_and_exploration_survive_the_real_target_decoder():
+    from wheeled_tasks.chassis.v5_control import V5Control
+    cfg = json.loads((ROOT / "contracts/scratch_standing_base_mechanism_v2.json").read_text())
+    bundle = ROOT / cfg["asset_directory"]
+    manifest, mechanism = [json.loads((bundle / n).read_text()) for n in ("manifest.json", "model_spec.json")]
+    poses = json.loads((ROOT / "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json").read_text())["poses"]
+    pose = next(p for p in poses if p["name"] == SPEC["reset_pose_name"])
+    q = torch.tensor([[pose["full_joint_positions"][name] for name in V5Control.ACTIVE]])
+
+    def control(clip):
+        return V5Control(manifest, mechanism, {"monomial_coefficients_n": []}, {"actuators": {"wheel": {}}},
+                         dict(cfg["v5_control"], action_clip=clip), "cpu")
+
+    old, new = control(3.), control(SPEC["leg_action_clip"])
+    delta = q-new.nominal
+    action = torch.zeros_like(q)
+    action[:, list(new.LEGS)] = torch.atan2(delta[:, list(new.LEGS)].sin(), delta[:, list(new.LEGS)].cos())/.25
+    exploration = torch.tensor([[.2, .2, 0., -.2, -.2, 0.]])
+    torch.testing.assert_close(old.decode(action, q)[0], old.decode(action+exploration, q)[0])
+    torch.testing.assert_close(new.decode(action, q)[0], q[:, list(new.LEGS)], atol=2e-6, rtol=0.)
+    assert (new.decode(action+exploration, q)[0]-new.decode(action, q)[0]).abs().min() > .01
