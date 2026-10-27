@@ -137,6 +137,7 @@ def evaluate(env, actor, output, writer, completed):
             minimum_physical_knee_deg=float(arrays["knees"][valid, lane].min()),
             leg_speed_peak_rad_s=float(np.abs(arrays["dq"][valid, :, lane]).max()),
             closure_gap_peak_m=float(arrays["gap"][valid, lane].max()), baseline_pass=False)
+        row["in_place_screen_pass"] = row["maximum_xy_excursion_from_prone_m"] <= evaluation["getup_xy_max_m"]
         if len(events):
             start = int(events[0])
             selected = valid & (np.arange(len(valid)) > start)
@@ -151,7 +152,7 @@ def evaluate(env, actor, output, writer, completed):
                 row["standing_tilt_peak_deg"] = float(np.degrees(np.arccos(np.clip(-arrays["gravity"][selected, lane, 2], -1., 1.))).max())
                 row["standing_speed_rms_m_s"] = float(np.sqrt(np.mean(np.sum(arrays["velocity"][selected, lane, :2]**2, axis=-1))))
                 row["standing_height_mae_m"] = float(np.abs(arrays["height"][selected, lane] - .305).mean())
-                row["baseline_pass"] = bool(not row["terminated"] and row["standing_seconds"] >= evaluation["post_completion_standing_seconds"] - 1e-6
+                row["baseline_pass"] = bool(row["in_place_screen_pass"] and not row["terminated"] and row["standing_seconds"] >= evaluation["post_completion_standing_seconds"] - 1e-6
                     and row["support"]["support_pass"] and row["standing_xy_excursion_m"] <= evaluation["standing_xy_max_m"]
                     and row["standing_tilt_peak_deg"] <= 10. and row["standing_speed_rms_m_s"] <= .03
                     and row["standing_height_mae_m"] <= .01 and row["closure_gap_peak_m"] <= .003)
@@ -160,6 +161,7 @@ def evaluate(env, actor, output, writer, completed):
         recovery_completed=sum(r["recovery_completed"] for r in rows), baseline_pass=sum(r["baseline_pass"] for r in rows),
         cases=rows, same_initial_state_replicas_are_not_independent_seeds=True,
         support_start="First complete physical interval after actual completion event; no post-hoc suffix selection",
+        getup_xy_limit_m=evaluation["getup_xy_max_m"], getup_xy_limit_authority=evaluation["getup_xy_limit_authority"],
         source_scope=evaluation["scope"], full_capability_qualified=False, hardware_ready=False,
         trace_sha256=digest(output / "native_trace.npz"))
     write_json(output / "result.json", result)
