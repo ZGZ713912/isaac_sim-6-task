@@ -68,30 +68,37 @@ def stable(gravity, height, omega, velocity, wheel_contact, leg_velocity, spec):
         & wheel_contact.all(-1) & (leg_velocity.abs().amax(-1) < spec["stable_leg_speed_rad_s"]))
 
 
-def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stable_now, spec,
-            route_scores=None, recovered=None):
-    result = dict(
-        upright=.5 * ((1.-gravity[:, 2])*.5).clamp(0., 1.),
-        stable_standing=8.*stable_now.float(),
-        in_place_cost=-((excursion-spec["position_cost_free_radius_m"]).clamp_min(0.)/spec["position_cost_scale_m"]).square(),
-        travel_speed_cost=-.1*(velocity[:, :2]/.3).square().sum(-1),
-        angular_cost=-.02*omega.square().sum(-1),
-        leg_speed_cost=-.001*leg_speed_square,
-        effort_cost=-.0001*torque.square().mean(-1))
-    if route_scores is not None:
-        weight = route_scores["folding_guidance_weight"]
-        result.update(folding_progress=2.*weight*route_scores["fold_score"],
-                      support_alignment=route_scores["support_guidance_weight"]*route_scores["support_alignment"],
-                      rise_progress=spec["rise_progress_reward_per_second"]*route_scores["upright_score"]*route_scores["lift_progress"],
-                      target_height=spec["target_height_reward_per_second"]*route_scores["upright_score"]*route_scores["standing_height_score"],
-                      height_error_cost=-spec["height_error_cost_per_second"]*route_scores["normalized_height_error"].square())
-        level_weight = spec["level_cost_min_lift_weight"] + (
-            1.-spec["level_cost_min_lift_weight"])*route_scores["lift_progress"]
-        # Squared distance to level gravity penalizes small roll/pitch errors
-        # explicitly and does not make a fully inverted body look level.
-        level_error = (gravity-gravity.new_tensor([0., 0., -1.])).square().sum(-1)
-        result["level_error_cost"] = (-spec["level_error_cost_per_second"]*level_weight*level_error
-                                      / math.sin(math.radians(spec["level_error_scale_deg"]))**2)
-    if recovered is not None:
-        result["unrecovered_time_cost"] = -spec["unrecovered_time_cost_per_second"]*(~recovered).float()
+def density(gravity, height, velocity, omega, torque, action_delta, leg_speed_square,
+            excursion, dual_support_fraction, nonwheel_force_peak, recovered, spec):
+    """Ordinary zero-command standing is the goal throughout the whole rise.
+
+    Reuse the upright task's actual objective. The broad height error supplies
+    credit outside its narrow height Gaussian. The coupled bonus needs height,
+    level IMU, quiet motion and physical wheel support together. Neither knee
+    angle nor wheel/COM alignment earns a sustained density reward.
+    """
+    from .upright_locomotion import reward_terms
+
+    command = torch.zeros_like(velocity)
+    command[:, 2] = spec["target_height_m"]
+    result = reward_terms(gravity, height, velocity, omega, command, torque,
+                          action_delta, leg_speed_square)
+    height_error = height-spec["target_height_m"]
+    level_error = (gravity-gravity.new_tensor([0., 0., -1.])).square().sum(-1)
+    quiet_goal = torch.exp(
+        -(height_error/spec["quiet_goal_height_width_m"]).square()
+        -level_error/math.sin(math.radians(spec["quiet_goal_level_scale_deg"]))**2
+        -(velocity/spec["stable_planar_speed_m_s"]).square().sum(-1)
+        -(omega/spec["stable_body_rate_rad_s"]).square().sum(-1))
+    supported = dual_support_fraction * (nonwheel_force_peak <= 2.).float()
+    result.update(
+        quiet_standing=spec["quiet_goal_reward_per_second"]*quiet_goal*supported,
+        # The upright task terminates before inversion. Prone episodes retain
+        # it, so gravity.xy alone must not make an inverted body look level.
+        inversion_cost=-spec["inversion_cost_per_second"]*gravity[:, 2].clamp_min(0.).square(),
+        height_error_cost=-spec["height_error_cost_per_second"]*(height_error
+            / (spec["target_height_m"]-spec["belly_height_m"])).square(),
+        in_place_cost=-((excursion-spec["position_cost_free_radius_m"]).clamp_min(0.)
+            / spec["position_cost_scale_m"]).square(),
+        unrecovered_time_cost=-spec["unrecovered_time_cost_per_second"]*(~recovered).float())
     return result
