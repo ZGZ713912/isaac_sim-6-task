@@ -439,6 +439,16 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             if key in config.get("new_asset_curriculum", {}):
                 errors.append(f"contract.new_asset_curriculum.{key}: runtime state cannot redefine the frozen schedule")
     control_expected = row.get("control", {})
+    if "wheel_reduction" in config or "wheel_reduction" in expected:
+        from .control_contract import WHEEL_GEAR_RATIO
+        reduction = config.get("wheel_reduction", {})
+        _compare(reduction, expected.get("wheel_reduction", _MISSING),
+                 "design.wheel_reduction", errors)
+        _compare(reduction, _at(row, "runtime.wheel_reduction"),
+                 "design.runtime.wheel_reduction", errors)
+        for value, path in ((reduction.get("gear_ratio"), "wheel_reduction.gear_ratio"),
+                            (_at(control, "actuators.wheel.gear_ratio"), "wheel_control.gear_ratio")):
+            _compare(WHEEL_GEAR_RATIO, value, path, errors)
     for path in ("actuators.wheel",):
         if path not in control_expected:
             errors.append(f"design.control.{path}: explicit expectation is required")
@@ -542,6 +552,8 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
     if stage not in config["enabled_stages"] or stage not in {item["name"] for item in config["stages"]}:
         raise ValueError(f"Environment stage {stage!r} is outside the independently verified contract")
     receipt.update(design_sha256=actual_sha, environment_stage=stage)
+    if "wheel_reduction" in config:
+        receipt["wheel_reduction"] = deepcopy(config["wheel_reduction"])
     return receipt
 
 
