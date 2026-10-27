@@ -1,0 +1,785 @@
+{
+  "schema": "standard-prone-task-v1",
+  "settings": {
+    "schema": "wheel-leg-unified-getup-v1",
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "actor_dim": 35,
+    "action_dim": 6,
+    "passive_min_seconds": 0.2,
+    "passive_max_seconds": 1.2,
+    "passive_hold_seconds": 0.08,
+    "episode_seconds": 12.0,
+    "stable_seconds": 1.0,
+    "followup_seconds": 2.0,
+    "recovery_timeout_seconds": 9.0,
+    "leg_action_clip": 16.0,
+    "wheel_action_clip": 9.0,
+    "leg_position_scale": 0.25,
+    "closure_gap_m": 0.003,
+    "impact_limit_n": 3500.0,
+    "impact_window_seconds": 0.02,
+    "impact_impulse_limit_ns": 20.0,
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "motion_push_fraction": 0.0,
+    "motion_fraction": 0.0,
+    "arc_fraction_within_motion": 0.4,
+    "lateral_acceleration_m_s2": 2.06,
+    "wheel_radius_m": 0.06,
+    "wheel_track_m": 0.4373,
+    "wheel_speed_limit_rad_s": 90.0,
+    "friction_start": [
+      0.5,
+      0.5
+    ],
+    "friction_final": [
+      0.2,
+      0.5
+    ],
+    "curriculum_updates": 1,
+    "origin_updates": 0,
+    "motor_control": "six_axis_RL_after_zero_effort_settling",
+    "input_source": "IMU_encoders_commands_previous_action",
+    "fallback_script": false,
+    "state_writes": "episode_reset_only",
+    "version": "standard-prone-in-place-v1",
+    "stance_aware_recovery": true,
+    "recovery_shape_aware": false,
+    "paired_feedback_winding": true,
+    "cyclic_leg_targets": true,
+    "recovery_leg_step": 0.3,
+    "smooth_knee_targets": true,
+    "recovery_knee_center": [
+      0.924544,
+      0.924537
+    ],
+    "recovery_leg_speed_cost": 0.0,
+    "recovery_family_weights": [
+      0.0,
+      0.1,
+      0.1,
+      0.2,
+      0.2,
+      0.3,
+      0.1
+    ],
+    "side_recovery_birth_focus": false,
+    "standing_drift_speed_scale_m_s": 0.02,
+    "quiet_native_height_anchors": false,
+    "quiet_exploration_fraction": 0.35,
+    "quiet_wheel_exploration_fraction": null,
+    "quiet_velocity_feature_gain": 1.0,
+    "quiet_velocity_feedback": false,
+    "quiet_velocity_feedback_mode": "all",
+    "nominal_fraction": 0.25,
+    "motor_strength_range": [
+      0.96,
+      1.04
+    ],
+    "leg_kp_scale_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kd_scale_range": [
+      1.0,
+      1.0
+    ],
+    "spring_strength_range": [
+      1.0,
+      1.0
+    ],
+    "torque_delay_ms": [
+      0,
+      0
+    ],
+    "motor_tau_ms": [
+      0.0,
+      0.0
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      1
+    ],
+    "encoder_bias_rad": 0.001,
+    "encoder_noise_rad": 8.75e-05,
+    "gyro_bias_rad_s": 0.0013125,
+    "gyro_noise_rad_s": 0.000875,
+    "gravity_noise": 0.00035,
+    "velocity_noise_rad_s": [
+      0.004375,
+      0.021875
+    ],
+    "sensor_noise_scale": 1.0,
+    "domains_enabled": true,
+    "quiet_action_rate_cost": 0.0,
+    "quiet_motor_speed_cost": 0.0,
+    "quiet_effort_delta_cost": 0.0,
+    "quiet_actor_alpha": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.65,
+      0.65
+    ],
+    "boundary_xy_m": [
+      40.0,
+      40.0
+    ],
+    "push_torque_direction": -1.0,
+    "hold_motion_during_recovery": true,
+    "canonical_recovery": true,
+    "motion_residual_fraction": 0.25,
+    "pd_feedback_delay_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      1
+    ],
+    "pd_encoder_bias_rad": 0.001,
+    "reward_gamma": 0.9974905699336811,
+    "reward_potential_gain": 3.0,
+    "quiet_frozen": false,
+    "quiet_training": true,
+    "quiet_sway_m": 0.05,
+    "quiet_spectral_cost": false,
+    "quiet_critic_anchor": true,
+    "quiet_velocity_feature_scale": null,
+    "quiet_wheel_bound": 0.5,
+    "arc_tuning_fraction": 0.0,
+    "standing_support_training": false,
+    "quiet_position_weight": 0.5,
+    "quiet_height_probabilities": [
+      0.5,
+      0.25,
+      0.25
+    ],
+    "quiet_high_common_alpha": null,
+    "quiet_high_leg_prediction_s": 0.0,
+    "standing_early_position_weight": 0.0,
+    "standing_drift_weight": 0.0,
+    "quiet_height_experts": false,
+    "fast_forward_reference": false,
+    "fast_forward_reference_range": [
+      1.5,
+      2.0
+    ],
+    "fast_forward_reference_yaw_fade": 0.25,
+    "native_origin_mode": "isolated_overlap_v1",
+    "gap_correct_pd_scaling": true,
+    "imu_mount": {
+      "fixed_degrees": [
+        0.2,
+        0.2,
+        0.06666666666666667
+      ],
+      "wobble_degrees": [
+        0.0,
+        0.0
+      ],
+      "wobble_hz": [
+        1.0,
+        1.0
+      ]
+    },
+    "randomization_study": {
+      "schema": "wheel-leg-resolved-randomization-study-v2",
+      "profile": "requested",
+      "strength": 0.25,
+      "group_scales": {
+        "observation_noise": 0.25,
+        "encoder_bias": 0.25,
+        "imu_alignment": 0.25,
+        "motor_strength": 0.25,
+        "mass_com": 0.25,
+        "independent_inertia": 0.25,
+        "ground_friction": 0.25,
+        "timing": 0.25
+      },
+      "task": {
+        "domains_enabled": true,
+        "nominal_fraction": 0.25,
+        "motor_strength_range": [
+          0.96,
+          1.04
+        ],
+        "leg_kp_scale_range": [
+          1.0,
+          1.0
+        ],
+        "leg_kd_scale_range": [
+          1.0,
+          1.0
+        ],
+        "spring_strength_range": [
+          1.0,
+          1.0
+        ],
+        "encoder_bias_rad": 0.001,
+        "pd_encoder_bias_rad": 0.001,
+        "encoder_noise_rad": 8.75e-05,
+        "gyro_bias_rad_s": 0.0013125,
+        "gyro_noise_rad_s": 0.000875,
+        "gravity_noise": 0.00035,
+        "velocity_noise_rad_s": [
+          0.004375,
+          0.021875
+        ],
+        "sensor_noise_scale": 1.0,
+        "gap_correct_pd_scaling": true,
+        "torque_delay_ms": [
+          0,
+          0
+        ],
+        "sensor_delay_policy_ticks": [
+          0,
+          1
+        ],
+        "motor_tau_ms": [
+          0.0,
+          0.0
+        ],
+        "pd_feedback_delay_ms": [
+          0,
+          0
+        ],
+        "pd_feedback_period_ms": [
+          1,
+          1
+        ],
+        "imu_mount": {
+          "fixed_degrees": [
+            0.2,
+            0.2,
+            0.06666666666666667
+          ],
+          "wobble_degrees": [
+            0.0,
+            0.0
+          ],
+          "wobble_hz": [
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "dynamics_randomization": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.75,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.98,
+          1.02
+        ],
+        "leg_mass_scale": [
+          0.98,
+          1.02
+        ],
+        "wheel_mass_scale": [
+          0.98,
+          1.02
+        ],
+        "inertia_scale": [
+          0.985,
+          1.015
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.003,
+            0.003
+          ],
+          "y": [
+            -0.0016,
+            0.0016
+          ],
+          "z": [
+            -0.002,
+            0.002
+          ]
+        },
+        "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+      },
+      "ground_friction_range": [
+        0.45,
+        0.5
+      ],
+      "effective_wheel_ground_friction_range": [
+        0.575,
+        0.6
+      ],
+      "effective_unsaturated_leg_kp_scale_bounds": [
+        0.96,
+        1.04
+      ],
+      "effective_unsaturated_leg_kd_scale_bounds": [
+        0.96,
+        1.04
+      ],
+      "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+      "policy_PD_encoder_bias_disagreement_bound_rad": 0.002,
+      "physical_encoder_white_noise_coverage": false,
+      "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+      "hardware_identified": false,
+      "behavior_qualified": false,
+      "imu_wobble_enabled": false,
+      "leg_gain_randomization_enabled": false,
+      "spring_strength_randomization_enabled": false,
+      "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+      "input_file": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+      "standard_prone_material_override": {
+        "wheel_friction": 0.7,
+        "original_ground_range_preserved": true,
+        "provenance": "Fixed engineering comparison, not identified real tire coefficients"
+      }
+    },
+    "standard_prone": {
+      "schema": "wheel-leg-standard-prone-v1",
+      "reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0",
+      "initial_target_pose_name": "floor_knee42_42_orbit0.8_r0_p0",
+      "initial_target_common_rotation_rad": [
+        -0.8,
+        0.8
+      ],
+      "initial_target_rotation_source": "Zero-PPO common-rotation counterfactual:42deg knees remain folded, wheel midpoint brought close to body origin. Physical disabled reset unchanged. No learned policy or action sequence.",
+      "wheel_action_parameterization": "Fresh trainable absolute wheel-velocity targets; no measured-wheel-velocity identity added to the actor output",
+      "standard_prone_definition": "Body normally facing up, chassis belly resting on the floor, all six motors disabled during native settling; not forward tipped or inverted",
+      "enable_max_tilt_deg": 15.0,
+      "enable_height_range_m": [
+        0.15,
+        0.22
+      ],
+      "reset_collision_clearance_m": 5e-05,
+      "target_height_m": 0.305,
+      "episode_seconds": 12.0,
+      "leg_action_clip": 16.0,
+      "leg_target_range": "Retain the existing native recovery range16: at0.25rad per action unit, +/-4rad around the nominal target. Declare the same range in the mechanism config and task settings. Paired40..107deg relative projection and native torque caps remain active.",
+      "guided_path": "Learn to fold the physical passive knees near40deg, move wheel support below the whole-robot COM, then coordinate leg extension and wheel velocity to stand in place",
+      "knee_coordinate": "Physical passive included angle: left q_L_joint2 + calibrated model zero; right -q_R_jonit2 + the same zero. Not either active motor encoder angle.",
+      "encoder_geometry": {
+        "input": "Four calibrated model motor angles and velocities, left hip/auxiliary then right hip/auxiliary; existing35D actor retains these encoders and IMU",
+        "table": "contracts/standing_geometry107_v1.json",
+        "table_sha256": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216",
+        "outputs": [
+          "body-relative wheel centers",
+          "physical knee included angles and rates",
+          "hip-to-wheel lengths and rates"
+        ],
+        "direction": "Negative knee angle rate means folding, positive means extension; leg-length rate is measured separately",
+        "relative_angle_numerical_margin_rad": 0.001,
+        "invalid": "More than1mrad outside the relative-angle lookup branch is invalid and supplies no folding/alignment shaping credit; within the numerical margin, interpolate at the physical endpoint and retain native error diagnostics; physical joint limits are unchanged",
+        "validation": "Independent full-link FK in CPU tests and native wheel/passive-joint truth in zero-PPO diagnostics; not real-robot encoder calibration"
+      },
+      "fold_target_deg": 40.0,
+      "fold_soft_band_deg": 3.0,
+      "fold_guidance_span_deg": 65.0,
+      "support_alignment_width_m": 0.1,
+      "fold_capture_release_power": 2.0,
+      "fold_release_rule": "Continuously fade the folding bonus as encoder-derived wheel support aligns below whole-robot COM; do not require full305mm height before releasing folded knees. Reward only, never an action sequence or motor takeover.",
+      "support_min_below_com_m": 0.03,
+      "belly_height_m": 0.173,
+      "position_cost_scale_m": 0.15,
+      "position_cost_free_radius_m": 0.1,
+      "rise_translation_authority": "User explicitly allows about10cm of translation during get-up while coordinating wheel velocity and hip/knee motors; no position penalty inside that radius",
+      "rise_progress_reward_per_second": 4.0,
+      "target_height_reward_per_second": 1.0,
+      "target_height_width_m": 0.06,
+      "height_error_cost_per_second": 4.0,
+      "level_error_scale_deg": 5.0,
+      "level_error_cost_per_second": 0.5,
+      "level_cost_min_lift_weight": 0.25,
+      "unrecovered_time_cost_per_second": 1.0,
+      "objective_limits_authority": "The5deg level scale is a continuous engineering reward scale, not a new hard acceptance threshold. Time cost stops only after actual stable recovery; the existing10s cold deadline remains an engineering screen.",
+      "large_excursion_termination_m": 0.5,
+      "excursion_limit_authority": "Engineering pilot containment, not a user-approved final in-place recovery limit",
+      "stable_seconds": 1.0,
+      "stable_tilt_deg": 10.0,
+      "stable_height_error_m": 0.02,
+      "stable_planar_speed_m_s": 0.08,
+      "stable_body_rate_rad_s": 0.5,
+      "stable_leg_speed_rad_s": 3.0,
+      "refall_tilt_deg": 25.0,
+      "friction_profiles": {
+        "baseline": {
+          "wheel": 0.7,
+          "ground": 0.5
+        },
+        "legacy_low_grip": {
+          "wheel": 0.1,
+          "ground": 0.5
+        }
+      },
+      "friction_provenance": "Fixed engineering comparison, not identified real tire coefficients",
+      "body_contact_during_rise": "Allowed; native impact impulse, mechanical, spring, closure, numerical and timeout protection retained",
+      "guidance": "Continuous state-based potential and dense folding/alignment rewards; no scripted targets, timed trajectory, fixed wheel speed, FSM motor takeover, teacher or donor",
+      "initialization": "New actor, new critic, empty Adam; trainable output bias from declared closed-chain42deg geometry and fixed opposite common rotations of0.6rad toward support below the COM. Physical disabled reset stays103deg then passively settles. No scripted sequence or runtime target hold; every output remains trainable.",
+      "initial_std_policy_order": [
+        0.3,
+        0.3,
+        0.3,
+        0.3,
+        0.2,
+        0.2
+      ],
+      "randomization": "wheel_leg_randomization_study_v2 profiles; retain original ground bands and explicitly record wheel-material hypothesis",
+      "evaluation": {
+        "seconds": 40.0,
+        "recovery_deadline_seconds": 10.0,
+        "post_completion_standing_seconds": 30.0,
+        "ignored_contiguous_support_loss_ms": 2,
+        "getup_xy_max_m": 0.1,
+        "getup_xy_limit_authority": "User explicitly allows about10cm during get-up; this pilot uses0.10m as its fixed screen and still reports actual peak displacement",
+        "standing_xy_max_m": 0.05,
+        "scope": "One standard prone family only; not diverse-fall or full thirteen-capability qualification"
+      },
+      "state_writes": "Episode reset only",
+      "hardware_ready": false,
+      "input_sha256": "63e351d1ceaa08171a92917c982f62b8d76fe19f0bdf2da944c762f681e01e92",
+      "input_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/probe_centered_fold_task001.json",
+      "friction_profile": "baseline",
+      "effective_wheel_ground_friction_range": [
+        0.575,
+        0.6
+      ]
+    }
+  },
+  "training_origin": "seeded random actor and critic; empty Adam; no checkpoint reads",
+  "bank": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+  "bank_sha256": "e85ae674548eb76101d8591726d24378a6be74cd9b3240b01150f9e28358d76a",
+  "mechanism_config_sha256": "c9e5cb09af56eb54154d399ce31a9a4128318fb20db31561b5c8c683f4721d6d",
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "action_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "wheel_reduction": {
+    "schema": "wheel-leg-wheel-reduction-v1",
+    "gear_ratio": 15.62,
+    "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+    "reference": "wheel_output",
+    "motor_angle_and_speed": "divide_by_ratio_once",
+    "motor_torque": "multiply_by_ratio_once",
+    "output_torque_cap_nm": 4.5,
+    "legacy_asset_metadata_gear_ratio": 15.8,
+    "legacy_response_gear_ratio": 15.8,
+    "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+    "new_wheel_response_identified": false
+  },
+  "leg_position_scale_rad": 0.25,
+  "wheel_velocity_scale_rad_s": 10.0,
+  "state_writes": "reset only",
+  "initial_pitch_range_deg": [
+    0.0,
+    0.0
+  ],
+  "curriculum": {
+    "reset_pose": "floor_knee103_103_orbit1.6_r0_p0",
+    "target_height_m": 0.305,
+    "automatic_changes": false
+  },
+  "current_scope": "One standard prone family; guided in-place six-motor RL",
+  "randomization_study": {
+    "schema": "wheel-leg-resolved-randomization-study-v2",
+    "profile": "requested",
+    "strength": 0.25,
+    "group_scales": {
+      "observation_noise": 0.25,
+      "encoder_bias": 0.25,
+      "imu_alignment": 0.25,
+      "motor_strength": 0.25,
+      "mass_com": 0.25,
+      "independent_inertia": 0.25,
+      "ground_friction": 0.25,
+      "timing": 0.25
+    },
+    "task": {
+      "domains_enabled": true,
+      "nominal_fraction": 0.25,
+      "motor_strength_range": [
+        0.96,
+        1.04
+      ],
+      "leg_kp_scale_range": [
+        1.0,
+        1.0
+      ],
+      "leg_kd_scale_range": [
+        1.0,
+        1.0
+      ],
+      "spring_strength_range": [
+        1.0,
+        1.0
+      ],
+      "encoder_bias_rad": 0.001,
+      "pd_encoder_bias_rad": 0.001,
+      "encoder_noise_rad": 8.75e-05,
+      "gyro_bias_rad_s": 0.0013125,
+      "gyro_noise_rad_s": 0.000875,
+      "gravity_noise": 0.00035,
+      "velocity_noise_rad_s": [
+        0.004375,
+        0.021875
+      ],
+      "sensor_noise_scale": 1.0,
+      "gap_correct_pd_scaling": true,
+      "torque_delay_ms": [
+        0,
+        0
+      ],
+      "sensor_delay_policy_ticks": [
+        0,
+        1
+      ],
+      "motor_tau_ms": [
+        0.0,
+        0.0
+      ],
+      "pd_feedback_delay_ms": [
+        0,
+        0
+      ],
+      "pd_feedback_period_ms": [
+        1,
+        1
+      ],
+      "imu_mount": {
+        "fixed_degrees": [
+          0.2,
+          0.2,
+          0.06666666666666667
+        ],
+        "wobble_degrees": [
+          0.0,
+          0.0
+        ],
+        "wobble_hz": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "dynamics_randomization": {
+      "enabled": true,
+      "sampling": "startup",
+      "enabled_fraction": 0.75,
+      "base_body": "base_link",
+      "wheel_bodies": [
+        "L_link3",
+        "R_link3"
+      ],
+      "base_mass_scale": [
+        0.98,
+        1.02
+      ],
+      "leg_mass_scale": [
+        0.98,
+        1.02
+      ],
+      "wheel_mass_scale": [
+        0.98,
+        1.02
+      ],
+      "inertia_scale": [
+        0.985,
+        1.015
+      ],
+      "base_com_offset_m": {
+        "x": [
+          -0.003,
+          0.003
+        ],
+        "y": [
+          -0.0016,
+          0.0016
+        ],
+        "z": [
+          -0.002,
+          0.002
+        ]
+      },
+      "source_reference": "2026-10-26 requested final domains; independent inertia radius is final, not gap-scaled"
+    },
+    "ground_friction_range": [
+      0.45,
+      0.5
+    ],
+    "effective_wheel_ground_friction_range": [
+      0.575,
+      0.6
+    ],
+    "effective_unsaturated_leg_kp_scale_bounds": [
+      0.96,
+      1.04
+    ],
+    "effective_unsaturated_leg_kd_scale_bounds": [
+      0.96,
+      1.04
+    ],
+    "imu_wobble_single_axis_gyro_peak_bound_rad_s": 0.0,
+    "policy_PD_encoder_bias_disagreement_bound_rad": 0.002,
+    "physical_encoder_white_noise_coverage": false,
+    "nominal_mask_scope": "rigid-body/actuator/sensor shared mask; ground friction independently covers all lanes",
+    "hardware_identified": false,
+    "behavior_qualified": false,
+    "imu_wobble_enabled": false,
+    "leg_gain_randomization_enabled": false,
+    "spring_strength_randomization_enabled": false,
+    "input_sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+    "input_file": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+    "standard_prone_material_override": {
+      "wheel_friction": 0.7,
+      "original_ground_range_preserved": true,
+      "provenance": "Fixed engineering comparison, not identified real tire coefficients"
+    }
+  },
+  "precise_standing_objective": false,
+  "normalized_observations": true,
+  "desynchronized_initial_episode_lengths": false,
+  "standing_failure_resets": false,
+  "wheel_action_parameterization": "learned_absolute_velocity_v1",
+  "static_load_initialization": null,
+  "standing_contact_continuity_contract": null,
+  "standing_leg_target_rate_contract": null,
+  "hardware_ready": false,
+  "standard_prone": {
+    "schema": "wheel-leg-standard-prone-v1",
+    "reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0",
+    "initial_target_pose_name": "floor_knee42_42_orbit0.8_r0_p0",
+    "initial_target_common_rotation_rad": [
+      -0.8,
+      0.8
+    ],
+    "initial_target_rotation_source": "Zero-PPO common-rotation counterfactual:42deg knees remain folded, wheel midpoint brought close to body origin. Physical disabled reset unchanged. No learned policy or action sequence.",
+    "wheel_action_parameterization": "Fresh trainable absolute wheel-velocity targets; no measured-wheel-velocity identity added to the actor output",
+    "standard_prone_definition": "Body normally facing up, chassis belly resting on the floor, all six motors disabled during native settling; not forward tipped or inverted",
+    "enable_max_tilt_deg": 15.0,
+    "enable_height_range_m": [
+      0.15,
+      0.22
+    ],
+    "reset_collision_clearance_m": 5e-05,
+    "target_height_m": 0.305,
+    "episode_seconds": 12.0,
+    "leg_action_clip": 16.0,
+    "leg_target_range": "Retain the existing native recovery range16: at0.25rad per action unit, +/-4rad around the nominal target. Declare the same range in the mechanism config and task settings. Paired40..107deg relative projection and native torque caps remain active.",
+    "guided_path": "Learn to fold the physical passive knees near40deg, move wheel support below the whole-robot COM, then coordinate leg extension and wheel velocity to stand in place",
+    "knee_coordinate": "Physical passive included angle: left q_L_joint2 + calibrated model zero; right -q_R_jonit2 + the same zero. Not either active motor encoder angle.",
+    "encoder_geometry": {
+      "input": "Four calibrated model motor angles and velocities, left hip/auxiliary then right hip/auxiliary; existing35D actor retains these encoders and IMU",
+      "table": "contracts/standing_geometry107_v1.json",
+      "table_sha256": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216",
+      "outputs": [
+        "body-relative wheel centers",
+        "physical knee included angles and rates",
+        "hip-to-wheel lengths and rates"
+      ],
+      "direction": "Negative knee angle rate means folding, positive means extension; leg-length rate is measured separately",
+      "relative_angle_numerical_margin_rad": 0.001,
+      "invalid": "More than1mrad outside the relative-angle lookup branch is invalid and supplies no folding/alignment shaping credit; within the numerical margin, interpolate at the physical endpoint and retain native error diagnostics; physical joint limits are unchanged",
+      "validation": "Independent full-link FK in CPU tests and native wheel/passive-joint truth in zero-PPO diagnostics; not real-robot encoder calibration"
+    },
+    "fold_target_deg": 40.0,
+    "fold_soft_band_deg": 3.0,
+    "fold_guidance_span_deg": 65.0,
+    "support_alignment_width_m": 0.1,
+    "fold_capture_release_power": 2.0,
+    "fold_release_rule": "Continuously fade the folding bonus as encoder-derived wheel support aligns below whole-robot COM; do not require full305mm height before releasing folded knees. Reward only, never an action sequence or motor takeover.",
+    "support_min_below_com_m": 0.03,
+    "belly_height_m": 0.173,
+    "position_cost_scale_m": 0.15,
+    "position_cost_free_radius_m": 0.1,
+    "rise_translation_authority": "User explicitly allows about10cm of translation during get-up while coordinating wheel velocity and hip/knee motors; no position penalty inside that radius",
+    "rise_progress_reward_per_second": 4.0,
+    "target_height_reward_per_second": 1.0,
+    "target_height_width_m": 0.06,
+    "height_error_cost_per_second": 4.0,
+    "level_error_scale_deg": 5.0,
+    "level_error_cost_per_second": 0.5,
+    "level_cost_min_lift_weight": 0.25,
+    "unrecovered_time_cost_per_second": 1.0,
+    "objective_limits_authority": "The5deg level scale is a continuous engineering reward scale, not a new hard acceptance threshold. Time cost stops only after actual stable recovery; the existing10s cold deadline remains an engineering screen.",
+    "large_excursion_termination_m": 0.5,
+    "excursion_limit_authority": "Engineering pilot containment, not a user-approved final in-place recovery limit",
+    "stable_seconds": 1.0,
+    "stable_tilt_deg": 10.0,
+    "stable_height_error_m": 0.02,
+    "stable_planar_speed_m_s": 0.08,
+    "stable_body_rate_rad_s": 0.5,
+    "stable_leg_speed_rad_s": 3.0,
+    "refall_tilt_deg": 25.0,
+    "friction_profiles": {
+      "baseline": {
+        "wheel": 0.7,
+        "ground": 0.5
+      },
+      "legacy_low_grip": {
+        "wheel": 0.1,
+        "ground": 0.5
+      }
+    },
+    "friction_provenance": "Fixed engineering comparison, not identified real tire coefficients",
+    "body_contact_during_rise": "Allowed; native impact impulse, mechanical, spring, closure, numerical and timeout protection retained",
+    "guidance": "Continuous state-based potential and dense folding/alignment rewards; no scripted targets, timed trajectory, fixed wheel speed, FSM motor takeover, teacher or donor",
+    "initialization": "New actor, new critic, empty Adam; trainable output bias from declared closed-chain42deg geometry and fixed opposite common rotations of0.6rad toward support below the COM. Physical disabled reset stays103deg then passively settles. No scripted sequence or runtime target hold; every output remains trainable.",
+    "initial_std_policy_order": [
+      0.3,
+      0.3,
+      0.3,
+      0.3,
+      0.2,
+      0.2
+    ],
+    "randomization": "wheel_leg_randomization_study_v2 profiles; retain original ground bands and explicitly record wheel-material hypothesis",
+    "evaluation": {
+      "seconds": 40.0,
+      "recovery_deadline_seconds": 10.0,
+      "post_completion_standing_seconds": 30.0,
+      "ignored_contiguous_support_loss_ms": 2,
+      "getup_xy_max_m": 0.1,
+      "getup_xy_limit_authority": "User explicitly allows about10cm during get-up; this pilot uses0.10m as its fixed screen and still reports actual peak displacement",
+      "standing_xy_max_m": 0.05,
+      "scope": "One standard prone family only; not diverse-fall or full thirteen-capability qualification"
+    },
+    "state_writes": "Episode reset only",
+    "hardware_ready": false,
+    "input_sha256": "63e351d1ceaa08171a92917c982f62b8d76fe19f0bdf2da944c762f681e01e92",
+    "input_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/probe_centered_fold_task001.json",
+    "friction_profile": "baseline",
+    "effective_wheel_ground_friction_range": [
+      0.575,
+      0.6
+    ]
+  },
+  "recovery_training_enabled": true,
+  "automatic_task_or_height_curriculum": false,
+  "terminal_evaluation": "Actual recovery completion, then30s standing, with all failures and raw1ms samples retained",
+  "final_objective": {
+    "acceptance": {
+      "file": "contracts/wheel_leg_acceptance_requirements_v2.json",
+      "sha256": "1e5d56d57e51351a0e033b0fcde767d491ce5018a40e78f93dcc5610c51a9895"
+    },
+    "curriculum": {
+      "file": "contracts/wheel_leg_separated_curriculum_v1.json",
+      "sha256": "b5ac6115c30edcf042d54ace09e9ebee784bb929faaef6fba24d3d8798ed0bca"
+    },
+    "randomization": {
+      "file": "contracts/wheel_leg_randomization_study_v2.json",
+      "sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "prone-fresh-six-axis-first-PPO-audit-v1",
+  "observed_utc": "2026-10-27T13:41:40.666902+00:00",
+  "source_commit": "b48a5139e9e0ffdf37cc214b36de7fe80930c1d3",
+  "source_archive_sha256": "55a67b0a298534a042b996e48ad9442569f4a1e3af83e633b8d720095419b160",
+  "new_PPO": 0,
+  "scope": "Read-only CPU proof of actual fresh PPO and all six trainable outputs; no behavior qualification",
+  "checks": {
+    "initial_Adam_empty": true,
+    "no_checkpoint_reads": true,
+    "no_teacher": true,
+    "new_actor_hash": true,
+    "new_critic_hash": true,
+    "all_six_head_weight_rows_updated": true,
+    "all_six_head_biases_updated": true,
+    "all17_Adam_states": true,
+    "first_Adam_clock": true,
+    "committed_source_matches": true
+  },
+  "all_checks_pass": true,
+  "head_row_max_abs_change": [
+    0.0021661706268787384,
+    0.003144404385238886,
+    0.0029146086890250444,
+    0.003426864044740796,
+    0.002717601368203759,
+    0.0023682345636188984
+  ],
+  "head_bias_abs_change": [
+    0.0004101991653442383,
+    0.0002021193504333496,
+    0.0018135309219360352,
+    0.0014151334762573242,
+    0.0008397758356295526,
+    0.0012092026881873608
+  ],
+  "optimizer_parameter_count": 17,
+  "optimizer_step": [
+    12.0
+  ],
+  "initialization": {
+    "schema": "scratch-ppo-initialization-v1",
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "actor_updates": 0,
+    "critic_updates": 0,
+    "optimizer_states": 0,
+    "actor_tensor_sha256": "5568f32f96d3879eebc065f4c8aa410956b3169ab440de71faa569a40b393c9d",
+    "critic_tensor_sha256": "bda1dba02131b4e68b7683403a164c7b3bdd6be32fbc6a74e4a3c53869950af0",
+    "actor_trainable_parameters": 29772,
+    "critic_trainable_parameters": 35585,
+    "output_bias_source": "authenticated closed-chain pre-lift geometry floor_knee42_42_orbit0.8_r0_p0; fixed trainable common rotations=[-0.6, 0.6]; all six outputs trainable, no scripted sequence",
+    "output_bias_policy_order": [
+      1.9039610624313354,
+      -0.6546810269355774,
+      -1.9060676097869873,
+      0.6525925993919373,
+      0.0,
+      0.0
+    ],
+    "initial_std_policy_order": [
+      0.3,
+      0.3,
+      0.3,
+      0.3,
+      0.2,
+      0.2
+    ],
+    "actor_class": "MLPModel",
+    "wheel_velocity_increment": false,
+    "separate_leg_velocity_feedback": false
+  }
+}
