@@ -13,7 +13,7 @@ from wheeled_tasks.chassis.scut_observation import CONTROL_FROM_POLICY
 def native_probe(env, steps, output):
     action = nominal_action(env).expand(env.num_envs, -1).clone()
     reset_q = env.bank_joints[env.initialization_pose_index, env.ids].expand(env.num_envs, -1)
-    target_q = env.bank_joints[env.initialization_target_pose_index, env.ids].expand(env.num_envs, -1)
+    target_q = env.initialization_target_motor_q.expand(env.num_envs, -1)
     control_action = action[:, CONTROL_FROM_POLICY]
     initial_legs, initial_wheels, _ = env.v5.decode(control_action, reset_q)
     target_error = initial_legs-target_q[:, list(env.v5.LEGS)]

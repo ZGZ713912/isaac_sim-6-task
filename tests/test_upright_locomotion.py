@@ -63,7 +63,7 @@ def prepare(tmp_path, profile=None, friction="baseline", *, prone=False):
     base = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(base)
     args = SimpleNamespace(output=tmp_path, bank=ROOT / "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
-        precise_objective=False, standing_failures=False, wheel_velocity_increment=True,
+        precise_objective=False, standing_failures=False, wheel_velocity_increment=not prone,
         static_load_initialization=not prone, contact_break_cost=None, leg_target_rate_cost=None,
         all_heights_after=512, num_envs=64, rollout_steps=128, seed=271027,
         randomization_study=ROOT / "contracts/wheel_leg_randomization_study_v2.json" if profile else None,
@@ -79,7 +79,9 @@ def test_prone_target_range_covers_rotation_without_changing_PD_or_motor_limits(
     cfg, task = prepare(tmp_path, "requested", prone=True)
     assert cfg["v5_control"] == dict(original, action_clip=16.)
     assert task["standard_prone"]["leg_action_clip"] == task["leg_action_clip"] == 16.
-    assert json.loads((tmp_path / "task_contract.json").read_text())["initial_pitch_range_deg"] == [0., 0.]
+    resolved = json.loads((tmp_path / "task_contract.json").read_text())
+    assert resolved["initial_pitch_range_deg"] == [0., 0.]
+    assert resolved["wheel_action_parameterization"] == "learned_absolute_velocity_v1"
 
 
 @pytest.mark.parametrize("friction,expected", [("baseline", [.5, .6]), ("legacy_low_grip", [.2, .3])])
