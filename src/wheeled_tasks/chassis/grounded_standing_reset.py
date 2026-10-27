@@ -50,7 +50,7 @@ def grounded_pose(root, wheel_centers, wheel_quaternions, floor_z):
     return result, angle, gap
 
 
-def install(env):
+def install(env, *, include_motion=False):
     """A labelled training/evaluation initialization; no writes inside step."""
     if hasattr(env, 'grounded_standing_reset'):
         raise ValueError('Standing placement may be installed once')
@@ -61,7 +61,10 @@ def install(env):
                  maximum_translation_m=0., maximum_roll_rad=0., preload_m=PRELOAD_M)
 
     def place(ids):
-        selected = ids[(~env.recovery_lane[ids]) & (env.pending_command[ids, :2].abs() < .01).all(-1)]
+        eligible = ~env.recovery_lane[ids]
+        if not include_motion:
+            eligible &= (env.pending_command[ids, :2].abs() < .01).all(-1)
+        selected = ids[eligible]
         if not len(selected):
             return
         root = env.robot.data.root_link_pose_w.torch[selected].clone()

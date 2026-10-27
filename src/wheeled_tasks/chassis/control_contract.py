@@ -9,6 +9,12 @@ from .preflight import control_decimation
 
 
 SCHEMA = "chassis-explicit-motor-control-v1"
+WHEEL_GEAR_RATIO = 15.62
+LEGACY_WHEEL_CONTROL_IDS = frozenset((
+    "v6-asset-capacity-control-v1", "v6-nominal-research-control-v1",
+    "v6-wheel-response-control-v1", "v6-wheel-response-control-200hz-v1",
+    "v6-wheel-response-control-policy200hz-v1", "flat-base-policy-200hz-control-v1",
+))
 ACTIVE_ORDER = ["L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3"]
 COARSE_TIMING = {"physics_dt": .005, "policy_dt": .02, "pc_control_dt": .005, "decimation": 4}
 COARSE_SCOPE = {"model": "200hz_feedback_pd_with_1ms_transport_impulse",
@@ -22,7 +28,7 @@ FINE_POLICY_200_TIMING = {"physics_dt": .001, "policy_dt": .005, "pc_control_dt"
 
 def declared_control_timing(control):
     if "simulation_timing_approximation" not in control:
-        if control.get("control_id") == "flat-base-policy-200hz-control-v1":
+        if control.get("control_id") in ("flat-base-policy-200hz-control-v1", "flat-base-policy-200hz-control-v2"):
             return dict(FINE_POLICY_200_TIMING)
         return {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
     scope = control["simulation_timing_approximation"]
@@ -66,10 +72,11 @@ def validate_chassis_control(control):
                 "curve_side", "curve_kind", "torque_reference", "scope", "source_note"}
     if set(wheel) != required:
         raise ValueError("Explicit wheel-output cap must not include an ambiguous motor-side curve or conversion")
-    # The RMCS hardware driver now sets 15.62 explicitly; this identity field stays
-    # 15.8 as frozen provenance and never scales the wheel-output torque cap. See
-    # docs/WHEEL_LEG_WHEEL_REDUCTION_20261026.md.
-    for key, expected in (("model", "M3508"), ("gear_ratio", 15.8), ("gearbox_efficiency", 1.),
+    # Only the named frozen controls retain their historical 15.8 identity.
+    # New controls use the full rotor-to-wheel ratio, matching the RMCS driver.
+    # A wheel-output cap must still never be multiplied by this ratio again.
+    ratio = 15.8 if control.get("control_id") in LEGACY_WHEEL_CONTROL_IDS else WHEEL_GEAR_RATIO
+    for key, expected in (("model", "M3508"), ("gear_ratio", ratio), ("gearbox_efficiency", 1.),
                           ("kd", .6), ("effort_limit", 4.5), ("curve_side", "wheel_output"),
                           ("torque_reference", "wheel_output"),
                           ("curve_kind", "software_cap_only_not_identified"),
