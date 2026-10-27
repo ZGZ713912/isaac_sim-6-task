@@ -351,6 +351,7 @@ class RobustGetupEnv(ChassisEnv):
     def step(self, actions):
         upright_task = self.getup_cfg.get("upright_locomotion")
         prone_task = self.getup_cfg.get("standard_prone")
+        tracking009 = self.getup_cfg.get("standing009_curriculum") is not None
         active_interval = ~self.passive.clone()
         previous = self.actions.clone()
         self.previous_actions.copy_(self.actions)
@@ -415,7 +416,7 @@ class RobustGetupEnv(ChassisEnv):
             for ids, view in self.contact_views:
                 matrix = wp.to_torch(view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
-            if upright_task is not None or prone_task is not None:
+            if upright_task is not None or prone_task is not None or tracking009:
                 nonwheel_force_peak = torch.maximum(nonwheel_force_peak,
                     self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1))
                 upright_leg_speed_square += self.robot.data.joint_vel.torch[:, self.ids][
@@ -491,7 +492,7 @@ class RobustGetupEnv(ChassisEnv):
         self.recovered_after_push |= recovered & self.in_motion_fall & self.push_selected
         # A fall while moving starts recovery in-place; never reset the body.
         fallen = ~self.passive & ((gravity[:, 2] > -.7) | (height < .13))
-        if upright_task is not None:
+        if upright_task is not None or tracking009:
             fallen.zero_()
         self.in_motion_fall |= fallen & ~self.recovery_lane & (elapsed >= self.getup_cfg["push_start_seconds"])
         self.recovery_active |= fallen
@@ -746,6 +747,8 @@ class RobustGetupEnv(ChassisEnv):
                 info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
                     upright_failures={key: value.clone() for key, value in upright_failures.items()},
                     upright_reward_terms={key: value.clone() for key, value in upright_terms.items()})
+            if tracking009:
+                info["diagnostics"]["nonwheel_force_peak_n"] = nonwheel_force_peak.clone()
             if prone_task is not None:
                 info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},
                     prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),

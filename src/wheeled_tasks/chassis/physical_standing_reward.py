@@ -23,7 +23,7 @@ def motion_density(velocity, torque_delta):
     return speed, slew
 
 
-def install(env, *, speed_weight=2., contact_weight=8., torque_weight=.05):
+def install(env, *, speed_weight=2., contact_weight=8., torque_weight=.05, include_motion=False):
     if hasattr(env, "physical_standing_reward"):
         raise ValueError("Physical standing objective already installed")
     if not all(0. <= value <= 16. for value in (speed_weight, contact_weight, torque_weight)):
@@ -51,7 +51,9 @@ def install(env, *, speed_weight=2., contact_weight=8., torque_weight=.05):
 
     def step(actions):
         nonlocal inside
-        requested = (~env.recovery_lane) & ~env.passive & (env.pending_command[:, :2].abs() < .01).all(-1)
+        requested = (~env.recovery_lane) & ~env.passive
+        if not include_motion:
+            requested &= (env.pending_command[:, :2].abs() < .01).all(-1)
         # A reset has zero actuator state; do not charge a cross-episode delta.
         previous_torque[env.episode_length_buf == 0] = 0.
         velocities.clear()
@@ -98,4 +100,6 @@ def install(env, *, speed_weight=2., contact_weight=8., torque_weight=.05):
     env.physical_standing_reward = dict(version="physical-standing-cost-v1", physical_dt_s=.001,
         speed_scale_rad_s=.2, torque_delta_scale_nm=2., speed_weight=speed_weight,
         contact_weight=contact_weight, torque_weight=torque_weight, deadband_rad_s=0., startup_grace_s=0.)
+    if include_motion:
+        env.physical_standing_reward["scope"] = "all upright tracking requests; original standing weights and samples"
     return env.physical_standing_reward
