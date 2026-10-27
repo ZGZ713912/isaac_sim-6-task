@@ -60,6 +60,28 @@ def test_horizontal_alignment_above_the_com_does_not_count_as_support_below_it()
     assert error[0] == 0. and error[1] > .2
 
 
+def test_rising_toward305mm_does_not_lose_dense_reward_before_completion_credit():
+    heights = torch.tensor([SPEC["belly_height_m"], .20, .23, .26, .285, .305])
+    gravity = torch.tensor([[0., 0., -1.]]).expand(len(heights), -1)
+    _, scores = route_potential(gravity, torch.full((len(heights), 2), 43.),
+        torch.zeros_like(heights), heights, SPEC)
+    terms = density(gravity, torch.zeros(len(heights), 3), torch.zeros(len(heights), 3),
+        torch.zeros(len(heights), 6), torch.zeros_like(heights), torch.zeros_like(heights),
+        torch.zeros_like(heights, dtype=torch.bool), SPEC, route_scores=scores)
+    # Completion has not happened in any row. This checks the transition goal,
+    # independently of the sparse stable-standing bonus and potential shaping.
+    assert (torch.diff(sum(terms.values())) > 0.).all()
+
+
+def test_height_credit_does_not_prefer_overshooting305mm():
+    gravity = torch.tensor([[0., 0., -1.]]).repeat(2, 1)
+    _, scores = route_potential(gravity, torch.full((2, 2), 64.), torch.zeros(2),
+                               torch.tensor([.305, .42]), SPEC)
+    terms = density(gravity, torch.zeros(2, 3), torch.zeros(2, 3), torch.zeros(2, 6),
+                    torch.zeros(2), torch.zeros(2), torch.zeros(2, dtype=torch.bool), SPEC, route_scores=scores)
+    assert sum(terms.values())[0] > sum(terms.values())[1]
+
+
 def test_raising_from_folded_belly_to_unfolded_standing_increases_route_potential():
     assert potential(40., .02)[0] < potential(100., .02, standing=True)[0]
 

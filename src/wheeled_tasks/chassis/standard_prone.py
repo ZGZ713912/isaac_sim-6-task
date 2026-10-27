@@ -33,12 +33,13 @@ def route_potential(gravity, knee_deg, support_error_m, height, spec, geometry_v
         aligned = aligned * geometry_valid
     lift = ((height - spec["belly_height_m"]) / (spec["target_height_m"] - spec["belly_height_m"])).clamp(0., 1.)
     folding_weight = 1. - lift
-    standing_height = torch.exp(-((height - spec["target_height_m"]) / .06).square())
+    standing_height = torch.exp(-((height - spec["target_height_m"]) / spec["target_height_width_m"]).square())
     # A belly-grounded body already has upright IMU gravity. Use actual lift,
     # rather than attitude alone, to fade the folding guidance during rising.
     potential = 4.*up + folding_weight*folded*(1.+aligned) + 2.*up*aligned + 8.*up*lift + up*standing_height
     return potential, dict(fold_score=folded, support_alignment=aligned, upright_score=up,
-                           folding_guidance_weight=folding_weight, lift_progress=lift)
+                           folding_guidance_weight=folding_weight, lift_progress=lift,
+                           standing_height_score=standing_height)
 
 
 def stable(gravity, height, omega, velocity, wheel_contact, leg_velocity, spec):
@@ -61,5 +62,7 @@ def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stabl
     if route_scores is not None:
         weight = route_scores["folding_guidance_weight"]
         result.update(folding_progress=2.*weight*route_scores["fold_score"],
-                      support_alignment=weight*route_scores["support_alignment"])
+                      support_alignment=weight*route_scores["support_alignment"],
+                      rise_progress=spec["rise_progress_reward_per_second"]*route_scores["upright_score"]*route_scores["lift_progress"],
+                      target_height=spec["target_height_reward_per_second"]*route_scores["upright_score"]*route_scores["standing_height_score"])
     return result

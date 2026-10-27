@@ -645,8 +645,13 @@ class RobustGetupEnv(ChassisEnv):
             info["log"].update({
                 "Prone/knee_angle_mean_deg": prone_route["knee_deg"].mean(),
                 "Prone/knee_angle_min_deg": prone_route["knee_deg"].min(),
+                "Prone/body_height_mean_m": height.mean(),
+                "Prone/body_height_population_peak_m": height.max(),
                 "Prone/support_com_alignment_mean_m": prone_route["support_error_m"].mean(),
+                "Prone/wheel_below_com_mean_m": prone_route["wheel_below_com_m"].mean(),
+                "Prone/xy_excursion_mean_m": prone_route["xy_excursion_m"].mean(),
                 "Prone/xy_excursion_peak_m": prone_route["xy_excursion_m"].max(),
+                "Prone/stable_fraction": stable.float().mean(),
                 "Prone/nonwheel_force_peak_n": nonwheel_force_peak.max(),
                 "Prone/large_excursion_events": prone_large_excursion.float().sum(),
                 "Prone/refall_events": prone_refall.float().sum()})
