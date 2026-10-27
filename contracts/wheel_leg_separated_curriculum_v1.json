@@ -1,0 +1,101 @@
+{
+  "schema": "wheel-leg-separated-curriculum-v1",
+  "requirements": "contracts/wheel_leg_acceptance_requirements_v2.json",
+  "randomization": "contracts/wheel_leg_randomization_study_v2.json",
+  "current_task": "contracts/wheel_leg_standard_prone_v1.json",
+  "fresh_training_required": true,
+  "old_checkpoint_resume_teacher_donor": false,
+  "progression": "Behavior evidence at fixed cases, not update count or average reward. Unimplemented phases cannot be selected or treated as complete.",
+  "stages": [
+    {
+      "id": "P0",
+      "goal": "Body normally facing up with chassis belly on the floor and all six motors disabled, then learn physical-knee folding near40deg, move support below the COM and coordinate all six motors to rise near the starting location",
+      "task_contract": "contracts/wheel_leg_standard_prone_v1.json",
+      "implementation": "available",
+      "capabilities": ["initial_recovery", "standing", "smoothness", "robustness"],
+      "gate": "Actual1s stable-completion event followed by30s standing, retained raw1ms contact and all later falls; measure full get-up XY excursion. One standard prone family never qualifies diverse-fall recovery.",
+      "guidance": "State-based reward shaping only, with no timed leg trajectory, fixed wheel program, FSM takeover or learned teacher"
+    },
+    {
+      "id": "U0",
+      "goal": "305mm standard grounded birth; balance and30s standing",
+      "task_mode": "balance",
+      "implementation": "available",
+      "capabilities": ["standing", "smoothness", "robustness"],
+      "gate": "All declared pitch starts, full30s, no fall/body contact, v2 support and5cm excursion; repeat independent seeds and domain profiles. Mid height only is partial standing evidence."
+    },
+    {
+      "id": "U1",
+      "goal": "Basic forward/reverse, left/right yaw, start and stop at305mm",
+      "task_mode": "basic_motion",
+      "implementation": "available",
+      "capabilities": ["low_speed_straight", "smoothness", "robustness"],
+      "gate": "Baseline evaluator is engineering screening only; straight-path, stopping and independent-seed full acceptance remain required."
+    },
+    {
+      "id": "U2",
+      "goal": "230/305/420mm standing, height transitions and four simultaneous translation/yaw quadrants; retainU0/U1",
+      "implementation": "planned_not_selectable",
+      "capabilities": ["standing", "four_direction_arcs", "standing_height_change", "moving_height_change", "smoothness", "robustness"]
+    },
+    {
+      "id": "U3",
+      "goal": "High forward/reverse speed, abrupt zero-command braking, both100rpm body spins with>=80rpm and spinning height changes; retain all previous tasks",
+      "implementation": "planned_not_selectable",
+      "capabilities": ["high_speed_straight", "stationary_spin", "spinning_height_change", "high_speed_braking", "smoothness", "robustness"]
+    },
+    {
+      "id": "R0",
+      "goal": "Separate six-motor RL self-righting task with its own actor, critic, reward, allowed temporary body contacts, and stable-completion event",
+      "implementation": "historical_task_exists_new_campaign_not_bound",
+      "capabilities": ["initial_recovery", "smoothness", "robustness"],
+      "initial_states": ["front", "back", "left", "right", "inverted", "compound", "asymmetric_legs"],
+      "must_retain": ["mechanical_limits", "closed_chain_gap", "impact_impulse", "numerical_validity", "timeout"],
+      "forbidden": "Scripted/FSM recovery, old learned donor, or using upright contact-death rules before recovery completion"
+    },
+    {
+      "id": "I0",
+      "goal": "Measured handoff after real recovery completion; genuine in-motion falls and resumption of forward/reverse/arcs/spin requests",
+      "implementation": "planned_not_selectable",
+      "capabilities": ["initial_recovery", "moving_fall_recovery", "smoothness", "robustness"],
+      "gate": "One immutable final controller checkpoint/bundle containing the exact actors and handoff configuration; test the integrated behavior, never combine best subscores from different generations."
+    }
+  ],
+  "domain_sequence": {
+    "applies_to": "Standard-prone, every available upright stage and later recovery/integration stages",
+    "profiles": ["nominal", "sensors_only", "motor_only", "mass_com_only", "inertia_only", "friction_only", "timing_only", "requested"],
+    "amplitude_strengths": [0.25, 0.5, 1.0],
+    "discrete_timing": "Use exactly the study contract; fractional amplitude strength does not continuously scale5ms policy delays",
+    "final_strength": 1.0,
+    "nominal_rehearsal_fraction": 0.25,
+    "fixed_leg_PD_and_spring_scale": 1.0,
+    "independent_inertia_final_range": [0.94, 1.06],
+    "imu_wobble": false,
+    "legacy_low_grip_required_in_final_matrix": true,
+    "high_grip_baseline_is_not_a_low_grip_qualification": true,
+    "population_rule": "Report actual randomized and nominal sample counts. The75percent training mask cannot substitute for a fully randomized held-out test."
+  },
+  "final_capability_ids": [
+    "initial_recovery", "moving_fall_recovery", "standing", "low_speed_straight", "high_speed_straight",
+    "stationary_spin", "four_direction_arcs", "standing_height_change", "moving_height_change",
+    "spinning_height_change", "high_speed_braking", "smoothness", "robustness"
+  ],
+  "final_evidence": {
+    "same_frozen_checkpoint_or_controller_bundle": true,
+    "independent_evaluation_seeds": true,
+    "nominal_single_group_and_combined_domains": true,
+    "full_randomized_population_additional_to_training_mask": true,
+    "raw_1ms_contact_and_clearance": true,
+    "contact_start": "Explicit initialized-standing start or actual logged recovery completion; never move the start past a later fall",
+    "ignore_each_contiguous_loss_at_most_ms": 2,
+    "actual_body_spin_target_rpm": 100,
+    "actual_body_spin_minimum_rpm": 80,
+    "leg_wheel_coordination_measurement": true,
+    "unmeasured_is_pass": false,
+    "curves": "RSL-RL TensorBoard events only",
+    "simulation_and_hardware_separate": true,
+    "unspecified_numeric_limits": "Freeze engineering limits before testing and label them as engineering choices, never as user-approved thresholds"
+  },
+  "status": "Standard-prone, upright foundation and domain entries implemented; advanced upright stages and new integrated campaign remain pending native behavior qualification",
+  "hardware_ready": false
+}

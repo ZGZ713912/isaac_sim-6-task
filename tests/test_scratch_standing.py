@@ -64,6 +64,16 @@ def test_existing_adam_state_is_rejected():
         initialize_fresh(algorithm, torch.zeros(6))
 
 
+def test_prone_exploration_is_explicit_fresh_and_does_not_inherit_standing_micro_noise():
+    algorithm, _ = make_algorithm(261001)
+    std = [.2]*4 + [.05]*2
+    proof = initialize_fresh(algorithm, torch.zeros(6), initial_std=std)
+    torch.testing.assert_close(algorithm.actor.distribution.log_std_param.exp(), torch.tensor(std))
+    assert proof["initial_std_policy_order"] == std and not algorithm.optimizer.state
+    with pytest.raises(ValueError, match="exploration"):
+        initialize_fresh(algorithm, torch.zeros(6), initial_std=[.01]*5 + [float("nan")])
+
+
 def test_normalized_models_are_fresh_and_store_their_own_statistics():
     algorithm, proof = make_algorithm(261001, normalize=True)
     assert algorithm.actor.obs_normalization and algorithm.critic.obs_normalization

@@ -42,18 +42,22 @@ def tensor_hash(state):
     return digest.hexdigest()
 
 
-def initialize_fresh(algorithm, nominal_action, *, output_bias_source=None):
+def initialize_fresh(algorithm, nominal_action, *, output_bias_source=None, initial_std=None):
     if algorithm.optimizer.state:
         raise ValueError("Scratch training requires empty Adam state")
     if not all(p.requires_grad for model in (algorithm.actor, algorithm.critic) for p in model.parameters()):
         raise ValueError("Scratch actor and critic must be fully trainable")
+    initial_std = [.01]*4 + [.05]*2 if initial_std is None else initial_std
+    std = nominal_action.new_tensor(initial_std)
+    if std.shape != (6,) or not torch.isfinite(std).all() or (std < .003).any() or (std > .3).any():
+        raise ValueError("Fresh six-axis exploration must be within the declared0.003..0.3 distribution range")
     layers = [layer for layer in algorithm.actor.mlp.modules() if isinstance(layer, torch.nn.Linear)]
     with torch.no_grad():
         layers[-1].weight.mul_(.01)
         # This bias is derived from declared mechanics, never from a policy.
         # It remains an ordinary fully trainable network weight.
         layers[-1].bias.copy_(nominal_action)
-        algorithm.actor.distribution.log_std_param.copy_(nominal_action.new_tensor([.01]*4 + [.05]*2).log())
+        algorithm.actor.distribution.log_std_param.copy_(std.log())
     return dict(schema="scratch-ppo-initialization-v1", checkpoint_loaded=False,
         teacher_loaded=False, actor_updates=0, critic_updates=0, optimizer_states=0,
         actor_tensor_sha256=tensor_hash(algorithm.actor.state_dict()),
@@ -62,4 +66,4 @@ def initialize_fresh(algorithm, nominal_action, *, output_bias_source=None):
         critic_trainable_parameters=sum(p.numel() for p in algorithm.critic.parameters()),
         output_bias_source=(output_bias_source or "feasible 0.305 m reset joint geometry; all six outputs trainable"),
         output_bias_policy_order=nominal_action.cpu().tolist(),
-        initial_std_policy_order=[.01]*4 + [.05]*2)
+        initial_std_policy_order=[float(v) for v in initial_std])
