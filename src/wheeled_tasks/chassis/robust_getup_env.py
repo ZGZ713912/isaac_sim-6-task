@@ -648,6 +648,12 @@ class RobustGetupEnv(ChassisEnv):
                 "Prone/large_excursion_events": prone_large_excursion.float().sum(),
                 "Prone/refall_events": prone_refall.float().sum()})
             info["log"]["Prone/invalid_disabled_start_events"] = prone_invalid_start.float().sum()
+            info["log"].update({
+                "ProneEncoder/geometry_valid_fraction": prone_route["encoder_valid"].float().mean(),
+                "ProneEncoder/knee_rate_abs_mean_deg_s": prone_route["encoder_knee_rate_deg_s"].abs().mean(),
+                "ProneEncoder/leg_length_rate_abs_mean_m_s": prone_route["encoder_leg_length_rate_m_s"].abs().mean(),
+                "ProneEncoder/wheel_fk_error_peak_m": prone_route["encoder_vs_native_wheel_error_m"].max(),
+                "ProneEncoder/knee_error_peak_deg": prone_route["encoder_vs_passive_knee_error_deg"].max()})
         info["log"].update({
             "Standing/wheel_clearance_peak_m": wheel_clearance_peak[standing_request].max() if standing_request.any() else gap_peak.new_zeros(()),
             "Standing/dual_support_fraction": (wheel_contact_fraction[standing_request] == 1.).all(-1).float().mean() if standing_request.any() else gap_peak.new_zeros(()),

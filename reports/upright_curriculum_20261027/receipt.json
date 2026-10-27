@@ -1,0 +1,164 @@
+{
+  "schema": "wheel-leg-separated-curriculum-receipt-v1",
+  "recorded_utc": "2026-10-27T08:32:42.544939+00:00",
+  "user_confirmed_reset": "Normally facing up, chassis belly touching the floor, six motors disabled before RL enable",
+  "current_focus": "Encoder-derived folding toward physical40deg, wheel support below COM, near-place six-motor RL rise; independent upright task",
+  "source": {
+    "worktree": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train",
+    "branch": "codex/standard-prone-training",
+    "commit": "65d4ebd3740d94cb9553c859fd8a0d930445f9bb",
+    "pushed": false,
+    "original_workspace_index_modified_by_this_training_task": false
+  },
+  "source_contracts": {
+    "contracts/wheel_leg_standard_prone_v1.json": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/contracts/wheel_leg_standard_prone_v1.json",
+      "sha256": "fdc6e1280b28065f69252210a03d3a6870c71cf703750c2359e705b1d493bc24"
+    },
+    "contracts/wheel_leg_upright_locomotion_v1.json": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/contracts/wheel_leg_upright_locomotion_v1.json",
+      "sha256": "f4eb7af8792e3532229ba93f22852e6020b0263c5e0707d8616737f235f1aa7c"
+    },
+    "contracts/wheel_leg_separated_curriculum_v1.json": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/contracts/wheel_leg_separated_curriculum_v1.json",
+      "sha256": "b5ac6115c30edcf042d54ace09e9ebee784bb929faaef6fba24d3d8798ed0bca"
+    },
+    "contracts/wheel_leg_acceptance_requirements_v2.json": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/contracts/wheel_leg_acceptance_requirements_v2.json",
+      "sha256": "1e5d56d57e51351a0e033b0fcde767d491ce5018a40e78f93dcc5610c51a9895"
+    },
+    "contracts/wheel_leg_randomization_study_v2.json": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+      "sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157"
+    }
+  },
+  "targeted_tests": {
+    "passed": 85,
+    "failed": 0,
+    "scope": "Nine targeted task, geometry, contact, randomization and wheel-mechanics test modules; not the whole repository"
+  },
+  "final_native_probe": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/belly_final_native_requested_lowgrip001/native_probe.json",
+    "sha256": "27be8e42e0f0b0cb1d7e9f7ef0547c4d487107f02e1f4027f527cc39d1fc78b7",
+    "all_checks_pass": true,
+    "checks": {
+      "native_rates": true,
+      "all_births_standard_prone": true,
+      "initial_motor_targets_match_prone_pose": true,
+      "initial_leg_exploration_is_not_clipped": true,
+      "independent_guided_reward": true,
+      "all_1ms_contact_samples": true,
+      "finite_sensors_and_route": true,
+      "encoder_fk_agrees_with_independent_native_geometry": true,
+      "passive_samples_excluded_from_learning": true,
+      "disabled_birth_has_zero_six_motor_effort": true,
+      "failure_does_not_bootstrap": true,
+      "actual_enable_pose_is_upright_belly_grounded": true,
+      "native_body_contact_was_permitted": true,
+      "actor_control_interval_reached": true,
+      "friction_within_declared_band": true
+    },
+    "num_envs": 256,
+    "new_PPO": 0,
+    "randomization": "requested strength1, legacy_low_grip; wiring only, not learned robustness"
+  },
+  "old_pilot": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot001_belly_encoder_dr025_u64_e64",
+    "status": "stopped",
+    "completed_updates": 4,
+    "checkpoint": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot001_belly_encoder_dr025_u64_e64/model_stopped.pt",
+      "sha256": "b21ed54cb2da6bd79eca15270e21a1f04c64573a9024e93af3b6ecb9b10d5942",
+      "updates": 4
+    },
+    "state": "Gracefully stopped once; no resume or donor used"
+  },
+  "correction_history": [
+    "Front90deg reset could invert during zero-motor settling; replaced following user-confirmed upright belly-grounded definition.",
+    "Lookup1e-5rad endpoint check rejected tiny native residuals; explicit1mrad numerical margin retains physical knee limits and native diagnostics.",
+    "A diagnostic initially passed policy-order actions into the control-order decoder. Corrected; failed reports remain intact.",
+    "Base mechanism range3 is overridden by existing native recovery range16. The proposed runtime-clipping root cause was withdrawn; range16 is now explicit in both prone configuration layers."
+  ],
+  "current_pilot": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot002_belly_encoder_dr025_u16_e256",
+    "status": "training",
+    "pid": 1618474,
+    "start_ticks": 7414110,
+    "requested_updates": 16,
+    "completed_updates": 4,
+    "checkpoint_reads": [],
+    "randomization": "requested strength0.25,256 environments, baseline wheel-material hypothesis",
+    "cold_evaluation": null
+  },
+  "all_final_capabilities": [
+    {
+      "id": "initial_recovery",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "moving_fall_recovery",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "standing",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "low_speed_straight",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "high_speed_straight",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "stationary_spin",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "four_direction_arcs",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "standing_height_change",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "moving_height_change",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "spinning_height_change",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "high_speed_braking",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "smoothness",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "robustness",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    }
+  ],
+  "new_PPO_completed_total": 8,
+  "curves": "Existing RSL TensorBoard events only; no local TensorBoard server started",
+  "hardware_ready": false,
+  "full_capability_qualified": false
+}

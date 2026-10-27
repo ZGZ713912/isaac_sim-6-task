@@ -7,15 +7,26 @@ import torch
 from review_standing_acceptance import support_review
 from train_scratch_standing import digest, nominal_action, write_json
 from wheeled_tasks.chassis.standard_prone import valid_disabled_start
+from wheeled_tasks.chassis.scut_observation import CONTROL_FROM_POLICY
 
 
 def native_probe(env, steps, output):
     action = nominal_action(env).expand(env.num_envs, -1).clone()
+    reset_q = env.bank_joints[env.initialization_pose_index, env.ids].expand(env.num_envs, -1)
+    control_action = action[:, CONTROL_FROM_POLICY]
+    initial_legs, initial_wheels, _ = env.v5.decode(control_action, reset_q)
+    target_error = initial_legs-reset_q[:, list(env.v5.LEGS)]
+    target_error = torch.atan2(target_error.sin(), target_error.cos())
     checks = dict(native_rates=env.dt == .001 and env.policy_dt == .005,
         all_births_standard_prone=bool(env.recovery_lane.all()),
-        initial_motor_targets_match_prone_pose=True)
+        initial_motor_targets_match_prone_pose=bool(target_error.abs().max() < 1e-5 and initial_wheels.abs().max() == 0.))
+    checks["initial_leg_exploration_is_not_clipped"] = bool(
+        (control_action[:, list(env.v5.LEGS)].abs()+3.*env.prone_task["initial_std_policy_order"][0]
+         < env.v5.action_bounds[list(env.v5.LEGS)]).all())
     rows, trace = [], {key: [] for key in ("knee_deg", "xy_excursion_m", "support_error_m", "passive", "terminated",
-                                         "gravity", "height", "enable_event", "settled_family", "belly_force_peak_n")}
+                                         "gravity", "height", "enable_event", "settled_family", "belly_force_peak_n",
+                                         "encoder_knee_rate_deg_s", "encoder_leg_length_rate_m_s", "encoder_wheel_body_m",
+                                         "encoder_valid", "encoder_vs_native_wheel_error_m", "encoder_vs_passive_knee_error_deg")}
     active_samples = 0
     body_contact_samples = 0
     for _ in range(steps):
@@ -28,8 +39,14 @@ def native_probe(env, steps, output):
             env.standing_contact_monitor.last["force"].shape == (5, env.num_envs, 2, 3))
         checks["finite_sensors_and_route"] = checks.get("finite_sensors_and_route", True) and all(
             bool(torch.isfinite(value).all()) for value in (*observation.values(), *route.values()))
+        checks["encoder_fk_agrees_with_independent_native_geometry"] = checks.get(
+            "encoder_fk_agrees_with_independent_native_geometry", True) and bool(
+                route["encoder_vs_native_wheel_error_m"].max() < .003
+                and route["encoder_vs_passive_knee_error_deg"].max() < 1.)
         checks["passive_samples_excluded_from_learning"] = checks.get("passive_samples_excluded_from_learning", True) and not bool(
             (state["passive"] & extra["policy_learning_mask"]).any())
+        checks["disabled_birth_has_zero_six_motor_effort"] = checks.get("disabled_birth_has_zero_six_motor_effort", True) and bool(
+            (state["passive_motor_peak"][state["passive"]] == 0.).all())
         checks["failure_does_not_bootstrap"] = checks.get("failure_does_not_bootstrap", True) and not bool(
             (state["terminated"] & extra["policy_bootstrap_mask"]).any())
         enable = state["enable_event"]
@@ -79,7 +96,7 @@ def evaluate(env, actor, output, writer, completed):
     env.max_episode_length = horizon = round(evaluation["seconds"] / env.policy_dt)
     observation = env.get_observations()
     keys = ("position", "velocity", "gravity", "height", "time", "recovered_at", "terminated", "valid",
-            "force", "clearance", "dq", "torque", "gap", "knees", "support_error", "excursion", "completed_event")
+            "force", "clearance", "dq", "torque", "gap", "knees", "support_error", "excursion", "completed_event", "recovery_timeout")
     trace = {key: [] for key in keys}
     with torch.inference_mode():
         for _ in range(horizon):
@@ -87,15 +104,21 @@ def evaluate(env, actor, output, writer, completed):
             observation, _, _, extra = env.step(actor(observation))
             state, contact = extra["diagnostics"], env.standing_contact_monitor.last
             physical, route = env.physical_standing_last, state["prone_route"]
+            recovery_timeout = ((state["time"] >= evaluation["recovery_deadline_seconds"])
+                                & ~state["recovered"] & ~env.finished)
             values = dict(position=state["local_position"][:count], velocity=state["velocity"][:count],
                 gravity=state["gravity"][:count], height=state["height"][:count], time=state["time"][:count],
                 recovered_at=state["recovered_at"][:count], terminated=state["terminated"][:count], valid=valid,
                 force=contact["force"][:, :count], clearance=contact["clearance"][:, :count],
                 dq=physical["dq"][:, :count], torque=physical["torque"][:, :count], gap=state["gap"][:count],
                 knees=route["knee_deg"][:count], support_error=route["support_error_m"][:count],
-                excursion=route["xy_excursion_m"][:count], completed_event=state["recovery_completed_event"][:count])
+                excursion=route["xy_excursion_m"][:count], completed_event=state["recovery_completed_event"][:count],
+                recovery_timeout=recovery_timeout[:count])
             for key, value in values.items():
                 trace[key].append(value.cpu().numpy())
+            #40s total minus30s required standing leaves10s for completion.
+            # Preserve the timeout as a failed case, never select a later rise.
+            env.finished |= recovery_timeout
             if env.finished[:count].all():
                 break
     arrays = {key: np.stack(value) for key, value in trace.items()}
@@ -108,6 +131,7 @@ def evaluate(env, actor, output, writer, completed):
         events = np.flatnonzero(arrays["completed_event"][:, lane] & valid)
         row = dict(lane=lane, initialized_pose=env.prone_task["reset_pose_name"],
             recovery_completed=bool(len(events)), terminated=bool(arrays["terminated"][valid, lane].any()),
+            recovery_deadline_missed=bool(arrays["recovery_timeout"][valid, lane].any()),
             maximum_xy_excursion_from_prone_m=float(arrays["excursion"][valid, lane].max()),
             minimum_physical_knee_deg=float(arrays["knees"][valid, lane].min()),
             leg_speed_peak_rad_s=float(np.abs(arrays["dq"][valid, :, lane]).max()),

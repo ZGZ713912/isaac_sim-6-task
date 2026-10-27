@@ -21,13 +21,16 @@ def valid_disabled_start(gravity, height, belly_force, spec):
             & (height >= lo) & (height <= hi) & (belly_force > 2.))
 
 
-def route_potential(gravity, knee_deg, support_error_m, height, spec):
+def route_potential(gravity, knee_deg, support_error_m, height, spec, geometry_valid=None):
     up = ((1. - gravity[:, 2]) * .5).clamp(0., 1.)
     # A band next to the stop has no incentive to drive into/past the stop.
     fold_error = ((knee_deg - spec["fold_target_deg"] - spec["fold_soft_band_deg"]).clamp_min(0.)
                   + (spec["fold_target_deg"] - knee_deg).clamp_min(0.))
     folded = (1. / (1. + (fold_error / spec["fold_width_deg"]).square())).mean(-1)
     aligned = 1. / (1. + (support_error_m / spec["support_alignment_width_m"]).square())
+    if geometry_valid is not None:
+        folded = folded * geometry_valid
+        aligned = aligned * geometry_valid
     lift = ((height - spec["belly_height_m"]) / (spec["target_height_m"] - spec["belly_height_m"])).clamp(0., 1.)
     folding_weight = 1. - lift
     standing_height = torch.exp(-((height - spec["target_height_m"]) / .06).square())
