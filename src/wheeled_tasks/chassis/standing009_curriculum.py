@@ -8,7 +8,7 @@ from .precise_standing_reward import scores
 
 
 def validate(plan):
-    if (plan.get("schema") != "wheel-leg-009-reproduction-curriculum-v1"
+    if (plan.get("schema") not in ("wheel-leg-009-reproduction-curriculum-v1", "wheel-leg-009-reproduction-curriculum-v2")
             or plan.get("reference_commit") != "643a0de0d61f049cd0ffe2007d52dd85fffbf6e6"
             or (plan["policy_hz"], plan["physics_hz"], plan["num_envs"], plan["rollout_steps"]) != (200, 1000, 256, 128)
             or plan["standing_recipe"] != dict(precise_objective=True, normalize_observations=True,
@@ -25,6 +25,10 @@ def validate(plan):
             or plan["tracking"]["roles_per20"].count("stand") != 8
             or plan["domain_sequence"][-1] != dict(until_phase_update=1024, profile="requested", strength=1.)):
         raise ValueError("Keep standing rehearsal and the final requested domains")
+    if plan["schema"].endswith("-v2"):
+        from .standing009_retention import enabled
+        if not enabled(plan) or plan["repair"]["training_birth_height_m"] != .305 or not plan["repair"]["evaluation_limits_unchanged"]:
+            raise ValueError("Need explicit retention repair and unchanged acceptance")
     return deepcopy(plan)
 
 
@@ -103,15 +107,36 @@ def install_tracking_reward(env, plan):
                                    state["omega"], state["commands"], plan)
         physical = env.physical_standing_last
         costs = physical["paid_speed"] + physical["paid_contact"] + physical["paid_slew"]
-        exact = density*env.policy_dt-costs-3.*state["terminated"]
+        from .standing009_retention import costs as retention_costs, enabled
+        terms = retention_costs(state["local_position"][:, :2]-env.course_anchor_for_step,
+                                state["height"], state["commands"], plan)
+        paid_retention = (terms["position"]+terms["height"])*env.policy_dt
+        env.tracking009_last = dict(paid_retention=paid_retention,
+            paid_position=terms["position"]*env.policy_dt, paid_height=terms["height"]*env.policy_dt)
+        exact = density*env.policy_dt-costs-paid_retention-3.*state["terminated"]
         reward = torch.where(extra["policy_learning_mask"], exact, native_reward)
         extra["log"].update({"Reproduce009/score_density_per_second": density.mean(),
                             "Reproduce009/paid_reward_per_policy_step": reward.mean()})
+        if enabled(plan):
+            tilt = torch.acos((-state["gravity"][:, 2]).clamp(-1., 1.))*180./math.pi
+            extra["log"].update({"Reproduce009/position_cost_density_per_second": terms["position"].mean(),
+                "Reproduce009/height_cost_density_per_second": terms["height"].mean(),
+                "Reproduce009/height_mae_m": (state["height"]-state["commands"][:, 2]).abs().mean(),
+                "Reproduce009/tilt_mean_deg": tilt.mean()})
+            for role, mask in env.course_role_masks.items():
+                prefix = f"Reproduce009/role_{role}/"
+                extra["log"].update({prefix+"height_mae_m": (state["height"]-state["commands"][:, 2]).abs()[mask].mean(),
+                    prefix+"tilt_mean_deg": tilt[mask].mean(),
+                    prefix+"actual_vx_m_s": state["velocity"][mask, 0].mean(),
+                    prefix+"requested_vx_m_s": state["commands"][mask, 0].mean(),
+                    prefix+"actual_yaw_rad_s": state["omega"][mask, 2].mean(),
+                    prefix+"requested_yaw_rad_s": state["commands"][mask, 1].mean()})
         return obs, reward, done, extra
 
     env.step = step
-    env.precise_standing_reward = dict(version="009-exact-zero-command-with-explicit-tracking-v1",
-        zero_motion="precise_standing_reward.scores unchanged", physical_costs=env.physical_standing_reward)
+    env.precise_standing_reward = dict(version="009-tracking-retention-v2" if plan.get("repair") else "009-exact-zero-command-with-explicit-tracking-v1",
+        zero_motion="precise_standing_reward.scores unchanged", physical_costs=env.physical_standing_reward,
+        explicit_tracking_retention=deepcopy(plan.get("repair")))
 
 
 def install_tracking_failures(env):
@@ -122,7 +147,8 @@ def install_tracking_failures(env):
         obs, reward, done, extra = native_step(actions)
         state = extra["diagnostics"]
         tilted = state["gravity"][:, 2] > -math.cos(math.radians(20.))
-        wrong_height = (state["height"]-state["commands"][:, 2]).abs() > .025
+        from .standing009_retention import height_failure
+        wrong_height = height_failure(state["height"], state["commands"][:, 2], env.course_height_learning, env.course)
         body_contact = state["nonwheel_force_peak_n"] > 2.
         failure = (tilted | wrong_height | body_contact) & extra["policy_learning_mask"] & ~done
         reward = reward-3.*failure
@@ -142,6 +168,7 @@ def install_tracking_failures(env):
         return obs, reward, done, extra
 
     env.step = step
-    return dict(version="009-tracking-upright-failure-v1", tilt_deg=20., height_error_m=.025,
+    return dict(version="009-tracking-upright-failure-v2" if env.course.get("repair") else "009-tracking-upright-failure-v1", tilt_deg=20., height_error_m=.025,
+                height_transition_uses_physical_safety=bool(env.course.get("repair")),
                 nonwheel_force_n=2., failure_cost=3., state_writes="reset only")
 
