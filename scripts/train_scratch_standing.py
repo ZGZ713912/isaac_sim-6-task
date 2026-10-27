@@ -20,7 +20,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["OMNI_KIT_ACCEPT_EULA"] = "YES"
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-BASE_CONFIG = ROOT / "contracts/scratch_standing_base_mechanism_v1.json"
+BASE_CONFIG = ROOT / "contracts/scratch_standing_base_mechanism_v2.json"
 
 
 def digest(path):
@@ -101,6 +101,63 @@ def prepare(args):
         apply(changes, task, study)
         write_json(args.output / "randomization_study.resolved.json", study)
         (args.output / "randomization_study.input.json").write_bytes(study_path.read_bytes())
+    upright = None
+    if getattr(args, "upright_task", None) is not None:
+        from wheeled_tasks.chassis.upright_locomotion import resolve
+        spec_path = args.upright_task.resolve()
+        upright = resolve(json.loads(spec_path.read_text()), args.upright_mode, args.upright_friction_profile)
+        upright.update(input_sha256=digest(spec_path), input_file=str(spec_path))
+        friction = upright["friction_profiles"][upright["friction_profile"]]
+        for name in ("wheel_static_friction", "wheel_dynamic_friction"):
+            material[name] = friction["wheel"]
+        if study is None:
+            for name in ("ground_static_friction_range", "ground_dynamic_friction_range"):
+                material[name] = [friction["ground"], friction["ground"]]
+        ground_range = material["ground_static_friction_range"]
+        upright["effective_wheel_ground_friction_range"] = [(v + friction["wheel"])/2. for v in ground_range]
+        if study is not None:
+            study["effective_wheel_ground_friction_range"] = deepcopy(upright["effective_wheel_ground_friction_range"])
+            study["upright_material_override"] = dict(wheel_friction=friction["wheel"],
+                original_ground_range_preserved=True, provenance=upright["friction_provenance"])
+            task["randomization_study"] = deepcopy(study)
+            write_json(args.output / "randomization_study.resolved.json", study)
+        task.update(version="upright-locomotion-v1", upright_locomotion=upright,
+            reward_potential_gain=0., recovery_leg_speed_cost=0.,
+            recovery_family_weights=[1., 0., 0., 0., 0., 0., 0.],
+            motion_push_fraction=0., hold_motion_during_recovery=False,
+            episode_seconds=upright["episode_seconds"], curriculum_updates=1)
+        changes.update(episode_seconds=upright["episode_seconds"], record_diagnostics=True,
+            curriculum="upright_" + upright["mode"], contact_material=material)
+        (args.output / "upright_task.input.json").write_bytes(spec_path.read_bytes())
+    prone = None
+    if getattr(args, "standard_prone_task", None) is not None:
+        spec_path = args.standard_prone_task.resolve()
+        prone = json.loads(spec_path.read_text())
+        if prone.get("schema") != "wheel-leg-standard-prone-v1" or prone["fold_target_deg"] != 40.:
+            raise ValueError("Need the explicit physical-knee40deg standard prone task")
+        prone.update(input_sha256=digest(spec_path), input_file=str(spec_path),
+                     friction_profile=args.upright_friction_profile)
+        friction = prone["friction_profiles"][args.upright_friction_profile]
+        for name in ("wheel_static_friction", "wheel_dynamic_friction"):
+            material[name] = friction["wheel"]
+        if study is None:
+            for name in ("ground_static_friction_range", "ground_dynamic_friction_range"):
+                material[name] = [friction["ground"], friction["ground"]]
+        prone["effective_wheel_ground_friction_range"] = [
+            (v + friction["wheel"])/2. for v in material["ground_static_friction_range"]]
+        if study is not None:
+            study["effective_wheel_ground_friction_range"] = deepcopy(prone["effective_wheel_ground_friction_range"])
+            study["standard_prone_material_override"] = dict(wheel_friction=friction["wheel"],
+                original_ground_range_preserved=True, provenance=prone["friction_provenance"])
+            task["randomization_study"] = deepcopy(study)
+            write_json(args.output / "randomization_study.resolved.json", study)
+        task.update(version="standard-prone-in-place-v1", standard_prone=prone,
+            reward_potential_gain=3., reward_gamma=.9974905699336811, recovery_leg_speed_cost=0.,
+            motion_fraction=0., motion_push_fraction=0., hold_motion_during_recovery=True,
+            stable_seconds=prone["stable_seconds"], episode_seconds=prone["episode_seconds"], curriculum_updates=1)
+        changes.update(episode_seconds=prone["episode_seconds"], record_diagnostics=True,
+            curriculum="standard_prone_in_place", contact_material=material)
+        (args.output / "standard_prone_task.input.json").write_bytes(spec_path.read_bytes())
     static_prior = None
     if args.static_load_initialization:
         from wheeled_algo.standing_load_initialization import load_prior
@@ -113,7 +170,7 @@ def prepare(args):
         nominal_mechanism = dict(cfg, **changes)
         nominal_mechanism["contact_material"] = nominal_material
         static_prior = load_prior(reference, native_pair, mechanism=nominal_mechanism, bank_path=args.bank, root=ROOT)
-        if study is not None:
+        if study is not None or upright is not None:
             static_prior["domain_scope"] = dict(nominal_contact_material=nominal_material,
                 training_contact_material=deepcopy(material),
                 randomized_domain_native_validation=False,
@@ -130,7 +187,9 @@ def prepare(args):
     row["runtime"]["contact_material"] = deepcopy(material)
     row["runtime"]["modules"]["dynamics_randomization"] = changes["dynamics_randomization"]["enabled"]
     row["invocation"] = dict(num_envs=args.num_envs, seed=dict(rule="fixed", value=args.seed))
-    design["scope"] = "scratch_standing_mechanism_construction"
+    design["scope"] = ("standard_prone_mechanism_construction" if prone is not None else
+                       "upright_locomotion_mechanism_construction" if upright is not None else
+                       "scratch_standing_mechanism_construction")
     design["review_basis"] = dict(mechanism_config=str(BASE_CONFIG), sha256=digest(BASE_CONFIG),
         checkpoint_initialization="forbidden", task_contract=str(args.output / "task_contract.json"))
     write_json(args.output / "config/design.json", design)
@@ -142,6 +201,7 @@ def prepare(args):
         bank=str(args.bank), bank_sha256=digest(args.bank),
         mechanism_config_sha256=digest(args.output / "config/contract.json"),
         policy_hz=200, physics_hz=1000, action_order=["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
+        wheel_reduction=deepcopy(cfg["wheel_reduction"]),
         leg_position_scale_rad=.25, wheel_velocity_scale_rad_s=10.,
         state_writes="reset only", initial_pitch_range_deg=[-.5, .5],
         curriculum=dict(mid_height_until_update=args.all_heights_after, then_heights_m=[.23, .305, .42]),
@@ -165,11 +225,47 @@ def prepare(args):
             final_Gaussian_mean_before_sampling=True, action_filter=False, state_writes="reset only",
             scope="Fresh trainable six-output actor; no checkpoint, teacher or running target hold.")
         write_json(contract_path, value)
+    if upright is not None:
+        contract_path = args.output / "task_contract.json"
+        value = json.loads(contract_path.read_text())
+        value.update(schema="upright-locomotion-task-v1", upright_locomotion=upright,
+            recovery_training_enabled=False, automatic_task_or_height_curriculum=False,
+            curriculum=dict(mode=upright["mode"], reset_height_m=.305, automatic_changes=False),
+            current_scope="305mm upright " + upright["mode"] + "; recovery and full capability qualification excluded",
+            terminal_evaluation="30s cold upright cases; all failures and raw contact samples retained")
+        write_json(contract_path, value)
+    if prone is not None:
+        contract_path = args.output / "task_contract.json"
+        value = json.loads(contract_path.read_text())
+        value.update(schema="standard-prone-task-v1", standard_prone=prone,
+            recovery_training_enabled=True, automatic_task_or_height_curriculum=False,
+            curriculum=dict(reset_pose=prone["reset_pose_name"], target_height_m=.305, automatic_changes=False),
+            initial_pitch_range_deg=[90., 90.], current_scope="One standard prone family; guided in-place six-motor RL",
+            terminal_evaluation="Actual recovery completion, then30s standing, with all failures and raw1ms samples retained")
+        write_json(contract_path, value)
+    if upright is not None or prone is not None:
+        contract_path = args.output / "task_contract.json"
+        value = json.loads(contract_path.read_text())
+        value["final_objective"] = {
+            name: dict(file=relative, sha256=digest(ROOT / relative)) for name, relative in (
+                ("acceptance", "contracts/wheel_leg_acceptance_requirements_v2.json"),
+                ("curriculum", "contracts/wheel_leg_separated_curriculum_v1.json"),
+                ("randomization", "contracts/wheel_leg_randomization_study_v2.json"))}
+        for item in value["final_objective"].values():
+            target = args.output / "final_objectives" / Path(item["file"]).name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((ROOT / item["file"]).read_bytes())
+        write_json(contract_path, value)
     return cfg, task
 
 
 def sources():
     files = list((ROOT / "src").rglob("*.py")) + [Path(__file__)]
+    for name in ("train_upright_locomotion.py", "evaluate_upright_locomotion.py",
+                 "review_standing_acceptance.py", "train_standard_prone.py", "evaluate_standard_prone.py"):
+        path = ROOT / "scripts" / name
+        if path.is_file():
+            files.append(path)
     return {str(path.relative_to(ROOT)): digest(path) for path in sorted(files)}
 
 
@@ -192,7 +288,8 @@ def archive_committed_sources(source_hashes, output, *, root=ROOT):
 
 def nominal_action(env, height=.305):
     from wheeled_tasks.chassis.scut_observation import POLICY_FROM_CONTROL
-    pose = env.bank_joints[env.height_pose[height], env.ids]
+    index = getattr(env, "initialization_pose_index", env.height_pose[height])
+    pose = env.bank_joints[index, env.ids]
     delta = pose - env.v5.nominal
     result = delta.clone().zero_()
     result[list(env.v5.LEGS)] = torch.atan2(delta[list(env.v5.LEGS)].sin(), delta[list(env.v5.LEGS)].cos()) / .25
@@ -290,7 +387,7 @@ class TrainingStopped(Exception):
     pass
 
 
-def main():
+def main(*, upright_entry=False, prone_entry=False):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--bank", type=Path, default=ROOT / "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json")
@@ -325,7 +422,37 @@ def main():
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--fixed-target-probe", action="store_true")
     parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--upright-task", type=Path,
+        default=ROOT / "contracts/wheel_leg_upright_locomotion_v1.json" if upright_entry else None)
+    parser.add_argument("--standard-prone-task", type=Path,
+        default=ROOT / "contracts/wheel_leg_standard_prone_v1.json" if prone_entry else None)
+    parser.add_argument("--upright-mode", choices=("balance", "basic_motion"), default="balance")
+    parser.add_argument("--upright-friction-profile", choices=("baseline", "legacy_low_grip"), default="baseline")
+    parser.add_argument("--native-probe-steps", type=int, default=0,
+        help="Zero-PPO diagnostic of upright mechanics and task wiring; requires --updates 0")
+    if upright_entry or prone_entry:
+        parser.set_defaults(normalize_observations=True, wheel_velocity_increment=True,
+                            static_load_initialization=not prone_entry)
+    if prone_entry:
+        parser.set_defaults(rollout_steps=256)
     args = parser.parse_args()
+    if args.upright_task is not None and args.standard_prone_task is not None:
+        parser.error("Upright balance and standard-prone recovery are separate training tasks")
+    if args.standard_prone_task is not None and args.static_load_initialization:
+        parser.error("Standard-prone initialization uses its own reset geometry, not a standing-load bias")
+    if args.standard_prone_task is not None and args.rollout_steps < 256:
+        parser.error("Standard-prone first rollout needs256 steps to include control after native passive settling")
+    if args.upright_task is not None or args.standard_prone_task is not None:
+        if (args.precise_objective or args.standing_failures
+                or args.contact_break_cost is not None or args.leg_target_rate_cost is not None
+                or args.fixed_target_probe):
+            parser.error("Upright task owns its rewards, failures and contact review")
+        if args.upright_mode == "basic_motion" and args.num_envs < 35:
+            parser.error("Basic-motion cold evaluation needs at least35 environments")
+    if args.native_probe_steps < 0 or args.native_probe_steps > 2000:
+        parser.error("Native wiring probe must contain 1..2000 steps")
+    if args.native_probe_steps and ((args.upright_task is None and args.standard_prone_task is None) or args.updates):
+        parser.error("Native wiring probe requires an explicit task and --updates 0")
     if args.randomization_study is None and (args.randomization_profile is not None or args.randomization_strength != 1.):
         parser.error("Profile and strength require an explicit randomization study JSON")
     if args.updates < 0 or args.num_envs < 21 or args.num_envs > 256 or args.rollout_steps < 8:
@@ -356,7 +483,8 @@ def main():
     args.output.mkdir(parents=True, exist_ok=False)
     cfg, task = prepare(args)
     source_hashes = sources()
-    committed_source = None if args.preflight_only else archive_committed_sources(source_hashes, args.output)
+    committed_source = (None if args.preflight_only or args.native_probe_steps
+                        else archive_committed_sources(source_hashes, args.output))
     for name, expected in source_hashes.items():
         data = (ROOT / name).read_bytes()
         if hashlib.sha256(data).hexdigest() != expected:
@@ -373,6 +501,8 @@ def main():
     launcher = env = runner = audit = None
     start = time.monotonic()
     report = dict(schema="scratch-standing-progress-v1", status="starting",
+        training_entry=("standard-prone-v1" if args.standard_prone_task is not None else
+                        "upright-locomotion-v1" if args.upright_task is not None else "scratch-standing"),
         pid=os.getpid(), start_ticks=int(Path("/proc/self/stat").read_text().rsplit(")", 1)[1].split()[19]),
         started_utc=datetime.now(timezone.utc).isoformat(), seed=args.seed,
         completed_updates=0, optimizer_attempts=0, checkpoint_reads=[],
@@ -413,10 +543,30 @@ def main():
 
         torch.load = forbidden_load
         manifest = json.loads((ROOT / cfg["asset_directory"] / "manifest.json").read_text())
-        env = ScratchStandingEnv(cfg, manifest, load_chassis_control(ROOT / cfg["control_math_source"]), ROOT,
+        environment_class = ScratchStandingEnv
+        if args.upright_task is not None:
+            from wheeled_tasks.chassis.upright_locomotion_env import UprightLocomotionEnv
+            environment_class = UprightLocomotionEnv
+        if args.standard_prone_task is not None:
+            from wheeled_tasks.chassis.standard_prone_env import StandardProneEnv
+            environment_class = StandardProneEnv
+        env = environment_class(cfg, manifest, load_chassis_control(ROOT / cfg["control_math_source"]), ROOT,
             stage_name="speed", num_envs=args.num_envs, device=args.device, seed=args.seed, level=1.,
             run_role="train", bank=args.bank, settings=task, all_heights_after=args.all_heights_after)
-        report["physical_reward"] = install(env, speed_weight=args.speed_weight, contact_weight=args.contact_weight)
+        if args.upright_task is not None or args.standard_prone_task is not None:
+            # Retain raw 1ms observers; this task owns every reward term.
+            report["physical_reward"] = install(env, speed_weight=0., contact_weight=0., torque_weight=0.)
+        else:
+            report["physical_reward"] = install(env, speed_weight=args.speed_weight, contact_weight=args.contact_weight)
+        if args.native_probe_steps:
+            if args.standard_prone_task is not None:
+                from evaluate_standard_prone import native_probe
+            else:
+                from evaluate_upright_locomotion import native_probe
+            report["native_probe"] = native_probe(env, args.native_probe_steps, args.output)
+            report.update(status="native_probe_completed_unqualified", elapsed_s=time.monotonic()-start,
+                          new_PPO=0, learned_policy=False)
+            return
         if args.precise_objective:
             from wheeled_tasks.chassis.precise_standing_reward import install as install_precision
             report["precise_reward"] = install_precision(env)
@@ -442,13 +592,15 @@ def main():
         write_json(args.output / "agent_config.json", runner_cfg)
         runner = OnPolicyRunner(env, runner_cfg, log_dir=str(args.output), device=args.device)
         initial = nominal_action(env)
-        bias_source = None
+        bias_source = ("authenticated standard-prone reset joint geometry; all six outputs trainable"
+                       if args.standard_prone_task is not None else None)
         if args.static_load_initialization:
             from wheeled_algo.standing_load_initialization import initial_action
             prior = json.loads((args.output / "task_contract.json").read_text())["static_load_initialization"]
             initial = initial_action(initial, prior)
             bias_source = prior["source"]
-        report["initialization"] = initialize_fresh(runner.alg, initial, output_bias_source=bias_source)
+        report["initialization"] = initialize_fresh(runner.alg, initial, output_bias_source=bias_source,
+            initial_std=(task["standard_prone"]["initial_std_policy_order"] if args.standard_prone_task is not None else None))
         if args.static_load_initialization:
             report["initialization"]["static_load_initialization"] = prior
         report["initialization"]["actor_class"] = runner_cfg["actor"]["class_name"]
@@ -539,8 +691,17 @@ def main():
         report["status"] = "evaluating"
         write_json(args.output / "progress.json", report)
         runner.alg.eval_mode()
-        report["evaluation"] = evaluate(env, runner.alg.actor, args.output / "evaluation", runner.logger.writer,
-                                         report["completed_updates"], fixed_target=args.fixed_target_probe)
+        if args.standard_prone_task is not None:
+            from evaluate_standard_prone import evaluate as evaluate_prone
+            report["evaluation"] = evaluate_prone(env, runner.alg.actor, args.output / "evaluation",
+                runner.logger.writer, report["completed_updates"])
+        elif args.upright_task is not None:
+            from evaluate_upright_locomotion import evaluate as evaluate_upright
+            report["evaluation"] = evaluate_upright(env, runner.alg.actor, args.output / "evaluation",
+                runner.logger.writer, report["completed_updates"])
+        else:
+            report["evaluation"] = evaluate(env, runner.alg.actor, args.output / "evaluation", runner.logger.writer,
+                                             report["completed_updates"], fixed_target=args.fixed_target_probe)
         report.update(status="completed_unqualified", elapsed_s=time.monotonic()-start)
     except TrainingStopped:
         report.update(status="stopped", elapsed_s=time.monotonic()-start)

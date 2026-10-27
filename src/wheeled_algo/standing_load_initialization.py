@@ -6,6 +6,7 @@ six values initialize ordinary trainable weights, never a runtime controller.
 import hashlib
 import json
 import math
+from copy import deepcopy
 from pathlib import Path
 
 
@@ -48,6 +49,33 @@ def validate_values(reference, control):
                 biased_policy_raw=[biased[i] for i in POLICY_FROM_CONTROL])
 
 
+def verify_wheel_reduction_only(original, mechanism, root):
+    """Authenticate leg-static equivalence, never new-wheel motion validation."""
+    controls = []
+    for config in (original, mechanism):
+        path = Path(root) / config["control_math_source"]
+        if sha(path) != config["control_math_sha256"]:
+            raise ValueError("Static prior control SHA mismatch")
+        controls.append(json.loads(path.read_text()))
+    before, after = controls
+    if (before.get("control_id") != "flat-base-policy-200hz-control-v1"
+            or after.get("control_id") != "flat-base-policy-200hz-control-v2"
+            or before["actuators"]["wheel"]["gear_ratio"] != 15.8
+            or after["actuators"]["wheel"]["gear_ratio"] != 15.62
+            or after["actuators"]["wheel"]["curve_side"] != "wheel_output"):
+        raise ValueError("Static prior control change is not the declared wheel reduction")
+    normalized = deepcopy(after)
+    for key in ("control_id", "uncertainty_note"):
+        normalized[key] = before[key]
+    for key in ("gear_ratio", "source_note"):
+        normalized["actuators"]["wheel"][key] = before["actuators"]["wheel"][key]
+    if normalized != before:
+        raise ValueError("Static prior control change alters gains, caps or other physics")
+    return dict(source_control_sha256=original["control_math_sha256"],
+        control_sha256=mechanism["control_math_sha256"], wheel_gear_ratio=15.62,
+        scope="Nominal leg-static bias only; no new-wheel motion or response validation")
+
+
 def load_prior(reference_path, pair_path, *, mechanism, bank_path, root):
     reference_path, pair_path, root = Path(reference_path), Path(pair_path), Path(root)
     reference = json.loads(reference_path.read_text())
@@ -60,10 +88,13 @@ def load_prior(reference_path, pair_path, *, mechanism, bank_path, root):
     if len(source_configs) != 1 or source_banks != [sha(bank_path)]:
         raise ValueError("Static reference must bind the current reset geometry")
     original = json.loads(source_configs[0].read_text())
-    for key in ("asset_directory", "asset_manifest_sha256", "v5_control", "control_math_sha256", "contact_material",
+    for key in ("asset_directory", "asset_manifest_sha256", "v5_control", "contact_material",
                 "physics_dt", "policy_dt"):
         if original[key] != mechanism[key]:
             raise ValueError("Static prior mechanics differ: " + key)
+    reduction = None
+    if original["control_math_sha256"] != mechanism["control_math_sha256"]:
+        reduction = verify_wheel_reduction_only(original, mechanism, root)
     pair = json.loads(pair_path.read_text())
     if (pair.get("schema") != "scratch-static-load-native-pair-v1" or pair.get("all_checks_pass") is not True
             or not pair.get("checks") or not all(pair["checks"].values()) or pair.get("new_PPO") != 0
@@ -80,10 +111,13 @@ def load_prior(reference_path, pair_path, *, mechanism, bank_path, root):
         modes.append(result["diagnostic_target"])
     if sorted(modes) != ["constant_geometry", "constant_geometry_plus_offline_static_load_over_Kp"]:
         raise ValueError("Need both native constant-target arms")
-    return dict(schema="scratch-static-load-initialization-v1", reference_sha256=sha(reference_path),
+    prior = dict(schema="scratch-static-load-initialization-v1", reference_sha256=sha(reference_path),
         native_pair_sha256=sha(pair_path), **values, runtime_compensation=False, all_outputs_trainable=True,
         source="nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
         scope="Startup initialization prior; no standing, robustness or hardware qualification")
+    if reduction is not None:
+        prior["wheel_reduction_migration"] = reduction
+    return prior
 
 
 def initial_action(nominal, prior):

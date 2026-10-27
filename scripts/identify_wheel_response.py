@@ -22,9 +22,39 @@ RUNS = {"p06": ("run_20260928T100509Z", .6),
         "p04": ("run_20260928T140705Z", .4)}
 PARAMETERS = ("effective_inertia_kg_m2", "coulomb_positive_nm",
               "coulomb_negative_nm", "viscous_nm_per_rad_s")
+WHEEL_GEAR_RATIO = 15.62
+RECORDED_GEAR_RATIO = 15.8  # The fixed 2026-09-28 RUNS above, not new recordings.
 
 
-def load_run(root: Path, name: str) -> tuple[dict, list, dict]:
+def recording_scale(recorded_gear_ratio, gear_ratio):
+    """Change the API's output-unit calibration once, preserving shaft power.
+
+    This is a coordinate correction of a recording. It does not identify the
+    inertia, friction or torque-speed envelope of replacement hardware.
+    """
+    for value in (recorded_gear_ratio, gear_ratio):
+        if type(value) not in (int, float) or not np.isfinite(value) or value <= 0:
+            raise ValueError("Wheel gear ratios must be finite and positive")
+    torque = gear_ratio / recorded_gear_ratio
+    return dict(recorded_gear_ratio=recorded_gear_ratio, gear_ratio=gear_ratio,
+                angle_and_speed=1. / torque, torque=torque, velocity_p=torque**2)
+
+
+def rescale_recorded_outputs(data, scale):
+    """Only columns 4/5 are wheels in the recorded six-axis API order."""
+    for key in ("q_api", "dq_api"):
+        data[key] = data[key].copy()
+        data[key][:, 4:6] *= scale["angle_and_speed"]
+    for key in ("tau_frame_api", "torque_fb_api"):
+        data[key] = data[key].copy()
+        data[key][:, 4:6] *= scale["torque"]
+    data["wheel_velocity_target_api"] = data["wheel_velocity_target_api"] * scale["angle_and_speed"]
+    return data
+
+
+def load_run(root: Path, name: str, *, recorded_gear_ratio=RECORDED_GEAR_RATIO,
+             gear_ratio=WHEEL_GEAR_RATIO) -> tuple[dict, list, dict]:
+    scale = recording_scale(recorded_gear_ratio, gear_ratio)
     run = root / name
     old = json.loads((run / "fit/wheel_fit.json").read_text())
     plan_path = run / "trajectory-plan.json"
@@ -40,16 +70,15 @@ def load_run(root: Path, name: str) -> tuple[dict, list, dict]:
         raw = source["feedback_frame_bytes"][active, 32:48].reshape(-1, 2, 8).astype(np.int32)
     rpm = raw[:, :, 2] * 256 + raw[:, :, 3]
     rpm = np.where(rpm >= 32768, rpm - 65536, rpm)
-    # 2026-09-29 bags used the then-current 15.8 driver scale; RMCS now sets
-    # 15.62, so re-recorded data will not satisfy this 1e-9 check unchanged.
-    # See docs/WHEEL_LEG_WHEEL_REDUCTION_20261026.md.
-    data["speed_consistent"] = abs(-rpm / 15.8 * 2 * np.pi / 60 - data["dq_api"][:, 4:6]) < 1e-9
+    # Authenticate the original API units before converting every wheel channel.
+    data["speed_consistent"] = abs(-rpm / recorded_gear_ratio * 2 * np.pi / 60 - data["dq_api"][:, 4:6]) < 1e-9
+    rescale_recorded_outputs(data, scale)
     data["t"] = (data["control_steady_ns"].astype(np.int64)
                  - int(data["control_steady_ns"][0])) * 1e-9
     quality = json.loads((run / "wheel_quality.json").read_text())
     provenance = {"run": name, "npz_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                   "quality_status": quality["status"], "quality_reasons": quality["reasons"],
-                  "plan_path": str(plan_path)}
+                  "plan_path": str(plan_path), "wheel_reduction": scale}
     return data, segments, provenance
 
 
@@ -92,7 +121,7 @@ def fit_integrals(x, y):
     return result.x / scale, float(np.linalg.cond(normalized))
 
 
-def replay(t, target, command, initial, params, kp, closed_loop, coast=False):
+def replay(t, target, command, initial, params, kp, closed_loop, coast=False, effort_limit=4.5):
     """1 kHz explicit inertia/damping and dry-friction impulse, no extra Fs.
 
     Static resistance equals moving Coulomb resistance here. The archive shows
@@ -105,7 +134,7 @@ def replay(t, target, command, initial, params, kp, closed_loop, coast=False):
         w = float(prediction[k])
         torque = float(command[k])
         if closed_loop:
-            torque = 0. if coast else min(max(kp * (float(target[k]) - w), -4.5), 4.5)
+            torque = 0. if coast else min(max(kp * (float(target[k]) - w), -effort_limit), effort_limit)
         dt = float(t[k + 1] - t[k])
         free = w + dt * (torque - damping * w) / inertia
         prediction[k + 1] = max(free - dt * cp / inertia, 0.) if free >= 0 else min(free + dt * cn / inertia, 0.)
@@ -159,13 +188,23 @@ def main():
     parser.add_argument("--urdf", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--bootstrap", type=int, default=100)
+    parser.add_argument("--gear-ratio", type=float, default=WHEEL_GEAR_RATIO,
+                        help="Target rotor-to-wheel ratio; new wheel default: 15.62")
+    parser.add_argument("--recorded-gear-ratio", type=float, default=RECORDED_GEAR_RATIO,
+                        help="Ratio used by the recording driver: 15.8 for archived RUNS, 15.62 for new recordings")
     args = parser.parse_args()
+    scale = recording_scale(args.recorded_gear_ratio, args.gear_ratio)
+    effort_limit = 4.5 * scale["torque"]
     args.output.mkdir(parents=True, exist_ok=True)
-    runs = {key: load_run(args.data_root, name) for key, (name, _) in RUNS.items()}
+    runs = {key: load_run(args.data_root, name, recorded_gear_ratio=args.recorded_gear_ratio,
+                        gear_ratio=args.gear_ratio) for key, (name, _) in RUNS.items()}
     result = {"schema": "wheel_response_calibration_v1", "status": "candidate_pending_isaac_same_trajectory_check",
-              "coordinate": "wheel_output", "ratio_15_8_already_applied": True,
+              "coordinate": "wheel_output", "gear_ratio": args.gear_ratio,
+              "wheel_reduction": scale, "ratio_15_8_already_applied": args.gear_ratio == 15.8,
               "force_reference": "nominal_C620_current_to_torque_not_load_cell",
-              "controller": {"update_hz": 1000, "target_hz": 50, "ki": 0., "kd": 0., "effort_limit_nm": 4.5},
+              "controller": {"update_hz": 1000, "target_hz": 50, "ki": 0., "kd": 0.,
+                             "effort_limit_nm": effort_limit,
+                             "velocity_p_by_run": {key: kp * scale["velocity_p"] for key, (_, kp) in RUNS.items()}},
               "split": {"fit": "p06, nonvalidation noncoast single-wheel, abs speed >=1 rad/s; 50ms integral windows",
                         "same_run_holdout": "all coast and predesignated validation segments",
                         "cross_gain_holdout": "entire p02 and p04 runs; old repeated trajectory family, not prospective blind data",
@@ -206,7 +245,7 @@ def main():
                  "window_sensitivity": sensitivity, "current_channel": current_channel_audit(d, plan, side),
                  "checks": []}
         for key, (d, plan, _) in runs.items():
-            kp = RUNS[key][1]
+            kp = RUNS[key][1] * scale["velocity_p"]
             for desc in plan:
                 own = desc["label"].startswith(name + "_")
                 both = desc["label"].startswith("both_")
@@ -239,7 +278,8 @@ def main():
                 for model, params in (("cad_no_resistance", [cad, 0., 0., 0.]), ("identified_nominal", fitted)):
                     metrics = {}
                     for closed in (False, True):
-                        predicted = replay(t, target, command, measured[0], params, kp, closed, coast)
+                        predicted = replay(t, target, command, measured[0], params, kp, closed, coast,
+                                           effort_limit=effort_limit)
                         error = predicted - measured
                         mode = "closed_loop" if closed else "recorded_command"
                         metrics[mode + "_rmse_rad_s"] = float(np.sqrt(np.mean(error ** 2)))
@@ -265,9 +305,10 @@ def main():
     candidate = {
         "schema": "wheel_response_candidate_v1", "status": "pending_isaac_validation",
         "fit_sha256": hashlib.sha256(fit_path.read_bytes()).hexdigest(),
-        "coordinate": "wheel_output", "ratio_15_8_already_applied": True,
+        "coordinate": "wheel_output", "gear_ratio": args.gear_ratio,
+        "wheel_reduction": scale, "ratio_15_8_already_applied": args.gear_ratio == 15.8,
         "scope": "nominal_effective_inertia_and_moving_resistance",
-        "measured_speed_range_rad_s": [-30., 30.],
+        "measured_speed_range_rad_s": [-30. * scale["angle_and_speed"], 30. * scale["angle_and_speed"]],
         "fit_min_abs_speed_rad_s": 1., "loaded_torque_speed_envelope_identified": False,
         "static_breakaway_identified": False, "time_constant_identified": False,
         "axes": {w["joint_name"]: {

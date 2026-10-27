@@ -930,6 +930,10 @@ class ChassisEnv:
             if "contact_material" in config:
                 actual["modules"]["contact_material"] = self.contact_material is not None
                 actual["contact_material"] = dict(config["contact_material"])
+            if "wheel_reduction" in config:
+                actual["wheel_reduction"] = dict(config["wheel_reduction"],
+                    gear_ratio=self.v5.wheel_prior["gear_ratio"])
+                self.startup_report["wheel_reduction"] = actual["wheel_reduction"]
             if "action_difference_reference_dt" in config:
                 actual["action_difference_reference_dt"] = self.action_difference_reference_dt
             if config.get("new_asset_curriculum", {}).get("enabled"):

@@ -349,6 +349,8 @@ class RobustGetupEnv(ChassisEnv):
 
     @torch.inference_mode()
     def step(self, actions):
+        upright_task = self.getup_cfg.get("upright_locomotion")
+        prone_task = self.getup_cfg.get("standard_prone")
         active_interval = ~self.passive.clone()
         previous = self.actions.clone()
         self.previous_actions.copy_(self.actions)
@@ -360,6 +362,9 @@ class RobustGetupEnv(ChassisEnv):
         impulse_peak = torch.zeros_like(gap_peak)
         mechanical = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         motor_peak_passive = torch.zeros_like(gap_peak)
+        nonwheel_force_peak = torch.zeros_like(gap_peak)
+        belly_force_peak = torch.zeros_like(gap_peak)
+        upright_leg_speed_square = torch.zeros_like(gap_peak)
         gap_quality = self.getup_cfg.get("gap_leg_quality")
         leg_speed_peak = torch.zeros_like(gap_peak)
         leg_effort_peak = torch.zeros_like(gap_peak)
@@ -409,6 +414,14 @@ class RobustGetupEnv(ChassisEnv):
             for ids, view in self.contact_views:
                 matrix = wp.to_torch(view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
+            if upright_task is not None or prone_task is not None:
+                nonwheel_force_peak = torch.maximum(nonwheel_force_peak,
+                    self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1))
+                upright_leg_speed_square += self.robot.data.joint_vel.torch[:, self.ids][
+                    :, list(self.v5.LEGS)].square().mean(-1) / self.decimation
+            if prone_task is not None:
+                belly_force_peak = torch.maximum(belly_force_peak,
+                    self.contact_force[:, self.push_body_ids].norm(dim=-1).amax(-1))
             from .standing_support import wheel_bottom_clearance
             wheel_pose = self.robot.data.body_link_pose_w.torch[:, self.wheel_ids]
             wheel_clearance = wheel_bottom_clearance(self.wheel_centers(), wheel_pose[:, :, 3:], self.origins[:, 2:3])
@@ -459,8 +472,15 @@ class RobustGetupEnv(ChassisEnv):
         self.contact_impulse_history[:, enable] = 0.
         self._measured_action_history((~active_interval).nonzero().flatten())
         stable = stable_standing(gravity, omega, height, contact, dq) & ~self.passive
+        if prone_task is not None:
+            from .standard_prone import stable as prone_stable
+            stable = prone_stable(gravity, height, omega, velocity, contact,
+                                  dq[:, list(self.v5.LEGS)], prone_task) & ~self.passive & (nonwheel_force_peak <= 2.)
         self.stable_hold = torch.where(stable, self.stable_hold + self.policy_dt, 0.)
         recovered = self.recovery_active & (self.stable_hold >= self.getup_cfg["stable_seconds"])
+        if upright_task is not None:
+            # Falls end this task. They never enter a self-righting phase.
+            recovered.zero_()
         self.recovery_active[recovered] = False
         self.released[recovered] = True
         first = recovered & ~self.ever_recovered
@@ -469,11 +489,13 @@ class RobustGetupEnv(ChassisEnv):
         self.recovered_after_push |= recovered & self.in_motion_fall & self.push_selected
         # A fall while moving starts recovery in-place; never reset the body.
         fallen = ~self.passive & ((gravity[:, 2] > -.7) | (height < .13))
+        if upright_task is not None:
+            fallen.zero_()
         self.in_motion_fall |= fallen & ~self.recovery_lane & (elapsed >= self.getup_cfg["push_start_seconds"])
         self.recovery_active |= fallen
         self.released &= ~fallen
         self.followup_success[fallen] = False
-        if self.fixed_cases is not None:
+        if self.fixed_cases is not None or upright_task is not None:
             for stage in range(self.sequence_time.shape[1]):
                 change = elapsed >= self.sequence_time[:, stage]
                 self.pending_command[change] = self.sequence_command[change, stage]
@@ -493,6 +515,25 @@ class RobustGetupEnv(ChassisEnv):
         impact_bad = (impulse_peak > self.getup_cfg["impact_impulse_limit_ns"]) & active_interval
         boundary_bad = (local[:, :2].abs() > local.new_tensor(self.getup_cfg["boundary_xy_m"])).any(-1)
         terminated = mechanical | gap_bad | impact_bad | boundary_bad
+        prone_route = None
+        prone_large_excursion = prone_refall = None
+        prone_invalid_start = None
+        if prone_task is not None:
+            from .standard_prone import valid_disabled_start
+            prone_invalid_start = enable & ~valid_disabled_start(gravity, height, belly_force_peak, prone_task)
+            prone_route = self.route_state()
+            prone_large_excursion = prone_route["xy_excursion_m"] > prone_task["large_excursion_termination_m"]
+            # After actual completion, a later fall is retained as a failure.
+            # Body contact is allowed only during the rise itself.
+            prone_refall = self.ever_recovered & ((gravity[:, 2] > -math.cos(math.radians(prone_task["refall_tilt_deg"])))
+                | ((height - prone_task["target_height_m"]).abs() > .05) | (nonwheel_force_peak > 2.))
+            terminated |= prone_large_excursion | prone_refall | prone_invalid_start
+        upright_failures = None
+        if upright_task is not None:
+            from .upright_locomotion import failures
+            upright_failures = failures(gravity, height, self.commands[:, 2], nonwheel_force_peak, upright_task)
+            for failure in upright_failures.values():
+                terminated |= failure
         progress = potential_reward(self.previous_potential, potential, terminated,
                                     self.getup_cfg["reward_gamma"], self.getup_cfg["reward_potential_gain"])
         self.previous_potential.copy_(potential)
@@ -546,10 +587,25 @@ class RobustGetupEnv(ChassisEnv):
             recovery_support_density = recovery_support_cost(wheel_clearance, gravity[:, 2],
                 self.recovery_active, self.getup_cfg["recovery_support_weight"])
             density = density - recovery_support_density
+        upright_terms = None
+        if upright_task is not None:
+            from .upright_locomotion import reward_terms
+            upright_terms = reward_terms(gravity, height, velocity, omega, self.commands,
+                tau, action_delta, upright_leg_speed_square)
+            density = sum(upright_terms.values())
+            progress.zero_()
+            first.zero_()
+        prone_terms = None
+        if prone_task is not None:
+            from .standard_prone import density as prone_density
+            prone_terms = prone_density(gravity, velocity, omega, tau, upright_leg_speed_square,
+                                        prone_route["xy_excursion_m"], stable, prone_task)
+            density = sum(prone_terms.values())
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
         timeout = self.episode_length_buf >= self.max_episode_length
         done = terminated | timeout
-        reward -= 3. * terminated
+        failure_cost = 3. if upright_task is None else upright_task["termination"]["failure_cost"]
+        reward -= failure_cost * terminated
         info = dict(time_outs=timeout & ~terminated, policy_learning_mask=active_interval,
                     policy_bootstrap_mask=~self.passive & ~terminated,
                     log={"UnifiedGetup/recovery_support_cost_density": recovery_support_density[active_interval].mean() if active_interval.any() else density.new_zeros(()),
@@ -574,6 +630,24 @@ class RobustGetupEnv(ChassisEnv):
                          "UnifiedGetup/vx_mae_m_s": error_vx.abs().mean(),
                          "UnifiedGetup/yaw_mae_rad_s": error_yaw.abs().mean()})
         standing_request = (self.commands[:, :2].abs() < self.commands.new_tensor([.1, .2])).all(-1) & ~self.passive
+        if upright_terms is not None:
+            info["log"].update({"UprightReward/" + key + "_per_second": value.mean()
+                                for key, value in upright_terms.items()})
+            info["log"].update({"UprightFailure/" + key + "_events": (value & ~self.finished).float().sum()
+                                for key, value in upright_failures.items()})
+            info["log"]["Upright/nonwheel_force_peak_n"] = nonwheel_force_peak.max()
+        if prone_terms is not None:
+            info["log"].update({"ProneReward/" + key + "_per_second": value.mean()
+                                for key, value in prone_terms.items()})
+            info["log"].update({
+                "Prone/knee_angle_mean_deg": prone_route["knee_deg"].mean(),
+                "Prone/knee_angle_min_deg": prone_route["knee_deg"].min(),
+                "Prone/support_com_alignment_mean_m": prone_route["support_error_m"].mean(),
+                "Prone/xy_excursion_peak_m": prone_route["xy_excursion_m"].max(),
+                "Prone/nonwheel_force_peak_n": nonwheel_force_peak.max(),
+                "Prone/large_excursion_events": prone_large_excursion.float().sum(),
+                "Prone/refall_events": prone_refall.float().sum()})
+            info["log"]["Prone/invalid_disabled_start_events"] = prone_invalid_start.float().sum()
         info["log"].update({
             "Standing/wheel_clearance_peak_m": wheel_clearance_peak[standing_request].max() if standing_request.any() else gap_peak.new_zeros(()),
             "Standing/dual_support_fraction": (wheel_contact_fraction[standing_request] == 1.).all(-1).float().mean() if standing_request.any() else gap_peak.new_zeros(()),
@@ -630,10 +704,21 @@ class RobustGetupEnv(ChassisEnv):
                 passive_motor_peak=motor_peak_passive.clone(), enable_event=enable.clone(),
                 spawn_family=self.spawn_family.clone(), settled_family=self.settled_family.clone(),
                 recovered=self.ever_recovered.clone(), recovered_at=self.recovered_at.clone(),
+                recovery_completed_event=first.clone(),
                 followup_success=self.followup_success.clone(), stable=stable.clone(),
                 done=done.clone(), terminated=terminated.clone(), mechanical=mechanical.clone(),
                 closure_gap=gap_bad.clone(), impact_bad=impact_bad.clone(), boundary_bad=boundary_bad.clone(), time=elapsed.clone(),
                 local_position=local.clone(), motor_position=q.clone(), wheel_contact=contact.clone())
+            if upright_task is not None:
+                info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
+                    upright_failures={key: value.clone() for key, value in upright_failures.items()},
+                    upright_reward_terms={key: value.clone() for key, value in upright_terms.items()})
+            if prone_task is not None:
+                info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},
+                    prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),
+                    prone_invalid_start=prone_invalid_start.clone(), belly_force_peak_n=belly_force_peak.clone(),
+                    prone_reward_terms={key: value.clone() for key, value in prone_terms.items()},
+                    nonwheel_force_peak_n=nonwheel_force_peak.clone())
             if gap_quality is not None:
                 info["diagnostics"].update(leg_speed_peak_rad_s=leg_speed_peak.clone(),
                     leg_effort_peak_nm=leg_effort_peak.clone(), leg_saturation_fraction=leg_saturation.clone(),
