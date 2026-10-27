@@ -256,7 +256,8 @@ def main():
                     fixed_PD_and_spring=bool((env.domain.kp == 1.).all() and (env.domain.kd == 1.).all() and (env.domain.spring == 1.).all()))
                 requested_peak = torch.zeros(3, device=env.device)
                 for _ in range(steps):
-                    obs, reward, done, extra = env.step(action)
+                    with torch.inference_mode():
+                        obs, reward, done, extra = env.step(action)
                     check["finite"] = check.get("finite", True) and bool(torch.isfinite(reward).all()) and all(bool(torch.isfinite(v).all()) for v in obs.values())
                     check["five_physical_samples"] = env.physical_standing_last["dq"].shape == (5, env.num_envs, 4)
                     state = extra["diagnostics"]
