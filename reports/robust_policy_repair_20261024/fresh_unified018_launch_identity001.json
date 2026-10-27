@@ -1,0 +1,108 @@
+{
+  "schema": "fresh-unified-launch-identity-v1",
+  "observed_utc": "2026-10-27T03:38:29.920942+00:00",
+  "pid": 1079271,
+  "start_ticks": 5655760,
+  "command": [
+    "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+    "-u",
+    "scripts/train_fresh_unified.py",
+    "--output",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot018_velocity_quartic_physical_speed_mixed1536",
+    "--bank",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+    "--native-runtime-receipt",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_unified_native006/receipt.json",
+    "--updates",
+    "1536",
+    "--num-envs",
+    "256",
+    "--rollout-steps",
+    "128",
+    "--seed",
+    "271001",
+    "--training-case-seed",
+    "271701",
+    "--foundation-updates",
+    "192",
+    "--full-tasks-at",
+    "768",
+    "--domain-admission-warmup-updates",
+    "192",
+    "--domain-admission-ramp-updates",
+    "128",
+    "--domain-admission-seed",
+    "271501"
+  ],
+  "source_checkout": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train",
+  "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot018_velocity_quartic_physical_speed_mixed1536",
+  "commit": "dafaf8941701f7379f519ecacae2d9ca577ef4da",
+  "source_archive_sha256": "669f9d26547db5cc693c636c55d397381d386c89bbb767c3029e2d4540de1842",
+  "source_count": 274,
+  "requested_updates": 1536,
+  "previous_actual_consumed_updates": 5068,
+  "exec_session_id": 7353,
+  "initialization": {
+    "schema": "scratch-ppo-initialization-v1",
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "actor_updates": 0,
+    "critic_updates": 0,
+    "optimizer_states": 0,
+    "actor_tensor_sha256": "de40c679450792c6dd66d36e30cd8137b8ef5f16e3fa2629d5f3e0264fefe9b6",
+    "critic_tensor_sha256": "096b8e6c6d53d63b4e96beca1c661a886404fc4e358b11a66ca8286dcbb426d8",
+    "actor_trainable_parameters": 29780,
+    "critic_trainable_parameters": 35585,
+    "output_bias_source": "declared mechanism static load and validated reset geometry; no policy",
+    "output_bias_policy_order": [
+      0.39714956283569336,
+      -0.1700170785188675,
+      -0.3971973955631256,
+      0.170059934258461,
+      0.0,
+      0.0
+    ],
+    "initial_std_policy_order": [
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.05,
+      0.05
+    ],
+    "actor_class": "height_initialization_candidate:HeightInitializedModel",
+    "wheel_velocity_increment": true,
+    "separate_leg_velocity_feedback": true,
+    "trainable_height_initialization": {
+      "schema": "fresh-trainable-height-initialization-v1",
+      "prior_file": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/three_height_static_prior002.result.json",
+      "prior_sha256": "808e0f23746e60cae5f6e8166a6e50a8d8af97ba7739d541574e40ca3fd7e851",
+      "height_coefficients": [
+        [
+          -1.523378792965992,
+          1.2070159098029365,
+          1.5233677950803477,
+          -1.2070204665116642
+        ],
+        [
+          0.006059387996945008,
+          0.0844317964572038,
+          -0.006051423922232257,
+          -0.08443071417970613
+        ]
+      ],
+      "constant_leg_bias": [
+        0.3971495591133105,
+        -0.17001706708534792,
+        -0.3971974030279817,
+        0.1700599578304013
+      ],
+      "source": "declared mechanism static load and validated reset geometry; no policy",
+      "dynamic_or_randomized_validation_claimed": false,
+      "all_coefficients_trainable": true
+    }
+  },
+  "first_verification": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_unified018_first_verified001.json",
+  "formal_long_training": false,
+  "hardware_ready": false
+}

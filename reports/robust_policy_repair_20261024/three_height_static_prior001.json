@@ -1,0 +1,456 @@
+{
+  "schema": "v6_recovery_static_targets_v1",
+  "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+  "spring_fit_sha256": "85d9712eb240c9719752930f7ada6c08d8323358f9775de3b1c7f29ce80183b9",
+  "solver_sha256": "5a56f077d2e43ae26e342f5b28830933bf0a7e39e9c08d761a642d222f30cf24",
+  "fk_sha256": "1f2ea56703cb8648ad32edcefcf275fa876727013e9b9de525bbc3549dc93112",
+  "profile_builder_sha256": "62f4b1cce95272b1a113d8c811fb3476601da2574015f35297eb965767b23147",
+  "generator_sha256": "94464e7af8bc92c07d6af8534febe9b5e22ed79d4c9f33e046aa0e9c8da6d352",
+  "control_joint_names": [
+    "L_joint1",
+    "LL_joint1",
+    "L_joint3",
+    "R_joint1",
+    "RR_joint1",
+    "R_joint3"
+  ],
+  "axis_signs": [
+    1.0,
+    1.0,
+    -1.0,
+    -1.0
+  ],
+  "mass_kg": 13.886,
+  "passive_knee_domain_deg": [
+    40.0,
+    105.0
+  ],
+  "scope": "static_flat_ground_candidates_with_catalogue_gas_curve; dynamic_AB_validation_required",
+  "gas_force_model_identified": false,
+  "targets": {
+    "0.23": {
+      "requested_height_m": 0.23,
+      "height_m": 0.22999999999999904,
+      "root_position_m": [
+        0.0,
+        0.0,
+        0.22999999999999904
+      ],
+      "root_quaternion_xyzw": [
+        0.002281406697483991,
+        0.0,
+        0.0,
+        0.999997397588354
+      ],
+      "root_roll_rad": 0.004562817353078341,
+      "full_joint_positions": {
+        "L_joint1": -0.042000917587618536,
+        "R_joint1": 0.042000917587618536,
+        "LL_joint1": -0.10848061696623562,
+        "RR_joint1": 0.1084923105302778,
+        "L_joint2": -0.04162367125357996,
+        "R_jonit2": 0.0416261406341615,
+        "LL_joint2": 0.041605699162541136,
+        "RR_joint2": -0.041618117908845995,
+        "L_joint3": 0.0,
+        "LLL_joint2": 0.05077482984242351,
+        "R_joint3": 0.0,
+        "RRR_joint2": -0.050777858837429135,
+        "LL_joint3": -0.016654552777138867,
+        "RR_joint3": 0.016657747289118643,
+        "L_spring_slide": -0.0015235307820397467,
+        "R_spring_slide": -0.0015236189177431196,
+        "LL_link4": 0.04157459805380495,
+        "RR_joint4": -0.0415770673646362
+      },
+      "prepare_reference": {
+        "geometry_control6_rad": [
+          -0.042000917587618536,
+          -0.10848061696623562,
+          0.0,
+          0.042000917587618536,
+          0.1084923105302778,
+          0.0
+        ],
+        "pd_control6_rad": [
+          -0.03422698510347856,
+          -0.11952370252863964,
+          0.0,
+          0.03421820617637556,
+          0.11954268148893107,
+          0.0
+        ],
+        "hold_torque_nm": [
+          1.2438291974623956,
+          -1.7668936899846432,
+          0.0,
+          -1.2452338257988762,
+          1.7680593533845226,
+          0.0
+        ],
+        "kp": 160.0,
+        "kp_units": "N*m/rad",
+        "pd_offset_control6_rad": [
+          0.007773932484139973,
+          -0.01104308556240402,
+          0.0,
+          -0.007782711411242977,
+          0.011050370958653266,
+          0.0
+        ],
+        "assumptions": [
+          "static_two_wheel_support_on_flat_ground",
+          "nominal_catalogue_gas_curve",
+          "nominal_mass_and_COM",
+          "zero_joint_velocity",
+          "no_actuator_saturation"
+        ]
+      },
+      "static_load": {
+        "static_hold_torque_nm": [
+          1.2438291974623956,
+          -1.7668936899846432,
+          0.0,
+          -1.2452338257988762,
+          1.7680593533845226,
+          0.0
+        ],
+        "gravity_virtual_nm": [
+          1.4059767685970668,
+          -0.6544548028224931,
+          0.0,
+          -1.4059748874217128,
+          0.6544495713028713,
+          0.0
+        ],
+        "wheel_support_virtual_nm": [
+          9.265445505206069,
+          -7.990915850640884,
+          0.0,
+          -9.26402058209251,
+          7.989613965711516,
+          0.0
+        ],
+        "spring_virtual_nm": [
+          -9.103297934071398,
+          9.103354737803034,
+          0.0,
+          9.103279520469673,
+          -9.103223747793168,
+          0.0
+        ],
+        "wheel_normals_n": [
+          68.11603361440321,
+          68.10562638559678
+        ],
+        "spring_compression_m": [
+          0.07125071087316522,
+          0.07125079900886859
+        ],
+        "spring_force_n": [
+          415.48604721076975,
+          415.4864295622091
+        ],
+        "mapping_residual": 2.0201273776320857e-11
+      },
+      "geometry_validation": {
+        "passive_knee_deg": [
+          42.5517982631409,
+          42.551656778055566
+        ],
+        "spring_compression_m": {
+          "L_spring_slide": 0.07125071087316522,
+          "R_spring_slide": 0.07125079900886859
+        },
+        "max_closure_gap_m": 1.481967530081773e-13,
+        "com_x_minus_wheel_support_m": 2.662727677238408e-12,
+        "minimum_ground_clearance_m": 0.0
+      },
+      "pd_target_is_reset_pose": false,
+      "dynamic_validation_passed": false
+    },
+    "0.305": {
+      "requested_height_m": 0.305,
+      "height_m": 0.30500000000000027,
+      "root_position_m": [
+        0.0,
+        0.0,
+        0.30500000000000027
+      ],
+      "root_quaternion_xyzw": [
+        0.002280963062901527,
+        0.0,
+        0.0,
+        0.9999973986003693
+      ],
+      "root_roll_rad": 0.004561930081604816,
+      "full_joint_positions": {
+        "L_joint1": -0.3451002042488576,
+        "R_joint1": 0.3451002042488576,
+        "LL_joint1": 0.12257537399576232,
+        "RR_joint1": -0.12256773461920795,
+        "L_joint2": 0.330387565142803,
+        "R_jonit2": -0.3303870978704308,
+        "LL_joint2": -0.33039931800127115,
+        "RR_joint2": 0.3303880785724081,
+        "L_joint3": 0.0,
+        "LLL_joint2": -0.38245022049551247,
+        "R_joint3": 0.0,
+        "RRR_joint2": 0.38244970536868517,
+        "LL_joint3": 0.19319979803191087,
+        "RR_joint3": -0.19319573071454524,
+        "L_spring_slide": 0.014272463063692266,
+        "R_spring_slide": 0.014272440780790407,
+        "LL_link4": -0.3304282626097375,
+        "RR_joint4": 0.33042779534567696
+      },
+      "prepare_reference": {
+        "geometry_control6_rad": [
+          -0.3451002042488576,
+          0.12257537399576232,
+          0.0,
+          0.3451002042488576,
+          -0.12256773461920795,
+          0.0
+        ],
+        "pd_control6_rad": [
+          -0.3207126102216724,
+          0.09491855918261657,
+          0.0,
+          0.32070064924300457,
+          -0.09490058680048478,
+          0.0
+        ],
+        "hold_torque_nm": [
+          3.9020150443496373,
+          -4.4250903701033195,
+          0.0,
+          -3.9039288009364856,
+          4.426743650995705,
+          0.0
+        ],
+        "kp": 160.0,
+        "kp_units": "N*m/rad",
+        "pd_offset_control6_rad": [
+          0.024387594027185232,
+          -0.027656814813145747,
+          0.0,
+          -0.024399555005853037,
+          0.02766714781872316,
+          0.0
+        ],
+        "assumptions": [
+          "static_two_wheel_support_on_flat_ground",
+          "nominal_catalogue_gas_curve",
+          "nominal_mass_and_COM",
+          "zero_joint_velocity",
+          "no_actuator_saturation"
+        ]
+      },
+      "static_load": {
+        "static_hold_torque_nm": [
+          3.9020150443496373,
+          -4.4250903701033195,
+          0.0,
+          -3.9039288009364856,
+          4.426743650995705,
+          0.0
+        ],
+        "gravity_virtual_nm": [
+          1.460669532188194,
+          -0.7529940212776484,
+          0.0,
+          -1.4606710407511792,
+          0.7529917453954523,
+          0.0
+        ],
+        "wheel_support_virtual_nm": [
+          10.60372191514677,
+          -9.373026469904806,
+          0.0,
+          -10.60185704709021,
+          9.371308551167303,
+          0.0
+        ],
+        "spring_virtual_nm": [
+          -13.045067427308213,
+          13.045122818730476,
+          0.0,
+          13.045114807275516,
+          -13.045060456767557,
+          0.0
+        ],
+        "wheel_normals_n": [
+          68.1169250260696,
+          68.10473497393039
+        ],
+        "spring_compression_m": [
+          0.0554547170274332,
+          0.05545473931033506
+        ],
+        "spring_force_n": [
+          356.95123732913555,
+          356.95130639368847
+        ],
+        "mapping_residual": 1.5323596539789782e-11
+      },
+      "geometry_validation": {
+        "passive_knee_deg": [
+          63.86647204009721,
+          63.8664452673624
+        ],
+        "spring_compression_m": {
+          "L_spring_slide": 0.0554547170274332,
+          "R_spring_slide": 0.05545473931033506
+        },
+        "max_closure_gap_m": 1.2719202621569003e-16,
+        "com_x_minus_wheel_support_m": -4.4374226515486725e-15,
+        "minimum_ground_clearance_m": 0.0
+      },
+      "pd_target_is_reset_pose": false,
+      "dynamic_validation_passed": false
+    },
+    "0.42": {
+      "requested_height_m": 0.42,
+      "height_m": 0.42000000000032345,
+      "root_position_m": [
+        0.0,
+        0.0,
+        0.42000000000032345
+      ],
+      "root_quaternion_xyzw": [
+        0.0022805325607595972,
+        0.0,
+        0.0,
+        0.9999973995822387
+      ],
+      "root_roll_rad": 0.004561069075081557,
+      "full_joint_positions": {
+        "L_joint1": -0.7845689632728637,
+        "R_joint1": 0.7845689632728637,
+        "LL_joint1": 0.5010083552215758,
+        "RR_joint1": -0.5010023898225664,
+        "L_joint2": 1.0096908470551427,
+        "R_jonit2": -1.0096930457535962,
+        "LL_joint2": -1.009693586737887,
+        "RR_joint2": 1.0096812464916445,
+        "L_joint3": 0.0,
+        "LLL_joint2": -1.065425296143755,
+        "R_joint3": 0.0,
+        "RRR_joint2": 1.0654273269980767,
+        "LL_joint3": 0.7338847295597356,
+        "RR_joint3": -0.733880553368836,
+        "L_spring_slide": 0.04824706668076194,
+        "R_spring_slide": 0.048247173101001156,
+        "LL_link4": -1.0097217974499368,
+        "RR_joint4": 1.009723996119801
+      },
+      "prepare_reference": {
+        "geometry_control6_rad": [
+          -0.7845689632728637,
+          0.5010083552215758,
+          0.0,
+          0.7845689632728637,
+          -0.5010023898225664,
+          0.0
+        ],
+        "pd_control6_rad": [
+          -0.7566806280429053,
+          0.46985089595462387,
+          0.0,
+          0.7566681382943166,
+          -0.4698338757982536,
+          0.0
+        ],
+        "hold_torque_nm": [
+          4.462133636793366,
+          -4.98519348271231,
+          0.0,
+          -4.464131996567548,
+          4.986962243890049,
+          0.0
+        ],
+        "kp": 160.0,
+        "kp_units": "N*m/rad",
+        "pd_offset_control6_rad": [
+          0.02788833522995854,
+          -0.031157459266951938,
+          0.0,
+          -0.02790082497854717,
+          0.031168514024312803,
+          0.0
+        ],
+        "assumptions": [
+          "static_two_wheel_support_on_flat_ground",
+          "nominal_catalogue_gas_curve",
+          "nominal_mass_and_COM",
+          "zero_joint_velocity",
+          "no_actuator_saturation"
+        ]
+      },
+      "static_load": {
+        "static_hold_torque_nm": [
+          4.462133636793366,
+          -4.98519348271231,
+          0.0,
+          -4.464131996567548,
+          4.986962243890049,
+          0.0
+        ],
+        "gravity_virtual_nm": [
+          1.170573232238302,
+          -0.6359891162876363,
+          0.0,
+          -1.1705772155614662,
+          0.6359885834208593,
+          0.0
+        ],
+        "wheel_support_virtual_nm": [
+          8.998291685235884,
+          -7.940681720017902,
+          0.0,
+          -8.9963669549178,
+          7.938914744117024,
+          0.0
+        ],
+        "spring_virtual_nm": [
+          -12.289852089790948,
+          12.289886086442575,
+          0.0,
+          12.289921735923881,
+          -12.289888404586213,
+          0.0
+        ],
+        "wheel_normals_n": [
+          68.11833140038641,
+          68.10332859961358
+        ],
+        "spring_compression_m": [
+          0.02148011341036353,
+          0.021480006990124312
+        ],
+        "spring_force_n": [
+          289.89309954581995,
+          289.89299634232896
+        ],
+        "mapping_residual": 3.309293380938855e-11
+      },
+      "geometry_validation": {
+        "passive_knee_deg": [
+          102.78768310305982,
+          102.78780907920164
+        ],
+        "spring_compression_m": {
+          "L_spring_slide": 0.02148011341036353,
+          "R_spring_slide": 0.021480006990124312
+        },
+        "max_closure_gap_m": 6.359601310784502e-17,
+        "com_x_minus_wheel_support_m": -6.765421556309548e-17,
+        "minimum_ground_clearance_m": 0.0
+      },
+      "pd_target_is_reset_pose": false,
+      "dynamic_validation_passed": false
+    }
+  }
+}

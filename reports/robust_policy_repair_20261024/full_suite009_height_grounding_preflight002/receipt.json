@@ -1,0 +1,84 @@
+{
+  "schema": "fresh-full-suite-readonly-receipt-v1",
+  "status": "CPU_preflight_passed_unqualified",
+  "pid": 723375,
+  "start_ticks": 3734757,
+  "observed_utc": "2026-10-26T22:16:47.669730+00:00",
+  "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated/model_final.pt",
+  "checkpoint_sha256": "569b48dab80500db8d08ca53c840f32e8cbf03b82fda8f8d580d983913cb3469",
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "hardware_ready": false,
+  "seed": 261301,
+  "preflight_only": true,
+  "native_policy_steps": 0,
+  "diagnostic_source_hashes": {
+    "evaluate_fresh_full_suite.py": "9178a2203ffc0d3a86c7e28bcf3530dfa6d54fd4ce8d6a02671cbd00a47e747b",
+    "wheel_leg_full_suite.py": "f10334bf6b76e675100346abd1b34ffe1ce6f215af5a89283f5de72a4ba2eae0",
+    "review_standing_acceptance.py": "b9ea23daec9feadee50b4726985428b65435be32c2792564035b0b77eb7218e6",
+    "record_scratch_physics.py": "6b66d5af36e4f5c559878062bbf07a0d444432685c4a3320372ea1abdb37940a",
+    "scratch_domain_evaluation.py": "42240b2bf66d170472b3d74b0ba569a65528d09960c6735bcb94c76bf8af6ed8",
+    "randomization_study.py": "80ec179c8af89f85f0439c0fd15e78815860a78c98ec2ab99eb6de6af187dec1",
+    "full_suite_grounded_reset.py": "63c2e07b9eccd2f41d580a45d46d33823e8068d2cf3bd678674a637fdf5907bb"
+  },
+  "initial_grounding": {
+    "include_motion_argument": false,
+    "source_changed": true,
+    "only_change": "Reset placement selects all upright births, including motion/spin; fallen births excluded",
+    "original_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot009_leg_velocity_separated/source_snapshot/src/wheeled_tasks/chassis/grounded_standing_reset.py",
+    "original_sha256": "06b2715d6b8c68e89dd38ff52c74cdbb39b8788aff777b9eb8e0fbb80c5fe44b",
+    "diagnostic_sha256": "63c2e07b9eccd2f41d580a45d46d33823e8068d2cf3bd678674a637fdf5907bb",
+    "state_writes": "reset initialization only",
+    "physics_or_actions_changed": false
+  },
+  "completed_updates": 512,
+  "frozen_source_hashes_verified": 264,
+  "training_origin_verified": "fresh actor/critic/empty Adam, no teacher or checkpoint initialization",
+  "case_count": 198,
+  "protocol_overrides": {
+    "before": {
+      "config": {
+        "target_num_envs": 256,
+        "episode_seconds": 8.0,
+        "ppo_minibatch_samples": 8192,
+        "flat_half_length_m": 48.0,
+        "flat_floor_width_m": 96.0,
+        "record_diagnostics": false
+      },
+      "task": {
+        "episode_seconds": 8.0,
+        "boundary_xy_m": [
+          40.0,
+          40.0
+        ]
+      }
+    },
+    "after": {
+      "config": {
+        "target_num_envs": 198,
+        "episode_seconds": 30.0,
+        "ppo_minibatch_samples": 6336,
+        "flat_half_length_m": 64.0,
+        "flat_floor_width_m": 128.0,
+        "record_diagnostics": true
+      },
+      "task": {
+        "episode_seconds": 30.0,
+        "boundary_xy_m": [
+          60.0,
+          56.0
+        ]
+      }
+    },
+    "initialization": "declared validated pose-bank cases; state writes during reset only",
+    "recovery_completion": "unchanged native stable-hold event; never infer from pose alone",
+    "policy": "same authenticated actor for every case; no teacher or action override",
+    "standing_failure_reset_wrapper": false,
+    "optimizer_constructed": false
+  },
+  "domain_intervention": null,
+  "cases_sha256": "a19ececfd7fc97731c4d1e3883ad4c2788de850d22674dfbc7d1123d0ccbeec8",
+  "spec_sha256": "d4c8a64943434872e62336457ae3ae13179f4595f5e5026711b0be498828aa21",
+  "requirements_sha256": "1e5d56d57e51351a0e033b0fcde767d491ce5018a40e78f93dcc5610c51a9895",
+  "preflight_sha256": "9a32c2bcdcb6868a8f43f06160c3089e18c0942faf793e575b30a24a378bd1f7"
+}

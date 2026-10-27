@@ -1,0 +1,119 @@
+{
+  "schema": "wheel-leg-fresh-full-suite-v1",
+  "status": "engineering_protocol_prepared_before_native_evaluation",
+  "user_requirements": "contracts/wheel_leg_acceptance_requirements_v2.json",
+  "seconds": 30,
+  "high_speed_straight_seconds": 18,
+  "replicas": 2,
+  "standing_heights_m": [
+    0.23,
+    0.305,
+    0.42
+  ],
+  "standing_pitches_deg": [
+    0,
+    -0.25,
+    0.25,
+    -0.5,
+    0.5,
+    -1,
+    1
+  ],
+  "low_speeds_m_s": [
+    0.1,
+    -0.1,
+    0.3,
+    -0.3
+  ],
+  "high_speeds_m_s": [
+    3.0,
+    -2.5
+  ],
+  "spin_rpm": [
+    80,
+    100
+  ],
+  "arc_speeds_m_s": [
+    1.0,
+    -0.75
+  ],
+  "arc_yaw_rad_s": 1.0,
+  "high_arc_speeds_m_s": [
+    3.0,
+    -2.5
+  ],
+  "high_arc_yaw_rad_s": 0.5,
+  "height_sequence": [
+    [
+      5.0,
+      0.23
+    ],
+    [
+      11.0,
+      0.42
+    ],
+    [
+      18.0,
+      0.305
+    ]
+  ],
+  "braking_at_s": 5.0,
+  "push_at_s": 5.0,
+  "steady_start_s": 3.0,
+  "terminal_window_s": 10.0,
+  "flat_test_world": {
+    "isolated_origins": true,
+    "floor_half_length_m": 64.0,
+    "floor_width_m": 128.0,
+    "boundary_xy_m": [
+      60.0,
+      56.0
+    ],
+    "reason": "Preserve the frozen native8m grid factory's64m half-length and128m width bounds. Predeclare18s for3m/s straight, requiring54m plus margin; standing and all other cases retain30s."
+  },
+  "engineering_gates": {
+    "authority": "Provisional engineering bounds frozen before evaluation; not additional user-approved hardware acceptance limits",
+    "motion_speed_MAE_abs_m_s": 0.05,
+    "motion_speed_MAE_fraction": 0.1,
+    "motion_yaw_MAE_abs_rad_s": 0.2,
+    "motion_yaw_MAE_fraction": 0.1,
+    "straight_max_lateral_m": 0.1,
+    "spin_max_center_excursion_m": 0.05,
+    "spin_minimum_rpm_frame_fraction": 0.95,
+    "dynamic_tilt_max_deg": 25,
+    "motion_height_MAE_m": 0.02,
+    "transition_final_height_error_m": 0.01,
+    "recovery_followup_seconds": 2.0,
+    "recovery_max_seconds": 9.0,
+    "braking_stopped_speed_m_s": 0.05,
+    "braking_stopped_hold_seconds": 1.0,
+    "braking_settling_max_seconds": 2.0,
+    "braking_distance_max_m": 3.0,
+    "dynamic_leg_speed_alert_rad_s": 15.0
+  },
+  "qualification": {
+    "same_policy_in_all_domains": true,
+    "nominal_and_requested_domains": true,
+    "independent_holdout_seeds": true,
+    "unknown_or_untested_is_pass": false,
+    "survival_alone_is_pass": false,
+    "requested_or_projected_rpm_is_measured_rpm": false,
+    "anti_fall_is_recovery_success": false,
+    "unquantified_user_limits_are_approved": false,
+    "hardware_ready": false
+  },
+  "notes": [
+    "Initial recovery includes front/back/left/right/inverted/compound, symmetric/asymmetric, followed by either standing or a motion request.",
+    "In-motion fall tests include forward/reverse/arcs/spin and both push signs; a lane must actually fall before its recovery metric is evaluated.",
+    "All actor actions remain native six-motor outputs. No teacher, leg freeze, action substitution, scripted recovery or mid-episode state writes.",
+    "Per-case duration is fixed before simulation. Native30s raw arrays are retained, while high-speed straight measurement uses its declared18s prefix, never a posthoc good window.",
+    "The same declared contact completion/start event and <=2ms tolerance apply; never advance that event to conceal a later fall.",
+    "Record requested, projected/applied and actual motion separately. Projected fast arcs cannot pass the original raw request.",
+    "High arcs request3/-2.5m/s with+/-0.5rad/s;3m/s plus4rad/s exceeds the existing lateral-acceleration envelope and is not used as a mandatory feasible test. Raw requests are always preserved.",
+    "The provisional3m braking comparison bound accounts for the0.2 minimum wheel/ground friction:3m/s has an ideal steady-load Coulomb stopping distance about2.29m. Report actual time/distance/rebound; this bound is not user approval of braking quality.",
+    "Braking held-stop speed includes both planar components. Retain whole-transient MAE but gate tracking separately before braking and after the declared2s settling allowance; stop time/distance govern the transient itself.",
+    "The80rpm comparison tolerates only one ULP of the actual native omega input; report that numeric tolerance and the unchanged measured body rpm.",
+    "Actual body yaw is converted using 60/(2*pi); a100rpm request is10.471975511966rad/s, and80rpm is8.377580409573rad/s.",
+    "Training continues separately; preparing this protocol changes no running training source or budget."
+  ]
+}

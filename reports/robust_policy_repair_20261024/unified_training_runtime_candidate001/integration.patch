@@ -1,0 +1,55 @@
+--- a/src/wheeled_tasks/chassis/robust_getup_env.py
++++ b/src/wheeled_tasks/chassis/robust_getup_env.py
+@@ -25,6 +25,7 @@
+
+ 
+ class RobustGetupEnv(ChassisEnv):
++    TRAINING_CASE_RUNTIME_VERSION = "case-sequences-and-timeouts-v1"
+     def __init__(self, config, manifest, control, root, *, bank, settings, fixed_cases=None, **kwargs):
+         self.unified_ready = False
+         self.robust_ready = False
+@@ -473,7 +474,7 @@
+         self.recovery_active |= fallen
+         self.released &= ~fallen
+         self.followup_success[fallen] = False
+-        if self.fixed_cases is not None:
++        if self.fixed_cases is not None or getattr(self, "training_command_sequences", False):
+             for stage in range(self.sequence_time.shape[1]):
+                 change = elapsed >= self.sequence_time[:, stage]
+                 self.pending_command[change] = self.sequence_command[change, stage]
+@@ -547,7 +548,7 @@
+                 self.recovery_active, self.getup_cfg["recovery_support_weight"])
+             density = density - recovery_support_density
+         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
+-        timeout = self.episode_length_buf >= self.max_episode_length
++        timeout = self.episode_length_buf >= self.episode_limits
+         done = terminated | timeout
+         reward -= 3. * terminated
+         info = dict(time_outs=timeout & ~terminated, policy_learning_mask=active_interval,
+--- a/src/wheeled_tasks/chassis/grounded_standing_reset.py
++++ b/src/wheeled_tasks/chassis/grounded_standing_reset.py
+@@ -50,18 +50,21 @@
+     return result, angle, gap
+
+ 
+-def install(env):
++def install(env, *, include_motion=False):
+     """A labelled training/evaluation initialization; no writes inside step."""
+     if hasattr(env, 'grounded_standing_reset'):
+         raise ValueError('Standing placement may be installed once')
+     from .root_kinematics import update_robot_data
+     from .env import ChassisEnv
+     native_reset = env.reset
+-    state = dict(version=VERSION, placement_calls=0, environments=0,
++    state = dict(version=VERSION+("-all-upright-v1" if include_motion else ""), placement_calls=0, environments=0,
+                  maximum_translation_m=0., maximum_roll_rad=0., preload_m=PRELOAD_M)
+
+     def place(ids):
+-        selected = ids[(~env.recovery_lane[ids]) & (env.pending_command[ids, :2].abs() < .01).all(-1)]
++        eligible = ~env.recovery_lane[ids]
++        if not include_motion:
++            eligible &= (env.pending_command[ids, :2].abs() < .01).all(-1)
++        selected = ids[eligible]
+         if not len(selected):
+             return
+         root = env.robot.data.root_link_pose_w.torch[selected].clone()

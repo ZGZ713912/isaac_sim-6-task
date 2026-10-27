@@ -1,0 +1,83 @@
+{
+  "schema": "fresh-unified-native-wiring-verified-v1",
+  "observed_utc": "2026-10-26T22:48:08.911256+00:00",
+  "native_receipt": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_unified_native001/receipt.json",
+    "sha256": "cad4dd7e58523ee3a88f7c7c6f6416ff509703ec765d9002c42bb218ad637d0a",
+    "native_policy_steps": 144,
+    "physical_steps": 720,
+    "new_PPO": 0,
+    "scope": "runtime wiring only; behavior remains unqualified"
+  },
+  "checks": {
+    "moving_and_spinning_births_grounded": true,
+    "real_sequences": true,
+    "native_timeout_and_autoreset": true,
+    "selective_same_tick_reset": true,
+    "recovery_intervals_retain_native_reward": true,
+    "actual_native_completion": true,
+    "completion_bonus_retained": true,
+    "born_recovery_pays_standing_cost_after_completion": true,
+    "multiple_real_autoresets": true,
+    "no_optimizer_or_parameter_updates": true,
+    "all_sources_unchanged": true,
+    "native_clock_and_solver_unchanged": true
+  },
+  "all_checks_pass": true,
+  "actual_RSL_checks_read_back": 12,
+  "source_commit": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "55e1cb31b0bb3e6acce9577c1415465591b85888",
+    "source_count": 273,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_unified_native001/committed_source.tar",
+    "archive_sha256": "834241ede4978a09c6f40e0607258b4ff7425d720bd7b386bf13b87be7c68ccb"
+  },
+  "source_count": 273,
+  "native_policy_steps": 144,
+  "physical_steps": 720,
+  "new_PPO": 0,
+  "checkpoint_reads": [],
+  "original_process_exited": true,
+  "real_lane01_autoresets": [
+    17,
+    12
+  ],
+  "logical_fixture_actual_completion_seconds": 0.5049999952316284,
+  "fixture_limit": "Physically upright positive control of actual native stable-hold reward wiring; no fallen self-righting skill is claimed",
+  "observed_physical_extrema": {
+    "peak_leg_speed_rad_s": 5.092393398284912,
+    "policy_decisions": 144,
+    "observed_leg_motor_samples": 368640,
+    "peak_leg0_speed_rad_s": 4.953893184661865,
+    "peak_leg1_speed_rad_s": 5.092393398284912,
+    "peak_leg2_speed_rad_s": 4.309326171875,
+    "peak_leg3_speed_rad_s": 4.340923309326172,
+    "leg_motor_samples_at_or_above_3_rad_s": 163,
+    "leg_motor_samples_at_or_above_10_rad_s": 0,
+    "leg_motor_samples_at_or_above_50_rad_s": 0
+  },
+  "next_fresh_plan": {
+    "entry": "scripts/train_fresh_unified.py",
+    "output": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot014_requested_mixed1536",
+    "seed": 271001,
+    "training_case_seed": 271701,
+    "domain_admission_seed": 271501,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "updates": 1536,
+    "foundation_updates": 192,
+    "full_tasks_at": 768,
+    "domain_warmup_updates": 192,
+    "domain_ramp_updates": 128,
+    "requested_strength": 1.0,
+    "actor_critic_Adam": "Fresh actor/critic and empty Adam; every old checkpoint read forbidden",
+    "source_count": 272,
+    "behavior_evaluation": "Separate cold same-PT full13 suite and holdout domains after exact learner exit",
+    "formal_long_training_admitted": false,
+    "qualified": false,
+    "hardware_ready": false
+  },
+  "qualified": false,
+  "hardware_ready": false
+}

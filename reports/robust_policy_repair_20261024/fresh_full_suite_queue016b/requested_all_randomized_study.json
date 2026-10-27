@@ -1,0 +1,191 @@
+{
+  "schema": "wheel-leg-randomization-study-v2",
+  "status": "requested_ranges_not_behavior_qualified",
+  "nominal_fraction": 0.0,
+  "default_profile": "requested",
+  "groups": [
+    "observation_noise",
+    "encoder_bias",
+    "imu_alignment",
+    "motor_strength",
+    "mass_com",
+    "independent_inertia",
+    "ground_friction",
+    "timing"
+  ],
+  "reference": {
+    "motor_strength_fraction": 0.16,
+    "mass_fraction": 0.08,
+    "independent_inertia_fraction": 0.06,
+    "base_com_offset_m": {
+      "x": 0.012,
+      "y": 0.0064,
+      "z": 0.008
+    },
+    "encoder_bias_rad": 0.004,
+    "encoder_noise_rad": 0.00035,
+    "gyro_bias_rad_s": 0.00525,
+    "gyro_noise_rad_s": 0.0035,
+    "gravity_noise": 0.0014,
+    "leg_velocity_noise_rad_s": 0.0175,
+    "wheel_velocity_noise_rad_s": 0.0875,
+    "imu_fixed_degrees": [
+      0.8,
+      0.8,
+      0.26666666666666666
+    ],
+    "ground_friction_range": [
+      0.3,
+      0.5
+    ]
+  },
+  "timing": {
+    "torque_delay_ms": [
+      0,
+      0
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      1
+    ],
+    "motor_tau_ms": [
+      0.0,
+      0.0
+    ],
+    "pd_feedback_delay_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      1
+    ]
+  },
+  "profiles": {
+    "requested": {
+      "observation_noise": 1,
+      "encoder_bias": 1,
+      "imu_alignment": 1,
+      "motor_strength": 1,
+      "mass_com": 1,
+      "independent_inertia": 1,
+      "ground_friction": 1,
+      "timing": 1
+    },
+    "nominal": {
+      "observation_noise": 0,
+      "encoder_bias": 0,
+      "imu_alignment": 0,
+      "motor_strength": 0,
+      "mass_com": 0,
+      "independent_inertia": 0,
+      "ground_friction": 0,
+      "timing": 0
+    },
+    "sensors_only": {
+      "observation_noise": 1,
+      "encoder_bias": 1,
+      "imu_alignment": 1,
+      "motor_strength": 0,
+      "mass_com": 0,
+      "independent_inertia": 0,
+      "ground_friction": 0,
+      "timing": 0
+    },
+    "motor_only": {
+      "observation_noise": 0,
+      "encoder_bias": 0,
+      "imu_alignment": 0,
+      "motor_strength": 1,
+      "mass_com": 0,
+      "independent_inertia": 0,
+      "ground_friction": 0,
+      "timing": 0
+    },
+    "mass_com_only": {
+      "observation_noise": 0,
+      "encoder_bias": 0,
+      "imu_alignment": 0,
+      "motor_strength": 0,
+      "mass_com": 1,
+      "independent_inertia": 0,
+      "ground_friction": 0,
+      "timing": 0
+    },
+    "inertia_only": {
+      "observation_noise": 0,
+      "encoder_bias": 0,
+      "imu_alignment": 0,
+      "motor_strength": 0,
+      "mass_com": 0,
+      "independent_inertia": 1,
+      "ground_friction": 0,
+      "timing": 0
+    },
+    "friction_only": {
+      "observation_noise": 0,
+      "encoder_bias": 0,
+      "imu_alignment": 0,
+      "motor_strength": 0,
+      "mass_com": 0,
+      "independent_inertia": 0,
+      "ground_friction": 1,
+      "timing": 0
+    },
+    "timing_only": {
+      "observation_noise": 0,
+      "encoder_bias": 0,
+      "imu_alignment": 0,
+      "motor_strength": 0,
+      "mass_com": 0,
+      "independent_inertia": 0,
+      "ground_friction": 0,
+      "timing": 1
+    },
+    "without_encoder_bias": {
+      "observation_noise": 1,
+      "encoder_bias": 0,
+      "imu_alignment": 1,
+      "motor_strength": 1,
+      "mass_com": 1,
+      "independent_inertia": 1,
+      "ground_friction": 1,
+      "timing": 1
+    },
+    "without_alignment": {
+      "observation_noise": 1,
+      "encoder_bias": 1,
+      "imu_alignment": 0,
+      "motor_strength": 1,
+      "mass_com": 1,
+      "independent_inertia": 1,
+      "ground_friction": 1,
+      "timing": 1
+    },
+    "without_policy_delay": {
+      "observation_noise": 1,
+      "encoder_bias": 1,
+      "imu_alignment": 1,
+      "motor_strength": 1,
+      "mass_com": 1,
+      "independent_inertia": 1,
+      "ground_friction": 1,
+      "timing": 0
+    }
+  },
+  "fixed": {
+    "leg_kp_scale": 1,
+    "leg_kd_scale": 1,
+    "spring_strength_scale": 1,
+    "imu_wobble": false
+  },
+  "interpretation": [
+    "Independent inertia is finally 0.94..1.06. The previous stopped stage actually used +/-16 percent; +/-12 percent occurred at the earlier stage. This request is interpreted as a final +/-6 percent cap.",
+    "IMU fixed roll/pitch/yaw bounds are one third of the stopped stage's 2.4/2.4/0.8 degrees. No moving-mount perturbation is injected.",
+    "Other ranges retain the actual stopped stage, including 75 percent randomized shared sensor/actuator/rigid-body lanes and ground friction on all lanes.",
+    "Independent inertia is multiplied by the mass scale; combined final inertia ratio is 0.8648..1.1448.",
+    "Motor strength still scales leg torques. Fixed P/D coefficients do not imply constant effective torque response.",
+    "Policy and PD encoder biases remain independent, matching the previous implementation; white noise is policy-rate observation noise and does not claim 1kHz PD sensor-noise coverage.",
+    "Strength scales amplitude groups once. Discrete timing stays explicit when enabled; the nominal profile and zero strength disable it."
+  ]
+}

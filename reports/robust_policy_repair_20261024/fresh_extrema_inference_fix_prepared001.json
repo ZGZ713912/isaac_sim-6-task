@@ -1,0 +1,81 @@
+{
+  "schema": "fresh-extrema-inference-fix-prepared-v1",
+  "observed_utc": "2026-10-26T22:56:00.049571+00:00",
+  "prior_failed_closure": {
+    "schema": "fresh-failed-attempt-closure-v1",
+    "observed_utc": "2026-10-26T22:51:01.437268+00:00",
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot014_requested_mixed1536",
+    "pid": 758911,
+    "start_ticks": 3925767,
+    "original_process_exited": true,
+    "source_count": 272,
+    "frozen_sources_match_before_repair": true,
+    "status": "failed_after_one_actual_PPO_update",
+    "actual_committed_updates": 1,
+    "first_actual_Adam_calls": 12,
+    "actor_changed_parameter_tensors": 10,
+    "critic_changed_parameter_tensors": 8,
+    "checkpoint_reads": [],
+    "failure": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/scripts/train_fresh_unified.py\", line 384, in main\n    runner.learn(args.updates, init_at_random_ep_len=False)\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/rsl_rl/runners/on_policy_runner.py\", line 108, in learn\n    loss_dict = self.alg.update()\n                ^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/scripts/train_fresh_unified.py\", line 367, in update\n    report['last_rollout_extrema'] = extrema.write(runner.logger.writer,\n                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/scripts/fresh_physical_metrics.py\", line 50, in write\n    self.peak_per_leg.zero_()\nRuntimeError: Inplace update to inference tensor outside InferenceMode is not allowed.You can make a clone to get a normal tensor before doing inplace update.See https://github.com/pytorch/rfcs/pull/17 for more details.\n",
+    "progress_sha256": "91b1409380ccf10007cc7156570dabc8a2efb7da5dccac926136cec1aa484bd4",
+    "first_update_audit_sha256": "6bd607908bb50500f3e768e2c05131e4ff9f7706416443760b285fbfdbfa88e7",
+    "final_updated_PT_saved": false,
+    "last_saved_PT": "model_initial.pt at update0 only; never treat as the completed update1 state",
+    "previous_fully_completed_training_updates": 4225,
+    "total_actual_consumed_training_updates": 4226,
+    "failed_update_refunded": false,
+    "new_PPO_by_reader": 0,
+    "qualified": false,
+    "hardware_ready": false
+  },
+  "source_sha256": {
+    "scripts/fresh_physical_metrics.py": "c51308352f251eaed8e368b0e4b95cac2860adb4113ee295eb9cd3ef488c22fa",
+    "scripts/train_fresh_unified.py": "8fdc30451f447c01ba1fbe91823529db3f87b712324f50af7334a31cece5f664",
+    "scripts/verify_fresh_unified_runtime.py": "285b888b120a146a9e3fe688bfc60e9800e1eebfdb791f1edb102e58a1b64b87",
+    "tests/test_fresh_physical_metrics.py": "d717e87792b3780829f42335c72f9a2022db53b06b1f31ab0986679d7854df95"
+  },
+  "cpu_checks": [
+    {
+      "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_extrema_inference_fix_CPU001.xml",
+      "sha256": "f0a149519ddd9d159b719c3075e403e35e38ea686586fc81b9c1512e1f801c8d",
+      "tests": 26,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_extrema_inference_fix_CPU002.xml",
+      "sha256": "b40efc3ff539f9bd94b6b3e4b241cd3905f0a4e2ae2fbb621ec7d9e92f7c4d5e",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "cpu_checks_overlap": true,
+  "actual_bug": "Sampling replaced ordinary peak buffer with an inference tensor; mode-external zero_ then failed after one real PPO update",
+  "fix": "copy_ into the persistent ordinary buffer; preserve actual extrema and every threshold sample across mode boundaries",
+  "native_new_required_check": "physical_extrema_flush_after_inference",
+  "native_probe002": "not_run",
+  "next_bounded_fresh_plan": {
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot015_requested_mixed1536",
+    "updates": 1536,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "seed": 271001,
+    "foundation_updates": 192,
+    "full_tasks_at": 768,
+    "domain_warmup_updates": 192,
+    "domain_ramp_updates": 128,
+    "source_commit_required": true,
+    "fresh_actor_critic_empty_Adam": true,
+    "no_old_PT_reads": true,
+    "native002_all13_and_exit_required": true
+  },
+  "official_documentation": [
+    "https://docs.pytorch.org/docs/2.11/generated/torch.autograd.grad_mode.inference_mode.html",
+    "https://docs.pytorch.org/docs/2.11/generated/torch.Tensor.copy_.html"
+  ],
+  "context7_available": false,
+  "new_PPO_by_repair": 0,
+  "qualified": false,
+  "hardware_ready": false
+}

@@ -1,0 +1,304 @@
+{
+  "schema": "leg-motor-model-gap-read-only-audit-v1",
+  "observed_utc": "2026-10-27T02:45:57.109780+00:00",
+  "producer_sha256": "29fee7d9ad7232e3c0e991d45a460c21870c87b9971dd90b13e6cf189feb06ab",
+  "manufacturer": {
+    "url": "https://www.worldrobotconference.com/profile/robot/download/2025/06/30/%E8%BE%BE%E5%A6%99%E7%A7%91%E6%8A%80DAMIAO%20-%202025%E5%B9%B4%E4%BA%A7%E5%93%81%E9%80%89%E5%9E%8B%E6%89%8B%E5%86%8C_20250630192546A441.pdf",
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/manufacturer_dm_j8009_2025/damiao_2025_selection_manual.pdf",
+    "bytes": 1825243,
+    "sha256": "c99c4ad41a9635833f80444cc9e4fc0e007a64940e123d00286a98048b65eed3",
+    "page_zero_index": 16,
+    "read_only_source": true,
+    "hardware_identified": false,
+    "rendered_page_sha256": "e5af557c41cddcd55d0141de6d38a723c61289df230f69695dc8eec3505d9a99",
+    "complete_relevant_page_visually_inspected": true,
+    "rated_torque_nm": 20.0,
+    "peak_torque_nm": 40.0,
+    "rated_speed_rpm_at24V": 100.0,
+    "rated_speed_rpm_at48V": 200.0,
+    "no_load_speed_rpm_at24V": 168.0,
+    "no_load_speed_rpm_at48V": 335.0,
+    "supply_range_v": [
+      24.0,
+      48.0
+    ],
+    "performance_plots": "Both plots are labelled100RPM load tests, not a full voltage-speed-torque boundary",
+    "real_supply_voltage_known": false,
+    "rotor_inertia_published_on_this_page": false,
+    "full_torque_speed_envelope_identified": false
+  },
+  "current_native_leg_prior": {
+    "control_contract_sha256": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+    "run_config_sha256": "4ec8ec0dc751bbece9f2bad8744e802430b6e24ef609b200c4ff1aeca6e9aed8",
+    "startup_report_sha256": "62115f66d7c8c7c08b924595b8a7476fec9b18fe558ed942734d3512b8c1f965",
+    "actuator_response": {
+      "enabled": true,
+      "schema": "chassis-actuator-response",
+      "version": 1,
+      "joint_names": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "gain": 1.0,
+      "armature": [
+        0.0,
+        0.0,
+        0.0038669808882082915,
+        0.0,
+        0.0,
+        0.003818453742910773
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.049507400779663126,
+        0.0,
+        0.0,
+        0.06957712078102896
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0006085318417485766,
+        0.0,
+        0.0,
+        0.0003429025559035852
+      ],
+      "time_constant_s": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "native_first_environment": {
+      "armature": [
+        0.0,
+        0.0,
+        0.0038669807836413383,
+        0.0,
+        0.0,
+        0.0038184537552297115
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.04950740188360214,
+        0.0,
+        0.0,
+        0.06957712024450302
+      ],
+      "dynamic_friction": [
+        0.0,
+        0.0,
+        0.04950740188360214,
+        0.0,
+        0.0,
+        0.06957712024450302
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0006085318163968623,
+        0.0,
+        0.0,
+        0.0003429025528021157
+      ]
+    },
+    "leg_additional_armature_zero": true,
+    "leg_native_friction_and_damping_zero": true,
+    "total_link_inertia_zero": false,
+    "peak_torque_cap_nm": 40.0,
+    "identified_torque_speed_envelope": false,
+    "hardware_identified": false
+  },
+  "signed_work_by_1ms_motor_sample": [
+    {
+      "profile": "nominal",
+      "trace_sha256": "c7551fd01b7af5c7626a3d8f52fd7843374f28277d75714de35c5dfebd60742a",
+      "counts": [
+        {
+          "phase": "passive_placement",
+          "reference": "24V_published_no_load",
+          "reference_speed_rad_s": 17.59291886010284,
+          "motor_samples": 1192,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 1192
+        },
+        {
+          "phase": "passive_placement",
+          "reference": "48V_published_no_load",
+          "reference_speed_rad_s": 35.08111796508602,
+          "motor_samples": 4,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 4
+        },
+        {
+          "phase": "passive_placement",
+          "reference": "existing_50rad_s_diagnostic",
+          "reference_speed_rad_s": 50.0,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "active_recovery",
+          "reference": "24V_published_no_load",
+          "reference_speed_rad_s": 17.59291886010284,
+          "motor_samples": 4220,
+          "positive_motor_work_samples": 2516,
+          "braking_motor_work_samples": 1704,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "active_recovery",
+          "reference": "48V_published_no_load",
+          "reference_speed_rad_s": 35.08111796508602,
+          "motor_samples": 1000,
+          "positive_motor_work_samples": 744,
+          "braking_motor_work_samples": 256,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "active_recovery",
+          "reference": "existing_50rad_s_diagnostic",
+          "reference_speed_rad_s": 50.0,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "ordinary_active_control",
+          "reference": "24V_published_no_load",
+          "reference_speed_rad_s": 17.59291886010284,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "ordinary_active_control",
+          "reference": "48V_published_no_load",
+          "reference_speed_rad_s": 35.08111796508602,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "ordinary_active_control",
+          "reference": "existing_50rad_s_diagnostic",
+          "reference_speed_rad_s": 50.0,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        }
+      ]
+    },
+    {
+      "profile": "requested",
+      "trace_sha256": "bc982c7a28cb69f219098831d2e777502038e569e921f4af464b88b70a244bd6",
+      "counts": [
+        {
+          "phase": "passive_placement",
+          "reference": "24V_published_no_load",
+          "reference_speed_rad_s": 17.59291886010284,
+          "motor_samples": 1190,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 1190
+        },
+        {
+          "phase": "passive_placement",
+          "reference": "48V_published_no_load",
+          "reference_speed_rad_s": 35.08111796508602,
+          "motor_samples": 4,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 4
+        },
+        {
+          "phase": "passive_placement",
+          "reference": "existing_50rad_s_diagnostic",
+          "reference_speed_rad_s": 50.0,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "active_recovery",
+          "reference": "24V_published_no_load",
+          "reference_speed_rad_s": 17.59291886010284,
+          "motor_samples": 3964,
+          "positive_motor_work_samples": 2445,
+          "braking_motor_work_samples": 1519,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "active_recovery",
+          "reference": "48V_published_no_load",
+          "reference_speed_rad_s": 35.08111796508602,
+          "motor_samples": 850,
+          "positive_motor_work_samples": 654,
+          "braking_motor_work_samples": 196,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "active_recovery",
+          "reference": "existing_50rad_s_diagnostic",
+          "reference_speed_rad_s": 50.0,
+          "motor_samples": 63,
+          "positive_motor_work_samples": 39,
+          "braking_motor_work_samples": 24,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "ordinary_active_control",
+          "reference": "24V_published_no_load",
+          "reference_speed_rad_s": 17.59291886010284,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "ordinary_active_control",
+          "reference": "48V_published_no_load",
+          "reference_speed_rad_s": 35.08111796508602,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        },
+        {
+          "phase": "ordinary_active_control",
+          "reference": "existing_50rad_s_diagnostic",
+          "reference_speed_rad_s": 50.0,
+          "motor_samples": 0,
+          "positive_motor_work_samples": 0,
+          "braking_motor_work_samples": 0,
+          "zero_motor_work_samples": 0
+        }
+      ]
+    }
+  ],
+  "scope": "Same exact016 stopped policy, seed271301, first2s of198 cases per profile. Signed motor work is simultaneous tau*dq, not net mechanical energy or an attribution of017 training extrema. Published no-load speed is not an admissibility test for passive/backdriven motion. Positive work above that reference exposes the constant-cap modelling assumption but does not identify the missing real motor envelope.",
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "model_parameters_changed": false,
+  "curve_adopted": false,
+  "policy_qualified": false,
+  "hardware_ready": false
+}

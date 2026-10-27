@@ -1,0 +1,245 @@
+{
+  "schema": "scratch-standing-progress-v1",
+  "status": "training",
+  "pid": 280546,
+  "start_ticks": 1391023,
+  "started_utc": "2026-10-26T15:46:14.792136+00:00",
+  "seed": 261001,
+  "completed_updates": 231,
+  "optimizer_attempts": 231,
+  "checkpoint_reads": [],
+  "committed_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "6cdeda1db836c6933d7e6a657eef20431477e300",
+    "source_count": 265,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001/committed_source.tar",
+    "archive_sha256": "9414f1cc9fb075a367a5c9c57ca542a6987be800e062b7f43bb44a0ade35ae97"
+  },
+  "requested_updates": 512,
+  "hardware_ready": false,
+  "args": {
+    "output": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001",
+    "bank": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+    "updates": 512,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "seed": 261001,
+    "all_heights_after": 512,
+    "randomization_study": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+    "randomization_profile": "requested",
+    "randomization_strength": 1.0,
+    "speed_weight": 2.0,
+    "contact_weight": 8.0,
+    "contact_break_cost": 0.0,
+    "learning_rate": 0.0003,
+    "leg_target_rate_cost": null,
+    "precise_objective": true,
+    "normalize_observations": true,
+    "desync_episodes": true,
+    "standing_failures": true,
+    "wheel_velocity_increment": true,
+    "separate_leg_velocity_feedback": true,
+    "static_load_initialization": true,
+    "device": "cuda:0",
+    "fixed_target_probe": false,
+    "preflight_only": false
+  },
+  "physical_reward": {
+    "version": "physical-standing-cost-v1",
+    "physical_dt_s": 0.001,
+    "speed_scale_rad_s": 0.2,
+    "torque_delta_scale_nm": 2.0,
+    "speed_weight": 2.0,
+    "contact_weight": 8.0,
+    "torque_weight": 0.05,
+    "deadband_rad_s": 0.0,
+    "startup_grace_s": 0.0
+  },
+  "precise_reward": {
+    "version": "precise-standing-reward-v2-coupled",
+    "target_height_width_m": 0.015,
+    "tilt_width_deg": 5.0,
+    "stationary_velocity_width_m_s": 0.03,
+    "yaw_width_rad_s": 0.2,
+    "density_maximum_per_second": 12.0,
+    "native_termination_cost": 3.0,
+    "composition": "12*attitude_score*height_score*stationary_score-angular_cost",
+    "physical_costs": {
+      "version": "physical-standing-cost-v1",
+      "physical_dt_s": 0.001,
+      "speed_scale_rad_s": 0.2,
+      "torque_delta_scale_nm": 2.0,
+      "speed_weight": 2.0,
+      "contact_weight": 8.0,
+      "torque_weight": 0.05,
+      "deadband_rad_s": 0.0,
+      "startup_grace_s": 0.0
+    },
+    "startup_grace_s": 0.0,
+    "native_recovery_potential_retained_on_standing": false
+  },
+  "standing_failure_resets": {
+    "version": "standing-foundation-failure-v1",
+    "max_tilt_deg": 20.0,
+    "max_height_error_m": 0.025,
+    "additional_failure_cost": 3.0,
+    "state_writes": "episode reset only",
+    "applied_to_fixed_evaluation": false,
+    "mechanical_guards_unchanged": true,
+    "contact_acceptance_unchanged": true,
+    "domain_scope": {
+      "schema": "wheel-leg-resolved-randomization-study-v2",
+      "profile": "requested",
+      "termination_state": "true simulated state before reset; observation noise does not change these gates"
+    }
+  },
+  "standing_contact_continuity_contract": {
+    "schema": "standing-contact-continuity-training-v2",
+    "reward_cost_per_break": 0.0,
+    "force_threshold_n": 2.0,
+    "physical_dt_s": 0.001,
+    "policy_dt_s": 0.005,
+    "startup_grace_s": 0.0,
+    "module_sha256": {
+      "src/wheeled_tasks/chassis/standing_contact_continuity.py": "38c7961c8df2dc158c338fcd50edc839cc627e018cadc2c6303c4b06e926bce3",
+      "src/wheeled_tasks/chassis/standing_contact_monitor.py": "932d9ca3edc3ee19d610c28af3725a52831704c59b9cf2dff84b5e3d05161e79"
+    },
+    "formula": "cost*count_1ms(supported_previous_ms and not supported_current_ms)",
+    "support": "both wheel contact force norms strictly exceed2N; previous support initialized true at explicit grounded reset",
+    "scope": "zero-request non-recovery pure-RL standing training only; dense load and separation cost retained; fixed evaluation unchanged; no added termination"
+  },
+  "initialization": {
+    "schema": "scratch-ppo-initialization-v1",
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "actor_updates": 0,
+    "critic_updates": 0,
+    "optimizer_states": 0,
+    "actor_tensor_sha256": "d3e40fdd298cd2d6072a4ecfc06c987453c2811fe55bbadcff66e56b3f25e095",
+    "critic_tensor_sha256": "bba66fe18caca514de1f7603a4316b0459c45f6ea759c7ed5653e6d056c22c87",
+    "actor_trainable_parameters": 29772,
+    "critic_trainable_parameters": 35585,
+    "output_bias_source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+    "output_bias_policy_order": [
+      0.39714956283569336,
+      -0.1700170785188675,
+      -0.3971973955631256,
+      0.170059934258461,
+      0.0,
+      0.0
+    ],
+    "initial_std_policy_order": [
+      0.01,
+      0.01,
+      0.01,
+      0.01,
+      0.05,
+      0.05
+    ],
+    "static_load_initialization": {
+      "schema": "scratch-static-load-initialization-v1",
+      "reference_sha256": "7d144218dd509d6e8cd1ec4aa813cce2f67cb6960841398638a9b14b08ffe728",
+      "native_pair_sha256": "88259d94013b904bbd8bee071a6694d17513e08bed3f96c41e5ec483b1f93ea0",
+      "geometry_policy_raw": [
+        0.29959918300456945,
+        -0.05938980783276504,
+        -0.29959918300456945,
+        0.05939136655550859,
+        0.0,
+        0.0
+      ],
+      "offset_policy_raw": [
+        0.09755037610874084,
+        -0.11062725925258295,
+        -0.09759822002341223,
+        0.11066859127489273,
+        0.0,
+        0.0
+      ],
+      "biased_policy_raw": [
+        0.3971495591133103,
+        -0.17001706708534797,
+        -0.3971974030279817,
+        0.17005995783040131,
+        0.0,
+        0.0
+      ],
+      "runtime_compensation": false,
+      "all_outputs_trainable": true,
+      "source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+      "scope": "Startup initialization prior; no standing, robustness or hardware qualification",
+      "domain_scope": {
+        "nominal_contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.5,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.5,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        },
+        "training_contact_material": {
+          "enabled": true,
+          "combine_mode": "average",
+          "ground_static_friction_range": [
+            0.3,
+            0.5
+          ],
+          "ground_dynamic_friction_range": [
+            0.3,
+            0.5
+          ],
+          "wheel_static_friction": 0.1,
+          "wheel_dynamic_friction": 0.1,
+          "body_static_friction": 0.25,
+          "body_dynamic_friction": 0.25
+        },
+        "randomized_domain_native_validation": false,
+        "initialization_only": "nominal load prior; all six outputs remain trainable"
+      }
+    },
+    "actor_class": "wheeled_algo.leg_velocity_separated:LegVelocitySeparatedModel",
+    "wheel_velocity_increment": true,
+    "separate_leg_velocity_feedback": true
+  },
+  "last_checkpoint": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001/model_224.pt",
+    "sha256": "ed7a6e446278066cf186b52b75a129ece90413362897819596356ea7d78dd062",
+    "updates": 225
+  },
+  "optimizer_update_in_flight": false,
+  "elapsed_s": 4454.403786953002,
+  "last_losses": {
+    "value": 0.1897506813208262,
+    "surrogate": -0.00015410703296462694,
+    "entropy": -16.65648126602173
+  },
+  "valid_rollout": {
+    "valid_transitions": 32768,
+    "script_or_blend_transitions": 0,
+    "valid_fraction": 1.0,
+    "minimum_mini_batch_population": 8192
+  },
+  "last_physical_metrics": {
+    "dual_support_physical_fraction": 0.996874988079071,
+    "missing_ms_per_policy_step": 0.015625,
+    "leg_speed_rms_rad_s": 0.05448457971215248,
+    "leg_speed_peak_rad_s": 0.4842391312122345,
+    "leg_torque_delta_rms_nm_per_ms": 0.3241187632083893,
+    "wheel_clearance_peak_m": 0.00031283870339393616,
+    "speed_cost_density_per_second": 0.12870457768440247,
+    "support_cost_density_per_second": 0.04277307540178299,
+    "torque_cost_density_per_second": 0.0009697281057015061,
+    "paid_speed_cost_per_policy_step": 0.000643522827886045,
+    "paid_support_cost_per_policy_step": 0.00021386536536738276,
+    "native_reward_per_policy_step": 0.027941497042775154
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "requested-domain-v2-live-training-and-serial-queue-v1",
+  "observed_utc": "2026-10-26T17:51:42.078654+00:00",
+  "training": {
+    "run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001",
+    "pid": 280546,
+    "start_ticks": 1391023,
+    "command": "/home/noir/miniconda3/envs/isaacsim6/bin/python -u scripts/train_scratch_standing.py --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001 --bank /home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json --updates 512 --num-envs 256 --rollout-steps 128 --seed 261001 --all-heights-after 512 --precise-objective --normalize-observations --desync-episodes --standing-failures --wheel-velocity-increment --separate-leg-velocity-feedback --static-load-initialization --contact-break-cost 0 --randomization-study /home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json --randomization-profile requested ",
+    "completed_updates": 407,
+    "requested_updates": 512,
+    "checkpoint_reads": [],
+    "frozen_training_commit": "6cdeda1db836c6933d7e6a657eef20431477e300",
+    "all265_sources_unchanged": true,
+    "progress_snapshot_sha256": "c790b4de6ad810bfc23e956521c3afb02022e821d46d86f06a628fe4e9f4a95e"
+  },
+  "serial_evaluation_queue": {
+    "folder": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_v2_evaluation_queue002",
+    "pid": 427477,
+    "start_ticks": 2130418,
+    "command": "/home/noir/miniconda3/envs/isaacsim6/bin/python -u scripts/queue_requested_domain_evaluation.py --training-run /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001 --training-pid 280546 --training-start-ticks 1391023 --expected-updates 512 --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_v2_evaluation_queue002 ",
+    "tool_session_id": 30051,
+    "source_commit": "0092cc6b",
+    "receipt_snapshot_sha256": "00d2024cb3931849e1030ef124806d4fe8852cc61951b847ed3d9a9f5159f319",
+    "all12_helper_contract_sources_unchanged": true,
+    "current_child": null,
+    "new_PPO": 0,
+    "training_restarts_allowed": false
+  },
+  "failed_queue_preserved": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_v2_evaluation_queue001/receipt.json",
+    "sha256": "00e69b233c330195974a35b771df29742aec40ad3e29ada35e235e1f6e8167b6",
+    "native_steps": 0,
+    "new_PPO": 0,
+    "cause": "Two evaluator helpers absent from managed worktree; restored exact authenticated prior diagnostic bytes"
+  },
+  "queue_CPU_tests": 8,
+  "queue_CPU_test_evidence_sha256": "916666e54d56a85bf2bd8eea67e93a2756ac9fe21652670183032bd6919ac1d6",
+  "CPU_sensor_response_result": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/sensor_functional_response002/result.json",
+  "CPU_sensor_response_result_sha256": "f85e12b6517d8b61ae416b167412a939084aff1d080513dc7b61bbe4e393bf51",
+  "CPU_sensor_response_verification": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/sensor_functional_response002/verification.json",
+  "interpretation": "One-frame CPU feedback sensitivity only; weaker true pitch/gyro response needs native closed-loop confirmation.",
+  "full_goal_remaining": true,
+  "long_training_started": false,
+  "ONNX_exported": false,
+  "RMCS_deployed": false,
+  "native_behavior_qualified": false,
+  "hardware_ready": false,
+  "verifier_sha256": "f9e3d80fd07bbe58b04d04ffc1a379297f330361e05d23d0f65011adabc00386"
+}

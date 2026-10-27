@@ -1,0 +1,129 @@
+{
+  "schema": "wheel-leg-encoder-feedback-chain-source-audit-v1",
+  "observed_utc": "2026-10-26T18:03:45.236250+00:00",
+  "sources": {
+    "observation.cpp": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/observation.cpp",
+      "sha256": "626fed4372448f71a65941a81ee71fea1d750224fee1d978c19048b98b47ca10",
+      "evidence": [
+        {
+          "line": 49,
+          "text": "const Eigen::Vector4d measured = leg_jacobian_ * motor_q + leg_offset_;"
+        },
+        {
+          "line": 149,
+          "text": "position[i] = q_[i];"
+        },
+        {
+          "line": 175,
+          "text": "*model_angle_outputs_[i] = q_[i];"
+        }
+      ]
+    },
+    "action.cpp": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/action.cpp",
+      "sha256": "8f1dfafe26256dd0d74dd5b1d5b2fe321bd26d1bba0eee71cb9fff10636f4469",
+      "evidence": [
+        {
+          "line": 87,
+          "text": "Eigen::Vector4d tau = (policy_profile_.leg_kp * (policy_targets_.head<4>() - q_.head<4>())"
+        },
+        {
+          "line": 122,
+          "text": "const double target = *angle_inputs_[i] + delta[i];"
+        }
+      ]
+    },
+    "unified_observation.hpp": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/unified_observation.hpp",
+      "sha256": "281097c814e59e59b6b3c746398fe181467eab416b1117c5166d15af46fb26df",
+      "evidence": []
+    },
+    "dm_motor.hpp": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/hardware/device/dm_motor.hpp",
+      "sha256": "4acbbc47c500035b7d39d64b3830213a7638a576813a3a934a4580be6754416e",
+      "evidence": [
+        {
+          "line": 197,
+          "text": "std::clamp(angle_bias_ + sign * p_des, -position_max_, position_max_);"
+        },
+        {
+          "line": 301,
+          "text": "angle_ = sign * (raw_angle - angle_bias_);"
+        }
+      ]
+    },
+    "wheel-leg-infantry-unified-rl.yaml": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-unified-rl.yaml",
+      "sha256": "c63fe069acc2e2066e08275da47e50ec58a5228c96df8ce9a440b2827768de5b",
+      "evidence": [
+        {
+          "line": 37,
+          "text": "joint_control_mode: \"torque\""
+        }
+      ]
+    },
+    "robust_getup.py": {
+      "path": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup.py",
+      "sha256": "3a8199b34c58118e0617628319a7238dac03f3742ca5963d491243841cfec3e9",
+      "evidence": [
+        {
+          "line": 132,
+          "text": "self.bias[ids, 6:10] = self.uniform(ids, [-cfg[\"encoder_bias_rad\"], cfg[\"encoder_bias_rad\"]], 4)"
+        }
+      ]
+    },
+    "getup_feedback.py": {
+      "path": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/getup_feedback.py",
+      "sha256": "026865835d33c5afafd9002056e353f01cc17b29fcbe8f49e1335eb5f67d24c7",
+      "evidence": [
+        {
+          "line": 24,
+          "text": "self.bias[ids] = (torch.rand(len(ids), 6, device=q.device, generator=self.rng) * 2 - 1) * self.cfg[\"pd_encoder_bias_rad\"]"
+        }
+      ]
+    },
+    "shared_encoder_bias_probe.py": {
+      "path": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/scripts/shared_encoder_bias_probe.py",
+      "sha256": "08df4f512ad1562dcb9c822371e0cb58920093f628609f5d2c5968132064aa18",
+      "evidence": []
+    }
+  },
+  "RMCS_current_HEAD": "ca287d91b016284bea84a5d57281a2d35f3e4637",
+  "RMCS_active_branch": "feat/wheel_leg_sweep",
+  "skill": "/home/noir/.agents/skills/RMCS_Specification/SKILL.md",
+  "code_findings": [
+    "Current unified RL YAML selects host torque. Model q is used by both the actor observation and the host leg PD position error.",
+    "The optional internal motor position-PD path maps the model error back to the same encoder API; DmMotor applies the calibration bias to both command and reported angle.",
+    "Simulation currently draws policy leg encoder zero and PD leg encoder zero independently, each within+/-0.004rad. This models a second static mismatch as well as a common zero uncertainty."
+  ],
+  "independent_zero_disagreement": {
+    "max_abs_rad": 0.008,
+    "rms_rad": 0.0032659863237109042,
+    "proportional_torque_max_nm_at_Kp160": 1.28,
+    "proportional_torque_rms_nm_at_Kp160": 0.5225578117937447
+  },
+  "prepared_test": {
+    "helper": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/scripts/shared_encoder_bias_probe.py",
+    "helper_sha256": "08df4f512ad1562dcb9c822371e0cb58920093f628609f5d2c5968132064aa18",
+    "intervention": "Only PD leg zero becomes the same draw as policy leg zero. Both native draws still consumed; policy bias and every other random draw stay unchanged.",
+    "common_encoder_zero_range_rad": [
+      -0.004,
+      0.004
+    ],
+    "native_test_completed": false,
+    "CPU_tests": 2,
+    "CPU_tests_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/shared_encoder_probe_CPU002.xml",
+    "current_training_changed": false,
+    "current_serial_queue_changed": false,
+    "adopted": false
+  },
+  "limitation": "Source-level modeling mismatch hypothesis. No live RMCS process, CAN/internal encoder equality, closed-loop benefit or sole training root cause was verified. Quantization and sample-age differences remain separate physical uncertainties.",
+  "RMCS_files_modified": false,
+  "new_PPO": 0,
+  "new_native_steps": 0,
+  "hardware_motion": false,
+  "behavior_qualified": false,
+  "hardware_ready": false,
+  "producer_sha256": "481bbb00d54f26c8c53b6bf605ac547cdf0b1a31133b5e47c2857747d8127631"
+}

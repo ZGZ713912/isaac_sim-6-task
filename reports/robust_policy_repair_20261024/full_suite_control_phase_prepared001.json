@@ -1,0 +1,31 @@
+{
+  "schema": "fresh-full-suite-control-phase-prepared-v1",
+  "observed_utc": "2026-10-27T01:59:26.202479+00:00",
+  "source_sha256": {
+    "scripts/evaluate_fresh_full_suite.py": "33c52dfaea02b12d0b2df0d7c4be0e3041fd24942c9607fa9b677006ee2ba1fd",
+    "scripts/wheel_leg_full_suite.py": "9ce252dc252ace344cd7994e80f9ac98bd305fbb0201fdd4d083a1894a825fbe",
+    "scripts/queue_fresh_full_suite.py": "645f593f4a53d79db95dbb23b56200f99c71c72e1d6361c402f8e2e640753829",
+    "tests/test_wheel_leg_full_suite.py": "aa41e5d30aea7f39987e0914fcfb99984ac97b4629e2ac0a6926e52e0e022ab2",
+    "tests/test_fresh_full_suite_queue.py": "7f3b6193e3eb12882e09efa11b1a186cc52976b16751cc423f3baf7dec538c2f"
+  },
+  "training_sources_unchanged": 274,
+  "training_process_untouched": true,
+  "closed_queue": "fresh_full_suite_queue017_stopped_closure001.json",
+  "new_trace_fields": [
+    "passive_at_interval_start",
+    "recovery_at_interval_start"
+  ],
+  "capture": "Copied before env.step; each flag owns all five subsequent1ms physical samples",
+  "diagnostics": "Each phase retains motor sample counts, peaks and signed speed/torque/power at the same sample. Empty phases and historical missing flags are unmeasured. Whole-episode speed alert remains unchanged.",
+  "RSL_metric_prefix": "FullSuite/<capability>/smoothness/control_phases/phases/",
+  "CPU_tests": {
+    "passed": 46,
+    "xml": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/full_suite_control_phase_cpu002.xml",
+    "sha256": "e86d407accf94ce7039ecd917ff03774b5f25a9bd88e1ee2590b033602979116",
+    "earlier_failure": "Float timestamp literal equality in test; replaced with approximate comparison. Original failed XML retained."
+  },
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "full_suite_native_verified": false,
+  "behavior_qualified": false
+}

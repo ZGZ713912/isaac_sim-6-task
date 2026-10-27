@@ -1,0 +1,188 @@
+{
+  "schema": "fresh018-encoder-wire-range-source-audit-v1",
+  "observed_utc": "2026-10-27T05:16:33.090126+00:00",
+  "sources": {
+    "driver": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/hardware/device/dm_motor.hpp",
+      "sha256": "4acbbc47c500035b7d39d64b3830213a7638a576813a3a934a4580be6754416e"
+    },
+    "feedback_mapping": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/observation.cpp",
+      "sha256": "626fed4372448f71a65941a81ee71fea1d750224fee1d978c19048b98b47ca10"
+    },
+    "mapping_configuration": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg/configuration.cpp",
+      "sha256": "08722af6edc75475c410af11b1d8008bd8655022c04e82a0ff4daffb1a9b0817"
+    },
+    "yaml": {
+      "path": "/home/noir/Documents/workspace/RMCS/rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml",
+      "sha256": "261e757ba3349d826e9a0150667affe7ce572c3066e0521f23779538ce651848"
+    },
+    "src/wheeled_tasks/chassis/scut_observation.py": {
+      "path": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/scut_observation.py",
+      "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5"
+    },
+    "src/wheeled_tasks/chassis/getup_feedback.py": {
+      "path": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/getup_feedback.py",
+      "sha256": "026865835d33c5afafd9002056e353f01cc17b29fcbe8f49e1335eb5f67d24c7"
+    },
+    "src/wheeled_tasks/chassis/robust_getup.py": {
+      "path": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup.py",
+      "sha256": "002ee33a7c94346f3037df44082edecd746c8d77309be40d0f51749ca6a40890"
+    }
+  },
+  "RMCS_HEAD": "ca287d91b016284bea84a5d57281a2d35f3e4637",
+  "configured_host_control_mode": "torque",
+  "API_to_model_matrix": [
+    [
+      -1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      -1.0
+    ]
+  ],
+  "configured_wire": {
+    "velocity_bits": 12,
+    "position_bits": 16,
+    "velocity_api_bounds_rad_s": [
+      [
+        -45.0,
+        45.0
+      ],
+      [
+        -45.0,
+        45.0
+      ],
+      [
+        -45.0,
+        45.0
+      ],
+      [
+        -45.0,
+        45.0
+      ]
+    ],
+    "velocity_model_bounds_rad_s": [
+      [
+        -45.0,
+        45.0
+      ],
+      [
+        -45.0,
+        45.0
+      ],
+      [
+        -45.0,
+        45.0
+      ],
+      [
+        -45.0,
+        45.0
+      ]
+    ],
+    "velocity_LSB_rad_s": [
+      0.02197802197802198,
+      0.02197802197802198,
+      0.02197802197802198,
+      0.02197802197802198
+    ],
+    "position_LSB_rad": [
+      0.00038147554741741054,
+      0.00038147554741741054,
+      0.00038147554741741054,
+      0.00038147554741741054
+    ],
+    "smallest_abs_velocity_level_rad_s": 0.010989010989007397,
+    "zero_exactly_representable": false
+  },
+  "conditional_nearest_level_bounds": {
+    "assumption": "Nearest-level in-range quantization; firmware rounding and error distribution are unverified",
+    "half_LSB_position_PD_error_Nm": [
+      0.030518043793392843,
+      0.030518043793392843,
+      0.030518043793392843,
+      0.030518043793392843
+    ],
+    "half_LSB_velocity_PD_error_Nm": [
+      0.027472527472527476,
+      0.027472527472527476,
+      0.027472527472527476,
+      0.027472527472527476
+    ]
+  },
+  "simulation": {
+    "leg_policy_velocity_noise_sigma_rad_s": 0.0175,
+    "low_level_PD_uses_float_simulator_velocity": true,
+    "low_level_PD_quantization_modeled": false,
+    "scut_builder_velocity_clip_before_domain_rad_s": 1000.0,
+    "nominal_noise_enabled": false,
+    "startup_samples_sha256": "a6379ef74dac39af45cc71f7154b5372e178b33e4025b692aa4a893affd7d022"
+  },
+  "actual_training_evidence": {
+    "source_report": "/home/noir/.codex/worktrees/wheel-leg-domain-v2/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/fresh_unified018_full352_012.json",
+    "report_sha256": "4ab03536534aa7bfef06f7abf3af99a08755b35cea9867364002715e45110c04",
+    "event_prefix": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/fresh_unified_20261027/pilot018_velocity_quartic_physical_speed_mixed1536/events.out.tfevents.1793072226.ZGZ.1079271.0",
+      "bytes": 5126473,
+      "sha256": "1c30c31cd417bacb394422cd330349db8b0117a750ee582c853a43d81b57e430"
+    },
+    "complete_updates": 353,
+    "global_peak_update": 342,
+    "global_peak_witness": {
+      "speed_rad_s": 74.41363525390625,
+      "signed_speed_rad_s": -74.41363525390625,
+      "applied_torque_nm": 40.0,
+      "motor_power_w": -2976.54541015625,
+      "lane": 72.0,
+      "leg_policy_index": 3.0,
+      "physical_substep_one_based": 5.0,
+      "policy_interval_zero_based": 59.0,
+      "phase_code": 1.0,
+      "training_role_index": 1.0,
+      "episode_physical_time_s": 0.2499999850988388
+    },
+    "peak_lane_randomized": true,
+    "peak_lane_PPO_admitted": true,
+    "rollout_maxima_above_configured_model_range": 8,
+    "phases_of_those_rollout_maxima": {
+      "0": 0,
+      "1": 8,
+      "2": 0,
+      "3": 0
+    },
+    "scope": "One actual maximum per rollout; neither total out-of-range samples nor their duration can be reconstructed."
+  },
+  "limitations": [
+    "Repository YAML/source only; no live vehicle configuration or motor register readback.",
+    "Wire representability is not a mechanical speed limit. Above-range firmware saturation/wrapping/error behavior is unknown.",
+    "No continuous motor energy or full preceding peak trajectory was recorded by the single-maximum witness.",
+    "This sensor-model gap does not establish the cause of nominal standing drift or the benefit of any intervention."
+  ],
+  "current_training_changed": false,
+  "RMCS_files_modified": false,
+  "new_native_steps": 0,
+  "new_PPO": 0,
+  "optimizer_constructed": false,
+  "hardware_motion": false,
+  "behavior_qualified": false,
+  "hardware_ready": false,
+  "producer_sha256": "75c436a9221379ea075642b89614b510d1369d980cea65408f00d29078243f50"
+}

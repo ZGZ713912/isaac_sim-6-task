@@ -1,0 +1,99 @@
+--- a/scripts/train_scratch_standing.py
++++ b/scripts/train_scratch_standing.py
+@@ -107,6 +107,15 @@
+         apply(changes, task, study)
+         write_json(args.output / "randomization_study.resolved.json", study)
+         (args.output / "randomization_study.input.json").write_bytes(study_path.read_bytes())
++    admission = None
++    if getattr(args, "domain_admission_warmup_updates", None) is not None:
++        from domain_learning_admission_candidate import plan
++        if study is None or study["profile"] != "requested":
++            raise ValueError("Domain admission requires the full explicit requested profile")
++        admission = plan(args.domain_admission_warmup_updates, args.domain_admission_ramp_updates,
++                         args.updates, args.domain_admission_seed)
++        task["domain_learning_admission"] = admission
++        task["version"] += "-gradual-domain-admission-v1"
+     static_prior = None
+     if args.static_load_initialization:
+         from wheeled_algo.standing_load_initialization import load_prior
+@@ -153,7 +162,7 @@
+         curriculum=dict(mid_height_until_update=args.all_heights_after, then_heights_m=[.23, .305, .42]),
+         current_scope=("explicit domain study standing foundation; robustness and recovery are not qualified"
+                        if study is not None else "nominal standing foundation; robustness and recovery are not qualified"),
+-        randomization_study=study,
++        randomization_study=study, domain_learning_admission=admission,
+         precise_standing_objective=args.precise_objective, normalized_observations=args.normalize_observations,
+         standing_reward_shape=reward_shape,
+         desynchronized_initial_episode_lengths=args.desync_episodes,
+@@ -176,7 +185,8 @@
+ 
+ 
+ def sources():
+-    files = list((ROOT / "src").rglob("*.py")) + [Path(__file__)]
++    files = list((ROOT / "src").rglob("*.py")) + [Path(__file__),
++        ROOT / "scripts/domain_learning_admission_candidate.py"]
+     return {str(path.relative_to(ROOT)): digest(path) for path in sorted(files)}
+ 
+ 
+@@ -306,6 +316,10 @@
+     parser.add_argument("--rollout-steps", type=int, default=128)
+     parser.add_argument("--seed", type=int, default=261001)
+     parser.add_argument("--all-heights-after", type=int, default=512)
++    parser.add_argument("--domain-admission-warmup-updates", type=int,
++                        help="Opt-in nominal-sample warmup; physical requested widths stay full from startup")
++    parser.add_argument("--domain-admission-ramp-updates", type=int, default=128)
++    parser.add_argument("--domain-admission-seed", type=int, default=261501)
+     parser.add_argument("--randomization-study", type=Path,
+                         help="Opt-in JSON with independent domain groups; new actor/critic/empty Adam only")
+     parser.add_argument("--randomization-profile",
+@@ -363,6 +377,15 @@
+             target_contract(args.leg_target_rate_cost)
+         except ValueError as error:
+             parser.error(str(error))
++    if args.domain_admission_warmup_updates is not None:
++        if args.randomization_study is None or args.randomization_profile != "requested":
++            parser.error("Admission requires the explicit full requested profile")
++        from domain_learning_admission_candidate import plan
++        try:
++            plan(args.domain_admission_warmup_updates, args.domain_admission_ramp_updates,
++                 args.updates, args.domain_admission_seed)
++        except ValueError as error:
++            parser.error(str(error))
+     args.output, args.bank = args.output.resolve(), args.bank.resolve()
+     args.output.mkdir(parents=True, exist_ok=False)
+     cfg, task = prepare(args)
+@@ -475,6 +498,16 @@
+         initial_actor = {key: value.detach().cpu().clone() for key, value in runner.alg.actor.state_dict().items()}
+         initial_critic = {key: value.detach().cpu().clone() for key, value in runner.alg.critic.state_dict().items()}
+         mask = RecoveryRolloutMask(runner.alg, num_envs=args.num_envs)
++        if task.get("domain_learning_admission") is not None:
++            from domain_learning_admission_candidate import Admission, install as install_admission
++            schedule = Admission(env.domain.enabled, warmup_updates=args.domain_admission_warmup_updates,
++                                 ramp_updates=args.domain_admission_ramp_updates, seed=args.domain_admission_seed)
++            report["domain_learning_admission"] = install_admission(env, runner.alg, schedule, record_group_metrics=True)
++            report["domain_learning_admission"].update(training_adopted=True, total_updates=args.updates)
++            planned = task["domain_learning_admission"]
++            for key in ("warmup_updates", "ramp_updates", "priority_seed", "full_population_at_completed_update", "total_updates"):
++                if report["domain_learning_admission"][key] != planned[key]:
++                    raise ValueError("Native domain-admission schedule differs from the frozen task contract")
+         native_update = runner.alg.update
+ 
+         def save(path, infos=None):
+@@ -487,6 +520,7 @@
+                 settings=task, source_hashes=source_hashes, bank_sha256=digest(args.bank),
+                 actor_class=runner_cfg["actor"]["class_name"],
+                 agent_config_sha256=digest(args.output / "agent_config.json"),
++                domain_learning_admission=report.get("domain_learning_admission"),
+                 standing_contact_continuity_contract=report.get("standing_contact_continuity_contract"),
+                 standing_leg_target_rate_contract=report.get("standing_leg_target_rate_contract"),
+                 mechanism_config_sha256=digest(args.output / "config/contract.json"),
+@@ -509,6 +543,9 @@
+                 if any(not torch.isfinite(parameter).all() for parameter in model.parameters()):
+                     raise RuntimeError("Nonfinite fresh PPO parameter")
+             if report["completed_updates"] == 1:
++                if task.get("domain_learning_admission") is not None:
++                    for key in ("warmup_updates", "ramp_updates", "total_updates", "full_population_at_completed_update"):
++                        runner.logger.writer.add_scalar("DomainAdmissionConfig/" + key, task["domain_learning_admission"][key], 0)
+                 runner.logger.writer.add_scalar("DomainSensorsConfig/selective_reset_clock_enabled", 1., 0)
+                 runner.logger.writer.add_scalar("PrecisionStandingConfig/joint_long_tail_enabled",
+                     float(args.standing_reward_shape == "joint-long-tail"), 0)

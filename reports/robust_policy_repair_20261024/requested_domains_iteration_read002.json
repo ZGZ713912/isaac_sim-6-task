@@ -1,0 +1,81 @@
+{
+  "schema": "requested-domain-v2-progress-and-full-suite-preparation-v1",
+  "observed_utc": "2026-10-26T17:00:39.298658+00:00",
+  "active_run": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot010_requested_domains_retry001",
+  "active_pid": 280546,
+  "active_start_ticks": 1391023,
+  "completed_fresh_updates": 231,
+  "requested_updates": 512,
+  "frozen_training_commit": "6cdeda1db836c6933d7e6a657eef20431477e300",
+  "all265_live_and_archived_sources_unchanged": true,
+  "progress_snapshot_sha256": "5f413bdd5b0b92c5b9d2aeb64eef0d1b077dd19b8254664c2c915416dc602f8f",
+  "checkpoint_reads": [],
+  "optimizer_attempts": 231,
+  "RSL_comparison": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/requested_domains_first200002.json",
+  "RSL_comparison_sha256": "f0216fad893ec34d0114e14c53e97cd0b53433338a09bfdb9f51c34de5eceb73",
+  "full_suite_CPU_tests": 16,
+  "CPU_test_evidence_sha256": "7629120574ac6eec9ef50cd5d2a4a41cb3f9905e545797b2f7de0ca6c0b4dae0",
+  "full_suite_CPU_preflights": [
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/full_suite_preflight003_nominal",
+      "checkpoint_sha256": "569b48dab80500db8d08ca53c840f32e8cbf03b82fda8f8d580d983913cb3469",
+      "seed": 261301,
+      "case_count": 198,
+      "native_steps": 0,
+      "evidence_sha256": {
+        "receipt.json": "9c9b79c79b0fd4f282c38e0d7e7d0cdab403c0d180d7a9870958e4f86ae4b9a2",
+        "cases.json": "a19ececfd7fc97731c4d1e3883ad4c2788de850d22674dfbc7d1123d0ccbeec8",
+        "preflight.json": "76201c4029bf3fbe7a25c8cf3827513f68748970ad71478533144b26bb798859",
+        "floor_geometry.json": "ab34b15021d9eb98224c3094ee4e2fc809689e2e0087429ec91295cb5e9b396a"
+      }
+    },
+    {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/full_suite_preflight004_requested",
+      "checkpoint_sha256": "569b48dab80500db8d08ca53c840f32e8cbf03b82fda8f8d580d983913cb3469",
+      "seed": 261301,
+      "case_count": 198,
+      "native_steps": 0,
+      "evidence_sha256": {
+        "receipt.json": "7a9ac6e9b2c128c718427855ad8851aa3748e1c07862a5d3e8fda4b867ef98ec",
+        "cases.json": "a19ececfd7fc97731c4d1e3883ad4c2788de850d22674dfbc7d1123d0ccbeec8",
+        "preflight.json": "f070f213a1a4ad0d6508a92a59b87ccc7774ed20174bc910acdb824871f8294c",
+        "floor_geometry.json": "ab34b15021d9eb98224c3094ee4e2fc809689e2e0087429ec91295cb5e9b396a"
+      }
+    }
+  ],
+  "full_suite_native_steps": 0,
+  "full_suite_native_verified": false,
+  "superseded_design_only_preflights": [
+    "full_suite_preflight001_nominal",
+    "full_suite_preflight002_requested"
+  ],
+  "preflight_correction": "Exercise the archived floor factory too. Its64m half-length bound requires declared18s high-speed straight; other cases30s. No factory/controller patch or posthoc test window.",
+  "existing_capabilities_still_required": [
+    "initial_recovery",
+    "moving_fall_recovery",
+    "standing",
+    "low_speed_straight",
+    "high_speed_straight",
+    "stationary_spin",
+    "four_direction_arcs",
+    "standing_height_change",
+    "moving_height_change",
+    "spinning_height_change",
+    "high_speed_braking",
+    "smoothness",
+    "robustness"
+  ],
+  "next_actions": [
+    "Complete512 bounded fresh updates; seal/check exact process exit and final checkpoint.",
+    "Evaluate the same frozen final actor in nominal/requested held-out domains; keep all failed trials and apply<=2ms contact review.",
+    "If degraded, compare declared without-encoder-bias, without-policy-delay and without-alignment profiles; verify actual nonintervened draws before causal attribution.",
+    "Train a fresh unified curriculum covering all permanent tasks, without loading an old policy/teacher; complete full behavior/seed/domain gates before long training, ONNX and RMCS integration."
+  ],
+  "training_continues": true,
+  "long_training_started": false,
+  "ONNX_exported": false,
+  "RMCS_deployed": false,
+  "native_behavior_qualified": false,
+  "hardware_ready": false,
+  "verifier_sha256": "983e43c9e46acc3557e6e2c60ee682e7c81e732ea18943fd6ee38256d36c055a"
+}

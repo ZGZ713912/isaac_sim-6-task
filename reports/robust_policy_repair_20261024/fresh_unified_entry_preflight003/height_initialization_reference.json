@@ -1,0 +1,131 @@
+{
+  "schema": "fresh-three-height-static-initialization-candidate-v1",
+  "observed_utc": "2026-10-26T18:15:32.614659+00:00",
+  "status": "CPU_mechanics_match_unqualified",
+  "current_manifest_sha256": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+  "bank_sha256": "e85ae674548eb76101d8591726d24378a6be74cd9b3240b01150f9e28358d76a",
+  "mechanism_config_sha256": "3dd92673e9d1e0561fbd599b7d2ad4ef057b5c5c85742cf8a80b130d97b84a7e",
+  "targets_sha256": "7fe193fa6d2662d105b5601079dfa969a56a916c60c38fb1303a0120faeef53a",
+  "rows": [
+    {
+      "height_m": 0.23,
+      "pose_index": 429,
+      "maximum_joint_difference_from_current_bank_rad": 1.1268763699945339e-14,
+      "root_height_difference_from_current_bank_m": 1.2212453270876722e-15,
+      "static_torque_control_nm": [
+        1.2438291974623956,
+        -1.7668936899846432,
+        0.0,
+        -1.2452338257988762,
+        1.7680593533845226,
+        0.0
+      ],
+      "biased_action_policy_order": [
+        1.5430920595860858,
+        -1.027786113930373,
+        -1.5431271752944977,
+        1.0278330309880646,
+        0.0,
+        0.0
+      ],
+      "action_within_native_clip": true,
+      "static_leg_torque_within_native_cap": true
+    },
+    {
+      "height_m": 0.305,
+      "pose_index": 430,
+      "maximum_joint_difference_from_current_bank_rad": 0.0,
+      "root_height_difference_from_current_bank_m": 0.0,
+      "static_torque_control_nm": [
+        3.9020150443496373,
+        -4.4250903701033195,
+        0.0,
+        -3.9039288009364856,
+        4.426743650995705,
+        0.0
+      ],
+      "biased_action_policy_order": [
+        0.3971495591133104,
+        -0.17001706708534803,
+        -0.39719740302798157,
+        0.17005995783040123,
+        0.0,
+        0.0
+      ],
+      "action_within_native_clip": true,
+      "static_leg_torque_within_native_cap": true
+    },
+    {
+      "height_m": 0.42,
+      "pose_index": 431,
+      "maximum_joint_difference_from_current_bank_rad": 2.7293944881989773e-11,
+      "root_height_difference_from_current_bank_m": 3.886890809212673e-12,
+      "static_torque_control_nm": [
+        4.462133636793366,
+        -4.98519348271231,
+        0.0,
+        -4.464131996567548,
+        4.986962243890049,
+        0.0
+      ],
+      "biased_action_policy_order": [
+        -1.3467225121716209,
+        1.329712280002681,
+        1.3466725531772663,
+        -1.329673198160674,
+        0.0,
+        0.0
+      ],
+      "action_within_native_clip": true,
+      "static_leg_torque_within_native_cap": true
+    }
+  ],
+  "candidate": {
+    "coordinate": "z=(requested_height_m-0.305)/0.1, before empirical normalization",
+    "basis": [
+      "1",
+      "z",
+      "z_squared"
+    ],
+    "coefficient_rows_by_basis_policy_legs": [
+      [
+        0.3971495591133105,
+        -0.17001706708534792,
+        -0.3971974030279817,
+        0.1700599578304013
+      ],
+      [
+        -1.523378792965992,
+        1.2070159098029365,
+        1.5233677950803477,
+        -1.2070204665116642
+      ],
+      [
+        0.006059387996945008,
+        0.0844317964572038,
+        -0.006051423922232257,
+        -0.08443071417970613
+      ]
+    ],
+    "maximum_anchor_residual_raw": 4.440892098500626e-16,
+    "sampled_interval_max_abs_raw": 1.5431271752944977,
+    "sampled_interval_inside_action_clip": true,
+    "future_parameterization": "If native-validated, use only to initialize ordinary trainable actor coefficients. No fixed runtime lookup, teacher, leg freeze or scripted recovery.",
+    "adopted": false
+  },
+  "all_three_reset_geometries_match": true,
+  "rejected_default_asset_calculation": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/three_height_static_prior001.json",
+    "sha256": "3f3e2aa9a0cb32c0c0e002e63b3fb1dadd58f2cb2ba44747e9c35f1870815f45",
+    "manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "reason": "Legacy tool CLI defaults to stop105 asset, not the currently trained flat_base107. Preserved and excluded; constructor now receives exact current asset/manifest."
+  },
+  "dynamic_validation_completed": false,
+  "randomized_domain_validation_completed": false,
+  "actor_constructed": false,
+  "new_PPO": 0,
+  "new_native_steps": 0,
+  "training_changed": false,
+  "hardware_ready": false,
+  "producer_sha256": "1084916f8ae61f048bd1607209cb64c741c5d9deca2476564fef80e8df18cb0f"
+}
