@@ -97,7 +97,8 @@ def evaluate(env, actor, output, writer, completed):
     env.max_episode_length = horizon = round(evaluation["seconds"] / env.policy_dt)
     observation = env.get_observations()
     keys = ("position", "velocity", "gravity", "height", "time", "recovered_at", "terminated", "valid",
-            "force", "clearance", "dq", "torque", "gap", "knees", "support_error", "excursion", "completed_event", "recovery_timeout")
+            "force", "clearance", "dq", "torque", "gap", "knees", "support_error", "excursion", "completed_event", "recovery_timeout",
+            "motor_position", "motor_velocity", "motor_effort", "control_actions")
     trace = {key: [] for key in keys}
     with torch.inference_mode():
         for _ in range(horizon):
@@ -114,7 +115,9 @@ def evaluate(env, actor, output, writer, completed):
                 dq=physical["dq"][:, :count], torque=physical["torque"][:, :count], gap=state["gap"][:count],
                 knees=route["knee_deg"][:count], support_error=route["support_error_m"][:count],
                 excursion=route["xy_excursion_m"][:count], completed_event=state["recovery_completed_event"][:count],
-                recovery_timeout=recovery_timeout[:count])
+                recovery_timeout=recovery_timeout[:count], motor_position=state["motor_position"][:count],
+                motor_velocity=state["motor_velocity"][:count], motor_effort=state["motor_effort"][:count],
+                control_actions=state["actions"][:count])
             for key, value in values.items():
                 trace[key].append(value.cpu().numpy())
             #40s total minus30s required standing leaves10s for completion.
@@ -138,6 +141,9 @@ def evaluate(env, actor, output, writer, completed):
             leg_speed_peak_rad_s=float(np.abs(arrays["dq"][valid, :, lane]).max()),
             closure_gap_peak_m=float(arrays["gap"][valid, lane].max()), baseline_pass=False)
         row["in_place_screen_pass"] = row["maximum_xy_excursion_from_prone_m"] <= evaluation["getup_xy_max_m"]
+        row["wheel_velocity_peak_rad_s_at_policy_rate"] = float(np.abs(arrays["motor_velocity"][valid, lane][:, [2, 5]]).max())
+        row["wheel_effort_peak_nm_at_policy_rate"] = float(np.abs(arrays["motor_effort"][valid, lane][:, [2, 5]]).max())
+        row["wheel_control_action_peak_at_policy_rate"] = float(np.abs(arrays["control_actions"][valid, lane][:, [2, 5]]).max())
         if len(events):
             start = int(events[0])
             selected = valid & (np.arange(len(valid)) > start)
@@ -162,6 +168,8 @@ def evaluate(env, actor, output, writer, completed):
         cases=rows, same_initial_state_replicas_are_not_independent_seeds=True,
         support_start="First complete physical interval after actual completion event; no post-hoc suffix selection",
         getup_xy_limit_m=evaluation["getup_xy_max_m"], getup_xy_limit_authority=evaluation["getup_xy_limit_authority"],
+        motor_sample_order=list(env.v5.ACTIVE), motor_sample_hz=1./env.policy_dt,
+        motor_sample_scope="Last physical-control sample per policy interval; policy-rate wheel peaks are not full1kHz extrema. Raw contact and four-leg streams remain separate1kHz traces.",
         source_scope=evaluation["scope"], full_capability_qualified=False, hardware_ready=False,
         trace_sha256=digest(output / "native_trace.npz"))
     write_json(output / "result.json", result)
