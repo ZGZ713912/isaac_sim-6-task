@@ -82,6 +82,16 @@ def test_height_credit_does_not_prefer_overshooting305mm():
     assert sum(terms.values())[0] > sum(terms.values())[1]
 
 
+def test_user_allowed10cm_rise_translation_has_no_position_penalty_but_larger_travel_does():
+    excursion = torch.tensor([0., .05, .10, .12, .20])
+    terms = density(torch.tensor([[0., 0., -1.]]).repeat(5, 1), torch.zeros(5, 3),
+        torch.zeros(5, 3), torch.zeros(5, 6), torch.zeros(5), excursion,
+        torch.zeros(5, dtype=torch.bool), SPEC)
+    cost = terms["in_place_cost"]
+    assert (cost[:3] == 0.).all()
+    assert cost[2] > cost[3] > cost[4]
+
+
 def test_raising_from_folded_belly_to_unfolded_standing_increases_route_potential():
     assert potential(40., .02)[0] < potential(100., .02, standing=True)[0]
 

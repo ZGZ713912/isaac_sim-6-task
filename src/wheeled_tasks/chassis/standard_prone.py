@@ -54,7 +54,7 @@ def density(gravity, velocity, omega, torque, leg_speed_square, excursion, stabl
     result = dict(
         upright=.5 * ((1.-gravity[:, 2])*.5).clamp(0., 1.),
         stable_standing=8.*stable_now.float(),
-        in_place_cost=-(excursion/spec["position_cost_scale_m"]).square(),
+        in_place_cost=-((excursion-spec["position_cost_free_radius_m"]).clamp_min(0.)/spec["position_cost_scale_m"]).square(),
         travel_speed_cost=-.1*(velocity[:, :2]/.3).square().sum(-1),
         angular_cost=-.02*omega.square().sum(-1),
         leg_speed_cost=-.001*leg_speed_square,
