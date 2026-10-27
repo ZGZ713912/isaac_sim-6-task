@@ -145,3 +145,14 @@ def test_final_heldout_domains_use_all_randomized_lanes_and_keep_user_fixed_para
     assert settings["imu_mount"]["wobble_degrees"] == [0.,0.]
     assert cfg["contact_material"]["ground_static_friction_range"] == [.3,.5]
     assert settings["sensor_delay_policy_ticks"] == [0,1]
+
+
+def test_cold_configuration_persists_the_actual_runtime_duration_and_cases(tmp_path):
+    cfg, settings = configuration(tmp_path, PLAN, evaluation=True)
+    contract = json.loads((tmp_path/"task_contract.json").read_text())
+    assert contract["settings"] == settings
+    assert contract["cold_evaluation"]
+    assert cfg["episode_seconds"] == settings["episode_seconds"] == 30.
+    assert cfg["record_diagnostics"]
+    assert settings["standing009_curriculum"] == PLAN
+    assert json.loads((tmp_path/"config/contract.json").read_text()) == cfg
