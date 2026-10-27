@@ -5,7 +5,7 @@ import torch
 
 from .robust_getup_env import RobustGetupEnv
 from .root_kinematics import update_robot_data
-from .standard_prone import physical_knee_degrees, route_potential, support_error
+from .standard_prone import initialization_motor_target, physical_knee_degrees, route_potential, support_error
 
 
 class StandardProneEnv(RobustGetupEnv):
@@ -26,6 +26,8 @@ class StandardProneEnv(RobustGetupEnv):
         if len(targets) != 1:
             raise ValueError("Need one declared closed-chain initialization target")
         self.initialization_target_pose_index = targets[0]
+        self.initialization_target_motor_q = initialization_motor_target(
+            self.bank_joints[targets[0], self.ids], self.prone_task.get("initial_target_common_rotation_rad", [0., 0.]))
         self.height_pose = {.305: self.bank["diagnostic_height_starts"]["mapping"]["stand"]}
         self.prone_start_xy = torch.zeros(self.num_envs, 2, device=self.device)
         self.prone_ready = True
@@ -33,7 +35,10 @@ class StandardProneEnv(RobustGetupEnv):
         self.startup_report["standard_prone"] = dict(task=self.prone_task,
             knee_coordinate="physical passive knee angle; lower stop40deg, upper107deg",
             support_alignment="Horizontal COM alignment plus penalty when the wheel midpoint is not below the mass-weighted whole-robot COM",
-            initial_output_bias="declared closed-chain42deg pre-lift geometry; all six outputs trainable; physical reset unchanged",
+            initial_output_bias=dict(pose=self.prone_task["initial_target_pose_name"],
+                common_rotation_rad=self.prone_task.get("initial_target_common_rotation_rad", [0., 0.]),
+                model_motor_positions=self.initialization_target_motor_q.tolist(),
+                all_six_outputs_trainable=True, physical_reset_unchanged=True),
             encoder_geometry="Four calibrated motor angles/speeds, sealed40..107deg closed-chain lookup; native FK/passive knees retained only for independent error diagnostics",
             scripted_target_or_motor_takeover=False, state_writes="episode reset only")
 
