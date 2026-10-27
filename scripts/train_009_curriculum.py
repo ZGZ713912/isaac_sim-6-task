@@ -108,7 +108,10 @@ def main():
     parser.add_argument("--plan", type=Path, default=ROOT/"contracts/wheel_leg_009_reproduction_v1.json")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--native-probe", action="store_true")
+    parser.add_argument("--signal-probe", action="store_true", help="One fresh PPO update, then self-SIGTERM at its complete boundary")
     args = parser.parse_args()
+    if args.signal_probe and (args.native_probe or args.preflight_only):
+        parser.error("Signal probe is a separate single-update fresh learner")
     from wheeled_tasks.chassis.standing009_curriculum import validate, domain_stage
     plan = validate(json.loads(args.plan.read_text()))
     output = args.output.resolve()
@@ -138,6 +141,7 @@ def main():
         completed_updates=0, optimizer_attempts=0, checkpoint_reads=[], phase="standing", phase_updates=0,
         phases=[], contexts=[], cold_reviews=[], committed_source=committed, source_hashes=hashes,
         plan_sha256=base.digest(args.plan), hardware_ready=False, full_capability_qualified=False)
+    report["diagnostic_signal_probe"] = args.signal_probe
     base.write_json(output/"progress.json", report)
     stop_requested = False
     def request_stop(signum, frame):
@@ -157,6 +161,10 @@ def main():
         from isaaclab.app import AppLauncher
         launcher = AppLauncher(dict(headless=True, device="cuda:0", enable_cameras=False,
             kit_args="--/exts/omni.kit.telemetry/skipDeferredStartup=true"))
+        # AppLauncher replaces SIGTERM. Restore the update-boundary handler
+        # after startup, and verify it again after each native context build.
+        signal.signal(signal.SIGTERM, request_stop)
+        signal.signal(signal.SIGINT, request_stop)
         import numpy as np
         import torch
         base.torch = torch
@@ -237,6 +245,11 @@ def main():
                 enabled_environments=int(env.domain.enabled.sum()), nominal_environments=int((~env.domain.enabled).sum()),
                 completed_updates=report["completed_updates"], configuration_sha256=base.digest(directory/"config/contract.json")))
             context_number += 1
+            signal.signal(signal.SIGTERM, request_stop)
+            signal.signal(signal.SIGINT, request_stop)
+            report["stop_handler_registration"] = dict(after_app_launcher=True,
+                SIGTERM_is_update_boundary_handler=signal.getsignal(signal.SIGTERM) is request_stop,
+                SIGINT_is_update_boundary_handler=signal.getsignal(signal.SIGINT) is request_stop)
             base.write_json(output/"progress.json", report)
             return env
 
@@ -268,11 +281,24 @@ def main():
                         if task == "standing" else tracking_density(state["height"], state["gravity"], state["velocity"], state["omega"], state["commands"], plan))
                     physical = env.physical_standing_last
                     expected = density*env.policy_dt-physical["paid_speed"]-physical["paid_contact"]-physical["paid_slew"]-3.*state["terminated"]
+                    if task != "standing":
+                        expected -= env.tracking009_last["paid_retention"]
                     eligible = extra["policy_learning_mask"]
                     check["actual_reward_payment_matches_declared"] = check.get("actual_reward_payment_matches_declared", True) and bool(torch.allclose(reward[eligible], expected[eligible], atol=1e-6, rtol=1e-5))
                     requested_peak = torch.maximum(requested_peak, state["commands"].abs().max(0).values)
                 if task == "tracking":
                     check["nonzero_motion_commands_observed"] = bool(requested_peak[0] > .25 and requested_peak[1] > .5)
+                    if plan.get("repair"):
+                        learning = env.course_height_learning
+                        check["training_births_remain_305mm"] = all(c["birth_height_m"] == .305 for c in env.course_cases)
+                        check["transition_error_exceeds_old_25mm_cutoff"] = bool(((state["height"]-state["commands"][:, 2]).abs()[learning] > .025).all())
+                        check["height_trials_not_killed_for_target_error"] = not bool(state["terminated"][learning].any())
+                        check["paid_height_cost_nonzero_on_requested_transition"] = bool((env.tracking009_last["paid_height"][learning] > 0.).all())
+                        check["standing_rehearsal_clock_30s"] = bool((env.episode_limits[env.course_role_masks["stand"]] == 6000).all())
+                        columns = [env.cfg["actor_frame_dim"]+6+env.ids[i] for i in (2, 5)]
+                        error_xy = env.robot.data.root_link_pose_w.torch[:, :2]-env.origins[:, :2]-env.course_anchor
+                        check["privileged_critic_anchor_matches_true_position"] = bool(torch.allclose(obs["critic"][:, columns], (error_xy*10.).clamp(-10., 10.), atol=1e-6))
+                        check["original_actor35_critic81_widths"] = obs["policy"].shape[-1] == 35 and obs["critic"].shape[-1] == 81
                 probes.append(dict(task=task, profile=profile, strength=strength, policy_steps=steps,
                     checks=check, all_checks_pass=all(check.values()), requested_command_abs_peak=requested_peak.cpu().tolist(),
                     enabled_environments=int(env.domain.enabled.sum()), new_PPO=0, learned_policy=False,
@@ -358,6 +384,10 @@ def main():
                 if not result["all_recorded_values_finite"] or result["committed_optimizer_calls"] != 12 or not result["actor_changed_parameter_tensors"] or not result["critic_changed_parameter_tensors"]:
                     raise RuntimeError("First fresh PPO audit failed")
                 audit = None
+                if args.signal_probe:
+                    os.kill(os.getpid(), signal.SIGTERM)
+                    if not stop_requested:
+                        raise RuntimeError("SIGTERM did not reach the update-boundary handler")
             env.actor_updates = report["completed_updates"]
             if hasattr(env, "course_updates"):
                 env.course_updates = 256 if report["phase"] == "domains" else report["phase_updates"]
