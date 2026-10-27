@@ -69,12 +69,10 @@ class Standing009TrackingEnv(ScratchStandingEnv):
     def get_observations(self):
         observations = super().get_observations()
         if self.course_ready and enabled(self.course):
-            if not self.cfg.get("zero_critic_wheel_positions"):
-                raise ValueError("Retention critic needs the declared unused wheel-position entries")
-            offset = self.cfg["actor_frame_dim"]+3+1+2
-            columns = (offset+self.ids[2], offset+self.ids[5])
+            if not (self.cfg.get("flat_critic_anchor_xy") and self.getup_cfg["quiet_critic_anchor"]):
+                raise ValueError("Retention critic requires the original009 privileged XY entries")
             error = self.robot.data.root_link_pose_w.torch[:, :2]-self.origins[:, :2]-self.course_anchor
-            observations["critic"] = critic_anchor(observations["critic"], error, columns)
+            observations["critic"] = critic_anchor(observations["critic"], error)
         return observations
 
     @torch.inference_mode()
