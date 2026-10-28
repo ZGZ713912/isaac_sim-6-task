@@ -100,7 +100,7 @@ def test_config_keeps_physics_and_v2_contract(tmp_path, profile, strength):
     gas = cfg["v5_control"]["identified_gas_spring"]
     assert gas["enabled"] and gas["right_leg_symmetry_assumed"]
     assert gas["model"]["kind"] == "effective_monotone_table"
-    assert gas["outside_identified_domain"] == "endpoint_hold_unvalidated"
+    assert gas["outside_identified_domain"] == "positive_c1_endpoint_trend_v1"
     assert settings["episode_seconds"] == 70
     assert settings["leg_action_clip"] == 16 and cfg["v5_control"]["action_clip"] == 16
     assert cfg["contact_material"]["wheel_static_friction"] == .7
