@@ -173,7 +173,8 @@ def verify_native_probe(output):
                 != [("nominal", 0.), ("requested", 1.)]
             or any(p.get("all_checks_pass") is not True or p.get("new_PPO") != 0
                 or not p.get("checks") or not all(v is True for v in p["checks"].values()) for p in probes)):
-        raise RuntimeError("Native probe did not finish with two verified domains; refusing PPO: "+str(output))
+        detail = "\nSaved native exception:\n"+result["error"] if result.get("error") else ""
+        raise RuntimeError("Native probe did not finish with two verified domains; refusing PPO: "+str(output)+detail)
     return result
 
 

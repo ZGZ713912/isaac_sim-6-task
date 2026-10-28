@@ -31,6 +31,13 @@ def test_population_and_full_budget():
             task.validate(bad)
 
 
+def test_native_probe_surfaces_the_saved_exception(tmp_path):
+    (tmp_path/"progress.json").write_text(json.dumps(dict(status="failed",
+        error="RuntimeError: Unexpected number of real loop constraints: 2880, expected 480")))
+    with pytest.raises(RuntimeError, match="2880, expected 480"):
+        verify_native_probe(tmp_path)
+
+
 def test_snapshots_count_completed_updates_not_zero_based_iterations():
     assert [task.snapshot_name(n, PLAN) for n in (0, 1, 249, 251, 9999)] == [None]*5
     assert task.snapshot_name(250, PLAN) == "model_00250.pt"
