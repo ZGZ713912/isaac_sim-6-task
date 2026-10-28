@@ -21,6 +21,9 @@ class ProneMotionEnv(RobustGetupEnv):
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
         self.prone_task = self.getup_cfg["prone_geometry"]
+        from .training_gas_spring import TrainingGasSpring
+        self.identified_spring = TrainingGasSpring(self.cfg["v5_control"]["identified_gas_spring"], self.device)
+        self.identified_spring.install(self)
         from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
         from .standing_geometry107 import table_path
         self.prone_encoder_geometry = EncoderLegGeometry(json.loads(table_path().read_text()),
@@ -176,6 +179,13 @@ class ProneMotionEnv(RobustGetupEnv):
             "ProneMotion/terminated_events": terminated.float().sum(),
             "ProneMotion/timeout_events": (done & ~terminated).float().sum(),
             "ProneMotion/wheel_speed_peak_rad_s": state["dq"][:, [2, 5]].abs().max()}
+        physical = self.prone_motion_physical
+        result.update({
+            "ProneMotion/gas_spring/outside_identified_fraction": physical["spring_outside_identified"].float().mean(),
+            "ProneMotion/gas_spring/compression_min_m": physical["spring_compression"].min(),
+            "ProneMotion/gas_spring/compression_max_m": physical["spring_compression"].max(),
+            "ProneMotion/gas_spring/force_left_mean_n": physical["spring_force"][:, :, 0].mean(),
+            "ProneMotion/gas_spring/force_right_mean_n": physical["spring_force"][:, :, 1].mean()})
         for name, value in extra["task_reward_terms"].items():
             result["ProneMotion/reward_density_"+name] = value.mean()
         for index, role in enumerate(task.ROLES):
@@ -187,4 +197,6 @@ class ProneMotionEnv(RobustGetupEnv):
                     tilt_deg=torch.rad2deg(torch.acos((-state["gravity"][:, 2]).clamp(-1., 1.))),
                     anchor_error_m=extra["course_anchor_error_m"], reward=reward)
                 result.update({f"ProneMotion/{role}/{name}": value[mask].mean() for name, value in fields.items()})
+                result[f"ProneMotion/{role}/spring_outside_identified_fraction"] = physical[
+                    "spring_outside_identified"][:, mask].float().mean()
         return result
