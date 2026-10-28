@@ -31,6 +31,20 @@ def test_population_and_full_budget():
             task.validate(bad)
 
 
+def test_snapshots_count_completed_updates_not_zero_based_iterations():
+    assert [task.snapshot_name(n, PLAN) for n in (0, 1, 249, 251, 9999)] == [None]*5
+    assert task.snapshot_name(250, PLAN) == "model_00250.pt"
+    assert task.snapshot_name(500, PLAN) == "model_00500.pt"
+    assert task.snapshot_name(10000, PLAN) == "model_10000.pt"
+    assert sum(task.snapshot_name(n, PLAN) is not None for n in range(10001)) == 40
+    for key, value in (("snapshot_interval", 249), ("review_updates", [1000]),
+                       ("execution", "segmented")):
+        bad = deepcopy(PLAN)
+        bad[key] = value
+        with pytest.raises(ValueError):
+            task.validate(bad)
+
+
 @pytest.mark.parametrize("completed", [0, 999, 1000, 3000, 5000, 6000, 7000, 10000])
 def test_coverage_amplitude_and_projection(completed):
     values = torch.tensor([task.target(r, completed, PLAN) for r in task.ROLES])

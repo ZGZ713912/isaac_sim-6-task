@@ -4,7 +4,9 @@
   "num_envs": 256,
   "rollout_steps": 128,
   "max_updates": 10000,
-  "review_updates": [1000, 2000, 4000, 6000, 8000, 10000],
+  "snapshot_interval": 250,
+  "execution": "single_learn_call_manual_review",
+  "review_updates": [],
   "reference": {
     "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
     "commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
@@ -81,7 +83,7 @@
   "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
   "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
   "prone_geometry_contract": "contracts/wheel_leg_standard_prone_v1.json",
-  "training_progression": "Fixed10000-update exposure schedule. Failed intermediate cold tests are recorded, not early-stop gates or qualifications. Same live actor/critic/Adam/storage across all phases. Stop on explicit signal, nonfinite state or implementation failure. No automatic restart.",
+  "training_progression": "One native learn(10000) call; continuous global iteration and ETA. Save every250 completed updates without cold tests. Only declared domain changes rebuild the physical environment before the next rollout's first observation/action, preserving the live actor/critic/Adam/storage/logger. After training, the operator selects any250-update snapshot or the10000-update final model for separate read-only review. Stop on explicit signal, nonfinite state or implementation failure. No automatic restart or resume.",
   "evaluation": {
     "seconds": 70.0,
     "seed": 261128,
