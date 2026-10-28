@@ -51,7 +51,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         cfg["dynamics_randomization"]["enabled_fraction"] = 1.
     cfg.update(episode_seconds=plan["training_prone_seconds"], record_diagnostics=True,
                curriculum="prone_motion_long_v1", learning_rate=plan["learning_rate"], entropy_coef=.001)
-    cfg["stages"][0].update(vx_max=3., yaw_max=plan["spin_target_rpm"]*math.tau/60.)
+    cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
     cfg["policy_architecture"]["scope"] = "Fresh actor35, critic83, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
     for key in ("wheel_static_friction", "wheel_dynamic_friction"):
