@@ -58,13 +58,13 @@ def test_cannot_silently_reintroduce_self_righting_or_clock_driven_curriculum(ch
         resolve(dict(SPEC, **change))
 
 
-def prepare(tmp_path, profile=None, friction="baseline", *, prone=False):
+def prepare(tmp_path, profile=None, friction="baseline", *, prone=False, static_prior=False):
     module_spec = importlib.util.spec_from_file_location("upright_base_train", ROOT / "scripts/train_scratch_standing.py")
     base = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(base)
     args = SimpleNamespace(output=tmp_path, bank=ROOT / "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
         precise_objective=False, standing_failures=False, wheel_velocity_increment=True,
-        static_load_initialization=not prone, contact_break_cost=None, leg_target_rate_cost=None,
+        static_load_initialization=static_prior, contact_break_cost=None, leg_target_rate_cost=None,
         all_heights_after=512, num_envs=64, rollout_steps=128, seed=271027,
         randomization_study=ROOT / "contracts/wheel_leg_randomization_study_v2.json" if profile else None,
         randomization_profile=profile, randomization_strength=1., normalize_observations=True,
@@ -75,7 +75,7 @@ def prepare(tmp_path, profile=None, friction="baseline", *, prone=False):
 
 
 def test_prone_target_range_covers_rotation_without_changing_PD_or_motor_limits(tmp_path):
-    original = json.loads((ROOT / "contracts/scratch_standing_base_mechanism_v2.json").read_text())["v5_control"]
+    original = json.loads((ROOT / "model/gas_spring_compensation_20261028/mechanism.json").read_text())["v5_control"]
     cfg, task = prepare(tmp_path, "requested", prone=True)
     assert cfg["v5_control"] == dict(original, action_clip=16.)
     assert task["standard_prone"]["leg_action_clip"] == task["leg_action_clip"] == 16.
@@ -98,6 +98,13 @@ def test_requested_domains_remain_full_and_friction_summary_matches_actual_mater
     contract = json.loads((tmp_path / "task_contract.json").read_text())
     assert contract["training_origin"].startswith("seeded random actor and critic; empty Adam")
     assert contract["curriculum"]["automatic_changes"] is False
+    assert contract["static_load_initialization"] is None
+    assert cfg["v5_control"]["gas_spring_compensation"]["enabled"] is True
+
+
+def test_uncompensated_static_load_prior_is_not_reused_with_gas_compensation(tmp_path):
+    with pytest.raises(ValueError,match="Static prior mechanics differ"):
+        prepare(tmp_path,static_prior=True)
 
 
 def test_curriculum_covers_every_permanent_requirement_without_claiming_pending_stages_are_available():

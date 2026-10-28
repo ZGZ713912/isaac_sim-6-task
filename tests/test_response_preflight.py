@@ -221,7 +221,8 @@ def native_readback_fixture():
         get_dof_friction_properties=lambda: friction), data=SimpleNamespace(
         joint_friction_coeff=stale, joint_dynamic_friction_coeff=stale, joint_viscous_friction_coeff=stale))
     env = SimpleNamespace(robot=robot, ids=ids, device="cpu", num_envs=3,
-                          actuator_response=ActuatorResponse(3, "cpu", .001, cfg), startup_report={})
+                          actuator_response=ActuatorResponse(3, "cpu", .001, cfg),
+                          identified_wheels=SimpleNamespace(enabled=False), startup_report={})
     scope = {"self": env, "torch": torch, "wp": SimpleNamespace(to_torch=lambda value: value),
              "manifest": {"control_joint_names": list(JOINT_NAMES)}, "num_envs": 3}
     return code, scope, armature, friction, ids
