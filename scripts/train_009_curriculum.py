@@ -364,7 +364,8 @@ def main():
                         check["original_actor35_critic83_widths"] = obs["policy"].shape[-1] == 35 and obs["critic"].shape[-1] == 83
                 clock_probe = None
                 if task == "tracking" and profile == "nominal" and plan.get("repair"):
-                    clock_probe = probe_episode_boundaries(env, plan, action)
+                    with torch.inference_mode():
+                        clock_probe = probe_episode_boundaries(env, plan, action)
                     check.update(clock_probe["checks"])
                 probes.append(dict(task=task, profile=profile, strength=strength, policy_steps=steps,
                     checks=check, all_checks_pass=all(check.values()), requested_command_abs_peak=requested_peak.cpu().tolist(),
