@@ -121,6 +121,7 @@ def install_tracking_reward(env, plan):
             tilt = torch.acos((-state["gravity"][:, 2]).clamp(-1., 1.))*180./math.pi
             extra["log"].update({"Reproduce009/position_cost_density_per_second": terms["position"].mean(),
                 "Reproduce009/height_cost_density_per_second": terms["height"].mean(),
+                "Reproduce009/course_updates": density.new_tensor(env.course_updates),
                 "Reproduce009/height_mae_m": (state["height"]-state["commands"][:, 2]).abs().mean(),
                 "Reproduce009/tilt_mean_deg": tilt.mean()})
             for role, mask in env.course_role_masks.items():
@@ -130,7 +131,9 @@ def install_tracking_reward(env, plan):
                     prefix+"actual_vx_m_s": state["velocity"][mask, 0].mean(),
                     prefix+"requested_vx_m_s": state["commands"][mask, 0].mean(),
                     prefix+"actual_yaw_rad_s": state["omega"][mask, 2].mean(),
-                    prefix+"requested_yaw_rad_s": state["commands"][mask, 1].mean()})
+                    prefix+"requested_yaw_rad_s": state["commands"][mask, 1].mean(),
+                    prefix+"episode_elapsed_s_mean": state["time"][mask].mean(),
+                    prefix+"timeout_events": extra["time_outs"][mask].float().sum()})
         return obs, reward, done, extra
 
     env.step = step
