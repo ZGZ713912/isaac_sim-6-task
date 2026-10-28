@@ -352,6 +352,9 @@ class RobustGetupEnv(ChassisEnv):
         upright_task = self.getup_cfg.get("upright_locomotion")
         prone_task = self.getup_cfg.get("standard_prone")
         tracking009 = self.getup_cfg.get("standing009_curriculum") is not None
+        prone_motion = self.getup_cfg.get("prone_motion_task") is not None
+        physical_samples = [] if prone_motion else None
+        interval_request = self.goal_command.clone() if prone_motion else None
         active_interval = ~self.passive.clone()
         previous = self.actions.clone()
         self.previous_actions.copy_(self.actions)
@@ -416,12 +419,12 @@ class RobustGetupEnv(ChassisEnv):
             for ids, view in self.contact_views:
                 matrix = wp.to_torch(view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
-            if upright_task is not None or prone_task is not None or tracking009:
+            if upright_task is not None or prone_task is not None or tracking009 or prone_motion:
                 nonwheel_force_peak = torch.maximum(nonwheel_force_peak,
                     self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1))
                 upright_leg_speed_square += self.robot.data.joint_vel.torch[:, self.ids][
                     :, list(self.v5.LEGS)].square().mean(-1) / self.decimation
-            if prone_task is not None:
+            if prone_task is not None or prone_motion:
                 belly_force_peak = torch.maximum(belly_force_peak,
                     self.contact_force[:, self.push_body_ids].norm(dim=-1).amax(-1))
             from .standing_support import wheel_bottom_clearance
@@ -436,6 +439,13 @@ class RobustGetupEnv(ChassisEnv):
             wheel_air_run_peak = torch.maximum(wheel_air_run_peak, self.wheel_air_run)
             dual_wheel_air_run_peak = torch.maximum(dual_wheel_air_run_peak, self.dual_wheel_air_run)
             wheel_air_seconds += geometric_air * self.dt
+            if prone_motion:
+                physical_samples.append(dict(
+                    motor_position=self.robot.data.joint_pos.torch[:, self.ids].clone(),
+                    motor_velocity=self.robot.data.joint_vel.torch[:, self.ids].clone(),
+                    motor_effort=tau.clone(),
+                    wheel_force=self.contact_force[:, self.wheel_ids].clone(),
+                    wheel_clearance=wheel_clearance.clone()))
             gap_peak = torch.maximum(gap_peak, self.closure_gap())
             body_force = self.contact_force.norm(dim=-1).amax(-1)
             impact_peak = torch.maximum(impact_peak, body_force)
@@ -475,6 +485,8 @@ class RobustGetupEnv(ChassisEnv):
         self.contact_impulse_history[:, enable] = 0.
         self._measured_action_history((~active_interval).nonzero().flatten())
         stable = stable_standing(gravity, omega, height, contact, dq) & ~self.passive
+        if prone_motion:
+            stable = self.task_stable(gravity, height, velocity, omega, dq, contact, nonwheel_force_peak) & ~self.passive
         if prone_task is not None:
             from .standard_prone import stable as prone_stable
             stable = prone_stable(gravity, height, omega, velocity, contact,
@@ -492,7 +504,7 @@ class RobustGetupEnv(ChassisEnv):
         self.recovered_after_push |= recovered & self.in_motion_fall & self.push_selected
         # A fall while moving starts recovery in-place; never reset the body.
         fallen = ~self.passive & ((gravity[:, 2] > -.7) | (height < .13))
-        if upright_task is not None or tracking009:
+        if upright_task is not None or tracking009 or prone_motion:
             fallen.zero_()
         self.in_motion_fall |= fallen & ~self.recovery_lane & (elapsed >= self.getup_cfg["push_start_seconds"])
         self.recovery_active |= fallen
@@ -502,6 +514,8 @@ class RobustGetupEnv(ChassisEnv):
             for stage in range(self.sequence_time.shape[1]):
                 change = elapsed >= self.sequence_time[:, stage]
                 self.pending_command[change] = self.sequence_command[change, stage]
+        if prone_motion:
+            self.pending_command.copy_(self.task_commands(elapsed))
         self.goal_command.copy_(self.pending_command)
         if self.getup_cfg["hold_motion_during_recovery"]:
             self.goal_command[self.recovery_active | self.passive, :2] = 0.
@@ -539,7 +553,8 @@ class RobustGetupEnv(ChassisEnv):
                 terminated |= failure
         progress = potential_reward(self.previous_potential, potential, terminated,
                                     self.getup_cfg["reward_gamma"], self.getup_cfg["reward_potential_gain"])
-        self.previous_potential.copy_(potential)
+        if not prone_motion:
+            self.previous_potential.copy_(potential)
         torque_cost = .0003 * tau.square().mean(-1)
         height_score = torch.exp(-((height - self.commands[:, 2]) / .08).square())
         quiet = ((self.commands[:, :2].abs() < self.commands.new_tensor([.1, .2])).all(-1)
@@ -605,6 +620,14 @@ class RobustGetupEnv(ChassisEnv):
                 upright_leg_speed_square, prone_route["xy_excursion_m"], dual_support_fraction,
                 nonwheel_force_peak, self.ever_recovered, prone_task)
             density = sum(prone_terms.values())
+        task_state = None
+        if prone_motion:
+            task_state = dict(gravity=gravity, height=height, velocity=velocity, omega=omega,
+                dq=dq, torque=tau, action_delta=action_delta, elapsed=elapsed,
+                local=local, nonwheel_force=nonwheel_force_peak, belly_force=belly_force_peak,
+                dual_support=dual_support_fraction, leg_speed_square=upright_leg_speed_square,
+                enable=enable, first=first)
+            density, progress, terminated, task_extra = self.task_transition(task_state, terminated)
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
         timeout = self.episode_length_buf >= self.episode_limits
         done = terminated | timeout
@@ -749,6 +772,14 @@ class RobustGetupEnv(ChassisEnv):
                     upright_reward_terms={key: value.clone() for key, value in upright_terms.items()})
             if tracking009:
                 info["diagnostics"]["nonwheel_force_peak_n"] = nonwheel_force_peak.clone()
+            if prone_motion:
+                info["diagnostics"].update(task_extra)
+                info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
+                    belly_force_peak_n=belly_force_peak.clone(), action_delta=action_delta.clone(),
+                    interval_requested_command=interval_request)
+                self.prone_motion_physical = {key: torch.stack([s[key] for s in physical_samples])
+                    for key in physical_samples[0]}
+                info["log"].update(self.task_metrics(task_state, task_extra, reward, done, terminated))
             if prone_task is not None:
                 info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},
                     prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),
