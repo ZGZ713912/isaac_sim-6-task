@@ -1,0 +1,203 @@
+{
+  "speed_groups": [
+    {
+      "band": 0,
+      "round_trip_s": 8.0,
+      "speed_rad_s": 0.5369970129696227,
+      "half_width_nm": 4.3124921343828895,
+      "branch_difference_nm": 8.624984268765779,
+      "knee_tracking_error_direction_difference_deg": 4.0752678101057755,
+      "cycle_half_width_means_nm": [
+        4.359220828968727,
+        4.29721860254073,
+        4.275904766464989,
+        4.3083719755708545,
+        4.303139090393992,
+        4.331097542358046
+      ],
+      "cycle_half_width_std_nm": 0.02900380495799278,
+      "matched_angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "paired_cells": 54
+    },
+    {
+      "band": 1,
+      "round_trip_s": 4.0,
+      "speed_rad_s": 1.0529021390132483,
+      "half_width_nm": 4.10849018809803,
+      "branch_difference_nm": 8.21698037619606,
+      "knee_tracking_error_direction_difference_deg": 3.70672343387877,
+      "cycle_half_width_means_nm": [
+        4.13089133089133,
+        4.083664440135028,
+        4.077296080825492,
+        4.113350570997629,
+        4.11560295913237,
+        4.130135746606333
+      ],
+      "cycle_half_width_std_nm": 0.02295189023044952,
+      "matched_angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "paired_cells": 54
+    },
+    {
+      "band": 2,
+      "round_trip_s": 2.0,
+      "speed_rad_s": 2.1144901455358984,
+      "half_width_nm": 4.030320732281516,
+      "branch_difference_nm": 8.060641464563032,
+      "knee_tracking_error_direction_difference_deg": 3.432870185923148,
+      "cycle_half_width_means_nm": [
+        4.112083123847829,
+        4.052230122818358,
+        4.017711700064641,
+        4.024702530584883,
+        3.996135890253536,
+        3.9790610261198487
+      ],
+      "cycle_half_width_std_nm": 0.04722673575920236,
+      "matched_angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "paired_cells": 54
+    }
+  ],
+  "models": {
+    "coulomb": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.1397603273165227,
+      "validation_half_width_rms_nm": 0.15014665544550185,
+      "coefficients": [
+        4.16053135784228,
+        4.150870707257258,
+        4.334972405952795,
+        4.202993744506347,
+        4.226471865099314,
+        4.080910084831652,
+        4.072296838963505,
+        4.027128515223753,
+        4.150045476880209
+      ],
+      "matrix_condition": 1.0
+    },
+    "viscous_only": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 2.0427933492513692,
+      "validation_half_width_rms_nm": 2.0576043598719926,
+      "coefficients": [
+        2.5230367452565563,
+        2.5456630790409904,
+        2.586597458410877,
+        2.6261334412879864,
+        2.627453274250585,
+        2.571506621683081,
+        2.5667684684611856,
+        2.583334709040116,
+        2.643144791030643
+      ],
+      "matrix_condition": 1.0542672359000997
+    },
+    "coulomb_plus_nonnegative_viscous": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.1397603273165227,
+      "validation_half_width_rms_nm": 0.15014665544550196,
+      "coefficients": [
+        4.16053135784228,
+        4.15087070725726,
+        4.334972405952797,
+        4.202993744506348,
+        4.226471865099316,
+        4.080910084831653,
+        4.0722968389635055,
+        4.027128515223753,
+        4.15004547688021,
+        1.0896472827380908e-21
+      ],
+      "matrix_condition": 9.335188802867767,
+      "speed_slope_nm_per_rad_s": 1.0896472827380908e-21
+    },
+    "signed_speed_diagnostic": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.1039156101883861,
+      "validation_half_width_rms_nm": 0.09069366158421754,
+      "coefficients": [
+        4.340032407587249,
+        4.332903149984999,
+        4.507054246102374,
+        4.379375202325285,
+        4.401176158245866,
+        4.254928863863014,
+        4.245034942790999,
+        4.200631436985371,
+        4.322461611781418,
+        -0.14174480993183547
+      ],
+      "matrix_condition": 9.335188802867767,
+      "speed_slope_nm_per_rad_s": -0.14174480993183547
+    },
+    "signed_speed_with_dynamic_nuisance": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.09152384522703011,
+      "validation_half_width_rms_nm": 0.08174363380269492,
+      "coefficients": [
+        4.394152874041847,
+        4.317256695679596,
+        4.504710324956072,
+        4.420002561002584,
+        4.455930351758448,
+        4.324451048686509,
+        4.3014530589597,
+        4.222193034247434,
+        4.297862359906206,
+        -0.1698419034335661,
+        0.14669286017269878,
+        0.025354482582127177,
+        0.1072208284942633
+      ],
+      "matrix_condition": 17.646035690725874,
+      "speed_slope_nm_per_rad_s": -0.1698419034335661
+    },
+    "signed_speed_repeatability": {
+      "bootstrap_unit": "entire forward/reverse cycle within speed",
+      "replicates": 600,
+      "slope_all_rows": -0.16484974726214752,
+      "conditional_95_percent_interval": [
+        -0.1893466395288692,
+        -0.13682575528570884
+      ],
+      "physical_damping_identified": false,
+      "caution": "speed blocks occurred in fixed order; temperature/history effects are not separated"
+    }
+  }
+}

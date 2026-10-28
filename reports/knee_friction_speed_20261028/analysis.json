@@ -1,0 +1,598 @@
+{
+  "status": "offline_direction_load_speed_comparison_not_unique_friction_identification",
+  "sources": {
+    "sources": [
+      {
+        "file": "wheel_leg_膝关节气簧辨识数据.csv",
+        "path": "/home/noir/Documents/workspace/wheel_leg扫频/wheel_leg_膝关节气簧辨识数据.csv",
+        "bytes": 442671383,
+        "mtime_ns": 1793099405634034343,
+        "sha256": "17d8ebf42472573a28a85352df0584b964ec4ecc183d4b26e29d5f4c729dc0ba",
+        "columns": 243,
+        "records": 218309,
+        "malformed_lines_excluded": [
+          218311
+        ],
+        "source_id": 0,
+        "kind": "relative_knee",
+        "label": "knee_three_speeds"
+      },
+      {
+        "file": "左腿整腿转动，覆盖低速和约 2 秒一圈.csv",
+        "path": "/home/noir/Documents/workspace/wheel_leg扫频/左腿整腿转动，覆盖低速和约 2 秒一圈.csv",
+        "bytes": 492090254,
+        "mtime_ns": 1793092836295510240,
+        "sha256": "cd6db89bc493d5f0ddfb84ef775c4f9468429e511a7b2cd7dee355d34c5a196c",
+        "columns": 243,
+        "records": 245803,
+        "malformed_lines_excluded": [
+          245805
+        ],
+        "source_id": 1,
+        "kind": "common_rotation",
+        "label": "whole_leg_first"
+      },
+      {
+        "file": "左腿整腿转动，覆盖低速和约 2 秒一圈（2）.csv",
+        "path": "/home/noir/Documents/workspace/wheel_leg扫频/左腿整腿转动，覆盖低速和约 2 秒一圈（2）.csv",
+        "bytes": 459917371,
+        "mtime_ns": 1793094118515938298,
+        "sha256": "8f7e2c78639e917b8d7bb33956d904876598509ad18f9d2d20fe98170c6aff50",
+        "columns": 243,
+        "records": 223759,
+        "malformed_lines_excluded": [],
+        "source_id": 2,
+        "kind": "common_rotation",
+        "label": "whole_leg_repeat"
+      },
+      {
+        "file": "左腿关节不同夹角扫频.csv",
+        "path": "/home/noir/Documents/workspace/wheel_leg扫频/左腿关节不同夹角扫频.csv",
+        "bytes": 1117267915,
+        "mtime_ns": 1793098971286601870,
+        "sha256": "da4a6f2e3286870f2646639dad9f665244a086d829863801cc8ad32b44766597",
+        "columns": 243,
+        "records": 535072,
+        "malformed_lines_excluded": [],
+        "source_id": 3,
+        "kind": "common_angles",
+        "label": "whole_leg_multiple_angles"
+      }
+    ],
+    "rows": 189881,
+    "script_sha256": "f9cde2eb3ee056160030af80139b008f879a17f6f33bade9404999cb66d3d445",
+    "conditions": "user-confirmed horizontal suspended leg; no gravity/external load",
+    "preprocessing": "51-sample centered means; velocity derivatives averaged 101 samples; exclude +/-120 ms of >2ms gaps; every fifth valid sample; no saturation; actual angle and reported motor torque"
+  },
+  "script_sha256": "17e07c7649ccbcf539439ce2eb586de9146ea17d849b51c4d44424427f38594c",
+  "processing": {
+    "angle_bin_deg": 1.0,
+    "actual_angle_common_centers_deg": [
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88
+    ],
+    "primary_min_knee_speed_rad_s": 0.1,
+    "primary_max_hip_speed_rad_s": 0.3,
+    "primary_max_abs_motor_acceleration_rad_s2": 3.0,
+    "equal_cycle_angle_speed_weights": true,
+    "training_cycles": "first 3 forward/reverse pairs per speed; last 3 held out",
+    "torque_coordinate": "motor model coordinates: tau_model=-tau_DM_API",
+    "half_width_definition": "W=(tau_k_positive_speed-tau_k_negative_speed)/2; full separation=2W"
+  },
+  "speed_groups": [
+    {
+      "band": 0,
+      "round_trip_s": 8.0,
+      "speed_rad_s": 0.5369970129696227,
+      "half_width_nm": 4.3124921343828895,
+      "branch_difference_nm": 8.624984268765779,
+      "knee_tracking_error_direction_difference_deg": 4.0752678101057755,
+      "cycle_half_width_means_nm": [
+        4.359220828968727,
+        4.29721860254073,
+        4.275904766464989,
+        4.3083719755708545,
+        4.303139090393992,
+        4.331097542358046
+      ],
+      "cycle_half_width_std_nm": 0.02900380495799278,
+      "matched_angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "paired_cells": 54
+    },
+    {
+      "band": 1,
+      "round_trip_s": 4.0,
+      "speed_rad_s": 1.0529021390132483,
+      "half_width_nm": 4.10849018809803,
+      "branch_difference_nm": 8.21698037619606,
+      "knee_tracking_error_direction_difference_deg": 3.70672343387877,
+      "cycle_half_width_means_nm": [
+        4.13089133089133,
+        4.083664440135028,
+        4.077296080825492,
+        4.113350570997629,
+        4.11560295913237,
+        4.130135746606333
+      ],
+      "cycle_half_width_std_nm": 0.02295189023044952,
+      "matched_angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "paired_cells": 54
+    },
+    {
+      "band": 2,
+      "round_trip_s": 2.0,
+      "speed_rad_s": 2.1144901455358984,
+      "half_width_nm": 4.030320732281516,
+      "branch_difference_nm": 8.060641464563032,
+      "knee_tracking_error_direction_difference_deg": 3.432870185923148,
+      "cycle_half_width_means_nm": [
+        4.112083123847829,
+        4.052230122818358,
+        4.017711700064641,
+        4.024702530584883,
+        3.996135890253536,
+        3.9790610261198487
+      ],
+      "cycle_half_width_std_nm": 0.04722673575920236,
+      "matched_angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "paired_cells": 54
+    }
+  ],
+  "paired_regressions": {
+    "coulomb": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.1397603273165227,
+      "validation_half_width_rms_nm": 0.15014665544550185,
+      "coefficients": [
+        4.16053135784228,
+        4.150870707257258,
+        4.334972405952795,
+        4.202993744506347,
+        4.226471865099314,
+        4.080910084831652,
+        4.072296838963505,
+        4.027128515223753,
+        4.150045476880209
+      ],
+      "matrix_condition": 1.0
+    },
+    "viscous_only": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 2.0427933492513692,
+      "validation_half_width_rms_nm": 2.0576043598719926,
+      "coefficients": [
+        2.5230367452565563,
+        2.5456630790409904,
+        2.586597458410877,
+        2.6261334412879864,
+        2.627453274250585,
+        2.571506621683081,
+        2.5667684684611856,
+        2.583334709040116,
+        2.643144791030643
+      ],
+      "matrix_condition": 1.0542672359000997
+    },
+    "coulomb_plus_nonnegative_viscous": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.1397603273165227,
+      "validation_half_width_rms_nm": 0.15014665544550196,
+      "coefficients": [
+        4.16053135784228,
+        4.15087070725726,
+        4.334972405952797,
+        4.202993744506348,
+        4.226471865099316,
+        4.080910084831653,
+        4.0722968389635055,
+        4.027128515223753,
+        4.15004547688021,
+        1.0896472827380908e-21
+      ],
+      "matrix_condition": 9.335188802867767,
+      "speed_slope_nm_per_rad_s": 1.0896472827380908e-21
+    },
+    "signed_speed_diagnostic": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.1039156101883861,
+      "validation_half_width_rms_nm": 0.09069366158421754,
+      "coefficients": [
+        4.340032407587249,
+        4.332903149984999,
+        4.507054246102374,
+        4.379375202325285,
+        4.401176158245866,
+        4.254928863863014,
+        4.245034942790999,
+        4.200631436985371,
+        4.322461611781418,
+        -0.14174480993183547
+      ],
+      "matrix_condition": 9.335188802867767,
+      "speed_slope_nm_per_rad_s": -0.14174480993183547
+    },
+    "signed_speed_with_dynamic_nuisance": {
+      "training_rows": 81,
+      "validation_rows": 81,
+      "training_half_width_rms_nm": 0.09152384522703011,
+      "validation_half_width_rms_nm": 0.08174363380269492,
+      "coefficients": [
+        4.394152874041847,
+        4.317256695679596,
+        4.504710324956072,
+        4.420002561002584,
+        4.455930351758448,
+        4.324451048686509,
+        4.3014530589597,
+        4.222193034247434,
+        4.297862359906206,
+        -0.1698419034335661,
+        0.14669286017269878,
+        0.025354482582127177,
+        0.1072208284942633
+      ],
+      "matrix_condition": 17.646035690725874,
+      "speed_slope_nm_per_rad_s": -0.1698419034335661
+    },
+    "signed_speed_repeatability": {
+      "bootstrap_unit": "entire forward/reverse cycle within speed",
+      "replicates": 600,
+      "slope_all_rows": -0.16484974726214752,
+      "conditional_95_percent_interval": [
+        -0.1893466395288692,
+        -0.13682575528570884
+      ],
+      "physical_damping_identified": false,
+      "caution": "speed blocks occurred in fixed order; temperature/history effects are not separated"
+    }
+  },
+  "acceleration_sensitivity": [
+    {
+      "acceleration_limit_rad_s2": 3.0,
+      "angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "signed_speed_slope": -0.16484974726214752,
+      "speed_slope_with_acceleration_nuisance": -0.1698419034335661
+    },
+    {
+      "acceleration_limit_rad_s2": 6.0,
+      "angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92
+      ],
+      "signed_speed_slope": -0.2081132617412731,
+      "speed_slope_with_acceleration_nuisance": -0.2338755166473696
+    },
+    {
+      "acceleration_limit_rad_s2": 12.0,
+      "angle_bins": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92
+      ],
+      "signed_speed_slope": -0.2081132617412731,
+      "speed_slope_with_acceleration_nuisance": -0.2338755166473696
+    }
+  ],
+  "common_rotation_checks": [
+    {
+      "source": 1,
+      "run": 1,
+      "stages": [
+        1,
+        2
+      ],
+      "speed_rad_s": 0.20962271730610466,
+      "knee_half_width_nm": 2.311123020115068,
+      "hip_half_width_nm": 2.0930097340261957,
+      "beta_mean_deg": 83.62321263795516,
+      "beta_direction_difference_deg": -0.17626472124257475,
+      "rows": 20594
+    },
+    {
+      "source": 1,
+      "run": 1,
+      "stages": [
+        4,
+        5
+      ],
+      "speed_rad_s": 0.5909055682699977,
+      "knee_half_width_nm": 2.012577515617016,
+      "hip_half_width_nm": 1.956933691122467,
+      "beta_mean_deg": 83.53702785606768,
+      "beta_direction_difference_deg": -0.04449640032687796,
+      "rows": 8065
+    },
+    {
+      "source": 1,
+      "run": 1,
+      "stages": [
+        7,
+        8
+      ],
+      "speed_rad_s": 1.4771522656998117,
+      "knee_half_width_nm": 1.9459216302538387,
+      "hip_half_width_nm": 1.9181975403922475,
+      "beta_mean_deg": 83.52826856119876,
+      "beta_direction_difference_deg": -0.02129143093731045,
+      "rows": 3043
+    },
+    {
+      "source": 1,
+      "run": 1,
+      "stages": [
+        10,
+        11
+      ],
+      "speed_rad_s": 3.1132076842014422,
+      "knee_half_width_nm": 2.0285168857605065,
+      "hip_half_width_nm": 2.0056767006844973,
+      "beta_mean_deg": 83.55581604790487,
+      "beta_direction_difference_deg": -0.025282205763872412,
+      "rows": 1309
+    },
+    {
+      "source": 2,
+      "run": 1,
+      "stages": [
+        1,
+        2
+      ],
+      "speed_rad_s": 0.2149257366437184,
+      "knee_half_width_nm": 2.304409324587599,
+      "hip_half_width_nm": 2.0714978292497888,
+      "beta_mean_deg": 83.99974817170121,
+      "beta_direction_difference_deg": -0.1857844459185145,
+      "rows": 18366
+    },
+    {
+      "source": 2,
+      "run": 1,
+      "stages": [
+        4,
+        5
+      ],
+      "speed_rad_s": 0.5920229019904657,
+      "knee_half_width_nm": 2.0172564274671334,
+      "hip_half_width_nm": 1.9766745464479172,
+      "beta_mean_deg": 83.89338728724756,
+      "beta_direction_difference_deg": -0.032731198434788666,
+      "rows": 8086
+    },
+    {
+      "source": 2,
+      "run": 1,
+      "stages": [
+        7,
+        8
+      ],
+      "speed_rad_s": 1.4656727010190356,
+      "knee_half_width_nm": 1.9568648915602385,
+      "hip_half_width_nm": 1.9139394258654328,
+      "beta_mean_deg": 83.87582722994765,
+      "beta_direction_difference_deg": -0.0356856170914881,
+      "rows": 3080
+    },
+    {
+      "source": 2,
+      "run": 1,
+      "stages": [
+        10,
+        11
+      ],
+      "speed_rad_s": 3.131130990742495,
+      "knee_half_width_nm": 2.0097406414058945,
+      "hip_half_width_nm": 1.9493477147932001,
+      "beta_mean_deg": 83.90856290787205,
+      "beta_direction_difference_deg": -0.05653737858170871,
+      "rows": 1208
+    },
+    {
+      "source": 3,
+      "run": 1,
+      "stages": [
+        4,
+        5
+      ],
+      "speed_rad_s": 3.095822676321615,
+      "knee_half_width_nm": 2.1102747759569773,
+      "hip_half_width_nm": 1.9742888517001953,
+      "beta_mean_deg": 62.48345705582001,
+      "beta_direction_difference_deg": -0.09142672703683985,
+      "rows": 1010
+    },
+    {
+      "source": 3,
+      "run": 1,
+      "stages": [
+        9,
+        10
+      ],
+      "speed_rad_s": 3.1108321855178414,
+      "knee_half_width_nm": 2.0271100553219936,
+      "hip_half_width_nm": 1.890399178568165,
+      "beta_mean_deg": 88.06059358077172,
+      "beta_direction_difference_deg": -0.08239495291195453,
+      "rows": 889
+    },
+    {
+      "source": 3,
+      "run": 1,
+      "stages": [
+        14,
+        15
+      ],
+      "speed_rad_s": 3.1383167334063997,
+      "knee_half_width_nm": 1.0037585131113196,
+      "hip_half_width_nm": 1.1006653246225744,
+      "beta_mean_deg": 102.2883306955131,
+      "beta_direction_difference_deg": 0.056409812435504136,
+      "rows": 826
+    },
+    {
+      "source": 3,
+      "run": 1,
+      "stages": [
+        17,
+        18
+      ],
+      "speed_rad_s": 3.100134559909995,
+      "knee_half_width_nm": 2.1394583472869773,
+      "hip_half_width_nm": 2.0615788276158753,
+      "beta_mean_deg": 74.51892136060985,
+      "beta_direction_difference_deg": -0.0920020055927182,
+      "rows": 998
+    },
+    {
+      "source": 3,
+      "run": 1,
+      "stages": [
+        20,
+        21
+      ],
+      "speed_rad_s": 3.138594679047551,
+      "knee_half_width_nm": 1.6796588667873777,
+      "hip_half_width_nm": 1.6090454317567877,
+      "beta_mean_deg": 98.56021246503562,
+      "beta_direction_difference_deg": -0.06212586615312432,
+      "rows": 934
+    },
+    {
+      "source": 3,
+      "run": 2,
+      "stages": [
+        4,
+        5
+      ],
+      "speed_rad_s": 3.090806180428539,
+      "knee_half_width_nm": 2.0514450967794904,
+      "hip_half_width_nm": 1.964780725167361,
+      "beta_mean_deg": 62.7261215957783,
+      "beta_direction_difference_deg": -0.056690170720699484,
+      "rows": 1018
+    },
+    {
+      "source": 3,
+      "run": 2,
+      "stages": [
+        9,
+        10
+      ],
+      "speed_rad_s": 3.1412061921206353,
+      "knee_half_width_nm": 1.9508046104233072,
+      "hip_half_width_nm": 1.880330428326415,
+      "beta_mean_deg": 88.02284575354932,
+      "beta_direction_difference_deg": -0.04784739392955828,
+      "rows": 946
+    },
+    {
+      "source": 3,
+      "run": 2,
+      "stages": [
+        14,
+        15
+      ],
+      "speed_rad_s": 3.137902006777739,
+      "knee_half_width_nm": 0.9909630814216528,
+      "hip_half_width_nm": 1.0662413644838178,
+      "beta_mean_deg": 102.25584911288448,
+      "beta_direction_difference_deg": 0.04331762731438005,
+      "rows": 838
+    },
+    {
+      "source": 3,
+      "run": 2,
+      "stages": [
+        17,
+        18
+      ],
+      "speed_rad_s": 3.0740708913705195,
+      "knee_half_width_nm": 2.333110786266051,
+      "hip_half_width_nm": 1.8128910171820642,
+      "beta_mean_deg": 74.41264173604907,
+      "beta_direction_difference_deg": -0.4137482272700055,
+      "rows": 997
+    }
+  ],
+  "conclusion": "Fast motion retains a direction load, but it does not grow with speed. No evidence that positive viscous damping dominates the gap.",
+  "limitations": [
+    "Moving Coulomb friction, seal/structure hysteresis, low-speed Stribeck effects and experiment-order warming are not uniquely separated.",
+    "Persistent direction gap at nonzero speed is not by itself evidence of viscous damping or pure static friction.",
+    "Reported DM torque is not an independent shaft torque sensor; closed-loop signals and offline acceleration estimates have limits.",
+    "Negative descriptive speed slope is not negative physical damping and must not be injected into simulation.",
+    "Static friction/breakaway needs near-zero ramp/hold data; fastest relative knee coverage is only about 2.1 rad/s.",
+    "Whole-leg common rotation is a different kinematic condition; its direction half-width is not pooled with relative knee motion."
+  ],
+  "changes_to_runtime_controller_or_simulation": false
+}

@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/tools/analyze_knee_friction_speed.py", line 363, in <module>
+    main()
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/tools/analyze_knee_friction_speed.py", line 359, in main
+    analyze(args.out)
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/tools/analyze_knee_friction_speed.py", line 234, in analyze
+    write(out/"analysis.json", result)
+  File "/home/noir/Documents/workspace/isaac_wheeled_rl_train/tools/analyze_knee_friction_speed.py", line 34, in write
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/encoder.py", line 202, in encode
+    chunks = list(chunks)
+             ^^^^^^^^^^^^
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type int64 is not JSON serializable

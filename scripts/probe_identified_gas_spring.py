@@ -22,7 +22,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from identify_gas_spring import BUNDLE, digest, force
+from identify_gas_spring import digest, force, geometry
 
 
 def main():
@@ -32,6 +32,8 @@ def main():
     p.add_argument("--output",type=Path,required=True)
     p.add_argument("--seconds",type=float,default=1.2)
     p.add_argument("--betas",type=float,nargs="+",help="Actual-pose sampling references in degrees")
+    p.add_argument("--models",nargs="+",choices=("catalogue","monotone_cubic","effective_monotone_table"))
+    p.add_argument("--paired",action="store_true",help="Apply identified force to both legs under explicit left-right symmetry")
     a=p.parse_args()
     assert .6 <= a.seconds <= 3.
     g=np.load(a.data/"geometry.npz")
@@ -40,12 +42,17 @@ def main():
     manifest=json.loads((bundle/"manifest.json").read_text())
     spec=json.loads((bundle/"model_spec.json").read_text())
     catalogue=json.loads((bundle/"fit_10mpa.json").read_text())
+    if a.paired:
+        assert a.mode=="curves" and a.models==["effective_monotone_table"]
+        right_geometry=geometry(bundle,g["beta_deg"],side="right")
+        # Resolve the physical knee from topology (legacy asset spells R_jonit2).
+        right_knee_name=next(j["name"] for j in spec["joints"] if j["parent"]=="R_link1" and j["child"]=="R_link2")
     if a.mode=="unit":
         cases=[dict(model="unit",reference_beta_deg=b,constant_force_n=f) for b in (a.betas or [55.,74.,99.]) for f in (0.,100.)]
     else:
         fitted=json.loads((a.data/"identified_model.json").read_text())
         cases=[dict(model=m,reference_beta_deg=b,constant_force_n=None)
-               for m in ("catalogue","monotone_cubic","effective_monotone_table")
+               for m in (a.models or ["catalogue","monotone_cubic","effective_monotone_table"])
                for b in (a.betas or [56.,60.,70.,80.,90.,95.,97.,98.])]
     assert all(g["beta_deg"][0] <= c["reference_beta_deg"] <= g["beta_deg"][-1] for c in cases)
     if a.mode=="curves":
@@ -65,8 +72,16 @@ def main():
     report["trace_columns"]=["beta_deg","compression_m","hip_motor_nm","knee_motor_nm",
                              "hip_velocity_rad_s","knee_velocity_rad_s","force_n",
                              "hip_incoming_projected_nm","knee_incoming_projected_nm"]
+    report["right_leg_symmetry_assumed"]=a.paired
+    report["right_leg_measured"]=False
+    report["force_component_sha256"]=digest(ROOT/"src/wheeled_tasks/chassis/identified_gas_spring.py")
+    report["geometry_tool_sha256"]=digest(ROOT/"tools/identify_gas_spring.py")
+    if a.paired:
+        report["trace_columns"]=[f"left_{n}" for n in report["trace_columns"]]+[f"right_{n}" for n in report["trace_columns"]]
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.with_suffix(".source.py").write_text(Path(__file__).read_text())
+    if a.paired:
+        np.savez_compressed(a.output.with_suffix(".right_geometry.npz"),**right_geometry)
     launcher=None;start=time.monotonic()
     try:
         from isaaclab.app import AppLauncher
@@ -82,6 +97,7 @@ def main():
         from isaaclab_physx.physics import PhysxCfg
         torch.set_num_threads(4)
         identified_curve=IdentifiedGasSpringCurve.from_json(a.data/"identified_model.json") if a.mode=="curves" else None
+        right_curve=identified_curve.for_side("right",assume_symmetry=True) if a.paired else None
         report["identified_force_evaluator"]="IdentifiedGasSpringCurve.force (torch)" if a.mode=="curves" else None
         dt=.001
         sim=su.SimulationContext(su.SimulationCfg(device="cpu",dt=dt,gravity=(0.,0.,0.),
@@ -105,6 +121,10 @@ def main():
         gas_id=robot.joint_names.index("L_spring_slide")
         knee_id=robot.joint_names.index("L_joint2")
         s0=spec["spring_binding"]["L_spring_slide"]["compression_at_q_zero_m"]
+        if a.paired:
+            right_gas_id=robot.joint_names.index("R_spring_slide")
+            right_knee_id=robot.joint_names.index(right_knee_name)
+            right_s0=spec["spring_binding"]["R_spring_slide"]["compression_at_q_zero_m"]
         report["joint_names"]=robot.joint_names
         report["external_loop_constraints"]=len(loops)
         report["solver_iterations"]=[64,32]
@@ -133,6 +153,13 @@ def main():
                 # effort remains the PD holding effort after free equilibrium.
                 target[0,:2]+=torch.tensor(-force0*jac0/160.,dtype=torch.float32)
                 case["reference_preload_offset_rad"]=(-force0*jac0/160.).tolist()
+                if a.paired:
+                    right_c0=right_s0-pose["R_spring_slide"]
+                    lo,hi=fitted["models"]["effective_monotone_table"]["compression_domain_m"]
+                    right_f0=float(right_curve.force(torch.tensor(np.clip(right_c0,lo,hi),dtype=torch.float64)))
+                    right_j0=np.array([np.interp(beta_ref,right_geometry["beta_deg"],right_geometry["jacobian_m_per_rad"][:,i]) for i in range(2)])
+                    target[0,3:5]+=torch.tensor(-right_f0*right_j0/160.,dtype=torch.float32)
+                    case["right_reference_preload_offset_rad"]=(-right_f0*right_j0/160.).tolist()
             effort=torch.zeros_like(q0)
             rows=[];clamps=0;peak_tau=0.;max_gap=0.
             for step in range(round(a.seconds/dt)):
@@ -156,9 +183,14 @@ def main():
                     else:
                         F=float(force(model,bounded))
                 if a.mode=="unit":F*=min(1.,step*dt/.15)
+                if a.paired:
+                    right_compression=float(right_s0-q[0,right_gas_id])
+                    if not lo-2e-5<=right_compression<=hi+2e-5 and step*dt>a.seconds-.25:clamps+=1
+                    right_F=float(right_curve.force(torch.tensor(np.clip(right_compression,lo,hi),dtype=torch.float64)))
                 motor=(160.*(target-q[:,ids])-2.5*dq[:,ids]).clamp(-40.,40.)
                 peak_tau=max(peak_tau,float(motor.abs().max()))
                 effort.zero_();effort[:,ids]=motor;effort[0,gas_id]=F
+                if a.paired:effort[0,right_gas_id]=right_F
                 robot.set_joint_effort_target_index(target=effort)
                 robot.write_data_to_sim();sim.step(render=False);robot.update(dt)
                 if step*dt>=a.seconds-.25 and step%5==0:
@@ -166,6 +198,10 @@ def main():
                     beta=np.rad2deg(qn[knee_id]+np.pi-2.3573)
                     projected=wp.to_torch(robot.root_view.get_dof_projected_joint_forces()).numpy()[0,ids[:2]]
                     rows.append([beta,s0-qn[gas_id],*motor[0,:2].numpy(),*vn[ids[:2]],F,*projected])
+                    if a.paired:
+                        right_beta=np.rad2deg(-qn[right_knee_id]+np.pi-2.3573)
+                        right_projected=wp.to_torch(robot.root_view.get_dof_projected_joint_forces()).numpy()[0,ids[3:5]]
+                        rows[-1].extend([right_beta,right_s0-qn[right_gas_id],*motor[0,3:5].numpy(),*vn[ids[3:5]],right_F,*right_projected])
                 if step%100==0:
                     poses=robot.data.body_link_pose_w.torch[0].numpy()
                     frames={n:(poses[i,:3],Rotation.from_quat(poses[i,3:])) for i,n in enumerate(robot.body_names)}
@@ -180,6 +216,13 @@ def main():
                         holding_torque_std_nm=rows[:,2:4].std(axis=0).tolist(),max_loop_gap_m=max_gap,
                         peak_motor_torque_nm=peak_tau,final_domain_clamped_samples=clamps,
                         final_samples=len(rows),settled=bool(np.sqrt(np.mean(rows[:,4:6]**2))<.02 and max_gap<.001 and peak_tau<39.9 and clamps==0))
+            if a.paired:
+                record["right"]=dict(actual_beta_deg=float(mean[9]),compression_m=float(mean[10]),
+                    holding_torque_nm=mean[11:13].tolist(),velocity_rms_rad_s=float(np.sqrt(np.mean(rows[:,13:15]**2))),
+                    force_n=float(mean[15]),projected_joint_effort_nm=mean[16:18].tolist(),
+                    holding_torque_std_nm=rows[:,11:13].std(axis=0).tolist())
+                record["settled"]=record["settled"] and record["right"]["velocity_rms_rad_s"]<.02
+                record["motor_torque_mirror_error_nm"]=(mean[2:4]+mean[11:13]).tolist()
             report["cases"].append(record);traces.append(rows)
             report["status"]="running";a.output.write_text(json.dumps(report,indent=2)+"\n")
             print("CASE",number+1,"/",len(cases),json.dumps(record),flush=True)

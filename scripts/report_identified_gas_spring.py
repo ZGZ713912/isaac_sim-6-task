@@ -50,6 +50,8 @@ def main():
     data = np.load(out / "fit_data.npz")
     source_checks = {s["path"]: sha256(s["path"]) == s["sha256"] for s in source_meta["sources"]}
     assert all(source_checks.values()), "Raw source changed after fitting"
+    preprocessing_verified = sha256(source_meta["preprocessing_source"]) == source_meta["preprocessing_sha256"]
+    assert preprocessing_verified, "Audited CSV preprocessor changed after export"
     bundle = Path(geometry_meta["bundle"])
     assert all(sha256(bundle / n) == h for n, h in geometry_meta["files_sha256"].items())
     probe_reports = []
@@ -58,6 +60,11 @@ def main():
         path = out / f"{name}.json"
         probe = json.loads(path.read_text())
         assert probe["status"] == "completed" and probe["all_cases_settled"]
+        assert probe["asset_manifest_sha256"] == geometry_meta["files_sha256"]["manifest.json"]
+        if name == "native_unit":
+            assert sha256(path) == fitted["native_unit_probe_sha256"]
+        if "identified_model_sha256_at_start" in probe and name != "native_unit":
+            assert probe["identified_model_sha256_at_start"] == sha256(candidates)
         assert probe["gravity"] == [0., 0., 0.]
         assert not probe["spring_feedforward"] and probe["passive_pose_writes_during_physics"] == 0
         trace = np.load(path.with_suffix(".npz"))
@@ -74,7 +81,8 @@ def main():
             details = dict(model=row["model"], reference_beta_deg=row["reference_beta_deg"],
                            actual_beta_deg=row["actual_beta_deg"],
                            motor_mapping_error_nm=residual.tolist(),
-                           strict_endpoint_hold_samples=int((excess > 0).sum()) if row["model"] != "unit" else 0,
+                           samples_outside_identified_compression_domain=int((excess > 0).sum()),
+                           strict_endpoint_hold_samples=int((excess > 0).sum()) if row["model"] not in ("unit", "catalogue") else 0,
                            peak_endpoint_excess_m=float(max(0., excess.max())) if row["model"] != "unit" else 0.)
             cases.append(details)
             if name != "native_unit":
@@ -114,7 +122,7 @@ def main():
     write_json(export_path, exported)
     receipt = dict(status="passed_bounded_static_validation", created_at=datetime.now(timezone.utc).isoformat(),
         git_head=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
-        interpreter=sys.executable, source_hash_checks=source_checks,
+        interpreter=sys.executable, source_hash_checks=source_checks, preprocessing_sha256_verified=preprocessing_verified,
         fitted_candidates_sha256=sha256(candidates), native=probe_reports,
         exported_model=str(export_path), exported_model_sha256=sha256(export_path),
         torch_force_parity=True, conservative_energy_gradient=True,
@@ -123,10 +131,15 @@ def main():
         dynamics_or_hardware_closed_loop_validated=False,
         numerical_armature_kg_m2=.02,
         armature_scope="native measurement fixture only; no production inertia change",
-        source_script_hashes={n: sha256(ROOT / n) for n in (
+        source_script_hashes_at_finalization={n: sha256(ROOT / n) for n in (
             "tools/identify_gas_spring.py", "scripts/export_real_gas_spring_data.py",
             "scripts/probe_identified_gas_spring.py", "scripts/report_identified_gas_spring.py",
             "src/wheeled_tasks/chassis/identified_gas_spring.py", "tests/test_identified_gas_spring.py")})
+    test_log = out / "tests.log"
+    if test_log.exists():
+        assert "16 passed" in test_log.read_text() and "failed" not in test_log.read_text()
+        receipt["tests"] = dict(command="python -m pytest -q tests/test_identified_gas_spring.py tests/test_gas_spring.py",
+                                passed=16, log_sha256=sha256(test_log))
     write_json(out / "validation_receipt.json", receipt)
     final_fit = dict(fitted, status=exported["status"], validation_receipt="validation_receipt.json",
                      validation_receipt_sha256=sha256(out / "validation_receipt.json"))
@@ -197,6 +210,7 @@ def report(out, fit, receipt, exported):
     model = fit["models"][fit["selected"]]
     force_rows = "\n".join(f"| {s*1000:.3f} | {f:.2f} |" for s, f in zip(model["compression_knots_m"], model["force_knots_n"]))
     drop = 100 * (1 - val["effective_monotone_table"]["1"]["mean_load_residual_rms_nm"] / val["catalogue"]["1"]["mean_load_residual_rms_nm"])
+    tests = "相关新旧气簧测试 **16 项通过**，见 [tests.log](tests.log)。" if "tests" in receipt else "测试命令见下方复现步骤。"
     text = f"""# 左腿气簧 Real2Sim 标定（2026-10-27）
 
 已完成真实力矩曲线拟合与 Isaac Sim 6 / PhysX 原生闭链验证。新 P/P 留出数据上，仅弹性负载模型的差动力矩残差 RMS 从 **5.114 降到 1.935 N·m，降低 {drop:.1f}%**。这是更贴近本次实测的左腿有效安装负载模型，尚不能称为已唯一辨识的纯气体压力模型。
@@ -231,7 +245,7 @@ def report(out, fit, receipt, exported):
 
 ## 原生 Isaac Sim 验证
 
-以下均在真实 Isaac Sim 6.0.0.1、Isaac Lab 6.1.14 / PhysX 中运行，无地面接触、固定基座、重力为零。物理步长 1 ms，求解器 64/32 次迭代；显式电机 PD=160/2.5，限幅 40 N·m。所有工况均达到静态判据。
+以下均在真实 Isaac Sim 6.0.0.1、Isaac Lab 6.1.14 / PhysX 中运行，无地面接触、固定基座、重力为零。物理步长 1 ms，求解器 64/32 次迭代；显式电机 PD=160/2.5，限幅 40 N·m。闭链间隙每 0.1 s 检查；末尾 0.25 s 每 5 ms 记录平衡力矩和速度。所有工况均达到静态判据。
 
 | 原生记录 | 工况数 | 电机力矩与 −JᵀF 的 RMS [N·m] | 最大闭链间隙 [mm] | 最大末段速度 RMS [rad/s] |
 |---|---:|---:|---:|---:|
@@ -239,9 +253,9 @@ def report(out, fit, receipt, exported):
 
 6 个单位力工况使用 0/100 N 轴向力、无气簧前馈，自由达到平衡；用最终实际角度得到力到电机力矩的映射校准，比例约为 {fit['native_sensitivity_scale'][0]:.8f}/{fit['native_sensitivity_scale'][1]:.8f}。另外 33 个工况验证原模型、多项式和有效查表，包含 99/100/101° 末端。曲线工况使用固定位置参考预偏置让实际平衡角接近采样角；预偏置仅初始化一次，没有在线力矩前馈，也没有物理运行中覆写被动关节位置。这些工况验证载荷传递和数值平衡，不能替代独立传感器测力。
 
-测量夹具对电机使用 0.02 kg·m² 数值 armature 以稳定显式控制，不代表已辨识真实惯量，没有写入生产惯量。零 armature 的两次不稳定尝试保留为 `native_unit_failed_*`，没有作为有效校准。闭链关节 incoming/projected force 包括约束反力，未当作纯气簧力矩使用。
+测量夹具对电机使用 0.02 kg·m² 数值 armature 以稳定显式控制，不代表已辨识真实惯量，没有写入生产惯量。零 armature 的两次不稳定尝试保留为 `native_unit_failed_*`，没有作为有效校准。闭链关节 incoming/projected force 包括约束反力，未当作纯气簧力矩使用；接口含义见 [NVIDIA articulation force 官方文档](https://docs.isaacsim.omniverse.nvidia.com/latest/sensors/isaacsim_sensors_physics_articulation_force.html)。
 
-数值端点允许最多 20 μm 的显式 endpoint hold，严格超域计数和实际超出量逐工况保存在 [validation_receipt.json](validation_receipt.json)。101° 附近的微小数值超域用端点力保持；导出的公共组件本身严格拒绝超域。初始 6/24 工况对应源码哈希记录在各 JSON；补充末端工况另保存了 `native_edge.source.py`，不会把后来修改的源码冒称为旧运行版本。
+辨识曲线的数值端点允许最多 20 μm 的显式 endpoint hold，严格超域计数和实际超出量逐工况保存在 [validation_receipt.json](validation_receipt.json)。101° 附近辨识模型的微小数值超域用端点力保持；原目录多项式在此处仍直接求值。导出的公共组件本身严格拒绝超域。初始 6/24 工况对应源码哈希记录在各 JSON；补充末端工况另保存了 `native_edge.source.py`，不会把后来修改的源码冒称为旧运行版本。
 
 ## 导出与使用
 
@@ -253,7 +267,7 @@ curve = IdentifiedGasSpringCurve.from_json("model/gas_spring_identified_left_202
 force_n = curve.force(compression_m)  # positive outward along the spring slide
 ```
 
-原生末端验证实际调用了这个 Torch 组件。模型不静默外推，右腿不可直接宣称已标定。当前默认训练气簧、生产合同和控制器未替换，未启动 PPO，未运行实车补偿闭环。
+原生末端验证实际调用了这个 Torch 组件。模型不静默外推，右腿不可直接宣称已标定。{tests} 本次标定没有替换当前默认训练气簧、生产合同和控制器，没有启动 PPO 或运行实车补偿闭环。
 
 | 压缩量 [mm] | 有效轴向力 [N] |
 |---:|---:|
