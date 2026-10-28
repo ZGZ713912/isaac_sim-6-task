@@ -559,6 +559,9 @@ def main():
     if c.get("response_migration"):
         source_files.append("src/wheeled_tasks/chassis/response_migration.py")
     source_files.append("src/wheeled_tasks/chassis/actuator_response.py")
+    source_files.append("src/wheeled_tasks/chassis/identified_wheel_response.py")
+    if c.get("identified_wheel_response", {}).get("enabled"):
+        source_files.append(c["identified_wheel_response"]["model_path"])
     if c.get("actuator_response", {}).get("enabled"):
         evidence_file = c["actuator_response_evidence"]["file"]
         source_files.append(evidence_file)
