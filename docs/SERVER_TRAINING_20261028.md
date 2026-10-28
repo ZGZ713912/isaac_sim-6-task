@@ -15,11 +15,13 @@ Isaac Lab 3.0官方配套版本见[发布说明](https://github.com/isaac-sim/Is
 
 ```bash
 /opt/isaaclab-venv/bin/python -m pip install --only-binary=:all: --no-deps \
-  numpy==2.3.5 packaging==23.2 imageio-ffmpeg==0.6.0
+  numpy==2.3.5 packaging==23.2 imageio-ffmpeg==0.6.0 \
+  PyJWT==2.15.1 usd-validation-nvidia==1.23.0
 ```
 
 NumPy同时满足cmeel-boost的`>=2.3,<2.4`与Numba的`<2.5`；
 packaging满足ovphysx的`>=20,<24`；ffmpeg补齐robomimic声明的依赖。
+加载完整Kit启动环境后，还补齐预捆绑msal的PyJWT依赖和两个simready扩展的USD校验依赖。
 不升级或替换Torch、RSL、Warp及模拟器，不修改无卡模式的平台限制。
 
 ## 使用正确的Python运行时
