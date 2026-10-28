@@ -16,6 +16,7 @@ import torch
 from torch import nn
 
 from .standing_geometry107 import EXTENDED_SHA256, TABLE_RELATIVE, table_path
+from .training_gas_spring import force_from_knots
 
 
 def resolve(root, declaration, spring_settings, spec_path):
@@ -51,6 +52,7 @@ def resolve(root, declaration, spring_settings, spec_path):
         spring_model_sha256=spring_settings["sha256"], sides=sides,
         force_model=deepcopy(spring_settings["model"]),
         outside_identified_domain=spring_settings["outside_identified_domain"],
+        trend_extension=deepcopy(spring_settings.get("resolved_trend_extension")),
         encoder_order=["L_joint1", "LL_joint1", "R_joint1", "RR_joint1"],
         force_scope="measured effective mean axial load; not separated pressure or hysteresis",
         formula="clip(PD - J_length(q_encoder).T * F(extended_length-length), -40, 40)")
@@ -136,9 +138,8 @@ class EncoderGasSpringFeedforward(nn.Module):
         length, beta, valid = (torch.stack(v, -1) for v in (length_all, beta_all, valid_all))
         extended = torch.stack([self.get(i, "extended_length_m") for i in range(2)])
         compression = extended-length
-        bounded = compression.clamp(self.force_knots[0], self.force_knots[-1])
-        lo = torch.searchsorted(self.force_knots, bounded.contiguous(), right=True).sub(1).clamp(0, len(self.force_knots)-2)
-        force = self.force_values[lo]+self.force_slopes[lo]*(bounded-self.force_knots[lo])
+        force = force_from_knots(compression, self.force_knots, self.force_values, self.force_slopes,
+            self.settings["outside_identified_domain"], self.settings["force_model"]["stroke_m"])
         d = torch.stack(derivative_all, -1)
         jacobian = torch.stack((-d, d), -1).flatten(-2)
         holding = -jacobian*force.repeat_interleave(2, -1)
@@ -169,6 +170,7 @@ class EncoderGasSpringFeedforward(nn.Module):
             relative_margin_rad=self.settings["relative_margin_rad"],
             invalid_geometry="zero feedforward; original protection retained",
             outside_identified_domain=self.settings["outside_identified_domain"],
+            trend_extension=deepcopy(self.settings.get("trend_extension")),
             physical_spring_retained=True, total_leg_limit_nm=40.,
             privileged_force_or_slider_input=False, disabled_motor_zero_after_compensation=True,
             force_scope=self.settings["force_scope"], hardware_ready=False)

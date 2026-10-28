@@ -206,6 +206,14 @@ def probe(env, plan, *, stop_requested=lambda: False):
     checks["encoder_only_feedforward_physical_spring_retained"] = bool(
         env.startup_report["encoder_spring_feedforward"]["physical_spring_retained"]
         and not env.startup_report["encoder_spring_feedforward"]["privileged_force_or_slider_input"])
+    # Geometry/force coverage is an algebraic check, not a sampled motor move.
+    left, right = spring_reference.get(0, "delta_rad"), spring_reference.get(1, "delta_rad")
+    delta = torch.linspace(float(left[0]), float(left[-1]), 1001, device=env.device)
+    mirror = torch.linspace(float(right[-1]), float(right[0]), 1001, device=env.device)
+    coverage = spring_reference(torch.stack((delta*0.-.42, delta-.42, delta*0.+.42, mirror+.42), -1))
+    checks["declared_full_soft_range_finite_nonzero_compensation"] = bool(
+        spring_reference.last["geometry_valid"].all() and torch.isfinite(coverage).all()
+        and (coverage.abs() > .01).all() and (coverage.abs() < 40.).all())
     checks["measured_wheel_native_properties"] = env.startup_report["training_identified_wheels"]["native_properties_verified"]
     checks["independent_wheels_P05_delay_once"] = bool(env.v5.wheel_prior["kd"] == .5
         and reference.whole_delay == [5, 3] and reference.fractional_delay == [.5, .5])
@@ -222,6 +230,8 @@ def probe(env, plan, *, stop_requested=lambda: False):
     spring_min = torch.full((2, 2), float("inf"), device=env.device)
     spring_max = -spring_min.clone()
     spring_outside = torch.zeros(2, dtype=torch.int64, device=env.device)
+    spring_outside_low = torch.zeros_like(spring_outside)
+    spring_outside_high = torch.zeros_like(spring_outside)
     spring_count = 0
     for _ in range(300):
         if stop_requested():
@@ -291,12 +301,23 @@ def probe(env, plan, *, stop_requested=lambda: False):
         curve = env.identified_spring.curve
         expected_spring = curve.force(physical["spring_compression"].clamp(
             min=curve.compression_knots_m[0], max=curve.compression_knots_m[-1]))
+        if env.identified_spring.settings["outside_identified_domain"] == "positive_c1_endpoint_trend_v1":
+            model = env.identified_spring.settings["resolved_trend_extension"]
+            compression = physical["spring_compression"].clamp(0., env.identified_spring.settings["installed_stroke_m"])
+            low = curve.force_knots_n[0]*torch.exp(model["endpoint_log_slopes_per_m"][0]*(
+                compression.clamp_max(curve.compression_knots_m[0])-curve.compression_knots_m[0]))
+            high = curve.force_knots_n[-1]*torch.exp(model["endpoint_log_slopes_per_m"][1]*(
+                compression.clamp_min(curve.compression_knots_m[-1])-curve.compression_knots_m[-1]))
+            expected_spring = torch.where(compression < curve.compression_knots_m[0], low,
+                torch.where(compression > curve.compression_knots_m[-1], high, expected_spring))
         checks["actual_1khz_measured_spring_force"] = checks.get("actual_1khz_measured_spring_force", True) and bool(
             torch.allclose(physical["spring_force"], expected_spring * env.domain.spring, atol=1e-4, rtol=1e-6))
         measured = torch.stack((physical["spring_compression"], physical["spring_force"]))
         spring_min = torch.minimum(spring_min, measured.amin(dim=(1, 2)))
         spring_max = torch.maximum(spring_max, measured.amax(dim=(1, 2)))
         spring_outside += physical["spring_outside_identified"].sum(dim=(0, 1))
+        spring_outside_low += (physical["spring_compression"] < curve.compression_knots_m[0]).sum(dim=(0, 1))
+        spring_outside_high += (physical["spring_compression"] > curve.compression_knots_m[-1]).sum(dim=(0, 1))
         spring_count += physical["spring_compression"].shape[0] * env.num_envs
         checks["actor35_critic83"] = observation["policy"].shape == (env.num_envs,35) and observation["critic"].shape == (env.num_envs,83)
         checks["zero_disabled_torque"] = checks.get("zero_disabled_torque", True) and bool((state["passive_motor_peak"][state["passive"]] == 0.).all())
@@ -324,5 +345,7 @@ def probe(env, plan, *, stop_requested=lambda: False):
                     compression_min_m=spring_min[0].tolist(), compression_max_m=spring_max[0].tolist(),
                     force_min_n=spring_min[1].tolist(), force_max_n=spring_max[1].tolist(),
                     outside_identified_samples=spring_outside.tolist(),
+                    extrapolated_low_compression_samples=spring_outside_low.tolist(),
+                    extrapolated_high_compression_samples=spring_outside_high.tolist(),
                     outside_identified_fraction=(spring_outside / spring_count).tolist(),
-                    outside_identified_policy="endpoint_hold_unvalidated"))
+                    outside_identified_policy=env.identified_spring.settings["outside_identified_domain"]))

@@ -52,8 +52,9 @@
     "file": "model/gas_spring_identified_symmetric_20261028/model.json",
     "sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
     "right_leg_symmetry_assumed": true,
-    "outside_identified_domain": "endpoint_hold_unvalidated",
-    "scope": "Same LEFT-measured axial force curve on both legs.56..101deg /22.997..61.786mm are identified; remaining mechanical travel holds endpoint force and is explicitly unvalidated. No direction-friction nuisance term."
+    "outside_identified_domain": "positive_c1_endpoint_trend_v1",
+    "trend_extension": {"file": "contracts/gas_spring_endpoint_trend_v1.json", "sha256": "868fbea52e511a2181e2f63ceb68a56d8e8f418af71bb96c06340dc547c778e7"},
+    "scope": "Same LEFT-measured axial force curve on both legs. Measured56..101deg points unchanged; positive C1 endpoint-trend extension covers soft40..107deg. Extrapolated regions remain unmeasured; physical and compensation calls share this law."
   },
   "gas_spring_feedforward": {
     "enabled": true,

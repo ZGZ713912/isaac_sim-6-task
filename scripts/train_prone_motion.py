@@ -129,7 +129,9 @@ def source_hashes(plan_path, plan):
              plan["randomization_contract"],
              plan["acceptance_contract"], plan["prone_geometry_contract"], "contracts/standing_geometry107_v1.json",
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
+             plan["gas_spring_model"]["trend_extension"]["file"],
              "tests/test_encoder_spring_feedforward.py",
+             "scripts/review_gas_spring_soft_range.py",
              str(plan_path.relative_to(ROOT))]
     names.extend(item["file"] for item in plan["wheel_model"].values() if isinstance(item, dict) and "file" in item)
     evidence = json.loads((ROOT/plan["wheel_model"]["evidence"]["file"]).read_text())
