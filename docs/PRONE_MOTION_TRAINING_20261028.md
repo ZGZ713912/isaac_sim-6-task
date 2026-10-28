@@ -25,6 +25,14 @@ bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/script
 
 单独检查原生接线且不训练：将上面的`--preflight-only`改为`--native-probe`。运行前仍检查是否已有learner。
 
+## 执行速度
+
+新启动默认使用`--performance-backend cuda_graph`。只对编码器气簧补偿、编码器腿几何和物理气簧曲线的固定形状纯张量计算复用CUDA执行图，保持原Torch内核、原公式和每次输入有效性检查；不捕获仿真、随机数、传感器/轮响应历史或优化器。回放输出复制到独立存储，保留每1ms原始诊断。原生读取epoch及显式reset代际限定几何结果缓存，域切换重建环境时重建执行图。逐角色指标的有样本判断合并为一次传输，保留原tag和选中样本的归约。
+
+物理1kHz、策略200Hz、64/32求解迭代、256环境、128步rollout、10000次更新、每250次完整检查点和全部reward/课程/域随机化不变。`--performance-backend eager`保留未回放的对照路径，适用于定位运行环境问题。运行中的冻结任务不热切换；采用新版需要在新目录从零启动，禁止用停止模型续训。
+
+本机独立零PPO比较可运行`python scripts/benchmark_prone_motion.py --output <新目录> --backend cuda_graph`，对照改为`--backend eager`。使用训练所用的Isaac Python，两个进程串行运行；同样的环境数、seed、动作、warmup和测量长度才可比较。脚本保存原始轨迹、来源摘要和TensorBoard性能event，不创建actor/critic或读取checkpoint；测试不等于策略行为验收。实测结果见主工作区`reports/local_speedup_20261029/REVIEW.md`，不能将本机采样速度当作4090服务器的PPO总耗时。
+
 ## 训练课程与预算
 
 固定10000次完整PPO更新，256环境、每环境128步、200Hz策略/1000Hz物理。上限327680000个rollout位置，实际用于学习的数量会扣除失能落稳样本，并记录于`progress.json`。它和参考仓库24步rollout的“一轮”不是同一个样本量口径。运行时间由实际每轮耗时决定，不预报未经测量的小时数。

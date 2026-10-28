@@ -26,7 +26,10 @@ sys.path.insert(0, str(ROOT/"src"))
 import train_scratch_standing as base
 
 
-def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None, seed=None):
+def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None, seed=None,
+                  performance_backend="cuda_graph"):
+    if performance_backend not in ("eager","cuda_graph"):
+        raise ValueError("Unknown prone-motion performance backend")
     output.mkdir(parents=True, exist_ok=True)
     args = SimpleNamespace(output=output,
         bank=ROOT/"reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
@@ -51,7 +54,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         settings["nominal_fraction"] = 0.
         cfg["dynamics_randomization"]["enabled_fraction"] = 1.
     cfg.update(episode_seconds=plan["training_prone_seconds"], record_diagnostics=True,
-               curriculum="prone_motion_long_v1", learning_rate=plan["learning_rate"], entropy_coef=.001)
+               curriculum="prone_motion_long_v1", learning_rate=plan["learning_rate"], entropy_coef=.001,
+               prone_motion_performance=performance_backend)
     cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
     cfg["policy_architecture"]["scope"] = "Fresh actor35, critic83, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
@@ -124,6 +128,7 @@ def learner_config(plan, device="cuda:0"):
 def source_hashes(plan_path, plan):
     result = base.sources()
     names = ["scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
+             "scripts/benchmark_prone_motion.py",
              "scripts/server_isaac_python.sh", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
              "contracts/scratch_standing_base_mechanism_v2.json", "contracts/scratch_standing_base_design_v2.json",
@@ -132,6 +137,7 @@ def source_hashes(plan_path, plan):
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
              plan["gas_spring_model"]["trend_extension"]["file"],
              "tests/test_encoder_spring_feedforward.py",
+             "tests/test_prone_motion_performance.py",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
              "scripts/review_gas_spring_soft_range.py",
              str(plan_path.relative_to(ROOT))]
@@ -221,6 +227,8 @@ def main():
     parser.add_argument("--plan", type=Path, default=ROOT/"contracts/wheel_leg_prone_motion_v1.json")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--native-probe", action="store_true", help="Zero PPO; native reset/action/reward/contact wiring only")
+    parser.add_argument("--performance-backend",choices=("cuda_graph","eager"),default="cuda_graph",
+                        help="Replay unchanged tensor calculations (default); eager is the comparison path")
     parser.add_argument("--stop-existing-009", action="store_true", help="Explicitly retire ONLY the authenticated old009, seal and wait; never resume it")
     args = parser.parse_args()
     if args.preflight_only and args.native_probe:
@@ -237,7 +245,7 @@ def main():
         check_other_learners()
     output.mkdir(parents=True, exist_ok=False)
     (output/"curriculum_plan.input.json").write_bytes(plan_path.read_bytes())
-    cfg, settings, bank = configuration(output, plan)
+    cfg, settings, bank = configuration(output, plan,performance_backend=args.performance_backend)
     hashes = source_hashes(plan_path, plan)
     if args.preflight_only:
         base.write_json(output/"preflight.json", dict(source_hashes=hashes, checkpoint_reads=[], new_PPO=0,
@@ -308,7 +316,8 @@ def main():
             active_directory = output/"contexts"/f"{index:03d}_{profile}_{strength:g}_{'eval' if evaluation else 'train'}"
             active_directory.mkdir(parents=True, exist_ok=False)
             cfg, settings, _ = configuration(active_directory, plan, profile=profile, strength=strength,
-                evaluation=evaluation, num_envs=80 if args.native_probe else plan["num_envs"], seed=runtime_seed)
+                evaluation=evaluation, num_envs=80 if args.native_probe else plan["num_envs"], seed=runtime_seed,
+                performance_backend=args.performance_backend)
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
                 stage_name="speed", num_envs=cfg["target_num_envs"], device="cuda:0",

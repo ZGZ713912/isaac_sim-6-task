@@ -102,6 +102,13 @@ class EncoderGasSpringFeedforward(nn.Module):
             raise ValueError("Need the four calibrated driven leg encoder angles")
         if not bool(torch.isfinite(encoder_position).all()):
             raise ValueError("Nonfinite encoder input to spring compensation")
+        replay = getattr(self, "tensor_replay", None)
+        holding, self.last = (self._evaluate(encoder_position) if replay is None
+                              else replay(encoder_position))
+        return holding
+
+    def _evaluate(self, encoder_position):
+        """Original pure math; validity checks stay in forward for every call."""
         beta_all, length_all, derivative_all, valid_all = [], [], [], []
         for side in range(2):
             x, y, m = (self.get(side, key) for key in ("delta_rad", "beta_rad", "slopes"))
@@ -143,11 +150,11 @@ class EncoderGasSpringFeedforward(nn.Module):
         d = torch.stack(derivative_all, -1)
         jacobian = torch.stack((-d, d), -1).flatten(-2)
         holding = -jacobian*force.repeat_interleave(2, -1)
-        self.last = dict(encoder_position=encoder_position.clone(), knee_inner_rad=beta,
+        last = dict(encoder_position=encoder_position.clone(), knee_inner_rad=beta,
             length_m=length, compression_m=compression, axial_force_n=force,
             length_jacobian_m_rad=jacobian, holding_effort_nm=holding, geometry_valid=valid,
             outside_identified=(compression < self.force_knots[0]) | (compression > self.force_knots[-1]))
-        return holding
+        return holding, last
 
     def motor_efforts(self, pd_effort, encoder_position):
         holding = self(encoder_position)
