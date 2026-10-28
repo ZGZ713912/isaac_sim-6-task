@@ -26,6 +26,8 @@ class ProneMotionEnv(RobustGetupEnv):
         from .training_gas_spring import TrainingGasSpring
         self.identified_spring = TrainingGasSpring(self.cfg["v5_control"]["identified_gas_spring"], self.device)
         self.identified_spring.install(self)
+        from .encoder_spring_feedforward import EncoderGasSpringFeedforward
+        EncoderGasSpringFeedforward(self.cfg["v5_control"]["encoder_spring_feedforward"]).install(self)
         from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
         from .standing_geometry107 import table_path
         self.prone_encoder_geometry = EncoderLegGeometry(json.loads(table_path().read_text()),
@@ -188,6 +190,15 @@ class ProneMotionEnv(RobustGetupEnv):
             "ProneMotion/gas_spring/compression_max_m": physical["spring_compression"].max(),
             "ProneMotion/gas_spring/force_left_mean_n": physical["spring_force"][:, :, 0].mean(),
             "ProneMotion/gas_spring/force_right_mean_n": physical["spring_force"][:, :, 1].mean()})
+        prefix = "ProneMotion/gas_spring_feedforward/"
+        result.update({
+            prefix+"invalid_geometry_fraction": (~physical["spring_ff_geometry_valid"]).float().mean(),
+            prefix+"outside_identified_fraction": physical["spring_ff_outside_identified"].float().mean(),
+            prefix+"compression_error_abs_mean_m": (physical["spring_ff_compression_m"]-physical["spring_compression"]).abs().mean(),
+            prefix+"total_request_saturated_fraction": (physical["spring_ff_requested_effort_nm"].abs() > 40.).float().mean()})
+        for i, name in enumerate(("L_joint1", "LL_joint1", "R_joint1", "RR_joint1")):
+            result[prefix+name+"_holding_abs_mean_nm"] = physical["spring_ff_holding_effort_nm"][:, :, i].abs().mean()
+            result[prefix+name+"_holding_peak_nm"] = physical["spring_ff_holding_effort_nm"][:, :, i].abs().max()
         for index, side in enumerate(("left", "right")):
             prefix = "ProneMotion/wheel_model/"+side+"/"
             result[prefix+"motor_effort_abs_mean_nm"] = physical["motor_effort"][:, :, (2, 5)[index]].abs().mean()

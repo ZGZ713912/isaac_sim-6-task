@@ -97,6 +97,11 @@ class RobustGetupEnv(ChassisEnv):
 
         def motor_efforts(q, dq, legs, wheels):
             q, dq = self.getup_feedback.observe(q, dq)
+            feedforward = getattr(self, "spring_feedforward", None)
+            # Keep calibrated encoder feedback before target-dependent winding.
+            # Spring geometry must not depend on a desired pose or simulator slider.
+            if feedforward is not None:
+                spring_encoder = q[:, list(self.v5.LEGS)].clone()
             if settings.get("paired_feedback_winding", False):
                 from .paired_feedback import paired_position_error
                 indices = list(self.v5.LEGS)
@@ -114,6 +119,14 @@ class RobustGetupEnv(ChassisEnv):
                 correction = ((self.domain.kp - 1.) * self.v5.settings["leg_kp"] * (legs - q[:, indices])
                               - (self.domain.kd - 1.) * self.v5.settings["leg_kd"] * dq[:, indices])
                 tau[:, indices] = (tau[:, indices] + correction).clamp(-40., 40.)
+            if feedforward is not None:
+                pd = self.v5.requested_motor_effort[:, indices]
+                if not settings.get("gap_correct_pd_scaling", False):
+                    pd = pd+correction
+                # Sum the UNCLIPPED PD request and spring holding effort first.
+                # Domain strength/delay and the final disabled mask remain below.
+                tau[:, indices] = feedforward.motor_efforts(pd, spring_encoder)
+                self.v5.requested_motor_effort[:, indices] = feedforward.last["requested_effort_nm"]
             return tau
 
         self.v5.motor_efforts = motor_efforts
@@ -468,7 +481,8 @@ class RobustGetupEnv(ChassisEnv):
                     wheel_drive_bound=self.identified_wheels.drive_bound.clone(),
                     wheel_passive_effort=self.identified_wheels.passive_effort.clone(),
                     wheel_net_effort=effort[:, [self.ids[2], self.ids[5]]].clone(),
-                    wheel_disabled=(self.passive | self.finished).clone()))
+                    wheel_disabled=(self.passive | self.finished).clone(),
+                    **{"spring_ff_"+key: value.clone() for key, value in self.spring_feedforward.last.items()}))
             gap_peak = torch.maximum(gap_peak, self.closure_gap())
             body_force = self.contact_force.norm(dim=-1).amax(-1)
             impact_peak = torch.maximum(impact_peak, body_force)
