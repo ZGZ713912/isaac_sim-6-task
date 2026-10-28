@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT/"scripts"))
 sys.path.insert(0, str(ROOT/"src"))
 from wheeled_tasks.chassis import prone_motion as task
 from wheeled_tasks.chassis.unified_getup import project_commands
-from train_prone_motion import configuration, learner_config
+from train_prone_motion import configuration, learner_config, verify_native_probe
 from evaluate_prone_motion import review_arrays, CAPABILITIES
 
 PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v1.json").read_text())
@@ -113,6 +113,32 @@ def test_config_keeps_physics_and_v2_contract(tmp_path, profile, strength):
     if profile == "requested":
         assert cfg["dynamics_randomization"]["inertia_scale"] == [.94,1.06]
         assert settings["nominal_fraction"] == .25
+
+
+def test_native_probe_population_can_use_the_actual_scene_allocator(tmp_path):
+    from wheeled_tasks.chassis.task import choose_scene_groups
+    cfg, _, _ = configuration(tmp_path, PLAN, num_envs=80)
+    assert len(choose_scene_groups(cfg["scene_groups"], 80)) == cfg["target_num_envs"]
+    assert all((PLAN["roles_per20"]*4).count(role) > 0 for role in task.ROLES)
+
+
+@pytest.mark.parametrize("fault", [None, "status", "check", "domain", "source", "PPO", "checkpoint", "missing"])
+def test_ppo_requires_a_complete_saved_native_probe(tmp_path, fault):
+    result = dict(status="native_probe_completed_unqualified", completed_updates=0, optimizer_attempts=0,
+        checkpoint_reads=[], source_mismatches_at_exit=[], all_native_checks_pass=True,
+        contexts=[dict(profile="nominal", strength=0.), dict(profile="requested", strength=1.)],
+        native_probes=[dict(all_checks_pass=True, new_PPO=0, checks=dict(force=True)) for _ in range(2)])
+    if fault == "status": result["status"] = "failed"
+    if fault == "check": result["native_probes"][0]["checks"]["force"] = False
+    if fault == "domain": result["contexts"].pop()
+    if fault == "source": result["source_mismatches_at_exit"] = ["changed.py"]
+    if fault == "PPO": result["completed_updates"] = 1
+    if fault == "checkpoint": result["checkpoint_reads"] = ["old.pt"]
+    if fault != "missing": (tmp_path/"progress.json").write_text(json.dumps(result))
+    if fault:
+        with pytest.raises((RuntimeError, FileNotFoundError)): verify_native_probe(tmp_path)
+    else:
+        assert verify_native_probe(tmp_path)["all_native_checks_pass"]
 
 
 def synthetic(prone=False):

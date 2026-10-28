@@ -19,5 +19,12 @@ done
 if [[ "$task_probe_only" == false && -n "$task_output" ]]; then
     /home/noir/miniconda3/envs/isaacsim6/bin/python "$task_root/scripts/train_prone_motion.py" \
         "$@" --output "${task_output}.native_probe" --native-probe
+    /home/noir/miniconda3/envs/isaacsim6/bin/python - "$task_root/scripts" "${task_output}.native_probe" <<'PY'
+from pathlib import Path
+import sys
+sys.path.insert(0, sys.argv[1])
+from train_prone_motion import verify_native_probe
+verify_native_probe(Path(sys.argv[2]))
+PY
 fi
 exec /home/noir/miniconda3/envs/isaacsim6/bin/python "$task_root/scripts/train_prone_motion.py" "$@"
