@@ -1,7 +1,8 @@
-"""Bounded effective LEFT spring force identified from measured motor efforts.
+"""Bounded effective spring force identified from LEFT measured motor efforts.
 
 This optional curve does not replace the catalogue/default training model.
 Compression is positive inward; returned positive axial force acts outward.
+Right-side use requires an explicit symmetry assumption, not right-side data.
 """
 from __future__ import annotations
 
@@ -18,24 +19,35 @@ class IdentifiedGasSpringCurve:
     compression_knots_m: tuple[float, ...]
     force_knots_n: tuple[float, ...]
     side: str = "left"
+    symmetry_assumed: bool = False
 
     def __post_init__(self):
-        if (self.side != "left" or len(self.compression_knots_m) < 2
+        if (self.side not in ("left", "right") or (self.side == "right" and not self.symmetry_assumed)
+                or len(self.compression_knots_m) < 2
                 or len(self.compression_knots_m) != len(self.force_knots_n)
                 or not all(math.isfinite(x) for x in self.compression_knots_m + self.force_knots_n)
                 or self.compression_knots_m[0] < 0
                 or any(b <= a for a, b in zip(self.compression_knots_m, self.compression_knots_m[1:]))
                 or any(f <= 0 for f in self.force_knots_n)
                 or any(b < a for a, b in zip(self.force_knots_n, self.force_knots_n[1:]))):
-            raise ValueError("Need ordered compression and positive nondecreasing LEFT effective force")
+            raise ValueError("Need positive nondecreasing force; right side requires explicit symmetry assumption")
+
+    def for_side(self, side: str, *, assume_symmetry: bool = False):
+        """Reuse axial force on the mirrored leg; its geometry supplies torque signs."""
+        if side == self.side:
+            return self
+        if side != "right" or self.side != "left" or not assume_symmetry:
+            raise ValueError("Mirroring LEFT data to right requires assume_symmetry=True")
+        return type(self)(self.compression_knots_m, self.force_knots_n, side="right", symmetry_assumed=True)
 
     @classmethod
-    def from_json(cls, path: str | Path):
+    def from_json(cls, path: str | Path, *, side: str | None = None, assume_symmetry: bool = False):
         data = json.loads(Path(path).read_text())
         model = data["models"][data["selected"]] if "models" in data else data
         if model["kind"] != "effective_monotone_table":
             raise ValueError("Expected the bounded tabulated effective-force model")
-        return cls(tuple(model["compression_knots_m"]), tuple(model["force_knots_n"]), model["side"])
+        curve = cls(tuple(model["compression_knots_m"]), tuple(model["force_knots_n"]), model["side"])
+        return curve.for_side(side, assume_symmetry=assume_symmetry) if side is not None else curve
 
     def _segments(self, compression_m):
         s = torch.as_tensor(compression_m)

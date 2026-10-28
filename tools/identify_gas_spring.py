@@ -25,7 +25,9 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def geometry(bundle, angles):
+def geometry(bundle, angles, *, side="left"):
+    if side not in ("left", "right"):
+        raise ValueError("Expected left or right leg")
     sys.path.insert(0, str(bundle / "tools"))
     from build_v6_closedchain import closure_error, solve_pose, POSE_COORDINATES
     spec = json.loads((bundle / "model_spec.json").read_text())
@@ -33,7 +35,9 @@ def geometry(bundle, angles):
     names = [j["name"] for j in spec["joints"]]
     active = [names.index(n) for n in manifest["control_joint_names"]]
     passive = [i for i in range(len(names)) if i not in active]
-    slide = names.index("L_spring_slide")
+    slide_name = "L_spring_slide" if side == "left" else "R_spring_slide"
+    slide = names.index(slide_name)
+    motor_columns = slice(0, 2) if side == "left" else slice(3, 5)
     q = spec["nominal_joint_pos"]
     poses, compressions, mappings, gaps = [], [], [], []
     for angle in angles:
@@ -52,8 +56,8 @@ def geometry(bundle, angles):
         mapping[passive] = np.linalg.lstsq(jac[:, passive], -jac[:, active], rcond=1e-8)[0]
         assert np.max(abs(jac @ mapping)) < 1e-7
         poses.append([q[n] for n in names])
-        compressions.append(spec["spring_binding"]["L_spring_slide"]["compression_at_q_zero_m"]-q["L_spring_slide"])
-        mappings.append(mapping[slide, :2])
+        compressions.append(spec["spring_binding"][slide_name]["compression_at_q_zero_m"]-q[slide_name])
+        mappings.append(mapping[slide, motor_columns])
         gaps.append(float(np.max(abs(closure_error(spec, q)))))
     return dict(beta_deg=np.asarray(angles), compression_m=np.array(compressions),
                 jacobian_m_per_rad=np.array(mappings), poses=np.array(poses),
