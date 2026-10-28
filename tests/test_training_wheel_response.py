@@ -36,6 +36,28 @@ def test_task_selects_authenticated_independent_model_and_matching_recorded_cont
     validate_timing(settings)
 
 
+def test_actual_v5_controller_accepts_new_scope_and_uses_recorded_P05(configured):
+    from wheeled_tasks.chassis.control_contract import load_chassis_control
+    from wheeled_tasks.chassis.v5_control import V5Control
+    from wheeled_tasks.v40.core import motor_torque_limit
+    cfg, _ = configured
+    bundle = ROOT/cfg["asset_directory"]
+    read = lambda name:json.loads((bundle/name).read_text())
+    control = load_chassis_control(ROOT/cfg["control_math_source"])
+    v5 = V5Control(read("manifest.json"), read("model_spec.json"), read("fit_10mpa.json"), control, cfg["v5_control"], "cpu")
+    q = v5.nominal.expand(2,-1).clone()
+    dq = torch.zeros_like(q)
+    dq[:,[2,5]] = 2.
+    actual = v5.motor_efforts(q,dq,q[:,[0,1,3,4]],torch.full((2,2),4.))
+    torch.testing.assert_close(actual[:,[2,5]],torch.ones(2,2))
+    torch.testing.assert_close(actual[:,[0,1,3,4]],torch.zeros(2,4))
+    torch.testing.assert_close(motor_torque_limit(torch.tensor([0.,100.,-100.]),v5.wheel_prior),torch.full((3,),4.5))
+    bad = deepcopy(v5.wheel_prior)
+    bad["gear_ratio"] = 15.8
+    with pytest.raises(ValueError,match="15.62 output"):
+        motor_torque_limit(torch.zeros(1),bad)
+
+
 @pytest.mark.parametrize("key", ["model", "control", "evidence"])
 def test_task_refuses_changed_delivered_input(configured, key):
     cfg, settings = configured

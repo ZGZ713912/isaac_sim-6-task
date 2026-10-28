@@ -195,16 +195,21 @@ def motor_torque_limit(joint_speed, wheel_config):
     ratio = wheel_config['gear_ratio']
     eta = wheel_config['gearbox_efficiency']
     if wheel_config.get('curve_side') == 'wheel_output':
-        # Engineering capacity probe only: a software cap is already wheel-side.
+        # A software cap is already wheel-side. The new identified component
+        # applies its separate speed-dependent motoring envelope after this cap.
         # The ratio remains provenance and must not multiply the cap a second time.
         cap = wheel_config['effort_limit']
         if (wheel_config.get('curve_kind') != 'software_cap_only_not_identified'
-                or wheel_config.get('scope') not in ('engineering_capacity_only', 'simulation_research_prior')
+                or wheel_config.get('scope') not in ('engineering_capacity_only', 'simulation_research_prior',
+                                                    'new_gearbox_airborne_identified_candidate')
                 or wheel_config.get('torque_reference') != 'wheel_output'
                 or any(key in wheel_config for key in ('motor_torque_nm', 'motor_speed_rad_s'))
                 or not isinstance(cap, (float, int)) or isinstance(cap, bool)
                 or not 0 < cap < float('inf')):
             raise ValueError('Ambiguous or invalid engineering wheel-output torque cap')
+        if (wheel_config.get('scope') == 'new_gearbox_airborne_identified_candidate'
+                and (ratio != 15.62 or eta != 1. or cap != 4.5)):
+            raise ValueError('New identified wheel software cap requires the declared 15.62 output contract')
         return torch.full_like(joint_speed, cap)
     if ratio <= 0 or not 0 < eta <= 1 or wheel_config['curve_side'] != 'motor':
         raise ValueError('Invalid motor-side curve domain')
