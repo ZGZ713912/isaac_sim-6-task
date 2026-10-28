@@ -21,6 +21,8 @@ class ProneMotionEnv(RobustGetupEnv):
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
         self.prone_task = self.getup_cfg["prone_geometry"]
+        from .training_wheel_response import install as install_wheels
+        install_wheels(self)
         from .training_gas_spring import TrainingGasSpring
         self.identified_spring = TrainingGasSpring(self.cfg["v5_control"]["identified_gas_spring"], self.device)
         self.identified_spring.install(self)
@@ -186,6 +188,12 @@ class ProneMotionEnv(RobustGetupEnv):
             "ProneMotion/gas_spring/compression_max_m": physical["spring_compression"].max(),
             "ProneMotion/gas_spring/force_left_mean_n": physical["spring_force"][:, :, 0].mean(),
             "ProneMotion/gas_spring/force_right_mean_n": physical["spring_force"][:, :, 1].mean()})
+        for index, side in enumerate(("left", "right")):
+            prefix = "ProneMotion/wheel_model/"+side+"/"
+            result[prefix+"motor_effort_abs_mean_nm"] = physical["motor_effort"][:, :, (2, 5)[index]].abs().mean()
+            result[prefix+"passive_residual_abs_mean_nm"] = physical["wheel_passive_effort"][:, :, index].abs().mean()
+            result[prefix+"drive_bound_min_nm"] = physical["wheel_drive_bound"][:, :, index].min()
+            result[prefix+"motoring_derated_fraction"] = (physical["wheel_drive_bound"][:, :, index] < 4.5-1e-6).float().mean()
         for name, value in extra["task_reward_terms"].items():
             result["ProneMotion/reward_density_"+name] = value.mean()
         for index, role in enumerate(task.ROLES):

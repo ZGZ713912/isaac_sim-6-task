@@ -113,7 +113,7 @@ class WheelBench:
             raise RuntimeError("Wheel effort-based friction requires Isaac Sim >=5")
         self.args, self.params, self.torch = args, params, torch
         self.sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(
-            device=args.device, dt=DT, render_interval=20, gravity=(0., 0., -9.81)))
+            device=args.device, dt=DT, render_interval=20, gravity=getattr(args, "gravity", (0., 0., -9.81))))
         self.count = getattr(args, "instances", 1)
         if self.count > 1:
             for env in range(self.count):
@@ -127,8 +127,9 @@ class WheelBench:
         for axis, name in enumerate(wheels):
             actuators[f"wheel_{axis}"] = IdealPDActuatorCfg(joint_names_expr=[name],
                 stiffness=0., damping=0., armature=float(params["armature"][axis]),
-                friction=float(params["coulomb"][axis]), dynamic_friction=float(params["coulomb"][axis]),
-                viscous_friction=float(params["viscous"][axis]), effort_limit=4.5, effort_limit_sim=4.5,
+                friction=float(params.get("static_coulomb", params["coulomb"])[axis]), dynamic_friction=float(params["coulomb"][axis]),
+                viscous_friction=float(params["viscous"][axis]),
+                effort_limit=float(params.get("effort_limit", 4.5)), effort_limit_sim=float(params.get("effort_limit", 4.5)),
                 velocity_limit_sim=1000.)
         cfg = ArticulationCfg(prim_path="/World/envs/env_.*/Robot" if self.count > 1 else "/World/Robot",
             spawn=sim_utils.UsdFileCfg(usd_path=str(args.bundle / manifest["usd"]),
@@ -180,7 +181,7 @@ class WheelBench:
             raise RuntimeError("Wheel-carrier lock readback mismatch")
         if not np.allclose(armature, params["armature"], atol=1e-8):
             raise RuntimeError("Native wheel armature readback mismatch")
-        expected_friction = np.column_stack([params["coulomb"], params["coulomb"], params["viscous"]])
+        expected_friction = np.column_stack([params.get("static_coulomb", params["coulomb"]), params["coulomb"], params["viscous"]])
         if not np.allclose(friction, expected_friction, atol=1e-7):
             raise RuntimeError("Native wheel friction readback mismatch")
         self.readback = {"isaac_sim_version": str(get_isaac_sim_version()), "joint_names": wheels,

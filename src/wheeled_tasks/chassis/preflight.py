@@ -130,6 +130,13 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         row["invocation"]["num_envs"] = len(names) * projected["episodes_per_case"]
     response_declared = ("actuator_response" in config or "actuator_response" in expected
                          or "response_migration" in config)
+    if "identified_wheel_response" in config or "identified_wheel_response" in expected:
+        _compare(config.get("identified_wheel_response", _MISSING), expected.get("identified_wheel_response", _MISSING),
+                 "design.identified_wheel_response", errors)
+        if _at(row, "runtime.modules.identified_wheel_response") is not True:
+            errors.append("design.runtime.modules.identified_wheel_response: explicit enabled expectation required")
+        _compare(config.get("identified_wheel_response", _MISSING), _at(row, "runtime.identified_wheel_response"),
+                 "design.runtime.identified_wheel_response", errors)
     if "contact_material" in config or "contact_material" in expected:
         settings = config.get("contact_material")
         if (not isinstance(settings, dict) or type(settings.get("enabled")) is not bool):
@@ -475,14 +482,14 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         errors.append(str(error))
         decimation = None
     # Coarse training is explicitly declared; it is never relabeled as 1 kHz feedback.
-    from .control_contract import declared_control_timing, validate_chassis_control
+    from .control_contract import declared_control_timing, declared_wheel_velocity_p, validate_chassis_control
     if "simulation_timing_approximation" in control:
         validate_chassis_control(control)
     timing = declared_control_timing(control)
     for path, value in (("physics_dt", timing["physics_dt"]), ("policy_dt", timing["policy_dt"]),
                         ("v5_control.leg_kp", 160.), ("v5_control.leg_kd", 2.5)):
         _compare(value, _at(config, path), f"reference.{path}", errors)
-    _compare(.6, _at(control, "actuators.wheel.kd"), "reference.wheel_velocity_p", errors)
+    _compare(declared_wheel_velocity_p(control), _at(control, "actuators.wheel.kd"), "reference.wheel_velocity_p", errors)
     if not isinstance(row.get("runtime"), dict):
         errors.append("design.runtime: explicit runtime expectations required")
     elif new_asset:
@@ -578,6 +585,20 @@ def validate_response_evidence(config, root):
         raise ValueError("Actuator response evidence is not a reviewed research release")
     if evidence.get("actuator_response") != response:
         raise ValueError("Actuator response parameters differ from the reviewed evidence")
+    if config.get("identified_wheel_response", {}).get("enabled"):
+        from .identified_wheel_response import load_wheel_response
+        wheel_cfg, model = load_wheel_response(config["identified_wheel_response"], root)
+        if evidence.get("identified_wheel_response") != wheel_cfg:
+            raise ValueError("New wheel dynamics differ from the frozen research evidence")
+        sealed_files = evidence.get("files_sha256", {})
+        if evidence.get("native_wheel_report") not in sealed_files or wheel_cfg["model_path"] not in sealed_files:
+            raise ValueError("New wheel model and native report must both be sealed in the evidence manifest")
+        native = json.loads((Path(root) / evidence["native_wheel_report"]).read_text())
+        if (native.get("status") != "completed" or native.get("native_properties_verified") is not True
+                or native.get("model_sha256") != wheel_cfg["model_sha256"] or model["gear_ratio"] != 15.62):
+            raise ValueError("New wheel evidence lacks matching completed native readback/replay")
+        if any(response[field][i] != 0 for field in ("armature", "frictionloss", "damping", "time_constant_s") for i in (2, 5)):
+            raise ValueError("Historical wheel dynamics would be applied twice")
     files = evidence.get("files_sha256")
     if not isinstance(files, dict) or not files:
         raise ValueError("Actuator response evidence lacks sealed replay results")

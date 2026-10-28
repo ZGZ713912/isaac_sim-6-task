@@ -1,0 +1,69 @@
+{
+  "schema": "actuator-response-evidence-v1",
+  "status": "validated_for_research",
+  "hardware_release": false,
+  "scope": "airborne new 15.62 gearbox effective dynamics and native component readback/replay; empirical residuals retained; no whole-robot qualification",
+  "actuator_response": {
+    "enabled": true,
+    "schema": "chassis-actuator-response",
+    "version": 1,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "gain": 1.0,
+    "armature": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "frictionloss": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "damping": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "time_constant_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "identified_wheel_response": {
+    "enabled": true,
+    "model_path": "model/wheel_identified_1562_20261028/model.json",
+    "model_sha256": "2c67e1113f0a460cd477e3ec6897e258619304a69879da3acabec148bb61823d",
+    "apply_aggregate_delay": true
+  },
+  "native_wheel_report": "reports/wheel_real2sim_1562_20261028/native_zero_gravity/report.json",
+  "files_sha256": {
+    "model/wheel_identified_1562_20261028/model.json": "2c67e1113f0a460cd477e3ec6897e258619304a69879da3acabec148bb61823d",
+    "reports/wheel_real2sim_1562_20261028/fit.json": "9f5756bbfd4b218609d7b8d438721b8d807f16f1910c3c1de8bed068d2608191",
+    "reports/wheel_real2sim_1562_20261028/source_audit.json": "2ad27ea980da28165177a74abfe48bedaaaf3fe3abb8acecc40fdb83f35595ca",
+    "reports/wheel_real2sim_1562_20261028/native_zero_gravity/report.json": "e2821c5ca6bcb8f723740e81332042f68f30be0a824b252a73c474d3b9975967",
+    "src/wheeled_tasks/chassis/identified_wheel_response.py": "775451a040d28c52b775c12d9c8cd35660a597168ff1beda92a54aa9126858c8",
+    "scripts/replay_wheel_1562_isaac.py": "1bfd2b5f51f6c1bae49d002ef50a3084e8408b32f857e870f6067d2b3d02e680",
+    "scripts/replay_wheel_response_isaac.py": "29165ec2f57b1a32354f4ef6ff6b7185bf3bf359524f7d54e3d620fcc1c677b2",
+    "tools/identify_wheel_1562.py": "849125a2475fe59e143e561cf50e0905c1b829a870b6f7c9cfeae5412d1aa6f9"
+  }
+}

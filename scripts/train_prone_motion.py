@@ -58,6 +58,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     from wheeled_tasks.chassis.training_gas_spring import resolve
     model_spec = json.loads((ROOT/cfg["asset_directory"]/"model_spec.json").read_text())
     cfg["v5_control"]["identified_gas_spring"] = resolve(ROOT, plan["gas_spring_model"], model_spec)
+    from wheeled_tasks.chassis.training_wheel_response import configure
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
     for key in ("wheel_static_friction", "wheel_dynamic_friction"):
         cfg["contact_material"][key] = plan["friction"]["wheel"]
     if "randomization_study" in settings:
@@ -72,6 +74,12 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         if key in cfg:
             row["contract"][key] = deepcopy(cfg[key])
     row["runtime"]["contact_material"] = deepcopy(cfg["contact_material"])
+    row["contract"]["identified_wheel_response"] = deepcopy(cfg["identified_wheel_response"])
+    row["runtime"]["identified_wheel_response"] = deepcopy(cfg["identified_wheel_response"])
+    row["runtime"]["actuator_response"] = deepcopy(cfg["actuator_response"])
+    row["runtime"]["modules"]["identified_wheel_response"] = True
+    row["runtime"]["wheel_velocity_p"] = wheel_control["actuators"]["wheel"]["kd"]
+    row["control"]["actuators.wheel"] = deepcopy(wheel_control["actuators"]["wheel"])
     design["scope"] = "fresh_prone_motion_long"
     base.write_json(design_path, design)
     cfg["design_preflight"]["sha256"] = base.digest(design_path)
@@ -79,6 +87,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     base.write_json(output/"task_contract.json", dict(schema="prone-motion-native-task-v1", plan=plan,
         settings=settings, actor_dim=35, critic_dim=83, action_dim=6, policy_hz=200, physics_hz=1000,
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
+        identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
         action_order=["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
         wheel_velocity_scale_rad_s=10., wheel_velocity_clip_rad_s=90.,
         leg_position_scale_rad=.25, leg_action_clip=16., profile=profile, strength=strength,
@@ -116,6 +125,10 @@ def source_hashes(plan_path, plan):
              plan["acceptance_contract"], plan["prone_geometry_contract"], "contracts/standing_geometry107_v1.json",
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
              str(plan_path.relative_to(ROOT))]
+    names.extend(item["file"] for item in plan["wheel_model"].values() if isinstance(item, dict) and "file" in item)
+    evidence = json.loads((ROOT/plan["wheel_model"]["evidence"]["file"]).read_text())
+    names.extend(evidence["files_sha256"])
+    names.extend(["tests/test_identified_wheel_response.py", "tests/test_training_wheel_response.py"])
     for name in names:
         result[name] = base.digest(ROOT/name)
     return result
