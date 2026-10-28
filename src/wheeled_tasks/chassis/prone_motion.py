@@ -17,9 +17,9 @@ def validate(plan):
             or set(plan["roles_per20"]) != set(ROLES)):
         raise ValueError("Training population/budget or persistent role coverage changed")
     if (plan["roles_per20"].count("prone") != 6 or plan["roles_per20"].count("stand") != 5
-            or plan["forward_speed_m_s"] != 3. or plan["spin_target_rpm"] != 100.
+            or plan["forward_speed_m_s"] != 2. or plan["spin_target_rpm"] != 100.
             or plan["spin_minimum_rpm"] != 80.):
-        raise ValueError("Keep30% prone,25% quiet, both signs3m/s and80..100rpm")
+        raise ValueError("Keep30% prone,25% quiet, both signs2m/s and80..100rpm")
     if not (plan["post_completion_quiet_seconds"] == 30.
             and plan["standing_seconds"] == 30.
             and plan["training_prone_seconds"] >= plan["rise_deadline_seconds"] + 30. + plan["motion_seconds"]):

@@ -44,8 +44,10 @@ class ProneMotionEnv(RobustGetupEnv):
             actor_dim=35, critic_dim=83, wheel_target_units="rad/s, output shaft",
             reset="Normally-up belly-grounded103deg pose, zero torque until settled; initialized standing rehearsal",
             route_bias="No folded target initialization; weak encoder/COM potential only",
-            full_commands=dict(forward_m_s=3., reverse_m_s=-3., spin_rpm=[-100., 100.],
-                               arc_forward_m_s=[-3., 3.], arc_yaw_rad_s=[-.6, .6]))
+            full_commands=dict(forward_m_s=self.plan["forward_speed_m_s"],
+                reverse_m_s=-self.plan["forward_speed_m_s"], spin_rpm=[-100., 100.],
+                arc_forward_m_s=[-self.plan["forward_speed_m_s"], self.plan["forward_speed_m_s"]],
+                arc_yaw_rad_s=[-.6, .6]))
 
     def reset(self, ids):
         if not self.course_ready:

@@ -40,7 +40,8 @@ def test_coverage_amplitude_and_projection(completed):
     if completed <= 1000:
         assert not values[:, :2].any()
     if completed >= 7000:
-        assert values[2, 0] == 3 and values[3, 0] == -3
+        assert values[2, 0] == 2 and values[3, 0] == -2
+        assert (values[6:10, 0].abs() == 2).all()
         assert values[4, 1].item() == pytest.approx(100*math.tau/60)
         assert values[5, 1].item() == pytest.approx(-100*math.tau/60)
         assert set((int(torch.sign(v)), int(torch.sign(w))) for v,w in values[6:10, :2]) == {(1,1),(1,-1),(-1,1),(-1,-1)}
@@ -49,22 +50,22 @@ def test_coverage_amplitude_and_projection(completed):
 def test_motion_waits_for_actual_completion_and30seconds():
     times = torch.tensor([40., 40., 40., 40.])
     recovered = torch.tensor([float("nan"), 11., 8., 5.])
-    targets = torch.tensor([[3., 0., .305]]*4)
+    targets = torch.tensor([[2., 0., .305]]*4)
     actual = task.commands(targets, times, recovered, torch.ones(4, dtype=torch.bool), PLAN)
     assert not actual[:3, 0].any()  # never completed,29s quiet,32s including startup quiet
-    assert actual[3, 0] == 3.
+    assert actual[3, 0] == 2.
 
 
 def rewards(height, speed, yaw):
     return task.reward_terms(torch.tensor([[0.,0.,-1.]]), torch.tensor([height]),
-        torch.tensor([[speed,0.,0.]]), torch.tensor([[0.,0.,yaw]]), torch.tensor([[3.,1.,.42]]),
+        torch.tensor([[speed,0.,0.]]), torch.tensor([[0.,0.,yaw]]), torch.tensor([[2.,1.,.42]]),
         torch.zeros(1,6), torch.zeros(1,6), torch.zeros(1), torch.zeros(1), torch.zeros(1),
         torch.zeros(1,dtype=torch.bool), torch.ones(1))
 
 
 def test_bad_height_does_not_erase_motion_credit():
     for height in (.173, .305, .42):
-        bad, good = rewards(height, 0., 0.), rewards(height, 3., 1.)
+        bad, good = rewards(height, 0., 0.), rewards(height, 2., 1.)
         assert good["forward"] > bad["forward"]
         assert good["yaw"] > bad["yaw"]
         assert good["forward_error"] > bad["forward_error"]
@@ -77,7 +78,7 @@ def test_spin_holds_its_center_without_penalizing_translation_distance():
     rest = [torch.zeros(1,6), torch.zeros(1,6), torch.zeros(1),torch.tensor([.2]),torch.tensor([.2]),
             torch.zeros(1,dtype=torch.bool),torch.ones(1)]
     spin = task.reward_terms(*common,torch.tensor([[0.,10.,.305]]),*rest)
-    forward = task.reward_terms(*common,torch.tensor([[3.,0.,.305]]),*rest)
+    forward = task.reward_terms(*common,torch.tensor([[2.,0.,.305]]),*rest)
     assert spin["quiet_position"] < 0
     assert forward["quiet_position"] == 0 and forward["rise_position"] == 0
 
@@ -95,6 +96,7 @@ def test_config_keeps_physics_and_v2_contract(tmp_path, profile, strength):
     cfg, settings, bank = configuration(tmp_path, PLAN, profile=profile, strength=strength)
     assert bank.is_file()
     assert cfg["target_num_envs"] == 256 and cfg["record_diagnostics"]
+    assert cfg["stages"][0]["vx_max"] == 2.
     assert settings["episode_seconds"] == 70
     assert settings["leg_action_clip"] == 16 and cfg["v5_control"]["action_clip"] == 16
     assert cfg["contact_material"]["wheel_static_friction"] == .7
@@ -126,7 +128,7 @@ def synthetic(prone=False):
     arrays["wheel_force"][:,:,:,:,2] = 20
     arrays["time"][:,0] = (np.arange(n)+1)*.005
     case = dict(role="prone" if prone else "stand", recovery=prone, birth_height=.173 if prone else .305,
-                pitch_deg=0., target=[3.,0.,.305] if prone else [0.,0.,.305])
+                pitch_deg=0., target=[2.,0.,.305] if prone else [0.,0.,.305])
     if prone:
         arrays["completed_event"][199,0] = True
         arrays["wheel_force"][:200] = 0  # excluded before first actual completion
