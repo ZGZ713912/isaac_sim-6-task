@@ -54,6 +54,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
     cfg["policy_architecture"]["scope"] = "Fresh actor35, critic83, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
+    from wheeled_tasks.chassis.training_gas_spring import resolve
+    model_spec = json.loads((ROOT/cfg["asset_directory"]/"model_spec.json").read_text())
+    cfg["v5_control"]["identified_gas_spring"] = resolve(ROOT, plan["gas_spring_model"], model_spec)
     for key in ("wheel_static_friction", "wheel_dynamic_friction"):
         cfg["contact_material"][key] = plan["friction"]["wheel"]
     if "randomization_study" in settings:
@@ -108,6 +111,7 @@ def source_hashes(plan_path, plan):
              "contracts/scratch_standing_base_mechanism_v2.json", "contracts/scratch_standing_base_design_v2.json",
              plan["randomization_contract"],
              plan["acceptance_contract"], plan["prone_geometry_contract"], "contracts/standing_geometry107_v1.json",
+             plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
              str(plan_path.relative_to(ROOT))]
     for name in names:
         result[name] = base.digest(ROOT/name)
