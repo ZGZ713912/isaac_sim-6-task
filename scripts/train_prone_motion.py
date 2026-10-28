@@ -87,6 +87,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     from train_chassis import preflight
     from wheeled_tasks.chassis.preflight import design_preflight
     from wheeled_tasks.chassis.control_contract import load_chassis_control
+    from wheeled_tasks.chassis.task import choose_scene_groups
+    choose_scene_groups(cfg["scene_groups"], args.num_envs)
     preflight(output/"config/contract.json")
     check = design_preflight(cfg, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
         stage="speed", role="train", seed=args.seed, num_envs=args.num_envs)
@@ -133,6 +135,22 @@ def check_other_learners():
             pass
     if owners:
         raise RuntimeError("Refusing a concurrent wheel-leg learner. Let it finish or stop it first: "+str(owners))
+
+
+def verify_native_probe(output):
+    """Kit shutdown can mask an exception's exit code; require saved evidence."""
+    result = json.loads((Path(output)/"progress.json").read_text())
+    probes = result.get("native_probes", [])
+    if (result.get("status") != "native_probe_completed_unqualified"
+            or result.get("completed_updates") != 0 or result.get("optimizer_attempts") != 0
+            or result.get("checkpoint_reads") != [] or result.get("source_mismatches_at_exit") != []
+            or result.get("all_native_checks_pass") is not True or len(probes) != 2
+            or [(c["profile"], c["strength"]) for c in result.get("contexts", [])]
+                != [("nominal", 0.), ("requested", 1.)]
+            or any(p.get("all_checks_pass") is not True or p.get("new_PPO") != 0
+                or not p.get("checks") or not all(v is True for v in p["checks"].values()) for p in probes)):
+        raise RuntimeError("Native probe did not finish with two verified domains; refusing PPO: "+str(output))
+    return result
 
 
 def stop_previous_009():
@@ -263,7 +281,7 @@ def main():
             active_directory = output/"contexts"/f"{index:03d}_{profile}_{strength:g}_{'eval' if evaluation else 'train'}"
             active_directory.mkdir(parents=True, exist_ok=False)
             cfg, settings, _ = configuration(active_directory, plan, profile=profile, strength=strength,
-                evaluation=evaluation, num_envs=40 if args.native_probe else plan["num_envs"])
+                evaluation=evaluation, num_envs=80 if args.native_probe else plan["num_envs"])
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
                 stage_name="speed", num_envs=cfg["target_num_envs"], device="cuda:0",
@@ -431,7 +449,13 @@ def main():
         if env is not None:
             env.close()
         if launcher is not None:
-            launcher.app.close()
+            try:
+                launcher.app.close()
+            finally:
+                if report["status"] == "failed":
+                    raise SystemExit(1)
+                if args.native_probe and report["status"] == "stopped":
+                    raise SystemExit(130)
 
 
 if __name__ == "__main__":

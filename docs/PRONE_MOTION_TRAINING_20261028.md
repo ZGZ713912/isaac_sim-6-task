@@ -9,7 +9,7 @@ bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/script
   --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001
 ```
 
-输出目录必须不存在。脚本首先串行运行独立的零PPO原生接线探针，检查名义域和完整v2域中的35D/83D接口、实际奖励实付、五个1ms物理样本、失能零力矩、允许起立时底盘接地等；探针失败或被中断就退出，不进入PPO。探针通过后才创建新的actor、critic、空Adam。原生探针中的常值动作不作为学会起立的证据。
+输出目录必须不存在。脚本首先串行运行80环境的独立零PPO原生接线探针，检查名义域和完整v2域中的35D/83D接口、实际奖励实付、五个1ms物理样本、失能零力矩、允许起立时底盘接地等；探针失败或被中断就退出，不进入PPO。启动还要核对探针保存的两域完整结果，不能只凭进程返回码放行。探针通过后才创建新的actor、critic、空Adam。原生探针中的常值动作不作为学会起立的证据。
 
 如果准备替换仍在运行的已知旧009，在同一命令末尾添加`--stop-existing-009`。这是操作者显式选择的操作：只允许核对PID2929818、start_ticks13480232、原工作目录、命令和输出路径均匹配的旧009；只发一次SIGTERM，等待完整更新检查点、进程与GPU退出，再开始零PPO探针。身份变化、未正常封存或其他训练存在时均拒绝启动；没有强杀、续训或加载旧模型。未加此参数时，遇到任一已有轮腿learner直接拒绝并行启动。
 
