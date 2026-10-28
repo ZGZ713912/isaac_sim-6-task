@@ -102,6 +102,68 @@ def check_other_learners():
         raise RuntimeError("Another wheel-leg native learner is present: "+str(owners))
 
 
+def probe_episode_boundaries(env, plan, action):
+    """Execute native steps across clock edges; injected clocks are wiring only."""
+    import torch
+    ids = torch.arange(env.num_envs, device=env.device)
+    checks, resets = {}, []
+    for progress in (0., .5, 1.):
+        env.course_updates = round(plan["tracking"]["ramp_updates"] * progress)
+        env.reset(ids)
+        forward = [c["target"][0] for c in env.course_cases if c["role"] == "forward"]
+        yaw = [c["target"][1] for c in env.course_cases if c["role"] == "left"]
+        low = [c["target"][2] for c in env.course_cases if c["role"] == "height_low"]
+        high = [c["target"][2] for c in env.course_cases if c["role"] == "height_high"]
+        checks[f"reset_refreshes_commands_at_progress_{progress:g}"] = (
+            bool(forward and yaw and low and high)
+            and all(abs(v-plan["tracking"]["forward_speed_m_s"]*(.2+.8*progress)) < 1e-7 for v in forward)
+            and all(abs(v-plan["tracking"]["yaw_rate_rad_s"]*(.2+.8*progress)) < 1e-7 for v in yaw)
+            and all(abs(v-(.305+(.23-.305)*progress)) < 1e-7 for v in low)
+            and all(abs(v-(.305+(.42-.305)*progress)) < 1e-7 for v in high))
+        resets.append(dict(phase_updates=env.course_updates, forward_targets=forward, left_targets=yaw,
+                           low_targets=low, high_targets=high))
+    standing = env.course_role_masks["stand"].nonzero().flatten()[:2]
+    moving = env.course_role_masks["forward"].nonzero().flatten()[:2]
+    lanes = torch.cat((standing, moving))
+    motion_ticks = round(plan["repair"]["motion_episode_seconds"] / env.policy_dt)
+    standing_ticks = round(plan["repair"]["standing_episode_seconds"] / env.policy_dt)
+    checks["declared_role_limits"] = bool((env.episode_limits[standing] == standing_ticks).all()
+                                                  and (env.episode_limits[moving] == motion_ticks).all())
+    env.episode_length_buf[lanes] = env.episode_length_buf.new_tensor(
+        [motion_ticks-1, standing_ticks-1, motion_ticks-1, motion_ticks-2])
+    before = env.episode_length_buf[lanes].clone()
+    _, _, done, extra = env.step(action)
+    first = dict(before_ticks=before.cpu().tolist(), after_ticks=env.episode_length_buf[lanes].cpu().tolist(),
+        done=done[lanes].cpu().tolist(), timeouts=extra["time_outs"][lanes].cpu().tolist(),
+        terminated=extra["diagnostics"]["terminated"][lanes].cpu().tolist())
+    checks["native_movement_ends_at_12s_standing_waits_until_30s"] = (
+        first["timeouts"] == [False, True, True, False] and first["done"] == first["timeouts"]
+        and first["after_ticks"] == [motion_ticks, 0, 0, motion_ticks-1]
+        and not any(first["terminated"]))
+    _, _, _, extra = env.step(action)
+    checks["native_next_tick_resets_remaining_motion_lane"] = (
+        bool(extra["time_outs"][moving[1]]) and int(env.episode_length_buf[moving[1]]) == 0)
+    # Match the fixed cold evaluator's uniform horizon. This exercises the
+    # timeout and finished path, and is not a claim of30 seconds of behavior.
+    env.reset(ids)
+    env.evaluation_cases = env.course_cases
+    env.fixed_cases = env.evaluation_cases
+    env.episode_limits.fill_(round(plan["evaluation"]["seconds"] / env.policy_dt))
+    env.episode_length_buf[lanes] = env.episode_length_buf.new_tensor(
+        [motion_ticks-1, standing_ticks-1, motion_ticks-1, standing_ticks-1])
+    _, _, done, extra = env.step(action)
+    cold = dict(timeouts=extra["time_outs"][lanes].cpu().tolist(), done=done[lanes].cpu().tolist(),
+        finished=env.finished[lanes].cpu().tolist(), terminated=extra["diagnostics"]["terminated"][lanes].cpu().tolist())
+    checks["native_cold_motion_and_standing_both_keep_30s"] = (
+        cold["timeouts"] == [False, True, False, True] and cold["done"] == cold["timeouts"]
+        and cold["finished"] == cold["timeouts"] and not any(cold["terminated"]))
+    env.fixed_cases = env.evaluation_cases = None
+    env.reset(ids)
+    return dict(checks=checks, training_boundary=first, cold_boundary=cold,
+                reset_command_witnesses=resets, injected_clock_only=True, new_PPO=0,
+                behavior_qualification=False)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
@@ -300,10 +362,14 @@ def main():
                         check["privileged_critic_anchor_matches_true_position"] = bool(torch.allclose(obs["critic"][:, -2:], (error_xy*20.).clamp(-5., 5.), atol=1e-6))
                         check["original_critic_wheel_position_entries_still_zero"] = bool(obs["critic"][:, wheel_columns].eq(0.).all())
                         check["original_actor35_critic83_widths"] = obs["policy"].shape[-1] == 35 and obs["critic"].shape[-1] == 83
+                clock_probe = None
+                if task == "tracking" and profile == "nominal" and plan.get("repair"):
+                    clock_probe = probe_episode_boundaries(env, plan, action)
+                    check.update(clock_probe["checks"])
                 probes.append(dict(task=task, profile=profile, strength=strength, policy_steps=steps,
                     checks=check, all_checks_pass=all(check.values()), requested_command_abs_peak=requested_peak.cpu().tolist(),
                     enabled_environments=int(env.domain.enabled.sum()), new_PPO=0, learned_policy=False,
-                    clock_injection_seconds=4.5 if task == "tracking" else None))
+                    clock_injection_seconds=4.5 if task == "tracking" else None, episode_clock_probe=clock_probe))
             # Exercise the actual cold-trace writer and case reset separately.
             # The short duration is explicitly wiring-only, never a behavior gate.
             from torch.utils.tensorboard import SummaryWriter

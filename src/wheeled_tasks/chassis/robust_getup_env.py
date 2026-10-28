@@ -606,7 +606,7 @@ class RobustGetupEnv(ChassisEnv):
                 nonwheel_force_peak, self.ever_recovered, prone_task)
             density = sum(prone_terms.values())
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
-        timeout = self.episode_length_buf >= self.max_episode_length
+        timeout = self.episode_length_buf >= self.episode_limits
         done = terminated | timeout
         failure_cost = 3. if upright_task is None else upright_task["termination"]["failure_cost"]
         reward -= failure_cost * terminated
