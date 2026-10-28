@@ -285,7 +285,7 @@ def test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback():
         usb_transport=None, _pc_feedback_transport=None, feedback_transport=None,
         command_transport=None, signal_delay=None, nonstandard_start=None,
         wheel_force_peak_n=None, is_v5=True, skills=None, jump_assist=None, recovery=None,
-        actuator_response=SimpleNamespace(enabled=False),
+        actuator_response=SimpleNamespace(enabled=False), identified_wheels=SimpleNamespace(enabled=False),
         v5=SimpleNamespace(motor_efforts=motor_efforts, spring_efforts=lambda position: position),
         motor_strength=1., nominal=np.zeros_like(q), spring_ids=[], spring_strength=1.,
         sim=SimpleNamespace(step=lambda **kwargs: None), torque_monitor=None,

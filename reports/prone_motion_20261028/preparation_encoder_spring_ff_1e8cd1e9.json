@@ -1,0 +1,632 @@
+{
+  "schema": "prone-motion-preparation-v1",
+  "created_utc": "2026-10-28T11:54:09.056648+00:00",
+  "status": "source_prepared_cpu_and_native_verified_not_trained",
+  "worktree": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train",
+  "branch": "codex/prone-motion-long",
+  "commit": "1e8cd1e94777fce7a4ea5cb679d708331934b991",
+  "pushed": false,
+  "reference": {
+    "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
+    "repository_HEAD": "0b62556b34977cc629fb5767e1cda9daa0d4bf36",
+    "latest_wheelbipe_commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
+    "wheelbipe_unchanged_since_commit": true,
+    "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14"
+  },
+  "contract": {
+    "path": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/contracts/wheel_leg_prone_motion_v1.json",
+    "sha256": "a8ca281b8b6956566ff01349cac09f2a93ed1a4b6136fab68557ace23b003d47"
+  },
+  "source_archive": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "1e8cd1e94777fce7a4ea5cb679d708331934b991",
+    "source_count": 311,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight009_encoder_spring_ff/committed_source.tar",
+    "archive_sha256": "772b02257ba2cd53a7080222b33d1022e0b3c11703f36990f8ced2233ab2532a"
+  },
+  "cpu_checks": {
+    "tests": 371,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/cpu_checks_encoder_spring_ff001.xml",
+    "junit_sha256": "6d6d815aadf5c82dadac44b424eaf4eff5e450be60a9ccb988395e58482afb5d",
+    "scope": "Full-chain finite-difference motor virtual work, encoder windings/mirrored signs/C1 continuity, actual production PD wrapper and unclipped total limiting; all previous358 task/wheel/spring/domain/control regressions. Zero optimizer steps."
+  },
+  "preflight": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight009_encoder_spring_ff",
+    "sha256": "c02da3e1ea92f74b0ab46609c8b2de87a8583d36d8e2eefd9527a2588774942d",
+    "design_sha256": "6427bf561a39b703f017d7d6459714f1d3997c541f7029512e1bdb7b65ecbd4d",
+    "passed": true,
+    "previous_superseded_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight008_identified_wheels"
+  },
+  "initialization_cpu": {
+    "fresh_actor": true,
+    "fresh_critic": true,
+    "empty_Adam": true,
+    "all_six_outputs_trainable": true,
+    "optimizer_steps": 0,
+    "checkpoint_reads": []
+  },
+  "native_probes_run_by_this_preparation": 2,
+  "new_PPO_updates": 0,
+  "physical_robot_actions": 0,
+  "native_probe_required_before_training": true,
+  "training_started": false,
+  "output_directory_not_created": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001",
+  "existing009_readonly_snapshot": {
+    "status": "completed_gate_failed_unqualified",
+    "pid": 2929818,
+    "start_ticks": 13480232,
+    "completed_updates": 1536,
+    "requested_updates": 3072,
+    "last_checkpoint": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/reproduce009_20261028/standing_tracking_clockfix_v3_u3072_e256/model_final.pt",
+      "sha256": "2296daa93d6614d1eea6d17b7823eddb77a7710e36ca722dca99b5da0af5f5d3",
+      "updates": 1536
+    },
+    "checked_utc": "2026-10-28T09:34:37.983794+00:00",
+    "signals_sent": 0,
+    "process_exists": false
+  },
+  "existing009_modified": false,
+  "launch_command": "bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001",
+  "stop_existing_009_flag": "Operator-selected only; authenticated one SIGTERM, require complete-update checkpoint and process/GPU exit, no reuse of weights",
+  "phases": {
+    "max_updates": 10000,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "foundation_until": 1000,
+    "full_speed_after": 6000,
+    "full_spin_after": 7000,
+    "full_v2_after": 9000,
+    "forward_speed_m_s": 2.0,
+    "reverse_speed_m_s": -2.0,
+    "arc_forward_m_s": [
+      -2.0,
+      2.0
+    ]
+  },
+  "capability_status": {
+    "R01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "R02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "S01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M03": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M04": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H03": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "B01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "Q01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "D01": {
+      "status": "not_tested",
+      "qualified": false
+    }
+  },
+  "full_capability_qualified": false,
+  "hardware_ready": false,
+  "document": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/docs/PRONE_MOTION_TRAINING_20261028.md",
+  "launch_argv": [
+    "bash",
+    "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh",
+    "--output",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001"
+  ],
+  "previous_preparation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preparation_identified_wheels_98a514f9.json",
+  "change": "Encoder-only gas-spring holding feedforward at the actual1kHz PD call; independent per-leg geometry, same identified axial curve, uncompensated physical spring retained; sum unclippedPD plus holding then total40Nm limit.",
+  "native_probe": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_encoder_spring_ff001",
+    "status": "native_probe_completed_unqualified",
+    "progress_sha256": "3d0ae56f574b279d835d16ff2bf97264454a0957a6ccb1e4f7d1c2f77c85cf0a",
+    "all_native_checks_pass": true,
+    "checks_per_domain": 27,
+    "num_envs_per_domain": 80,
+    "policy_steps_per_domain": 300,
+    "physics_steps_per_lane_per_domain": 1500,
+    "seconds_per_lane_per_domain": 1.5,
+    "physical_wheel_samples_per_side_per_domain": 120000,
+    "physical_spring_samples_per_side_per_domain": 120000,
+    "pid": 36523,
+    "start_ticks": 84581,
+    "process_exists_after": false,
+    "gpu_process_exists_after": false,
+    "completed_updates": 0,
+    "optimizer_attempts": 0,
+    "checkpoint_reads": [],
+    "PT_files": 0,
+    "source_mismatches_at_exit": [],
+    "source_commit": "1e8cd1e94777fce7a4ea5cb679d708331934b991",
+    "domains": [
+      {
+        "profile": "nominal",
+        "strength": 0.0,
+        "checks": {
+          "fixed_PD_and_spring": true,
+          "rates": true,
+          "same_identified_axial_model_both_sides": true,
+          "encoder_only_feedforward_physical_spring_retained": true,
+          "measured_wheel_native_properties": true,
+          "independent_wheels_P05_delay_once": true,
+          "actual_per_role_episode_limits": true,
+          "actual_reward_payment": true,
+          "finite": true,
+          "all_six_1ms_velocities_and_efforts": true,
+          "actual_1khz_wheel_delay_envelope_and_separate_loss": true,
+          "actual_1khz_encoder_compensation_replay": true,
+          "unclipped_PD_plus_holding_then_total_limit": true,
+          "actual_leg_effort_with_compensation_at_most40nm": true,
+          "all_six_disabled_efforts_zero_after_compensation": true,
+          "invalid_encoder_branch_has_zero_compensation": true,
+          "wheel_loss_dissipative": true,
+          "wheel_current_at_most_4p5nm": true,
+          "queued_wheel_torque_cleared_while_disabled": true,
+          "actual_1khz_measured_spring_force": true,
+          "actor35_critic83": true,
+          "zero_disabled_torque": true,
+          "disabled_samples_masked": true,
+          "disabled_birth_observed": true,
+          "active_prone_observed": true,
+          "body_contact_permitted_during_rise": true,
+          "active_nonzero_encoder_compensation_observed": true
+        },
+        "spring_feedforward": {
+          "startup": {
+            "enabled": true,
+            "controller_hz": 1000,
+            "input": [
+              "L_joint1",
+              "LL_joint1",
+              "R_joint1",
+              "RR_joint1"
+            ],
+            "input_source": "same sampled/delayed low-level encoder feedback as PD, before target winding",
+            "geometry_sha256": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216",
+            "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+            "spring_model_sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+            "formula": "clip(PD - J_length(q_encoder).T * F(extended_length-length), -40, 40)",
+            "interpolation": "monotone_cubic_knee_v1",
+            "relative_margin_rad": 0.001,
+            "invalid_geometry": "zero feedforward; original protection retained",
+            "outside_identified_domain": "endpoint_hold_unvalidated",
+            "physical_spring_retained": true,
+            "total_leg_limit_nm": 40.0,
+            "privileged_force_or_slider_input": false,
+            "disabled_motor_zero_after_compensation": true,
+            "force_scope": "measured effective mean axial load; not separated pressure or hysteresis",
+            "hardware_ready": false
+          },
+          "replay_max_error_nm": 0.0,
+          "holding_effort_peak_nm": 18.957429885864258,
+          "valid_side_samples": 240000,
+          "invalid_side_samples": 0,
+          "valid_encoder_compression_error_peak_m": 1.3619661331176758e-05,
+          "valid_encoder_compression_error_mean_m": 2.0194992423057555e-06,
+          "geometry_error_scope": "sampled/delayed encoders against native slider before the same1ms interval; diagnostic, not force calibration or learned behavior"
+        },
+        "wheel_replay_max_error_nm": 2.384185791015625e-07
+      },
+      {
+        "profile": "requested",
+        "strength": 1.0,
+        "checks": {
+          "fixed_PD_and_spring": true,
+          "rates": true,
+          "same_identified_axial_model_both_sides": true,
+          "encoder_only_feedforward_physical_spring_retained": true,
+          "measured_wheel_native_properties": true,
+          "independent_wheels_P05_delay_once": true,
+          "actual_per_role_episode_limits": true,
+          "actual_reward_payment": true,
+          "finite": true,
+          "all_six_1ms_velocities_and_efforts": true,
+          "actual_1khz_wheel_delay_envelope_and_separate_loss": true,
+          "actual_1khz_encoder_compensation_replay": true,
+          "unclipped_PD_plus_holding_then_total_limit": true,
+          "actual_leg_effort_with_compensation_at_most40nm": true,
+          "all_six_disabled_efforts_zero_after_compensation": true,
+          "invalid_encoder_branch_has_zero_compensation": true,
+          "wheel_loss_dissipative": true,
+          "wheel_current_at_most_4p5nm": true,
+          "queued_wheel_torque_cleared_while_disabled": true,
+          "actual_1khz_measured_spring_force": true,
+          "actor35_critic83": true,
+          "zero_disabled_torque": true,
+          "disabled_samples_masked": true,
+          "disabled_birth_observed": true,
+          "active_prone_observed": true,
+          "body_contact_permitted_during_rise": true,
+          "active_nonzero_encoder_compensation_observed": true
+        },
+        "spring_feedforward": {
+          "startup": {
+            "enabled": true,
+            "controller_hz": 1000,
+            "input": [
+              "L_joint1",
+              "LL_joint1",
+              "R_joint1",
+              "RR_joint1"
+            ],
+            "input_source": "same sampled/delayed low-level encoder feedback as PD, before target winding",
+            "geometry_sha256": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216",
+            "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+            "spring_model_sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+            "formula": "clip(PD - J_length(q_encoder).T * F(extended_length-length), -40, 40)",
+            "interpolation": "monotone_cubic_knee_v1",
+            "relative_margin_rad": 0.001,
+            "invalid_geometry": "zero feedforward; original protection retained",
+            "outside_identified_domain": "endpoint_hold_unvalidated",
+            "physical_spring_retained": true,
+            "total_leg_limit_nm": 40.0,
+            "privileged_force_or_slider_input": false,
+            "disabled_motor_zero_after_compensation": true,
+            "force_scope": "measured effective mean axial load; not separated pressure or hysteresis",
+            "hardware_ready": false
+          },
+          "replay_max_error_nm": 0.0,
+          "holding_effort_peak_nm": 18.957843780517578,
+          "valid_side_samples": 236086,
+          "invalid_side_samples": 3914,
+          "valid_encoder_compression_error_peak_m": 0.0002769865095615387,
+          "valid_encoder_compression_error_mean_m": 6.56476848222992e-05,
+          "geometry_error_scope": "sampled/delayed encoders against native slider before the same1ms interval; diagnostic, not force calibration or learned behavior"
+        },
+        "wheel_replay_max_error_nm": 2.384185791015625e-07
+      }
+    ],
+    "learned_behavior": false,
+    "full_capability_qualified": false
+  },
+  "gas_spring": {
+    "file": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/model/gas_spring_identified_symmetric_20261028/model.json",
+    "sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+    "kind": "effective_monotone_table",
+    "same_axial_curve_both_legs": true,
+    "calibration_side": "left",
+    "right_leg_symmetry_assumed": true,
+    "right_leg_measured": false,
+    "effective_installed_mean_load_only": true,
+    "physical_gas_pressure_identified": false,
+    "direction_friction_enabled": false,
+    "physics_hz": 1000,
+    "call": "env.v5.spring_efforts -> measured interpolation * domain.spring",
+    "domain_multiplier": 1.0,
+    "catalogue_polynomial_replaced_for_this_task": true,
+    "compression_at_q_zero_m": 0.06972718009112547,
+    "stroke_m": 0.08,
+    "full_extension_pin_distance_m": 0.232,
+    "identified_knee_domain_deg": [
+      56.0,
+      101.0
+    ],
+    "identified_compression_domain_m": [
+      0.022997316706837613,
+      0.061786172348818356
+    ],
+    "outside_identified_domain": "endpoint_hold_unvalidated",
+    "endpoint_force_n": [
+      86.96568880192817,
+      589.4892440110364
+    ],
+    "strict_export_unchanged": true,
+    "source_csv_sha256": {
+      "/home/noir/Documents/workspace/wheel_leg扫频/wheel_leg_膝关节气簧辨识数据.csv": "17d8ebf42472573a28a85352df0584b964ec4ecc183d4b26e29d5f4c729dc0ba",
+      "/home/noir/wheel_leg_joints_2026-10-27_14-13-22.csv": "abc75e2fb5791cca1ff7e3d74f2d5f9694fa5a29e838820e5e55f6e601c21e02"
+    },
+    "out_of_domain_diagnostics": "Every1ms compression/force/mask; existing RSL TensorBoard metrics and cold trace. Endpoint extension is not calibrated.",
+    "preserved_during_new_wheel_native_probe": true
+  },
+  "prior_native_attempts": [
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring001",
+      "progress_sha256": "fe06f4a52a31d93c691abc1221fe93476d34ef48c4460ba702ef01a77e6ed62c",
+      "status": "failed",
+      "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 284, in main\n    build()\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 268, in build\n    env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg[\"control_math_source\"]), ROOT,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/prone_motion_env.py\", line 21, in __init__\n    super().__init__(*args, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 31, in __init__\n    super().__init__(config, manifest, control, root, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 173, in __init__\n    scenes = choose_scene_groups(config[\"scene_groups\"], num_envs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/task.py\", line 230, in choose_scene_groups\n    raise ValueError(\"Scene fractions cannot fill the environment count within floor/ceil quotas\")\nValueError: Scene fractions cannot fill the environment count within floor/ceil quotas\n",
+      "completed_updates": 0,
+      "optimizer_attempts": 0,
+      "checkpoint_reads": [],
+      "process_exited": true,
+      "gpu_exited": true,
+      "fix": "40-env inherited scene floor/ceil quotas could not allocate; probe now80 and allocation is checked before Isaac."
+    },
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002",
+      "progress_sha256": "f35875b2103ae174cf6d1a76046b0d7b9cb93f444b90197685b789a0f4e3a063",
+      "status": "failed",
+      "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 309, in main\n    build(profile, strength)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 286, in build\n    env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg[\"control_math_source\"]), ROOT,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/prone_motion_env.py\", line 21, in __init__\n    super().__init__(*args, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 31, in __init__\n    super().__init__(config, manifest, control, root, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 58, in __init__\n    self.design_preflight = design_preflight(config, control, root, stage=stage_name,\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py\", line 529, in design_preflight\n    receipt = validate_design_contract(config, json.loads(contents), control,\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py\", line 494, in validate_design_contract\n    raise ValueError(f\"Preflight rejected ({source}; stage={stage}, role={role}):\\n\"\nValueError: Preflight rejected (/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002/contexts/001_requested_1_train/config/design.json; stage=speed, role=train):\ninvocation.seed: design=261028, effective=261059\n",
+      "completed_updates": 0,
+      "optimizer_attempts": 0,
+      "checkpoint_reads": [],
+      "process_exited": true,
+      "gpu_exited": true,
+      "fix": "Rebuilt context changed actual seed but not frozen invocation seed; now both use the same explicit runtime_seed."
+    },
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_wheels001",
+      "progress_sha256": "aae2513d9b4f42ab3cf3748d9553c6b2707c2b97a7812e807f6260a0ecad2877",
+      "status": "failed",
+      "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 327, in main\n    reports.append(probe(env, plan, stop_requested=lambda: stop_requested))\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/evaluate_prone_motion.py\", line 213, in probe\n    observation, reward, done, extra = env.step(action)\n                                       ^^^^^^^^^^^^^^^^\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 394, in step\n    tau = self.v5.motor_efforts(q, dq, legs, wheels)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 106, in motor_efforts\n    tau = native_efforts(q, dq, legs, wheels)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/v5_control.py\", line 58, in motor_efforts\n    bound = motor_torque_limit(wheel_speed, self.wheel_prior)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/v40/core.py\", line 207, in motor_torque_limit\n    raise ValueError('Ambiguous or invalid engineering wheel-output torque cap')\nValueError: Ambiguous or invalid engineering wheel-output torque cap\n",
+      "failure": "Core software-cap scope enum omitted new measured-wheel control; failed before first physics step. Actual V5 regression now covers this path.",
+      "PPO_updates": 0,
+      "checkpoint_reads": [],
+      "pid": 3654640,
+      "process_exited": true,
+      "gpu_context_exited": true,
+      "retained": true,
+      "source": {
+        "schema": "scratch-committed-source-v1",
+        "commit": "5d0759dc2d15293a323dba9adb0c71f6dba1d86c",
+        "source_count": 309,
+        "all_source_bytes_match_commit": true,
+        "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_wheels001/committed_source.tar",
+        "archive_sha256": "e68db8717b61edefd05753d29bb00145c6feb66ba04be59d98033381f634b17b"
+      }
+    }
+  ],
+  "native_launch_gate": "Normal user launch performs a fresh sequential two-domain zero-PPO probe and verifies saved completion, all physical checks, zeroPPO/checkpoint reads and unchanged frozen sources before constructing the new actor/critic/emptyAdam.",
+  "wheel_model": {
+    "model_file": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/model/wheel_identified_1562_20261028/model.json",
+    "model_sha256": "2c67e1113f0a460cd477e3ec6897e258619304a69879da3acabec148bb61823d",
+    "gear_ratio": 15.62,
+    "bus_voltage_v": 24.0,
+    "coordinate": "wheel_output",
+    "control_file": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/model/wheel_identified_1562_20261028/control.json",
+    "control_sha256": "38c94b9040bf8acfa1bc97fb2f5420dd2259e2cba8a62561bd12c59397362b2d",
+    "evidence_file": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/model/wheel_identified_1562_20261028/evidence.json",
+    "evidence_sha256": "a19357979636190be8f923e680c769714b31c3b7732109a00017c787e9d23abd",
+    "sealed_evidence_dependencies": 8,
+    "source_data": [
+      {
+        "path": "/home/noir/Documents/workspace/wheel_leg扫频/wheel_leg_轮子低速辨识数据.csv",
+        "sha256": "9435cda103468a8dd3ef88188da0d418dc0e6bf09b72eb52d893bd1551735c12",
+        "new_gearbox_confirmed": true
+      },
+      {
+        "path": "/home/noir/Documents/workspace/wheel_leg扫频/wheel_leg_轮子高速辨识数据.csv",
+        "sha256": "a0dd1035621e67f93f827adefaa2ca18cd106a9e3b3a8678c7811cf3f058896a",
+        "new_gearbox_confirmed": true
+      }
+    ],
+    "axes": {
+      "L_joint3": {
+        "side": "left",
+        "effective_total_inertia_kg_m2": 0.004269571255748743,
+        "cad_inertia_kg_m2": 0.000575,
+        "additional_armature_kg_m2": 0.003694571255748743,
+        "friction_speed_knots_rad_s": [
+          0.75,
+          2.0,
+          6.0,
+          12.0,
+          20.0,
+          35.75,
+          48.75,
+          55.25
+        ],
+        "moving_friction_nm": [
+          0.041392965355212,
+          0.04635881917133683,
+          0.05207525339656162,
+          0.05449486963749839,
+          0.055020881181436186,
+          0.052411631970080585,
+          0.05484968217269762,
+          0.05921630006263292
+        ],
+        "direction_bias_nm": 0.000345880302504356,
+        "aggregate_delay_s": 0.0055,
+        "powered_resistance_diagnostic_nm": [
+          0.041392965355212,
+          0.04635881917133683,
+          0.05397570064148991,
+          0.055117125853098185,
+          0.056748679158864695,
+          0.0540052908550307,
+          0.05522918972850393,
+          0.06757527399120268
+        ],
+        "moving_friction_source": "powered low-speed excitation up to 2rad/s; zero-current training coasts above 6rad/s; interpolate between",
+        "static_breakaway_nominal_nm": 0.19,
+        "static_breakaway_observed_interval_nm": [
+          0.15,
+          0.23
+        ],
+        "static_breakaway_exactly_identified": false,
+        "high_speed_envelope": {
+          "measured_airborne_plateau_rad_s": [
+            59.27862194417616,
+            58.79591884759386
+          ],
+          "measured_plateau_p05_p95_rad_s": [
+            [
+              59.164650379705336,
+              59.392593508646975
+            ],
+            [
+              58.70876412182206,
+              58.889777783040415
+            ]
+          ],
+          "zero_torque_speed_rad_s": [
+            59.35708336577695,
+            58.87283752365476
+          ],
+          "rolloff_slope_nm_per_rad_s": [
+            0.7591269588280473,
+            0.7653592440088477
+          ],
+          "rolloff_width_fraction_prior": 0.1,
+          "rolloff_width_randomization_recommendation": [
+            0.05,
+            0.2
+          ],
+          "loaded_torque_speed_curve_identified": false,
+          "braking": "retain independent 4.5Nm software cap; do not collapse braking with motoring speed limit"
+        }
+      },
+      "R_joint3": {
+        "side": "right",
+        "effective_total_inertia_kg_m2": 0.004366774166460313,
+        "cad_inertia_kg_m2": 0.000575,
+        "additional_armature_kg_m2": 0.003791774166460313,
+        "friction_speed_knots_rad_s": [
+          0.75,
+          2.0,
+          6.0,
+          12.0,
+          20.0,
+          35.75,
+          48.75,
+          55.25
+        ],
+        "moving_friction_nm": [
+          0.14020281398281045,
+          0.16001039895309335,
+          0.21388960480995,
+          0.22182155107416107,
+          0.21075946885507976,
+          0.23114733871267137,
+          0.253521971957936,
+          0.2733241741888768
+        ],
+        "direction_bias_nm": 0.007037543830024003,
+        "aggregate_delay_s": 0.0035,
+        "powered_resistance_diagnostic_nm": [
+          0.14020281398281045,
+          0.16001039895309335,
+          0.2097282727938093,
+          0.2149999564345179,
+          0.21926029489243967,
+          0.23447913885684385,
+          0.25372092942550567,
+          0.2654807088786922
+        ],
+        "moving_friction_source": "powered low-speed excitation up to 2rad/s; zero-current training coasts above 6rad/s; interpolate between",
+        "static_breakaway_nominal_nm": 0.375,
+        "static_breakaway_observed_interval_nm": [
+          0.3,
+          0.45
+        ],
+        "static_breakaway_exactly_identified": false,
+        "high_speed_envelope": {
+          "measured_airborne_plateau_rad_s": [
+            57.13327484825482,
+            56.7712475258181
+          ],
+          "measured_plateau_p05_p95_rad_s": [
+            [
+              56.94555697736171,
+              57.287471670774174
+            ],
+            [
+              56.57682544525024,
+              56.958965396711214
+            ]
+          ],
+          "zero_torque_speed_rad_s": [
+            57.489230028088215,
+            57.107190285927395
+          ],
+          "rolloff_slope_nm_per_rad_s": [
+            0.787632078145693,
+            0.7926547673544633
+          ],
+          "rolloff_width_fraction_prior": 0.1,
+          "rolloff_width_randomization_recommendation": [
+            0.05,
+            0.2
+          ],
+          "loaded_torque_speed_curve_identified": false,
+          "braking": "retain independent 4.5Nm software cap; do not collapse braking with motoring speed limit"
+        }
+      }
+    },
+    "controller_velocity_p_nm_per_rad_s": 0.5,
+    "software_current_torque_cap_nm": 4.5,
+    "old_wheel_actuator_response_removed": true,
+    "old_model_used_as_teacher": false,
+    "native_response_module_sha256": "775451a040d28c52b775c12d9c8cd35660a597168ff1beda92a54aa9126858c8",
+    "task_adapter": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/training_wheel_response.py",
+    "actual_1khz_loop": "RobustGetupEnv.step -> IdentifiedWheelResponse.apply_torque(actual velocity) -> motor + separate passive loss",
+    "delay": "Independent5.5/3.5ms effective CAN-command to reported-RPM input approximation; nominal low-level delay applied once",
+    "additional_policy_age": "Existing v2 0..1 ticks at200Hz retained as additional policy-observation uncertainty, not a newly identified component",
+    "inertia_randomization": "Existing body mass_scale*independent_inertia_scale draw shared by CAD and added armature; no new RNG draws or range expansion",
+    "independent_inertia_range": [
+      0.94,
+      1.06
+    ],
+    "loaded_high_speed_torque_identified": false,
+    "whole_robot_qualified": false,
+    "residual_friction_separate_from_motor_current": true,
+    "static_breakaway_is_uncertain": true,
+    "delivered_component_replay": "Original24 airborne zero-gravity traces retained via8 authenticated files; these are previous component evidence, not new full-robot behavior evidence"
+  },
+  "updated_utc": "2026-10-28T13:40:51.797106+00:00",
+  "previous_native_probe": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_wheels002",
+    "progress_sha256": "019892a2da55ae0ec44a92bc161063515bb8c973f88f9209c4d5c9e030bcf349",
+    "source_commit": "98a514f9f7c95bab3758605011f71bb43615c50d",
+    "status": "native_probe_completed_unqualified",
+    "scope": "Passed wiring for the preceding wheel model preparation, retained in previous_preparation; not behavior evidence for this source."
+  },
+  "gas_spring_feedforward": {
+    "enabled": true,
+    "source": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/encoder_spring_feedforward.py",
+    "formula": "tau_motor=clip(PD-J_length(q_encoder).T*F(extended_length-length),-40,40)",
+    "physics_hz": 1000,
+    "input_source": "same sampled/delayed low-level four calibrated motor encoders asPD, before target winding",
+    "simulated_slider_or_force_used_for_control": false,
+    "physical_spring_retained": true,
+    "same_axial_force_curve_both_sides": true,
+    "spring_model_sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+    "geometry_sha256": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216",
+    "relative_angle_margin_rad": 0.001,
+    "invalid_geometry_policy": "zero corresponding side feedforward, preserve existing protection",
+    "full_domain_invalid_side_fraction": 0.016308333333333334,
+    "nominal_encoder_compression_error_peak_m": 1.3619661331176758e-05,
+    "full_domain_encoder_compression_error_peak_m": 0.0002769865095615387,
+    "diagnostic_compression_error_is_not_force_calibration": true,
+    "declared_force_extension": "endpoint_hold_unvalidated outside56..101degrees measured knee range",
+    "physical_robot_controller_modified": false,
+    "requires_matching_low_level_controller_on_deployment": true
+  }
+}

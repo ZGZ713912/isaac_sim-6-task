@@ -104,6 +104,12 @@ def main():
                        ("recovery", "recovery_training", "continuous_encoders", "recovery_observer", "mechanism_observer"))
         sources.extend(contract["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
     sources.append("src/wheeled_tasks/chassis/actuator_response.py")
+    sources.append("src/wheeled_tasks/chassis/identified_wheel_response.py")
+    if contract.get("v5_control", {}).get("gas_spring_compensation", {}).get("enabled"):
+        sources.append("src/wheeled_tasks/chassis/gas_spring_compensation.py")
+        sources.append(contract["v5_control"]["gas_spring_compensation"]["model_file"])
+    if contract.get("identified_wheel_response", {}).get("enabled"):
+        sources.append(contract["identified_wheel_response"]["model_path"])
     if contract.get("actuator_response", {}).get("enabled"):
         evidence_file = contract["actuator_response_evidence"]["file"]
         sources.append(evidence_file)

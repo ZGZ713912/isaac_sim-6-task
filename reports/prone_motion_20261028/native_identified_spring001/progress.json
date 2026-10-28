@@ -1,0 +1,26 @@
+{
+  "schema": "prone-motion-progress-v1",
+  "status": "failed",
+  "pid": 3458039,
+  "start_ticks": 16384179,
+  "started_utc": "2026-10-28T09:25:02.701675+00:00",
+  "requested_updates": 10000,
+  "completed_updates": 0,
+  "optimizer_attempts": 0,
+  "checkpoint_reads": [],
+  "contexts": [],
+  "cold_reviews": [],
+  "committed_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "2947bbeb80a4a283062f0ed1abe3ce7da9541b25",
+    "source_count": 296,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring001/committed_source.tar",
+    "archive_sha256": "beb197cf5b2b4be88e6c2a212318d048cf529ce6106a40fa1fd5a41460985862"
+  },
+  "hardware_ready": false,
+  "full_capability_qualified": false,
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 284, in main\n    build()\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 268, in build\n    env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg[\"control_math_source\"]), ROOT,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/prone_motion_env.py\", line 21, in __init__\n    super().__init__(*args, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 31, in __init__\n    super().__init__(config, manifest, control, root, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 173, in __init__\n    scenes = choose_scene_groups(config[\"scene_groups\"], num_envs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/task.py\", line 230, in choose_scene_groups\n    raise ValueError(\"Scene fractions cannot fill the environment count within floor/ceil quotas\")\nValueError: Scene fractions cannot fill the environment count within floor/ceil quotas\n",
+  "elapsed_s": 4.11020167300012,
+  "source_mismatches_at_exit": []
+}
