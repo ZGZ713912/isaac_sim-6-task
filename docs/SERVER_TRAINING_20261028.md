@@ -71,6 +71,10 @@ GPU 首次探针的实际异常保存在 `run001.native_probe/progress.json` 的
 改用 `/World/envs/env_[0-9]+/Robot` 只匹配编号环境；闭链数量与求解器拓扑检查继续保留。
 探针验证失败时也会显示保存的原始异常，避免只看到泛化的拒绝 PPO 信息。
 
+闭链修复后还发现 Torch 的 `libtorch_cuda_linalg.so` 以名称延迟加载，但环境未包含
+venv 的 `torch/lib`。单独执行 CUDA `eigvalsh` 复现，补充搜索路径后通过；
+服务器 Python 启动器现自动加入该目录，继续使用原 Torch/CUDA 版本。
+
 保留失败目录，修复后的启动必须使用新的目录。可以先单独执行两个域的零 PPO 检查：
 
 ```bash
