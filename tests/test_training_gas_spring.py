@@ -8,7 +8,7 @@ import pytest
 import torch
 
 from wheeled_tasks.chassis.identified_gas_spring import IdentifiedGasSpringCurve
-from wheeled_tasks.chassis.training_gas_spring import resolve, TrainingGasSpring
+from wheeled_tasks.chassis.training_gas_spring import resolve, TrainingGasSpring, force_from_knots
 from wheeled_tasks.chassis.v5_control import V5Control
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,10 +38,53 @@ def test_public_curve_stays_strict_and_training_extension_is_labelled():
     s = torch.tensor([[.0, .08], [.0213, .07]])
     with pytest.raises(ValueError):
         model.curve.force(s)
-    force = model.force(s)
+    # Keep the old endpoint-hold adapter available for historical reproduction.
+    old_settings = deepcopy(model.settings)
+    old_settings["outside_identified_domain"] = "endpoint_hold_unvalidated"
+    old_model = TrainingGasSpring(old_settings, "cpu")
+    force = old_model.force(s)
     torch.testing.assert_close(force[:, 0], force.new_full((2,), model.curve.force_knots_n[0]))
     torch.testing.assert_close(force[:, 1], force.new_full((2,), model.curve.force_knots_n[-1]))
-    assert model.last_outside.all()
+    assert old_model.last_outside.all()
+
+
+def test_trend_extension_is_positive_monotone_preserves_every_measured_knot():
+    model = runtime()
+    s = torch.linspace(0., .08, 8001)
+    force = model.force(s)
+    assert torch.isfinite(force).all() and (force > 0.).all()
+    assert (force.diff() >= 0.).all()
+    x = torch.tensor(model.curve.compression_knots_m)
+    torch.testing.assert_close(model.force(x), torch.tensor(model.curve.force_knots_n))
+    assert model.force(torch.tensor(.017964294)) < 5.
+    assert 760. < model.force(torch.tensor(.072795039)) < 780.
+    assert model.settings["resolved_trend_extension"]["extrapolation_validated_by_measurement"] is False
+
+
+def test_tail_matches_endpoint_value_derivative_and_work_gradient():
+    model = runtime()
+    x, y = (torch.tensor(v, dtype=torch.float64) for v in
+            (model.curve.compression_knots_m, model.curve.force_knots_n))
+    slopes = y.diff()/x.diff()
+    call = lambda s: force_from_knots(s, x, y, slopes, "positive_c1_endpoint_trend_v1", .08)
+    for edge, slope in ((x[0], slopes[0]), (x[-1], slopes[-1])):
+        for sign in (-1., 1.):
+            s = (edge+sign*1e-10).clone().requires_grad_()
+            force = call(s)
+            gradient = torch.autograd.grad(force, s)[0]
+            torch.testing.assert_close(gradient, slope, rtol=1e-6, atol=1e-5)
+    for value, index, slope in ((.018, 0, slopes[0]), (.0728, -1, slopes[-1])):
+        s = torch.tensor(value, dtype=torch.float64, requires_grad=True)
+        rate = slope/y[index]
+        work = y[index]/rate*torch.expm1(rate*(s-x[index]))
+        torch.testing.assert_close(torch.autograd.grad(work, s)[0], call(s))
+
+
+def test_trend_contract_sha_and_endpoint_slopes_are_authenticated(tmp_path):
+    declaration = deepcopy(PLAN["gas_spring_model"])
+    declaration["trend_extension"]["sha256"] = "0"*64
+    with pytest.raises(ValueError, match="trend extension contract SHA"):
+        resolve(ROOT, declaration, SPEC)
 
 
 @pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])

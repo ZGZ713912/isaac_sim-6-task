@@ -127,6 +127,22 @@ def test_c1_knot_torque_and_numerical_stop_extension(model):
         assert model.last["geometry_valid"][:, side].all()
 
 
+def test_entire_soft_branch_including_unmeasured_ends_has_compensation(model):
+    left = model.get(0, "delta_rad")
+    # Dense relative-angle coverage, including BOTH exact projected soft stops.
+    delta = torch.linspace(float(left[0]), float(left[-1]), 4001, dtype=torch.float64)
+    right = model.get(1, "delta_rad")
+    right_delta = torch.linspace(float(right[-1]), float(right[0]), 4001, dtype=torch.float64)
+    q = torch.stack((delta*0.-.42, delta-.42, delta*0.+.42, right_delta+.42), -1)
+    holding = model(q)
+    assert model.last["geometry_valid"].all()
+    assert torch.isfinite(holding).all() and (holding.abs() > .01).all()
+    assert model.last["outside_identified"][[0, -1]].all()
+    assert model.last["axial_force_n"][0].min() > 760.
+    assert model.last["axial_force_n"][-1].max() < 5.
+    assert holding.abs().max() < 40.
+
+
 def test_invalid_branch_and_nonfinite_encoder_fail_safely(model):
     q = torch.tensor([[-.42, 2., .42, -.1374155762580851]], dtype=torch.float64)
     torque = model(q)
