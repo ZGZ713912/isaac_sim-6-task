@@ -370,7 +370,9 @@ class ChassisEnv:
                     actuators["wheels"].effort_limit = self.identified_wheels.native_effort_limit
                     actuators["wheels"].effort_limit_sim = self.identified_wheels.native_effort_limit
         robot_cfg = ArticulationCfg(
-            prim_path="/World/envs/env_.*/Robot",
+            # Match only the numbered environment, never its terrain descendants.
+            # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
+            prim_path="/World/envs/env_[0-9]+/Robot",
             spawn=sim_utils.UsdFileCfg(
                 usd_path=str(root / config["asset_directory"] / manifest["usd"]),
                 activate_contact_sensors=True,
@@ -414,7 +416,8 @@ class ChassisEnv:
                     raise RuntimeError("Loop joint accidentally included in articulation tree")
                 loop_count += 1
         if loop_count != (6 if self.is_v5 else 4) * num_envs:
-            raise RuntimeError("Unexpected number of real loop constraints")
+            expected = (6 if self.is_v5 else 4) * num_envs
+            raise RuntimeError(f"Unexpected number of real loop constraints: {loop_count}, expected {expected}")
         native_isolation = None
         if isolated_getup_origins:
             from .isolated_origins import isolate_native_worlds

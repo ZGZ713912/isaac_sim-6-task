@@ -54,10 +54,28 @@ CPU预检输出目录必须是新的，不启动Kit、创建PPO或读取旧权�
 
 ```bash
 export WHEELED_RL_PYTHON="$PWD/scripts/server_isaac_python.sh"
-bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run001"
+bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run002"
 ```
 
 脚本先运行名义域与完整域的零PPO原生探针并检查保存的结果，全部通过后才开始
 同一次`learn(10000)`。未通过不能仅凭返回码手动跳过。不要传本机旧009停止参数，
 不要加载中断运行、旧teacher或donor。训练中无冷测，结束后再按相同病例比较周期PT。
 服务器软件准备阶段不运行此命令。
+
+## Lab 3 场景路径兼容性
+
+GPU 首次探针的实际异常保存在 `run001.native_probe/progress.json` 的 `error` 字段：
+`Unexpected number of real loop constraints`。它不是上方 Protobuf 或 AppLauncher 警告引起的退出。
+原路径 `/World/envs/env_.*/Robot` 在服务器的 Lab 3 路径选择器中还匹配环境的地面、材质等子路径；
+80 个探针环境各生成 6 台机器人，实际闭链球铰 2880 个，预期 480 个。
+改用 `/World/envs/env_[0-9]+/Robot` 只匹配编号环境；闭链数量与求解器拓扑检查继续保留。
+探针验证失败时也会显示保存的原始异常，避免只看到泛化的拒绝 PPO 信息。
+
+保留失败目录，修复后的启动必须使用新的目录。可以先单独执行两个域的零 PPO 检查：
+
+```bash
+WHEELED_RL_PYTHON="$PWD/scripts/server_isaac_python.sh" \
+  bash scripts/train_prone_motion.sh --native-probe --output "$PWD/runs/prone_motion/gpu_probe002"
+```
+
+这只验证原生建模、控制、接触和域切换接线，不是自起、站立或运动能力验收。
