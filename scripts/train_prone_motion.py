@@ -124,6 +124,7 @@ def learner_config(plan, device="cuda:0"):
 def source_hashes(plan_path, plan):
     result = base.sources()
     names = ["scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
+             "scripts/server_isaac_python.sh", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
              "contracts/scratch_standing_base_mechanism_v2.json", "contracts/scratch_standing_base_design_v2.json",
              plan["randomization_contract"],

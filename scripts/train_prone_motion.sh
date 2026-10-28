@@ -4,6 +4,13 @@ task_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd -- "$task_root"
 export OMNI_KIT_ACCEPT_EULA=YES
 export OPENBLAS_NUM_THREADS=1
+# Keep the local default; remote installations select their own interpreter.
+task_python="${WHEELED_RL_PYTHON:-/home/noir/miniconda3/envs/isaacsim6/bin/python}"
+if ! command -v -- "$task_python" >/dev/null 2>&1; then
+    echo "Training Python is unavailable: $task_python" >&2
+    echo "Set WHEELED_RL_PYTHON to the Python executable in your Isaac environment." >&2
+    exit 127
+fi
 # A normal launch runs a separate0-PPO native check first. Each output directory
 # is new; a failed probe never falls through to PPO or retries a stopped run.
 task_output=""
@@ -19,7 +26,7 @@ for ((task_i=0; task_i<${#task_args[@]}; task_i++)); do
     esac
 done
 verify_probe() {
-    /home/noir/miniconda3/envs/isaacsim6/bin/python - "$task_root/scripts" "$1" <<'PY'
+    "$task_python" - "$task_root/scripts" "$1" <<'PY'
 from pathlib import Path
 import sys
 sys.path.insert(0, sys.argv[1])
@@ -28,13 +35,13 @@ verify_native_probe(Path(sys.argv[2]))
 PY
 }
 if [[ "$task_probe_only" == false && -n "$task_output" ]]; then
-    /home/noir/miniconda3/envs/isaacsim6/bin/python "$task_root/scripts/train_prone_motion.py" \
+    "$task_python" "$task_root/scripts/train_prone_motion.py" \
         "$@" --output "${task_output}.native_probe" --native-probe
     verify_probe "${task_output}.native_probe"
 fi
 if [[ "$task_native_only" == true ]]; then
-    /home/noir/miniconda3/envs/isaacsim6/bin/python "$task_root/scripts/train_prone_motion.py" "$@"
+    "$task_python" "$task_root/scripts/train_prone_motion.py" "$@"
     verify_probe "$task_output"
     exit 0
 fi
-exec /home/noir/miniconda3/envs/isaacsim6/bin/python "$task_root/scripts/train_prone_motion.py" "$@"
+exec "$task_python" "$task_root/scripts/train_prone_motion.py" "$@"
