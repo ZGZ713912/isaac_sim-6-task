@@ -101,12 +101,17 @@ class TrainingGasSpring:
     def force(self, compression):
         if not bool(torch.isfinite(compression).all()):
             raise ValueError("Nonfinite spring compression")
-        force = force_from_knots(compression, self.knots, self.values, self.slopes,
-            self.settings["outside_identified_domain"], self.settings["installed_stroke_m"])
+        replay = getattr(self, "tensor_replay", None)
+        force, outside = self._evaluate(compression) if replay is None else replay(compression)
         self.last_compression = compression
         self.last_force = force
-        self.last_outside = (compression < self.knots[0]) | (compression > self.knots[-1])
+        self.last_outside = outside
         return force
+
+    def _evaluate(self, compression):
+        force = force_from_knots(compression, self.knots, self.values, self.slopes,
+            self.settings["outside_identified_domain"], self.settings["installed_stroke_m"])
+        return force, (compression < self.knots[0]) | (compression > self.knots[-1])
 
     def install(self, env):
         # Replace the old polynomial at its actual 1kHz physical force call.

@@ -41,10 +41,16 @@ class ProneMotionEnv(RobustGetupEnv):
         self.quiet_completed = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self.course_targets = torch.zeros(self.num_envs, 3, device=self.device)
         self.course_roles = [self.plan["roles_per20"][i % 20] for i in range(self.num_envs)]
+        self._role_signature = None
+        self.prone_reset_generation = 0
         self.course_ready = True
         self.reset(torch.arange(self.num_envs, device=self.device))
         from .grounded_standing_reset import install
         install(self, include_motion=True)
+        backend = self.cfg.get("prone_motion_performance", "eager")
+        if backend != "eager":
+            from .prone_motion_performance import install as install_performance
+            install_performance(self,backend)
         self.startup_report["prone_motion"] = dict(
             motor_owner="Trainable six-axis RL for every active physical interval",
             state_writes="episode reset only", fallback_script=False,
@@ -96,6 +102,7 @@ class ProneMotionEnv(RobustGetupEnv):
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         update_robot_data(self, self.dt)
         self.prone_start_xy[ids] = root[:, :2]
+        self.prone_reset_generation += 1
         self.course_anchor[ids] = root[:, :2]
         self.quiet_hold[ids] = 0.
         self.quiet_completed[ids] = False
@@ -131,9 +138,17 @@ class ProneMotionEnv(RobustGetupEnv):
 
     def task_commands(self, elapsed):
         value = task.commands(self.course_targets, elapsed, self.recovered_at, self.recovery_lane, self.plan)
-        stand = torch.tensor([r == "stand" for r in self.course_roles], device=self.device)
+        self._refresh_role_tensors()
+        stand = self._stand_roles
         value[stand] = self.course_targets[stand]
         return value
+
+    def _refresh_role_tensors(self):
+        signature = tuple(self.course_roles)
+        if signature != self._role_signature:
+            self._role_index = torch.tensor([task.ROLES.index(r) for r in signature],device=self.device)
+            self._stand_roles = self._role_index == task.ROLES.index("stand")
+            self._role_signature = signature
 
     def task_transition(self, state, terminated):
         route = self.route_state()
@@ -171,8 +186,7 @@ class ProneMotionEnv(RobustGetupEnv):
         return sum(terms.values()), shaping, terminated, dict(
             task_reward_terms=terms, task_failures=bad, prone_route=route,
             course_anchor_error_m=error.clone(), quiet_hold_seconds=self.quiet_hold.clone(),
-            quiet30_completed_event=quiet_event.clone(), role_index=torch.tensor(
-                [task.ROLES.index(r) for r in self.course_roles], device=self.device),
+            quiet30_completed_event=quiet_event.clone(), role_index=self._role_index.clone(),
             root_quaternion_xyzw=self.robot.data.root_link_pose_w.torch[:, 3:].clone(),
             task_recovery_rising=rising.clone())
 
@@ -207,9 +221,12 @@ class ProneMotionEnv(RobustGetupEnv):
             result[prefix+"motoring_derated_fraction"] = (physical["wheel_drive_bound"][:, :, index] < 4.5-1e-6).float().mean()
         for name, value in extra["task_reward_terms"].items():
             result["ProneMotion/reward_density_"+name] = value.mean()
-        for index, role in enumerate(task.ROLES):
-            mask = (extra["role_index"] == index) & ~self.passive
-            if mask.any():
+        masks = [(extra["role_index"] == index) & ~self.passive for index in range(len(task.ROLES))]
+        # Preserve which tags exist and the exact selected-value reductions.
+        # One transfer replaces eleven data-dependent CUDA synchronizations.
+        present = torch.stack([mask.any() for mask in masks]).tolist()
+        for role, mask, has_samples in zip(task.ROLES,masks,present):
+            if has_samples:
                 fields = dict(height_m=state["height"], vx_m_s=state["velocity"][:, 0],
                     yaw_rad_s=state["omega"][:, 2], commanded_vx_m_s=self.commands[:, 0],
                     commanded_yaw_rad_s=self.commands[:, 1], commanded_height_m=self.commands[:, 2],
