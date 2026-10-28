@@ -1,0 +1,165 @@
+{
+  "status": "static_passed",
+  "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_identified_1562_20261028/design.json",
+  "stage": "speed",
+  "role": "train",
+  "seed": 191019,
+  "block_index": 0,
+  "num_envs": 4096,
+  "physics_dt": 0.001,
+  "policy_dt": 0.005,
+  "decimation": 5,
+  "runtime_expected": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.005,
+    "pc_control_dt": 0.001,
+    "decimation": 5,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "wheel_velocity_p": 0.5,
+    "seed": 191019,
+    "action_difference_reference_dt": 0.02,
+    "precision_tracking": true,
+    "actuator_response": {
+      "enabled": true,
+      "schema": "chassis-actuator-response",
+      "version": 1,
+      "joint_names": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "gain": 1.0,
+      "armature": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "time_constant_s": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "locomotion_quality_rewards": {
+      "stand_still_lin_vel": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      },
+      "locomotion_posture": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    "modules": {
+      "usb_transport": false,
+      "command_transport": false,
+      "signal_perturbations": false,
+      "dynamics_randomization": false,
+      "contact_domain": false,
+      "contact_material": true,
+      "step_assist": false,
+      "actuator_response": true,
+      "stand_still_lin_vel": true,
+      "locomotion_posture_floor": true,
+      "identified_wheel_response": true
+    },
+    "contact_material": {
+      "enabled": true,
+      "combine_mode": "average",
+      "ground_static_friction_range": [
+        0.2,
+        0.5
+      ],
+      "ground_dynamic_friction_range": [
+        0.2,
+        0.5
+      ],
+      "wheel_static_friction": 0.1,
+      "wheel_dynamic_friction": 0.1,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25
+    },
+    "wheel_reduction": {
+      "schema": "wheel-leg-wheel-reduction-v1",
+      "gear_ratio": 15.62,
+      "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+      "reference": "wheel_output",
+      "motor_angle_and_speed": "divide_by_ratio_once",
+      "motor_torque": "multiply_by_ratio_once",
+      "output_torque_cap_nm": 4.5,
+      "legacy_asset_metadata_gear_ratio": 15.8,
+      "legacy_response_gear_ratio": 15.8,
+      "response_scope": "new_gearbox_airborne_effective_model; loaded torque-speed shape is still a prior",
+      "new_wheel_response_identified": true,
+      "identified_response_gear_ratio": 15.62
+    },
+    "identified_wheel_response": {
+      "enabled": true,
+      "model_path": "model/wheel_identified_1562_20261028/model.json",
+      "model_sha256": "2c67e1113f0a460cd477e3ec6897e258619304a69879da3acabec148bb61823d",
+      "apply_aggregate_delay": true
+    }
+  },
+  "actuator_response_evidence": {
+    "status": "authenticated",
+    "sha256": "a19357979636190be8f923e680c769714b31c3b7732109a00017c787e9d23abd",
+    "scope": "airborne new 15.62 gearbox effective dynamics and native component readback/replay; empirical residuals retained; no whole-robot qualification",
+    "validated_file_count": 8
+  },
+  "design_sha256": "454b7e002e49df00724af3c94d8d5380dbccb9407f9e7bc8fa8ea3d403c5d813",
+  "environment_stage": "speed",
+  "wheel_reduction": {
+    "schema": "wheel-leg-wheel-reduction-v1",
+    "gear_ratio": 15.62,
+    "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+    "reference": "wheel_output",
+    "motor_angle_and_speed": "divide_by_ratio_once",
+    "motor_torque": "multiply_by_ratio_once",
+    "output_torque_cap_nm": 4.5,
+    "legacy_asset_metadata_gear_ratio": 15.8,
+    "legacy_response_gear_ratio": 15.8,
+    "response_scope": "new_gearbox_airborne_effective_model; loaded torque-speed shape is still a prior",
+    "new_wheel_response_identified": true,
+    "identified_response_gear_ratio": 15.62
+  },
+  "ppo_updates": 0,
+  "default_entrypoint_changed": false,
+  "native_component_report": "reports/wheel_real2sim_1562_20261028/native_zero_gravity/report.json",
+  "full_robot_native_training_profile_executed": false,
+  "source_files_sha256": {
+    "model/wheel_identified_1562_20261028/model.json": "2c67e1113f0a460cd477e3ec6897e258619304a69879da3acabec148bb61823d",
+    "model/wheel_identified_1562_20261028/mechanism.json": "c2e601d6c13e6cc14a9ca8e258dc1c132a72a6b490a1a3ca8177333b19882e2e",
+    "model/wheel_identified_1562_20261028/control.json": "38c94b9040bf8acfa1bc97fb2f5420dd2259e2cba8a62561bd12c59397362b2d",
+    "model/wheel_identified_1562_20261028/design.json": "454b7e002e49df00724af3c94d8d5380dbccb9407f9e7bc8fa8ea3d403c5d813",
+    "model/wheel_identified_1562_20261028/evidence.json": "a19357979636190be8f923e680c769714b31c3b7732109a00017c787e9d23abd"
+  }
+}

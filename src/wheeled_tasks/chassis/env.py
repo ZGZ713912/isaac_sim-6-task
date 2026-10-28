@@ -19,6 +19,7 @@ from isaaclab_physx.physics import PhysxManager
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
 from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
 from .actuator_response import ActuatorResponse
+from .identified_wheel_response import IdentifiedWheelResponse, WHEEL_NAMES
 from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data
 from .training_schedule import stage_actor_updates
 from .terrain_runout import append_route_runout, apply_route_boundary, route_runout_selection, validate_runout
@@ -122,6 +123,17 @@ class ChassisEnv:
             config.get("actuator_response"))
         if self.actuator_response.enabled and (not self.is_v5 or not config.get("monitor_applied_effort")):
             raise ValueError("Identified response requires explicit six-axis V5 effort monitoring")
+        self.identified_wheels = IdentifiedWheelResponse(num_envs, device, self.dt,
+            config.get("identified_wheel_response"), root=root)
+        if self.identified_wheels.enabled:
+            if not self.is_v5 or not config.get("monitor_applied_effort") or self.v5.wheel_prior["gear_ratio"] != 15.62:
+                raise ValueError("New wheel response requires monitored V5 output axes and ratio 15.62")
+            if self.actuator_response.enabled and any(self.actuator_response.cfg[k][i] != 0
+                    for k in ("armature", "frictionloss", "damping", "time_constant_s") for i in (2, 5)):
+                raise ValueError("Clear historical wheel response before enabling the new independently identified wheels")
+            if self.identified_wheels.cfg["apply_aggregate_delay"] and any(
+                    config.get(k, {}).get("enabled") for k in ("usb_transport", "command_transport", "signal_delay", "feedback_transport")):
+                raise ValueError("Aggregate wheel I/O delay overlaps transport/feedback delay; disable it when modeling those components separately")
         self.decimation = self.control_audit.decimation
         self.max_episode_length = round(config["episode_seconds"] / self.policy_dt)
         self.generator = torch.Generator(device=device).manual_seed(seed)
@@ -349,6 +361,14 @@ class ChassisEnv:
                         actuators[group].friction = {name: native["frictionloss"][name] for name in names}
                         actuators[group].dynamic_friction = {name: native["frictionloss"][name] for name in names}
                         actuators[group].viscous_friction = {name: native["damping"][name] for name in names}
+                if self.identified_wheels.enabled:
+                    native = self.identified_wheels.native_parameters()
+                    actuators["wheels"].armature = native["armature"]
+                    actuators["wheels"].friction = native["frictionloss"]
+                    actuators["wheels"].dynamic_friction = native["dynamic_friction"]
+                    actuators["wheels"].viscous_friction = native["damping"]
+                    actuators["wheels"].effort_limit = self.identified_wheels.native_effort_limit
+                    actuators["wheels"].effort_limit_sim = self.identified_wheels.native_effort_limit
         robot_cfg = ArticulationCfg(
             prim_path="/World/envs/env_.*/Robot",
             spawn=sim_utils.UsdFileCfg(
@@ -523,12 +543,30 @@ class ChassisEnv:
             for field, actual in native.items():
                 source = "frictionloss" if field == "dynamic_friction" else field
                 expected = actual.new_tensor(response[source])
+                if self.identified_wheels.enabled:
+                    replacement = self.identified_wheels.native_parameters()[field]
+                    for name in WHEEL_NAMES:
+                        expected[response["joint_names"].index(name)] = replacement[name]
                 if not torch.allclose(actual, expected.expand_as(actual), atol=1e-7, rtol=1e-6):
                     raise RuntimeError(f"Native actuator response readback differs: {field}")
             self.startup_report["actuator_response"] = {
                 "config": response, "native_properties_verified": True,
                 "native_first_environment": {k: v[0].cpu().tolist() for k, v in native.items()},
                 "functional_probe": self.actuator_response.runtime_probe()}
+        if self.identified_wheels.enabled:
+            if not self.actuator_response.enabled:
+                wheel_ids = [self.robot.joint_names.index(n) for n in WHEEL_NAMES]
+                native_friction = wp.to_torch(self.robot.root_view.get_dof_friction_properties())[:, wheel_ids]
+                observed = {"armature": wp.to_torch(self.robot.root_view.get_dof_armatures())[:, wheel_ids],
+                    "frictionloss": native_friction[..., 0], "dynamic_friction": native_friction[..., 1],
+                    "damping": native_friction[..., 2]}
+                expected = self.identified_wheels.native_parameters()
+                for field, value in observed.items():
+                    reference = value.new_tensor([expected[field][n] for n in WHEEL_NAMES])
+                    if not torch.allclose(value, reference.expand_as(value), atol=1e-7, rtol=1e-6):
+                        raise RuntimeError(f"New wheel native response readback differs: {field}")
+            self.startup_report["identified_wheel_response"] = dict(self.identified_wheels.summary(),
+                native_properties_verified=True)
         if self.dynamics_randomization is not None:
             self.startup_report["nominal_mass_kg"] = manifest["total_mass_kg"]
             self.startup_report["dynamics_randomization"] = self.dynamics_randomization.summary()
@@ -944,6 +982,9 @@ class ChassisEnv:
             if "actuator_response" in config:
                 actual["modules"]["actuator_response"] = self.actuator_response.enabled
                 actual["actuator_response"] = self.actuator_response.cfg
+            if self.identified_wheels.enabled:
+                actual["modules"]["identified_wheel_response"] = True
+                actual["identified_wheel_response"] = dict(self.identified_wheels.cfg)
             if "signal_delay" in config:
                 actual["modules"]["signal_delay"] = self.signal_delay is not None
                 actual["signal_delay"] = dict(config["signal_delay"])
@@ -1276,6 +1317,7 @@ class ChassisEnv:
         if self.step_sensors is not None:
             self.step_sensors.reset(ids, root_link_linear_velocity(self))
         self.actuator_response.reset(ids)
+        self.identified_wheels.reset(ids)
         if self.usb_transport is not None:
             self.usb_transport.reset(ids, self._transport_sensors())
         if self.feedback_transport is not None:
@@ -1684,8 +1726,13 @@ class ChassisEnv:
                 self.torque.clamp_(min=-bound, max=bound)
             if self.nonstandard_start is not None:
                 self.torque = self.nonstandard_start.apply_torque(self.torque)
+            if self.identified_wheels.enabled:
+                self.torque = self.identified_wheels.apply_torque(self.torque, dq_now)
+                self.v5.current_motor_bounds[:, list(self.v5.WHEELS)] = self.identified_wheels.drive_bound
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = self.torque
+            if self.identified_wheels.enabled:
+                effort[:, [self.ids[2], self.ids[5]]] += self.identified_wheels.passive_effort
             if self.is_v5:
                 effort[:, self.spring_ids] = self.v5.spring_efforts(self.robot.data.joint_pos.torch[:, self.spring_ids]) * self.spring_strength
             if self.jump_assist is not None:
@@ -1712,6 +1759,9 @@ class ChassisEnv:
                 self.feedback_transport.observe(self._transport_sensors())
             if self.torque_monitor is not None:
                 applied = self.robot.data.applied_torque.torch
+                if self.identified_wheels.enabled:
+                    applied = applied.clone()
+                    applied[:, [self.ids[2], self.ids[5]]] -= self.identified_wheels.passive_effort
                 velocity = self.robot.data.joint_vel.torch
                 compression, _ = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids], velocity[:, self.spring_ids])
                 self.torque_monitor.observe(applied[:, self.ids], velocity[:, self.ids],

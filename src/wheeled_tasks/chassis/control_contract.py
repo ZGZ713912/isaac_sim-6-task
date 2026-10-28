@@ -24,11 +24,17 @@ POLICY_200_TIMING = {"physics_dt": .005, "policy_dt": .005, "pc_control_dt": .00
 POLICY_200_SCOPE = {**COARSE_SCOPE, "model": "200hz_policy_and_feedback_pd_with_1ms_transport_impulse",
                     "fresh_feedback_per_policy_step": 1}
 FINE_POLICY_200_TIMING = {"physics_dt": .001, "policy_dt": .005, "pc_control_dt": .001, "decimation": 5}
+NEW_WHEEL_CONTROL_ID = "new-wheel-1562-recorded-P05-20261028-v1"
+
+
+def declared_wheel_velocity_p(control):
+    """Keep historical controls fixed; the new measured run used output P0.5."""
+    return .5 if control.get("control_id") == NEW_WHEEL_CONTROL_ID else .6
 
 
 def declared_control_timing(control):
     if "simulation_timing_approximation" not in control:
-        if control.get("control_id") in ("flat-base-policy-200hz-control-v1", "flat-base-policy-200hz-control-v2"):
+        if control.get("control_id") in ("flat-base-policy-200hz-control-v1", "flat-base-policy-200hz-control-v2", NEW_WHEEL_CONTROL_ID):
             return dict(FINE_POLICY_200_TIMING)
         return {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
     scope = control["simulation_timing_approximation"]
@@ -76,11 +82,13 @@ def validate_chassis_control(control):
     # New controls use the full rotor-to-wheel ratio, matching the RMCS driver.
     # A wheel-output cap must still never be multiplied by this ratio again.
     ratio = 15.8 if control.get("control_id") in LEGACY_WHEEL_CONTROL_IDS else WHEEL_GEAR_RATIO
+    new_wheel = control.get("control_id") == NEW_WHEEL_CONTROL_ID
     for key, expected in (("model", "M3508"), ("gear_ratio", ratio), ("gearbox_efficiency", 1.),
-                          ("kd", .6), ("effort_limit", 4.5), ("curve_side", "wheel_output"),
+                          ("kd", declared_wheel_velocity_p(control)), ("effort_limit", 4.5), ("curve_side", "wheel_output"),
                           ("torque_reference", "wheel_output"),
                           ("curve_kind", "software_cap_only_not_identified"),
-                          ("scope", "engineering_capacity_only" if capacity else "simulation_research_prior")):
+                          ("scope", "new_gearbox_airborne_identified_candidate" if new_wheel else
+                           "engineering_capacity_only" if capacity else "simulation_research_prior")):
         if wheel[key] != expected:
             raise ValueError(f"Engineering wheel prior {key} differs from the explicit output-side cap")
     for module in (leg, wheel):

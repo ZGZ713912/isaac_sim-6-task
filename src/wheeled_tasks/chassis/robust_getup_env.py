@@ -395,6 +395,14 @@ class RobustGetupEnv(ChassisEnv):
             tau = self.actuator_response.apply_torque(tau)
             tau.clamp_(min=-self.v5.current_motor_bounds, max=self.v5.current_motor_bounds)
             tau[self.passive | self.finished] = 0.
+            if self.identified_wheels.enabled:
+                # Disabled lanes cannot replay commands queued before disable.
+                self.identified_wheels.reset(self.passive | self.finished)
+                wheel_input = tau[:, [2, 5]].clone()
+                wheel_input_velocity = dq[:, [2, 5]].clone()
+                tau = self.identified_wheels.apply_torque(tau, dq)
+                tau[self.passive | self.finished] = 0.
+                self.v5.current_motor_bounds[:, [2, 5]] = self.identified_wheels.drive_bound
             if gap_quality is not None:
                 leg_effort = tau[:, list(self.v5.LEGS)]
                 saturated = leg_effort.abs() >= 40.*gap_quality["saturation_fraction"]
@@ -408,6 +416,9 @@ class RobustGetupEnv(ChassisEnv):
             motor_peak_passive = torch.maximum(motor_peak_passive, tau.abs().amax(-1) * self.passive)
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = tau
+            if self.identified_wheels.enabled:
+                # Dissipation remains physical while the motor is disabled.
+                effort[:, [self.ids[2], self.ids[5]]] += self.identified_wheels.passive_effort
             effort[:, self.spring_ids] = self.v5.spring_efforts(self.robot.data.joint_pos.torch[:, self.spring_ids])
             if prone_motion:
                 spring_compression = self.identified_spring.last_compression.clone()
@@ -451,7 +462,13 @@ class RobustGetupEnv(ChassisEnv):
                     wheel_clearance=wheel_clearance.clone(),
                     spring_compression=spring_compression,
                     spring_outside_identified=spring_outside_identified,
-                    spring_force=effort[:, self.spring_ids].clone()))
+                    spring_force=effort[:, self.spring_ids].clone(),
+                    wheel_input_effort=wheel_input,
+                    wheel_input_velocity=wheel_input_velocity,
+                    wheel_drive_bound=self.identified_wheels.drive_bound.clone(),
+                    wheel_passive_effort=self.identified_wheels.passive_effort.clone(),
+                    wheel_net_effort=effort[:, [self.ids[2], self.ids[5]]].clone(),
+                    wheel_disabled=(self.passive | self.finished).clone()))
             gap_peak = torch.maximum(gap_peak, self.closure_gap())
             body_force = self.contact_force.norm(dim=-1).amax(-1)
             impact_peak = torch.maximum(impact_peak, body_force)

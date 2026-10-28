@@ -190,6 +190,14 @@ def probe(env, plan, *, stop_requested=lambda: False):
     checks["same_identified_axial_model_both_sides"] = bool(
         env.identified_spring.curve.force_knots_n == env.identified_spring.right_curve.force_knots_n
         and env.startup_report["identified_gas_spring"]["default_catalogue_force_replaced_for_this_task"])
+    from wheeled_tasks.chassis.identified_wheel_response import IdentifiedWheelResponse
+    reference = IdentifiedWheelResponse(env.num_envs, env.device, env.dt,
+        env.cfg["identified_wheel_response"], root=Path(__file__).resolve().parents[1])
+    reference.inertia = env.identified_wheels.inertia.clone()
+    checks["measured_wheel_native_properties"] = env.startup_report["training_identified_wheels"]["native_properties_verified"]
+    checks["independent_wheels_P05_delay_once"] = bool(env.v5.wheel_prior["kd"] == .5
+        and reference.whole_delay == [5, 3] and reference.fractional_delay == [.5, .5])
+    wheel_replay_max_error = 0.
     expected_limits = [round((70. if r == "prone" else 30. if r == "stand" else 20.)/env.policy_dt)
                        for r in env.course_roles]
     checks["actual_per_role_episode_limits"] = env.episode_limits.tolist() == expected_limits
@@ -210,6 +218,29 @@ def probe(env, plan, *, stop_requested=lambda: False):
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
         checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (5, env.num_envs, 6)
         physical = env.prone_motion_physical
+        for tick in range(env.decimation):
+            reference.reset(physical["wheel_disabled"][tick])
+            request = torch.zeros(env.num_envs, 6, device=env.device)
+            velocity_input = torch.zeros_like(request)
+            request[:, [2, 5]] = physical["wheel_input_effort"][tick]
+            velocity_input[:, [2, 5]] = physical["wheel_input_velocity"][tick]
+            expected_motor = reference.apply_torque(request, velocity_input)[:, [2, 5]]
+            expected_motor[physical["wheel_disabled"][tick]] = 0.
+            errors = [
+                (physical["motor_effort"][tick][:, [2, 5]] - expected_motor).abs().max(),
+                (physical["wheel_passive_effort"][tick] - reference.passive_effort).abs().max(),
+                (physical["wheel_drive_bound"][tick] - reference.drive_bound).abs().max(),
+                (physical["wheel_net_effort"][tick] - expected_motor - reference.passive_effort).abs().max()]
+            wheel_replay_max_error = max(wheel_replay_max_error, float(torch.stack(errors).max()))
+        if env.fixed_cases is None:
+            reference.reset(done.nonzero().flatten())
+        checks["actual_1khz_wheel_delay_envelope_and_separate_loss"] = wheel_replay_max_error <= 1e-6
+        checks["wheel_loss_dissipative"] = checks.get("wheel_loss_dissipative", True) and bool(
+            (physical["wheel_passive_effort"] * physical["wheel_input_velocity"] <= 1e-8).all())
+        checks["wheel_current_at_most_4p5nm"] = checks.get("wheel_current_at_most_4p5nm", True) and bool(
+            (physical["motor_effort"][:, :, [2, 5]].abs() <= 4.5+1e-6).all())
+        checks["queued_wheel_torque_cleared_while_disabled"] = checks.get("queued_wheel_torque_cleared_while_disabled", True) and bool(
+            (physical["motor_effort"][:, :, [2, 5]][physical["wheel_disabled"]] == 0.).all())
         curve = env.identified_spring.curve
         expected_spring = curve.force(physical["spring_compression"].clamp(
             min=curve.compression_knots_m[0], max=curve.compression_knots_m[-1]))
@@ -230,6 +261,9 @@ def probe(env, plan, *, stop_requested=lambda: False):
                   body_contact_permitted_during_rise=body_allowed > 0)
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                wheels=dict(model_sha256=env.identified_wheels.cfg["model_sha256"],
+                    replay_max_error_nm=wheel_replay_max_error, physical_samples_per_side=spring_count,
+                    native=env.startup_report["training_identified_wheels"]),
                 gas_spring=dict(model_sha256=env.identified_spring.settings["sha256"],
                     side_order=["left", "right"], physical_samples_per_side=spring_count,
                     compression_min_m=spring_min[0].tolist(), compression_max_m=spring_max[0].tolist(),
