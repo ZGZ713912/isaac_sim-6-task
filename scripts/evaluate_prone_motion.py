@@ -115,6 +115,12 @@ def review_arrays(a, cases, initial_xy, plan, dt=.005):
             if case["role"] == "height":
                 passed = passed and bool(height_active.any()) and row["active_height_mae_m"] <= .01
         row["engineering_screen_pass"] = bool(passed)
+        if "spring_compression" in a:
+            row.update(spring_compression_min_m=float(a["spring_compression"][:n, :, lane].min()) if n else None,
+                spring_compression_max_m=float(a["spring_compression"][:n, :, lane].max()) if n else None,
+                spring_outside_identified_fraction=float(a["spring_outside_identified"][:n, :, lane].mean()) if n else None,
+                spring_force_peak_n=float(a["spring_force"][:n, :, lane].max()) if n else None,
+                spring_right_symmetry_assumed=True, spring_unmeasured_extension_is_not_calibrated=True)
         rows.append(row)
     return rows
 
@@ -181,10 +187,17 @@ def probe(env, plan, *, stop_requested=lambda: False):
     action = nominal_action(env).expand(env.num_envs, -1).clone()
     checks = dict(fixed_PD_and_spring=bool((env.domain.kp == 1.).all() and (env.domain.kd == 1.).all()
         and (env.domain.spring == 1.).all()), rates=env.dt == .001 and env.policy_dt == .005)
+    checks["same_identified_axial_model_both_sides"] = bool(
+        env.identified_spring.curve.force_knots_n == env.identified_spring.right_curve.force_knots_n
+        and env.startup_report["identified_gas_spring"]["default_catalogue_force_replaced_for_this_task"])
     expected_limits = [round((70. if r == "prone" else 30. if r == "stand" else 20.)/env.policy_dt)
                        for r in env.course_roles]
     checks["actual_per_role_episode_limits"] = env.episode_limits.tolist() == expected_limits
     passive_seen = active_prone_seen = body_allowed = 0
+    spring_min = torch.full((2, 2), float("inf"), device=env.device)
+    spring_max = -spring_min.clone()
+    spring_outside = torch.zeros(2, dtype=torch.int64, device=env.device)
+    spring_count = 0
     for _ in range(300):
         if stop_requested():
             from train_scratch_standing import TrainingStopped
@@ -196,6 +209,17 @@ def probe(env, plan, *, stop_requested=lambda: False):
         checks["actual_reward_payment"] = checks.get("actual_reward_payment", True) and bool(torch.allclose(reward, expected, atol=1e-5))
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
         checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (5, env.num_envs, 6)
+        physical = env.prone_motion_physical
+        curve = env.identified_spring.curve
+        expected_spring = curve.force(physical["spring_compression"].clamp(
+            min=curve.compression_knots_m[0], max=curve.compression_knots_m[-1]))
+        checks["actual_1khz_measured_spring_force"] = checks.get("actual_1khz_measured_spring_force", True) and bool(
+            torch.allclose(physical["spring_force"], expected_spring * env.domain.spring, atol=1e-4, rtol=1e-6))
+        measured = torch.stack((physical["spring_compression"], physical["spring_force"]))
+        spring_min = torch.minimum(spring_min, measured.amin(dim=(1, 2)))
+        spring_max = torch.maximum(spring_max, measured.amax(dim=(1, 2)))
+        spring_outside += physical["spring_outside_identified"].sum(dim=(0, 1))
+        spring_count += physical["spring_compression"].shape[0] * env.num_envs
         checks["actor35_critic83"] = observation["policy"].shape == (env.num_envs,35) and observation["critic"].shape == (env.num_envs,83)
         checks["zero_disabled_torque"] = checks.get("zero_disabled_torque", True) and bool((state["passive_motor_peak"][state["passive"]] == 0.).all())
         checks["disabled_samples_masked"] = checks.get("disabled_samples_masked", True) and not bool((state["passive"] & extra["policy_learning_mask"]).any())
@@ -205,4 +229,11 @@ def probe(env, plan, *, stop_requested=lambda: False):
     checks.update(disabled_birth_observed=passive_seen > 0, active_prone_observed=active_prone_seen > 0,
                   body_contact_permitted_during_rise=body_allowed > 0)
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
-                new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen)
+                new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                gas_spring=dict(model_sha256=env.identified_spring.settings["sha256"],
+                    side_order=["left", "right"], physical_samples_per_side=spring_count,
+                    compression_min_m=spring_min[0].tolist(), compression_max_m=spring_max[0].tolist(),
+                    force_min_n=spring_min[1].tolist(), force_max_n=spring_max[1].tolist(),
+                    outside_identified_samples=spring_outside.tolist(),
+                    outside_identified_fraction=(spring_outside / spring_count).tolist(),
+                    outside_identified_policy="endpoint_hold_unvalidated"))

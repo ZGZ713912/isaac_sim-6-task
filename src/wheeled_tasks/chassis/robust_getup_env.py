@@ -409,6 +409,9 @@ class RobustGetupEnv(ChassisEnv):
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = tau
             effort[:, self.spring_ids] = self.v5.spring_efforts(self.robot.data.joint_pos.torch[:, self.spring_ids])
+            if prone_motion:
+                spring_compression = self.identified_spring.last_compression.clone()
+                spring_outside_identified = self.identified_spring.last_outside.clone()
             if bool(pushing.any()):
                 self.robot.instantaneous_wrench_composer.add_forces_and_torques_index(
                     forces=self.push_force, torques=self.push_torque, body_ids=self.push_body_ids, is_global=False)
@@ -445,7 +448,10 @@ class RobustGetupEnv(ChassisEnv):
                     motor_velocity=self.robot.data.joint_vel.torch[:, self.ids].clone(),
                     motor_effort=tau.clone(),
                     wheel_force=self.contact_force[:, self.wheel_ids].clone(),
-                    wheel_clearance=wheel_clearance.clone()))
+                    wheel_clearance=wheel_clearance.clone(),
+                    spring_compression=spring_compression,
+                    spring_outside_identified=spring_outside_identified,
+                    spring_force=effort[:, self.spring_ids].clone()))
             gap_peak = torch.maximum(gap_peak, self.closure_gap())
             body_force = self.contact_force.norm(dim=-1).amax(-1)
             impact_peak = torch.maximum(impact_peak, body_force)
