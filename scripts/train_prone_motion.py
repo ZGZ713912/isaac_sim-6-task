@@ -26,12 +26,13 @@ sys.path.insert(0, str(ROOT/"src"))
 import train_scratch_standing as base
 
 
-def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None):
+def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None, seed=None):
     output.mkdir(parents=True, exist_ok=True)
     args = SimpleNamespace(output=output,
         bank=ROOT/"reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
         updates=plan["max_updates"], num_envs=num_envs or plan["num_envs"], rollout_steps=plan["rollout_steps"],
-        seed=plan["evaluation"]["seed"] if evaluation else plan["seed"], all_heights_after=1000,
+        seed=(plan["evaluation"]["seed"] if evaluation else plan["seed"]) if seed is None else seed,
+        all_heights_after=1000,
         leg_target_rate_cost=None, device="cuda:0", fixed_target_probe=False, preflight_only=False,
         upright_task=None, standard_prone_task=None, precise_objective=False,
         normalize_observations=True, desync_episodes=False, standing_failures=False,
@@ -278,21 +279,23 @@ def main():
                 gc.collect()
                 torch.cuda.empty_cache()
             index = len(report["contexts"])
+            runtime_seed = plan["evaluation"]["seed"] if evaluation else plan["seed"]+index*31
             active_directory = output/"contexts"/f"{index:03d}_{profile}_{strength:g}_{'eval' if evaluation else 'train'}"
             active_directory.mkdir(parents=True, exist_ok=False)
             cfg, settings, _ = configuration(active_directory, plan, profile=profile, strength=strength,
-                evaluation=evaluation, num_envs=80 if args.native_probe else plan["num_envs"])
+                evaluation=evaluation, num_envs=80 if args.native_probe else plan["num_envs"], seed=runtime_seed)
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
                 stage_name="speed", num_envs=cfg["target_num_envs"], device="cuda:0",
-                seed=plan["evaluation"]["seed"] if evaluation else plan["seed"]+index*31,
+                seed=runtime_seed,
                 level=1., run_role="train", bank=output/"pose_bank.json", settings=settings)
             env.actor_updates = report["completed_updates"]
             env.reset(torch.arange(env.num_envs, device=env.device))
             if runner is not None:
                 runner.env = env
             report["contexts"].append(dict(index=index, profile=profile, strength=strength,
-                evaluation=evaluation, directory=str(active_directory), completed_updates=report["completed_updates"]))
+                evaluation=evaluation, directory=str(active_directory), completed_updates=report["completed_updates"],
+                seed=runtime_seed))
             base.write_json(active_directory/"native_startup.json", env.startup_report)
             base.write_json(active_directory/"domain_samples.json", runtime_samples(env))
             signal.signal(signal.SIGTERM, request_stop)
@@ -302,12 +305,14 @@ def main():
         build()
         if args.native_probe:
             reports = []
+            report["native_probes"] = reports
             for profile, strength in (("nominal", 0.), ("requested", 1.)):
                 if stop_requested:
                     raise base.TrainingStopped()
                 if reports:
                     build(profile, strength)
                 reports.append(probe(env, plan, stop_requested=lambda: stop_requested))
+                base.write_json(output/"progress.json", report)
             report.update(status="native_probe_completed_unqualified", new_PPO=0, native_probes=reports,
                           all_native_checks_pass=all(x["all_checks_pass"] for x in reports))
             if not report["all_native_checks_pass"]:

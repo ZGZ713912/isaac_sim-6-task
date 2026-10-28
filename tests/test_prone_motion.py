@@ -122,6 +122,17 @@ def test_native_probe_population_can_use_the_actual_scene_allocator(tmp_path):
     assert all((PLAN["roles_per20"]*4).count(role) > 0 for role in task.ROLES)
 
 
+@pytest.mark.parametrize("index,evaluation", [(1,False), (2,True), (3,False)])
+def test_rebuilt_context_design_uses_the_actual_invocation_seed(tmp_path, index, evaluation):
+    seed = PLAN["evaluation"]["seed"] if evaluation else PLAN["seed"]+index*31
+    configuration(tmp_path, PLAN, profile="requested", strength=1., num_envs=80,
+                  seed=seed, evaluation=evaluation)
+    receipt = json.loads((tmp_path/"design_preflight.json").read_text())
+    design = json.loads((tmp_path/"config/design.json").read_text())
+    assert design["stages"]["speed"]["roles"]["train"]["invocation"]["seed"]["value"] == seed
+    assert receipt["seed"] == seed and receipt["status"] == "static_passed"
+
+
 @pytest.mark.parametrize("fault", [None, "status", "check", "domain", "source", "PPO", "checkpoint", "missing"])
 def test_ppo_requires_a_complete_saved_native_probe(tmp_path, fault):
     result = dict(status="native_probe_completed_unqualified", completed_updates=0, optimizer_attempts=0,
