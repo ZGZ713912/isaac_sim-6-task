@@ -18,6 +18,8 @@ export LD_LIBRARY_PATH="$task_sim_root/kit/python/lib:$LD_LIBRARY_PATH"
 # Kit's pip bundles must not shadow the repaired training environment packages.
 task_sim_site="$("$task_sim_python" -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
 export PYTHONPATH="$task_sim_site${PYTHONPATH:+:$PYTHONPATH}"
+# Torch lazily dlopens libtorch_cuda_linalg.so by name for the inertia eigensolver.
+export LD_LIBRARY_PATH="$task_sim_site/torch/lib:$LD_LIBRARY_PATH"
 # Match NVIDIA's python.sh bootstrap and retain any caller-provided preloads.
 export LD_PRELOAD="$task_sim_root/kit/libcarb.so${LD_PRELOAD:+:$LD_PRELOAD}"
 exec "$task_sim_python" "$@"
