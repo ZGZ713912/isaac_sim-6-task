@@ -4,6 +4,9 @@
 
 ## 启动
 
+服务器镜像的依赖修复与Python启动方式见[服务器说明](SERVER_TRAINING_20261028.md)。
+`WHEELED_RL_PYTHON`可指定训练解释器或服务器Python启动器；不设置时保留下面的本机默认路径。
+
 ```bash
 bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
   --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run003
