@@ -210,7 +210,9 @@ def probe(env, plan, *, stop_requested=lambda: False):
     checks["independent_wheels_P05_delay_once"] = bool(env.v5.wheel_prior["kd"] == .5
         and reference.whole_delay == [5, 3] and reference.fractional_delay == [.5, .5])
     wheel_replay_max_error = 0.
-    spring_ff_replay_max_error = spring_encoder_error_peak = spring_encoder_error_sum = 0.
+    spring_replay_error = {key:0. for key in ("limited_effort_nm", "holding_effort_nm", "length_m",
+        "compression_m", "axial_force_n", "length_jacobian_m_rad")}
+    spring_encoder_error_peak = spring_encoder_error_sum = 0.
     spring_ff_peak = 0.
     spring_valid_count = spring_invalid_count = 0
     expected_limits = [round((70. if r == "prone" else 30. if r == "stand" else 20.)/env.policy_dt)
@@ -236,10 +238,10 @@ def probe(env, plan, *, stop_requested=lambda: False):
         for tick in range(env.decimation):
             ff = spring_reference.motor_efforts(physical["spring_ff_pd_effort_nm"][tick],
                 physical["spring_ff_encoder_position"][tick])
-            errors_ff = [(physical["spring_ff_limited_effort_nm"][tick]-ff).abs().max()]
-            for key in ("holding_effort_nm", "length_m", "compression_m", "axial_force_n", "length_jacobian_m_rad"):
-                errors_ff.append((physical["spring_ff_"+key][tick]-spring_reference.last[key]).abs().max())
-            spring_ff_replay_max_error = max(spring_ff_replay_max_error, float(torch.stack(errors_ff).max()))
+            for key in spring_replay_error:
+                expected_ff = ff if key == "limited_effort_nm" else spring_reference.last[key]
+                difference = (physical["spring_ff_"+key][tick]-expected_ff).abs().max()
+                spring_replay_error[key] = max(spring_replay_error[key], float(difference))
             reference.reset(physical["wheel_disabled"][tick])
             request = torch.zeros(env.num_envs, 6, device=env.device)
             velocity_input = torch.zeros_like(request)
@@ -256,7 +258,10 @@ def probe(env, plan, *, stop_requested=lambda: False):
         if env.fixed_cases is None:
             reference.reset(done.nonzero().flatten())
         checks["actual_1khz_wheel_delay_envelope_and_separate_loss"] = wheel_replay_max_error <= 1e-6
-        checks["actual_1khz_encoder_compensation_replay"] = spring_ff_replay_max_error <= 1e-5
+        # Keep force, length, Jacobian and torque errors in their own units.
+        checks["actual_1khz_encoder_compensation_replay"] = all(
+            value <= (1e-7 if key in ("length_m", "compression_m", "length_jacobian_m_rad") else 1e-5)
+            for key, value in spring_replay_error.items())
         checks["unclipped_PD_plus_holding_then_total_limit"] = checks.get("unclipped_PD_plus_holding_then_total_limit", True) and bool(
             torch.allclose(physical["spring_ff_requested_effort_nm"],
                 physical["spring_ff_pd_effort_nm"]+physical["spring_ff_holding_effort_nm"], atol=1e-5, rtol=1e-6)
@@ -305,7 +310,8 @@ def probe(env, plan, *, stop_requested=lambda: False):
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
                 spring_feedforward=dict(startup=env.startup_report["encoder_spring_feedforward"],
-                    replay_max_error_nm=spring_ff_replay_max_error, holding_effort_peak_nm=spring_ff_peak,
+                    replay_max_error_nm=max(spring_replay_error["limited_effort_nm"], spring_replay_error["holding_effort_nm"]),
+                    replay_max_error_by_quantity=spring_replay_error, holding_effort_peak_nm=spring_ff_peak,
                     valid_side_samples=spring_valid_count, invalid_side_samples=spring_invalid_count,
                     valid_encoder_compression_error_peak_m=spring_encoder_error_peak,
                     valid_encoder_compression_error_mean_m=spring_encoder_error_sum/max(1, spring_valid_count),
