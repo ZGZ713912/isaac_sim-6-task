@@ -121,6 +121,12 @@ def review_arrays(a, cases, initial_xy, plan, dt=.005):
                 spring_outside_identified_fraction=float(a["spring_outside_identified"][:n, :, lane].mean()) if n else None,
                 spring_force_peak_n=float(a["spring_force"][:n, :, lane].max()) if n else None,
                 spring_right_symmetry_assumed=True, spring_unmeasured_extension_is_not_calibrated=True)
+        if "spring_ff_holding_effort_nm" in a and n:
+            row.update(spring_feedforward_peak_nm=float(np.abs(a["spring_ff_holding_effort_nm"][:n, :, lane]).max()),
+                spring_feedforward_invalid_geometry_fraction=float((~a["spring_ff_geometry_valid"][:n, :, lane]).mean()),
+                spring_encoder_compression_error_peak_m=float(np.abs(a["spring_ff_compression_m"][:n, :, lane]
+                    -a["spring_compression"][:n, :, lane]).max()),
+                spring_total_request_saturated_fraction=float((np.abs(a["spring_ff_requested_effort_nm"][:n, :, lane]) > 40.).mean()))
         rows.append(row)
     return rows
 
@@ -194,10 +200,19 @@ def probe(env, plan, *, stop_requested=lambda: False):
     reference = IdentifiedWheelResponse(env.num_envs, env.device, env.dt,
         env.cfg["identified_wheel_response"], root=Path(__file__).resolve().parents[1])
     reference.inertia = env.identified_wheels.inertia.clone()
+    from wheeled_tasks.chassis.encoder_spring_feedforward import EncoderGasSpringFeedforward
+    spring_reference = EncoderGasSpringFeedforward(env.cfg["v5_control"]["encoder_spring_feedforward"]).to(
+        device=env.device, dtype=torch.float32)
+    checks["encoder_only_feedforward_physical_spring_retained"] = bool(
+        env.startup_report["encoder_spring_feedforward"]["physical_spring_retained"]
+        and not env.startup_report["encoder_spring_feedforward"]["privileged_force_or_slider_input"])
     checks["measured_wheel_native_properties"] = env.startup_report["training_identified_wheels"]["native_properties_verified"]
     checks["independent_wheels_P05_delay_once"] = bool(env.v5.wheel_prior["kd"] == .5
         and reference.whole_delay == [5, 3] and reference.fractional_delay == [.5, .5])
     wheel_replay_max_error = 0.
+    spring_ff_replay_max_error = spring_encoder_error_peak = spring_encoder_error_sum = 0.
+    spring_ff_peak = 0.
+    spring_valid_count = spring_invalid_count = 0
     expected_limits = [round((70. if r == "prone" else 30. if r == "stand" else 20.)/env.policy_dt)
                        for r in env.course_roles]
     checks["actual_per_role_episode_limits"] = env.episode_limits.tolist() == expected_limits
@@ -219,6 +234,12 @@ def probe(env, plan, *, stop_requested=lambda: False):
         checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (5, env.num_envs, 6)
         physical = env.prone_motion_physical
         for tick in range(env.decimation):
+            ff = spring_reference.motor_efforts(physical["spring_ff_pd_effort_nm"][tick],
+                physical["spring_ff_encoder_position"][tick])
+            errors_ff = [(physical["spring_ff_limited_effort_nm"][tick]-ff).abs().max()]
+            for key in ("holding_effort_nm", "length_m", "compression_m", "axial_force_n", "length_jacobian_m_rad"):
+                errors_ff.append((physical["spring_ff_"+key][tick]-spring_reference.last[key]).abs().max())
+            spring_ff_replay_max_error = max(spring_ff_replay_max_error, float(torch.stack(errors_ff).max()))
             reference.reset(physical["wheel_disabled"][tick])
             request = torch.zeros(env.num_envs, 6, device=env.device)
             velocity_input = torch.zeros_like(request)
@@ -235,6 +256,27 @@ def probe(env, plan, *, stop_requested=lambda: False):
         if env.fixed_cases is None:
             reference.reset(done.nonzero().flatten())
         checks["actual_1khz_wheel_delay_envelope_and_separate_loss"] = wheel_replay_max_error <= 1e-6
+        checks["actual_1khz_encoder_compensation_replay"] = spring_ff_replay_max_error <= 1e-5
+        checks["unclipped_PD_plus_holding_then_total_limit"] = checks.get("unclipped_PD_plus_holding_then_total_limit", True) and bool(
+            torch.allclose(physical["spring_ff_requested_effort_nm"],
+                physical["spring_ff_pd_effort_nm"]+physical["spring_ff_holding_effort_nm"], atol=1e-5, rtol=1e-6)
+            and torch.allclose(physical["spring_ff_limited_effort_nm"],
+                physical["spring_ff_requested_effort_nm"].clamp(-40., 40.), atol=1e-6, rtol=0.))
+        checks["actual_leg_effort_with_compensation_at_most40nm"] = checks.get("actual_leg_effort_with_compensation_at_most40nm", True) and bool(
+            (physical["motor_effort"][:, :, [0, 1, 3, 4]].abs() <= 40.+1e-6).all())
+        checks["all_six_disabled_efforts_zero_after_compensation"] = checks.get("all_six_disabled_efforts_zero_after_compensation", True) and bool(
+            (physical["motor_effort"][physical["wheel_disabled"]] == 0.).all())
+        valid = physical["spring_ff_geometry_valid"]
+        held = physical["spring_ff_holding_effort_nm"].unflatten(-1, (2, 2))
+        checks["invalid_encoder_branch_has_zero_compensation"] = checks.get("invalid_encoder_branch_has_zero_compensation", True) and bool(
+            (held[~valid] == 0.).all())
+        spring_ff_peak = max(spring_ff_peak, float(held.abs().max()))
+        error = (physical["spring_ff_compression_m"]-physical["spring_compression"]).abs()[valid]
+        if error.numel():
+            spring_encoder_error_peak = max(spring_encoder_error_peak, float(error.max()))
+            spring_encoder_error_sum += float(error.sum())
+        spring_valid_count += int(valid.sum())
+        spring_invalid_count += int((~valid).sum())
         checks["wheel_loss_dissipative"] = checks.get("wheel_loss_dissipative", True) and bool(
             (physical["wheel_passive_effort"] * physical["wheel_input_velocity"] <= 1e-8).all())
         checks["wheel_current_at_most_4p5nm"] = checks.get("wheel_current_at_most_4p5nm", True) and bool(
@@ -258,9 +300,16 @@ def probe(env, plan, *, stop_requested=lambda: False):
         active_prone_seen += int((extra["policy_learning_mask"] & state["task_recovery_rising"]).sum())
         body_allowed += int((state["task_recovery_rising"] & (state["nonwheel_force_peak_n"] > 2.) & ~state["terminated"]).sum())
     checks.update(disabled_birth_observed=passive_seen > 0, active_prone_observed=active_prone_seen > 0,
-                  body_contact_permitted_during_rise=body_allowed > 0)
+                  body_contact_permitted_during_rise=body_allowed > 0,
+                  active_nonzero_encoder_compensation_observed=spring_ff_peak > 1. and spring_valid_count > 0)
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                spring_feedforward=dict(startup=env.startup_report["encoder_spring_feedforward"],
+                    replay_max_error_nm=spring_ff_replay_max_error, holding_effort_peak_nm=spring_ff_peak,
+                    valid_side_samples=spring_valid_count, invalid_side_samples=spring_invalid_count,
+                    valid_encoder_compression_error_peak_m=spring_encoder_error_peak,
+                    valid_encoder_compression_error_mean_m=spring_encoder_error_sum/max(1, spring_valid_count),
+                    geometry_error_scope="sampled/delayed encoders against native slider before the same1ms interval; diagnostic, not force calibration or learned behavior"),
                 wheels=dict(model_sha256=env.identified_wheels.cfg["model_sha256"],
                     replay_max_error_nm=wheel_replay_max_error, physical_samples_per_side=spring_count,
                     native=env.startup_report["training_identified_wheels"]),
