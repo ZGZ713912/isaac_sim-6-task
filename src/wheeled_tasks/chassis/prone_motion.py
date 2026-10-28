@@ -28,9 +28,17 @@ def validate(plan):
             or [x["start_update"] for x in plan["domain_sequence"]] != sorted(set(x["start_update"] for x in plan["domain_sequence"]))
             or plan["domain_sequence"][-1] != dict(start_update=9000, profile="requested", strength=1.)):
         raise ValueError("Need ordered, explicit v2 domains ending in full requested ranges")
-    if plan["review_updates"][-1] != plan["max_updates"]:
-        raise ValueError("Final cold test cannot be omitted")
+    if (plan.get("snapshot_interval") != 250 or plan.get("review_updates") != []
+            or plan.get("execution") != "single_learn_call_manual_review"):
+        raise ValueError("One continuous10000-update learn;250-update snapshots; manual reviews only")
     return deepcopy(plan)
+
+
+def snapshot_name(completed, plan):
+    """Names count COMPLETE PPO updates, independently of RSL's zero-based it."""
+    if 0 < completed <= plan["max_updates"] and completed % plan["snapshot_interval"] == 0:
+        return f"model_{completed:05d}.pt"
+    return None
 
 
 def domain_stage(plan, completed):

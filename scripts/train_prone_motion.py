@@ -117,7 +117,7 @@ def learner_config(plan, device="cuda:0"):
                           normalize_observations=True)
     result["actor"]["hidden_dims"] = result["critic"]["hidden_dims"] = [256, 128, 64]
     result["algorithm"]["entropy_coef"] = .001
-    result.update(max_iterations=plan["max_updates"], save_interval=250, experiment_name="prone_motion_long")
+    result.update(max_iterations=plan["max_updates"], save_interval=plan["snapshot_interval"], experiment_name="prone_motion_long")
     return result
 
 
@@ -131,6 +131,7 @@ def source_hashes(plan_path, plan):
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
              plan["gas_spring_model"]["trend_extension"]["file"],
              "tests/test_encoder_spring_feedforward.py",
+             "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
              "scripts/review_gas_spring_soft_range.py",
              str(plan_path.relative_to(ROOT))]
     names.extend(item["file"] for item in plan["wheel_model"].values() if isinstance(item, dict) and "file" in item)
@@ -222,7 +223,7 @@ def main():
     args = parser.parse_args()
     if args.preflight_only and args.native_probe:
         parser.error("Choose one probe type")
-    from wheeled_tasks.chassis.prone_motion import validate, domain_stage
+    from wheeled_tasks.chassis.prone_motion import validate, domain_stage, snapshot_name
     plan_path = args.plan.resolve()
     plan = validate(json.loads(plan_path.read_text()))
     output = args.output.resolve()
@@ -255,7 +256,7 @@ def main():
         nonlocal stop_requested
         stop_requested = True
         report["requested_stop_signal"] = signum
-    launcher = env = runner = audit = original_load = None
+    launcher = env = runner = audit = original_load = domain_switch = None
     active_directory = output
     start = time.monotonic()
     try:
@@ -271,10 +272,11 @@ def main():
         from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
         from wheeled_tasks.chassis.control_contract import load_chassis_control
         from wheeled_tasks.chassis.randomization_study import runtime_samples
-        from wheeled_algo.scratch_standing import initialize_fresh, tensor_hash
+        from wheeled_algo.scratch_standing import initialize_fresh
         from wheeled_algo.recovery_rollout import RecoveryRolloutMask
         from wheeled_algo.native_ppo_audit import NativePPOAudit
-        from evaluate_prone_motion import evaluate, probe
+        from wheeled_algo.continuous_rollout import RolloutDomainSwitch
+        from evaluate_prone_motion import probe
         torch.set_num_threads(4)
         torch.manual_seed(plan["seed"])
         random.seed(plan["seed"])
@@ -322,18 +324,39 @@ def main():
             signal.signal(signal.SIGTERM, request_stop)
             signal.signal(signal.SIGINT, request_stop)
             base.write_json(output/"progress.json", report)
+            print(f"[prone-motion] Native context ready: {profile}, strength={strength:g}, "
+                  f"completed={report['completed_updates']}/{plan['max_updates']}", flush=True)
 
         build()
         if args.native_probe:
             reports = []
             report["native_probes"] = reports
+            desired = [("nominal", 0.)]
+            probe_runner = SimpleNamespace(env=env, device="cuda:0", logger=SimpleNamespace(writer=None),
+                alg=SimpleNamespace(actor=object(), critic=object(), optimizer=object(),
+                    storage=SimpleNamespace(step=0), act=lambda observations: observations))
+            def probe_rebuild(profile, strength):
+                build(profile, strength)
+                probe_runner.env = env
+            probe_switch = RolloutDomainSwitch(probe_runner, completed=lambda: 0,
+                desired=lambda _: desired[0],
+                current=lambda: (report["contexts"][-1]["profile"], report["contexts"][-1]["strength"]),
+                rebuild=probe_rebuild)
             for profile, strength in (("nominal", 0.), ("requested", 1.)):
                 if stop_requested:
                     raise base.TrainingStopped()
-                if reports:
-                    build(profile, strength)
+                desired[0] = (profile, strength)
+                with torch.inference_mode():
+                    observation = probe_runner.alg.act(probe_runner.env.get_observations())
+                    expected = env.get_observations()
+                fresh = all(torch.equal(observation[k], expected[k]) for k in expected.keys())
                 reports.append(probe(env, plan, stop_requested=lambda: stop_requested))
+                reports[-1]["checks"]["continuous_domain_switch_uses_new_observation"] = fresh
+                reports[-1]["all_checks_pass"] = all(reports[-1]["checks"].values())
+                print(f"[prone-motion] Zero-PPO probe {profile}: "
+                      f"{sum(reports[-1]['checks'].values())}/{len(reports[-1]['checks'])} checks", flush=True)
                 base.write_json(output/"progress.json", report)
+            probe_switch.close()
             report.update(status="native_probe_completed_unqualified", new_PPO=0, native_probes=reports,
                           all_native_checks_pass=all(x["all_checks_pass"] for x in reports))
             if not report["all_native_checks_pass"]:
@@ -353,6 +376,18 @@ def main():
         native_update = runner.alg.update
 
         def save(path, infos=None):
+            path = Path(path)
+            # The stock runner requests model_0 after ONE completed update.
+            # Our periodic hook owns exact250-update snapshots instead.
+            number = path.stem.removeprefix("model_")
+            if number.isdigit():
+                name = snapshot_name(report["completed_updates"], plan)
+                if name is None:
+                    return
+                path = output/name
+                previous = report.get("last_checkpoint", {})
+                if previous.get("updates") == report["completed_updates"] and previous.get("path") == str(path):
+                    return
             state = runner.alg.save()
             state.update(iter=report["completed_updates"], infos=dict(schema="prone-motion-checkpoint-v1",
                 training_origin="scratch", continuation_forbidden=True, initialization=report["initialization"],
@@ -360,7 +395,6 @@ def main():
                 completed_updates=report["completed_updates"], bank_sha256=base.digest(output/"pose_bank.json"),
                 torch_rng=torch.get_rng_state(), cuda_rng=torch.cuda.get_rng_state_all(),
                 env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state()))
-            path = Path(path)
             temporary = path.with_suffix(path.suffix+".tmp")
             torch.save(state, temporary)
             temporary.replace(path)
@@ -393,68 +427,34 @@ def main():
             if stop_requested:
                 save(output/"model_stopped.pt")
                 raise base.TrainingStopped()
+            name = snapshot_name(report["completed_updates"], plan)
+            if name is not None:
+                save(output/name)
+                base.write_json(output/"progress.json", report)
             return losses
 
         runner.save, runner.alg.update = save, update
         save(output/"model_initial.pt")
         audit = NativePPOAudit(runner.alg)
 
-        def cold(profile="nominal", strength=0.):
-            if stop_requested:
-                save(output/"model_stopped.pt")
-                raise base.TrainingStopped()
-            report["status"] = "cold_review"
-            before = (tensor_hash(runner.alg.actor.state_dict()), tensor_hash(runner.alg.critic.state_dict()),
-                      [int(v["step"]) for v in runner.alg.optimizer.state.values()])
-            rng = (torch.get_rng_state(), torch.cuda.get_rng_state_all(), np.random.get_state(), random.getstate())
-            runner.alg.eval_mode()
-            build(profile, strength, evaluation=True)
-            if stop_requested:
-                save(output/"model_stopped.pt")
-                raise base.TrainingStopped()
-            directory = output/"reviews"/f"u{report['completed_updates']:05d}_{profile}"
-            result = evaluate(env, runner.alg.actor, directory, runner.logger.writer,
-                              report["completed_updates"], plan, stop_requested=lambda: stop_requested)
-            after = (tensor_hash(runner.alg.actor.state_dict()), tensor_hash(runner.alg.critic.state_dict()),
-                     [int(v["step"]) for v in runner.alg.optimizer.state.values()])
-            if before != after or identity() != identities:
-                raise RuntimeError("Cold evaluation changed the live learner or Adam")
-            torch.set_rng_state(rng[0]); torch.cuda.set_rng_state_all(rng[1])
-            np.random.set_state(rng[2]); random.setstate(rng[3])
-            result.update(checkpoint=deepcopy(report["last_checkpoint"]), source_revision=committed,
-                          actor_sha256=before[0], critic_sha256=before[1], learner_unchanged=True,
-                          profile=profile, strength=strength, fully_randomized_holdout=profile != "nominal")
-            base.write_json(directory/"result.json", result)
-            report["cold_reviews"].append(dict(path=str(directory/"result.json"), completed_updates=report["completed_updates"],
-                passed=result["pass_count"], cases=result["case_count"], all_pass=result["all_pass"], profile=profile))
-
-        while report["completed_updates"] < plan["max_updates"]:
-            if stop_requested:
-                save(output/"model_stopped.pt")
-                raise base.TrainingStopped()
-            completed = report["completed_updates"]
-            profile, strength = domain_stage(plan, completed)
-            current = report["contexts"][-1]
-            if current["evaluation"] or (profile, strength) != (current["profile"], current["strength"]):
-                build(profile, strength)
-            future = [plan["max_updates"], completed+250]
-            future += [v for v in plan["review_updates"] if v > completed]
-            future += [x["start_update"] for x in plan["domain_sequence"] if x["start_update"] > completed]
-            length = min(future)-completed
-            if runner.logger.writer is not None:
-                runner.logger.writer.flush(); runner.logger.writer.close(); runner.logger.writer = None
-            runner.current_learning_iteration = completed
-            runner.learn(length, init_at_random_ep_len=False)
-            save(output/f"model_complete_{report['completed_updates']:05d}.pt")
-            if report["completed_updates"] in plan["review_updates"]:
-                cold()
-                if report["completed_updates"] >= 8000:
-                    cold("requested", 1.)
-                if stop_requested:
-                    save(output/"model_stopped.pt")
-                    raise base.TrainingStopped()
+        domain_switch = RolloutDomainSwitch(runner, completed=lambda: report["completed_updates"],
+            desired=lambda completed: domain_stage(plan, completed),
+            current=lambda: (report["contexts"][-1]["profile"], report["contexts"][-1]["strength"]),
+            rebuild=build)
+        if stop_requested:
+            save(output/"model_stopped.pt")
+            raise base.TrainingStopped()
+        report["execution"] = dict(mode=plan["execution"], learn_calls=1,
+            requested_updates=plan["max_updates"], snapshot_interval=plan["snapshot_interval"],
+            intermediate_cold_reviews=False, checkpoint_selection="manual after training")
+        base.write_json(output/"progress.json", report)
+        print(f"[prone-motion] Starting one continuous learn({plan['max_updates']}); "
+              f"snapshots every{plan['snapshot_interval']} COMPLETE updates; reviews are manual.", flush=True)
+        runner.learn(plan["max_updates"], init_at_random_ep_len=False)
+        if report["completed_updates"] != plan["max_updates"] or identity() != identities:
+            raise RuntimeError("Continuous training ended before its declared full-update budget")
         save(output/"model_final.pt")
-        report.update(status="completed_reviewed_unqualified", elapsed_s=time.monotonic()-start)
+        report.update(status="completed_unreviewed", elapsed_s=time.monotonic()-start)
     except base.TrainingStopped:
         report.update(status="stopped", elapsed_s=time.monotonic()-start)
         if args.native_probe:
@@ -470,6 +470,8 @@ def main():
             torch.load = original_load
         if audit is not None:
             audit.close()
+        if domain_switch is not None:
+            domain_switch.close()
         if runner is not None and runner.logger.writer is not None:
             runner.logger.writer.flush(); runner.logger.writer.close()
         if env is not None:

@@ -6,7 +6,7 @@
 
 ```bash
 bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
-  --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001
+  --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run003
 ```
 
 输出目录必须不存在。脚本首先串行运行80环境的独立零PPO原生接线探针，检查名义域和完整v2域中的35D/83D接口、实际奖励实付、五个1ms物理样本、失能零力矩、允许起立时底盘接地、实测气簧力和左右新轮模型等；探针失败或被中断就退出，不进入PPO。启动还要核对探针保存的两域完整结果，不能只凭进程返回码放行。探针通过后才创建新的actor、critic、空Adam。原生探针中的常值动作不作为学会起立的证据。
@@ -30,7 +30,11 @@ bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/script
 
 高度目标230/305/420mm在1000–5000次渐入。初期学习从305mm出生；5000次后静站复习也包含三高度直接出生。普通运动回合20秒：静止2秒、3秒升速、8秒保持、3秒减速、4秒驻停。标准趴地回合70秒，起立工程期限20秒，只有实际连续1秒满足高度、水平姿态、速度、关节速度和轮支撑条件才产生完成事件；此后先给完整30秒静止请求，再进入同一运动命令包络。20秒是本入口的工程筛查上限，不冒充用户已规定的“快速”标准；实际起立时间单独记录。
 
-1000/2000/4000/6000/8000/10000次执行同一活策略冷测。中间失败会保留证据，继续本次已声明预算，不在1024或1280次因尚未学会而自动结束；非有限数、明确实现故障或操作者停止仍正常退出。环境重建、冷测保持同一个活actor、critic、Adam和storage，绝不读盘恢复；全新训练只有这一份learner。Ctrl-C/SIGTERM在完整更新边界保存`model_stopped.pt`后退出，已停止的运行不能续训。
+用户于2026-10-28明确要求连续训练后自己选择检查点：仅调用一次原生`learn(10000)`，不再按250次分段调用，也不做任何中途冷测。终端进度和ETA对应完整10000次；每250次实际完成更新保存`model_00250.pt`、`model_00500.pt`……`model_10000.pt`，共40个周期检查点，另有`model_initial.pt`及同10000次状态的`model_final.pt`。文件名及PT内部`iter`都表示实际完成的更新数，避免原生零基迭代的250/251错位。保存检查点不重建环境，不运行评测，不重置优化器。
+
+域随机化只在下述已声明课程节点重建对应的原生物理环境，以正确装入材质、质量、惯量等；仍在同一次`learn(10000)`内，保持同一个活actor、critic、Adam、storage和TensorBoard writer。切换必须在空rollout、下一次采样动作前进行，并用新环境观测替换上个环境遗留的观测；只清除旧域尚未完成的回合累计统计，完整训练时钟和ETA不清零。该切换不加载任何PT，也不是续训。
+
+训练结束标记`completed_unreviewed`，不会自动选择或认证最后模型。可以按同一固定病例和门限只读比较任意周期PT，选择中间或10000次模型；未经评测仍不能给13项能力授资格。非有限数、明确实现故障或操作者停止仍正常退出。Ctrl-C/SIGTERM在完整更新边界保存`model_stopped.pt`后退出，已停止的运行不能续训。旧`run002`已按用户新执行方式在33次完整更新封存；新命令从零建立新actor、critic及空Adam，不读取它。
 
 6000次后按sensors/motor/mass-COM/inertia/friction/timing六组分别0.25强度练习，再组合0.25/0.5/0.75/1；9000–10000次使用完整v2范围。保留25%名义传感器/执行器/刚体样本，地面摩擦按v2在所有lane采样；最终heldout矩阵每例全随机。腿P/D和气弹簧系数1、独立惯量最终±6%、IMU静态偏角原范围1/3、无IMU晃动，均沿用用户合同。训练时轮材质摩擦0.7、名义地面0.5，随机地面仍0.3–0.5；这是既有标准趴地工程基线，不宣称实测胎面摩擦。
 
