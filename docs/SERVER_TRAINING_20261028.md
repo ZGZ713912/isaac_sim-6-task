@@ -58,7 +58,7 @@ export WHEELED_RL_PYTHON="$PWD/scripts/server_isaac_python.sh"
 bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run_unified001"
 ```
 
-先将`codex/wheel-leg-unified`的完整源码同步至服务器新目录，保持现有运行的冻结源与进程不动。仅在旧训练已结束并封存后使用新输出目录启动。
+先将 `upstream/dev/wheel-leg-unified` 的完整源码同步至服务器新目录，保持现有运行的冻结源与进程不动。仅在旧训练已结束并封存后使用新输出目录启动。
 
 脚本先运行名义域与完整域的零PPO原生探针并检查保存的结果，全部通过后才开始
 同一次`learn(10000)`。未通过不能仅凭返回码手动跳过。不要传本机旧009停止参数，
