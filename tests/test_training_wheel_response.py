@@ -108,7 +108,7 @@ def test_native_installation_requires_matching_cad_and_added_armature(configured
         body_names=["L_link3","R_link3"], root_view=SimpleNamespace(get_inertias=lambda:cad.reshape(2,2,9),
         get_dof_armatures=lambda:armatures), write_joint_armature_to_sim_index=write)
     env = SimpleNamespace(robot=robot, identified_wheels=wheels, getup_cfg=settings, dynamics_randomization=None,
-        num_envs=2, dt=.001, startup_report={})
+        num_envs=2, dt=.001, policy_dt=.005, startup_report={})
     monkeypatch.setitem(sys.modules,"warp", SimpleNamespace(to_torch=lambda a:a))
     if fault:
         with pytest.raises(RuntimeError, match="CAD inertia|armature domain readback"):

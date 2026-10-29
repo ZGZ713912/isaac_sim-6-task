@@ -7,12 +7,37 @@ import torch
 
 ROLES = ("prone", "stand", "forward", "reverse", "spin_left", "spin_right",
          "arc_fl", "arc_fr", "arc_rl", "arc_rr", "height")
+REFERENCE_DT = .005
+REFERENCE_GAMMA = .9974905699336811
+REFERENCE_LAMBDA = .9872585449014338
+
+
+def timing(plan):
+    """Historical v1 stays 200Hz/128; v2 explicitly selects 100Hz/64."""
+    from .control_contract import FINE_POLICY_100_TIMING, FINE_POLICY_200_TIMING
+    return dict(FINE_POLICY_200_TIMING if plan["schema"] == "wheel-leg-prone-motion-v1"
+                else FINE_POLICY_100_TIMING)
+
+
+def discounts(plan):
+    """Retain discount and GAE horizons in seconds when the actor period changes."""
+    ratio = timing(plan)["policy_dt"] / REFERENCE_DT
+    return dict(gamma=REFERENCE_GAMMA**ratio, lam=REFERENCE_LAMBDA**ratio)
+
+
+def normalized_action_delta(delta_square, plan):
+    reference = plan.get("action_rate_reference_dt", timing(plan)["policy_dt"])
+    return delta_square * (reference/timing(plan)["policy_dt"])**2
 
 
 def validate(plan):
-    if plan.get("schema") != "wheel-leg-prone-motion-v1":
+    if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2"):
         raise ValueError("Need the explicit prone-motion contract")
-    if (plan["num_envs"] < 20 or plan["rollout_steps"] != 128
+    v2 = plan["schema"] == "wheel-leg-prone-motion-v2"
+    if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
+               or plan.get("action_rate_reference_dt") != REFERENCE_DT):
+        raise ValueError("100Hz requires explicit 1ms physics/PD, discount horizons and action-rate reference")
+    if (plan["num_envs"] < 20 or plan["rollout_steps"] != (64 if v2 else 128)
             or plan["max_updates"] != 10000 or len(plan["roles_per20"]) != 20
             or set(plan["roles_per20"]) != set(ROLES)):
         raise ValueError("Training population/budget or persistent role coverage changed")

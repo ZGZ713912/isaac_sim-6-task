@@ -85,6 +85,7 @@ def rigid_body_domain(enabled, scale=1.):
 class RobustDomain:
     def __init__(self, count, device, cfg, seed, dt):
         self.cfg, self.dt = deepcopy(cfg), dt
+        self.sensor_policy_dt = cfg.get("sensor_policy_dt", .005)
         self.device = device
         self.rng = torch.Generator(device=device).manual_seed(seed + 83977)
         self.enabled = torch.rand(count, device=device, generator=self.rng) >= cfg["nominal_fraction"]
@@ -137,7 +138,7 @@ class RobustDomain:
             + [cfg["velocity_noise_rad_s"][0] * .1] * 4 + [cfg["velocity_noise_rad_s"][1] * .1] * 2)
         self.sigma[ids] = sigma * enabled * cfg["sensor_noise_scale"]
         if self.imu_mount is not None:
-            seconds = (max(0, self.last_sensor_tick) if tick is None else tick)*.005
+            seconds = (max(0, self.last_sensor_tick) if tick is None else tick)*self.sensor_policy_dt
             self.imu_mount.reset(ids, enabled[:, 0], seconds)
             profiles = cfg.get("imu_mount_profiles")
             if profiles is not None:
@@ -155,7 +156,7 @@ class RobustDomain:
     def observe(self, sensors, tick):
         if self.last_sensor_tick != tick:
             if self.imu_mount is not None:
-                sensors = self.imu_mount.apply(sensors, tick*.005)
+                sensors = self.imu_mount.apply(sensors, tick*self.sensor_policy_dt)
             noisy = sensors + self.bias + torch.randn(sensors.shape, device=self.device, generator=self.rng) * self.sigma
             gravity = noisy[:, 3:6]
             noisy[:, 3:6] = gravity / gravity.norm(dim=-1, keepdim=True).clamp_min(1e-6)

@@ -162,7 +162,7 @@ class ProneMotionEnv(RobustGetupEnv):
         self.course_anchor[anchor] = xy[anchor]
         error = (xy-self.course_anchor).norm(dim=-1)
         terms = task.reward_terms(state["gravity"], state["height"], state["velocity"], state["omega"],
-            self.commands, state["torque"], state["dq"], state["action_delta"],
+            self.commands, state["torque"], state["dq"], task.normalized_action_delta(state["action_delta"], self.plan),
             route["xy_excursion_m"], error, rising, state["dual_support"])
         terms["leg_speed"] = -.002*state["leg_speed_square"]
         bad = task.failures(state["gravity"], state["height"], state["nonwheel_force"],

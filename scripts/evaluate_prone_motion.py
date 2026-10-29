@@ -31,7 +31,12 @@ def evaluation_cases(env, plan):
     return rows
 
 
-def review_arrays(a, cases, initial_xy, plan, dt=.005):
+def review_arrays(a, cases, initial_xy, plan, dt=None):
+    rates = task.timing(plan)
+    dt = rates["policy_dt"] if dt is None else dt
+    if dt != rates["policy_dt"] or a["wheel_force"].shape[1] != rates["decimation"]:
+        raise ValueError("Cold trace timing/physical samples differ from the selected policy contract")
+    substeps = rates["decimation"]
     limits = plan["evaluation"]
     horizon = round(limits["seconds"]/dt)
     hold_steps = round(30./dt)
@@ -48,7 +53,7 @@ def review_arrays(a, cases, initial_xy, plan, dt=.005):
         q = slice(start, start+hold_steps) if full_quiet else slice(0, 0)
         force = a["wheel_force"][:n, :, lane]
         supported = (np.linalg.norm(force, axis=-1) > 2.).all(-1).reshape(-1)
-        support = support_review(supported, standing_start_sample=start*5 if start is not None and start*5 < len(supported) else None,
+        support = support_review(supported, standing_start_sample=start*substeps if start is not None and start*substeps < len(supported) else None,
             ignored_max_ms=limits["ignored_contiguous_support_loss_ms"]) if n else dict(evaluated=False, support_pass=False)
         v, omega, command = a["velocity"][:n, lane], a["omega"][:n, lane], a["commands"][:n, lane]
         xy = a["position"][:n, lane, :2]
@@ -161,7 +166,7 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
         for key, value in values.items():
             trace.setdefault(key, []).append(value.cpu().numpy().copy())
     arrays = {key:np.stack(value) for key,value in trace.items()}
-    rows = (review_arrays(arrays, cases, initial_xy, plan) if trace else
+    rows = (review_arrays(arrays, cases, initial_xy, plan, dt=env.policy_dt) if trace else
             [dict(role=c["role"], engineering_screen_pass=False, no_samples=True) for c in cases])
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
@@ -169,6 +174,7 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
     passed = sum(row["engineering_screen_pass"] for row in rows)
     result = dict(schema="prone-motion-cold-v1", case_count=count, pass_count=passed,
         all_pass=passed == count, interrupted=stop_requested(), cases=rows, case_definitions=cases,
+        policy_dt_s=env.policy_dt, physics_dt_s=env.dt, physical_samples_per_policy_step=env.decimation,
         trace_sha256=digest(output/"native_trace.npz"), hardware_ready=False, full_capability_qualified=False,
         contact_scope="Initialized standing or the first actual completion event; <=2ms only diagnostic; <=2N is not proof of visible separation",
         capability_status={key:dict(status="partial_evidence" if key in ("R01", "S01", "M02", "M03", "M04", "H01", "Q01", "D01")
@@ -191,8 +197,12 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
 def probe(env, plan, *, stop_requested=lambda: False):
     """No optimizer, no policy checkpoint; constants verify wiring only."""
     action = nominal_action(env).expand(env.num_envs, -1).clone()
+    from wheeled_tasks.chassis.prone_motion import timing
+    rates = timing(plan)
     checks = dict(fixed_PD_and_spring=bool((env.domain.kp == 1.).all() and (env.domain.kd == 1.).all()
-        and (env.domain.spring == 1.).all()), rates=env.dt == .001 and env.policy_dt == .005)
+        and (env.domain.spring == 1.).all()), rates=(env.dt == rates["physics_dt"]
+        and env.policy_dt == rates["policy_dt"] and env.decimation == rates["decimation"]))
+    checks["policy_sensor_clock"] = env.domain.sensor_policy_dt == env.policy_dt
     checks["same_identified_axial_model_both_sides"] = bool(
         env.identified_spring.curve.force_knots_n == env.identified_spring.right_curve.force_knots_n
         and env.startup_report["identified_gas_spring"]["default_catalogue_force_replaced_for_this_task"])
@@ -233,7 +243,7 @@ def probe(env, plan, *, stop_requested=lambda: False):
     spring_outside_low = torch.zeros_like(spring_outside)
     spring_outside_high = torch.zeros_like(spring_outside)
     spring_count = 0
-    for _ in range(300):
+    for _ in range(round(1.5/env.policy_dt)):
         if stop_requested():
             from train_scratch_standing import TrainingStopped
             raise TrainingStopped()
@@ -243,7 +253,7 @@ def probe(env, plan, *, stop_requested=lambda: False):
                     +3.*state["recovery_completed_event"])*extra["policy_learning_mask"]-3.*state["terminated"])
         checks["actual_reward_payment"] = checks.get("actual_reward_payment", True) and bool(torch.allclose(reward, expected, atol=1e-5))
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
-        checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (5, env.num_envs, 6)
+        checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
         physical = env.prone_motion_physical
         for tick in range(env.decimation):
             ff = spring_reference.motor_efforts(physical["spring_ff_pd_effort_nm"][tick],
