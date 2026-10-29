@@ -4,13 +4,8 @@ task_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd -- "$task_root"
 export OMNI_KIT_ACCEPT_EULA=YES
 export OPENBLAS_NUM_THREADS=1
-# Keep the local default; remote installations select their own interpreter.
-task_python="${WHEELED_RL_PYTHON:-/home/noir/miniconda3/envs/isaacsim6/bin/python}"
-if ! command -v -- "$task_python" >/dev/null 2>&1; then
-    echo "Training Python is unavailable: $task_python" >&2
-    echo "Set WHEELED_RL_PYTHON to the Python executable in your Isaac environment." >&2
-    exit 127
-fi
+source "$task_root/scripts/resolve_isaac_python.sh"
+wheeled_resolve_python "$@"
 # A normal launch runs a separate0-PPO native check first. Each output directory
 # is new; a failed probe never falls through to PPO or retries a stopped run.
 task_output=""

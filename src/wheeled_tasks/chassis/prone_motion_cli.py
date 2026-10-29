@@ -92,6 +92,7 @@ def validate_resolved(plan):
 
 
 def add_common(parser, *, training):
+    parser.add_argument("--python", help="Python executable or launcher selected by the train/play shell entrypoint")
     parser.add_argument("--task", choices=TASKS, default=DEFAULT_TASK)
     parser.add_argument("--plan", type=Path, help="Original task JSON; defaults to --task's contract")
     parser.add_argument("--output", type=Path, help="New output directory (must not already exist)")

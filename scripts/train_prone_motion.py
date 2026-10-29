@@ -154,7 +154,8 @@ def source_hashes(plan_path, plan):
     names = ["scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
              "scripts/play_prone_motion.py", "scripts/play_prone_motion.sh", "tests/test_prone_motion_cli.py",
              "scripts/benchmark_prone_motion.py",
-             "scripts/server_isaac_python.sh", "docs/SERVER_TRAINING_20261028.md",
+             "scripts/server_isaac_python.sh", "scripts/resolve_isaac_python.sh",
+             "tests/test_prone_motion_python.py", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
              "contracts/scratch_standing_base_mechanism_v2.json", "contracts/scratch_standing_base_design_v2.json",
              "contracts/wheel_leg_prone_motion_v1.json", "contracts/wheel_leg_prone_motion_v2.json",
@@ -279,6 +280,7 @@ def main():
     base.write_json(output/"curriculum_plan.resolved.json", plan)
     run_options = dict(argv=sys.argv[1:], task=args.task, output=str(output), run_name=args.run_name,
         device=args.device, headless=args.headless, performance_backend=args.performance_backend,
+        python_executable=sys.executable, python_prefix=sys.prefix,
         options=plan["runtime_cli"]["options"], base_plan=str(plan_path),
         resolved_plan_sha256=base.digest(output/"curriculum_plan.resolved.json"))
     base.write_json(output/"run_options.json", run_options)

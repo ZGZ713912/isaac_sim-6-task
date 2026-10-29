@@ -102,6 +102,15 @@ def test_both_flag_spellings_and_no_gui():
     assert task.domain_stage(plan, 0) == ("requested", .25)
 
 
+def test_python_override_is_accepted_by_train_and_play_without_changing_the_plan():
+    args = train_parser().parse_args(["--python", "/custom/isaac/python"])
+    assert args.python == "/custom/isaac/python"
+    _, plan, _ = training_options(args, ROOT)
+    assert plan == resolve_plan(BASE)
+    args = play.parser().parse_args(["--python=/custom/isaac/python", "--checkpoint", "unused.pt"])
+    assert args.python == "/custom/isaac/python"
+
+
 def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path):
     from rsl_rl.utils import resolve_class
     from train_scratch_standing import digest
@@ -143,6 +152,7 @@ def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path):
 def test_all_new_entrypoints_are_part_of_the_source_freeze():
     hashes = source_hashes(PLAN_FILE, resolve_plan(BASE))
     for name in ("scripts/play_prone_motion.py", "scripts/play_prone_motion.sh", "tests/test_prone_motion_cli.py",
+                 "scripts/resolve_isaac_python.sh", "tests/test_prone_motion_python.py",
                  "src/wheeled_tasks/chassis/prone_motion_cli.py"):
         assert len(hashes[name]) == 64
 
