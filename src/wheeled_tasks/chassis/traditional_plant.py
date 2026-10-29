@@ -177,8 +177,15 @@ class FullRobotTraditionalPlant:
         # The controller packet contains only motor encoders and synthetic IMU.
         packet = np.r_[q, dq, pitch, angular[1], yaw, angular[2], self.specific_force]
         truth_velocity = rotation.inv().apply(data.root_link_lin_vel_w.torch[0].detach().cpu().numpy())
+        bodies = data.body_link_pose_w.torch[0].detach().cpu().numpy()
+        lengths = []
+        for side in ("L", "R"):
+            delta = rotation.inv().apply(bodies[self.robot.body_names.index(side+"_link3"), :3]
+                - bodies[self.robot.body_names.index(side+"_link1"), :3])
+            lengths.append(float(np.linalg.norm(delta[[0,2]])))
         return dict(packet=packet, time_ns=self.tick*1_000_000, pitch=float(pitch), roll=float(roll),
             yaw_rate=float(angular[2]), velocity=float(truth_velocity[0]), base_height=float(pose[2]),
+            leg_length_m=lengths,
             position=pose[:3].tolist(), loop_gap_m=self.loop_gap(),
             wheel_force_n=np.linalg.norm(self.wp.to_torch(
                 self.contact_view.get_contact_force_matrix(dt=self.physics_dt)).cpu().numpy().reshape(2, 3), axis=1))
