@@ -1,0 +1,169 @@
+{
+  "urdf": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿urdf.SLDASM/urdf/轮腿urdf.SLDASM.urdf",
+  "source_sha256": "93be05a257f6458cad709406c4081fc449787a91d7424e211a4459d6c641ff9b",
+  "output_sha256": "21025d6df4c2bf2406b4be8887a50f3a0d1b4739a233b3f4f36a2596f0a7839e",
+  "csv": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿urdf.SLDASM/urdf/轮腿urdf.SLDASM.csv",
+  "csv_source_sha256": "d58c5d6630f89874ea9e640f410da8aa895b2725499c6c2e45976ec6bf63495f",
+  "csv_output_sha256": "b0de1120452f3c51886c70ef6ad6e8d7fe511c9b6cebd057613650257848593b",
+  "assumption": "Identical mirrored lower spring parts; inherit 70.864 mm from old raw CAD and current right side. Not a new physical COM measurement.",
+  "source_coms": {
+    "LLL_link2": {
+      "raw_CAD_com_m": [
+        0.0,
+        0.070864,
+        -0.0035025
+      ],
+      "processed_v7_com_m": [
+        -2.2693258023521742e-07,
+        0.05662052057205656,
+        -0.0035140562214167875
+      ],
+      "processed_v7_method": "owned_mesh_uniform_density_research_prior",
+      "hardware_identified": false
+    },
+    "RRR_link2": {
+      "raw_CAD_com_m": [
+        0.0,
+        0.070864,
+        0.0035025
+      ],
+      "processed_v7_com_m": [
+        2.2696438507176417e-07,
+        0.056620520328993576,
+        0.0035132596609730943
+      ],
+      "processed_v7_method": "owned_mesh_uniform_density_research_prior",
+      "hardware_identified": false
+    }
+  },
+  "old_frame_to_new_frame_rotation": [
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      -1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "changed_link": "LLL_link2",
+  "com_before_m": [
+    0.060132,
+    0.0,
+    -0.0035121
+  ],
+  "com_after_m": [
+    0.070864,
+    0.0,
+    -0.0035025
+  ],
+  "mass_kg": 0.057,
+  "total_robot_mass_kg": 21.44174,
+  "central_tensor_preserved_kg_m2": [
+    [
+      1.52e-06,
+      0.0,
+      1e-07
+    ],
+    [
+      0.0,
+      9.672e-05,
+      0.0
+    ],
+    [
+      1e-07,
+      0.0,
+      9.687e-05
+    ]
+  ],
+  "connection_hinge": {
+    "joint": "LLL_joint2",
+    "local_axis": [
+      4.01304369509331e-13,
+      -2.2950478323346957e-13,
+      1.0
+    ],
+    "tensor_before_kg_m2": [
+      [
+        2.2230862453699966e-06,
+        0.0,
+        1.2137807040400002e-05
+      ],
+      [
+        0.0,
+        0.00030352695941336996,
+        0.0
+      ],
+      [
+        1.2137807040400002e-05,
+        0.0,
+        0.000302973873168
+      ]
+    ],
+    "tensor_after_kg_m2": [
+      [
+        2.219247856250005e-06,
+        0.0,
+        1.424746612e-05
+      ],
+      [
+        0.0,
+        0.00038365651812825,
+        0.0
+      ],
+      [
+        1.424746612e-05,
+        0.0,
+        0.000383107270272
+      ]
+    ],
+    "J_before_kg_m2": 0.00030297387316800974,
+    "J_after_kg_m2": 0.00038310727027201136,
+    "change_percent": 26.448946328637657,
+    "scope": "Contribution of this 57 g part only, not the whole leg or motor-equivalent inertia"
+  },
+  "max_gravity_torque_change_Nm": 0.005998965564688471,
+  "whole_robot_com_change_upper_bound_m": 2.8529599031651e-05,
+  "validation": {
+    "only_target_inertial_xyz_changed": true,
+    "csv_changes": [
+      {
+        "link": "LLL_link2",
+        "field": "Center of Mass X",
+        "before": "0.060132",
+        "after": "0.070864"
+      },
+      {
+        "link": "LLL_link2",
+        "field": "Center of Mass Z",
+        "before": "-0.0035121",
+        "after": "-0.0035025"
+      }
+    ],
+    "all_masses_and_central_tensors_preserved": true,
+    "all_21_tensors_positive_definite_and_triangle_valid": true,
+    "lower_spring_COM_mirrored_atol_m": 1e-15,
+    "lower_spring_tensors_exactly_mirrored": true,
+    "geometry_collisions_and_all_joint_elements_preserved": true,
+    "cylindrical_wheel_colliders": 2,
+    "old_baseline_files_preserved": true,
+    "simulation_run": false,
+    "hardware_measured": false
+  },
+  "baseline_sha256": {
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/纯底盘_v7_flat_base107/urdf/robot.urdf": "04263bea83dc8d016fa4e27c5dfc4ebee531627a13c5f32361b2cd606df31a64",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/纯底盘_v7_flat_base107/urdf/source_urdf_v5.0.urdf": "2c061fc49e1cf375b32c19002495aa03c2856941b326688f36cd81d7102e095d",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/纯底盘_v7_flat_base107/urdf/inertial_sources.json": "26aa52a862c63f28bc43ffab059028a8441124c2b5393358d08c2ca73fbb90cf"
+  },
+  "references": [
+    "https://github.com/ros2/ros2_documentation/blob/rolling/source/Capabilities/Simulation/URDF/Adding-Physical-and-Collision-Properties-to-a-URDF-Model.rst",
+    "https://drake.mit.edu/doxygen_cxx/classdrake_1_1multibody_1_1_rotational_inertia.html"
+  ]
+}

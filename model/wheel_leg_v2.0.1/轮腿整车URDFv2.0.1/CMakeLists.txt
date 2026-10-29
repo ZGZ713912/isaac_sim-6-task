@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-project(轮腿urdf.SLDASM)
+project(轮腿整车URDFv2.0.1)
 
 find_package(catkin REQUIRED)
 

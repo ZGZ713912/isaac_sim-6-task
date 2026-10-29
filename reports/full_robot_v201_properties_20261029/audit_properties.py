@@ -16,7 +16,7 @@ from pxr import Usd, UsdGeom, UsdPhysics
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
-FULL = ROOT / 'model/wheel_leg_v2.0.1/轮腿urdf.SLDASM/urdf/轮腿urdf.SLDASM.urdf'
+FULL = ROOT / 'model/wheel_leg_v2.0.1/轮腿整车URDFv2.0.1/urdf/轮腿整车URDFv2.0.1.urdf'
 OLD = ROOT / 'model/纯底盘_v7_flat_base107/urdf/robot.urdf'
 ALIGN = Rotation.from_euler('z', 90, degrees=True).as_matrix()
 helper_path = ROOT / 'reports/full_robot_axis_inertia_20261029/update_axes.py'

@@ -57,8 +57,8 @@
 
 - 原始 SW 导出 URDF SHA-256：`6e2b437dc2f4f26b78e2a3ca1ac4e35625e4304a7d574ace0049d67997f5a8ff`。
 - 修正后 URDF SHA-256：`b46af65f0b625b3dcbe996dd0339ff1b30d59f67b4b7da0ae7e6f395393e0a8b`。
-- [修正后的 URDF](/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿urdf.SLDASM/urdf/轮腿urdf.SLDASM.urdf)
-- [关节清单](/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿urdf.SLDASM/config/joint_names_轮腿urdf.SLDASM.yaml)
+- [修正后的 URDF](/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿整车URDFv2.0.1/urdf/轮腿整车URDFv2.0.1.urdf)
+- [关节清单](/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿整车URDFv2.0.1/config/joint_names_轮腿整车URDFv2.0.1.yaml)
 - [原始导出备份](/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_robot_v201_axis_20261029/before/轮腿urdf.SLDASM.urdf)
 - [逐关节修改与方向映射](/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_robot_v201_axis_20261029/axis_changes.json)
 - [完整验证与物性/网格数据](/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_robot_v201_axis_20261029/validation.json)
