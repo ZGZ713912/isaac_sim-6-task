@@ -11,7 +11,7 @@ class V5Control:
     LEGS = (0, 1, 3, 4)
     WHEELS = (2, 5)
 
-    def __init__(self, manifest, spec, fit, prior, settings, device):
+    def __init__(self, manifest, spec, fit, prior, settings, device, *, root=None):
         if tuple(manifest["control_joint_names"]) != self.ACTIVE:
             raise ValueError("V5 requires the two root-driven leg axes per side, not virtual knee actuation")
         if settings.get("leg_target_winding", "independent_nearest_v1") not in (
@@ -27,6 +27,16 @@ class V5Control:
                                         for n in ("L_joint2", "R_jonit2")], device=device)
         self.wheel_prior = prior["actuators"]["wheel"]
         self.settings = settings
+        self.gas_compensation = None
+        if settings.get("gas_spring_compensation", {}).get("enabled"):
+            from pathlib import Path
+            from .gas_spring_compensation import GasSpringCompensation
+            model_root = Path(root) if root is not None else Path(__file__).resolve().parents[3]
+            self.gas_compensation = GasSpringCompensation(settings["gas_spring_compensation"],
+                root=model_root, device=device)
+            if (manifest.get("files_sha256", {}).get("model_spec.json")
+                    != self.gas_compensation.model["model_spec_sha256"]):
+                raise ValueError("Gas-spring compensation requires its declared V7 geometry")
         wheel_clip = settings.get("wheel_action_clip", settings["action_clip"])
         self.action_bounds = torch.tensor([settings["action_clip"], settings["action_clip"], wheel_clip,
                                           settings["action_clip"], settings["action_clip"], wheel_clip], device=device)
@@ -43,7 +53,7 @@ class V5Control:
         wheels = clipped[:, list(self.WHEELS)] * self.settings["wheel_velocity_scale"]
         return legs, wheels, clipped
 
-    def motor_efforts(self, q, dq, legs, wheels):
+    def motor_efforts(self, q, dq, legs, wheels, *, apply_gas_compensation=True):
         # ACTIVE is two contiguous (hip, knee, wheel) triples. Views avoid
         # gathering/scattering joint subsets on every 1 kHz control tick.
         requested = torch.empty_like(q)
@@ -51,8 +61,23 @@ class V5Control:
         pairs[:, :, :2] = (self.settings["leg_kp"] * (legs.unflatten(-1, (2, 2))
                                                   - q.unflatten(-1, (2, 3))[:, :, :2])
                           - self.settings["leg_kd"] * dq.unflatten(-1, (2, 3))[:, :, :2])
+        if self.gas_compensation is not None and apply_gas_compensation:
+            gas, self.gas_compensation_diagnostics = self.gas_compensation.evaluate(q[:, list(self.LEGS)])
+            self.gas_compensation_effort = gas
+            pairs[:, :, :2] += gas.unflatten(-1, (2, 2))
         tau = torch.empty_like(q)
         tau.unflatten(-1, (2, 3))[:, :, :2] = pairs[:, :, :2].clamp(-40., 40.)
+        if self.gas_compensation is not None and apply_gas_compensation:
+            # Match RMCS: project the SUM of PD and spring FF after clipping.
+            # Preserve common rotation and inward correction at either limit.
+            limits = self.gas_compensation.cfg["relative_soft_limits"]
+            coefficients = q.new_tensor([[-1.,1.],[1.,-1.]])
+            relative = (q.unflatten(-1,(2,3))[:,:,:2]*coefficients).sum(-1)
+            efforts = tau.unflatten(-1,(2,3))[:,:,:2]
+            outward = (efforts*coefficients).sum(-1)
+            blocked = (((relative>=limits["maximum"]-limits["margin"]) & (outward>0.))
+                     | ((relative<=limits["minimum"]+limits["margin"]) & (outward<0.)))
+            efforts -= coefficients * torch.where(blocked,outward/2.,0.).unsqueeze(-1)
         wheel_speed = dq[:, 2::3]
         wheel = self.wheel_prior["kd"] * (wheels - wheel_speed)
         bound = motor_torque_limit(wheel_speed, self.wheel_prior)
@@ -70,6 +95,8 @@ class V5Control:
 
     def spring_efforts(self, position):
         compression = self.s0 - position
+        if self.gas_compensation is not None:
+            return self.gas_compensation.physical_force(compression)
         # Same explicit research extrapolation as the bounded MuJoCo test.
         # Force is held at the curve endpoint during numerical stop penetration;
         # mechanical limits and episode termination handle actual overtravel.

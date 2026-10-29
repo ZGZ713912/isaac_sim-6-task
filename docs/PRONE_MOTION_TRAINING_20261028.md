@@ -2,14 +2,16 @@
 
 本入口用于新的单策略训练：正常朝上、底盘底部贴地的标准趴地姿态，经失能力矩为零的原生落稳后，由六电机RL起立，实际完成后静站30秒，再接受运动请求。另有直接站立出生的常驻练习，避免所有运动样本都必须等待一次自起成功才能获得。旧009进程、源码与检查点不被本次代码准备修改，任何旧策略都不能被加载到新训练。
 
+默认配置已于2026-10-29整合到`codex/wheel-leg-unified`，采用100Hz/64步及dev实测拟合气簧与力矩补偿。来源和控制路径见[统一说明](WHEEL_LEG_UNIFIED_20261029.md)。
+
 ## 启动
 
 服务器镜像的依赖修复与Python启动方式见[服务器说明](SERVER_TRAINING_20261028.md)。
 `WHEELED_RL_PYTHON`可指定训练解释器或服务器Python启动器；不设置时保留下面的本机默认路径。
 
 ```bash
-bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
-  --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261029/run100hz001
+bash /home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
+  --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261029/run_unified001
 ```
 
 输出目录必须不存在。脚本首先串行运行80环境的独立零PPO原生接线探针，检查名义域和完整v2域中的35D/83D接口、实际奖励实付、十个1ms物理样本、失能零力矩、允许起立时底盘接地、实测气簧力和左右新轮模型等；探针失败或被中断就退出，不进入PPO。启动还要核对探针保存的两域完整结果，不能只凭进程返回码放行。探针通过后才创建新的actor、critic、空Adam。原生探针中的常值动作不作为学会起立的证据。
@@ -19,7 +21,7 @@ bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scrip
 只检查配置，不接触已有进程、不启动Isaac或PPO：
 
 ```bash
-bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
+bash /home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
   --output /tmp/prone_motion_preflight001 --preflight-only
 ```
 
@@ -29,13 +31,13 @@ bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scrip
 
 新启动默认使用`--performance-backend cuda_graph`。只对编码器气簧补偿、编码器腿几何和物理气簧曲线的固定形状纯张量计算复用CUDA执行图，保持原Torch内核、原公式和每次输入有效性检查；不捕获仿真、随机数、传感器/轮响应历史或优化器。回放输出复制到独立存储，保留每1ms原始诊断。原生读取epoch及显式reset代际限定几何结果缓存，域切换重建环境时重建执行图。逐角色指标的有样本判断合并为一次传输，保留原tag和选中样本的归约。
 
-当前v2默认物理1kHz、策略100Hz、64/32求解迭代、256环境、64步rollout、10000次更新、每250次完整检查点。控制时序见下节；原200Hz/128步v1合同与历史实测保持。`--performance-backend eager`保留未回放的对照路径，适用于定位运行环境问题。运行中的冻结任务不热切换；采用新版需要在新目录从零启动，禁止用停止模型续训。
+当前v3默认物理1kHz、策略100Hz、64/32求解迭代、256环境、64步rollout、10000次更新、每250次完整检查点。控制时序见下节；原200Hz/128步v1合同与历史实测保持。`--performance-backend eager`保留未回放的对照路径，适用于定位运行环境问题。运行中的冻结任务不热切换；采用新版需要在新目录从零启动，禁止用停止模型续训。
 
 本机独立零PPO比较可运行`python scripts/benchmark_prone_motion.py --output <新目录> --backend cuda_graph`，对照改为`--backend eager`。使用训练所用的Isaac Python，两个进程串行运行；同样的环境数、seed、动作、warmup和测量长度才可比较。脚本保存原始轨迹、来源摘要和TensorBoard性能event，不创建actor/critic或读取checkpoint；测试不等于策略行为验收。实测结果见主工作区`reports/local_speedup_20261029/REVIEW.md`，不能将本机采样速度当作4090服务器的PPO总耗时。
 
 ## 训练课程与预算
 
-默认计划为`contracts/wheel_leg_prone_motion_v2.json`：每10个1ms物理步更新一次策略；髋膝单环PD仍是P=160、D=2.5、1kHz，气簧物理力、编码器补偿、轮P0.5及实测左5.5/右3.5ms有效延迟仍每1ms计算。64步覆盖0.64秒，与原200Hz的128步相同，仍有640个物理步，故不能承诺采样耗时减半。每次PPO更新样本减半，完整训练行为效果需新测。
+默认计划为`contracts/wheel_leg_prone_motion_v3.json`：每10个1ms物理步更新一次策略；髋膝单环PD仍是P=160、D=2.5、1kHz，气簧物理力、编码器补偿、轮P0.5及实测左5.5/右3.5ms有效延迟仍每1ms计算。64步覆盖0.64秒，与原200Hz的128步相同，仍有640个物理步，故不能承诺采样耗时减半。每次PPO更新样本减半，完整训练行为效果需新测。
 
 为保持物理时间尺度，gamma改为0.99498743710662、GAE lambda改为0.9746794344808964（原值的平方）；稠密奖励按实际10ms积分，事件奖励保持；动作变化平方代价按原5ms参考归一化。回合70/30/20秒、起立后完整30秒静站和按更新数推进的课程保持。
 
@@ -43,7 +45,7 @@ bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scrip
 
 历史`wheel_leg_prone_motion_v1.json`可通过`--plan`显式选择200Hz/128步。新旧策略都必须使用各自任务时序，不能将200Hz旧PT当100Hz新训练或给实车部署资格。
 
-本机run004使用原`prone-motion-long`目录的冻结200Hz源码；本100Hz版本在独立`prone-motion-100hz`目录。开始新的100Hz训练前需结束并封存已有learner；入口继续拒绝重复learner，从零创建actor、critic、空Adam，禁止加载中断模型。
+历史200Hz运行位于`prone-motion-long`，已有100Hz运行位于`prone-motion-100hz`；统一分支位于独立`wheel-leg-unified`目录，不热改现有训练。开始新训练前需让已有learner完成或由操作者正常封存；入口继续拒绝重复learner，从零创建actor、critic、空Adam，禁止加载中断模型。
 
 固定10000次完整PPO更新，256环境、每环境64步、100Hz策略/1000Hz物理。上限163840000个rollout位置，实际用于学习的数量会扣除失能落稳样本，并记录于`progress.json`。它和参考仓库24步rollout的“一轮”不是同一个样本量口径。运行时间由实际每轮耗时决定，不预报未经测量的小时数。
 
@@ -67,7 +69,13 @@ bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scrip
 
 起立前允许底盘接地，10cm内平移无位置代价；35cm仅为训练工程边界，并非验收放宽，固定冷测仍按约10cm筛查。实际起立完成后或直接站立出生时，重新触底、25°倾倒、150–480mm物理高度越界会失败；始终保留闭链、膝/弹簧机械、原生冲击冲量、边界和非有限保护。没有学习期25mm目标高度误差死亡条件。纯自旋沿用出生中心的位置代价，正常平移的行程不受该项惩罚。
 
-## 双腿实测气簧模型
+## 当前v3气簧模型与补偿
+
+当前v3采用用户确认的dev拟合模型和补偿：16节点插值，低压缩端正值指数、高压缩端线性斜率延伸，几何外物理力保持端值。模型SHA、单一补偿调用及±40Nm后软限位投影见[统一说明](WHEEL_LEG_UNIFIED_20261029.md#气簧与力矩路径)。P160/D2.5、1kHz物理和控制保持。
+
+以下两节记录显式v1/v2旧计划，不能用其外推公式或几何插值描述v3。
+
+## 历史v1/v2双腿实测气簧模型
 
 本入口已替换实际1kHz气簧施力调用，使用`model/gas_spring_identified_symmetric_20261028/model.json`的同一份实测平均负载查表。左右分别按各自实际滑动关节计算压缩量`s=0.06972718009112547−q_slide`，在各自轴施加正向伸长力；各侧闭链几何自然给出电机力矩方向。当前v2气簧强度仍固定1，未加入方向摩擦/滞回诊断项，旧资产中的目录多项式不再为本入口提供气簧力。其他历史入口及旧资产原文件保持原样。
 
@@ -77,7 +85,7 @@ bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scrip
 
 模型与外推合同SHA、安装坐标和左右假设在配置预检时验证并写入冻结合同。每个1ms样本保存实际压缩量、实际施加气簧力和超出实测域标记；`ProneMotion/gas_spring/*`及逐角色tag记录外推使用比例，固定冷测逐例披露。`scripts/review_gas_spring_soft_range.py`可导出全范围轴向力和四电机补偿的静态模型图，并逐侧检查4001个几何样本；这些图不是训练曲线或原生运动。模型的静态标定不代表已辨识纯气压、阻尼、右腿独立实测或学会起立。
 
-## 编码器气簧前馈补偿
+## 历史v1/v2编码器气簧前馈补偿
 
 本入口的腿电机控制现在为`tau_motor = clip(tau_PD − J_length(q_encoder)ᵀ F(s_estimated), −40, 40)`。每侧两个电机的相对角，经已认证40–107°闭链表推算被动膝夹角，再用真实安装销位置求气簧长度/压缩量；同一份实测平均负载曲线给出轴向力。长度对两个电机角度的雅可比通过虚功换算出应抵消的气簧力矩。左右分别使用各自几何和符号，不能将同一方向的电机力矩复制到右侧。
 

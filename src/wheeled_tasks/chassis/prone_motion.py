@@ -31,9 +31,9 @@ def normalized_action_delta(delta_square, plan):
 
 
 def validate(plan):
-    if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2"):
+    if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2", "wheel-leg-prone-motion-v3"):
         raise ValueError("Need the explicit prone-motion contract")
-    v2 = plan["schema"] == "wheel-leg-prone-motion-v2"
+    v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):
         raise ValueError("100Hz requires explicit 1ms physics/PD, discount horizons and action-rate reference")

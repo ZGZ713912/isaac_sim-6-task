@@ -1,6 +1,7 @@
 # 本次标准趴地长训练的服务器环境
 
 此文用于`train_prone_motion.sh`，替代历史`server_setup.md`对本入口的安装建议。
+统一v3默认采用dev实测拟合气簧及一次编码器力矩补偿，来源见[统一说明](WHEEL_LEG_UNIFIED_20261029.md)。
 新版默认策略100Hz、rollout64步；物理与腿PD保持1kHz。从零初始化、连续10000次更新、每250次保存一次PT；详见PRONE_MOTION_TRAINING_20261028.md中的时间尺度与域随机化单位说明。
 环境修复与CPU预检不授予策略行为或GPU仿真资格，也不自动开始训练。
 
@@ -54,10 +55,10 @@ CPU预检输出目录必须是新的，不启动Kit、创建PPO或读取旧权�
 
 ```bash
 export WHEELED_RL_PYTHON="$PWD/scripts/server_isaac_python.sh"
-bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run100hz001"
+bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run_unified001"
 ```
 
-先将本次100Hz独立源码完整同步至服务器新目录，保持现有运行的冻结源与进程不动。仅在旧训练已结束并封存后使用新输出目录启动。
+先将`codex/wheel-leg-unified`的完整源码同步至服务器新目录，保持现有运行的冻结源与进程不动。仅在旧训练已结束并封存后使用新输出目录启动。
 
 脚本先运行名义域与完整域的零PPO原生探针并检查保存的结果，全部通过后才开始
 同一次`learn(10000)`。未通过不能仅凭返回码手动跳过。不要传本机旧009停止参数，
