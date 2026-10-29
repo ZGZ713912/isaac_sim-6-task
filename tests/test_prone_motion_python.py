@@ -23,6 +23,8 @@ def environment(tmp_path):
         env.pop(key, None)
     env.update(HOME=str(tmp_path / "home"), PATH=str(tmp_path / "bin"),
                WHEELED_ISAACSIM_ROOT=str(tmp_path / "absent-sim"),
+               WHEELED_RL_WSL_LIB_DIR=str(tmp_path / "absent-wsl"),
+               WHEELED_RL_RUNTIME_LIB_DIR=str(tmp_path / "absent-runtime"),
                WHEELED_ISAAC_PYTHON=str(tmp_path / "absent-image-python"))
     return env
 
@@ -104,6 +106,38 @@ def test_missing_isaac_environment_explains_both_overrides(tmp_path):
     result = resolve(environment(tmp_path))
     assert result.returncode == 127
     assert "--python" in result.stderr and "WHEELED_RL_PYTHON" in result.stderr
+
+
+@pytest.mark.parametrize("entry", ["train", "play"])
+def test_wsl_driver_and_user_runtime_reach_python_without_replacing_caller_paths(tmp_path, entry):
+    env = environment(tmp_path)
+    env["PATH"] = "/usr/bin:/bin"
+    wsl = tmp_path / "WSL libraries"
+    wsl.mkdir()
+    (wsl / "libcuda.so").touch()
+    executable(wsl / "nvidia-smi")
+    runtime = tmp_path / "runtime libraries"
+    runtime.mkdir()
+    env.update(WHEELED_RL_WSL_LIB_DIR=str(wsl), WHEELED_RL_RUNTIME_LIB_DIR=str(runtime),
+               LD_LIBRARY_PATH="/existing/lib", PYTHON_CALL_LOG=str(tmp_path / "loader"))
+    python = executable(tmp_path / "python")
+    python.write_text('#!/usr/bin/bash\nprintf "%s\\n%s\\n" "$LD_LIBRARY_PATH" "$PATH" > "$PYTHON_CALL_LOG"\n')
+    result = subprocess.run([BASH, str(ROOT / f"scripts/{entry}_prone_motion.sh"),
+        "--python", str(python), "--help"], env=env, text=True, capture_output=True)
+    assert result.returncode == 0, result.stderr
+    assert (tmp_path / "loader").read_text().splitlines() == [
+        f"{runtime}:{wsl}:/existing/lib", f"{wsl}:/usr/bin:/bin"]
+
+
+def test_native_loader_is_idempotent_and_does_not_add_missing_driver(tmp_path):
+    env = environment(tmp_path)
+    runtime = tmp_path / "runtime"
+    runtime.mkdir()
+    env.update(WHEELED_RL_RUNTIME_LIB_DIR=str(runtime), LD_LIBRARY_PATH="/existing/lib")
+    result = subprocess.run([BASH, "-euc",
+        'source "$1"; wheeled_prepare_native_loader; wheeled_prepare_native_loader; printf "%s" "$LD_LIBRARY_PATH"',
+        "loader-test", str(RESOLVER)], env=env, text=True, capture_output=True)
+    assert result.returncode == 0 and result.stdout == f"{runtime}:/existing/lib"
 
 
 @pytest.mark.parametrize("entry,flag", [("train", "--print-output"), ("play", "--help")])
