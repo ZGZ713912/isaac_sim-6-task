@@ -1,6 +1,6 @@
 # 轮腿统一分支与默认训练配置
 
-当前统一开发分支为 `dev`（原名 `codex/wheel-leg-unified`），整合以下来源：
+当前统一开发分支为 `dev/wheel-leg-unified`，使用用户指定的 `dev/<用途>` 命名，整合以下来源：
 
 | 来源 | 冻结提交 | 采用内容 |
 |---|---|---|
@@ -8,7 +8,7 @@
 | `codex/prone-motion-long` | `f4996e0dc8aec96b6944c85a7bef6bbd2b6097a8` | 标准趴地与站立混采、运动/变高课程、10000次连续训练、每250次PT、左右15.62轮辨识、CUDA张量回放 |
 | `codex/prone-motion-100hz` | `a4d2e1fda7e398c607f625cf7f596bc6df452ef7` | 100Hz策略、64步rollout、按秒保持折扣和动作变化代价 |
 
-气簧实现与参数取自`7359170b`；合并期间dev新提交`2a5530c6`包含原暂存的模型/报告归档，已一起保留。100Hz提交已经包含long历史。合并保留三个来源的祖先关系。为使用确切的 `dev` 名称，旧 `dev/self_righting_policy`、`dev/completed-speed-resume-20261010`、`dev/wheel-leg-domain-v2` 改名为各自的 `archive/dev/...`，提交和工作目录保留。后续不新建 `codex/` 前缀分支。
+气簧实现与参数取自`7359170b`；合并期间dev新提交`2a5530c6`包含原暂存的模型/报告归档，已一起保留。100Hz提交已经包含long历史。另已合入 `upstream/dev/self_righting_policy@afb49e66` 的整车v2.0.1模型与验证报告；新增模型不自动替换训练合同绑定的底盘资产。合并保留来源的祖先关系，`dev/self_righting_policy`、`dev/completed-speed-resume-20261010`、`dev/wheel-leg-domain-v2` 保持原名、提交和工作目录。后续开发分支使用 `dev/<用途>`，不新建 `codex/` 前缀。
 
 ## 默认入口
 
