@@ -7,11 +7,16 @@
 ## 启动
 
 服务器镜像的依赖修复与Python启动方式见[服务器说明](SERVER_TRAINING_20261028.md)。
-`WHEELED_RL_PYTHON`可指定训练解释器或服务器Python启动器；不设置时保留下面的本机默认路径。
+train/play 共用解释器选择：`--python` 优先于 `WHEELED_RL_PYTHON`；未指定时检查已激活的 venv/Conda、容器启动器、PATH 和已有安装目录。自动候选必须能定位 `isaaclab`、`isaacsim`、`torch`、`rsl_rl`，不会因系统 Python 存在就直接启动。Kaiser 的 `$HOME/robot-rl-sim60/env/bin/python` 和本机的 `$HOME/miniconda3/envs/isaacsim6/bin/python` 均支持；不再写死用户名。容器中使用既有 `server_isaac_python.sh` 保留动态库加载修复。显式路径不可用时直接报错，不静默换环境。
+
+在项目根目录执行；需要指定环境时添加 `--python /path/to/isaac/python`，也可传服务器 Python 启动器：
 
 ```bash
-bash /home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
-  --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261029/run_unified001
+bash scripts/train_prone_motion.sh \
+  --task WheelLeg-ProneMotion-v3 \
+  --num_envs 256 --max_iterations 10000 --num_steps_per_env 64 \
+  --save_interval 250 --seed 103 --run_name train_10000_seed103 \
+  --domain_randomization curriculum --device cuda:0 --headless
 ```
 
 输出目录必须不存在。脚本首先串行运行80环境的独立零PPO原生接线探针，检查名义域和完整v2域中的35D/83D接口、实际奖励实付、十个1ms物理样本、失能零力矩、允许起立时底盘接地、实测气簧力和左右新轮模型等；探针失败或被中断就退出，不进入PPO。启动还要核对探针保存的两域完整结果，不能只凭进程返回码放行。探针通过后才创建新的actor、critic、空Adam。原生探针中的常值动作不作为学会起立的证据。
@@ -21,7 +26,7 @@ bash /home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train/script
 只检查配置，不接触已有进程、不启动Isaac或PPO：
 
 ```bash
-bash /home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
+bash scripts/train_prone_motion.sh \
   --output /tmp/prone_motion_preflight001 --preflight-only
 ```
 

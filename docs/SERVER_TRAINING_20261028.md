@@ -27,6 +27,29 @@ packaging满足ovphysx的`>=20,<24`；ffmpeg补齐robomimic声明的依赖。
 
 ## 使用正确的Python运行时
 
+### Kaiser
+
+Kaiser 的项目目录为 `/home/kaiser/workspace/isaac_sim-6-task`，已有 Isaac 环境为
+`/home/kaiser/robot-rl-sim60/env/bin/python`。train/play 现在自动检查该用户目录、
+已激活环境和 PATH，无需修改脚本或使用本机 `/home/noir/...` 路径。
+显式选择可使用 `--python /home/kaiser/robot-rl-sim60/env/bin/python`；其优先级高于
+`WHEELED_RL_PYTHON`。两者都未设置才自动选择，自动候选需能定位四个训练模块。
+
+```bash
+cd /home/kaiser/workspace/isaac_sim-6-task
+bash scripts/train_prone_motion.sh --help
+bash scripts/train_prone_motion.sh \
+  --task WheelLeg-ProneMotion-v3 \
+  --num_envs 256 --max_iterations 10000 --num_steps_per_env 64 \
+  --save_interval 250 --seed 103 --run_name train_10000_seed103 \
+  --domain_randomization curriculum --device cuda:0 --headless
+```
+
+训练仍在独立双域原生探针通过后才启动，解释器检测不代替原生或行为验证。
+如已有同名运行，保留旧目录并改 `--run_name`；不覆盖或续训。
+
+### 预装 `/isaac-sim` 的容器镜像
+
 不能直接执行镜像中的venv Python进行训练：镜像的`LD_LIBRARY_PATH`使其加载系统
 Python 3.12.3动态库，却使用Isaac附带的3.12.14标准库，导致`ctypes`报
 `undefined symbol: _PyErr_SetLocaleString`。
@@ -34,7 +57,7 @@ Python 3.12.3动态库，却使用Isaac附带的3.12.14标准库，导致`ctypes
 
 `scripts/server_isaac_python.sh`加载现有Isaac环境，优先使用匹配的libpython与venv包，
 保留既有预加载项，最后`exec`真实Python以保持停止信号的进程归属。
-默认Sim目录`/isaac-sim`、Python`/opt/isaaclab-venv/bin/python`；
+未指定解释器且检测到该镜像时会选用此启动器。默认Sim目录`/isaac-sim`、Python`/opt/isaaclab-venv/bin/python`；
 可用`WHEELED_ISAACSIM_ROOT`和`WHEELED_ISAAC_PYTHON`显式覆盖。
 
 以下命令均在服务器的项目根目录执行：
