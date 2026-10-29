@@ -31,6 +31,9 @@ def normalized_action_delta(delta_square, plan):
 
 
 def validate(plan):
+    if "runtime_cli" in plan:
+        from .prone_motion_cli import validate_resolved
+        return validate_resolved(plan)
     if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2", "wheel-leg-prone-motion-v3"):
         raise ValueError("Need the explicit prone-motion contract")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"

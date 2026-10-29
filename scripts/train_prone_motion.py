@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fresh10000-update six-motor RL: standard prone, quiet standing and locomotion."""
+"""Fresh six-motor RL with explicit command-line run configuration."""
 from __future__ import annotations
 
 import argparse
@@ -27,7 +27,7 @@ import train_scratch_standing as base
 
 
 def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None, seed=None,
-                  performance_backend="cuda_graph"):
+                  performance_backend="cuda_graph", device="cuda:0"):
     from wheeled_tasks.chassis.prone_motion import validate, timing, discounts
     plan = validate(plan)
     rates, discount = timing(plan), discounts(plan)
@@ -39,7 +39,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         updates=plan["max_updates"], num_envs=num_envs or plan["num_envs"], rollout_steps=plan["rollout_steps"],
         seed=(plan["evaluation"]["seed"] if evaluation else plan["seed"]) if seed is None else seed,
         all_heights_after=1000,
-        leg_target_rate_cost=None, device="cuda:0", fixed_target_probe=False, preflight_only=False,
+        leg_target_rate_cost=None, device=device, fixed_target_probe=False, preflight_only=False,
         upright_task=None, standard_prone_task=None, precise_objective=False,
         normalize_observations=True, desync_episodes=False, standing_failures=False,
         wheel_velocity_increment=False, separate_leg_velocity_feedback=False, static_load_initialization=False,
@@ -152,6 +152,7 @@ def learner_config(plan, device="cuda:0"):
 def source_hashes(plan_path, plan):
     result = base.sources()
     names = ["scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
+             "scripts/play_prone_motion.py", "scripts/play_prone_motion.sh", "tests/test_prone_motion_cli.py",
              "scripts/benchmark_prone_motion.py",
              "scripts/server_isaac_python.sh", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
@@ -256,21 +257,17 @@ def stop_previous_009():
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--plan", type=Path, default=ROOT/"contracts/wheel_leg_prone_motion_v3.json")
-    parser.add_argument("--preflight-only", action="store_true")
-    parser.add_argument("--native-probe", action="store_true", help="Zero PPO; native reset/action/reward/contact wiring only")
-    parser.add_argument("--performance-backend",choices=("cuda_graph","eager"),default="cuda_graph",
-                        help="Replay unchanged tensor calculations (default); eager is the comparison path")
-    parser.add_argument("--stop-existing-009", action="store_true", help="Explicitly retire ONLY the authenticated old009, seal and wait; never resume it")
+    from wheeled_tasks.chassis.prone_motion_cli import train_parser, training_options
+    parser = train_parser()
     args = parser.parse_args()
-    if args.preflight_only and args.native_probe:
-        parser.error("Choose one probe type")
-    from wheeled_tasks.chassis.prone_motion import validate, domain_stage, snapshot_name
-    plan_path = args.plan.resolve()
-    plan = validate(json.loads(plan_path.read_text()))
-    output = args.output.resolve()
+    try:
+        plan_path, plan, output = training_options(args, ROOT)
+    except (ValueError, OSError, KeyError) as exc:
+        parser.error(str(exc))
+    if args.print_output:
+        print(output)
+        return
+    from wheeled_tasks.chassis.prone_motion import domain_stage, snapshot_name
     if args.stop_existing_009:
         if args.preflight_only:
             parser.error("A CPU preflight must not signal an existing learner")
@@ -279,22 +276,32 @@ def main():
         check_other_learners()
     output.mkdir(parents=True, exist_ok=False)
     (output/"curriculum_plan.input.json").write_bytes(plan_path.read_bytes())
-    cfg, settings, bank = configuration(output, plan,performance_backend=args.performance_backend)
+    base.write_json(output/"curriculum_plan.resolved.json", plan)
+    run_options = dict(argv=sys.argv[1:], task=args.task, output=str(output), run_name=args.run_name,
+        device=args.device, headless=args.headless, performance_backend=args.performance_backend,
+        options=plan["runtime_cli"]["options"], base_plan=str(plan_path),
+        resolved_plan_sha256=base.digest(output/"curriculum_plan.resolved.json"))
+    base.write_json(output/"run_options.json", run_options)
+    initial_profile, initial_strength = ("nominal", 0.) if args.native_probe else domain_stage(plan, 0)
+    cfg, settings, bank = configuration(output, plan, profile=initial_profile, strength=initial_strength,
+        performance_backend=args.performance_backend, device=args.device)
     hashes = source_hashes(plan_path, plan)
     if args.preflight_only:
         base.write_json(output/"preflight.json", dict(source_hashes=hashes, checkpoint_reads=[], new_PPO=0,
+            run_options=run_options,
             max_updates=plan["max_updates"], rollout_slots=plan["max_updates"]*plan["num_envs"]*plan["rollout_steps"],
             training_origin=plan["initialization"], initialized_behavior_qualified=False))
         return
     committed = base.archive_committed_sources(hashes, output)
     base.write_json(output/"source_hashes.json", hashes)
     (output/"pose_bank.json").write_bytes(bank.read_bytes())
-    base.write_json(output/"input_hashes.json", dict(bank_sha256=base.digest(bank), plan_sha256=base.digest(plan_path)))
+    base.write_json(output/"input_hashes.json", dict(bank_sha256=base.digest(bank), plan_sha256=base.digest(plan_path),
+        resolved_plan_sha256=run_options["resolved_plan_sha256"]))
     report = dict(schema="prone-motion-progress-v1", status="starting", pid=os.getpid(),
         start_ticks=int(Path("/proc/self/stat").read_text().rsplit(")", 1)[1].split()[19]),
         started_utc=datetime.now(timezone.utc).isoformat(), requested_updates=plan["max_updates"],
         completed_updates=0, optimizer_attempts=0, checkpoint_reads=[], contexts=[], cold_reviews=[],
-        committed_source=committed, hardware_ready=False, full_capability_qualified=False)
+        committed_source=committed, run_options=run_options, hardware_ready=False, full_capability_qualified=False)
     stop_requested = False
     def request_stop(signum, frame):
         nonlocal stop_requested
@@ -305,7 +312,7 @@ def main():
     start = time.monotonic()
     try:
         from isaaclab.app import AppLauncher
-        launcher = AppLauncher(dict(headless=True, device="cuda:0", enable_cameras=False,
+        launcher = AppLauncher(dict(headless=True if args.native_probe else args.headless, device=args.device, enable_cameras=False,
             kit_args="--/exts/omni.kit.telemetry/skipDeferredStartup=true"))
         signal.signal(signal.SIGTERM, request_stop)
         signal.signal(signal.SIGINT, request_stop)
@@ -351,14 +358,28 @@ def main():
             active_directory.mkdir(parents=True, exist_ok=False)
             cfg, settings, _ = configuration(active_directory, plan, profile=profile, strength=strength,
                 evaluation=evaluation, num_envs=80 if args.native_probe else plan["num_envs"], seed=runtime_seed,
-                performance_backend=args.performance_backend)
+                performance_backend=args.performance_backend, device=args.device)
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
-                stage_name="speed", num_envs=cfg["target_num_envs"], device="cuda:0",
+                stage_name="speed", num_envs=cfg["target_num_envs"], device=args.device,
                 seed=runtime_seed,
                 level=1., run_role="train", bank=output/"pose_bank.json", settings=settings)
             env.actor_updates = report["completed_updates"]
             env.reset(torch.arange(env.num_envs, device=env.device))
+            if not args.headless and not args.native_probe:
+                native_step = env.step
+                last_render = 0.
+                def visible_step(actions):
+                    nonlocal last_render
+                    result = native_step(actions)
+                    now = time.monotonic()
+                    if now-last_render >= 1./30.:
+                        pose = env.robot.data.root_link_pose_w.torch[0, :3].cpu().tolist()
+                        env.sim.set_camera_view((pose[0]+1.7, pose[1]-1.7, pose[2]+.8), pose)
+                        env.sim.render()
+                        last_render = now
+                    return result
+                env.step = visible_step
             if runner is not None:
                 runner.env = env
             report["contexts"].append(dict(index=index, profile=profile, strength=strength,
@@ -372,12 +393,12 @@ def main():
             print(f"[prone-motion] Native context ready: {profile}, strength={strength:g}, "
                   f"completed={report['completed_updates']}/{plan['max_updates']}", flush=True)
 
-        build()
+        build(*(("nominal", 0.) if args.native_probe else domain_stage(plan, 0)))
         if args.native_probe:
             reports = []
             report["native_probes"] = reports
             desired = [("nominal", 0.)]
-            probe_runner = SimpleNamespace(env=env, device="cuda:0", logger=SimpleNamespace(writer=None),
+            probe_runner = SimpleNamespace(env=env, device=args.device, logger=SimpleNamespace(writer=None),
                 alg=SimpleNamespace(actor=object(), critic=object(), optimizer=object(),
                     storage=SimpleNamespace(step=0), act=lambda observations: observations))
             def probe_rebuild(profile, strength):
@@ -407,9 +428,9 @@ def main():
             if not report["all_native_checks_pass"]:
                 raise RuntimeError("Native prone-motion wiring probe failed")
             return
-        runner_cfg = learner_config(plan)
+        runner_cfg = learner_config(plan, args.device)
         base.write_json(output/"agent_config.json", runner_cfg)
-        runner = OnPolicyRunner(env, runner_cfg, log_dir=str(output), device="cuda:0")
+        runner = OnPolicyRunner(env, runner_cfg, log_dir=str(output), device=args.device)
         report["initialization"] = initialize_fresh(runner.alg, base.nominal_action(env), initial_std=plan["initial_std"])
         base.write_json(output/"initialization.json", report["initialization"])
         original_actor = {k:v.detach().cpu().clone() for k,v in runner.alg.actor.named_parameters()}
@@ -437,6 +458,7 @@ def main():
             state.update(iter=report["completed_updates"], infos=dict(schema="prone-motion-checkpoint-v1",
                 training_origin="scratch", continuation_forbidden=True, initialization=report["initialization"],
                 source_revision=committed, source_hashes=hashes, configuration=str(active_directory),
+                resolved_plan=deepcopy(plan), run_options=run_options,
                 completed_updates=report["completed_updates"], bank_sha256=base.digest(output/"pose_bank.json"),
                 torch_rng=torch.get_rng_state(), cuda_rng=torch.cuda.get_rng_state_all(),
                 env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state()))
