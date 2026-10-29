@@ -5,6 +5,29 @@
 新版默认策略100Hz、rollout64步；物理与腿PD保持1kHz。从零初始化、连续10000次更新、每250次保存一次PT；详见PRONE_MOTION_TRAINING_20261028.md中的时间尺度与域随机化单位说明。
 环境修复与CPU预检不授予策略行为或GPU仿真资格，也不自动开始训练。
 
+## Kaiser WSL 启动路径（2026-10-29）
+
+Kaiser使用`$HOME/robot-rl-sim60/env/bin/python`，与下文的容器镜像分开。
+在该WSL安装中，`libcuda.so.1`能由系统加载，但PhysX按名称加载的`libcuda.so`
+需要`/usr/lib/wsl/lib`搜索路径。缺少此路径时，Torch仍能看到4090，PhysX却回退CPU，
+最终在内部Warp内核处报`ProxyArray`参数错误。不能通过改成CPU训练、修改数组类或跳过预检解决。
+共用的train/play启动器会在真实`libcuda.so`存在时加入WSL目录，并保留调用者已有路径。
+
+Kaiser还缺少MaterialX依赖的`libXt.so.6`。没有sudo时可从系统已配置的Ubuntu仓库提取到用户目录：
+
+```bash
+mkdir -p "$HOME/.local/share/wheeled-rl/runtime-libs/packages"
+cd "$HOME/.local/share/wheeled-rl/runtime-libs/packages"
+apt-get download libxt6 libsm6 libice6
+for package in ./*.deb; do
+  dpkg-deb --extract "$package" "$HOME/.local/share/wheeled-rl/runtime-libs"
+done
+```
+
+启动器自动加入该用户目录下的`usr/lib/x86_64-linux-gnu`，不改系统库或驱动。
+其他提取位置可用`WHEELED_RL_RUNTIME_LIB_DIR`指定；原始下载包及SHA回执应保留。
+真实GPU物理缓冲的设备读回与完整原生预检都要通过，不能仅凭`torch.cuda.is_available()`判断可训练。
+
 ## 已有镜像与依赖修复
 
 服务器预装Sim `6.2.0-rc.14`、Isaac Lab源码`3.0.0`、Torch `2.11.0+cu130`、

@@ -1,6 +1,34 @@
 #!/usr/bin/env bash
 # Shared bootstrap for train/play; probe package locations without starting Kit.
+wheeled_prepare_native_loader() {
+    local task_wsl_lib="${WHEELED_RL_WSL_LIB_DIR:-/usr/lib/wsl/lib}"
+    local task_runtime_lib="${WHEELED_RL_RUNTIME_LIB_DIR:-${HOME}/.local/share/wheeled-rl/runtime-libs/usr/lib/x86_64-linux-gnu}"
+    local -a task_library_dirs=()
+    local task_library_dir
+    # WSL's ldconfig cache exposes libcuda.so.1, whereas PhysX dlopens
+    # libcuda.so. Torch CUDA can work while PhysX silently falls back to CPU.
+    if [[ -f "$task_wsl_lib/libcuda.so" ]]; then
+        task_library_dirs+=("$task_wsl_lib")
+        if [[ -x "$task_wsl_lib/nvidia-smi" ]]; then
+            case ":${PATH:-}:" in
+                *":$task_wsl_lib:"*) ;;
+                *) export PATH="$task_wsl_lib${PATH:+:$PATH}" ;;
+            esac
+        fi
+    fi
+    # Optional Ubuntu runtime packages extracted without sudo; never include a
+    # CUDA toolkit stubs directory or replace the actual WSL driver library.
+    if [[ -d "$task_runtime_lib" ]]; then task_library_dirs+=("$task_runtime_lib"); fi
+    for task_library_dir in "${task_library_dirs[@]}"; do
+        case ":${LD_LIBRARY_PATH:-}:" in
+            *":$task_library_dir:"*) ;;
+            *) export LD_LIBRARY_PATH="$task_library_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ;;
+        esac
+    done
+}
+
 wheeled_resolve_python() {
+    wheeled_prepare_native_loader
     local task_requested="${WHEELED_RL_PYTHON:-}" task_explicit=false task_argument
     local task_cli_python=false task_expect_python=false
     if [[ -n "$task_requested" ]]; then task_explicit=true; fi
