@@ -1,6 +1,6 @@
 # 轮腿统一分支与默认训练配置
 
-`codex/wheel-leg-unified`整合以下来源：
+当前统一开发分支为 `dev`（原名 `codex/wheel-leg-unified`），整合以下来源：
 
 | 来源 | 冻结提交 | 采用内容 |
 |---|---|---|
@@ -8,15 +8,50 @@
 | `codex/prone-motion-long` | `f4996e0dc8aec96b6944c85a7bef6bbd2b6097a8` | 标准趴地与站立混采、运动/变高课程、10000次连续训练、每250次PT、左右15.62轮辨识、CUDA张量回放 |
 | `codex/prone-motion-100hz` | `a4d2e1fda7e398c607f625cf7f596bc6df452ef7` | 100Hz策略、64步rollout、按秒保持折扣和动作变化代价 |
 
-气簧实现与参数取自`7359170b`；合并期间dev新提交`2a5530c6`包含原暂存的模型/报告归档，已一起保留。100Hz提交已经包含long历史。合并保留三个来源的祖先关系；原分支及用户主目录的暂存改动保持，运行中的旧训练使用其原目录和冻结源码。
+气簧实现与参数取自`7359170b`；合并期间dev新提交`2a5530c6`包含原暂存的模型/报告归档，已一起保留。100Hz提交已经包含long历史。合并保留三个来源的祖先关系。为使用确切的 `dev` 名称，旧 `dev/self_righting_policy`、`dev/completed-speed-resume-20261010`、`dev/wheel-leg-domain-v2` 改名为各自的 `archive/dev/...`，提交和工作目录保留。后续不新建 `codex/` 前缀分支。
 
 ## 默认入口
 
 默认计划为`contracts/wheel_leg_prone_motion_v3.json`。在统一分支目录启动，输出目录必须不存在：
 
 ```bash
-bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run_unified001"
+cd /home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train
+bash scripts/train_prone_motion.sh \
+  --task WheelLeg-ProneMotion-v3 \
+  --num_envs 256 \
+  --max_iterations 10000 \
+  --num_steps_per_env 64 \
+  --save_interval 250 \
+  --seed 103 \
+  --run_name train_10000_seed103 \
+  --domain_randomization curriculum \
+  --device cuda:0 \
+  --headless
 ```
+
+常用参数支持下划线和连字符两种拼写；`--help` 查看全部选项。`--run_name` 自动创建 `runs/prone_motion/<名字>`；也可用 `--output <新目录>` 指定绝对路径。已有训练目录和同名 `.native_probe` 均拒绝覆盖，换一个名称即可。训练禁止 `--checkpoint`，所有新运行仍从零初始化。
+
+`--max_iterations`、`--num_envs`、`--seed`、`--save_interval`、`--num_steps_per_env`、`--learning_rate` 无需修改脚本。预算至少20次、训练环境20..256个；256为现有隔离物理环境的上限，没有因开放CLI而放宽。默认10000次时课程沿用原节点；例如5000次时，基础/全速/全自旋/全高度节点为500/3000/3500/2500次，完整随机域从4500次开始。时钟、模型、气簧补偿、验收标准不随预算改变；轮数更少不代表已学会。
+
+域随机化通过 `--domain_randomization curriculum|on|off` 选择：默认 `curriculum` 渐进分组，`on` 从第一步使用组合 requested 域，`off` 全程名义域。`--dr_strength 0..1` 缩放指定v2范围，默认1。关闭或减弱训练随机化不授予完整随机域资格。启动时的独立零PPO接线检查仍验证名义与完整随机域；它不会进入训练优化器。
+
+每次运行保存原合同 `curriculum_plan.input.json`、解析后的 `curriculum_plan.resolved.json` 和命令行 `run_options.json`；PT内也带解析计划及运行参数，便于按实际配置重放。`--headless` 默认开启；`--no-headless` 显示训练窗口。默认解释器保持本机 Isaac 环境，服务器用 `WHEELED_RL_PYTHON` 指定。
+
+训练后选任意检查点播放，无需修改脚本：
+
+```bash
+bash scripts/play_prone_motion.sh \
+  --task WheelLeg-ProneMotion-v3 \
+  --checkpoint "$PWD/runs/prone_motion/train_10000_seed103/model_00250.pt" \
+  --num_envs 1 \
+  --scene prone \
+  --domain_randomization off \
+  --device cuda:0
+```
+
+play 默认打开GUI。`--scene` 支持 prone、stand、forward、reverse、spin_left、spin_right、arc_fl/fr/rl/rr、height；`--vx` 指定前后目标m/s（±2内），`--yaw_rate` 指定yaw rad/s（±100rpm内），`--height .23..42` 指定目标高度米，`--birth_height .23|.305|.42` 指定站姿出生高度。运动使用训练同一平滑升速/减速包络；prone场景由实际起立完成事件启动完整30秒静站等待，不是脚本控电机。单次默认70秒，原生结束事件提前结束预览；`--seconds` 调整总时长、`--loop` 重复场景并记录重置次数（不指定seconds时持续到关闭窗口或Ctrl-C）、`--headless --no-real_time` 无窗口快速预览。`--real_time` 仅控制GUI节奏，不改物理时钟。需要静站时使用 `--scene stand --height .305`。
+
+play 仅恢复actor，使用原始计划和姿态库，验证PT版本、计划一致性、SHA及35→6结构，不创建PPO或恢复Adam。使用当前源码构建预览，结果写入独立 `runs/prone_motion_play/`；不是冻结训练源逐字节复现，也不替代固定病例的完整行为验收。复制模型到别处时可用 `--run <原运行目录>` 指定配套的agent配置、计划和姿态库。
 
 CPU配置预检使用同一入口加`--preflight-only`，原生零PPO接线检查加`--native-probe`。普通启动先串行验证名义域和完整v2随机域，再创建新的actor、critic与空Adam。已有轮腿learner时入口拒绝并行启动；不要为切换分支停止或续训现有运行。
 
@@ -24,7 +59,7 @@ CPU配置预检使用同一入口加`--preflight-only`，原生零PPO接线检�
 
 标准趴地起立、完成后完整30秒静站、静站复习、前后±2m/s、双向100rpm自旋、四方向转弯及230/305/420mm高度课程沿用long计划。域随机化节点和范围保持：6000次前名义域，随后分组及组合渐入，9000次起完整v2范围。腿P/D、气簧系数固定1，独立惯量最终±6%，无IMU晃动。具体角色、幅度与随机化开关见[训练说明](PRONE_MOTION_TRAINING_20261028.md)。
 
-显式`--plan contracts/wheel_leg_prone_motion_v1.json`仍选择历史200Hz/128步方案；v2选择历史100Hz/64步与long气簧适配层。历史009复现显式绑定旧mechanism，不自动采用新气簧补偿。
+显式`--task WheelLeg-ProneMotion-v1`选择历史200Hz/128步方案；v2选择历史100Hz/64步与long气簧适配层。`--plan`可指定仓库内与task版本对应的原始合同。历史009复现显式绑定旧mechanism，不自动采用新气簧补偿。
 
 ## 气簧与力矩路径
 

@@ -21,10 +21,18 @@ for ((task_i=0; task_i<${#task_args[@]}; task_i++)); do
     case "${task_args[task_i]}" in
         --output) task_output="${task_args[task_i+1]:-}" ;;
         --output=*) task_output="${task_args[task_i]#--output=}" ;;
-        --native-probe) task_probe_only=true; task_native_only=true ;;
-        --preflight-only|--help|-h) task_probe_only=true ;;
+        --native-probe|--native_probe) task_probe_only=true; task_native_only=true ;;
+        --preflight-only|--preflight_only|--print-output|--help|-h) task_probe_only=true ;;
     esac
 done
+if [[ "$task_probe_only" == false || "$task_native_only" == true ]]; then
+    task_output="$("$task_python" "$task_root/scripts/train_prone_motion.py" "$@" --print-output)"
+    if [[ -e "$task_output" || ( "$task_native_only" == false && -e "${task_output}.native_probe" ) ]]; then
+        echo "Output or native-probe directory already exists: $task_output" >&2
+        echo "Choose a new --run_name or --output. Existing runs are never overwritten or resumed." >&2
+        exit 2
+    fi
+fi
 verify_probe() {
     "$task_python" - "$task_root/scripts" "$1" <<'PY'
 from pathlib import Path
@@ -40,8 +48,11 @@ if [[ "$task_probe_only" == false && -n "$task_output" ]]; then
     verify_probe "${task_output}.native_probe"
 fi
 if [[ "$task_native_only" == true ]]; then
-    "$task_python" "$task_root/scripts/train_prone_motion.py" "$@"
+    "$task_python" "$task_root/scripts/train_prone_motion.py" "$@" --output "$task_output"
     verify_probe "$task_output"
     exit 0
+fi
+if [[ "$task_probe_only" == false ]]; then
+    exec "$task_python" "$task_root/scripts/train_prone_motion.py" "$@" --output "$task_output"
 fi
 exec "$task_python" "$task_root/scripts/train_prone_motion.py" "$@"

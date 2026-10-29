@@ -78,7 +78,7 @@ class ProneMotionEnv(RobustGetupEnv):
             # height transitions still start at305mm, so height error cannot
             # terminate the experiment before it receives an action.
             h = (.23, .305, .42)[i % 3] if role in ("height", "stand") else .305
-            birth = h if role == "stand" and self.actor_updates >= 5000 else .305
+            birth = h if role == "stand" and self.actor_updates >= self.plan["height_full_update"] else .305
             cases.append(dict(pose_index=self.prone_index if role == "prone" else self.height_pose[birth],
                 recovery=role == "prone", role=role, target=task.target(role, self.actor_updates, self.plan, height=h),
                 command=[0., 0., birth], pitch_deg=0., birth_height=birth))
