@@ -1,0 +1,241 @@
+........................................................................ [ 36%]
+.............EEEEE
+==================================== ERRORS ====================================
+_ ERROR at setup of test_actual_cpu_instances_validate_without_a_global_posture_cap _
+
+lineage_fixture = namespace(source=PosixPath('/tmp/pytest-of-noir/pytest-26/test_actual_cpu_instances_vali0/source'), run=PosixPath('/tm...7', 'schedule_completion': {'reason': 'iteration_endpoint', 'end_actor_update': 15000, 'actual_actor_update': 15000}}})
+sources = {'flat': {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf',...302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}, ...}
+
+    @pytest.fixture
+    def prepared(lineage_fixture, sources):
+>       config = later(lineage_fixture, sources, 'terrain')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_preflight.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_native_routing.py:46: in later
+    config = first(f, sources)
+             ^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:83: in first
+    return candidate(f, sources, "speed", selected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:52: in candidate
+    return runtime.apply(sources[domain], ROOT, SCUT, binding=f.binding, selection=selection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:229: in apply
+    references = _references(root, sources)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:73: in _references
+    visit(config)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:63: in visit
+    pin = _pin(root, file, value[sha_key])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train')
+file = 'src/wheeled_tasks/chassis/recovery.py'
+sha = '04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6'
+
+    def _pin(root, file, sha):
+        path = lineage._within(file, root)
+        if lineage.digest(path) != lineage._sha(sha):
+>           raise ValueError("Runtime source/reference SHA differs: " + file)
+E           ValueError: Runtime source/reference SHA differs: src/wheeled_tasks/chassis/recovery.py
+
+src/wheeled_tasks/chassis/integrated_runtime.py:50: ValueError
+_ ERROR at setup of test_bad_component_or_native_physical_state_is_rejected[missing_design] _
+
+lineage_fixture = namespace(source=PosixPath('/tmp/pytest-of-noir/pytest-26/test_bad_component_or_native_p0/source'), run=PosixPath('/tm...7', 'schedule_completion': {'reason': 'iteration_endpoint', 'end_actor_update': 15000, 'actual_actor_update': 15000}}})
+sources = {'flat': {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf',...302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}, ...}
+
+    @pytest.fixture
+    def prepared(lineage_fixture, sources):
+>       config = later(lineage_fixture, sources, 'terrain')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_preflight.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_native_routing.py:46: in later
+    config = first(f, sources)
+             ^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:83: in first
+    return candidate(f, sources, "speed", selected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:52: in candidate
+    return runtime.apply(sources[domain], ROOT, SCUT, binding=f.binding, selection=selection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:229: in apply
+    references = _references(root, sources)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:73: in _references
+    visit(config)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:63: in visit
+    pin = _pin(root, file, value[sha_key])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train')
+file = 'src/wheeled_tasks/chassis/recovery.py'
+sha = '04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6'
+
+    def _pin(root, file, sha):
+        path = lineage._within(file, root)
+        if lineage.digest(path) != lineage._sha(sha):
+>           raise ValueError("Runtime source/reference SHA differs: " + file)
+E           ValueError: Runtime source/reference SHA differs: src/wheeled_tasks/chassis/recovery.py
+
+src/wheeled_tasks/chassis/integrated_runtime.py:50: ValueError
+_ ERROR at setup of test_bad_component_or_native_physical_state_is_rejected[design_birth_hold] _
+
+lineage_fixture = namespace(source=PosixPath('/tmp/pytest-of-noir/pytest-26/test_bad_component_or_native_p1/source'), run=PosixPath('/tm...7', 'schedule_completion': {'reason': 'iteration_endpoint', 'end_actor_update': 15000, 'actual_actor_update': 15000}}})
+sources = {'flat': {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf',...302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}, ...}
+
+    @pytest.fixture
+    def prepared(lineage_fixture, sources):
+>       config = later(lineage_fixture, sources, 'terrain')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_preflight.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_native_routing.py:46: in later
+    config = first(f, sources)
+             ^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:83: in first
+    return candidate(f, sources, "speed", selected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:52: in candidate
+    return runtime.apply(sources[domain], ROOT, SCUT, binding=f.binding, selection=selection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:229: in apply
+    references = _references(root, sources)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:73: in _references
+    visit(config)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:63: in visit
+    pin = _pin(root, file, value[sha_key])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train')
+file = 'src/wheeled_tasks/chassis/recovery.py'
+sha = '04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6'
+
+    def _pin(root, file, sha):
+        path = lineage._within(file, root)
+        if lineage.digest(path) != lineage._sha(sha):
+>           raise ValueError("Runtime source/reference SHA differs: " + file)
+E           ValueError: Runtime source/reference SHA differs: src/wheeled_tasks/chassis/recovery.py
+
+src/wheeled_tasks/chassis/integrated_runtime.py:50: ValueError
+_ ERROR at setup of test_bad_component_or_native_physical_state_is_rejected[actual_birth_origin] _
+
+lineage_fixture = namespace(source=PosixPath('/tmp/pytest-of-noir/pytest-26/test_bad_component_or_native_p2/source'), run=PosixPath('/tm...7', 'schedule_completion': {'reason': 'iteration_endpoint', 'end_actor_update': 15000, 'actual_actor_update': 15000}}})
+sources = {'flat': {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf',...302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}, ...}
+
+    @pytest.fixture
+    def prepared(lineage_fixture, sources):
+>       config = later(lineage_fixture, sources, 'terrain')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_preflight.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_native_routing.py:46: in later
+    config = first(f, sources)
+             ^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:83: in first
+    return candidate(f, sources, "speed", selected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:52: in candidate
+    return runtime.apply(sources[domain], ROOT, SCUT, binding=f.binding, selection=selection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:229: in apply
+    references = _references(root, sources)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:73: in _references
+    visit(config)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:63: in visit
+    pin = _pin(root, file, value[sha_key])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train')
+file = 'src/wheeled_tasks/chassis/recovery.py'
+sha = '04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6'
+
+    def _pin(root, file, sha):
+        path = lineage._within(file, root)
+        if lineage.digest(path) != lineage._sha(sha):
+>           raise ValueError("Runtime source/reference SHA differs: " + file)
+E           ValueError: Runtime source/reference SHA differs: src/wheeled_tasks/chassis/recovery.py
+
+src/wheeled_tasks/chassis/integrated_runtime.py:50: ValueError
+_ ERROR at setup of test_bad_component_or_native_physical_state_is_rejected[actual_clock] _
+
+lineage_fixture = namespace(source=PosixPath('/tmp/pytest-of-noir/pytest-26/test_bad_component_or_native_p3/source'), run=PosixPath('/tm...7', 'schedule_completion': {'reason': 'iteration_endpoint', 'end_actor_update': 15000, 'actual_actor_update': 15000}}})
+sources = {'flat': {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf',...302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}, ...}
+
+    @pytest.fixture
+    def prepared(lineage_fixture, sources):
+>       config = later(lineage_fixture, sources, 'terrain')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_preflight.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_native_routing.py:46: in later
+    config = first(f, sources)
+             ^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:83: in first
+    return candidate(f, sources, "speed", selected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_integrated_runtime.py:52: in candidate
+    return runtime.apply(sources[domain], ROOT, SCUT, binding=f.binding, selection=selection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:229: in apply
+    references = _references(root, sources)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_runtime.py:73: in _references
+    visit(config)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:67: in visit
+    visit(file)
+src/wheeled_tasks/chassis/integrated_runtime.py:63: in visit
+    pin = _pin(root, file, value[sha_key])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/.codex/worktrees/wheel-leg-unified/isaac_wheeled_rl_train')
+file = 'src/wheeled_tasks/chassis/recovery.py'
+sha = '04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6'
+
+    def _pin(root, file, sha):
+        path = lineage._within(file, root)
+        if lineage.digest(path) != lineage._sha(sha):
+>           raise ValueError("Runtime source/reference SHA differs: " + file)
+E           ValueError: Runtime source/reference SHA differs: src/wheeled_tasks/chassis/recovery.py
+
+src/wheeled_tasks/chassis/integrated_runtime.py:50: ValueError
+=========================== short test summary info ============================
+ERROR tests/test_integrated_preflight.py::test_actual_cpu_instances_validate_without_a_global_posture_cap
+ERROR tests/test_integrated_preflight.py::test_bad_component_or_native_physical_state_is_rejected[missing_design]
+ERROR tests/test_integrated_preflight.py::test_bad_component_or_native_physical_state_is_rejected[design_birth_hold]
+ERROR tests/test_integrated_preflight.py::test_bad_component_or_native_physical_state_is_rejected[actual_birth_origin]
+ERROR tests/test_integrated_preflight.py::test_bad_component_or_native_physical_state_is_rejected[actual_clock]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 5 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+85 passed, 5 errors in 3.81s

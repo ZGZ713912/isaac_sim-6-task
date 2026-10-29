@@ -1,0 +1,44 @@
+...FF................................................................... [ 37%]
+........................................................................ [ 74%]
+.................................................                        [100%]
+=================================== FAILURES ===================================
+_ test_default_unified_configuration_keeps_rates_curriculum_and_one_backend[nominal-0.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-24/test_default_unified_configura0')
+profile = 'nominal', strength = 0.0
+
+    @pytest.mark.parametrize("profile,strength", [("nominal", 0.), ("requested", 1.)])
+    def test_default_unified_configuration_keeps_rates_curriculum_and_one_backend(tmp_path, profile, strength):
+        cfg, settings, _ = configuration(tmp_path, PLAN, profile=profile, strength=strength)
+        gas = cfg["v5_control"]
+        assert gas["gas_spring_compensation"] == PLAN["gas_spring_feedforward"] == SETTINGS
+        assert "encoder_spring_feedforward" not in gas and "identified_gas_spring" not in gas
+        assert cfg["policy_dt"] == .01 and cfg["physics_dt"] == .001
+        assert cfg["num_steps_per_env"] == PLAN["rollout_steps"] == 64
+        assert gas["leg_kp"] == 160. and gas["leg_kd"] == 2.5
+>       assert cfg["wheel_reduction"] == 15.62
+E       AssertionError: assert {'schema': 'wheel-leg-wheel-reduction-v1', 'gear_ratio': 15.62, 'source': 'user_confirmed_20261027_and_RMCS_explicit_driver', 'reference': 'wheel_output', ...} == 15.62
+
+tests/test_unified_training.py:67: AssertionError
+_ test_default_unified_configuration_keeps_rates_curriculum_and_one_backend[requested-1.0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-24/test_default_unified_configura1')
+profile = 'requested', strength = 1.0
+
+    @pytest.mark.parametrize("profile,strength", [("nominal", 0.), ("requested", 1.)])
+    def test_default_unified_configuration_keeps_rates_curriculum_and_one_backend(tmp_path, profile, strength):
+        cfg, settings, _ = configuration(tmp_path, PLAN, profile=profile, strength=strength)
+        gas = cfg["v5_control"]
+        assert gas["gas_spring_compensation"] == PLAN["gas_spring_feedforward"] == SETTINGS
+        assert "encoder_spring_feedforward" not in gas and "identified_gas_spring" not in gas
+        assert cfg["policy_dt"] == .01 and cfg["physics_dt"] == .001
+        assert cfg["num_steps_per_env"] == PLAN["rollout_steps"] == 64
+        assert gas["leg_kp"] == 160. and gas["leg_kd"] == 2.5
+>       assert cfg["wheel_reduction"] == 15.62
+E       AssertionError: assert {'schema': 'wheel-leg-wheel-reduction-v1', 'gear_ratio': 15.62, 'source': 'user_confirmed_20261027_and_RMCS_explicit_driver', 'reference': 'wheel_output', ...} == 15.62
+
+tests/test_unified_training.py:67: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_unified_training.py::test_default_unified_configuration_keeps_rates_curriculum_and_one_backend[nominal-0.0]
+FAILED tests/test_unified_training.py::test_default_unified_configuration_keeps_rates_curriculum_and_one_backend[requested-1.0]
+2 failed, 191 passed in 12.69s

@@ -1,0 +1,263 @@
+........................................................................ [ 38%]
+........................................................................ [ 77%]
+FFFF..............................FFF......                              [100%]
+=================================== FAILURES ===================================
+_ test_prone_target_range_covers_rotation_without_changing_PD_or_motor_limits __
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-23/test_prone_target_range_covers0')
+
+    def test_prone_target_range_covers_rotation_without_changing_PD_or_motor_limits(tmp_path):
+        original = json.loads((ROOT / "contracts/scratch_standing_base_mechanism_v2.json").read_text())["v5_control"]
+        cfg, task = prepare(tmp_path, "requested", prone=True)
+>       assert cfg["v5_control"] == dict(original, action_clip=16.)
+E       AssertionError: assert {'active_orde...e': 10.0, ...} == {'active_orde...e': 10.0, ...}
+E         
+E         Omitting 12 identical items, use -vv to show
+E         Differing items:
+E         {'spring_pressure_mpa': None} != {'spring_pressure_mpa': 10.0}
+E         {'spring_reserve_model': 'measured_effective_force_with_C1_endpoint_trend_extension'} != {'spring_reserve_model': 'explicit_cubic_extrapolation_90_to_100_percent'}
+E         Left contains 1 more item:
+E         {'gas_spring_compensation': {'enabled': True,...
+E         
+E         ...Full output truncated (10 lines hidden), use '-vv' to show
+
+tests/test_upright_locomotion.py:80: AssertionError
+_ test_requested_domains_remain_full_and_friction_summary_matches_actual_material[baseline-expected0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-23/test_requested_domains_remain_0')
+friction = 'baseline', expected = [0.5, 0.6]
+
+    @pytest.mark.parametrize("friction,expected", [("baseline", [.5, .6]), ("legacy_low_grip", [.2, .3])])
+    def test_requested_domains_remain_full_and_friction_summary_matches_actual_material(tmp_path, friction, expected):
+>       cfg, task = prepare(tmp_path, "requested", friction)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_upright_locomotion.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_upright_locomotion.py:74: in prepare
+    return base.prepare(args)
+           ^^^^^^^^^^^^^^^^^^
+scripts/train_scratch_standing.py:179: in prepare
+    static_prior = load_prior(reference, native_pair, mechanism=nominal_mechanism, bank_path=args.bank, root=ROOT)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:84: in load_prior
+    if sha(root / name) != expected:
+       ^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:18: in sha
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_requested_domains_remain_full_and_friction_summary_matches_actual_material[legacy_low_grip-expected1] _
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-23/test_requested_domains_remain_1')
+friction = 'legacy_low_grip', expected = [0.2, 0.3]
+
+    @pytest.mark.parametrize("friction,expected", [("baseline", [.5, .6]), ("legacy_low_grip", [.2, .3])])
+    def test_requested_domains_remain_full_and_friction_summary_matches_actual_material(tmp_path, friction, expected):
+>       cfg, task = prepare(tmp_path, "requested", friction)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_upright_locomotion.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_upright_locomotion.py:74: in prepare
+    return base.prepare(args)
+           ^^^^^^^^^^^^^^^^^^
+scripts/train_scratch_standing.py:179: in prepare
+    static_prior = load_prior(reference, native_pair, mechanism=nominal_mechanism, bank_path=args.bank, root=ROOT)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:84: in load_prior
+    if sha(root / name) != expected:
+       ^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:18: in sha
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1013: FileNotFoundError
+___ test_uncompensated_static_load_prior_is_not_reused_with_gas_compensation ___
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-23/test_uncompensated_static_load0')
+
+    def test_uncompensated_static_load_prior_is_not_reused_with_gas_compensation(tmp_path):
+        with pytest.raises(ValueError,match="Static prior mechanics differ"):
+>           prepare(tmp_path,static_prior=True)
+E           TypeError: prepare() got an unexpected keyword argument 'static_prior'
+
+tests/test_upright_locomotion.py:109: TypeError
+__ test_initial_configuration_keeps_original_material_and_current_wheel_ratio __
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-23/test_initial_configuration_kee0/new_native_context/configuration')
+
+    def test_initial_configuration_keeps_original_material_and_current_wheel_ratio(tmp_path):
+        tmp_path = tmp_path/"new_native_context"/"configuration"
+>       cfg, settings = configuration(tmp_path,PLAN)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_standing009_curriculum.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_009_curriculum.py:41: in configuration
+    cfg, settings = base.prepare(args)
+                    ^^^^^^^^^^^^^^^^^^
+scripts/train_scratch_standing.py:179: in prepare
+    static_prior = load_prior(reference, native_pair, mechanism=nominal_mechanism, bank_path=args.bank, root=ROOT)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:84: in load_prior
+    if sha(root / name) != expected:
+       ^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:18: in sha
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_final_heldout_domains_use_all_randomized_lanes_and_keep_user_fixed_parameters _
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-23/test_final_heldout_domains_use0')
+
+    def test_final_heldout_domains_use_all_randomized_lanes_and_keep_user_fixed_parameters(tmp_path):
+>       cfg, settings = configuration(tmp_path,PLAN,task="tracking",profile="requested",strength=1.,fully_randomized=True)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_standing009_curriculum.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_009_curriculum.py:41: in configuration
+    cfg, settings = base.prepare(args)
+                    ^^^^^^^^^^^^^^^^^^
+scripts/train_scratch_standing.py:179: in prepare
+    static_prior = load_prior(reference, native_pair, mechanism=nominal_mechanism, bank_path=args.bank, root=ROOT)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:84: in load_prior
+    if sha(root / name) != expected:
+       ^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:18: in sha
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1013: FileNotFoundError
+____ test_cold_configuration_persists_the_actual_runtime_duration_and_cases ____
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-23/test_cold_configuration_persis0')
+
+    def test_cold_configuration_persists_the_actual_runtime_duration_and_cases(tmp_path):
+>       cfg, settings = configuration(tmp_path, PLAN, evaluation=True)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_standing009_curriculum.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_009_curriculum.py:41: in configuration
+    cfg, settings = base.prepare(args)
+                    ^^^^^^^^^^^^^^^^^^
+scripts/train_scratch_standing.py:179: in prepare
+    static_prior = load_prior(reference, native_pair, mechanism=nominal_mechanism, bank_path=args.bank, root=ROOT)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:84: in load_prior
+    if sha(root / name) != expected:
+       ^^^^^^^^^^^^^^^^
+src/wheeled_algo/standing_load_initialization.py:18: in sha
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/runs/scratch_standing_20261026/pilot004_increment/pose_bank.json'
+
+/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/pathlib.py:1013: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_upright_locomotion.py::test_prone_target_range_covers_rotation_without_changing_PD_or_motor_limits
+FAILED tests/test_upright_locomotion.py::test_requested_domains_remain_full_and_friction_summary_matches_actual_material[baseline-expected0]
+FAILED tests/test_upright_locomotion.py::test_requested_domains_remain_full_and_friction_summary_matches_actual_material[legacy_low_grip-expected1]
+FAILED tests/test_upright_locomotion.py::test_uncompensated_static_load_prior_is_not_reused_with_gas_compensation
+FAILED tests/test_standing009_curriculum.py::test_initial_configuration_keeps_original_material_and_current_wheel_ratio
+FAILED tests/test_standing009_curriculum.py::test_final_heldout_domains_use_all_randomized_lanes_and_keep_user_fixed_parameters
+FAILED tests/test_standing009_curriculum.py::test_cold_configuration_persists_the_actual_runtime_duration_and_cases
+7 failed, 180 passed in 12.28s
