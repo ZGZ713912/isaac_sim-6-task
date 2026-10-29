@@ -1,0 +1,218 @@
+{
+  "schema": "wheel-leg-server-gpu-compatibility-v1",
+  "at_utc": "2026-10-28T16:36:42.454847+00:00",
+  "ssh_host": "183.147.142.40",
+  "ssh_port": 30926,
+  "project": "/root/gpufree-data/workspace/prone_motion_long",
+  "server_source_commit": "677c9e0fafe8f20d33f511fefe9913316a6b43a4",
+  "git_status": "",
+  "software": {
+    "at_utc": "2026-10-28T16:35:00.602246+00:00",
+    "python_executable": "/opt/isaaclab-venv/bin/python",
+    "python_version": "3.12.14 (tags/v3.12.14-dirty:2abcf90, Sep  4 2026, 14:51:53) [GCC 11.4.0]",
+    "gpu": "NVIDIA GeForce RTX 4090, 24564 MiB, 580.126.09",
+    "cpu_quota": "1400000 100000",
+    "memory_limit_b": 53687091200,
+    "packages": {
+      "torch": "2.11.0+cu130",
+      "torchvision": "0.26.0+cu130",
+      "warp-lang": "1.17.0",
+      "rsl-rl-lib": "5.5.1",
+      "tensorboard": "2.21.0",
+      "numpy": "2.3.5",
+      "packaging": "23.2",
+      "tensordict": "0.14.2",
+      "isaaclab": "28.0.0",
+      "isaaclab_rl": "1.5.1"
+    },
+    "isaaclab_source_version": "3.0.0",
+    "server_source_commit": "677c9e0fafe8f20d33f511fefe9913316a6b43a4"
+  },
+  "repairs": [
+    "Restrict numbered environment matching so terrain descendants do not spawn extra robots",
+    "Expose existing Torch CUDA linalg shared library through the server launcher",
+    "Surface saved native exceptions in the strict probe verifier"
+  ],
+  "cpu_tests": {
+    "passed": 95,
+    "log": "/root/gpufree-data/workspace/wheelleg_environment_20261029/native001/cpu_tests.log"
+  },
+  "default_native_probe": {
+    "path": "/root/gpufree-data/workspace/prone_motion_long/runs/server_compatibility_20261029/probe005_linalgfix",
+    "status": "native_probe_completed_unqualified",
+    "num_envs": 80,
+    "domains": [
+      {
+        "profile": "nominal",
+        "strength": 0.0,
+        "checks": 29,
+        "all_checks_pass": true
+      },
+      {
+        "profile": "requested",
+        "strength": 1.0,
+        "checks": 29,
+        "all_checks_pass": true
+      }
+    ],
+    "source": {
+      "schema": "scratch-committed-source-v1",
+      "commit": "677c9e0fafe8f20d33f511fefe9913316a6b43a4",
+      "source_count": 317,
+      "all_source_bytes_match_commit": true,
+      "archive": "/root/gpufree-data/workspace/prone_motion_long/runs/server_compatibility_20261029/probe005_linalgfix/committed_source.tar",
+      "archive_sha256": "aa025d6dbb39a64e902d659f96774941bf5f3e7238238cb71c9f081e1c05cec1"
+    }
+  },
+  "full_population_smoke": {
+    "schema": "server-full-population-smoke-v1",
+    "status": "completed_software_only",
+    "source": {
+      "schema": "scratch-committed-source-v1",
+      "commit": "677c9e0fafe8f20d33f511fefe9913316a6b43a4",
+      "source_count": 317,
+      "all_source_bytes_match_commit": true,
+      "archive": "/root/gpufree-data/workspace/prone_motion_long/runs/server_compatibility_20261029/full256_smoke001/committed_source.tar",
+      "archive_sha256": "aa025d6dbb39a64e902d659f96774941bf5f3e7238238cb71c9f081e1c05cec1"
+    },
+    "pid": 6291,
+    "start_ticks": 1625253960,
+    "started_utc": "2026-10-28T16:34:46.612546+00:00",
+    "num_envs": 256,
+    "policy_steps_per_domain": 64,
+    "new_PPO": 0,
+    "optimizer_attempts": 0,
+    "actor_or_critic_created": false,
+    "checkpoint_reads": [],
+    "contexts": [
+      {
+        "profile": "nominal",
+        "strength": 0.0,
+        "checks": {
+          "finite": true,
+          "actor35_critic83": true,
+          "one_robot_per_environment": true,
+          "loop_count": true,
+          "native_wheels": true
+        },
+        "all_checks_pass": true,
+        "physical_steps": 320,
+        "stepping_elapsed_s": 10.583849987015128,
+        "mean_policy_step_s": 0.16537265604711138,
+        "torch_cuda_peak_allocated_b": 11347456,
+        "torch_cuda_peak_reserved_b": 144703488,
+        "process_peak_rss_kib": 4645780
+      },
+      {
+        "profile": "requested",
+        "strength": 1.0,
+        "checks": {
+          "finite": true,
+          "actor35_critic83": true,
+          "one_robot_per_environment": true,
+          "loop_count": true,
+          "native_wheels": true
+        },
+        "all_checks_pass": true,
+        "physical_steps": 320,
+        "stepping_elapsed_s": 9.811811042949557,
+        "mean_policy_step_s": 0.15330954754608683,
+        "torch_cuda_peak_allocated_b": 11734528,
+        "torch_cuda_peak_reserved_b": 285212672,
+        "process_peak_rss_kib": 4868884
+      }
+    ],
+    "learned_behavior": false,
+    "hardware_ready": false,
+    "full_capability_qualified": false,
+    "all_checks_pass": true,
+    "elapsed_s": 50.89583593420684,
+    "source_mismatches_at_exit": [],
+    "script_sha256": "00b77e930e745041d93fbafc54419aac7de43367e8cf578b962a1d95d61cd3d8"
+  },
+  "process_cleanup": {
+    "all_diagnostic_pids_exited": true,
+    "active_task_processes": [],
+    "gpu_compute_processes": "887581, [Not Found], 623 MiB"
+  },
+  "new_PPO": 0,
+  "optimizer_attempts": 0,
+  "checkpoint_reads": [],
+  "fresh_learner_started": false,
+  "full_capability_qualified": false,
+  "capability_status": {
+    "R01": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "R02": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "S01": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "M01": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "M02": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "M03": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "M04": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "H01": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "H02": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "H03": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "B01": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "Q01": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    },
+    "D01": {
+      "status": "not_tested",
+      "qualified": false,
+      "reason": "Software-only checks, no learned policy evaluated"
+    }
+  },
+  "startup_command": "cd /root/gpufree-data/workspace/prone_motion_long\nWHEELED_RL_PYTHON=\"$PWD/scripts/server_isaac_python.sh\" bash scripts/train_prone_motion.sh --output \"$PWD/runs/prone_motion/run002\"",
+  "training_contract": {
+    "updates": 10000,
+    "learn_calls": 1,
+    "snapshot_every_completed_updates": 250,
+    "from_scratch": true,
+    "no_intermediate_cold_evaluation": true
+  }
+}

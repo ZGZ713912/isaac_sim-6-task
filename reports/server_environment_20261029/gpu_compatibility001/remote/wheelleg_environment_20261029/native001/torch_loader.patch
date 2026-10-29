@@ -1,0 +1,28 @@
+diff --git a/docs/SERVER_TRAINING_20261028.md b/docs/SERVER_TRAINING_20261028.md
+index 2f1fc5ba..80a18545 100644
+--- a/docs/SERVER_TRAINING_20261028.md
++++ b/docs/SERVER_TRAINING_20261028.md
+@@ -71,6 +71,10 @@ GPU 首次探针的实际异常保存在 `run001.native_probe/progress.json` 的
+ 改用 `/World/envs/env_[0-9]+/Robot` 只匹配编号环境；闭链数量与求解器拓扑检查继续保留。
+ 探针验证失败时也会显示保存的原始异常，避免只看到泛化的拒绝 PPO 信息。
+ 
++闭链修复后还发现 Torch 的 `libtorch_cuda_linalg.so` 以名称延迟加载，但环境未包含
++venv 的 `torch/lib`。单独执行 CUDA `eigvalsh` 复现，补充搜索路径后通过；
++服务器 Python 启动器现自动加入该目录，继续使用原 Torch/CUDA 版本。
++
+ 保留失败目录，修复后的启动必须使用新的目录。可以先单独执行两个域的零 PPO 检查：
+ 
+ ```bash
+diff --git a/scripts/server_isaac_python.sh b/scripts/server_isaac_python.sh
+index ada6c824..4324d19e 100755
+--- a/scripts/server_isaac_python.sh
++++ b/scripts/server_isaac_python.sh
+@@ -18,6 +18,8 @@ export LD_LIBRARY_PATH="$task_sim_root/kit/python/lib:$LD_LIBRARY_PATH"
+ # Kit's pip bundles must not shadow the repaired training environment packages.
+ task_sim_site="$("$task_sim_python" -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
+ export PYTHONPATH="$task_sim_site${PYTHONPATH:+:$PYTHONPATH}"
++# Torch lazily dlopens libtorch_cuda_linalg.so by name for the inertia eigensolver.
++export LD_LIBRARY_PATH="$task_sim_site/torch/lib:$LD_LIBRARY_PATH"
+ # Match NVIDIA's python.sh bootstrap and retain any caller-provided preloads.
+ export LD_PRELOAD="$task_sim_root/kit/libcarb.so${LD_PRELOAD:+:$LD_PRELOAD}"
+ exec "$task_sim_python" "$@"

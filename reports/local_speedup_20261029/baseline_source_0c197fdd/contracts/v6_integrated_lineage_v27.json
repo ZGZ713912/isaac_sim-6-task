@@ -1,0 +1,54 @@
+{
+  "schema": "v6-integrated-lineage-plan-v1",
+  "lineage_id": "source030-joint-ordinary-stair-v1",
+  "source_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch031_20261009",
+  "run_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+  "campaign_plan": {
+    "file": "contracts/v6_task_campaign_v21.json",
+    "sha256": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755"
+  },
+  "recovery_entry": {
+    "contract_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+    "contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+    "actor_endpoint": 15000
+  },
+  "domains": [
+    {
+      "name": "speed",
+      "parent_domain": "recovery",
+      "contract_file": "contracts/v6_task_campaign_speed_worker_v27.json",
+      "contract_sha256": "6591674143f2884ebe91c52aa4d9cdf1ac11ab4e6e8d423485567496d7f4f73f",
+      "critic_warmup_updates": 10
+    },
+    {
+      "name": "terrain",
+      "parent_domain": "speed",
+      "contract_file": "contracts/v6_task_campaign_terrain_worker_v27.json",
+      "contract_sha256": "e247986f6f6006b7dbc28a66d141c402fbce0e9b2b7ce2ac86b83b33a6b51bd3",
+      "critic_warmup_updates": 10
+    },
+    {
+      "name": "jump",
+      "parent_domain": "terrain",
+      "contract_file": "contracts/v6_task_campaign_jump_worker_v27.json",
+      "contract_sha256": "f34dc83a04c6aa6a0f9f2445f1d46ab41b7992df2530b881d391fcc33ad96686",
+      "critic_warmup_updates": 10
+    },
+    {
+      "name": "stepjump",
+      "parent_domain": "jump",
+      "contract_file": "contracts/v6_task_campaign_stepjump_worker_v27.json",
+      "contract_sha256": "da438fd8d9b4adf4a645be86cf1208116c95f3681ad682244e372d0528bc1475",
+      "critic_warmup_updates": 10
+    }
+  ],
+  "completed_speed_predecessor": {
+    "schema": "v6-completed-speed-predecessor-v1",
+    "campaign_plan_file": "contracts/v6_task_campaign_v26.json",
+    "campaign_plan_sha256": "db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92",
+    "lineage_manifest_file": "contracts/v6_integrated_lineage_v26.json",
+    "lineage_manifest_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+    "source_revision_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "transition": "completed_speed_to_terrain_only"
+  }
+}

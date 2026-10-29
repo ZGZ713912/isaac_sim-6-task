@@ -1,0 +1,680 @@
+"""CPU authentication/projection for same-PT locomotion diagnostics.
+
+The calling entry supplies root. No runner, optimizer, AppLauncher, simulator,
+GPU initialization or network operation is created by authentication/build.
+assert_fixture_runtime reads an already-created native environment at its birth.
+"""
+from __future__ import annotations
+
+from collections import Counter
+from contextlib import redirect_stdout
+from copy import deepcopy
+import hashlib
+import importlib
+import io
+import json
+import math
+from pathlib import Path
+import sys
+
+from locomotion_diagnostic_suite import DEFAULT_SUITE, get_suite
+
+PT_SHA = "78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7"
+CONTRACT_SHA = "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3"
+SEAL_SHA = "854566d4c71f7294efca35d15c00a54d9845a65db5ab8b196b80f61ec51fdfbf"
+PT_25000_SHA = "c4586d5360fe5abe7631a1b4db551dc01bd915b5c908abf49323e26683f0318e"
+SEAL_25000_SHA = "634cef47f3612cc5b5ae06eee3af21d726184da7d5659611d0473956b9b848b7"
+AGENT_SHA = "cecf04ea62efbfb7cfa2b6837226df736843fa69f4cbe2c233ecb97a1af31f27"
+ASSET_SHA = "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+CONTROL_SHA = "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+POLICY_ORDER = ("L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3")
+ACTIVE_ORDER = ("L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3")
+SEED = 190619
+# Compatibility aliases describe only the unchanged default protocol. Every
+# selected-suite path below resolves its population and clocks from the catalog.
+NUM_ENVS, REPLICAS, HORIZON_S = (get_suite().num_envs, get_suite().replicas, get_suite().horizon_s)
+TASK_ACTOR_UPDATE = 4185
+FIXTURE_ROLES = ("clean", "pipeline_age_only")
+TERRAIN_LEVEL = 1.
+CASE_PROFILES = get_suite().profiles
+DELETED_BINDINGS = ("response_migration", "recovery_training", "recovery_takeover", "step_jump_task", "jump_landing")
+ABSENT_MODULES = ("usb_transport", "command_transport", "signal_delay", "perturbations",
+                  "dynamics_randomization", "contact_domain", "step_assist", "jump_assist",
+                  "step_jump", "step_climb", "step_sensors", "recovery", "jump_landing")
+
+
+def constructor_overrides(suite_name=DEFAULT_SUITE):
+    return {"stage": "speed", "num_envs": get_suite(suite_name).num_envs,
+            "terrain_level": TERRAIN_LEVEL, "seed": SEED}
+
+
+CONSTRUCTOR_OVERRIDES = constructor_overrides()
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def checkpoint_snapshot(checkpoint_update=24500):
+    """Two explicitly pinned PT/seal/clock tuples; never accept a free clock."""
+    require(type(checkpoint_update) is int and checkpoint_update in (24500, 25000),
+            "Unknown pinned diagnostic checkpoint update")
+    checkpoint_sha, seal_sha, task_actor = ((PT_SHA, SEAL_SHA, TASK_ACTOR_UPDATE)
+        if checkpoint_update == 24500 else (PT_25000_SHA, SEAL_25000_SHA, 4685))
+    return {"name": f"v14_update{checkpoint_update}", "learning_updates": checkpoint_update,
+            "task_actor_update": task_actor, "checkpoint_sha256": checkpoint_sha, "seal_sha256": seal_sha,
+            "contract_sha256": CONTRACT_SHA, "agent_config_sha256": AGENT_SHA}
+
+
+def snapshot_from_checkpoint_sha(checkpoint_sha):
+    for checkpoint_update in (24500, 25000):
+        snapshot = checkpoint_snapshot(checkpoint_update)
+        if checkpoint_sha == snapshot["checkpoint_sha256"]:
+            return snapshot
+    raise ValueError("Pinned checkpoint SHA mismatch/missing file")
+
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def read_json(path):
+    def reject(value):
+        raise ValueError(f"Nonfinite JSON: {value}")
+    return json.loads(Path(path).read_text(), parse_constant=reject)
+
+
+def write_json(path, data):
+    path = Path(path)
+    require(not path.exists(), f"Refusing to replace diagnostic input/output: {path}")
+    path.write_text(json.dumps(data, indent=2, allow_nan=False) + "\n")
+
+
+def native_modules(root):
+    root = Path(root).resolve()
+    src = str(root / "src")
+    if src not in sys.path:
+        sys.path.insert(0, src)
+    names = ("control_contract", "preflight")
+    modules = {}
+    for name in names:
+        module = importlib.import_module("wheeled_tasks.chassis." + name)
+        require(Path(module.__file__).resolve() == root / "src/wheeled_tasks/chassis" / (name + ".py"),
+                "Native CPU modules belong to a different root; use a fresh process")
+        modules[name] = module
+    return modules
+
+
+def asset_inputs(root, source):
+    root = Path(root).resolve()
+    directory = (root / source["asset_directory"]).resolve()
+    require(directory.is_relative_to(root), "Asset directory must belong to supplied root")
+    require(source["asset_manifest_sha256"] == ASSET_SHA and digest(directory / "manifest.json") == ASSET_SHA,
+            "Closed-chain asset manifest SHA mismatch")
+    manifest = read_json(directory / "manifest.json")
+    require(manifest["model_kind"] == "v6_gas_spring_closedchain_research", "Wrong mechanical asset kind")
+    for name, expected in manifest["files_sha256"].items():
+        target = (directory / name).resolve()
+        require(target.is_relative_to(directory) and digest(target) == expected, f"Asset dependency SHA mismatch: {name}")
+    control_path = (root / source["control_math_source"]).resolve()
+    require(control_path.is_relative_to(root) and source["control_math_sha256"] == CONTROL_SHA
+            and digest(control_path) == CONTROL_SHA, "Control math SHA mismatch")
+    modules = native_modules(root)
+    control = modules["control_contract"].load_chassis_control(control_path)
+    return manifest, control, modules
+
+
+def source_design(root, source, control, modules):
+    binding = source["design_preflight"]
+    path = Path(root) / binding["file"]
+    require(digest(path) == binding["sha256"], "Source independent design SHA mismatch")
+    design = read_json(path)
+    row = design["stages"][binding["stage"]]["roles"]["train"]
+    rule = row["invocation"]["seed"]
+    block = binding.get("block_index", 0)
+    if rule["rule"] == "root_plus_block_index":
+        seed = rule["root_seed"] + block
+    elif rule["rule"] == "fixed":
+        seed = rule["value"]
+    else:
+        raise ValueError("Unrecognized independent source seed rule")
+    require(source["enabled_stages"] == ["speed"], "Expected one frozen speed worker stage")
+    receipt = modules["preflight"].design_preflight(source, control, Path(root), stage="speed", role="train",
+        seed=seed, num_envs=row["invocation"]["num_envs"], block_index=block)
+    require(receipt["status"] == "static_passed", "Source train design preflight failed")
+    return design, row, receipt
+
+
+def tensor_audit(value, torch):
+    count = elements = 0
+    def visit(item):
+        nonlocal count, elements
+        if isinstance(item, torch.Tensor):
+            require(item.device.type == "cpu" and bool(torch.isfinite(item).all()), "Checkpoint tensor is nonfinite/not CPU")
+            count += 1
+            elements += item.numel()
+        elif isinstance(item, dict):
+            for child in item.values():
+                visit(child)
+        elif isinstance(item, (list, tuple)):
+            for child in item:
+                visit(child)
+        elif isinstance(item, float):
+            require(math.isfinite(item), "Checkpoint scalar is nonfinite")
+    visit(value)
+    require(count > 0, "Checkpoint state contains no tensors")
+    return {"finite": True, "tensor_count": count, "elements": elements}
+
+
+def authenticate_inputs(root, input_dir):
+    """Return source/manifest/control/factory/actor state and a JSON-safe receipt.
+
+    All four file hashes are checked before PT deserialization. The native CPU
+    actor/critic strict loads authenticate ABI/std; Adam is only read/audited.
+    No optimizer is constructed, restored or stepped.
+    """
+    from importlib.metadata import version
+    root, input_dir = Path(root).resolve(), Path(input_dir).resolve()
+    files = {"checkpoint": input_dir / "model.pt", "contract": input_dir / "contract.json",
+             "seal": input_dir / "model.checkpoint.json", "agent_config": input_dir / "agent_config.json"}
+    require(files["checkpoint"].is_file(), "Pinned checkpoint SHA mismatch/missing file")
+    snapshot = snapshot_from_checkpoint_sha(digest(files["checkpoint"]))
+    pinned = {"checkpoint": snapshot["checkpoint_sha256"], "contract": snapshot["contract_sha256"],
+              "seal": snapshot["seal_sha256"], "agent_config": snapshot["agent_config_sha256"]}
+    for name, path in files.items():
+        require(path.is_file() and digest(path) == pinned[name], f"Pinned {name} SHA mismatch/missing file")
+    source, seal, agent = (read_json(files[name]) for name in ("contract", "seal", "agent_config"))
+    require(version("rsl-rl-lib") == "5.5.1", "Expected native RSL-RL 5.5.1 factory")
+    require((source["physics_dt"], source["policy_dt"], source["actor_dim"], source["critic_dim"], source["action_dim"],
+             source["actor_frame_dim"], source["history_length"]) == (.005, .02, 35, 81, 6, 35, 1), "Observation/control ABI mismatch")
+    require(tuple(source["policy_action_order"]) == POLICY_ORDER and tuple(source["v5_control"]["active_order"]) == ACTIVE_ORDER,
+            "Policy/control axis order mismatch")
+    require(source["actor_observation_source"] == "scut35_encoders_imu_commands", "Actor observation source changed")
+    require(agent["obs_groups"] == {"actor": ["policy"], "critic": ["critic"]}, "Agent observation groups changed")
+    architecture = source["policy_architecture"]
+    for role in ("actor", "critic"):
+        require(agent[role]["class_name"] == "MLPModel"
+                and agent[role]["hidden_dims"] == architecture[role + "_hidden_dims"]
+                and agent[role]["activation"] == architecture["activation"]
+                and agent[role]["obs_normalization"] is False, f"Native {role} factory ABI mismatch")
+    require(agent["actor"]["distribution_cfg"] == {"class_name": "GaussianDistribution", "init_std": 1., "std_type": "scalar"},
+            "Native scalar Gaussian factory changed")
+    manifest, control, modules = asset_inputs(root, source)
+    _, _, original_preflight = source_design(root, source, control, modules)
+    import torch
+    from tensordict import TensorDict
+    from rsl_rl.models import MLPModel
+    saved = torch.load(files["checkpoint"], map_location="cpu", weights_only=True)
+    require(isinstance(saved, dict) and all(isinstance(saved.get(k), dict) and saved[k]
+            for k in ("actor_state_dict", "critic_state_dict", "optimizer_state_dict", "infos")), "Full PT state is required")
+    infos = saved["infos"]
+    require(seal["schema"] == "chassis-learning-checkpoint-v1" and seal["sealed"] is True
+            and seal["checkpoint_sha256"] == pinned["checkpoint"]
+            and seal["contract_sha256"] == infos["contract_sha256"] == pinned["contract"],
+            "Checkpoint seal/infos identity mismatch")
+    clocks = {"learning_updates": "successful_updates_total", "learning_lineage_updates": "learning_lineage_updates",
+              "stage_actor_update": "stage_actor_update", "global_actor_update": "global_actor_update",
+              "global_actor_update_offset": "global_actor_update_offset", "actor_updates_consumed": "actor_updates_consumed",
+              "task_actor_update": "task_actor_update"}
+    for seal_key, info_key in clocks.items():
+        require(type(seal[seal_key]) is int and seal[seal_key] >= 0 and infos.get(info_key) == seal[seal_key],
+                f"Checkpoint seal/infos clock mismatch: {seal_key}")
+    require(seal["learning_updates"] == snapshot["learning_updates"] and seal["task_actor_update"] == snapshot["task_actor_update"]
+            and seal["task_campaign"] == infos.get("task_campaign") == source["task_campaign"], "Wrong campaign/update PT")
+    for key in ("asset_manifest_sha256", "control_math_sha256"):
+        require(infos.get(key) == source[key], f"Checkpoint infos ABI mismatch: {key}")
+    audits = {key: tensor_audit(saved[key], torch) for key in ("actor_state_dict", "critic_state_dict", "optimizer_state_dict")}
+    std = saved["actor_state_dict"]["distribution.std_param"]
+    require(std.shape == (6,) and std.is_floating_point() and bool(torch.isfinite(std).all()) and bool((std > 0).all()),
+            "Saved scalar-space actor std is invalid")
+    obs = TensorDict({"policy": torch.zeros(1, 35), "critic": torch.zeros(1, 81)}, batch_size=[1])
+    native = {}
+    # Native construction consumes random initializer values; preserve the
+    # caller's CPU RNG. devices=[] cannot create a CUDA context.
+    with torch.random.fork_rng(devices=[]), redirect_stdout(io.StringIO()):
+        for role, width in (("actor", 6), ("critic", 1)):
+            args = deepcopy(agent[role]); args.pop("class_name")
+            model = MLPModel(obs, agent["obs_groups"], role, width, **args)
+            model.load_state_dict(saved[role + "_state_dict"], strict=True)
+            require(all(torch.equal(v, saved[role + "_state_dict"][k]) for k, v in model.state_dict().items()),
+                    f"Native strict {role} load changed a tensor")
+            native[role + "_strict_exact"] = True
+            if role == "actor":
+                with torch.inference_mode():
+                    mu = model(obs, stochastic_output=False)
+                    model.distribution.update(mu)
+                    actual_std = model.output_std.detach().clone()
+                require(type(model.distribution).__name__ == "GaussianDistribution" and model.distribution.std_type == "scalar"
+                        and actual_std.shape[-1] == 6 and bool(torch.isfinite(actual_std).all()) and bool((actual_std > 0).all()),
+                        "Native effective actor std is invalid")
+                native.update(raw_std_policy_order=std.tolist(), effective_std_policy_order=actual_std.reshape(-1, 6)[0].tolist(),
+                              native_std_range=list(model.distribution.std_range))
+    require(all(digest(files[k]) == h for k, h in pinned.items()), "Input changed during CPU authentication")
+    receipt = {"schema": "locomotion-exploration-input-authentication-v1", "status": "authenticated_CPU_only",
+        "pinned_snapshot": snapshot,
+        "files": {k: {"path": str(v), "sha256": pinned[k], "bytes": v.stat().st_size} for k, v in files.items()},
+        "clocks": {k: seal[k] for k in clocks}, "native_cpu_factory": native, "tensor_audits": audits,
+        "source_design_preflight": original_preflight, "qualification": False, "optimizer_constructed": False,
+        "optimizer_steps": 0, "formal_updates_consumed": 0, "PT_exact_restore": False,
+        "agent_config_scope": "pinned factory only; historical resume flag is not a training invocation"}
+    return {"source": source, "manifest": manifest, "control": control, "agent_config": agent,
+            "actor_state_dict": saved["actor_state_dict"], "receipt": receipt}
+
+
+def cases(suite_name=DEFAULT_SUITE):
+    suite = get_suite(suite_name)
+    # All lanes are born at the native nominal height. The entry reaches high
+    # posture later with real control; case metadata must not change reset pose.
+    return [{"name": case.name, "terrain": "flat", "command": [0., 0., .305], "episode_seconds": suite.horizon_s,
+             "reset_seed_key": "quality_common_reset", "plateau_vx_m_s": case.vx_m_s,
+             "skill": {"kind": "constant", "command": [0., 0., .305], "mode": 0}}
+            for case in suite.cases]
+
+
+def clean_overrides(mapping, suite_name=DEFAULT_SUITE):
+    """Apply explicit constants separately to source and independent design row."""
+    suite = get_suite(suite_name)
+    result = deepcopy(mapping)
+    for key in DELETED_BINDINGS:
+        result.pop(key, None)
+    # The existing response validator requires this expectation key even for
+    # inference. Explicit None retains the response receipt without claiming a
+    # learning-state migration or requiring the recovery/step task modules.
+    result["response_migration"] = None
+    result.pop("command_curriculum", None)
+    result.update(suite_name=suite.name, diagnostic_suite=suite.as_dict(),
+        episode_seconds=suite.horizon_s, auto_reset=False, record_diagnostics=True, diagnostic_logging=False,
+        monitor_applied_effort=True, evaluation_exact_cases=True, evaluation_long_corridors=True,
+        playback_open_ground=False, flat_triangle_mesh=False, flat_half_length_m=44., flat_floor_width_m=8.,
+        observation_noise_enabled=False, mass_randomization_enabled=False, training_release=False,
+        research_training_authorized=False, hardware_deployment_ready=False, command_slew={"vx_m_s2": 1.5, "yaw_rad_s2": 4.})
+    result["evaluation"] = {"enabled": True, "mode": "unscored", "protocol_id": "same_pt_clean_exploration_v1",
+        "seed": SEED, "confirmation_seed": SEED, "episode_seconds": suite.horizon_s, "episodes_per_case": suite.replicas,
+        "stable_case_layout": True, "canonical_case_names": list(suite.case_names), "cases": cases(suite.name),
+        "promotion_case_names": [], "protected_case_names": [], "retention_case_names": [], "quick_case_names": []}
+    # The independent row freezes some nested paths separately as well.
+    for key in ("evaluation.seed", "evaluation.confirmation_seed"):
+        if key in result:
+            result[key] = SEED
+    result["scene_groups"] = [{"name": name, "fraction": 1/len(suite.cases), "terrain": ["flat"]}
+                              for name in suite.case_names]
+    result["skill_specs"] = {c["name"]: deepcopy(c["skill"]) for c in cases(suite.name)}
+    for module in ("usb_transport", "command_transport", "signal_perturbations", "signal_delay",
+                   "dynamics_randomization", "contact_domain", "step_assist", "jump_assist", "nonstandard_start", "release_stop"):
+        if module in result:
+            result[module]["enabled"] = False
+    result["signal_perturbations"].update(max_delay_steps=0, noise_scale=0., enabled_fraction=0.)
+    result["new_asset_curriculum"].update(unilateral_degradation_fraction=0., unilateral_degradation_scale=1., edge_reset_fraction=0.)
+    result["new_asset_curriculum"]["request_protocol"] = {}
+    result["new_asset_curriculum"].pop("start_stop_start_delay_seconds", None)
+    # Exact role bypasses the frozen difficulty rule, which cannot be changed
+    # to enabled=false without changing its core validator.
+    result["stages"] = [{**s, "push_max": 0., "terrain": ["flat"]} for s in result["stages"]]
+    return result
+
+
+def fixture_overrides(mapping, fixture_role, suite_name=DEFAULT_SUITE):
+    require(fixture_role in FIXTURE_ROLES, "Unknown locomotion fixture role")
+    result = clean_overrides(mapping, suite_name)
+    if fixture_role == "pipeline_age_only":
+        # Preserve every source value, including enabled, profiles and ramp.
+        # The independent design row takes its own frozen copy of this field.
+        require(mapping["signal_delay"]["enabled"] is True, "Pipeline source PhysicalSignalDelay must be enabled")
+        result["signal_delay"] = deepcopy(mapping["signal_delay"])
+    return result
+
+
+def differences(before, after, prefix=""):
+    rows = []
+    for key in sorted(before.keys() | after.keys()):
+        path = prefix + key
+        if key not in before:
+            rows.append({"path": path, "operation": "added", "after": deepcopy(after[key])})
+        elif key not in after:
+            rows.append({"path": path, "operation": "deleted", "before": deepcopy(before[key])})
+        elif isinstance(before[key], dict) and isinstance(after[key], dict):
+            rows.extend(differences(before[key], after[key], path + "."))
+        elif before[key] != after[key]:
+            rows.append({"path": path, "operation": "changed", "before": deepcopy(before[key]), "after": deepcopy(after[key])})
+    return rows
+
+
+def build_fixture(root, source, output, fixture_role="clean", suite_name=DEFAULT_SUITE, *, checkpoint_update=24500):
+    """Build a full-role CPU-verified diagnostic; source is never mutated.
+
+    Return config/manifest/control/stage/role/seed/num_envs/case_profiles,
+    fixture_role/task_actor_update/signal_delay_expectation, design_preflight,
+    receipt and artifact paths. The pipeline caller sets env.task_actor_update
+    to the pinned snapshot's clock before reset_suite, then keeps it fixed.
+    No source training contracts are written. Scene creation and first-cohort
+    accounting belong to the entry; clean remains the compatible default.
+    """
+    require(fixture_role in FIXTURE_ROLES, "Unknown locomotion fixture role")
+    snapshot = checkpoint_snapshot(checkpoint_update)
+    task_actor_update = snapshot["task_actor_update"] if fixture_role == "pipeline_age_only" else 0
+    suite = get_suite(suite_name)
+    invocation = constructor_overrides(suite.name)
+    root, output = Path(root).resolve(), Path(output).resolve()
+    manifest, control, modules = asset_inputs(root, source)
+    design, original_row, source_receipt = source_design(root, source, control, modules)
+    config = fixture_overrides(source, fixture_role, suite.name)
+    expected = fixture_overrides(original_row["contract"], fixture_role, suite.name)
+    if fixture_role == "pipeline_age_only":
+        require(config["signal_delay"] == source["signal_delay"]
+                and task_actor_update >= config["signal_delay"]["schedule"]["end"],
+                "Pipeline source delay must remain unchanged and reach full strength at sealed task clock")
+    runtime = deepcopy(original_row["runtime"])
+    for key in ("recovery_takeover", "recovery_pose_curriculum", "recovery_complete_started_blend", "start_stop_timing"):
+        runtime.pop(key, None)
+    for key in ("recovery_training", "step_jump_task", "step_climb_task", "jump_landing"):
+        runtime["modules"].pop(key, None)
+    for key in ("usb_transport", "command_transport", "signal_perturbations", "dynamics_randomization", "contact_domain",
+                "step_assist", "jump_assist", "signal_delay", "nonstandard_start", "release_stop"):
+        if key in runtime["modules"]:
+            runtime["modules"][key] = False
+    runtime["modules"]["signal_delay"] = fixture_role == "pipeline_age_only"
+    runtime["signal_delay"] = deepcopy(expected["signal_delay"])
+    runtime["command_transport_model"] = None
+    from wheeled_tasks.chassis.nonstandard_start import runtime_expectation as nonstandard_runtime
+    from wheeled_tasks.chassis.release_stop import release_stop_runtime_expectation
+    runtime["nonstandard_start"] = nonstandard_runtime(expected["nonstandard_start"], .02)
+    runtime["release_stop"] = release_stop_runtime_expectation(expected["release_stop"], .02)
+    runtime["locomotion_difficulty"] = {"enabled": False, "settings": deepcopy(expected["locomotion_difficulty"])}
+    projected = {"schema": "chassis-design-expectations-v1", "status": "frozen",
+        "scope": f"same_pt_{fixture_role}_locomotion_exploration_diagnostic", "run_scope": "physical_diagnostic_unscored",
+        "training_release": False, "hardware_deployment_ready": False, "formal_updates_consumed": 0,
+        "suite_name": suite.name, "diagnostic_suite": suite.as_dict(),
+        "checkpoint_update": checkpoint_update, "pinned_snapshot": snapshot,
+        "source_contract_sha256": CONTRACT_SHA, "inherited_design_sha256": source["design_preflight"]["sha256"],
+        "review_basis": "Independent frozen source train row plus explicit clean diagnostic projection constants; no curriculum/qualification credit",
+        "stages": {"speed": {"roles": {"full": {"contract": expected, "control": deepcopy(original_row["control"]),
+                    "invocation": {"num_envs": suite.num_envs, "seed": {"rule": "fixed", "value": SEED}}, "runtime": runtime}}}}}
+    # CPU compare before creating any output, then bind the independently
+    # projected row by SHA and run the shared native hook again.
+    static = modules["preflight"].validate_design_contract(config, projected, control, stage="speed", role="full",
+                                                          seed=SEED, num_envs=suite.num_envs)
+    output.mkdir(parents=True, exist_ok=True)
+    paths = {"design": output/"clean_design_expectations.json", "contract": output/"clean_effective_contract.json",
+             "receipt": output/"clean_fixture_receipt.json"}
+    require(not any(p.exists() for p in paths.values()), "Fixture output files already exist")
+    write_json(paths["design"], projected)
+    config["design_preflight"] = {"file": str(paths["design"]), "sha256": digest(paths["design"]), "stage": "speed"}
+    receipt = modules["preflight"].design_preflight(config, control, root, stage="speed", role="full", seed=SEED, num_envs=suite.num_envs)
+    write_json(paths["contract"], config)
+    audit = {"schema": "same-pt-clean-locomotion-fixture-v1", "status": "CPU_design_preflight_passed_scene_not_run",
+        "source_contract_sha256": CONTRACT_SHA, "source_design_preflight": source_receipt,
+        "effective_contract_sha256": digest(paths["contract"]), "design_sha256": digest(paths["design"]),
+        "overrides": differences(source, config), "role": "full", "seed": SEED, "num_envs": suite.num_envs,
+        "suite_name": suite.name, "diagnostic_suite": suite.as_dict(),
+        "checkpoint_update": checkpoint_update, "pinned_snapshot": snapshot,
+        "fixture_role": fixture_role, "task_actor_update": task_actor_update,
+        "replicas_per_case": suite.replicas, "case_profiles": suite.profiles, "horizon_seconds": suite.horizon_s,
+        "native_constructor_overrides": invocation,
+        "policy_ticks": suite.policy_steps, "physics_ticks": suite.physics_steps, "auto_reset": False, "qualification": False,
+        "formal_updates_consumed": 0, "optimizer_steps": 0, "runtime_verified": False,
+        "signal_delay_expectation": deepcopy(config["signal_delay"]),
+        "pipeline_strength_after_native_begin_policy": 1. if fixture_role == "pipeline_age_only" else None,
+        "generator_consumption_equal_across_fixture_roles": False,
+        "actual_nominal_materials": "required_at_native_birth; average combine, actual robot/terrain friction readback",
+        "birth_jitter": {"implementation": "native FixedCaseEnv", "reset_seed_key": "quality_common_reset",
+                         "roll_range_rad": [-.01,.01], "pitch_range_rad": [-.02,.02], "root_z_jitter_m": [0.,.002]},
+        "runtime_assertion_fields": ["module_instances_absent", "schedule_enabled_false", "no_degradation/edge/push",
+            "actual_mass/inertia/COM", "actual_robot_and_bound_terrain_materials", "gravity", "gas_spring/closed_chain",
+            "native_birth_q18/dq18/root_COM_velocity/jitter", "native_runtime_preflight", f"{suite.policy_steps}_episode_limits",
+            "fixture_role_native_signal_delay_instance/config/clock/reset_sample"],
+        "preflight": receipt}
+    write_json(paths["receipt"], audit)
+    return {"config": config, "manifest": manifest, "control": control, "stage": "speed", "role": "full",
+            "seed": SEED, "num_envs": suite.num_envs, "level": TERRAIN_LEVEL,
+            "suite_name": suite.name, "diagnostic_suite": suite.as_dict(),
+            "checkpoint_update": checkpoint_update, "pinned_snapshot": snapshot,
+            "fixture_role": fixture_role, "task_actor_update": audit["task_actor_update"],
+            "signal_delay_expectation": deepcopy(config["signal_delay"]),
+            "case_profiles": suite.profiles, "design_preflight": receipt,
+            "receipt": audit, "paths": {k: str(v) for k,v in paths.items()}}
+
+
+def build_clean_fixture(root, source, output, suite_name=DEFAULT_SUITE, *, checkpoint_update=24500):
+    """Compatibility wrapper preserving the verified clean diagnostic."""
+    return build_fixture(root, source, output, fixture_role="clean", suite_name=suite_name,
+                         checkpoint_update=checkpoint_update)
+
+
+def selected_suite(fixture):
+    """Reject mutable/ad-hoc protocols before using their clocks or population."""
+    suite = get_suite(fixture["suite_name"])
+    require(fixture["diagnostic_suite"] == fixture["receipt"]["diagnostic_suite"] == suite.as_dict()
+            and fixture["receipt"]["suite_name"] == suite.name,
+            "Fixture named suite differs from immutable diagnostic catalog")
+    return suite
+
+
+def assert_runtime_config(env, fixture):
+    """Check the four explicit native constructor writes against frozen input.
+
+    ChassisEnv.__init__ copies config and updates these four top-level fields;
+    FixedCaseEnv.__init__ adds object state, without modifying the config.
+    Read the serialized effective contract so shared nested references cannot
+    conceal mutation of both env.cfg and fixture['config'].
+    """
+    suite = selected_suite(fixture)
+    overrides = constructor_overrides(suite.name)
+    contract_path = Path(fixture["paths"]["contract"])
+    frozen = read_json(contract_path)
+    expected = deepcopy(frozen)
+    expected.update(overrides)
+    fixture_diff = differences(frozen, fixture["config"])
+    runtime_diff = differences(expected, env.cfg)
+    invocation = {"stage": fixture["stage"], "num_envs": fixture["num_envs"],
+                  "terrain_level": fixture["level"], "seed": fixture["seed"]}
+    invocation_diff = differences(overrides, invocation)
+    population_matches = type(env.num_envs) is int and env.num_envs == suite.num_envs
+    digest_matches = digest(contract_path) == fixture["receipt"]["effective_contract_sha256"]
+    passed = not (fixture_diff or runtime_diff or invocation_diff) and population_matches and digest_matches
+    path = contract_path.parent / "runtime_config_validation.json"
+    audit = {"schema": "clean-locomotion-native-config-validation-v1", "status": "passed" if passed else "failed",
+        "fixture_role": fixture["fixture_role"],
+        "suite_name": suite.name, "diagnostic_suite": suite.as_dict(),
+        "qualification": False, "runtime_verified": False,
+        "contract_path": str(contract_path), "effective_contract_sha256": digest(contract_path),
+        "effective_contract_sha_matches": digest_matches, "constructor_implementation": {
+            "config_writes": "src/wheeled_tasks/chassis/env.py:30-31 ChassisEnv.__init__",
+            "fixed_case_config_writes": "none; src/wheeled_tasks/chassis/eval_env.py FixedCaseEnv.__init__"},
+        "allowed_constructor_overrides": overrides,
+        "legal_constructor_differences": differences(frozen, expected),
+        "fixture_invocation_differences": invocation_diff, "fixture_config_differences": fixture_diff,
+        "runtime_config_differences": runtime_diff,
+        "expected_num_envs": suite.num_envs, "observed_num_envs": env.num_envs, "population_matches": population_matches}
+    write_json(path, audit)
+    bad_paths = sorted({row["path"] for row in (*fixture_diff, *runtime_diff, *invocation_diff)})
+    require(passed, f"Native effective fixture/population differs; unexpected paths={bad_paths}; "
+                   f"population_matches={population_matches}; contract_sha_matches={digest_matches}; receipt={path}")
+    return audit
+
+
+def assert_native_mechanics(startup, num_envs):
+    """Check population-wide loop count; the pinned v6 asset has six per robot."""
+    expected = {"body_count": 19, "tree_dofs": 18, "loop_constraints": 6 * num_envs}
+    require(type(num_envs) is int and num_envs > 0, "Invalid native population")
+    require(startup["runtime_preflight"]["status"] == "runtime_configuration_passed"
+            and startup["gpu_dynamics_enabled"] is True and startup["gas_spring_force_enabled"] is True
+            and all(startup[key] == value for key, value in expected.items()),
+            "Native physics/mechanical runtime verification failed")
+    return {"num_envs": num_envs, "loop_constraints_per_robot": 6,
+            "expected": expected, "observed": {key: startup[key] for key in expected}}
+
+
+def read_signal_delay_runtime(env, fixture, *, policy_tick=0, physics_tick=0):
+    """Validate and clone public native delay state without draws or buffer reads.
+
+    Birth is policy_tick=physics_tick=0. Later callers pass the actual append
+    clock. Lags are requested quantized ages; effective history-limited ages
+    require the entry's observations immediately after native targets/observe.
+    """
+    import torch
+    from wheeled_tasks.chassis.signal_delay import PhysicalSignalDelay
+    from wheeled_tasks.chassis.training_schedule import stage_actor_updates
+    suite = selected_suite(fixture)
+    role = fixture["fixture_role"]
+    require(role in FIXTURE_ROLES, "Unknown locomotion fixture role")
+    require(type(policy_tick) is int and type(physics_tick) is int
+            and 0 <= policy_tick <= suite.policy_steps and 0 <= physics_tick <= suite.physics_steps,
+            "Invalid bounded diagnostic delay clock")
+    require((policy_tick == 0 and physics_tick == 0) or (policy_tick > 0
+            and 4 * (policy_tick - 1) <= physics_tick <= 4 * policy_tick),
+            "Invalid coupled 50Hz/200Hz diagnostic delay clock")
+    require(type(env.tick) is int and (env.tick == 0 if policy_tick == 0 else env.tick in (policy_tick - 1, policy_tick)),
+            "Native environment policy clock differs")
+    cfg = fixture["signal_delay_expectation"]
+    delay = getattr(env, "signal_delay", None)
+    snapshot = checkpoint_snapshot(fixture["checkpoint_update"])
+    require(fixture["pinned_snapshot"] == fixture["receipt"]["pinned_snapshot"] == snapshot
+            and fixture["receipt"]["checkpoint_update"] == snapshot["learning_updates"],
+            "Fixture pinned checkpoint identity differs")
+    expected_actor = snapshot["task_actor_update"] if role == "pipeline_age_only" else 0
+    actual_actor = stage_actor_updates(env)
+    require(actual_actor == fixture["task_actor_update"] == expected_actor, "Native task actor delay clock differs")
+    require(env.cfg["signal_delay"] == cfg, "Native effective delay config differs")
+    if role == "clean":
+        require(delay is None and cfg["enabled"] is False, "Clean role has a native delay instance")
+        return {"instance_present": False, "cfg": deepcopy(cfg), "task_actor_update": actual_actor,
+                "suite_name": suite.name,
+                "policy_tick": policy_tick, "physics_tick": physics_tick, "native_environment_tick": env.tick}
+    require(type(delay) is PhysicalSignalDelay and cfg["enabled"] is True
+            and delay.cfg == cfg and delay.generator is env.generator and delay.dt_ms == 5.,
+            "Pipeline native PhysicalSignalDelay instance/config/generator differs")
+    require(type(delay.physics_steps) is int and delay.physics_steps == physics_tick,
+            "Native delay physics append clock differs")
+    expected_strength = 0. if policy_tick == 0 else 1.
+    require(delay.strength == expected_strength, "Native pipeline strength differs from birth/full-strength clock")
+    fields = {name: getattr(delay, name).detach().cpu().clone()
+              for name in ("enabled", "profile", "base_ms", "bounds_ms", "lags", "feedback")}
+    enabled, profile, base, bounds, lags = (fields[k] for k in ("enabled", "profile", "base_ms", "bounds_ms", "lags"))
+    require(enabled.shape == (suite.num_envs,) and enabled.dtype == torch.bool
+            and profile.shape == (suite.num_envs,) and profile.dtype == torch.long
+            and base.shape == (suite.num_envs, 6) and bounds.shape == (suite.num_envs, 6, 2)
+            and lags.shape == (suite.num_envs, 6) and lags.dtype == torch.long
+            and fields["feedback"].shape == (suite.num_envs, 18), "Native delay sample ABI differs")
+    require(all(bool(torch.isfinite(value).all()) for value in fields.values())
+            and bool(((profile >= 0) & (profile < len(cfg["profiles"]))).all()), "Native delay samples are invalid/nonfinite")
+    ranges = torch.tensor([[p["observation_ms"]] * 4 + [p["action_ms"]] * 2
+                           for p in cfg["profiles"]], dtype=bounds.dtype)
+    require(torch.equal(bounds, ranges[profile]) and bool(((base >= bounds[..., 0]) & (base <= bounds[..., 1])).all()),
+            "Native reset profile/base delay lies outside its inherited range")
+    low_ms = torch.maximum(base - cfg["jitter_ms"], bounds[..., 0])
+    high_ms = torch.minimum(base + cfg["jitter_ms"], bounds[..., 1])
+    minimum = (low_ms * expected_strength / delay.dt_ms).round().long() * enabled[:, None]
+    maximum = (high_ms * expected_strength / delay.dt_ms).round().long() * enabled[:, None]
+    require(bool(((lags >= minimum) & (lags <= maximum)).all()),
+            "Native lag is outside configured jitter/clip/quantization range")
+    return {"instance_present": True, "class_name": type(delay).__name__, "cfg": deepcopy(delay.cfg),
+        "suite_name": suite.name,
+        "task_actor_update": actual_actor, "strength": delay.strength, "policy_tick": policy_tick,
+        "native_environment_tick": env.tick,
+        "physics_tick": physics_tick, "physics_steps_observed": delay.physics_steps, "quantum_ms": delay.dt_ms,
+        "enabled": enabled.tolist(), "profile": profile.tolist(), "base_ms": base.tolist(), "bounds_ms": bounds.tolist(),
+        "lags_physics_steps": lags.tolist(), "ages_ms": (lags * delay.dt_ms).tolist(),
+        "feedback_sensor18": fields["feedback"].tolist(),
+        "raw_jitter_draw_coverage": "not_covered_native_local_not_persisted",
+        "lag_validation": "within native configured jitter plus clipping and round-to-5ms range; no random replay",
+        "age_semantics": "requested quantized age; effective available-history ages are recorded at native buffer calls",
+        "sampling": {"enabled_profile_base": "native reset", "jitter_lags": "native begin_policy", "buffers": "native physical steps"},
+        "generator_consumption_equal_across_fixture_roles": False}
+
+
+def assert_fixture_runtime(env, fixture):
+    """Read and verify actual native birth; do not apply control or state writes."""
+    suite = selected_suite(fixture)
+    config_validation = assert_runtime_config(env, fixture)
+    import torch
+    import warp as wp
+    from pxr import UsdPhysics, UsdShade, PhysxSchema
+    require(env.dt == .005 and env.policy_dt == .02 and env.decimation == 4 and env.generator.initial_seed() == SEED,
+            "Native control clock/seed differs")
+    require(env.max_episode_length == suite.policy_steps and bool((env.episode_limits == suite.policy_steps).all())
+            and env.cfg["auto_reset"] is False, "Native named-suite episode/auto-reset differs")
+    require(Counter(env.scene_groups) == {k: suite.replicas for k in suite.case_names}
+            and all(k == "flat" for k in env.kinds),
+            "Native flat case layout differs")
+    absent = tuple(name for name in ABSENT_MODULES
+                   if not (name == "signal_delay" and fixture["fixture_role"] == "pipeline_age_only"))
+    require(all(getattr(env, name, None) is None for name in absent), "A fixture-disabled native module is instantiated")
+    delay_readback = read_signal_delay_runtime(env, fixture)
+    require(env.nonstandard_start is None or env.nonstandard_start.enabled is False, "Nonstandard births remain enabled")
+    schedule = env.skills.schedule
+    require(schedule.enabled is False and env.skills.difficulty_enabled is False
+            and env.skills.release_stop.enabled is False, "Training schedule/difficulty/release-stop remains enabled")
+    require(not bool(schedule.degraded.any() | schedule.edge_reset.any() | schedule.request_stress.any() | env.push_enabled.any())
+            and bool((schedule.motor_scale == 1.).all()) and bool((env.motor_strength == 1.).all())
+            and bool((env.spring_strength == 1.).all()), "Push/effort/degradation randomization remains active")
+    require(tuple(env.sim.cfg.gravity) == (0.,0.,-9.81), "Gravity differs from nominal")
+    startup = env.startup_report
+    mechanics = assert_native_mechanics(startup, suite.num_envs)
+    def cpu(value):
+        if not isinstance(value, torch.Tensor):
+            value = wp.to_torch(value)
+        result = value.detach().cpu().clone()
+        require(bool(torch.isfinite(result).all()), "Nonfinite native readback")
+        return result
+    masses = cpu(env.robot.root_view.get_masses())
+    inertias = cpu(env.robot.root_view.get_inertias())
+    coms = cpu(env.robot.root_view.get_coms())
+    require(torch.allclose(masses, cpu(env.nominal_body_mass), atol=1e-5,rtol=0.)
+            and torch.allclose(masses.sum(-1), torch.full((suite.num_envs,),fixture["manifest"]["total_mass_kg"]),atol=1e-5,rtol=0.),
+            "Native mass is not nominal")
+    robot_material = cpu(env.robot.root_view.get_material_properties())
+    require(robot_material.shape[-1] >= 3 and bool((robot_material[..., :2]-.5).abs().max() <= 1e-6)
+            and bool(robot_material[...,2].abs().max() <= 1e-6), "Actual robot material is not nominal .5/.5/0")
+    terrain_materials = []
+    for lane, surfaces in enumerate(env.surfaces):
+        for index, surface in enumerate(surfaces):
+            path = env.env_paths[lane]+f"/Terrain/surface_{index}/geometry/mesh"
+            prim = env.sim.stage.GetPrimAtPath(path)
+            require(prim.IsValid(), "Native terrain collision prim missing")
+            material, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial(materialPurpose="physics")
+            require(material.GetPrim().IsValid(), "Native terrain has no bound physics material")
+            api = UsdPhysics.MaterialAPI(material.GetPrim())
+            values = [api.GetStaticFrictionAttr().Get(), api.GetDynamicFrictionAttr().Get(), api.GetRestitutionAttr().Get()]
+            combine = PhysxSchema.PhysxMaterialAPI(material.GetPrim()).GetFrictionCombineModeAttr().Get()
+            require(all(type(v) in (int,float) and math.isfinite(v) for v in values)
+                    and all(abs(v-e)<1e-6 for v,e in zip(values,(.5,.5,0.))) and combine == "average"
+                    and surface.friction == .5, "Actual bound terrain material/combine differs from nominal")
+            terrain_materials.append({"lane":lane,"collision_path":path,"material_path":str(material.GetPath()),
+                "static_friction":values[0],"dynamic_friction":values[1],"restitution":values[2],
+                "friction_combine":"average","effective_nominal_friction":.5})
+    q, dq = cpu(env.robot.data.joint_pos.torch), cpu(env.robot.data.joint_vel.torch)
+    pose = cpu(env.robot.data.root_link_pose_w.torch); pose[:, :3] -= cpu(env.origins)
+    velocity = torch.cat((cpu(env.robot.data.root_com_lin_vel_w.torch),cpu(env.robot.data.root_com_ang_vel_w.torch)),-1)
+    require(torch.allclose(q,cpu(env.nominal),atol=2e-5,rtol=0.) and bool(dq.abs().max()<=2e-5)
+            and bool(velocity.abs().max()<=2e-5), "Native birth q/dq/COM velocity differs from normal reset")
+    samples = cpu(env.fixed_reset_samples)
+    require(samples.shape == (suite.num_envs,3) and bool(((samples>=0)&(samples<1)).all()), "Missing native seeded reset samples")
+    roll,pitch=(samples[:,0]*2-1)*.01,(samples[:,1]*2-1)*.02
+    sr,cr,sp,cp=torch.sin(roll/2),torch.cos(roll/2),torch.sin(pitch/2),torch.cos(pitch/2)
+    quat=torch.stack((sr*cp,cr*sp,-sr*sp,cr*cp),-1)
+    require(torch.allclose(pose[:,3:],quat,atol=2e-5,rtol=0.) and bool(pose[:,:2].abs().max()<=2e-5)
+            and torch.allclose(pose[:,2],.324+samples[:,2]*.002,atol=2e-5,rtol=0.), "Native reset jitter differs")
+    return {"schema":"clean-locomotion-native-birth-readback-v1","runtime_verified":True,"qualification":False,
+        "fixture_role":fixture["fixture_role"],"task_actor_update":fixture["task_actor_update"],
+        "suite_name":suite.name,"diagnostic_suite":suite.as_dict(),
+        "signal_delay":delay_readback,"generator_consumption_equal_across_fixture_roles":False,
+        "seed":SEED,"num_envs":suite.num_envs,"scene_groups":list(env.scene_groups),"clone_indices":list(env.clone_indices),
+        "nominal_mass_kg_each":masses.sum(-1).tolist(),"body_masses_kg":masses.tolist(),
+        "body_inertias":inertias.tolist(),"body_COMs":coms.tolist(),"robot_material_properties":robot_material.tolist(),
+        "bound_terrain_materials":terrain_materials,"gravity_m_s2":[0.,0.,-9.81],
+        "birth":{"joint_names":list(env.robot.joint_names),"q18":q.tolist(),"dq18":dq.tolist(),
+            "root_link_pose_local_xyzw":pose.tolist(),"root_COM_velocity_world6":velocity.tolist(),"fixed_reset_samples":samples.tolist()},
+        "module_instances_absent":list(absent),"training_schedule_enabled":False,
+        "nonstandard_start_enabled":False,"push_enabled":False,"motor_strength":cpu(env.motor_strength).tolist(),
+        "spring_strength":cpu(env.spring_strength).tolist(),"auto_reset":False,
+        "episode_limits_policy_ticks":[suite.policy_steps]*suite.num_envs,
+        "runtime_preflight":deepcopy(startup["runtime_preflight"]),"native_mechanics":mechanics,
+        "runtime_config_validation":config_validation,
+        "PhysX_exact_snapshot_resume":False}
+
+
+def assert_clean_runtime(env, fixture):
+    """Compatibility wrapper that rejects use for the enabled pipeline role."""
+    require(fixture["fixture_role"] == "clean", "Clean runtime wrapper requires clean fixture role")
+    return assert_fixture_runtime(env, fixture)

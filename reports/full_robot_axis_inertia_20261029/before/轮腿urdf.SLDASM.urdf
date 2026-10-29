@@ -1,0 +1,1197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="轮腿urdf.SLDASM">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.00076714 -0.0034 -0.0469"
+        rpy="0 0 0" />
+      <mass
+        value="16.904" />
+      <inertia
+        ixx="0.3274"
+        ixy="0"
+        ixz="0.0011"
+        iyy="0.2973"
+        iyz="0.0094"
+        izz="0.5349" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="L_link1">
+    <inertial>
+      <origin
+        xyz="0.095035 0.0033671 -0.0074867"
+        rpy="0 0 0" />
+      <mass
+        value="0.161" />
+      <inertia
+        ixx="0.00010361"
+        ixy="0"
+        ixz="0"
+        iyy="0.0009"
+        iyz="0"
+        izz="0.001" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/L_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/L_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L_joint1"
+    type="continuous">
+    <origin
+      xyz="0.1838 0 -0.00083697"
+      rpy="1.5754 0 1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="L_link1" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="L_link2">
+    <inertial>
+      <origin
+        xyz="0.15963 0.0001 0.011927"
+        rpy="0 0 0" />
+      <mass
+        value="0.45" />
+      <inertia
+        ixx="0.0002"
+        ixy="-0.0001"
+        ixz="-0.0002"
+        iyy="0.0049"
+        iyz="0"
+        izz="0.005" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/L_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/L_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L_joint2"
+    type="continuous">
+    <origin
+      xyz="0.21 0 0"
+      rpy="0 0 -2.3573" />
+    <parent
+      link="L_link1" />
+    <child
+      link="L_link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="L_link3">
+    <inertial>
+      <origin
+        xyz="1.1102E-16 1.3878E-17 0.02035"
+        rpy="0 0 0" />
+      <mass
+        value="0.2" />
+      <inertia
+        ixx="0.0002"
+        ixy="0"
+        ixz="0"
+        iyy="0.0002"
+        iyz="0"
+        izz="0.0004" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/L_link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/L_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="L_joint3"
+    type="continuous">
+    <origin
+      xyz="0.249999999999996 0 0.0149999999999992"
+      rpy="0 0 -1.5707963267949" />
+    <parent
+      link="L_link2" />
+    <child
+      link="L_link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="LLL_link2">
+    <inertial>
+      <origin
+        xyz="0.070864 -2.2621E-15 -0.0035025"
+        rpy="0 0 0" />
+      <mass
+        value="0.057" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.00011633"
+        iyz="0"
+        izz="0.00011638" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LLL_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.77647 0.75686 0.73725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LLL_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LLL_joint2"
+    type="continuous">
+    <origin
+      xyz="0.050754 0.005 -0.002"
+      rpy="0 0 -0.72772" />
+    <parent
+      link="L_link2" />
+    <child
+      link="LLL_link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="LLL_link1">
+    <inertial>
+      <origin
+        xyz="0.049165 0 -0.0035738"
+        rpy="0 0 0" />
+      <mass
+        value="0.035" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LLL_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LLL_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LLL_jointt1"
+    type="continuous">
+    <origin
+      xyz="0.01559 -0.048559 -0.002"
+      rpy="0 0 0.056547" />
+    <parent
+      link="L_link1" />
+    <child
+      link="LLL_link1" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="R_link1">
+    <inertial>
+      <origin
+        xyz="0.095035 0.0033671 0.0074867"
+        rpy="0 0 0" />
+      <mass
+        value="0.161" />
+      <inertia
+        ixx="0.00010361"
+        ixy="0"
+        ixz="0"
+        iyy="0.0009"
+        iyz="0"
+        izz="0.001" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/R_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/R_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="R_joint1"
+    type="continuous">
+    <origin
+      xyz="-0.182798104713933 0 0.00083241395589112"
+      rpy="1.57535002938105 0 1.5707963267949" />
+    <parent
+      link="base_link" />
+    <child
+      link="R_link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="R_link2">
+    <inertial>
+      <origin
+        xyz="0.15963 8.3883E-05 -0.011927"
+        rpy="0 0 0" />
+      <mass
+        value="0.450" />
+      <inertia
+        ixx="0.0002"
+        ixy="-0.0001"
+        ixz="0.0002"
+        iyy="0.0049"
+        iyz="0"
+        izz="0.005" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/R_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/R_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="R_jonit2"
+    type="continuous">
+    <origin
+      xyz="0.21 0 0"
+      rpy="0 0 -2.35732807598153" />
+    <parent
+      link="R_link1" />
+    <child
+      link="R_link2" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="R_link3">
+    <inertial>
+      <origin
+        xyz="1.3878E-17 1.3878E-17 -0.02035"
+        rpy="0 0 0" />
+      <mass
+        value="0.2" />
+      <inertia
+        ixx="0.0002"
+        ixy="0"
+        ixz="0"
+        iyy="0.0002"
+        iyz="0"
+        izz="0.0004" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/R_link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/R_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="R_joint3"
+    type="continuous">
+    <origin
+      xyz="0.249999999999996 0 -0.0150000000000006"
+      rpy="0 0 -3.14159265358979" />
+    <parent
+      link="R_link2" />
+    <child
+      link="R_link3" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="RRR_link2">
+    <inertial>
+      <origin
+        xyz="0.070864 3.4521E-16 0.0035025"
+        rpy="0 0 0" />
+      <mass
+        value="0.057" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.00011633"
+        iyz="0"
+        izz="0.00011638" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RRR_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.77647 0.75686 0.73725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RRR_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RRR_joint2"
+    type="continuous">
+    <origin
+      xyz="0.0507543101617981 0.00500000000000107 0.00199999999999906"
+      rpy="0 0 -0.727717597673853" />
+    <parent
+      link="R_link2" />
+    <child
+      link="RRR_link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="RRR_link1">
+    <inertial>
+      <origin
+        xyz="0.049165 -2.6715E-16 0.0035738"
+        rpy="0 0 0" />
+      <mass
+        value="0.035" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RRR_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RRR_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RRR_joint1"
+    type="continuous">
+    <origin
+      xyz="0.0155904605531203 -0.0485585990298485 0.0019999999999991"
+      rpy="0 0 0.0565469799344095" />
+    <parent
+      link="R_link1" />
+    <child
+      link="RRR_link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="LL_link1">
+    <inertial>
+      <origin
+        xyz="0.051943 -1.6653E-16 -0.0053948"
+        rpy="0 0 0" />
+      <mass
+        value="0.0408" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.00012422"
+        iyz="0"
+        izz="0.00014195" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_joint1"
+    type="continuous">
+    <origin
+      xyz="0.194997978223287 0 -0.000887968935441651"
+      rpy="-1.57568010946101 0.369761643303147 -1.57256130481707" />
+    <parent
+      link="base_link" />
+    <child
+      link="LL_link1" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="LL_link2">
+    <inertial>
+      <origin
+        xyz="0.0675 -0.0031995 -0.014"
+        rpy="0 0 0" />
+      <mass
+        value="0.0836" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.0002"
+        iyz="0"
+        izz="0.0002" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_joint2"
+    type="continuous">
+    <origin
+      xyz="0.1134 0 0"
+      rpy="0 0 2.35732807598153" />
+    <parent
+      link="LL_link1" />
+    <child
+      link="LL_link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="LL_link3">
+    <inertial>
+      <origin
+        xyz="0.098135 -0.0046868 -0.0072399"
+        rpy="0 0 0" />
+      <mass
+        value="0.0406" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.0002274"
+        iyz="0"
+        izz="0.00023059" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_joint3"
+    type="continuous">
+    <origin
+      xyz="0.135 0 0"
+      rpy="0 0 1.28422460487396" />
+    <parent
+      link="LL_link2" />
+    <child
+      link="LL_link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="LL_link4">
+    <inertial>
+      <origin
+        xyz="0.048484 0.0014817 -0.0152"
+        rpy="0 0 0" />
+      <mass
+        value="0.064" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.0001"
+        iyz="0"
+        izz="0.0001" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/LL_link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="LL_link4"
+    type="continuous">
+    <origin
+      xyz="0.200508940199321 0 0"
+      rpy="0 0 -0.869725689169324" />
+    <parent
+      link="LL_link3" />
+    <child
+      link="LL_link4" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="RR_link1">
+    <inertial>
+      <origin
+        xyz="0.051943 1.3184E-16 0.0046052"
+        rpy="0 0 0" />
+      <mass
+        value="0.0408" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.0001"
+        iyz="0"
+        izz="0.00014195" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RR_joint1"
+    type="fixed">
+    <origin
+      xyz="-0.193997988591374 0 0.000883415248593401"
+      rpy="-1.575680109461 0.36976164330314 -1.57256130481707" />
+    <parent
+      link="base_link" />
+    <child
+      link="RR_link1" />
+    <axis
+      xyz="-0.0935364114890288 -0.241325999083241 -0.965925826289074" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="RR_link2">
+    <inertial>
+      <origin
+        xyz="0.0675 -0.0031995 0.014"
+        rpy="0 0 0" />
+      <mass
+        value="0.0836" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.0002"
+        iyz="0"
+        izz="0.0002" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RR_joint2"
+    type="continuous">
+    <origin
+      xyz="0.1134 0 0"
+      rpy="0 0 2.35732807598154" />
+    <parent
+      link="RR_link1" />
+    <child
+      link="RR_link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="RR_link3">
+    <inertial>
+      <origin
+        xyz="0.098135 -0.0046868 0.0071601"
+        rpy="0 0 0" />
+      <mass
+        value="0.0406" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.0002274"
+        iyz="0"
+        izz="0.00023059" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RR_joint3"
+    type="continuous">
+    <origin
+      xyz="0.135 0 0"
+      rpy="0 0 1.28422460487395" />
+    <parent
+      link="RR_link2" />
+    <child
+      link="RR_link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="RR_link4">
+    <inertial>
+      <origin
+        xyz="0.048484 0.0014817 0.0152"
+        rpy="0 0 0" />
+      <mass
+        value="0.064" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0.0001"
+        iyz="0"
+        izz="0.0001" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/RR_link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="RR_joint4"
+    type="continuous">
+    <origin
+      xyz="0.200508940199321 0 0"
+      rpy="0 0 -0.86972568916932" />
+    <parent
+      link="RR_link3" />
+    <child
+      link="RR_link4" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="100"
+      velocity="1" />
+  </joint>
+  <link
+    name="M_link1">
+    <inertial>
+      <origin
+        xyz="0.08 -0.0748 0.0682"
+        rpy="0 0 0" />
+      <mass
+        value="1.0263" />
+      <inertia
+        ixx="0.0045"
+        ixy="0.0005"
+        ixz="-0.0009"
+        iyy="0.0047"
+        iyz="0.0006"
+        izz="0.0061" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/M_link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/M_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="M_joint1"
+    type="continuous">
+    <origin
+      xyz="0.00087112 0 0.081497"
+      rpy="-2.5638 -1.5654 -0.5786" />
+    <parent
+      link="base_link" />
+    <child
+      link="M_link1" />
+    <axis
+      xyz="1 -0.0029743 0" />
+  </joint>
+  <link
+    name="M_link2">
+    <inertial>
+      <origin
+        xyz="0.066231 -0.017753 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.2475" />
+      <inertia
+        ixx="0.0017"
+        ixy="-0.0002"
+        ixz="0"
+        iyy="0.0037"
+        iyz="0"
+        izz="0.0034" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/M_link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://轮腿urdf.SLDASM/meshes/M_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="M_joint2"
+    type="continuous">
+    <origin
+      xyz="0.097 0 0"
+      rpy="0 -0.00079695 1.5678" />
+    <parent
+      link="M_link1" />
+    <child
+      link="M_link2" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+</robot>

@@ -1,0 +1,2873 @@
+{
+  "schema": "prone-motion-local-speedup-v1",
+  "recorded_utc": "2026-10-28T17:26:24.038086+00:00",
+  "status": "local_native_equivalence_and_performance_verified",
+  "source_commit": "f4996e0dc8aec96b6944c85a7bef6bbd2b6097a8",
+  "baseline_commit": "0c197fddce0d823770703ee61467dc2efd0c99ad",
+  "formal_frozen_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "f4996e0dc8aec96b6944c85a7bef6bbd2b6097a8",
+    "source_count": 321,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/native_probe001/committed_source.tar",
+    "archive_sha256": "d7d82cb086178cc874744d4fab78c51474850b3ef5b11983a041cff4caa8ccf7"
+  },
+  "benchmark_script_sha256": "167b776818238b62d42195f82c4b21480a559bf3d79e7c58e83fd31080fc746b",
+  "new_PPO": 0,
+  "optimizer_attempts": 0,
+  "actor_or_critic_created": false,
+  "checkpoint_reads": [],
+  "server_modified": false,
+  "server_training_stopped": false,
+  "server_speedup_measured": false,
+  "local_training_started": false,
+  "local_tensorboard_server_started": false,
+  "comparisons": [
+    {
+      "domain": "nominal",
+      "before": {
+        "name": "final_eager_nominal001",
+        "result": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_eager_nominal001/result.json",
+        "result_sha256": "1564939dc7f334e0175ad519fef4884851e3a708f66a2e0c5bc8e1482e961f7c",
+        "trace": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_eager_nominal001/trace.npz",
+        "trace_sha256": "6a3408372601b82ba28e5c82a2f794f44b431ee435f17c36697e1745df0599ec",
+        "event_files": [
+          {
+            "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_eager_nominal001/events/events.out.tfevents.1793207565.ZGZ.390610.0",
+            "sha256": "3731ead69aa16c86d4c4c66c6411ff3b055dfd477d2eecbf3bb23db144d4101c"
+          }
+        ],
+        "event_sample_count": 192,
+        "step_mean_s": 0.15830769180320203,
+        "step_median_s": 0.1512899473309517,
+        "step_p90_s": 0.17832717150449753,
+        "pid": 390610,
+        "start_ticks": 1365857,
+        "runtime": {
+          "torch": "2.11.0+cu128",
+          "device": "NVIDIA GeForce RTX 4060 Ti",
+          "policy_dt": 0.005,
+          "physics_dt": 0.001,
+          "decimation": 5,
+          "num_envs": 256,
+          "position_iterations": 64,
+          "velocity_iterations": 32,
+          "record_diagnostics": true,
+          "kit_threads": {
+            "/plugins/carb.tasking.plugin/threadCount": 16,
+            "/plugins/omni.tbb.globalcontrol/maxThreadCount": 16,
+            "/persistent/physics/numThreads": 4
+          }
+        },
+        "source_file_count": 317,
+        "source_mismatches_at_exit": []
+      },
+      "after": {
+        "name": "final_graph_nominal002",
+        "result": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_graph_nominal002/result.json",
+        "result_sha256": "b9f2c28258a832f7e2331172216f8a9b1fca85f124ab5361f207d9597f5d3ddd",
+        "trace": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_graph_nominal002/trace.npz",
+        "trace_sha256": "6a3408372601b82ba28e5c82a2f794f44b431ee435f17c36697e1745df0599ec",
+        "event_files": [
+          {
+            "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_graph_nominal002/events/events.out.tfevents.1793208080.ZGZ.401649.0",
+            "sha256": "4a9af56ff144cd8d5069a44464fc1b3563ccef093e00d0e6719b69f65d3060f3"
+          }
+        ],
+        "event_sample_count": 192,
+        "step_mean_s": 0.14782603822338083,
+        "step_median_s": 0.1403658166527748,
+        "step_p90_s": 0.16559651792049407,
+        "pid": 401649,
+        "start_ticks": 1418048,
+        "runtime": {
+          "torch": "2.11.0+cu128",
+          "device": "NVIDIA GeForce RTX 4060 Ti",
+          "policy_dt": 0.005,
+          "physics_dt": 0.001,
+          "decimation": 5,
+          "num_envs": 256,
+          "position_iterations": 64,
+          "velocity_iterations": 32,
+          "record_diagnostics": true,
+          "kit_threads": {
+            "/plugins/carb.tasking.plugin/threadCount": 16,
+            "/plugins/omni.tbb.globalcontrol/maxThreadCount": 16,
+            "/persistent/physics/numThreads": 4
+          }
+        },
+        "source_file_count": 321,
+        "source_mismatches_at_exit": []
+      },
+      "trace_policy_steps": 256,
+      "trace_physics_steps": 1280,
+      "arrays_checked": [
+        {
+          "key": "command",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/action_delta",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/actions",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/belly_force_peak_n",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/boundary_bad",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/closure_gap",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/commands",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/course_anchor_error_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/done",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/dual_wheel_air_run_peak",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/enable_event",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/followup_success",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/gap",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/gravity",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/height",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/impact",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/impact_bad",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/impulse",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/in_motion_fall",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/interval_requested_command",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/local_position",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/mechanical",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/motor_effort",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/motor_position",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/motor_velocity",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/native_reward",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/nonwheel_force_peak_n",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/omega",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/passive",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/passive_motor_peak",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/com_world_m",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_knee_rate_deg_s",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_leg_length_m",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_leg_length_rate_m_s",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_valid",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_vs_native_wheel_error_m",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_vs_passive_knee_error_deg",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_wheel_body_m",
+          "shape": [
+            256,
+            256,
+            2,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/knee_deg",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/support_error_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/wheel_below_com_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/wheel_midpoint_world_m",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/xy_excursion_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/pushing",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/quiet30_completed_event",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/quiet_hold_seconds",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovered",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovered_after_push",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovered_at",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovery_completed_event",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovery_support_cost_density",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/requested_command",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/reward_density",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/reward_potential_progress",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/reward_recovery_active",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/role_index",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "int64",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/root_quaternion_xyzw",
+          "shape": [
+            256,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/settled_family",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "int64",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/spawn_family",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "int64",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/stable",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/invalid_prone_start",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/refall",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/rise_excursion",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/rise_timeout",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_recovery_rising",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/action_rate",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/body_rate",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/effort",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/forward",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/forward_error",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/height",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/height_error",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/lateral",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/leg_speed",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/level",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/quiet",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/quiet_position",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/rise_position",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/rise_time",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/upright",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/vertical",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/yaw",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/yaw_error",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/terminated",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/time",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/velocity",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/velocity_world",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_air_run_peak",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_air_seconds",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_clearance",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_clearance_peak",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_contact",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_contact_fraction",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "done",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "initial/action",
+          "shape": [
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "initial/joint",
+          "shape": [
+            256,
+            18
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "initial/root",
+          "shape": [
+            256,
+            7
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "joint",
+          "shape": [
+            256,
+            256,
+            18
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/motor_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/motor_position",
+          "shape": [
+            256,
+            5,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/motor_velocity",
+          "shape": [
+            256,
+            5,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_compression",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_axial_force_n",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_compression_m",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_encoder_position",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_geometry_valid",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_holding_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_knee_inner_rad",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_length_jacobian_m_rad",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_length_m",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_limited_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_outside_identified",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_pd_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_requested_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_force",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_outside_identified",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_clearance",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_disabled",
+          "shape": [
+            256,
+            5,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_drive_bound",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_force",
+          "shape": [
+            256,
+            5,
+            256,
+            2,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_input_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_input_velocity",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_net_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_passive_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "reward",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "root",
+          "shape": [
+            256,
+            256,
+            7
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        }
+      ],
+      "all_arrays_bitwise_equal": true,
+      "done_events_in_trace": 74,
+      "disabled_lane_samples": 3588,
+      "active_lane_samples": 61948,
+      "common_source_differences": [
+        "docs/PRONE_MOTION_TRAINING_20261028.md",
+        "scripts/train_prone_motion.py",
+        "src/wheeled_tasks/chassis/encoder_spring_feedforward.py",
+        "src/wheeled_tasks/chassis/prone_motion_env.py",
+        "src/wheeled_tasks/chassis/training_gas_spring.py"
+      ],
+      "source_paths_added": [
+        "scripts/benchmark_prone_motion.py",
+        "src/wheeled_tasks/chassis/prone_motion_performance.py",
+        "src/wheeled_tasks/chassis/tensor_cuda_graph.py",
+        "tests/test_prone_motion_performance.py"
+      ],
+      "source_paths_removed": [],
+      "sampling_time_reduction_percent": 6.6210639928041655,
+      "sampling_throughput_multiplier": 1.0709053270032327
+    },
+    {
+      "domain": "requested_1_training_mix",
+      "before": {
+        "name": "final_eager_requested001",
+        "result": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_eager_requested001/result.json",
+        "result_sha256": "c3cba5aac47e10cf4d61b911361de12becbfed0ecfd114f3d3b3979fa9b1b6d9",
+        "trace": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_eager_requested001/trace.npz",
+        "trace_sha256": "46742207bd535bc5c61f0481bf85b9881b13df004185358abfd274a2713b2a31",
+        "event_files": [
+          {
+            "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_eager_requested001/events/events.out.tfevents.1793208171.ZGZ.403596.0",
+            "sha256": "d9d3a467aebc0bafe4f076c56eb9f9a406f3284e7b19f20affd13d46660c4fce"
+          }
+        ],
+        "event_sample_count": 192,
+        "step_mean_s": 0.1707368449618419,
+        "step_median_s": 0.17687170207500458,
+        "step_p90_s": 0.18366283923387527,
+        "pid": 403596,
+        "start_ticks": 1426110,
+        "runtime": {
+          "torch": "2.11.0+cu128",
+          "device": "NVIDIA GeForce RTX 4060 Ti",
+          "policy_dt": 0.005,
+          "physics_dt": 0.001,
+          "decimation": 5,
+          "num_envs": 256,
+          "position_iterations": 64,
+          "velocity_iterations": 32,
+          "record_diagnostics": true,
+          "kit_threads": {
+            "/plugins/carb.tasking.plugin/threadCount": 16,
+            "/plugins/omni.tbb.globalcontrol/maxThreadCount": 16,
+            "/persistent/physics/numThreads": 4
+          }
+        },
+        "source_file_count": 317,
+        "source_mismatches_at_exit": []
+      },
+      "after": {
+        "name": "final_graph_requested001",
+        "result": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_graph_requested001/result.json",
+        "result_sha256": "4872de303497c8d8b9555bfc7da1e001e9f9c591d9e0a6509777a003d9a89906",
+        "trace": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_graph_requested001/trace.npz",
+        "trace_sha256": "46742207bd535bc5c61f0481bf85b9881b13df004185358abfd274a2713b2a31",
+        "event_files": [
+          {
+            "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/final_graph_requested001/events/events.out.tfevents.1793208257.ZGZ.405766.0",
+            "sha256": "08874c8354301efaac0b36a11b2f18722b0fa35593d1e67f0b485fd230ecf915"
+          }
+        ],
+        "event_sample_count": 192,
+        "step_mean_s": 0.15912115302247307,
+        "step_median_s": 0.16516069322824478,
+        "step_p90_s": 0.17194267809391023,
+        "pid": 405766,
+        "start_ticks": 1435260,
+        "runtime": {
+          "torch": "2.11.0+cu128",
+          "device": "NVIDIA GeForce RTX 4060 Ti",
+          "policy_dt": 0.005,
+          "physics_dt": 0.001,
+          "decimation": 5,
+          "num_envs": 256,
+          "position_iterations": 64,
+          "velocity_iterations": 32,
+          "record_diagnostics": true,
+          "kit_threads": {
+            "/plugins/carb.tasking.plugin/threadCount": 16,
+            "/plugins/omni.tbb.globalcontrol/maxThreadCount": 16,
+            "/persistent/physics/numThreads": 4
+          }
+        },
+        "source_file_count": 321,
+        "source_mismatches_at_exit": []
+      },
+      "trace_policy_steps": 256,
+      "trace_physics_steps": 1280,
+      "arrays_checked": [
+        {
+          "key": "command",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/action_delta",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/actions",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/belly_force_peak_n",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/boundary_bad",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/closure_gap",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/commands",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/course_anchor_error_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/done",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/dual_wheel_air_run_peak",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/enable_event",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/followup_success",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/gap",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/gravity",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/height",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/impact",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/impact_bad",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/impulse",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/in_motion_fall",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/interval_requested_command",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/local_position",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/mechanical",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/motor_effort",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/motor_position",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/motor_velocity",
+          "shape": [
+            256,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/native_reward",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/nonwheel_force_peak_n",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/omega",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/passive",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/passive_motor_peak",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/com_world_m",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_knee_rate_deg_s",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_leg_length_m",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_leg_length_rate_m_s",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_valid",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_vs_native_wheel_error_m",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_vs_passive_knee_error_deg",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/encoder_wheel_body_m",
+          "shape": [
+            256,
+            256,
+            2,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/knee_deg",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/support_error_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/wheel_below_com_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/wheel_midpoint_world_m",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/prone_route/xy_excursion_m",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/pushing",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/quiet30_completed_event",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/quiet_hold_seconds",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovered",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovered_after_push",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovered_at",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovery_completed_event",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/recovery_support_cost_density",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/requested_command",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/reward_density",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/reward_potential_progress",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/reward_recovery_active",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/role_index",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "int64",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/root_quaternion_xyzw",
+          "shape": [
+            256,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/settled_family",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "int64",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/spawn_family",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "int64",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/stable",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/invalid_prone_start",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/refall",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/rise_excursion",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_failures/rise_timeout",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_recovery_rising",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/action_rate",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/body_rate",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/effort",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/forward",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/forward_error",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/height",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/height_error",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/lateral",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/leg_speed",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/level",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/quiet",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/quiet_position",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/rise_position",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/rise_time",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/upright",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/vertical",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/yaw",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/task_reward_terms/yaw_error",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/terminated",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/time",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/velocity",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/velocity_world",
+          "shape": [
+            256,
+            256,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_air_run_peak",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_air_seconds",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_clearance",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_clearance_peak",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_contact",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "diag/wheel_contact_fraction",
+          "shape": [
+            256,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "done",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "initial/action",
+          "shape": [
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "initial/joint",
+          "shape": [
+            256,
+            18
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "initial/root",
+          "shape": [
+            256,
+            7
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "joint",
+          "shape": [
+            256,
+            256,
+            18
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/motor_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/motor_position",
+          "shape": [
+            256,
+            5,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/motor_velocity",
+          "shape": [
+            256,
+            5,
+            256,
+            6
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_compression",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_axial_force_n",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_compression_m",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_encoder_position",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_geometry_valid",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_holding_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_knee_inner_rad",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_length_jacobian_m_rad",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_length_m",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_limited_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_outside_identified",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_pd_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_ff_requested_effort_nm",
+          "shape": [
+            256,
+            5,
+            256,
+            4
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_force",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/spring_outside_identified",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_clearance",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_disabled",
+          "shape": [
+            256,
+            5,
+            256
+          ],
+          "dtype": "bool",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_drive_bound",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_force",
+          "shape": [
+            256,
+            5,
+            256,
+            2,
+            3
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_input_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_input_velocity",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_net_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "physical/wheel_passive_effort",
+          "shape": [
+            256,
+            5,
+            256,
+            2
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "reward",
+          "shape": [
+            256,
+            256
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        },
+        {
+          "key": "root",
+          "shape": [
+            256,
+            256,
+            7
+          ],
+          "dtype": "float32",
+          "bitwise_equal": true
+        }
+      ],
+      "all_arrays_bitwise_equal": true,
+      "done_events_in_trace": 229,
+      "disabled_lane_samples": 3593,
+      "active_lane_samples": 61943,
+      "common_source_differences": [
+        "docs/PRONE_MOTION_TRAINING_20261028.md",
+        "scripts/train_prone_motion.py",
+        "src/wheeled_tasks/chassis/encoder_spring_feedforward.py",
+        "src/wheeled_tasks/chassis/prone_motion_env.py",
+        "src/wheeled_tasks/chassis/training_gas_spring.py"
+      ],
+      "source_paths_added": [
+        "scripts/benchmark_prone_motion.py",
+        "src/wheeled_tasks/chassis/prone_motion_performance.py",
+        "src/wheeled_tasks/chassis/tensor_cuda_graph.py",
+        "tests/test_prone_motion_performance.py"
+      ],
+      "source_paths_removed": [],
+      "sampling_time_reduction_percent": 6.803271983832692,
+      "sampling_throughput_multiplier": 1.0729990432995942
+    }
+  ],
+  "native_probe": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/native_probe001/progress.json",
+    "sha256": "07f72ce5787ca71babd4e8f8b03ae53e140783f0fcfa675964a4dbb2570de24d",
+    "contexts": 2,
+    "checks_per_context": 29,
+    "all_pass": true
+  },
+  "tests": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/tests002.log",
+    "sha256": "98f77d1cb0d1fc31e0fbf64254a4eb991a81fcc0312538f5908f383ae90a1cce",
+    "passed": 110,
+    "skipped": 1,
+    "failed": 0,
+    "earlier_test_fixture_failure_preserved": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/tests001.log",
+    "skipped_vendor_module_rechecked": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/local_speedup_20261029/tests003_vendor.log",
+      "sha256": "60137b435a01718099d49475be73c55db7ef711c12881f3c4f12f71a1c21ce69",
+      "passed": 13,
+      "skipped": 0,
+      "failed": 0,
+      "ISAACLAB_SOURCE_ROOT": "/home/noir/Documents/workspace/IsaacLab/source"
+    },
+    "total_distinct_tests_passed": 123,
+    "unresolved_skips": 0
+  },
+  "owned_native_process_cleanup": [
+    {
+      "name": "baseline001",
+      "pid": 374166,
+      "start_ticks": 1273475,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "graph001",
+      "pid": 377383,
+      "start_ticks": 1292471,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "instrument001",
+      "pid": 379863,
+      "start_ticks": 1304934,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "threads4_001",
+      "pid": 382693,
+      "start_ticks": 1321216,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "graph002",
+      "pid": 385013,
+      "start_ticks": 1334931,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "final_graph_nominal001",
+      "pid": 387662,
+      "start_ticks": 1349882,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "final_eager_nominal001",
+      "pid": 390610,
+      "start_ticks": 1365857,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "final_graph_nominal002",
+      "pid": 401649,
+      "start_ticks": 1418048,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "final_eager_requested001",
+      "pid": 403596,
+      "start_ticks": 1426110,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "final_graph_requested001",
+      "pid": 405766,
+      "start_ticks": 1435260,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    },
+    {
+      "name": "native_probe001",
+      "pid": 398769,
+      "start_ticks": 1406338,
+      "original_process_alive": false,
+      "in_gpu_compute_list": false
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "initial_recovery",
+      "requirement": "Recover from initial front/back/left/right/upside-down and asymmetric leg poses; stabilize and continue the requested task",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "moving_fall_recovery",
+      "requirement": "Detect and recover quickly after a real fall during forward/reverse/turning/spinning motion; resume the request without scripted assistance",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "standing",
+      "requirement": "Stable quiet low/mid/high standing after actual recovery completion, with continuous effective dual-wheel support allowing<=2ms pulses, small true XY drift and no sustained outward drift",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "low_speed_straight",
+      "requirement": "Track low positive and negative speeds and the straight path smoothly",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "high_speed_straight",
+      "requirement": "Track high forward and reverse speeds while retaining straight-path accuracy and balance",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "stationary_spin",
+      "requirement": "Target100rpm, at least80rpm, both directions, near the same ground location without falling or vibration",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "four_direction_arcs",
+      "requirement": "Forward-left, forward-right, reverse-left and reverse-right simultaneous translation and turning, including transitions",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "standing_height_change",
+      "requirement": "Smooth standing height changes without meaningful wheel lift, excessive drift or loss of balance; apply the post-completion<=2ms contact tolerance",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "moving_height_change",
+      "requirement": "Change height during forward/reverse/turning motion while maintaining tracking and balance",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "spinning_height_change",
+      "requirement": "Change height during both spin directions while maintaining yaw, location and balance",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "high_speed_braking",
+      "requirement": "Abruptly command zero from high forward and reverse speeds; stop promptly, smoothly and upright with small overshoot and little rebound",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "smoothness",
+      "requirement": "All tasks must avoid high-frequency leg/wheel excitation, contact chatter and dangerous measured joint speed",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    },
+    {
+      "id": "robustness",
+      "requirement": "Confirm nominal and randomized held-out dynamics, actuator/sensor/timing/friction domains, seeds and disturbances; preserve all failures",
+      "status": "not_revalidated",
+      "reason": "Zero-PPO constant-action performance/wiring probe; no learned policy evaluated",
+      "passed": false
+    }
+  ],
+  "full_capability_qualified": false,
+  "hardware_ready": false,
+  "limits": [
+    "Bounded serial same-machine timings, not sustained PPO throughput or convergence.",
+    "Desktop GPU is shared; timing variance remains.",
+    "Requested1 is the declared training mix with25 percent nominal rehearsal, not a held-out all-random evaluation.",
+    "Do not apply these timings directly to the4090 server; its frozen learner was untouched.",
+    "All13 long-term capabilities remain unqualified by this performance-only test."
+  ]
+}

@@ -1,0 +1,732 @@
+{
+  "schema": "flat-base-finetune-plan-v17",
+  "source_worker_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+  "source_worker_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+  "source_design_file": "contracts/v6_task_campaign_speed_expectations_v18.json",
+  "source_design_sha256": "07040ed673eab2b56594206bfc123b1aef240dd153805e7b4621dc7ec52bf2b7",
+  "actor_bundle": "models/wheel_leg_flat_base_20261018",
+  "source_onnx_sha256": "a00d13df1d4113fe949c2a6a15b508e5c491fd1a5e6881570bf025a8d3c29c29",
+  "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+  "asset_directory": "model/纯底盘_v7_flat_base107/urdf",
+  "asset_manifest_sha256": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+  "asset_cpu_evidence": "reports/flat_base_continuation_20261019/asset_cpu.json",
+  "control_file": "contracts/v6_wheel_response_control_v1.json",
+  "control_sha256": "cc30b2b0572999224c8feb79ffa7afb3df1b8a28800bca4a153663b9ea8d4bf8",
+  "physics_dt": 0.001,
+  "policy_dt": 0.02,
+  "leg_target_winding": "paired_branch107_v1",
+  "flat_context": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "seed": 191019,
+  "evaluation_seed": 191029,
+  "confirmation_seed": 191030,
+  "allowed_num_envs": [
+    4096
+  ],
+  "default_num_envs": 4096,
+  "update_ceiling": 10000,
+  "first_block_updates": 64,
+  "critic_warmup_updates": 20,
+  "num_steps_per_env": 96,
+  "num_learning_epochs": 3,
+  "num_mini_batches": 4,
+  "learning_rate": 0.001,
+  "critic_learning_rate": 0.0005,
+  "use_clipped_value_loss": false,
+  "gamma": 0.99,
+  "lam": 0.95,
+  "entropy_coef": 0.0,
+  "initial_std_policy_order": [
+    0.025,
+    0.025,
+    0.025,
+    0.025,
+    0.04,
+    0.04
+  ],
+  "checkpoint_interval": 32,
+  "episode_seconds": 20.0,
+  "acceptance": {
+    "survival_rate_min": 1.0,
+    "velocity_mae_m_s_max": 0.05,
+    "yaw_mae_rad_s_max": 0.1,
+    "height_mae_m_max": 0.01,
+    "stand_drift_m_max": 0.03,
+    "stand_velocity_mae_m_s_max": 0.03,
+    "tilt_max_deg": 15.0,
+    "closure_gap_max_m": 0.003,
+    "warmup_seconds": 1.0
+  },
+  "pilot_case_names": [
+    "stand_230mm",
+    "stand_305mm",
+    "stand_430mm",
+    "forward_05",
+    "backward_05",
+    "rotate_1",
+    "rotate_1_reverse",
+    "start_stop_05"
+  ],
+  "train_groups": [
+    {
+      "name": "stand_mid",
+      "fraction": 0.1,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.305
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "stand_mid_birth",
+      "fraction": 0.05,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "stand_low",
+      "fraction": 0.075,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.23
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "stand_low_birth",
+      "fraction": 0.05,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.23
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "stand_high",
+      "fraction": 0.075,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.43
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "stand_high_birth",
+      "fraction": 0.05,
+      "skill": {
+        "kind": "stand",
+        "command": [
+          0,
+          0.0,
+          0.43
+        ],
+        "mode": 0
+      }
+    },
+    {
+      "name": "forward_low",
+      "fraction": 0.06,
+      "skill": {
+        "kind": "forward",
+        "command": [
+          0.75,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.13333333333333333,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "forward_mid",
+      "fraction": 0.04,
+      "skill": {
+        "kind": "forward",
+        "command": [
+          1.5,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.5,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "forward_high",
+      "fraction": 0.03,
+      "skill": {
+        "kind": "forward",
+        "command": [
+          3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.5,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "backward_low",
+      "fraction": 0.06,
+      "skill": {
+        "kind": "backward",
+        "command": [
+          -0.75,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.13333333333333333,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "backward_mid",
+      "fraction": 0.04,
+      "skill": {
+        "kind": "backward",
+        "command": [
+          -1.5,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.5,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "backward_high",
+      "fraction": 0.03,
+      "skill": {
+        "kind": "backward",
+        "command": [
+          -3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.5,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "turn_left",
+      "fraction": 0.055,
+      "skill": {
+        "kind": "rotate",
+        "command": [
+          0,
+          4.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.125,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "turn_right",
+      "fraction": 0.055,
+      "skill": {
+        "kind": "rotate",
+        "command": [
+          0,
+          -4.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": true,
+        "amplitude_range": [
+          0.125,
+          1.0
+        ],
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "start_stop_0_5",
+      "fraction": 0.04,
+      "skill": {
+        "kind": "start_stop",
+        "command": [
+          0.5,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "segment_seconds": 6.0,
+        "acceleration_m_s2": 1.5,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "start_stop_1_0",
+      "fraction": 0.03,
+      "skill": {
+        "kind": "start_stop",
+        "command": [
+          1.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "segment_seconds": 6.0,
+        "acceleration_m_s2": 1.5,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "start_stop_3_0",
+      "fraction": 0.03,
+      "skill": {
+        "kind": "start_stop",
+        "command": [
+          3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "segment_seconds": 6.0,
+        "acceleration_m_s2": 1.5,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "curve_left",
+      "fraction": 0.025,
+      "skill": {
+        "kind": "curve",
+        "command": [
+          0.75,
+          0.75,
+          0.305
+        ],
+        "mode": 1,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "curve_right",
+      "fraction": 0.025,
+      "skill": {
+        "kind": "curve",
+        "command": [
+          0.75,
+          -0.75,
+          0.305
+        ],
+        "mode": 1,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "forward_edge3",
+      "fraction": 0.01,
+      "skill": {
+        "kind": "forward",
+        "command": [
+          3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "forward_edge3_start",
+      "fraction": 0.01,
+      "skill": {
+        "kind": "forward",
+        "command": [
+          3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "backward_edge3",
+      "fraction": 0.01,
+      "skill": {
+        "kind": "backward",
+        "command": [
+          -3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "backward_edge3_start",
+      "fraction": 0.01,
+      "skill": {
+        "kind": "backward",
+        "command": [
+          -3.0,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "turn_left_edge4",
+      "fraction": 0.02,
+      "skill": {
+        "kind": "rotate",
+        "command": [
+          0,
+          4.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    },
+    {
+      "name": "turn_right_edge4",
+      "fraction": 0.02,
+      "skill": {
+        "kind": "rotate",
+        "command": [
+          0,
+          -4.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_yaw_sign": false,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.42
+          ],
+          "nominal_fraction": 0.5,
+          "endpoint_fraction": 0.5
+        }
+      }
+    }
+  ],
+  "training_scope": "wheel_0p1_ground_uniform_0p2_to_0p5_latest_user_range",
+  "training_release": false,
+  "hardware_deployment_ready": false,
+  "prior_discontinued_optimizer_updates": 1,
+  "flat_floor_width_m": 8.0,
+  "vx_max": 3.0,
+  "yaw_max": 4.0,
+  "additional_critic_warmup_updates": 0,
+  "group_episode_seconds": {
+    "stand_low_birth": 1.0,
+    "stand_high_birth": 1.0,
+    "stand_mid_birth": 1.0,
+    "forward_edge3_start": 2.0,
+    "backward_edge3_start": 2.0
+  },
+  "teacher_anchor": {
+    "coefficient": 0.0,
+    "action_scales": [
+      0.025,
+      0.025,
+      0.025,
+      0.025,
+      0.04,
+      0.04
+    ],
+    "min_vx": 2.5,
+    "min_yaw": 3.0,
+    "sampling": "current_training_observations_only",
+    "teacher_source": "original_source_onnx",
+    "min_visible_wheel_error_m_s": 0.5
+  },
+  "stationary_tracking": {
+    "position_weight": 1.0,
+    "position_band_m": 0.03,
+    "velocity_scale": 1.0,
+    "position_cost": "capped_square",
+    "position_cost_cap": 25.0,
+    "failure_event_cost": 50.0
+  },
+  "critic_position_anchor": true,
+  "critic_dim": 83,
+  "actor_adaptation": "original-static-feedback-and-wheel-authority-residual-v6",
+  "training_command_reference": {
+    "rmcs_root": "/home/noir/Documents/workspace/RMCS",
+    "contract": {
+      "schema": "flat-rmcs-command-reference-v1",
+      "source_sha256": {
+        "rmcs_rl/src/wheel_leg/observation.cpp": "7e98fc95cd4b198bc3b02790e0c1736267eb448ceb3efd1b94180b01d771376c",
+        "rmcs_rl/src/wheel_leg/policy.hpp": "debb9dda28b911271f4967a7ccab1f7d21cf041c6ed9ab11d0017981624ad5d5",
+        "rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063"
+      },
+      "policy_hz": 50,
+      "physics_hz": 1000,
+      "nominal_height_m": 0.305,
+      "height_command_is_reference": true,
+      "height_reference_rate_max_m_s": 0.6666666666666666,
+      "wheel_radius_m": 0.06,
+      "wheel_track_m": 0.4373,
+      "wheel_speed_limit_rad_s": 90.0,
+      "lateral_acceleration_m_s2": 2.06,
+      "heading_hold_enabled": true,
+      "heading_hold_gain": 5.0,
+      "vx_max_m_s": 3.0,
+      "yaw_rate_max_rad_s": 4.0,
+      "heading_hold_yaw_rate_max_rad_s": 4.0,
+      "envelope_source": "export_flat_base.py packaged YAML caps: vx=3, yaw/heading/spin=4",
+      "planar_slew": "none; next policy tick",
+      "takeover_blending": false,
+      "spinning": false,
+      "scope": "ordinary flat RL command assembly after takeover; native simulation only"
+    },
+    "moving_direct_fraction": 0.5,
+    "standing_direct_fraction": 1.0
+  },
+  "feedback_training_scope": "feedback_only",
+  "command_branch_restore": {
+    "checkpoint": "runs/flat_base_20261019/pilot010/model_000448.pt",
+    "sha256": "334bbee9a258a55d03be273f0c86d356b58ddcca6a8eddd4c1ebb6ad1c1ceaa2",
+    "current_parent_sha256": "f86aa34c16b0de0ee20c7d8ff5b7fb65978672b999c4adea8f71fa29a21382b5"
+  },
+  "moving_velocity_cost_scale": 3.0,
+  "static_feedback_recall": {
+    "checkpoint": "runs/flat_base_20261019/pilot023/model_001248.pt",
+    "sha256": "da285c8ddc1958af6c5e3b232c97bb3729370459235e2d90268738c2b0067d7d"
+  },
+  "parent_composition": {
+    "parent_checkpoint": "runs/flat_base_20261019/pilot025/model_001280.pt",
+    "parent_sha256": "9f8c858099a3f92a25b0f97bab6f9dc4a1d1644ed4497abbe68758263a36401f",
+    "source_actor_adaptation": "original-command-and-continuous-low-feedback-residual-v4",
+    "static_composition": "v3 snapshot exact",
+    "wheel_head": "zero output; 994 trainable parameters"
+  },
+  "contact_material": {
+    "enabled": true,
+    "combine_mode": "average",
+    "ground_static_friction_range": [
+      0.2,
+      0.5
+    ],
+    "ground_dynamic_friction_range": [
+      0.2,
+      0.5
+    ],
+    "wheel_static_friction": 0.1,
+    "wheel_dynamic_friction": 0.1,
+    "body_static_friction": 0.25,
+    "body_dynamic_friction": 0.25
+  }
+}

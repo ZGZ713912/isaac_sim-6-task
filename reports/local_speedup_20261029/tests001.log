@@ -1,0 +1,35 @@
+...F.................................................................... [ 65%]
+......................................                                   [100%]
+=================================== FAILURES ===================================
+________ test_role_metadata_refreshes_when_an_evaluation_changes_roles _________
+
+    def test_role_metadata_refreshes_when_an_evaluation_changes_roles():
+>       from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
+
+tests/test_prone_motion_performance.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/prone_motion_env.py:8: in <module>
+    from .robust_getup_env import RobustGetupEnv
+src/wheeled_tasks/chassis/robust_getup_env.py:16: in <module>
+    from .env import ChassisEnv
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """Isaac Lab 3 / PhysX multi-scene environment for the 15-body closed chain."""
+    from __future__ import annotations
+    
+    import math
+    import json
+    from dataclasses import replace
+    from pathlib import Path
+    
+    import torch
+    import torch.nn.functional as F
+    import warp as wp
+    from tensordict import TensorDict
+>   from pxr import PhysxSchema, UsdGeom, UsdPhysics
+E   ImportError: cannot import name 'PhysxSchema' from 'pxr' (/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/pxr/__init__.py)
+
+src/wheeled_tasks/chassis/env.py:13: ImportError
+=========================== short test summary info ============================
+FAILED tests/test_prone_motion_performance.py::test_role_metadata_refreshes_when_an_evaluation_changes_roles
+1 failed, 109 passed, 1 skipped in 9.98s

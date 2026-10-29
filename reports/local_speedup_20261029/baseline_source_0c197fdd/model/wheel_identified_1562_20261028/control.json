@@ -1,0 +1,50 @@
+{
+  "schema": "chassis-explicit-motor-control-v1",
+  "control_id": "new-wheel-1562-recorded-P05-20261028-v1",
+  "engineering_probe_only": false,
+  "training_release": false,
+  "control_frame": "Xforward_Yleft_Zup",
+  "active_order": [
+    "L_joint1",
+    "LL_joint1",
+    "L_joint3",
+    "R_joint1",
+    "RR_joint1",
+    "R_joint3"
+  ],
+  "timing": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.005,
+    "pc_control_dt": 0.001,
+    "decimation": 5
+  },
+  "actuators": {
+    "leg": {
+      "model": "DM-J8009-2EC",
+      "kp": 160.0,
+      "kd": 2.5,
+      "effort_limit": 40.0,
+      "armature": 0.0,
+      "source_note": "Selected recorded PC PD; MIT gains zero. No identified drive response or torque-speed envelope; engine armature is an explicit unfit prior."
+    },
+    "wheel": {
+      "model": "M3508",
+      "gear_ratio": 15.62,
+      "gearbox_efficiency": 1.0,
+      "kd": 0.5,
+      "armature": 0.0,
+      "effort_limit": 4.5,
+      "curve_side": "wheel_output",
+      "curve_kind": "software_cap_only_not_identified",
+      "torque_reference": "wheel_output",
+      "scope": "new_gearbox_airborne_identified_candidate",
+      "source_note": "Both new-gearbox CSVs use 24V, full ratio15.62, output velocity P0.5 and software cap4.5Nm. Wheel-specific inertia/loss/aggregate delay and measured no-load ceilings are bound by identified_wheel_response. Rolloff shape at high loaded torque remains a prior; no second ratio multiplication."
+    }
+  },
+  "plant_fit_applied": true,
+  "feedback_reference": "active_motor_output_axes_and_wheel_output_speed",
+  "policy_abi_source": "outer_chassis_contract_only_not_legacy_v40_observation_or_geometry",
+  "research_training": true,
+  "hardware_deployment_ready": false,
+  "uncertainty_note": "New wheel ratio15.62; inherited wheel-output inertia/resistance are an unvalidated prior for replacement hardware. No new wheel response, loaded torque-speed or hardware qualification is claimed."
+}
