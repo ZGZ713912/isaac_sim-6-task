@@ -1,0 +1,369 @@
+{
+  "schema": "wheel-leg-separated-curriculum-receipt-v1",
+  "recorded_utc": "2026-10-27T11:29:10.680092+00:00",
+  "user_confirmed_reset": "Normally facing up, chassis belly touching the floor, six motors disabled before RL enable",
+  "current_focus": "Encoder-derived folding toward physical40deg, wheel support below COM, near-place six-motor RL rise; independent upright task",
+  "source": {
+    "worktree": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train",
+    "branch": "codex/standard-prone-training",
+    "commit": "28a46078356fdbb06f81cd221d738400a6c0f7d4",
+    "source_archive_sha256": "cb16cff08a3f278056b7a4ffd9fe3ae907af1612bcf896d30115cc5cdf882e04",
+    "pushed": false,
+    "original_workspace_index_modified_by_this_training_task": false
+  },
+  "source_contracts": {
+    "contracts/wheel_leg_standard_prone_v1.json": {
+      "frozen_file": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_standard_prone_v1.json",
+      "sha256": "85acbc6fc5726f8691eee21c88bce98b1271c78c8246eec3346ef80593d03c59"
+    },
+    "contracts/wheel_leg_upright_locomotion_v1.json": {
+      "frozen_file": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_upright_locomotion_v1.json",
+      "sha256": "f4eb7af8792e3532229ba93f22852e6020b0263c5e0707d8616737f235f1aa7c"
+    },
+    "contracts/wheel_leg_separated_curriculum_v1.json": {
+      "frozen_file": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_separated_curriculum_v1.json",
+      "sha256": "b5ac6115c30edcf042d54ace09e9ebee784bb929faaef6fba24d3d8798ed0bca"
+    },
+    "contracts/wheel_leg_acceptance_requirements_v2.json": {
+      "frozen_file": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_acceptance_requirements_v2.json",
+      "sha256": "1e5d56d57e51351a0e033b0fcde767d491ce5018a40e78f93dcc5610c51a9895"
+    },
+    "contracts/wheel_leg_randomization_study_v2.json": {
+      "frozen_file": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_randomization_study_v2.json",
+      "sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157"
+    }
+  },
+  "targeted_tests": {
+    "passed": 94,
+    "failed": 0,
+    "scope": "Nine targeted CPU modules for candidate; not whole repository or behavior qualification"
+  },
+  "final_native_probe": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/probe_rotated_absolute_frozen_native001/native_probe.json",
+    "sha256": "d2c032de879ed5e0688efc4a9a94d665a32c43597dab3fd7fd3882a4231bc24e",
+    "source_commit": "28a46078356fdbb06f81cd221d738400a6c0f7d4",
+    "training_source_scope_proof": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot005_native_source_proof001.json",
+    "checks_passed": 15,
+    "checks_total": 15,
+    "num_envs": 64,
+    "physics_steps": 3000,
+    "new_PPO": 0,
+    "learned_policy": false,
+    "requested_strength": 0.25,
+    "friction_profile": "baseline",
+    "qualification": "Constant initialization geometry and wiring only; not learned or final v2 behavior qualification"
+  },
+  "old_pilot": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot001_belly_encoder_dr025_u64_e64",
+    "status": "stopped",
+    "completed_updates": 4,
+    "checkpoint": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot001_belly_encoder_dr025_u64_e64/model_stopped.pt",
+      "sha256": "b21ed54cb2da6bd79eca15270e21a1f04c64573a9024e93af3b6ecb9b10d5942",
+      "updates": 4
+    },
+    "state": "Gracefully stopped once; no resume or donor used"
+  },
+  "correction_history": [
+    "Front90deg reset could invert during zero-motor settling; replaced following user-confirmed upright belly-grounded definition.",
+    "Lookup1e-5rad endpoint check rejected tiny native residuals; explicit1mrad numerical margin retains physical knee limits and native diagnostics.",
+    "A diagnostic initially passed policy-order actions into the control-order decoder. Corrected; failed reports remain intact.",
+    "Base mechanism range3 is overridden by existing native recovery range16. The proposed runtime-clipping root cause was withdrawn; range16 is now explicit in both prone configuration layers.",
+    "The16-update pilot did not learn active folding. Latest source keeps the same disabled reset but uses an explicit42deg pre-lift trainable output bias and dense folding/alignment credit; the untrained bias probe is reported separately.",
+    "pilot004 stopped after166 updates; frozen actor0/21 recovery, wheel speed89.81rad/s while body remained low. pilot005 fresh MLP learns absolute wheel targets and uses fixed trainable common rotations; this combined change is not a single-factor causal comparison."
+  ],
+  "current_pilot": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot005_rotated_absolute_dr025_u128_e256",
+    "progress_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot005_rotated_absolute_dr025_u128_e256/progress.json",
+    "observed_utc": "2026-10-27T11:29:10.680092+00:00",
+    "status": "training",
+    "pid": 1895713,
+    "start_ticks": 8476858,
+    "process_identity_verified": true,
+    "source_commit": "28a46078356fdbb06f81cd221d738400a6c0f7d4",
+    "requested_updates": 128,
+    "completed_updates": 3,
+    "checkpoint_reads_by_training": [],
+    "initialization": {
+      "schema": "scratch-ppo-initialization-v1",
+      "checkpoint_loaded": false,
+      "teacher_loaded": false,
+      "actor_updates": 0,
+      "critic_updates": 0,
+      "optimizer_states": 0,
+      "actor_tensor_sha256": "f8b9899817a322ef4f399844f345d0b8379f3a47cd11fa51b860592fc9b524cf",
+      "critic_tensor_sha256": "8009b40916a64bccb5deea6f26c9fa2e2ab92b22dc0225cb82e326e513c2a1c0",
+      "actor_trainable_parameters": 29772,
+      "critic_trainable_parameters": 35585,
+      "output_bias_source": "authenticated closed-chain pre-lift geometry floor_knee42_42_orbit0.8_r0_p0; fixed trainable common rotations=[-0.6, 0.6]; all six outputs trainable, no scripted sequence",
+      "output_bias_policy_order": [
+        1.9039610624313354,
+        -0.6546810269355774,
+        -1.9060676097869873,
+        0.6525925993919373,
+        0.0,
+        0.0
+      ],
+      "initial_std_policy_order": [
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.05,
+        0.05
+      ],
+      "actor_class": "MLPModel",
+      "wheel_velocity_increment": false,
+      "separate_leg_velocity_feedback": false
+    },
+    "first_update_audit": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot005_rotated_absolute_dr025_u128_e256/first_update_audit.json",
+      "sha256": "804ae0b200c79916c740bf7dc83846a0a99c12006cbba53841bbc2c60a5aaf0c",
+      "committed_optimizer_calls": 12,
+      "all_recorded_values_finite": true,
+      "actor_changed_parameter_tensors": 9,
+      "critic_changed_parameter_tensors": 8
+    },
+    "all_six_outputs_changed_audit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot005_six_axis_audit001.json",
+    "randomization": "v2 requested strength0.25,256 environments,25percent nominal; fixed P/D and gas spring as specified; not final full v2 matrix",
+    "user_allowed_getup_translation_m": 0.1,
+    "position_penalty_inside_allowed_radius": 0.0,
+    "wheel_control": "Two trainable absolute wheel-velocity targets, plus four trainable hip/knee position targets; no measured-velocity output identity",
+    "cold_evaluation": null,
+    "completion": "At128-update cap save final checkpoint and perform completion-anchored cold review; never resume this or an older checkpoint",
+    "tensorboard_status": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot005_status_tb001.json",
+    "fresh_independent_seed": 261003
+  },
+  "all_final_capabilities": [
+    {
+      "id": "initial_recovery",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "moving_fall_recovery",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "standing",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "low_speed_straight",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "high_speed_straight",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "stationary_spin",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "four_direction_arcs",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "standing_height_change",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "moving_height_change",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "spinning_height_change",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "high_speed_braking",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "smoothness",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    },
+    {
+      "id": "robustness",
+      "new_campaign_status": "not_qualified",
+      "reason": "Full fixed-case behavior and final randomized matrix have not passed for this frozen generation"
+    }
+  ],
+  "new_PPO_completed_total": 253,
+  "curves": {
+    "figure": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/prone_tensorboard_comparison.png",
+    "provenance": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/prone_tensorboard_comparison.provenance.json",
+    "source": "TensorBoard event only",
+    "generation_policy": "Distinct fresh runs labeled separately; initial bias and rewards differ; not causal single-factor proof",
+    "pilot003_cold_trace_figure": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot003_cold_trace.png"
+  },
+  "hardware_ready": false,
+  "full_capability_qualified": false,
+  "completed_prior_pilot": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot002_belly_encoder_dr025_u16_e256",
+    "source_commit": "65d4ebd3740d94cb9553c859fd8a0d930445f9bb",
+    "completed_updates": 16,
+    "checkpoint": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot002_belly_encoder_dr025_u16_e256/model_final.pt",
+      "sha256": "e55b66b64289af3fadd21e4e89e1ac2762d15bbf0e3cc1dd20ddb00533e814d2",
+      "updates": 16
+    },
+    "cold_result": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot002_belly_encoder_dr025_u16_e256/evaluation/result.json",
+    "cold_result_sha256": "0e463bd45be7bf529a79f41dd222bab76a7dd6e52add82db803af915360c12c4",
+    "recovery_completed": 0,
+    "baseline_pass": 0,
+    "case_count": 21,
+    "recovery_deadline_missed": 21,
+    "maximum_xy_m": 0.027810633182525635,
+    "minimum_encoder_estimated_knee_deg": 103.9531021118164,
+    "curves_from_its_own_event": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot002_tensorboard_figure_provenance.json",
+    "different_generation_results_not_combined": true
+  },
+  "rise_density_candidate": {
+    "status": "stopped_after166_no_recovery",
+    "source_commit": "d0e258b7653cfcc492ee7577af567a2775e3df89",
+    "reward_transition_audit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/reward_transition_audit001.json",
+    "candidate_metadata": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/rise_density_candidate001.json",
+    "tests_passed": 89
+  },
+  "completed_prior_pilot003": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot003_prelift42_dense_dr025_u64_e256",
+    "status": "completed_unqualified",
+    "source_commit": "d282dfc36369078097deab36359a8314fe1f8962",
+    "completed_updates": 64,
+    "model_final_sha256": "47f331369bd4be6bce2db8dbb872c20a2e8295b053dc468f5cd70e227a504787",
+    "cold_evaluation": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot003_prelift42_dense_dr025_u64_e256/evaluation/result.json",
+      "sha256": "896d644e4e2389fc43e422ffadd97475268a147ae2f214973a2b4af3ebc001ab",
+      "recovery_completed": 0,
+      "baseline_pass": 0,
+      "case_count": 21,
+      "recovery_deadline_missed": 21,
+      "terminated": 0,
+      "maximum_xy_excursion_m": 0.028537103906273842,
+      "minimum_knee_deg": 41.894622802734375,
+      "maximum_height_m": 0.17772743105888367,
+      "last_mean_height_m": 0.174133762717247,
+      "raw_trace_sha256": "e5f8831ab9b655856581f9c7df20077f003299c86bef7ebbc6b3bcc5aa416f3e"
+    },
+    "process_exited": true,
+    "qualification": "Not learned standing; no integration with other generations"
+  },
+  "cold_review_serialization_smoke": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/cold_review_io_smoke001/evaluation/result.json",
+    "new_PPO": 0,
+    "shortened_deadline_s": 0.5,
+    "full_behavior_acceptance": false,
+    "six_motor_snapshot_stream": "Saved at200Hz; no claim of1kHz wheel extrema"
+  },
+  "user_translation_update": {
+    "instruction": "Wheels must coordinate with the legs during get-up; about10cm of movement is acceptable",
+    "task_contract": "contracts/wheel_leg_standard_prone_v1.json",
+    "standing_acceptance_unchanged": true
+  },
+  "completed_prior_pilot004": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot004_prelift42_rise_dr025_u512_e256",
+    "progress_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot004_prelift42_rise_dr025_u512_e256/progress.json",
+    "observed_utc": "2026-10-27T09:52:25.504315+00:00",
+    "status": "stopped",
+    "pid": 1746592,
+    "start_ticks": 7880347,
+    "process_identity_verified": true,
+    "source_commit": "d0e258b7653cfcc492ee7577af567a2775e3df89",
+    "requested_updates": 512,
+    "completed_updates": 166,
+    "checkpoint_reads_by_training": [],
+    "initialization": {
+      "schema": "scratch-ppo-initialization-v1",
+      "checkpoint_loaded": false,
+      "teacher_loaded": false,
+      "actor_updates": 0,
+      "critic_updates": 0,
+      "optimizer_states": 0,
+      "actor_tensor_sha256": "671bca19f728c66994aa2c70e49a21634c41c9c9c40541f443c3bff18b3cb3b9",
+      "critic_tensor_sha256": "34de52dbad020de7cafe8380fd89ff1b20395f80f580309a58858d4d7663e6c2",
+      "actor_trainable_parameters": 29772,
+      "critic_trainable_parameters": 35585,
+      "output_bias_source": "authenticated closed-chain pre-lift geometry floor_knee42_42_orbit0.8_r0_p0; all six outputs trainable, no scripted sequence",
+      "output_bias_policy_order": [
+        4.303961753845215,
+        1.7453190088272095,
+        -4.306068420410156,
+        -1.7474074363708496,
+        0.0,
+        0.0
+      ],
+      "initial_std_policy_order": [
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.05,
+        0.05
+      ],
+      "actor_class": "wheeled_algo.wheel_velocity_increment:WheelVelocityIncrementModel",
+      "wheel_velocity_increment": true,
+      "separate_leg_velocity_feedback": false
+    },
+    "first_update_audit": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/standard_prone_20261027/pilot004_prelift42_rise_dr025_u512_e256/first_update_audit.json",
+      "sha256": "597f874125f7816a3c49a215303cbbf1fe9b1c1c13dee436fc83e7f481eaf4b9",
+      "committed_optimizer_calls": 12,
+      "all_recorded_values_finite": true,
+      "actor_changed_parameter_tensors": 9,
+      "critic_changed_parameter_tensors": 8
+    },
+    "all_six_outputs_changed_audit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot004_six_axis_audit001.json",
+    "randomization": "requested strength0.25,256 environments, wheel0.7 ground0.45..0.5 engineering comparison,25percent nominal mask",
+    "user_allowed_getup_translation_m": 0.1,
+    "position_penalty_inside_allowed_radius": 0.0,
+    "wheel_control": "Both wheel-velocity outputs trainable throughout active get-up; four hip/knee positions also trainable",
+    "same_seed_as_pilot003": true,
+    "independent_seed_robustness_trial": false,
+    "cold_evaluation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot004_stop_cold001/evaluation/result.json",
+    "completion": "At the512-update cap the existing trainer saves model_final and performs completion-anchored cold review; no notification or automation promised",
+    "process_exited": true,
+    "stop_integrity": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/pilot004_stop_integrity001.json",
+    "stopped_checkpoint_sha256": "d1dba424d18ff33707e5523f5ac871d730556f6799f22bcca7542e37baa4dea0",
+    "resume_forbidden": true,
+    "cold_summary": {
+      "case_count": 21,
+      "recovery_completed": 0,
+      "baseline_pass": 0,
+      "recovery_deadline_missed": 21,
+      "maximum_xy_excursion_m": 0.023783346638083458,
+      "wheel_speed_peak_rad_s_200Hz": 89.8067626953125,
+      "trace_sha256": "d0dd58e2cb076185a06e3a6fc2c199ef6092f7d0d29704066ea909ee6e92efab",
+      "qualification": "Not standing; frozen old actor read-only evaluation, no PPO"
+    }
+  },
+  "historical_full_strength_probe": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/belly_10cm_rise_native_requested_lowgrip001/native_probe.json",
+    "sha256": "172f6a2a18a4e53458415691246230c5bdbb12c077f434c4f0f95f3482392066",
+    "source_commit": "b550f020",
+    "training_source_scope_proof": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/native_scope_to_training_source001.json",
+    "checks_passed": 15,
+    "checks_total": 15,
+    "num_envs": 256,
+    "physics_steps": 3000,
+    "new_PPO": 0,
+    "learned_policy": false,
+    "full_v2_strength": 1.0,
+    "friction_profile": "legacy_low_grip",
+    "nominal_rehearsal_fraction": 0.25,
+    "terminal_events": 0,
+    "qualification": "Wiring and bounded constant-geometry probe only; not randomized learned behavior qualification"
+  }
+}

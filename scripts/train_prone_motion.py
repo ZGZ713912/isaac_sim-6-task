@@ -45,7 +45,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         wheel_velocity_increment=False, separate_leg_velocity_feedback=False, static_load_initialization=False,
         contact_break_cost=None, speed_weight=2., contact_weight=8., learning_rate=plan["learning_rate"],
         randomization_study=None if profile == "nominal" else ROOT/plan["randomization_contract"],
-        randomization_profile=None if profile == "nominal" else profile, randomization_strength=strength)
+        randomization_profile=None if profile == "nominal" else profile, randomization_strength=strength,
+        mechanism=None if plan["schema"] == "wheel-leg-prone-motion-v3" else
+            ROOT/"contracts/scratch_standing_base_mechanism_v2.json")
     cfg, settings = base.prepare(args)
     settings.update(version=plan["schema"], prone_motion_task=deepcopy(plan),
         prone_geometry=json.loads((ROOT/plan["prone_geometry_contract"]).read_text()),
@@ -63,13 +65,21 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
     cfg["policy_architecture"]["scope"] = "Fresh actor35, critic83, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
-    from wheeled_tasks.chassis.training_gas_spring import resolve
-    model_spec = json.loads((ROOT/cfg["asset_directory"]/"model_spec.json").read_text())
-    cfg["v5_control"]["identified_gas_spring"] = resolve(ROOT, plan["gas_spring_model"], model_spec)
-    from wheeled_tasks.chassis.encoder_spring_feedforward import resolve as resolve_feedforward
-    cfg["v5_control"]["encoder_spring_feedforward"] = resolve_feedforward(ROOT,
-        plan["gas_spring_feedforward"], cfg["v5_control"]["identified_gas_spring"],
-        ROOT/cfg["asset_directory"]/"model_spec.json")
+    if plan["schema"] == "wheel-leg-prone-motion-v3":
+        gas = cfg["v5_control"]["gas_spring_compensation"]
+        if (plan.get("gas_spring_backend") != "dev_compensation_v2"
+                or gas != plan["gas_spring_feedforward"]
+                or gas["model_file"] != plan["gas_spring_model"]["file"]
+                or gas["model_sha256"] != plan["gas_spring_model"]["sha256"]):
+            raise ValueError("Unified training requires the authenticated dev gas fit and one compensation path")
+    else:
+        from wheeled_tasks.chassis.training_gas_spring import resolve
+        model_spec = json.loads((ROOT/cfg["asset_directory"]/"model_spec.json").read_text())
+        cfg["v5_control"]["identified_gas_spring"] = resolve(ROOT, plan["gas_spring_model"], model_spec)
+        from wheeled_tasks.chassis.encoder_spring_feedforward import resolve as resolve_feedforward
+        cfg["v5_control"]["encoder_spring_feedforward"] = resolve_feedforward(ROOT,
+            plan["gas_spring_feedforward"], cfg["v5_control"]["identified_gas_spring"],
+            ROOT/cfg["asset_directory"]/"model_spec.json")
     from wheeled_tasks.chassis.training_wheel_response import configure
     cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
     if wheel_control["timing"] != rates:
@@ -107,7 +117,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
-        gas_spring_feedforward=deepcopy(cfg["v5_control"]["encoder_spring_feedforward"]),
+        gas_spring_feedforward=deepcopy(cfg["v5_control"].get("gas_spring_compensation") or
+            cfg["v5_control"]["encoder_spring_feedforward"]),
         action_order=["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
         wheel_velocity_scale_rad_s=10., wheel_velocity_clip_rad_s=90.,
         leg_position_scale_rad=.25, leg_action_clip=16., profile=profile, strength=strength,
@@ -146,15 +157,24 @@ def source_hashes(plan_path, plan):
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
              "contracts/scratch_standing_base_mechanism_v2.json", "contracts/scratch_standing_base_design_v2.json",
              "contracts/wheel_leg_prone_motion_v1.json", "contracts/wheel_leg_prone_motion_v2.json",
+             "contracts/wheel_leg_prone_motion_v3.json",
              plan["randomization_contract"],
              plan["acceptance_contract"], plan["prone_geometry_contract"], "contracts/standing_geometry107_v1.json",
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
-             plan["gas_spring_model"]["trend_extension"]["file"],
              "tests/test_encoder_spring_feedforward.py",
              "tests/test_prone_motion_performance.py", "tests/test_prone_motion_timing.py",
+             "tests/test_unified_training.py", "tests/data/unified_dev_gas_reference.json",
+             "tests/data/unified_dev_gas_reference.npz", "docs/WHEEL_LEG_UNIFIED_20261029.md",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
              "scripts/review_gas_spring_soft_range.py",
              str(plan_path.relative_to(ROOT))]
+    if "trend_extension" in plan["gas_spring_model"]:
+        names.append(plan["gas_spring_model"]["trend_extension"]["file"])
+    if plan.get("gas_spring_backend") == "dev_compensation_v2":
+        gas_cfg = json.loads(base.BASE_CONFIG.read_text())
+        gas_evidence = json.loads((ROOT/gas_cfg["gas_spring_compensation_evidence"]["file"]).read_text())
+        names.extend(gas_evidence["files_sha256"])
+        names.append(gas_evidence["basis"]["file"])
     names.extend(item["file"] for item in plan["wheel_model"].values() if isinstance(item, dict) and "file" in item)
     evidence = json.loads((ROOT/plan["wheel_model"]["evidence"]["file"]).read_text())
     names.extend(evidence["files_sha256"])
@@ -238,7 +258,7 @@ def stop_previous_009():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--plan", type=Path, default=ROOT/"contracts/wheel_leg_prone_motion_v2.json")
+    parser.add_argument("--plan", type=Path, default=ROOT/"contracts/wheel_leg_prone_motion_v3.json")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--native-probe", action="store_true", help="Zero PPO; native reset/action/reward/contact wiring only")
     parser.add_argument("--performance-backend",choices=("cuda_graph","eager"),default="cuda_graph",

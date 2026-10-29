@@ -1,0 +1,616 @@
+{
+  "schema": "prone-motion-native-task-v1",
+  "plan": {
+    "schema": "wheel-leg-prone-motion-v1",
+    "seed": 261028,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "max_updates": 10000,
+    "review_updates": [
+      1000,
+      2000,
+      4000,
+      6000,
+      8000,
+      10000
+    ],
+    "reference": {
+      "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
+      "commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
+      "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14",
+      "adopted": "Long training, additive objectives, persistent old-skill exposure. No teacher, scripted assistance, mechanism, noise ranges or gimbal ABI copied."
+    },
+    "initialization": "Fresh fully trainable six-output actor, critic and empty Adam. No checkpoint, teacher, donor, resume or scripted motor targets.",
+    "foundation_until_update": 1000,
+    "speed_full_update": 6000,
+    "spin_full_update": 7000,
+    "height_full_update": 5000,
+    "forward_speed_m_s": 3.0,
+    "spin_target_rpm": 100.0,
+    "spin_minimum_rpm": 80.0,
+    "arc_yaw_rad_s": 0.6,
+    "roles_per20": [
+      "prone",
+      "prone",
+      "prone",
+      "prone",
+      "prone",
+      "prone",
+      "stand",
+      "stand",
+      "stand",
+      "stand",
+      "stand",
+      "forward",
+      "reverse",
+      "spin_left",
+      "spin_right",
+      "arc_fl",
+      "arc_fr",
+      "arc_rl",
+      "arc_rr",
+      "height"
+    ],
+    "training_prone_seconds": 70.0,
+    "standing_seconds": 30.0,
+    "motion_seconds": 20.0,
+    "rise_deadline_seconds": 20.0,
+    "completion_hold_seconds": 1.0,
+    "post_completion_quiet_seconds": 30.0,
+    "rise_target_excursion_m": 0.1,
+    "rise_training_abort_excursion_m": 0.35,
+    "friction": {
+      "wheel": 0.7,
+      "ground_nominal": 0.5,
+      "provenance": "Existing standard-prone baseline; engineering hypothesis, not measured hardware friction. DR preserves the requested ground0.3..0.5 range."
+    },
+    "learning_rate": 0.0003,
+    "initial_std": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.2,
+      0.2
+    ],
+    "route_potential_gain": 0.05,
+    "domain_sequence": [
+      {
+        "start_update": 0,
+        "profile": "nominal",
+        "strength": 0.0
+      },
+      {
+        "start_update": 6000,
+        "profile": "sensors_only",
+        "strength": 0.25
+      },
+      {
+        "start_update": 6250,
+        "profile": "motor_only",
+        "strength": 0.25
+      },
+      {
+        "start_update": 6500,
+        "profile": "mass_com_only",
+        "strength": 0.25
+      },
+      {
+        "start_update": 6750,
+        "profile": "inertia_only",
+        "strength": 0.25
+      },
+      {
+        "start_update": 7000,
+        "profile": "friction_only",
+        "strength": 0.25
+      },
+      {
+        "start_update": 7250,
+        "profile": "timing_only",
+        "strength": 0.25
+      },
+      {
+        "start_update": 7500,
+        "profile": "requested",
+        "strength": 0.25
+      },
+      {
+        "start_update": 8000,
+        "profile": "requested",
+        "strength": 0.5
+      },
+      {
+        "start_update": 8500,
+        "profile": "requested",
+        "strength": 0.75
+      },
+      {
+        "start_update": 9000,
+        "profile": "requested",
+        "strength": 1.0
+      }
+    ],
+    "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
+    "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
+    "prone_geometry_contract": "contracts/wheel_leg_standard_prone_v1.json",
+    "training_progression": "Fixed10000-update exposure schedule. Failed intermediate cold tests are recorded, not early-stop gates or qualifications. Same live actor/critic/Adam/storage across all phases. Stop on explicit signal, nonfinite state or implementation failure. No automatic restart.",
+    "evaluation": {
+      "seconds": 70.0,
+      "seed": 261128,
+      "standing_xy_max_m": 0.05,
+      "standing_speed_rms_m_s": 0.03,
+      "height_mae_m": 0.01,
+      "tilt_peak_deg": 10.0,
+      "motion_vx_mae_m_s": 0.15,
+      "motion_yaw_mae_rad_s": 0.2,
+      "ignored_contiguous_support_loss_ms": 2,
+      "scope": "Fixed final-target cases, including both signs3m/s, both actual body spins80..100rpm, four arc directions, three standing heights, and actual standard-prone completion followed by a full30s quiet window. Failure remains failure; no later suffix can replace the first window. This matrix does not qualify untested jumping/terrain/other fallen families or real hardware."
+    },
+    "hardware_ready": false
+  },
+  "settings": {
+    "schema": "wheel-leg-unified-getup-v1",
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "actor_dim": 35,
+    "action_dim": 6,
+    "passive_min_seconds": 0.2,
+    "passive_max_seconds": 1.2,
+    "passive_hold_seconds": 0.08,
+    "episode_seconds": 70.0,
+    "stable_seconds": 1.0,
+    "followup_seconds": 2.0,
+    "recovery_timeout_seconds": 20.0,
+    "leg_action_clip": 16.0,
+    "wheel_action_clip": 9.0,
+    "leg_position_scale": 0.25,
+    "closure_gap_m": 0.003,
+    "impact_limit_n": 3500.0,
+    "impact_window_seconds": 0.02,
+    "impact_impulse_limit_ns": 20.0,
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "motion_push_fraction": 0.0,
+    "motion_fraction": 0.7,
+    "arc_fraction_within_motion": 0.4,
+    "lateral_acceleration_m_s2": 2.06,
+    "wheel_radius_m": 0.06,
+    "wheel_track_m": 0.4373,
+    "wheel_speed_limit_rad_s": 90.0,
+    "friction_start": [
+      0.5,
+      0.5
+    ],
+    "friction_final": [
+      0.2,
+      0.5
+    ],
+    "curriculum_updates": 1000,
+    "origin_updates": 0,
+    "motor_control": "six_axis_RL_after_zero_effort_settling",
+    "input_source": "IMU_encoders_commands_previous_action",
+    "fallback_script": false,
+    "state_writes": "episode_reset_only",
+    "version": "prone-motion-long-v1",
+    "stance_aware_recovery": true,
+    "recovery_shape_aware": false,
+    "paired_feedback_winding": true,
+    "cyclic_leg_targets": true,
+    "recovery_leg_step": 0.3,
+    "smooth_knee_targets": true,
+    "recovery_knee_center": [
+      0.924544,
+      0.924537
+    ],
+    "recovery_leg_speed_cost": 0.0005,
+    "recovery_family_weights": [
+      0.0,
+      0.1,
+      0.1,
+      0.2,
+      0.2,
+      0.3,
+      0.1
+    ],
+    "side_recovery_birth_focus": false,
+    "standing_drift_speed_scale_m_s": 0.02,
+    "quiet_native_height_anchors": false,
+    "quiet_exploration_fraction": 0.35,
+    "quiet_wheel_exploration_fraction": null,
+    "quiet_velocity_feature_gain": 1.0,
+    "quiet_velocity_feedback": false,
+    "quiet_velocity_feedback_mode": "all",
+    "nominal_fraction": 0.25,
+    "motor_strength_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kp_scale_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kd_scale_range": [
+      1.0,
+      1.0
+    ],
+    "spring_strength_range": [
+      1.0,
+      1.0
+    ],
+    "torque_delay_ms": [
+      0,
+      0
+    ],
+    "motor_tau_ms": [
+      0.0,
+      0.0
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      0
+    ],
+    "encoder_bias_rad": 0.0,
+    "encoder_noise_rad": 0.0,
+    "gyro_bias_rad_s": 0.0,
+    "gyro_noise_rad_s": 0.0,
+    "gravity_noise": 0.0,
+    "velocity_noise_rad_s": [
+      0.0,
+      0.0
+    ],
+    "sensor_noise_scale": 1.0,
+    "domains_enabled": false,
+    "quiet_action_rate_cost": 0.0,
+    "quiet_motor_speed_cost": 0.0,
+    "quiet_effort_delta_cost": 0.0,
+    "quiet_actor_alpha": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.65,
+      0.65
+    ],
+    "boundary_xy_m": [
+      45.0,
+      45.0
+    ],
+    "push_torque_direction": -1.0,
+    "hold_motion_during_recovery": true,
+    "canonical_recovery": true,
+    "motion_residual_fraction": 0.25,
+    "domain_scale": 0.0,
+    "pd_feedback_delay_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      1
+    ],
+    "pd_encoder_bias_rad": 0.0,
+    "reward_gamma": 0.9974905699336811,
+    "reward_potential_gain": 0.0,
+    "quiet_frozen": false,
+    "quiet_training": false,
+    "quiet_sway_m": 0.05,
+    "quiet_spectral_cost": false,
+    "quiet_critic_anchor": true,
+    "quiet_velocity_feature_scale": null,
+    "quiet_wheel_bound": 0.5,
+    "arc_tuning_fraction": 0.0,
+    "standing_support_training": false,
+    "quiet_position_weight": 0.5,
+    "quiet_height_probabilities": [
+      0.5,
+      0.25,
+      0.25
+    ],
+    "quiet_high_common_alpha": null,
+    "quiet_high_leg_prediction_s": 0.0,
+    "standing_early_position_weight": 0.0,
+    "standing_drift_weight": 0.0,
+    "quiet_height_experts": false,
+    "fast_forward_reference": false,
+    "fast_forward_reference_range": [
+      1.5,
+      2.0
+    ],
+    "fast_forward_reference_yaw_fade": 0.25,
+    "native_origin_mode": "isolated_overlap_v1",
+    "prone_motion_task": {
+      "schema": "wheel-leg-prone-motion-v1",
+      "seed": 261028,
+      "num_envs": 256,
+      "rollout_steps": 128,
+      "max_updates": 10000,
+      "review_updates": [
+        1000,
+        2000,
+        4000,
+        6000,
+        8000,
+        10000
+      ],
+      "reference": {
+        "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
+        "commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
+        "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14",
+        "adopted": "Long training, additive objectives, persistent old-skill exposure. No teacher, scripted assistance, mechanism, noise ranges or gimbal ABI copied."
+      },
+      "initialization": "Fresh fully trainable six-output actor, critic and empty Adam. No checkpoint, teacher, donor, resume or scripted motor targets.",
+      "foundation_until_update": 1000,
+      "speed_full_update": 6000,
+      "spin_full_update": 7000,
+      "height_full_update": 5000,
+      "forward_speed_m_s": 3.0,
+      "spin_target_rpm": 100.0,
+      "spin_minimum_rpm": 80.0,
+      "arc_yaw_rad_s": 0.6,
+      "roles_per20": [
+        "prone",
+        "prone",
+        "prone",
+        "prone",
+        "prone",
+        "prone",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "forward",
+        "reverse",
+        "spin_left",
+        "spin_right",
+        "arc_fl",
+        "arc_fr",
+        "arc_rl",
+        "arc_rr",
+        "height"
+      ],
+      "training_prone_seconds": 70.0,
+      "standing_seconds": 30.0,
+      "motion_seconds": 20.0,
+      "rise_deadline_seconds": 20.0,
+      "completion_hold_seconds": 1.0,
+      "post_completion_quiet_seconds": 30.0,
+      "rise_target_excursion_m": 0.1,
+      "rise_training_abort_excursion_m": 0.35,
+      "friction": {
+        "wheel": 0.7,
+        "ground_nominal": 0.5,
+        "provenance": "Existing standard-prone baseline; engineering hypothesis, not measured hardware friction. DR preserves the requested ground0.3..0.5 range."
+      },
+      "learning_rate": 0.0003,
+      "initial_std": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.2,
+        0.2
+      ],
+      "route_potential_gain": 0.05,
+      "domain_sequence": [
+        {
+          "start_update": 0,
+          "profile": "nominal",
+          "strength": 0.0
+        },
+        {
+          "start_update": 6000,
+          "profile": "sensors_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 6250,
+          "profile": "motor_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 6500,
+          "profile": "mass_com_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 6750,
+          "profile": "inertia_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 7000,
+          "profile": "friction_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 7250,
+          "profile": "timing_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 7500,
+          "profile": "requested",
+          "strength": 0.25
+        },
+        {
+          "start_update": 8000,
+          "profile": "requested",
+          "strength": 0.5
+        },
+        {
+          "start_update": 8500,
+          "profile": "requested",
+          "strength": 0.75
+        },
+        {
+          "start_update": 9000,
+          "profile": "requested",
+          "strength": 1.0
+        }
+      ],
+      "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
+      "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
+      "prone_geometry_contract": "contracts/wheel_leg_standard_prone_v1.json",
+      "training_progression": "Fixed10000-update exposure schedule. Failed intermediate cold tests are recorded, not early-stop gates or qualifications. Same live actor/critic/Adam/storage across all phases. Stop on explicit signal, nonfinite state or implementation failure. No automatic restart.",
+      "evaluation": {
+        "seconds": 70.0,
+        "seed": 261128,
+        "standing_xy_max_m": 0.05,
+        "standing_speed_rms_m_s": 0.03,
+        "height_mae_m": 0.01,
+        "tilt_peak_deg": 10.0,
+        "motion_vx_mae_m_s": 0.15,
+        "motion_yaw_mae_rad_s": 0.2,
+        "ignored_contiguous_support_loss_ms": 2,
+        "scope": "Fixed final-target cases, including both signs3m/s, both actual body spins80..100rpm, four arc directions, three standing heights, and actual standard-prone completion followed by a full30s quiet window. Failure remains failure; no later suffix can replace the first window. This matrix does not qualify untested jumping/terrain/other fallen families or real hardware."
+      },
+      "hardware_ready": false
+    },
+    "prone_geometry": {
+      "schema": "wheel-leg-standard-prone-v1",
+      "reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0",
+      "initial_target_pose_name": "floor_knee42_42_orbit0.8_r0_p0",
+      "initial_target_common_rotation_rad": [
+        -0.6,
+        0.6
+      ],
+      "initial_target_rotation_source": "Closed-chain mechanical prior: rotate both active axes on each side together from the declared42deg pose, bringing the wheel midpoint from about12cm behind the body origin to3.4cm; never rotates the physical reset or executes a runtime sequence",
+      "wheel_action_parameterization": "Fresh trainable absolute wheel-velocity targets; no measured-wheel-velocity identity added to the actor output",
+      "standard_prone_definition": "Body normally facing up, chassis belly resting on the floor, all six motors disabled during native settling; not forward tipped or inverted",
+      "enable_max_tilt_deg": 15.0,
+      "enable_height_range_m": [
+        0.15,
+        0.22
+      ],
+      "reset_collision_clearance_m": 5e-05,
+      "target_height_m": 0.305,
+      "episode_seconds": 12.0,
+      "leg_action_clip": 16.0,
+      "leg_target_range": "Retain the existing native recovery range16: at0.25rad per action unit, +/-4rad around the nominal target. Declare the same range in the mechanism config and task settings. Paired40..107deg relative projection and native torque caps remain active.",
+      "guided_path": "Learn to fold the physical passive knees near40deg, move wheel support below the whole-robot COM, then coordinate leg extension and wheel velocity to stand in place",
+      "knee_coordinate": "Physical passive included angle: left q_L_joint2 + calibrated model zero; right -q_R_jonit2 + the same zero. Not either active motor encoder angle.",
+      "encoder_geometry": {
+        "input": "Four calibrated model motor angles and velocities, left hip/auxiliary then right hip/auxiliary; existing35D actor retains these encoders and IMU",
+        "table": "contracts/standing_geometry107_v1.json",
+        "table_sha256": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216",
+        "outputs": [
+          "body-relative wheel centers",
+          "physical knee included angles and rates",
+          "hip-to-wheel lengths and rates"
+        ],
+        "direction": "Negative knee angle rate means folding, positive means extension; leg-length rate is measured separately",
+        "relative_angle_numerical_margin_rad": 0.001,
+        "invalid": "More than1mrad outside the relative-angle lookup branch is invalid and supplies no folding/alignment shaping credit; within the numerical margin, interpolate at the physical endpoint and retain native error diagnostics; physical joint limits are unchanged",
+        "validation": "Independent full-link FK in CPU tests and native wheel/passive-joint truth in zero-PPO diagnostics; not real-robot encoder calibration"
+      },
+      "fold_target_deg": 40.0,
+      "fold_soft_band_deg": 3.0,
+      "fold_guidance_span_deg": 65.0,
+      "support_alignment_width_m": 0.1,
+      "fold_capture_release_power": 2.0,
+      "fold_release_rule": "Small potential-only folding guidance fades as wheel support aligns below the COM and as the body rises. No sustained folding reward or motor sequence.",
+      "support_min_below_com_m": 0.03,
+      "belly_height_m": 0.173,
+      "position_cost_scale_m": 0.15,
+      "position_cost_free_radius_m": 0.1,
+      "rise_translation_authority": "User explicitly allows about10cm of translation during get-up while coordinating wheel velocity and hip/knee motors; no position penalty inside that radius",
+      "target_height_width_m": 0.06,
+      "height_error_cost_per_second": 4.0,
+      "unrecovered_time_cost_per_second": 1.0,
+      "objective_limits_authority": "The quiet-goal5deg and40mm Gaussian scales are engineering reward scales, not hard acceptance thresholds. Broad height cost prevents vanishing height credit near the belly. Time cost stops only after actual stable recovery; the existing10s cold deadline is an engineering screen.",
+      "large_excursion_termination_m": 0.5,
+      "excursion_limit_authority": "Engineering pilot containment, not a user-approved final in-place recovery limit",
+      "stable_seconds": 1.0,
+      "stable_tilt_deg": 10.0,
+      "stable_height_error_m": 0.02,
+      "stable_planar_speed_m_s": 0.08,
+      "stable_body_rate_rad_s": 0.5,
+      "stable_leg_speed_rad_s": 3.0,
+      "refall_tilt_deg": 25.0,
+      "friction_profiles": {
+        "baseline": {
+          "wheel": 0.7,
+          "ground": 0.5
+        },
+        "legacy_low_grip": {
+          "wheel": 0.1,
+          "ground": 0.5
+        }
+      },
+      "friction_provenance": "Fixed engineering comparison, not identified real tire coefficients",
+      "body_contact_during_rise": "Allowed; native impact impulse, mechanical, spring, closure, numerical and timeout protection retained",
+      "guidance": "Normal quiet standing is the primary goal from enable onward. Encoder-derived folding/support is a small gamma-matched potential auxiliary only. No scripted targets, timed trajectory, fixed wheel speed, FSM motor takeover, teacher or donor.",
+      "initialization": "New actor, new critic, empty Adam; trainable output bias from declared closed-chain42deg geometry and fixed opposite common rotations of0.6rad toward support below the COM. Physical disabled reset stays103deg then passively settles. No scripted sequence or runtime target hold; every output remains trainable.",
+      "initial_std_policy_order": [
+        0.3,
+        0.3,
+        0.3,
+        0.3,
+        0.2,
+        0.2
+      ],
+      "randomization": "wheel_leg_randomization_study_v2 profiles; retain original ground bands and explicitly record wheel-material hypothesis",
+      "evaluation": {
+        "seconds": 40.0,
+        "recovery_deadline_seconds": 10.0,
+        "post_completion_standing_seconds": 30.0,
+        "ignored_contiguous_support_loss_ms": 2,
+        "getup_xy_max_m": 0.1,
+        "getup_xy_limit_authority": "User explicitly allows about10cm during get-up; this pilot uses0.10m as its fixed screen and still reports actual peak displacement",
+        "standing_xy_max_m": 0.05,
+        "scope": "One standard prone family only; not diverse-fall or full thirteen-capability qualification"
+      },
+      "state_writes": "Episode reset only",
+      "hardware_ready": false,
+      "reward_objective": "Ordinary upright_locomotion.reward_terms with zero forward/yaw commands and305mm height, plus broad height error and a coupled quiet supported-standing bonus; no sustained folding, alignment or partial-lift density reward",
+      "route_potential_gain": 0.1,
+      "quiet_goal_reward_per_second": 4.0,
+      "quiet_goal_height_width_m": 0.04,
+      "quiet_goal_level_scale_deg": 5.0,
+      "inversion_cost_per_second": 4.0
+    }
+  },
+  "actor_dim": 35,
+  "critic_dim": 83,
+  "action_dim": 6,
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "wheel_reduction": {
+    "schema": "wheel-leg-wheel-reduction-v1",
+    "gear_ratio": 15.62,
+    "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+    "reference": "wheel_output",
+    "motor_angle_and_speed": "divide_by_ratio_once",
+    "motor_torque": "multiply_by_ratio_once",
+    "output_torque_cap_nm": 4.5,
+    "legacy_asset_metadata_gear_ratio": 15.8,
+    "legacy_response_gear_ratio": 15.8,
+    "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+    "new_wheel_response_identified": false
+  },
+  "wheel_action": "trainable absolute output-shaft velocity",
+  "action_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "wheel_velocity_scale_rad_s": 10.0,
+  "wheel_velocity_clip_rad_s": 90.0,
+  "leg_position_scale_rad": 0.25,
+  "leg_action_clip": 16.0,
+  "profile": "nominal",
+  "strength": 0.0,
+  "full_randomized_holdout": false,
+  "state_writes": "reset only",
+  "mechanism_config_sha256": "2eae31a4504b2da16d438ef090724ec60f449190ad7b1f0d06b46dc0f7ea1c83",
+  "hardware_ready": false,
+  "training_origin": "Fresh fully trainable six-output actor, critic and empty Adam. No checkpoint, teacher, donor, resume or scripted motor targets.",
+  "static_load_initialization": null
+}

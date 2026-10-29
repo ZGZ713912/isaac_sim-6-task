@@ -1,0 +1,396 @@
+{
+  "status": "completed",
+  "started_at": "2026-10-28T14:01:53.024376+00:00",
+  "fixture": "native PhysX fixed root, no gravity, ground, contact or friction; unrestrained closed-chain legs",
+  "gravity": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "policy_used": false,
+  "hardware_used": false,
+  "dt_s": 0.001,
+  "seconds_per_case": 1.5,
+  "fixture_motor_armature_kg_m2": 0.02,
+  "armature_identified": false,
+  "motor_limit_nm": 40.0,
+  "passive_pose_writes_during_physics": 0,
+  "reset_pose_writes_per_case": 1,
+  "model_sha256": "098fd7d5fbd876cd57d0b6e01e239eb16f6789690a5eadf7820ec20d974919a3",
+  "asset_manifest_sha256": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+  "model_spec_sha256": "0ac82045ab584f20091538aa782d93ea545382dc701faca1f8ae92aeb7cd1997",
+  "right_leg_symmetry_assumed": true,
+  "script_sha256": "960d584a15c5cc2b11f7ecb17259029a8e7e4073d7b9950d888edfe7fa989345",
+  "source_files_sha256": {
+    "src/wheeled_tasks/chassis/v5_control.py": "f120b95f8e3ba8b2cfed8938e361b17786532c53222994dc54906e03b9659fb7",
+    "src/wheeled_tasks/chassis/gas_spring_compensation.py": "60623f09f7445d48051f2a6af8b4691df3c9de5d89750d839739e3691519ba3e",
+    "contracts/flat_base_200hz_control_v2.json": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4"
+  },
+  "versions": {
+    "isaacsim": "6.0.0.1",
+    "isaaclab": "6.1.14",
+    "isaaclab-physx": "1.1.3",
+    "torch": "2.11.0+cu128"
+  },
+  "cases": [
+    {
+      "reference_beta_deg": 42.0,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.11432366371167449,
+        0.11431736708094223,
+        0.11432654678853052,
+        0.1143179071010681
+      ],
+      "mean_actual_beta_deg": [
+        50.493725280761716,
+        50.49386116027832
+      ],
+      "mean_motor_torque_nm": [
+        18.292095832824707,
+        -18.290806007385253,
+        -18.292414093017577,
+        18.291105804443358
+      ],
+      "peak_torque_nm": 23.98760223388672
+    },
+    {
+      "reference_beta_deg": 42.0,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        1.4357621345611323e-05,
+        4.067751723851615e-06,
+        1.5498245530035823e-05,
+        3.7853478175781103e-06
+      ],
+      "mean_actual_beta_deg": [
+        42.01967063903808,
+        42.019775390625
+      ],
+      "mean_motor_torque_nm": [
+        15.667546062469482,
+        -15.66488706588745,
+        -15.667676849365234,
+        15.664610843658448
+      ],
+      "peak_torque_nm": 15.951013565063477
+    },
+    {
+      "reference_beta_deg": 50.0,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.118196040391922,
+        0.11819744110107422,
+        0.1181981432438148,
+        0.11819698334571052
+      ],
+      "mean_actual_beta_deg": [
+        59.676784896850585,
+        59.67685577392578
+      ],
+      "mean_motor_torque_nm": [
+        18.911611442565917,
+        -18.911474227905273,
+        -18.91172088623047,
+        18.911111373901367
+      ],
+      "peak_torque_nm": 25.764259338378906
+    },
+    {
+      "reference_beta_deg": 50.0,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        1.1026859283447266e-05,
+        2.0265579223632812e-05,
+        1.1200577130036125e-05,
+        1.7590438505075878e-05
+      ],
+      "mean_actual_beta_deg": [
+        50.01591026306152,
+        50.01595817565918
+      ],
+      "mean_motor_torque_nm": [
+        18.198947219848634,
+        -18.197619590759277,
+        -18.199160957336424,
+        18.198063850402832
+      ],
+      "peak_torque_nm": 18.501373291015625
+    },
+    {
+      "reference_beta_deg": 60.0,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.11684384942054749,
+        0.11684472322523545,
+        0.11684310436248779,
+        0.11684447766075146
+      ],
+      "mean_actual_beta_deg": [
+        70.34150161743165,
+        70.34143096923827
+      ],
+      "mean_motor_torque_nm": [
+        18.694692344665526,
+        -18.695206604003907,
+        -18.694902877807618,
+        18.69473056793213
+      ],
+      "peak_torque_nm": 25.728620529174805
+    },
+    {
+      "reference_beta_deg": 60.0,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        1.5800004138905477e-05,
+        2.137418406270249e-05,
+        1.6689300537109375e-05,
+        1.8715858459472656e-05
+      ],
+      "mean_actual_beta_deg": [
+        60.01143608093262,
+        60.01155715942383
+      ],
+      "mean_motor_torque_nm": [
+        18.91229377746582,
+        -18.912321624755858,
+        -18.91223690032959,
+        18.91193817138672
+      ],
+      "peak_torque_nm": 19.097862243652344
+    },
+    {
+      "reference_beta_deg": 75.0,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.10488249778747961,
+        0.10488729477442747,
+        0.10488452613354987,
+        0.10488702774162571
+      ],
+      "mean_actual_beta_deg": [
+        84.94841934204102,
+        84.9485417175293
+      ],
+      "mean_motor_torque_nm": [
+        16.78169361114502,
+        -16.78225971221924,
+        -16.781870918273924,
+        16.782029113769532
+      ],
+      "peak_torque_nm": 23.340757369995117
+    },
+    {
+      "reference_beta_deg": 75.0,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        4.5299530029296875e-06,
+        1.4901161193847656e-05,
+        7.3015689849853516e-06,
+        2.193450927734375e-05
+      ],
+      "mean_actual_beta_deg": [
+        75.00782775878906,
+        75.00729370117188
+      ],
+      "mean_motor_torque_nm": [
+        18.281782150268555,
+        -18.282409019470215,
+        -18.282157135009765,
+        18.28228927612305
+      ],
+      "peak_torque_nm": 18.29751205444336
+    },
+    {
+      "reference_beta_deg": 90.0,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.08151984214782715,
+        0.08151888847351074,
+        0.0815177857875824,
+        0.08152425289154053
+      ],
+      "mean_actual_beta_deg": [
+        98.04756927490234,
+        98.04776000976562
+      ],
+      "mean_motor_torque_nm": [
+        13.042173385620117,
+        -13.042178230285645,
+        -13.042134532928467,
+        13.04203929901123
+      ],
+      "peak_torque_nm": 19.731578826904297
+    },
+    {
+      "reference_beta_deg": 90.0,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        1.9669532775878906e-06,
+        8.58306884765625e-06,
+        1.7285346984863281e-06,
+        7.3909759521484375e-06
+      ],
+      "mean_actual_beta_deg": [
+        90.00625610351562,
+        90.00626373291016
+      ],
+      "mean_motor_torque_nm": [
+        15.83956922531128,
+        -15.83971622467041,
+        -15.839656448364257,
+        15.839661388397216
+      ],
+      "peak_torque_nm": 15.844477653503418
+    },
+    {
+      "reference_beta_deg": 98.0,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.02690461277961731,
+        0.026902318000793457,
+        0.02690345048904419,
+        0.02690291404724121
+      ],
+      "mean_actual_beta_deg": [
+        100.68582916259766,
+        100.68571472167969
+      ],
+      "mean_motor_torque_nm": [
+        4.304341402053833,
+        -4.304316711425781,
+        -4.304607391357422,
+        4.304705581665039
+      ],
+      "peak_torque_nm": 8.594783782958984
+    },
+    {
+      "reference_beta_deg": 98.0,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        6.890296936035156e-05,
+        6.830692291259766e-05,
+        6.48200511932373e-05,
+        7.009506225585938e-05
+      ],
+      "mean_actual_beta_deg": [
+        97.99959564208984,
+        97.99970245361328
+      ],
+      "mean_motor_torque_nm": [
+        13.300052700042725,
+        -13.300099258422852,
+        -13.29954662322998,
+        13.299438343048095
+      ],
+      "peak_torque_nm": 13.310480117797852
+    },
+    {
+      "reference_beta_deg": 104.0,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.0041220784187316895,
+        0.004106998443603516,
+        0.004121869802474976,
+        0.004095911979675293
+      ],
+      "mean_actual_beta_deg": [
+        104.41432189941406,
+        104.41380310058594
+      ],
+      "mean_motor_torque_nm": [
+        0.65829980134964,
+        -0.6582945966720581,
+        -0.6584581685066223,
+        0.6584521281719208
+      ],
+      "peak_torque_nm": 0.9480297565460205
+    },
+    {
+      "reference_beta_deg": 104.0,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        8.940696716308594e-07,
+        4.172325134277344e-06,
+        2.980232238769531e-07,
+        4.76837158203125e-06
+      ],
+      "mean_actual_beta_deg": [
+        104.00032806396484,
+        104.0002212524414
+      ],
+      "mean_motor_torque_nm": [
+        0.8105954062938691,
+        -0.8106009674072265,
+        -0.8106483280658722,
+        0.8106449055671692
+      ],
+      "peak_torque_nm": 0.8165825605392456
+    },
+    {
+      "reference_beta_deg": 106.5,
+      "compensation_enabled": false,
+      "rms_error_rad": [
+        0.0013577938079833984,
+        0.0013715028762817383,
+        0.0013604164123535156,
+        0.001368403434753418
+      ],
+      "mean_actual_beta_deg": [
+        106.63787078857422,
+        106.63790130615234
+      ],
+      "mean_motor_torque_nm": [
+        0.2169339394569397,
+        -0.21692804247140884,
+        -0.21691758334636688,
+        0.21691727697849272
+      ],
+      "peak_torque_nm": 0.2966204881668091
+    },
+    {
+      "reference_beta_deg": 106.5,
+      "compensation_enabled": true,
+      "rms_error_rad": [
+        1.4901161193847656e-07,
+        1.3113021850585938e-06,
+        2.086162567138672e-07,
+        8.344650268554688e-07
+      ],
+      "mean_actual_beta_deg": [
+        106.5001220703125,
+        106.50006866455078
+      ],
+      "mean_motor_torque_nm": [
+        0.2322666358947754,
+        -0.23226824164390564,
+        -0.23230564415454866,
+        0.23234185189008713
+      ],
+      "peak_torque_nm": 0.23714405298233032
+    }
+  ],
+  "external_loop_constraints": 6,
+  "asset_friction_abs_max": 0.0,
+  "baseline_joint_rms_rad": 0.08593711710132955,
+  "compensated_joint_rms_rad": 2.637693491817684e-05,
+  "improvement_ratio": 0.00030693297387525187,
+  "physical_steps": 24000,
+  "control": "production V5Control.motor_efforts + V5Control.spring_efforts",
+  "elapsed_s": 48.63689998699965,
+  "passed": true,
+  "traces_sha256": "ce29962ca529eaacd230ee3fc148e2a6f69e3222be1691de4f8a4870d30721c9",
+  "trace_columns": [
+    "t_s",
+    "error_LH_rad",
+    "error_LA_rad",
+    "error_RH_rad",
+    "error_RA_rad",
+    "beta_left_deg",
+    "beta_right_deg",
+    "tau_LH_nm",
+    "tau_LA_nm",
+    "tau_RH_nm",
+    "tau_RA_nm"
+  ]
+}

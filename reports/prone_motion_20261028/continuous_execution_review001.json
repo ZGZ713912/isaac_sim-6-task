@@ -1,0 +1,118 @@
+{
+  "schema": "prone-motion-continuous-execution-review-v1",
+  "updated_utc": "2026-10-28T14:45:56.448352+00:00",
+  "commit": "30b5dbac746c0d062b626ca59c54a1e25e350025",
+  "source_archive": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "30b5dbac746c0d062b626ca59c54a1e25e350025",
+    "source_count": 315,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_continuous001/committed_source.tar",
+    "archive_sha256": "f23e65f5989f1d8e7c09a5bfb2369976e6e3fd5a6b8f2277acd053ab501f7173"
+  },
+  "user_request": "One continuous10000-update train,250-completed-update snapshots,manual checkpoint choice after training.",
+  "execution": {
+    "native_learn_calls": 1,
+    "learn_argument": 10000,
+    "intermediate_evaluations": false,
+    "checkpoint_count": 40,
+    "checkpoint_pattern": "model_00250.pt .. model_10000.pt",
+    "initial_and_final_aliases": [
+      "model_initial.pt",
+      "model_final.pt"
+    ],
+    "checkpoint_iteration": "completed updates",
+    "global_iteration_and_eta": true,
+    "randomization_course_unchanged": true,
+    "native_domain_switch": "Only declared curriculum nodes; before empty rollout action; fresh new-domain observation.",
+    "actor_critic_adam_storage_logger_identity_preserved": true,
+    "source_input_contract_other_fields_unchanged": true
+  },
+  "cpu_checks": {
+    "tests": 149,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/cpu_checks_continuous001.xml",
+    "junit_sha256": "64df7be1458233401c1557c5a54740e49ddbce54f1192b63aa731fb1397bbf3f",
+    "scope": "Synthetic CPU native-PPO equivalence, actual first-action observation after domain switch,Adam/RNG/identity/ETA preservation,exact snapshot numbers,existing control/model/task regressions. No Isaac PPO learner."
+  },
+  "native_probe": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_continuous001",
+    "status": "native_probe_completed_unqualified",
+    "all_native_checks_pass": true,
+    "checks_per_domain": [
+      29,
+      29
+    ],
+    "profiles": [
+      [
+        "nominal",
+        0.0
+      ],
+      [
+        "requested",
+        1.0
+      ]
+    ],
+    "pid": 139941,
+    "start_ticks": 476345,
+    "process_exists_after": false,
+    "gpu_process_exists_after": false,
+    "new_PPO": 0,
+    "optimizer_attempts": 0,
+    "checkpoint_reads": [],
+    "progress_sha256": "c6e8ecc867e24c36fb8490125900906c2742a21e15a58ff4404bace842a612bd",
+    "PT_files": [],
+    "source_mismatches_at_exit": []
+  },
+  "previous_run": {
+    "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run002",
+    "stop": {
+      "before": {
+        "pid": 112576,
+        "start_ticks": 322497,
+        "completed_updates": 32,
+        "optimizer_attempts": 32,
+        "status": "training"
+      },
+      "after": {
+        "status": "stopped",
+        "completed_updates": 33,
+        "optimizer_attempts": 33,
+        "optimizer_update_in_flight": false,
+        "requested_stop_signal": 15,
+        "last_checkpoint": {
+          "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run002/model_stopped.pt",
+          "sha256": "7133074753623450d51a9a54f5bdd31d662c63a2cb1980a76246c14f7ef6e45e",
+          "updates": 33
+        },
+        "source_mismatches_at_exit": []
+      },
+      "process_exists": false,
+      "gpu_context_present": false,
+      "model_stopped_sha256": "7133074753623450d51a9a54f5bdd31d662c63a2cb1980a76246c14f7ef6e45e",
+      "reason": "User requested single continuous10000-update learn,250-update snapshots and deferred checkpoint selection; prior run never resumes."
+    },
+    "checkpoint_readonly_review": {
+      "checkpoint_sha256": "7133074753623450d51a9a54f5bdd31d662c63a2cb1980a76246c14f7ef6e45e",
+      "iter": 33,
+      "completed_updates": 33,
+      "adam_state_count": 17,
+      "adam_steps": [
+        396
+      ],
+      "source_commit": "63e43d424fbeff9606c46f98012bcb998ac5dafa",
+      "model_used_as_donor": false,
+      "verification_only": true
+    },
+    "consumed_updates": 33,
+    "lost_completed_updates": 0,
+    "resume_or_donor_used": false
+  },
+  "production_PPO_updates_by_this_change": 0,
+  "physical_robot_actions": 0,
+  "next_output": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run003",
+  "next_training_started": false,
+  "full_capability_qualified": false
+}

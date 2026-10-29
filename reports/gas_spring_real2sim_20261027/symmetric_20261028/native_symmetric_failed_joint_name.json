@@ -1,0 +1,62 @@
+{
+  "status": "failed",
+  "mode": "curves",
+  "started_at": "2026-10-27T16:02:15.446773+00:00",
+  "pid": 2317407,
+  "interpreter": "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+  "gravity": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "fixture": "fixed base, no ground, no self-contact",
+  "motor_pd": [
+    160.0,
+    2.5
+  ],
+  "fixture_motor_armature_kg_m2": 0.02,
+  "armature_scope": "measurement fixture only; not an identified robot inertia; equilibrium torque unchanged",
+  "motor_limit_nm": 40.0,
+  "dt_s": 0.001,
+  "spring_feedforward": false,
+  "passive_pose_writes_during_physics": 0,
+  "cases": [],
+  "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "script_sha256": "28430618da9b1f82d911e20876d187ad16dda86c1d27f890ec380594c1e74427",
+  "versions": {
+    "isaacsim": "6.0.0.1",
+    "isaaclab": "6.1.14",
+    "isaaclab-physx": "1.1.3",
+    "torch": "2.11.0+cu128"
+  },
+  "geometry_sha256": "84c5e65fa9a19ef49aa14b950060dc64c713b8b091e8517cb0966911d2b22fa5",
+  "identified_model_sha256_at_start": "8ae1d6b8281ceb9260f37cd5802f4d1eb5e3a85f3dc8f5b53826651df5505806",
+  "numerical_domain_tolerance_m": 2e-05,
+  "trace_columns": [
+    "left_beta_deg",
+    "left_compression_m",
+    "left_hip_motor_nm",
+    "left_knee_motor_nm",
+    "left_hip_velocity_rad_s",
+    "left_knee_velocity_rad_s",
+    "left_force_n",
+    "left_hip_incoming_projected_nm",
+    "left_knee_incoming_projected_nm",
+    "right_beta_deg",
+    "right_compression_m",
+    "right_hip_motor_nm",
+    "right_knee_motor_nm",
+    "right_hip_velocity_rad_s",
+    "right_knee_velocity_rad_s",
+    "right_force_n",
+    "right_hip_incoming_projected_nm",
+    "right_knee_incoming_projected_nm"
+  ],
+  "right_leg_symmetry_assumed": true,
+  "right_leg_measured": false,
+  "force_component_sha256": "5f1e6fe5b57518dc71bcb5a32345f37514a9459d7cd0bdaeee926fd5b107f4e4",
+  "geometry_tool_sha256": "0a235d955ae600cdcbbe00c4a4f37138875ecf4680d00fd860be3494a6b30e69",
+  "identified_force_evaluator": "IdentifiedGasSpringCurve.force (torch)",
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/probe_identified_gas_spring.py\", line 124, in main\n    right_knee_id=robot.joint_names.index(\"R_joint2\")\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: 'R_joint2' is not in list\n",
+  "wall_seconds": 3.026614897986292
+}

@@ -79,6 +79,8 @@ def verify_wheel_reduction_only(original, mechanism, root):
 def load_prior(reference_path, pair_path, *, mechanism, bank_path, root):
     reference_path, pair_path, root = Path(reference_path), Path(pair_path), Path(root)
     reference = json.loads(reference_path.read_text())
+    if mechanism.get("v5_control", {}).get("gas_spring_compensation", {}).get("enabled"):
+        raise ValueError("Static prior mechanics differ: gas-spring compensation is already active")
     values = validate_values(reference, mechanism["v5_control"])
     for name, expected in reference["sources_sha256"].items():
         if sha(root / name) != expected:

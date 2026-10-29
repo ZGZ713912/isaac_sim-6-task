@@ -1,0 +1,145 @@
+{
+  "status": "static_passed",
+  "source": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring001/config/design.json",
+  "stage": "speed",
+  "role": "train",
+  "seed": 261028,
+  "block_index": 0,
+  "num_envs": 256,
+  "physics_dt": 0.001,
+  "policy_dt": 0.005,
+  "decimation": 5,
+  "runtime_expected": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.005,
+    "pc_control_dt": 0.001,
+    "decimation": 5,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "wheel_velocity_p": 0.6,
+    "seed": 261028,
+    "action_difference_reference_dt": 0.02,
+    "precision_tracking": true,
+    "actuator_response": {
+      "enabled": true,
+      "schema": "chassis-actuator-response",
+      "version": 1,
+      "joint_names": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "gain": 1.0,
+      "armature": [
+        0.0,
+        0.0,
+        0.0038669808882082915,
+        0.0,
+        0.0,
+        0.003818453742910773
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.049507400779663126,
+        0.0,
+        0.0,
+        0.06957712078102896
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0006085318417485766,
+        0.0,
+        0.0,
+        0.0003429025559035852
+      ],
+      "time_constant_s": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "locomotion_quality_rewards": {
+      "stand_still_lin_vel": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      },
+      "locomotion_posture": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    "modules": {
+      "usb_transport": false,
+      "command_transport": false,
+      "signal_perturbations": false,
+      "dynamics_randomization": false,
+      "contact_domain": false,
+      "contact_material": true,
+      "step_assist": false,
+      "actuator_response": true,
+      "stand_still_lin_vel": true,
+      "locomotion_posture_floor": true
+    },
+    "contact_material": {
+      "enabled": true,
+      "combine_mode": "average",
+      "ground_static_friction_range": [
+        0.5,
+        0.5
+      ],
+      "ground_dynamic_friction_range": [
+        0.5,
+        0.5
+      ],
+      "wheel_static_friction": 0.7,
+      "wheel_dynamic_friction": 0.7,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25
+    },
+    "wheel_reduction": {
+      "schema": "wheel-leg-wheel-reduction-v1",
+      "gear_ratio": 15.62,
+      "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+      "reference": "wheel_output",
+      "motor_angle_and_speed": "divide_by_ratio_once",
+      "motor_torque": "multiply_by_ratio_once",
+      "output_torque_cap_nm": 4.5,
+      "legacy_asset_metadata_gear_ratio": 15.8,
+      "legacy_response_gear_ratio": 15.8,
+      "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+      "new_wheel_response_identified": false
+    }
+  },
+  "actuator_response_evidence": {
+    "status": "authenticated",
+    "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+    "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+    "validated_file_count": 4
+  },
+  "design_sha256": "cea32d0bb436e08a62601c1a4a86a362a46c618a4c8f2b180a2360f66780040a",
+  "environment_stage": "speed",
+  "wheel_reduction": {
+    "schema": "wheel-leg-wheel-reduction-v1",
+    "gear_ratio": 15.62,
+    "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+    "reference": "wheel_output",
+    "motor_angle_and_speed": "divide_by_ratio_once",
+    "motor_torque": "multiply_by_ratio_once",
+    "output_torque_cap_nm": 4.5,
+    "legacy_asset_metadata_gear_ratio": 15.8,
+    "legacy_response_gear_ratio": 15.8,
+    "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+    "new_wheel_response_identified": false
+  }
+}

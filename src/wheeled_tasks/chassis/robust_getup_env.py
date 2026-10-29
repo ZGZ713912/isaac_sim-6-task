@@ -108,7 +108,10 @@ class RobustGetupEnv(ChassisEnv):
                 aligned = legs - paired_position_error(legs, q[:, indices])
                 q = q.clone()
                 q[:, indices] = torch.where(self.paired_feedback_enabled, aligned, q[:, indices])
-            tau = native_efforts(q, dq, legs, wheels)
+            # The task adapter owns the single PD + gas sum, using the encoder
+            # sample saved before target winding. Do not also add native FF.
+            tau = native_efforts(q, dq, legs, wheels,
+                apply_gas_compensation=feedforward is None)
             indices = list(self.v5.LEGS)
             if settings.get("gap_correct_pd_scaling", False):
                 from .gap_robustness import randomized_leg_pd

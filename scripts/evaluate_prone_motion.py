@@ -210,17 +210,29 @@ def probe(env, plan, *, stop_requested=lambda: False):
     reference = IdentifiedWheelResponse(env.num_envs, env.device, env.dt,
         env.cfg["identified_wheel_response"], root=Path(__file__).resolve().parents[1])
     reference.inertia = env.identified_wheels.inertia.clone()
-    from wheeled_tasks.chassis.encoder_spring_feedforward import EncoderGasSpringFeedforward
-    spring_reference = EncoderGasSpringFeedforward(env.cfg["v5_control"]["encoder_spring_feedforward"]).to(
-        device=env.device, dtype=torch.float32)
+    dev_gas = plan.get("gas_spring_backend") == "dev_compensation_v2"
+    if dev_gas:
+        from wheeled_tasks.chassis.gas_spring_compensation import GasSpringCompensation
+        spring_reference = GasSpringCompensation(env.cfg["v5_control"]["gas_spring_compensation"],
+            root=Path(__file__).resolve().parents[1], device=env.device)
+    else:
+        from wheeled_tasks.chassis.encoder_spring_feedforward import EncoderGasSpringFeedforward
+        spring_reference = EncoderGasSpringFeedforward(env.cfg["v5_control"]["encoder_spring_feedforward"]).to(
+            device=env.device, dtype=torch.float32)
     checks["encoder_only_feedforward_physical_spring_retained"] = bool(
         env.startup_report["encoder_spring_feedforward"]["physical_spring_retained"]
         and not env.startup_report["encoder_spring_feedforward"]["privileged_force_or_slider_input"])
     # Geometry/force coverage is an algebraic check, not a sampled motor move.
-    left, right = spring_reference.get(0, "delta_rad"), spring_reference.get(1, "delta_rad")
+    left, right = ([s["delta_rad"] for s in spring_reference.sides] if dev_gas else
+        [spring_reference.get(i, "delta_rad") for i in range(2)])
     delta = torch.linspace(float(left[0]), float(left[-1]), 1001, device=env.device)
     mirror = torch.linspace(float(right[-1]), float(right[0]), 1001, device=env.device)
-    coverage = spring_reference(torch.stack((delta*0.-.42, delta-.42, delta*0.+.42, mirror+.42), -1))
+    if dev_gas:
+        mirror = torch.linspace(float(right[0]), float(right[-1]), 1001, device=env.device)
+        coverage, _ = spring_reference.evaluate(torch.stack(
+            (delta*0.-.42, delta-.42, delta*0.+.42, .42-mirror), -1))
+    else:
+        coverage = spring_reference(torch.stack((delta*0.-.42, delta-.42, delta*0.+.42, mirror+.42), -1))
     checks["declared_full_soft_range_finite_nonzero_compensation"] = bool(
         spring_reference.last["geometry_valid"].all() and torch.isfinite(coverage).all()
         and (coverage.abs() > .01).all() and (coverage.abs() < 40.).all())
@@ -230,6 +242,8 @@ def probe(env, plan, *, stop_requested=lambda: False):
     wheel_replay_max_error = 0.
     spring_replay_error = {key:0. for key in ("limited_effort_nm", "holding_effort_nm", "length_m",
         "compression_m", "axial_force_n", "length_jacobian_m_rad")}
+    if dev_gas:
+        spring_replay_error["projected_effort_nm"] = 0.
     spring_encoder_error_peak = spring_encoder_error_sum = 0.
     spring_ff_peak = 0.
     spring_valid_count = spring_invalid_count = 0
@@ -259,7 +273,7 @@ def probe(env, plan, *, stop_requested=lambda: False):
             ff = spring_reference.motor_efforts(physical["spring_ff_pd_effort_nm"][tick],
                 physical["spring_ff_encoder_position"][tick])
             for key in spring_replay_error:
-                expected_ff = ff if key == "limited_effort_nm" else spring_reference.last[key]
+                expected_ff = spring_reference.last[key]
                 difference = (physical["spring_ff_"+key][tick]-expected_ff).abs().max()
                 spring_replay_error[key] = max(spring_replay_error[key], float(difference))
             reference.reset(physical["wheel_disabled"][tick])
@@ -311,6 +325,8 @@ def probe(env, plan, *, stop_requested=lambda: False):
         curve = env.identified_spring.curve
         expected_spring = curve.force(physical["spring_compression"].clamp(
             min=curve.compression_knots_m[0], max=curve.compression_knots_m[-1]))
+        if dev_gas:
+            expected_spring = spring_reference.physical_force(physical["spring_compression"])
         if env.identified_spring.settings["outside_identified_domain"] == "positive_c1_endpoint_trend_v1":
             model = env.identified_spring.settings["resolved_trend_extension"]
             compression = physical["spring_compression"].clamp(0., env.identified_spring.settings["installed_stroke_m"])

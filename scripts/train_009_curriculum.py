@@ -29,6 +29,7 @@ def arguments(output, plan, *, num_envs=256, seed=None, profile="nominal", stren
         updates=plan["max_updates"], num_envs=num_envs, rollout_steps=128, seed=plan["seed"] if seed is None else seed,
         all_heights_after=512, leg_target_rate_cost=None, device="cuda:0", fixed_target_probe=False,
         preflight_only=False, upright_task=None, standard_prone_task=None,
+        mechanism=ROOT/"contracts/scratch_standing_base_mechanism_v2.json",
         randomization_study=(None if profile == "nominal" else ROOT/plan["randomization_contract"]),
         randomization_profile=(None if profile == "nominal" else profile), randomization_strength=strength if profile != "nominal" else 1.,
         **plan["standing_recipe"])

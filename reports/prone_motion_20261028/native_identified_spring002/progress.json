@@ -1,0 +1,35 @@
+{
+  "schema": "prone-motion-progress-v1",
+  "status": "failed",
+  "pid": 3463018,
+  "start_ticks": 16403512,
+  "started_utc": "2026-10-28T09:28:16.039053+00:00",
+  "requested_updates": 10000,
+  "completed_updates": 0,
+  "optimizer_attempts": 0,
+  "checkpoint_reads": [],
+  "contexts": [
+    {
+      "index": 0,
+      "profile": "nominal",
+      "strength": 0.0,
+      "evaluation": false,
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002/contexts/000_nominal_0_train",
+      "completed_updates": 0
+    }
+  ],
+  "cold_reviews": [],
+  "committed_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "0e5e6f9c5dd30d259b85e6c696143ada32d35d8d",
+    "source_count": 296,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002/committed_source.tar",
+    "archive_sha256": "ca0a5cd8fa621477a8121dea09d5483f6704bf09ad581f9f902b57bdffda0942"
+  },
+  "hardware_ready": false,
+  "full_capability_qualified": false,
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 309, in main\n    build(profile, strength)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 286, in build\n    env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg[\"control_math_source\"]), ROOT,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/prone_motion_env.py\", line 21, in __init__\n    super().__init__(*args, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 31, in __init__\n    super().__init__(config, manifest, control, root, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 58, in __init__\n    self.design_preflight = design_preflight(config, control, root, stage=stage_name,\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py\", line 529, in design_preflight\n    receipt = validate_design_contract(config, json.loads(contents), control,\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py\", line 494, in validate_design_contract\n    raise ValueError(f\"Preflight rejected ({source}; stage={stage}, role={role}):\\n\"\nValueError: Preflight rejected (/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002/contexts/001_requested_1_train/config/design.json; stage=speed, role=train):\ninvocation.seed: design=261028, effective=261059\n",
+  "elapsed_s": 40.19012339299661,
+  "source_mismatches_at_exit": []
+}

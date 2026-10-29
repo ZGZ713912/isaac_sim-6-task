@@ -1,0 +1,437 @@
+{
+  "schema": "upright-native-wiring-probe-v1",
+  "new_PPO": 0,
+  "learned_policy": false,
+  "control": "constant reset geometry targets; no actor or optimizer constructed",
+  "all_wiring_checks_pass": true,
+  "checks": {
+    "native_rates": true,
+    "no_passive_births": true,
+    "no_recovery_births": true,
+    "independent_reward": true,
+    "no_recovery_progress_or_phase": true,
+    "every_physical_contact_sample": true,
+    "finite_observations": true,
+    "terminal_transitions_do_not_bootstrap": true,
+    "effective_friction_within_declared_range": true
+  },
+  "physics_steps": 120,
+  "num_envs": 64,
+  "contact_material": {
+    "schema": "separate-wheel-body-ground-material-v1",
+    "combine_mode": "average",
+    "sampling": "one_ground_material_per_environment_at_startup",
+    "ground_static_range": [
+      0.5,
+      0.5
+    ],
+    "ground_dynamic_range": [
+      0.5,
+      0.5
+    ],
+    "ground_sampling_bands": null,
+    "ground_static_friction_per_environment": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "ground_dynamic_friction_per_environment": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "wheel_static_friction": 0.7,
+    "wheel_dynamic_friction": 0.7,
+    "body_static_friction": 0.25,
+    "body_dynamic_friction": 0.25,
+    "sampled_ground_static_min_max": [
+      0.5,
+      0.5
+    ],
+    "sampled_ground_dynamic_min_max": [
+      0.5,
+      0.5
+    ],
+    "effective_wheel_static_min_max": [
+      0.6000000238418579,
+      0.6000000238418579
+    ],
+    "effective_wheel_dynamic_min_max": [
+      0.6000000238418579,
+      0.6000000238418579
+    ],
+    "effective_body_static_min_max": [
+      0.375,
+      0.375
+    ],
+    "effective_body_dynamic_min_max": [
+      0.375,
+      0.375
+    ]
+  },
+  "actual_task": {
+    "schema": "wheel-leg-upright-locomotion-v1",
+    "reset_height_m": 0.305,
+    "training_pitch_range_deg": [
+      -0.5,
+      0.5
+    ],
+    "episode_seconds": 12.0,
+    "modes": [
+      "balance",
+      "basic_motion"
+    ],
+    "default_mode": "balance",
+    "command_start_seconds": 2.0,
+    "command_stop_seconds": 8.0,
+    "basic_forward_speed_m_s": 0.3,
+    "basic_yaw_rate_rad_s": 0.6,
+    "friction_profiles": {
+      "baseline": {
+        "wheel": 0.7,
+        "ground": 0.5
+      },
+      "legacy_low_grip": {
+        "wheel": 0.1,
+        "ground": 0.5
+      }
+    },
+    "default_friction_profile": "baseline",
+    "friction_provenance": "Fixed engineering comparison, not an identified tire or real-robot envelope",
+    "termination": {
+      "tilt_deg": 25.0,
+      "height_error_m": 0.05,
+      "nonwheel_contact_n": 2.0,
+      "failure_cost": 3.0
+    },
+    "evaluation": {
+      "seconds": 30.0,
+      "pitch_deg": [
+        0.0,
+        -0.25,
+        0.25,
+        -0.5,
+        0.5,
+        -1.0,
+        1.0
+      ],
+      "tilt_peak_deg": 10.0,
+      "height_mae_m": 0.01,
+      "standing_xy_max_m": 0.05,
+      "standing_speed_rms_m_s": 0.03,
+      "motion_vx_mae_m_s": 0.1,
+      "motion_yaw_mae_rad_s": 0.2,
+      "ignored_contiguous_support_loss_ms": 2,
+      "scope": "Engineering baseline at 305mm only; not the complete thirteen-capability qualification"
+    },
+    "recovery_training": false,
+    "automatic_task_or_height_curriculum": false,
+    "randomization": "Explicit wheel_leg_randomization_study_v2 profiles and strengths; never stack legacy gap overrides. Ground ranges stay intact, and changed wheel material is declared separately.",
+    "initialization": "fresh actor, fresh critic, empty Adam; no checkpoint, teacher or donor",
+    "state_writes": "episode reset only",
+    "hardware_ready": false,
+    "mode": "balance",
+    "friction_profile": "baseline",
+    "effective_wheel_ground_friction": 0.6,
+    "input_sha256": "f4eb7af8792e3532229ba93f22852e6020b0263c5e0707d8616737f235f1aa7c",
+    "input_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/contracts/wheel_leg_upright_locomotion_v1.json",
+    "effective_wheel_ground_friction_range": [
+      0.6,
+      0.6
+    ]
+  },
+  "transitions": [
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    },
+    {
+      "terminated": 0,
+      "tilt_events": 0,
+      "height_events": 0,
+      "nonwheel_contact_events": 0,
+      "nonwheel_force_peak_n": 0.0
+    }
+  ],
+  "behavior_qualified": false,
+  "hardware_ready": false
+}

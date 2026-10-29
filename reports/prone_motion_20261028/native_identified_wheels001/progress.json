@@ -1,0 +1,37 @@
+{
+  "schema": "prone-motion-progress-v1",
+  "status": "failed",
+  "pid": 3654640,
+  "start_ticks": 17249776,
+  "started_utc": "2026-10-28T11:49:19.226991+00:00",
+  "requested_updates": 10000,
+  "completed_updates": 0,
+  "optimizer_attempts": 0,
+  "checkpoint_reads": [],
+  "contexts": [
+    {
+      "index": 0,
+      "profile": "nominal",
+      "strength": 0.0,
+      "evaluation": false,
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_wheels001/contexts/000_nominal_0_train",
+      "completed_updates": 0,
+      "seed": 261028
+    }
+  ],
+  "cold_reviews": [],
+  "committed_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "5d0759dc2d15293a323dba9adb0c71f6dba1d86c",
+    "source_count": 309,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_wheels001/committed_source.tar",
+    "archive_sha256": "e68db8717b61edefd05753d29bb00145c6feb66ba04be59d98033381f634b17b"
+  },
+  "hardware_ready": false,
+  "full_capability_qualified": false,
+  "native_probes": [],
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 327, in main\n    reports.append(probe(env, plan, stop_requested=lambda: stop_requested))\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/evaluate_prone_motion.py\", line 213, in probe\n    observation, reward, done, extra = env.step(action)\n                                       ^^^^^^^^^^^^^^^^\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 394, in step\n    tau = self.v5.motor_efforts(q, dq, legs, wheels)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 106, in motor_efforts\n    tau = native_efforts(q, dq, legs, wheels)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/v5_control.py\", line 58, in motor_efforts\n    bound = motor_torque_limit(wheel_speed, self.wheel_prior)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/v40/core.py\", line 207, in motor_torque_limit\n    raise ValueError('Ambiguous or invalid engineering wheel-output torque cap')\nValueError: Ambiguous or invalid engineering wheel-output torque cap\n",
+  "elapsed_s": 6.994711075007217,
+  "source_mismatches_at_exit": []
+}

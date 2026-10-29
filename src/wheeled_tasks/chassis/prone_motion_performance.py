@@ -41,7 +41,10 @@ def install(env, backend):
         env.performance_geometry_module = geometry
         spring = env.identified_spring
         compression = env.v5.s0-env.robot.data.joint_pos.torch[:, env.spring_ids]
-        spring.tensor_replay = TensorCudaGraph(spring._evaluate,compression)
+        if spring is ff:
+            spring.force_tensor_replay = TensorCudaGraph(spring._evaluate_force, compression)
+        else:
+            spring.tensor_replay = TensorCudaGraph(spring._evaluate,compression)
     env.route_state = RouteReadCache(env,env.route_state)
     env.performance_backend = backend
     env.startup_report["performance_backend"] = dict(name=backend,

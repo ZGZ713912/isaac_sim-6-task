@@ -1,0 +1,374 @@
+{
+  "schema": "prone-motion-preparation-v1",
+  "created_utc": "2026-10-28T09:34:37.983794+00:00",
+  "status": "source_prepared_cpu_and_native_verified_not_trained",
+  "worktree": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train",
+  "branch": "codex/prone-motion-long",
+  "commit": "eea1ad85640591d45f06de74718bbec9c87a2e7e",
+  "pushed": false,
+  "reference": {
+    "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
+    "repository_HEAD": "0b62556b34977cc629fb5767e1cda9daa0d4bf36",
+    "latest_wheelbipe_commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
+    "wheelbipe_unchanged_since_commit": true,
+    "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14"
+  },
+  "contract": {
+    "path": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/contracts/wheel_leg_prone_motion_v1.json",
+    "sha256": "91511ac2e1cf8552e23de9f89228e3e5d6d0e564529d95055972072935c09cec"
+  },
+  "source_archive": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "eea1ad85640591d45f06de74718bbec9c87a2e7e",
+    "source_count": 296,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight007_identified_spring/committed_source.tar",
+    "archive_sha256": "5b891ac29d2f403a0c278316a7171702373d4df675549e00c7eeeb727861a9f7"
+  },
+  "cpu_checks": {
+    "tests": 245,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/cpu_checks_identified_spring_verified.xml",
+    "junit_sha256": "d32689c4893ef80823e4d5e6278ba1f60c09499ce5e7eeb247823b2b0588c4f9",
+    "scope": "Measured model, true controller force call, input/domain guards, context seed and launch evidence, curriculum, original task and mechanical regressions; zero optimizer steps"
+  },
+  "preflight": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight007_identified_spring",
+    "sha256": "1fd42cd8ae2be7d7bfb3466af4e79b32eebbfbfb825d1552c443a7d026b6cfec",
+    "design_sha256": "9ee2679ab099c7160be95acddddcfa533f79e4cfbeb11a35e930e89195da265f",
+    "passed": true,
+    "previous_superseded_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight003_speed2"
+  },
+  "initialization_cpu": {
+    "fresh_actor": true,
+    "fresh_critic": true,
+    "empty_Adam": true,
+    "all_six_outputs_trainable": true,
+    "optimizer_steps": 0,
+    "checkpoint_reads": []
+  },
+  "native_probes_run_by_this_preparation": 3,
+  "new_PPO_updates": 0,
+  "physical_robot_actions": 0,
+  "native_probe_required_before_training": true,
+  "training_started": false,
+  "output_directory_not_created": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001",
+  "existing009_readonly_snapshot": {
+    "status": "completed_gate_failed_unqualified",
+    "pid": 2929818,
+    "start_ticks": 13480232,
+    "completed_updates": 1536,
+    "requested_updates": 3072,
+    "last_checkpoint": {
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/reproduce009_20261028/standing_tracking_clockfix_v3_u3072_e256/model_final.pt",
+      "sha256": "2296daa93d6614d1eea6d17b7823eddb77a7710e36ca722dca99b5da0af5f5d3",
+      "updates": 1536
+    },
+    "checked_utc": "2026-10-28T09:34:37.983794+00:00",
+    "signals_sent": 0,
+    "process_exists": false
+  },
+  "existing009_modified": false,
+  "launch_command": "bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001",
+  "stop_existing_009_flag": "Operator-selected only; authenticated one SIGTERM, require complete-update checkpoint and process/GPU exit, no reuse of weights",
+  "phases": {
+    "max_updates": 10000,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "foundation_until": 1000,
+    "full_speed_after": 6000,
+    "full_spin_after": 7000,
+    "full_v2_after": 9000,
+    "forward_speed_m_s": 2.0,
+    "reverse_speed_m_s": -2.0,
+    "arc_forward_m_s": [
+      -2.0,
+      2.0
+    ]
+  },
+  "capability_status": {
+    "R01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "R02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "S01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M03": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M04": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H03": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "B01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "Q01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "D01": {
+      "status": "not_tested",
+      "qualified": false
+    }
+  },
+  "full_capability_qualified": false,
+  "hardware_ready": false,
+  "document": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/docs/PRONE_MOTION_TRAINING_20261028.md",
+  "launch_argv": [
+    "bash",
+    "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh",
+    "--output",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001"
+  ],
+  "previous_preparation": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preparation_speed2_baf2c4d7.json",
+  "change": "Use the exact measured bilateral axial force table at the actual1kHz call; retain2m/s and10000 updates. Native preparation also fixed probe population and rebuilt-context seed/evidence gates.",
+  "native_probe": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring003",
+    "status": "native_probe_completed_unqualified",
+    "progress_sha256": "9917cb089c0f235f3cd16d459afbe9f6ad40a7cb2b5979049de244ffc9f97ed9",
+    "all_native_checks_pass": true,
+    "checks_per_domain": 14,
+    "num_envs_per_domain": 80,
+    "policy_steps_per_domain": 300,
+    "physics_steps_per_lane_per_domain": 1500,
+    "physical_spring_samples_per_side_per_domain": 120000,
+    "domains": [
+      {
+        "index": 0,
+        "profile": "nominal",
+        "strength": 0.0,
+        "evaluation": false,
+        "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring003/contexts/000_nominal_0_train",
+        "completed_updates": 0,
+        "seed": 261028
+      },
+      {
+        "index": 1,
+        "profile": "requested",
+        "strength": 1.0,
+        "evaluation": false,
+        "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring003/contexts/001_requested_1_train",
+        "completed_updates": 0,
+        "seed": 261059
+      }
+    ],
+    "results": [
+      {
+        "checks": {
+          "fixed_PD_and_spring": true,
+          "rates": true,
+          "same_identified_axial_model_both_sides": true,
+          "actual_per_role_episode_limits": true,
+          "actual_reward_payment": true,
+          "finite": true,
+          "all_six_1ms_velocities_and_efforts": true,
+          "actual_1khz_measured_spring_force": true,
+          "actor35_critic83": true,
+          "zero_disabled_torque": true,
+          "disabled_samples_masked": true,
+          "disabled_birth_observed": true,
+          "active_prone_observed": true,
+          "body_contact_permitted_during_rise": true
+        },
+        "all_checks_pass": true,
+        "new_PPO": 0,
+        "learned_behavior": false,
+        "active_prone_samples": 6096,
+        "gas_spring": {
+          "model_sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+          "side_order": [
+            "left",
+            "right"
+          ],
+          "physical_samples_per_side": 120000,
+          "compression_min_m": [
+            0.017962802201509476,
+            0.017962858080863953
+          ],
+          "compression_max_m": [
+            0.05546564608812332,
+            0.055466074496507645
+          ],
+          "force_min_n": [
+            86.96569061279297,
+            86.96569061279297
+          ],
+          "force_max_n": [
+            517.7955322265625,
+            517.7996826171875
+          ],
+          "outside_identified_samples": [
+            6864,
+            6864
+          ],
+          "outside_identified_fraction": [
+            0.05719999969005585,
+            0.05719999969005585
+          ],
+          "outside_identified_policy": "endpoint_hold_unvalidated"
+        }
+      },
+      {
+        "checks": {
+          "fixed_PD_and_spring": true,
+          "rates": true,
+          "same_identified_axial_model_both_sides": true,
+          "actual_per_role_episode_limits": true,
+          "actual_reward_payment": true,
+          "finite": true,
+          "all_six_1ms_velocities_and_efforts": true,
+          "actual_1khz_measured_spring_force": true,
+          "actor35_critic83": true,
+          "zero_disabled_torque": true,
+          "disabled_samples_masked": true,
+          "disabled_birth_observed": true,
+          "active_prone_observed": true,
+          "body_contact_permitted_during_rise": true
+        },
+        "all_checks_pass": true,
+        "new_PPO": 0,
+        "learned_behavior": false,
+        "active_prone_samples": 6096,
+        "gas_spring": {
+          "model_sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+          "side_order": [
+            "left",
+            "right"
+          ],
+          "physical_samples_per_side": 120000,
+          "compression_min_m": [
+            0.017961755394935608,
+            0.017961129546165466
+          ],
+          "compression_max_m": [
+            0.05840866640210152,
+            0.05791608616709709
+          ],
+          "force_min_n": [
+            86.96569061279297,
+            86.96569061279297
+          ],
+          "force_max_n": [
+            546.594482421875,
+            541.7743530273438
+          ],
+          "outside_identified_samples": [
+            6888,
+            6891
+          ],
+          "outside_identified_fraction": [
+            0.05739999935030937,
+            0.05742499977350235
+          ],
+          "outside_identified_policy": "endpoint_hold_unvalidated"
+        }
+      }
+    ],
+    "checkpoint_reads": [],
+    "optimizer_attempts": 0,
+    "process": {
+      "pid": 3469039,
+      "start_ticks": 16424380,
+      "exited": true,
+      "gpu_exited": true
+    },
+    "source_mismatches_at_exit": [],
+    "behavior_qualified": false
+  },
+  "gas_spring": {
+    "file": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/model/gas_spring_identified_symmetric_20261028/model.json",
+    "sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+    "kind": "effective_monotone_table",
+    "same_axial_curve_both_legs": true,
+    "calibration_side": "left",
+    "right_leg_symmetry_assumed": true,
+    "right_leg_measured": false,
+    "effective_installed_mean_load_only": true,
+    "physical_gas_pressure_identified": false,
+    "direction_friction_enabled": false,
+    "physics_hz": 1000,
+    "call": "env.v5.spring_efforts -> measured interpolation * domain.spring",
+    "domain_multiplier": 1.0,
+    "catalogue_polynomial_replaced_for_this_task": true,
+    "compression_at_q_zero_m": 0.06972718009112547,
+    "stroke_m": 0.08,
+    "full_extension_pin_distance_m": 0.232,
+    "identified_knee_domain_deg": [
+      56.0,
+      101.0
+    ],
+    "identified_compression_domain_m": [
+      0.022997316706837613,
+      0.061786172348818356
+    ],
+    "outside_identified_domain": "endpoint_hold_unvalidated",
+    "endpoint_force_n": [
+      86.96568880192817,
+      589.4892440110364
+    ],
+    "strict_export_unchanged": true,
+    "source_csv_sha256": {
+      "/home/noir/Documents/workspace/wheel_leg扫频/wheel_leg_膝关节气簧辨识数据.csv": "17d8ebf42472573a28a85352df0584b964ec4ecc183d4b26e29d5f4c729dc0ba",
+      "/home/noir/wheel_leg_joints_2026-10-27_14-13-22.csv": "abc75e2fb5791cca1ff7e3d74f2d5f9694fa5a29e838820e5e55f6e601c21e02"
+    },
+    "out_of_domain_diagnostics": "Every1ms compression/force/mask; existing RSL TensorBoard metrics and cold trace. Endpoint extension is not calibrated."
+  },
+  "prior_native_attempts": [
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring001",
+      "progress_sha256": "fe06f4a52a31d93c691abc1221fe93476d34ef48c4460ba702ef01a77e6ed62c",
+      "status": "failed",
+      "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 284, in main\n    build()\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 268, in build\n    env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg[\"control_math_source\"]), ROOT,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/prone_motion_env.py\", line 21, in __init__\n    super().__init__(*args, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 31, in __init__\n    super().__init__(config, manifest, control, root, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 173, in __init__\n    scenes = choose_scene_groups(config[\"scene_groups\"], num_envs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/task.py\", line 230, in choose_scene_groups\n    raise ValueError(\"Scene fractions cannot fill the environment count within floor/ceil quotas\")\nValueError: Scene fractions cannot fill the environment count within floor/ceil quotas\n",
+      "completed_updates": 0,
+      "optimizer_attempts": 0,
+      "checkpoint_reads": [],
+      "process_exited": true,
+      "gpu_exited": true,
+      "fix": "40-env inherited scene floor/ceil quotas could not allocate; probe now80 and allocation is checked before Isaac."
+    },
+    {
+      "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002",
+      "progress_sha256": "f35875b2103ae174cf6d1a76046b0d7b9cb93f444b90197685b789a0f4e3a063",
+      "status": "failed",
+      "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 309, in main\n    build(profile, strength)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.py\", line 286, in build\n    env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg[\"control_math_source\"]), ROOT,\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/prone_motion_env.py\", line 21, in __init__\n    super().__init__(*args, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/robust_getup_env.py\", line 31, in __init__\n    super().__init__(config, manifest, control, root, **kwargs)\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py\", line 58, in __init__\n    self.design_preflight = design_preflight(config, control, root, stage=stage_name,\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py\", line 529, in design_preflight\n    receipt = validate_design_contract(config, json.loads(contents), control,\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/preflight.py\", line 494, in validate_design_contract\n    raise ValueError(f\"Preflight rejected ({source}; stage={stage}, role={role}):\\n\"\nValueError: Preflight rejected (/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002/contexts/001_requested_1_train/config/design.json; stage=speed, role=train):\ninvocation.seed: design=261028, effective=261059\n",
+      "completed_updates": 0,
+      "optimizer_attempts": 0,
+      "checkpoint_reads": [],
+      "process_exited": true,
+      "gpu_exited": true,
+      "fix": "Rebuilt context changed actual seed but not frozen invocation seed; now both use the same explicit runtime_seed."
+    }
+  ],
+  "native_launch_gate": "Shell checks saved completion, all physical checks, both domains, zeroPPO/checkpoint reads and unchanged sources, including when Kit shutdown masks Python exit status."
+}

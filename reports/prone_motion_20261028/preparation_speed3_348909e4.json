@@ -1,0 +1,153 @@
+{
+  "schema": "prone-motion-preparation-v1",
+  "created_utc": "2026-10-28T08:45:49.047711+00:00",
+  "status": "source_prepared_cpu_verified_not_trained",
+  "worktree": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train",
+  "branch": "codex/prone-motion-long",
+  "commit": "348909e4a8d279dfefa2d665350646634d6337b1",
+  "pushed": false,
+  "reference": {
+    "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
+    "repository_HEAD": "0b62556b34977cc629fb5767e1cda9daa0d4bf36",
+    "latest_wheelbipe_commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
+    "wheelbipe_unchanged_since_commit": true,
+    "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14"
+  },
+  "contract": {
+    "path": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/contracts/wheel_leg_prone_motion_v1.json",
+    "sha256": "186afa6d97691ce3b231c3d2663602fcbcb03b1a48818aeee19559827b34dd6a"
+  },
+  "source_archive": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "348909e4a8d279dfefa2d665350646634d6337b1",
+    "source_count": 292,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight002/committed_source.tar",
+    "archive_sha256": "9dbec3c5c89601c15eabe4b43b13c50379a5db9e3822269339dbaf893d85ee95"
+  },
+  "cpu_checks": {
+    "tests": 192,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/cpu_checks.xml",
+    "junit_sha256": "83fe0a81b35f347b107df8d383fb0de2ff261bb7ec4e19a2a6e5cbbc5dc228d1",
+    "scope": "Task objectives, command projection, original completion windows, contact runs, v2 settings, CPU RSL initialization and old-task regressions; no physics or optimizer step"
+  },
+  "preflight": {
+    "directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight002",
+    "sha256": "1be92e1d080e5dfb47865f572c2d052bdd49926be4a27cee994bc0909ce12541",
+    "design_sha256": "0044723175e563448999b433ec0f3a5a23ca71907e01144ceb2aa66b2c8d3a83",
+    "passed": true,
+    "previous_superseded_directory": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/preflight001"
+  },
+  "initialization_cpu": {
+    "fresh_actor": true,
+    "fresh_critic": true,
+    "empty_Adam": true,
+    "all_six_outputs_trainable": true,
+    "optimizer_steps": 0,
+    "checkpoint_reads": []
+  },
+  "native_probes_run_by_this_preparation": 0,
+  "new_PPO_updates": 0,
+  "physical_robot_actions": 0,
+  "native_probe_required_before_training": true,
+  "training_started": false,
+  "output_directory_not_created": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001",
+  "existing009_readonly_snapshot": {
+    "status": "training",
+    "pid": 2929818,
+    "start_ticks": 13480232,
+    "completed_updates": 1488,
+    "requested_updates": 3072,
+    "checked_utc": "2026-10-28T08:45:49.047556+00:00",
+    "signals_sent": 0,
+    "cwd": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train",
+    "actual_start_ticks": 13480232,
+    "argv": [
+      "/home/noir/miniconda3/envs/isaacsim6/bin/python",
+      "scripts/train_009_curriculum.py",
+      "--plan",
+      "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/contracts/wheel_leg_009_reproduction_v2.json",
+      "--output",
+      "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/reproduce009_20261028/standing_tracking_clockfix_v3_u3072_e256"
+    ]
+  },
+  "existing009_modified": false,
+  "launch_command": "bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001 --stop-existing-009",
+  "stop_existing_009_flag": "Operator-selected only; authenticated one SIGTERM, require complete-update checkpoint and process/GPU exit, no reuse of weights",
+  "phases": {
+    "max_updates": 10000,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "foundation_until": 1000,
+    "full_speed_after": 6000,
+    "full_spin_after": 7000,
+    "full_v2_after": 9000
+  },
+  "capability_status": {
+    "R01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "R02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "S01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M03": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "M04": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H02": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "H03": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "B01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "Q01": {
+      "status": "not_tested",
+      "qualified": false
+    },
+    "D01": {
+      "status": "not_tested",
+      "qualified": false
+    }
+  },
+  "full_capability_qualified": false,
+  "hardware_ready": false,
+  "document": "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/docs/PRONE_MOTION_TRAINING_20261028.md",
+  "launch_argv": [
+    "bash",
+    "/home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh",
+    "--output",
+    "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run001",
+    "--stop-existing-009"
+  ]
+}

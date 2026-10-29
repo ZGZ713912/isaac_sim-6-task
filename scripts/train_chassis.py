@@ -522,6 +522,9 @@ def main():
     from wheeled_tasks.chassis.preflight import GAS_SPRING_MODEL_KINDS
     if manifest["model_kind"] in GAS_SPRING_MODEL_KINDS:
         source_files.append("src/wheeled_tasks/chassis/v5_control.py")
+        if c.get("v5_control", {}).get("gas_spring_compensation", {}).get("enabled"):
+            source_files.append("src/wheeled_tasks/chassis/gas_spring_compensation.py")
+            source_files.append(c["v5_control"]["gas_spring_compensation"]["model_file"])
         source_files.append("src/wheeled_tasks/chassis/torque_monitor.py")
     if c.get("record_diagnostics"):
         source_files.append("src/wheeled_tasks/chassis/episode_metrics.py")

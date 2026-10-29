@@ -1,0 +1,71 @@
+{
+  "schema": "scratch-ppo-initialization-v1",
+  "checkpoint_loaded": false,
+  "teacher_loaded": false,
+  "actor_updates": 0,
+  "critic_updates": 0,
+  "optimizer_states": 0,
+  "actor_tensor_sha256": "d3e40fdd298cd2d6072a4ecfc06c987453c2811fe55bbadcff66e56b3f25e095",
+  "critic_tensor_sha256": "bba66fe18caca514de1f7603a4316b0459c45f6ea759c7ed5653e6d056c22c87",
+  "actor_trainable_parameters": 29772,
+  "critic_trainable_parameters": 35585,
+  "output_bias_source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+  "output_bias_policy_order": [
+    0.39714956283569336,
+    -0.1700170785188675,
+    -0.3971973955631256,
+    0.170059934258461,
+    0.0,
+    0.0
+  ],
+  "initial_std_policy_order": [
+    0.01,
+    0.01,
+    0.01,
+    0.01,
+    0.05,
+    0.05
+  ],
+  "actor_class": "wheeled_algo.leg_velocity_separated:LegVelocitySeparatedModel",
+  "wheel_velocity_increment": true,
+  "separate_leg_velocity_feedback": true,
+  "static_load_initialization": {
+    "schema": "scratch-static-load-initialization-v1",
+    "reference_sha256": "7d144218dd509d6e8cd1ec4aa813cce2f67cb6960841398638a9b14b08ffe728",
+    "native_pair_sha256": "88259d94013b904bbd8bee071a6694d17513e08bed3f96c41e5ec483b1f93ea0",
+    "geometry_policy_raw": [
+      0.29959918300456945,
+      -0.05938980783276504,
+      -0.29959918300456945,
+      0.05939136655550859,
+      0.0,
+      0.0
+    ],
+    "offset_policy_raw": [
+      0.09755037610874084,
+      -0.11062725925258295,
+      -0.09759822002341223,
+      0.11066859127489273,
+      0.0,
+      0.0
+    ],
+    "biased_policy_raw": [
+      0.3971495591133103,
+      -0.17001706708534797,
+      -0.3971974030279817,
+      0.17005995783040131,
+      0.0,
+      0.0
+    ],
+    "runtime_compensation": false,
+    "all_outputs_trainable": true,
+    "source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+    "scope": "Startup initialization prior; no standing, robustness or hardware qualification",
+    "wheel_reduction_migration": {
+      "source_control_sha256": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+      "control_sha256": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+      "wheel_gear_ratio": 15.62,
+      "scope": "Nominal leg-static bias only; no new-wheel motion or response validation"
+    }
+  }
+}

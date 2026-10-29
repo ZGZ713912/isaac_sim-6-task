@@ -1,0 +1,65 @@
+{
+  "schema": "standard-prone-rise-density-candidate-v1",
+  "recorded_utc": "2026-10-27T09:52:25.504315+00:00",
+  "active_pilot003_unchanged": true,
+  "active_commit": "d282dfc36369078097deab36359a8314fe1f8962",
+  "candidate_files": [
+    {
+      "file": "src/wheeled_tasks/chassis/standard_prone.py",
+      "candidate_sha256": "446db83a100580c033f7aa9790fa1897294e32a3a07253af2478206cf0fede61",
+      "active_sha256": "00279356622568d24cf054c5b9bfe9487e4e09bbaf54f3c7acb7e504f15d195f"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/robust_getup_env.py",
+      "candidate_sha256": "79b104a55bbeabbaaa3b6165752d83073c76e09edbaf75d3ed3c51a4b5a32879",
+      "active_sha256": "13bcdbab911777d5fef064cf17bff56d60f7d41c05496cc556228233d5e3b62e"
+    },
+    {
+      "file": "contracts/wheel_leg_standard_prone_v1.json",
+      "candidate_sha256": "31f39a8f78483705b0a46f5ea1eb07229a6a6e1f1e414d161d43d46847210592",
+      "active_sha256": "24fceaa600b6602297b3c5ce236bde7115a5a9243973111a3953d49a38ba46e7"
+    },
+    {
+      "file": "scripts/evaluate_standard_prone.py",
+      "candidate_sha256": "82646e5d15aab2582066c38f590bf0451fe4b916c2a2c5820de1b26704ce1ba8",
+      "active_sha256": "76dd61554ca0e963670e718bf7911cf1b048cde4cddf26536e9db8d697ef0623"
+    },
+    {
+      "file": "tests/test_standard_prone.py",
+      "candidate_sha256": "525118cd5234c0d0033a47800b557bbb6e1ff89a3793a8ea32fe82fd5ddbff6d",
+      "active_sha256": "e83bab4cc39da75dc4294021f52384d1b38b17c59b14c2c50aae90e1b1587d17"
+    },
+    {
+      "file": "docs/WHEEL_LEG_SEPARATED_CURRICULUM_20261027.md",
+      "candidate_sha256": "5a43aaa13ef6729b2d9127e4f165effe0d96e6e1037c54158f8025f451a918e7",
+      "active_sha256": "a8a3dab264e02d7e0fff43f171dcfc9e78764d489367879f388e2eb0de069833"
+    }
+  ],
+  "CPU_tests": {
+    "passed": 89,
+    "failed": 0,
+    "scope": "nine targeted modules"
+  },
+  "native_behavior": "not_yet_tested",
+  "decision": "Keep the current finite64-update physical comparison intact; after cold review freeze and run the candidate from a new actor, new critic and empty Adam. No policy checkpoint initialization.",
+  "pilot_getup_xy_screen_m": 0.1,
+  "pilot_getup_xy_screen_authority": "Engineering choice, not a user final requirement",
+  "planned_training": {
+    "run_name": "pilot004_prelift42_rise_dr025_u512_e256",
+    "seed": 261002,
+    "reason_for_same_seed": "Fresh independent initialization at the same seed as pilot003 allows initial tensor and first rollout comparison; never load trained weights or optimizer state. This is not an independent-seed robustness trial.",
+    "num_envs": 256,
+    "max_updates": 512,
+    "rollout_steps": 256,
+    "profile": "requested",
+    "strength": 0.25,
+    "friction_profile": "baseline",
+    "final_review": "completion event within10s, then full30s; engineering get-up XY<=10cm and standing XY<=5cm; full thirteen capabilities remain unqualified",
+    "pilot_getup_xy_screen_authority": "User explicitly allows about10cm"
+  },
+  "source_commit": "d0e258b7653cfcc492ee7577af567a2775e3df89",
+  "active_pilot004": true,
+  "user_approved_about10cm_getup_translation": true,
+  "native_wiring_probe": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/upright_curriculum_20261027/belly_10cm_rise_native_requested_lowgrip001/native_probe.json",
+  "learned_behavior": "pending current fresh pilot"
+}

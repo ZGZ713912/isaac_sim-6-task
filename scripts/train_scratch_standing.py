@@ -20,7 +20,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["OMNI_KIT_ACCEPT_EULA"] = "YES"
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-BASE_CONFIG = ROOT / "contracts/scratch_standing_base_mechanism_v2.json"
+BASE_CONFIG = ROOT / "model/gas_spring_compensation_unified_20261029/mechanism.json"
 
 
 def digest(path):
@@ -40,7 +40,8 @@ def prepare(args):
     from wheeled_tasks.chassis.isolated_origins import validate_isolated_origins
 
     # Reuse the authenticated mechanism description only, never a model file.
-    cfg = json.loads(BASE_CONFIG.read_text())
+    mechanism = getattr(args, "mechanism", None) or BASE_CONFIG
+    cfg = json.loads(Path(mechanism).read_text())
     previous_design = Path(cfg["design_preflight"]["file"])
     if not previous_design.is_absolute():
         previous_design = ROOT / previous_design
@@ -196,7 +197,7 @@ def prepare(args):
     design["scope"] = ("standard_prone_mechanism_construction" if prone is not None else
                        "upright_locomotion_mechanism_construction" if upright is not None else
                        "scratch_standing_mechanism_construction")
-    design["review_basis"] = dict(mechanism_config=str(BASE_CONFIG), sha256=digest(BASE_CONFIG),
+    design["review_basis"] = dict(mechanism_config=str(mechanism), sha256=digest(mechanism),
         checkpoint_initialization="forbidden", task_contract=str(args.output / "task_contract.json"))
     write_json(args.output / "config/design.json", design)
     cfg["design_preflight"] = dict(file=str(args.output / "config/design.json"),
@@ -267,6 +268,12 @@ def prepare(args):
 
 def sources():
     files = list((ROOT / "src").rglob("*.py")) + [Path(__file__)]
+    cfg=json.loads(BASE_CONFIG.read_text())
+    gas=cfg.get("v5_control",{}).get("gas_spring_compensation",{})
+    if gas.get("enabled"):
+        files.extend(ROOT/name for name in (gas["model_file"],cfg["design_preflight"]["file"],
+            cfg["gas_spring_compensation_evidence"]["file"]))
+        files.append(BASE_CONFIG)
     for name in ("train_upright_locomotion.py", "evaluate_upright_locomotion.py",
                  "review_standing_acceptance.py", "train_standard_prone.py", "evaluate_standard_prone.py"):
         path = ROOT / "scripts" / name
@@ -440,7 +447,7 @@ def main(*, upright_entry=False, prone_entry=False):
         help="Zero-PPO diagnostic of upright mechanics and task wiring; requires --updates 0")
     if upright_entry or prone_entry:
         parser.set_defaults(normalize_observations=True, wheel_velocity_increment=not prone_entry,
-                            static_load_initialization=not prone_entry)
+                            static_load_initialization=False)
     if prone_entry:
         parser.set_defaults(rollout_steps=256)
     args = parser.parse_args()

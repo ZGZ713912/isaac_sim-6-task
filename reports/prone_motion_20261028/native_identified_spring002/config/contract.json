@@ -1,0 +1,1959 @@
+{
+  "contract_id": "v6-gas-spring-full-stage-research-v1",
+  "asset_directory": "model/纯底盘_v7_flat_base107/urdf",
+  "asset_manifest_sha256": "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad87b3256690",
+  "control_math_source": "contracts/flat_base_200hz_control_v2.json",
+  "task_source": "upper_level_commands",
+  "research_only": true,
+  "hardware_deployment_ready": false,
+  "physics_dt": 0.001,
+  "policy_dt": 0.005,
+  "position_iterations": 64,
+  "velocity_iterations": 32,
+  "history_length": 1,
+  "actor_frame_dim": 35,
+  "actor_dim": 35,
+  "critic_dim": 83,
+  "action_dim": 6,
+  "actor_layout": [
+    "command_xyz3",
+    "height_command1_times5",
+    "imu_gyro3_times0.5",
+    "imu_projected_gravity3",
+    "motor_position_delta6_wheels_zeroed",
+    "motor_velocity6_times0.1",
+    "previous_policy_action6",
+    "command_context7_no_contact_phase"
+  ],
+  "critic_layout": [
+    "clean_frame35",
+    "body_linear_velocity3",
+    "relative_height1",
+    "wheel_force_magnitude2_div125",
+    "tree_q18_wheel_positions_zeroed",
+    "tree_dq18_times0.1",
+    "wheel_surface_mu2",
+    "wheel_surface_height2"
+  ],
+  "task_modes": [
+    "stand",
+    "move",
+    "up",
+    "down",
+    "jump"
+  ],
+  "phases": [
+    "ground",
+    "takeoff",
+    "flight",
+    "landing",
+    "recovery"
+  ],
+  "upper_target_layout": [
+    "route_distance_or_reference_vx",
+    "platform_delta_or_reference_vy",
+    "landing_distance",
+    "jump_request"
+  ],
+  "v5_control": {
+    "active_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "action_clip": 16.0,
+    "leg_position_scale": 0.25,
+    "wheel_velocity_scale": 10.0,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "preview_feedforward_used": false,
+    "spring_pressure_mpa": 10.0,
+    "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+    "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+    "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+    "hardware_motor_mapping_verified": false,
+    "wheel_action_clip": 9.0,
+    "leg_target_winding": "paired_branch107_v1",
+    "identified_gas_spring": {
+      "file": "model/gas_spring_identified_symmetric_20261028/model.json",
+      "sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+      "right_leg_symmetry_assumed": true,
+      "outside_identified_domain": "endpoint_hold_unvalidated",
+      "scope": "Same LEFT-measured axial force curve on both legs.56..101deg /22.997..61.786mm are identified; remaining mechanical travel holds endpoint force and is explicitly unvalidated. No direction-friction nuisance term.",
+      "model": {
+        "kind": "effective_monotone_table",
+        "compression_domain_m": [
+          0.022997316706837613,
+          0.061786172348818356
+        ],
+        "beta_domain_deg": [
+          56.0,
+          101.0
+        ],
+        "physical_pressure_identified": false,
+        "side": "left",
+        "compression_knots_m": [
+          0.022997316706837613,
+          0.023851879860738903,
+          0.024710385829300824,
+          0.0255726206601143,
+          0.026438366973481182,
+          0.02730740393265295,
+          0.029054448982586897,
+          0.03257791966534841,
+          0.037017290950069205,
+          0.0414655126583645,
+          0.04588815350788536,
+          0.05024846638999555,
+          0.05450746504313243,
+          0.058624096921555034,
+          0.06022134543002581,
+          0.061786172348818356
+        ],
+        "force_knots_n": [
+          86.96568880192817,
+          131.180235008863,
+          185.6833378164023,
+          309.43303430630766,
+          346.73845194767057,
+          346.73845194774657,
+          350.9023784132604,
+          366.38968062207243,
+          391.0983361312043,
+          415.32100551306803,
+          446.8609801438889,
+          476.8546490648272,
+          508.4192241986821,
+          548.7025541907423,
+          567.0002991924416,
+          589.4892440110364
+        ],
+        "schema_version": 1,
+        "status": "native_static_validated_symmetric_assumption",
+        "gas_pressure_pa": null,
+        "extrapolation": "reject",
+        "extended_pin_distance_m": 0.232,
+        "stroke_m": 0.08,
+        "spring_slide_compression_at_q_zero_m": 0.06972718009112547,
+        "motor_order": [
+          "L_joint1",
+          "LL_joint1"
+        ],
+        "holding_torque_rule": "Use each leg's own -J_length.T*F; mirror geometry changes motor signs, axial force stays positive",
+        "fitted_mean_load_only": true,
+        "direction_friction_enabled": false,
+        "production_default_replaced": false,
+        "training_started": false,
+        "source_sha256": {
+          "/home/noir/Documents/workspace/wheel_leg扫频/wheel_leg_膝关节气簧辨识数据.csv": "17d8ebf42472573a28a85352df0584b964ec4ecc183d4b26e29d5f4c729dc0ba",
+          "/home/noir/wheel_leg_joints_2026-10-27_14-13-22.csv": "abc75e2fb5791cca1ff7e3d74f2d5f9694fa5a29e838820e5e55f6e601c21e02"
+        },
+        "asset_files_sha256": {
+          "manifest.json": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+          "model_spec.json": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+          "robot.usda": "f9a1e4a9350ff0d98af187ed287f73428a10ed339c9ef7b9de04688fa30f0f98",
+          "fit_10mpa.json": "85d9712eb240c9719752930f7ada6c08d8323358f9775de3b1c7f29ce80183b9"
+        },
+        "validation_report": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/gas_spring_real2sim_20261027/symmetric_20261028/validation_receipt.json",
+        "calibration_side": "left",
+        "application_sides": [
+          "left",
+          "right"
+        ],
+        "right_leg_symmetry_assumed": true,
+        "right_leg_measured": false,
+        "right_leg_authority": "User instruction: temporarily assume right leg symmetric to left",
+        "motor_order_by_side": {
+          "left": [
+            "L_joint1",
+            "LL_joint1"
+          ],
+          "right": [
+            "R_joint1",
+            "RR_joint1"
+          ]
+        },
+        "calibration_validation_report": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/gas_spring_real2sim_20261027/validation_receipt.json"
+      },
+      "measured_compression_domain_m": [
+        0.022997316706837613,
+        0.061786172348818356
+      ],
+      "physical_pressure_identified": false,
+      "right_leg_measured": false,
+      "installed_stroke_m": 0.08,
+      "enabled": true
+    }
+  },
+  "contact_estimate_source": "privileged_only_not_actor_input",
+  "height_range_m": [
+    0.23,
+    0.43
+  ],
+  "episode_seconds": 70.0,
+  "num_steps_per_env": 128,
+  "target_num_envs": 256,
+  "total_updates": 10000,
+  "save_interval": 1,
+  "base_scene_fraction": 1.0,
+  "terrain_limits": {
+    "slope_deg": 15.0,
+    "roughness_m": 0.02,
+    "low_step_m": 0.03,
+    "step_up_m": 0.25,
+    "step_down_m": 0.15,
+    "stair_rise_m": 0.04
+  },
+  "monitor_applied_effort": true,
+  "record_diagnostics": true,
+  "height_l1_weight": 0.0,
+  "track_height_during_recovery": true,
+  "working_margin_weight": 0.0,
+  "knee_working_margin_rad": 0.08726646259971647,
+  "quiet_velocity_weight": -4.0,
+  "quiet_wheel_deadband_m_s": 0.005,
+  "quiet_wheel_weight": -0.05,
+  "learning_rate": 0.0003,
+  "observation_noise_enabled": false,
+  "mass_randomization_enabled": false,
+  "curriculum": "prone_motion_long_v1",
+  "evaluation": {
+    "enabled": true,
+    "mode": "gate",
+    "protocol_id": "flat-base-paired107-fixed-v1-material-011d45637313",
+    "seed": 191029,
+    "confirmation_seed": 191030,
+    "episode_seconds": 16.0,
+    "warmup_seconds": 1.0,
+    "episodes_per_case": 4,
+    "block_updates": 1000,
+    "consecutive_passes_required": 1,
+    "survival_rate_min": 1.0,
+    "success_rate_min": 0.95,
+    "height_mae_m_max": 0.01,
+    "velocity_mae_m_s_max": 0.05,
+    "yaw_mae_rad_s_max": 0.1,
+    "stand_drift_m_max": 0.03,
+    "stand_velocity_mae_m_s_max": 0.03,
+    "tilt_max_deg": 15.0,
+    "mechanical_checks": true,
+    "cumulative_retention": false,
+    "protect_anchor_cases": false,
+    "require_passing_anchors": false,
+    "skip_training_if_initially_accepted": false,
+    "quick_checks": true,
+    "confirmation_on_candidate_or_regression": true,
+    "full_audit_at_stage_exit": true,
+    "stable_case_layout": false,
+    "cases": [
+      {
+        "name": "stand_230mm",
+        "command": [
+          0.0,
+          0.0,
+          0.23
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "stand",
+          "command": [
+            0.0,
+            0.0,
+            0.23
+          ],
+          "mode": 0,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 33096816,
+        "episode_seconds": 10.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.03,
+        "yaw_mae_rad_s_max": 0.1,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "stand_230mm",
+        "stationary": true,
+        "stand_drift_m_max": 0.03
+      },
+      {
+        "name": "stand_305mm",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "stand",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 686244037,
+        "episode_seconds": 10.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.03,
+        "yaw_mae_rad_s_max": 0.1,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "stand_305mm",
+        "stationary": true,
+        "stand_drift_m_max": 0.03
+      },
+      {
+        "name": "stand_430mm",
+        "command": [
+          0.0,
+          0.0,
+          0.43
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "stand",
+          "command": [
+            0.0,
+            0.0,
+            0.43
+          ],
+          "mode": 0,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 2394550736,
+        "episode_seconds": 10.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.03,
+        "yaw_mae_rad_s_max": 0.1,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "stand_430mm",
+        "stationary": true,
+        "stand_drift_m_max": 0.03
+      },
+      {
+        "name": "forward_05",
+        "command": [
+          0.5,
+          0.0,
+          0.305
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "forward",
+          "command": [
+            0.5,
+            0.0,
+            0.305
+          ],
+          "mode": 1,
+          "sample_amplitude": true
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 1643691557,
+        "episode_seconds": 10.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.05,
+        "yaw_mae_rad_s_max": 0.1,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "forward_05",
+        "stand_drift_m_max": 0.03
+      },
+      {
+        "name": "backward_05",
+        "command": [
+          -0.5,
+          0.0,
+          0.305
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "backward",
+          "command": [
+            -0.5,
+            0.0,
+            0.305
+          ],
+          "mode": 1,
+          "sample_amplitude": true
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 2253490731,
+        "episode_seconds": 10.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.05,
+        "yaw_mae_rad_s_max": 0.1,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "backward_05",
+        "stand_drift_m_max": 0.03
+      },
+      {
+        "name": "rotate_1",
+        "command": [
+          0.0,
+          1.0,
+          0.305
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "rotate",
+          "command": [
+            0.0,
+            1.0,
+            0.305
+          ],
+          "mode": 1,
+          "sample_amplitude": true
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 83106563,
+        "episode_seconds": 10.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.05,
+        "yaw_mae_rad_s_max": 0.1,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "rotate_1",
+        "stand_drift_m_max": 0.03
+      },
+      {
+        "name": "rotate_1_reverse",
+        "command": [
+          0.0,
+          -1.0,
+          0.305
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "rotate",
+          "command": [
+            0.0,
+            -1.0,
+            0.305
+          ],
+          "mode": 1,
+          "sample_amplitude": true
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 83106563,
+        "episode_seconds": 10.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.05,
+        "yaw_mae_rad_s_max": 0.1,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "rotate_1_reverse",
+        "stand_drift_m_max": 0.03
+      },
+      {
+        "name": "start_stop_05",
+        "command": [
+          0.5,
+          0.0,
+          0.305
+        ],
+        "terrain": "flat",
+        "task": "survive",
+        "skill": {
+          "kind": "start_stop",
+          "command": [
+            0.5,
+            0.0,
+            0.305
+          ],
+          "mode": 1,
+          "sample_amplitude": false,
+          "segment_seconds": 4.0,
+          "acceleration_m_s2": 0.6
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "terrain_seed": 3201490321,
+        "episode_seconds": 16.0,
+        "height_mae_m_max": 0.01,
+        "velocity_mae_m_s_max": 0.05,
+        "yaw_mae_rad_s_max": 0.1,
+        "settled_stop_speed_max": 0.03,
+        "stationary": false,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 1.0,
+        "anchor": false,
+        "reset_seed_key": "start_stop_05",
+        "stand_drift_m_max": 0.03
+      }
+    ],
+    "canonical_case_names": [
+      "stand_230mm",
+      "stand_250mm",
+      "stand_280mm",
+      "stand_305mm",
+      "stand_320mm",
+      "stand_350mm",
+      "stand_380mm",
+      "stand_400mm",
+      "stand_430mm",
+      "stand_continuous",
+      "height_scan",
+      "forward_05",
+      "backward_05",
+      "start_stop_05",
+      "rotate_1",
+      "rotate_1_reverse",
+      "forward_1",
+      "backward_1",
+      "forward_2",
+      "backward_2",
+      "forward_3",
+      "backward_3",
+      "forward_4",
+      "backward_4",
+      "forward_5",
+      "backward_5",
+      "rotate_4",
+      "rotate_4_reverse",
+      "rotate_8",
+      "rotate_8_reverse",
+      "rotate_1rps",
+      "rotate_1rps_reverse",
+      "rotate_2rps",
+      "rotate_2rps_reverse",
+      "rotate_3rps",
+      "rotate_3rps_reverse",
+      "spin_translate_1rps",
+      "spin_translate_1rps_reverse",
+      "spin_translate_2rps",
+      "spin_translate_2rps_reverse",
+      "spin_translate_3rps",
+      "spin_translate_3rps_reverse",
+      "curve_low",
+      "curve_low_reverse",
+      "curve_fast",
+      "curve_fast_reverse",
+      "forward_continuous",
+      "backward_continuous",
+      "yaw_continuous",
+      "yaw_continuous_reverse",
+      "start_stop_1",
+      "velocity_curve_1",
+      "start_stop_2",
+      "velocity_curve_2",
+      "start_stop_3",
+      "velocity_curve_3",
+      "start_stop_4",
+      "velocity_curve_4",
+      "start_stop_5",
+      "velocity_curve_5",
+      "slope_up",
+      "slope_down",
+      "cross_slope",
+      "rough",
+      "material_transfer",
+      "push_recovery",
+      "airborne",
+      "landing",
+      "step_down_05",
+      "step_down_10",
+      "step_down_15",
+      "stairs_down",
+      "jump_03",
+      "jump_06",
+      "jump_10",
+      "jump_15",
+      "jump_20",
+      "jump_25",
+      "jump_30",
+      "running_jump_03",
+      "running_jump_06",
+      "running_jump_10",
+      "forward_continuous_low",
+      "backward_continuous_low",
+      "forward_continuous_mid",
+      "backward_continuous_mid",
+      "yaw_continuous_low",
+      "yaw_continuous_low_reverse",
+      "yaw_continuous_mid",
+      "yaw_continuous_mid_reverse",
+      "yaw_continuous_high",
+      "yaw_continuous_high_reverse",
+      "request_repeat",
+      "request_cancel_before_takeoff",
+      "request_cancel_airtime",
+      "request_repeat_after_landing",
+      "move_stop_jump_resume",
+      "forward_05_height_230mm",
+      "forward_05_height_320mm",
+      "forward_05_height_430mm",
+      "backward_05_height_230mm",
+      "backward_05_height_320mm",
+      "backward_05_height_430mm",
+      "rotate_1_height_230mm",
+      "rotate_1_height_320mm",
+      "rotate_1_height_430mm",
+      "rotate_1_reverse_height_230mm",
+      "rotate_1_reverse_height_320mm",
+      "rotate_1_reverse_height_430mm",
+      "forward_1_height_230mm",
+      "forward_1_height_320mm",
+      "forward_1_height_430mm",
+      "backward_1_height_230mm",
+      "backward_1_height_320mm",
+      "backward_1_height_430mm",
+      "forward_2_height_230mm",
+      "forward_2_height_320mm",
+      "forward_2_height_430mm",
+      "backward_2_height_230mm",
+      "backward_2_height_320mm",
+      "backward_2_height_430mm",
+      "forward_3_height_230mm",
+      "forward_3_height_320mm",
+      "forward_3_height_430mm",
+      "backward_3_height_230mm",
+      "backward_3_height_320mm",
+      "backward_3_height_430mm",
+      "forward_4_height_230mm",
+      "forward_4_height_320mm",
+      "forward_4_height_430mm",
+      "backward_4_height_230mm",
+      "backward_4_height_320mm",
+      "backward_4_height_430mm",
+      "forward_5_height_230mm",
+      "forward_5_height_320mm",
+      "forward_5_height_430mm",
+      "backward_5_height_230mm",
+      "backward_5_height_320mm",
+      "backward_5_height_430mm",
+      "rotate_4_height_230mm",
+      "rotate_4_height_320mm",
+      "rotate_4_height_430mm",
+      "rotate_4_reverse_height_230mm",
+      "rotate_4_reverse_height_320mm",
+      "rotate_4_reverse_height_430mm",
+      "rotate_8_height_230mm",
+      "rotate_8_height_320mm",
+      "rotate_8_height_430mm",
+      "rotate_8_reverse_height_230mm",
+      "rotate_8_reverse_height_320mm",
+      "rotate_8_reverse_height_430mm",
+      "rotate_1rps_height_230mm",
+      "rotate_1rps_height_320mm",
+      "rotate_1rps_height_430mm",
+      "rotate_1rps_reverse_height_230mm",
+      "rotate_1rps_reverse_height_320mm",
+      "rotate_1rps_reverse_height_430mm",
+      "rotate_2rps_height_230mm",
+      "rotate_2rps_height_320mm",
+      "rotate_2rps_height_430mm",
+      "rotate_2rps_reverse_height_230mm",
+      "rotate_2rps_reverse_height_320mm",
+      "rotate_2rps_reverse_height_430mm",
+      "rotate_3rps_height_230mm",
+      "rotate_3rps_height_320mm",
+      "rotate_3rps_height_430mm",
+      "rotate_3rps_reverse_height_230mm",
+      "rotate_3rps_reverse_height_320mm",
+      "rotate_3rps_reverse_height_430mm",
+      "spin_translate_1rps_height_230mm",
+      "spin_translate_1rps_height_320mm",
+      "spin_translate_1rps_height_430mm",
+      "spin_translate_1rps_reverse_height_230mm",
+      "spin_translate_1rps_reverse_height_320mm",
+      "spin_translate_1rps_reverse_height_430mm",
+      "spin_translate_2rps_height_230mm",
+      "spin_translate_2rps_height_320mm",
+      "spin_translate_2rps_height_430mm",
+      "spin_translate_2rps_reverse_height_230mm",
+      "spin_translate_2rps_reverse_height_320mm",
+      "spin_translate_2rps_reverse_height_430mm",
+      "spin_translate_3rps_height_230mm",
+      "spin_translate_3rps_height_320mm",
+      "spin_translate_3rps_height_430mm",
+      "spin_translate_3rps_reverse_height_230mm",
+      "spin_translate_3rps_reverse_height_320mm",
+      "spin_translate_3rps_reverse_height_430mm",
+      "curve_low_height_230mm",
+      "curve_low_height_320mm",
+      "curve_low_height_430mm",
+      "curve_low_reverse_height_230mm",
+      "curve_low_reverse_height_320mm",
+      "curve_low_reverse_height_430mm",
+      "curve_fast_height_230mm",
+      "curve_fast_height_320mm",
+      "curve_fast_height_430mm",
+      "curve_fast_reverse_height_230mm",
+      "curve_fast_reverse_height_320mm",
+      "curve_fast_reverse_height_430mm",
+      "material_transfer_height_230mm",
+      "material_transfer_height_320mm",
+      "material_transfer_height_430mm",
+      "stand_305mm__payload_light",
+      "stand_305mm__payload_heavy",
+      "stand_305mm__com_forward",
+      "stand_305mm__low_grip",
+      "stand_305mm__usbhs",
+      "forward_05__payload_light",
+      "forward_05__payload_heavy",
+      "forward_05__com_forward",
+      "forward_05__low_grip",
+      "forward_05__usbhs",
+      "backward_05__payload_light",
+      "backward_05__payload_heavy",
+      "backward_05__com_forward",
+      "backward_05__low_grip",
+      "backward_05__usbhs",
+      "rotate_1__payload_light",
+      "rotate_1__payload_heavy",
+      "rotate_1__com_forward",
+      "rotate_1__low_grip",
+      "rotate_1__usbhs",
+      "heldout_stand_payload_grip",
+      "heldout_forward_height_com",
+      "heldout_backward_height_grip_usb",
+      "heldout_spin_height_payload_usb",
+      "heldout_step_down_com_usb",
+      "heldout_jump_payload_grip",
+      "heldout_running_jump_payload_usb",
+      "stand_305mm__link_jitter",
+      "forward_05__link_jitter",
+      "backward_05__link_jitter",
+      "rotate_1__link_jitter",
+      "stand_305mm__link_loss_005",
+      "forward_05__link_loss_005",
+      "backward_05__link_loss_005",
+      "rotate_1__link_loss_005",
+      "stand_305mm__link_burst_3",
+      "forward_05__link_burst_3",
+      "backward_05__link_burst_3",
+      "rotate_1__link_burst_3",
+      "stand_305mm__link_combined",
+      "forward_05__link_combined",
+      "backward_05__link_combined",
+      "rotate_1__link_combined",
+      "rolling_up_03",
+      "rolling_up_06",
+      "rolling_up_10",
+      "rolling_stairs_3x04",
+      "body_climb_15",
+      "body_climb_20",
+      "body_climb_25",
+      "body_climb_double_200_250",
+      "step_jump_03_manual",
+      "step_jump_03_laser",
+      "step_jump_06_manual",
+      "step_jump_06_laser",
+      "step_jump_10_manual",
+      "step_jump_10_laser",
+      "step_jump_15_manual",
+      "step_jump_15_laser",
+      "step_jump_20_manual",
+      "step_jump_20_laser",
+      "step_jump_25_manual",
+      "step_jump_25_laser",
+      "double_step_jump_200_250_manual",
+      "double_step_jump_200_250_laser",
+      "heldout_body_climb_20_payload_grip",
+      "recovery_upright_stand",
+      "recovery_upright_forward",
+      "recovery_crouched_stand",
+      "recovery_crouched_forward",
+      "recovery_upright_release_stand",
+      "recovery_upright_release_forward",
+      "recovery_crouched_release_stand",
+      "recovery_crouched_release_forward",
+      "recovery_left_side_90_stand",
+      "recovery_left_side_90_forward",
+      "recovery_right_side_90_stand",
+      "recovery_right_side_90_forward",
+      "recovery_pitch_forward_45_stand",
+      "recovery_pitch_forward_45_forward",
+      "recovery_pitch_backward_45_stand",
+      "recovery_pitch_backward_45_forward",
+      "recovery_front_down_90_stand",
+      "recovery_front_down_90_forward",
+      "recovery_back_down_90_stand",
+      "recovery_back_down_90_forward",
+      "recovery_front_down_left_forward_right_back_90_stand",
+      "recovery_front_down_left_forward_right_back_90_forward",
+      "recovery_front_down_left_back_right_forward_90_stand",
+      "recovery_front_down_left_back_right_forward_90_forward",
+      "recovery_back_down_left_forward_right_back_90_stand",
+      "recovery_back_down_left_forward_right_back_90_forward",
+      "recovery_back_down_left_back_right_forward_90_stand",
+      "recovery_back_down_left_back_right_forward_90_forward",
+      "recovery_prone_belly_legs_above_stand",
+      "recovery_prone_belly_legs_above_forward",
+      "recovery_prone_back_legs_above_stand",
+      "recovery_prone_back_legs_above_forward",
+      "recovery_upright_release_turn_left",
+      "recovery_crouched_release_turn_right",
+      "recovery_step200_wheels_split_stand",
+      "recovery_step200_wheels_split_forward",
+      "recovery_step200_shell_high_wheels_low_stand",
+      "recovery_step200_shell_high_wheels_low_forward",
+      "recovery_step200_lip_near_shell_stand",
+      "recovery_step200_lip_near_shell_forward",
+      "recovery_step200_upright_top_stand",
+      "recovery_step200_upright_top_forward",
+      "recovery_step200_prone_belly_top_stand",
+      "recovery_step200_prone_belly_top_forward",
+      "recovery_double_step_first_riser_split_stand",
+      "recovery_double_step_first_riser_split_forward",
+      "recovery_double_step_second_riser_split_stand",
+      "recovery_double_step_second_riser_split_forward",
+      "recovery_double_step_first_prone_top_stand",
+      "recovery_double_step_first_prone_top_forward",
+      "recovery_double_step_second_prone_top_stand",
+      "recovery_double_step_second_prone_top_forward",
+      "recovery_double_step_second_side_top_stand",
+      "recovery_double_step_second_side_top_forward"
+    ],
+    "retention_case_names": [
+      "stand_305mm",
+      "height_scan",
+      "forward_05",
+      "backward_05",
+      "start_stop_05",
+      "rotate_1",
+      "rotate_1_reverse",
+      "forward_1",
+      "backward_1",
+      "forward_2",
+      "backward_2",
+      "forward_3",
+      "backward_3",
+      "forward_4",
+      "backward_4",
+      "forward_5",
+      "backward_5",
+      "rotate_4",
+      "rotate_4_reverse",
+      "rotate_8",
+      "rotate_8_reverse",
+      "rotate_1rps",
+      "rotate_1rps_reverse",
+      "rotate_2rps",
+      "rotate_2rps_reverse",
+      "rotate_3rps",
+      "rotate_3rps_reverse",
+      "spin_translate_1rps",
+      "spin_translate_1rps_reverse",
+      "spin_translate_2rps",
+      "spin_translate_2rps_reverse",
+      "spin_translate_3rps",
+      "spin_translate_3rps_reverse",
+      "curve_low",
+      "curve_low_reverse",
+      "curve_fast",
+      "curve_fast_reverse",
+      "forward_continuous",
+      "backward_continuous",
+      "yaw_continuous",
+      "yaw_continuous_reverse",
+      "start_stop_1",
+      "velocity_curve_1",
+      "start_stop_2",
+      "velocity_curve_2",
+      "start_stop_3",
+      "velocity_curve_3",
+      "start_stop_4",
+      "velocity_curve_4",
+      "start_stop_5",
+      "velocity_curve_5",
+      "forward_continuous_low",
+      "backward_continuous_low",
+      "forward_continuous_mid",
+      "backward_continuous_mid",
+      "yaw_continuous_low",
+      "yaw_continuous_low_reverse",
+      "yaw_continuous_mid",
+      "yaw_continuous_mid_reverse",
+      "yaw_continuous_high",
+      "yaw_continuous_high_reverse",
+      "forward_05_height_230mm",
+      "forward_05_height_320mm",
+      "forward_05_height_430mm",
+      "backward_05_height_230mm",
+      "backward_05_height_320mm",
+      "backward_05_height_430mm",
+      "rotate_1_height_230mm",
+      "rotate_1_height_320mm",
+      "rotate_1_height_430mm",
+      "rotate_1_reverse_height_230mm",
+      "rotate_1_reverse_height_320mm",
+      "rotate_1_reverse_height_430mm",
+      "forward_1_height_230mm",
+      "forward_1_height_320mm",
+      "forward_1_height_430mm",
+      "backward_1_height_230mm",
+      "backward_1_height_320mm",
+      "backward_1_height_430mm",
+      "forward_2_height_230mm",
+      "forward_2_height_320mm",
+      "forward_2_height_430mm",
+      "backward_2_height_230mm",
+      "backward_2_height_320mm",
+      "backward_2_height_430mm",
+      "forward_3_height_230mm",
+      "forward_3_height_320mm",
+      "forward_3_height_430mm",
+      "backward_3_height_230mm",
+      "backward_3_height_320mm",
+      "backward_3_height_430mm",
+      "forward_4_height_230mm",
+      "forward_4_height_320mm",
+      "forward_4_height_430mm",
+      "backward_4_height_230mm",
+      "backward_4_height_320mm",
+      "backward_4_height_430mm",
+      "forward_5_height_230mm",
+      "forward_5_height_320mm",
+      "forward_5_height_430mm",
+      "backward_5_height_230mm",
+      "backward_5_height_320mm",
+      "backward_5_height_430mm",
+      "rotate_4_height_230mm",
+      "rotate_4_height_320mm",
+      "rotate_4_height_430mm",
+      "rotate_4_reverse_height_230mm",
+      "rotate_4_reverse_height_320mm",
+      "rotate_4_reverse_height_430mm",
+      "rotate_8_height_230mm",
+      "rotate_8_height_320mm",
+      "rotate_8_height_430mm",
+      "rotate_8_reverse_height_230mm",
+      "rotate_8_reverse_height_320mm",
+      "rotate_8_reverse_height_430mm",
+      "rotate_1rps_height_230mm",
+      "rotate_1rps_height_320mm",
+      "rotate_1rps_height_430mm",
+      "rotate_1rps_reverse_height_230mm",
+      "rotate_1rps_reverse_height_320mm",
+      "rotate_1rps_reverse_height_430mm",
+      "rotate_2rps_height_230mm",
+      "rotate_2rps_height_320mm",
+      "rotate_2rps_height_430mm",
+      "rotate_2rps_reverse_height_230mm",
+      "rotate_2rps_reverse_height_320mm",
+      "rotate_2rps_reverse_height_430mm",
+      "rotate_3rps_height_230mm",
+      "rotate_3rps_height_320mm",
+      "rotate_3rps_height_430mm",
+      "rotate_3rps_reverse_height_230mm",
+      "rotate_3rps_reverse_height_320mm",
+      "rotate_3rps_reverse_height_430mm",
+      "spin_translate_1rps_height_230mm",
+      "spin_translate_1rps_height_320mm",
+      "spin_translate_1rps_height_430mm",
+      "spin_translate_1rps_reverse_height_230mm",
+      "spin_translate_1rps_reverse_height_320mm",
+      "spin_translate_1rps_reverse_height_430mm",
+      "spin_translate_2rps_height_230mm",
+      "spin_translate_2rps_height_320mm",
+      "spin_translate_2rps_height_430mm",
+      "spin_translate_2rps_reverse_height_230mm",
+      "spin_translate_2rps_reverse_height_320mm",
+      "spin_translate_2rps_reverse_height_430mm",
+      "spin_translate_3rps_height_230mm",
+      "spin_translate_3rps_height_320mm",
+      "spin_translate_3rps_height_430mm",
+      "spin_translate_3rps_reverse_height_230mm",
+      "spin_translate_3rps_reverse_height_320mm",
+      "spin_translate_3rps_reverse_height_430mm",
+      "curve_low_height_230mm",
+      "curve_low_height_320mm",
+      "curve_low_height_430mm",
+      "curve_low_reverse_height_230mm",
+      "curve_low_reverse_height_320mm",
+      "curve_low_reverse_height_430mm",
+      "curve_fast_height_230mm",
+      "curve_fast_height_320mm",
+      "curve_fast_height_430mm",
+      "curve_fast_reverse_height_230mm",
+      "curve_fast_reverse_height_320mm",
+      "curve_fast_reverse_height_430mm",
+      "forward_05__payload_light",
+      "forward_05__payload_heavy",
+      "forward_05__com_forward",
+      "forward_05__low_grip",
+      "forward_05__usbhs",
+      "backward_05__payload_light",
+      "backward_05__payload_heavy",
+      "backward_05__com_forward",
+      "backward_05__low_grip",
+      "backward_05__usbhs",
+      "rotate_1__payload_light",
+      "rotate_1__payload_heavy",
+      "rotate_1__com_forward",
+      "rotate_1__low_grip",
+      "rotate_1__usbhs",
+      "heldout_forward_height_com",
+      "heldout_backward_height_grip_usb",
+      "heldout_spin_height_payload_usb",
+      "forward_05__link_jitter",
+      "backward_05__link_jitter",
+      "rotate_1__link_jitter",
+      "forward_05__link_loss_005",
+      "backward_05__link_loss_005",
+      "rotate_1__link_loss_005",
+      "forward_05__link_burst_3",
+      "backward_05__link_burst_3",
+      "rotate_1__link_burst_3",
+      "forward_05__link_combined",
+      "backward_05__link_combined",
+      "rotate_1__link_combined"
+    ],
+    "minimum_updates": 1000,
+    "zero_success_fuse_updates": null,
+    "closure_gap_max_m": 0.003
+  },
+  "centered_locomotion_resets": true,
+  "height_reference": "wheel_support_mean",
+  "command_slew": {
+    "vx_m_s2": 1.5,
+    "yaw_rad_s2": 4.0
+  },
+  "learning_rate_schedule": "fixed",
+  "critic_warmup_updates": 0,
+  "zero_critic_wheel_positions": true,
+  "task_semantics": {
+    "route_goal_x_m": 0.65,
+    "success_hold_seconds": 2.0,
+    "jump_request_seconds": 0.8,
+    "preload_seconds": 0.35,
+    "preload_depth_m": 0.06,
+    "release_height_offset_m": 0.035,
+    "jump_apex_delta_m": 0.06,
+    "jump_min_clearance_m": 0.01,
+    "jump_min_air_seconds": 0.06,
+    "jump_landing_radius_m": 0.25,
+    "jump_release_velocity_min_m_s": 0.2,
+    "jump_tuck_extension_m": 0.16,
+    "jump_tuck_sigma_m": 0.04,
+    "jump_com_rise_m": 0.02,
+    "jump_apex_frame": "com_release"
+  },
+  "signal_perturbations": {
+    "enabled": false
+  },
+  "flat_floor_width_m": 96.0,
+  "evaluation_long_corridors": true,
+  "closure_gap_termination_m": 0.003,
+  "actor_observation_source": "scut35_encoders_imu_commands",
+  "initial_noise_std": 0.025,
+  "policy_action_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "num_mini_batches": 4,
+  "reward_profile": "scut_v14_flat_v5",
+  "reward_velocity_reference": "base_link_origin",
+  "termination_event_cost": 200.0,
+  "flat_triangle_mesh": true,
+  "flat_half_length_m": 48.0,
+  "motion_limits": {
+    "wheel_radius_m": 0.06,
+    "track_width_m": 0.4373,
+    "max_wheel_speed_rad_s": 90.0,
+    "lateral_acceleration_m_s2": 2.06
+  },
+  "usb_transport": {
+    "enabled": false
+  },
+  "curriculum_reference_batch": 480000,
+  "terrain_difficulty_tiers": [
+    1.0
+  ],
+  "fall_confirmation_seconds": 0.0,
+  "height_workspace": {},
+  "height_tracking": null,
+  "solid_step_platforms": true,
+  "fixed_evaluation_terrain": true,
+  "step_assist": {
+    "enabled": false
+  },
+  "step_contact_grace": {
+    "bodies": [
+      "L_link2",
+      "R_link2",
+      "LL_link3",
+      "RR_link3",
+      "LL_link4",
+      "RR_link4"
+    ],
+    "seconds": 0.3
+  },
+  "zero_command_velocity_scale": 3.0,
+  "dynamics_randomization": {
+    "enabled": false,
+    "sampling": "startup",
+    "enabled_fraction": 0.75,
+    "base_body": "base_link",
+    "wheel_bodies": [
+      "L_link3",
+      "R_link3"
+    ],
+    "base_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "leg_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "wheel_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "inertia_scale": [
+      1.0,
+      1.0
+    ],
+    "base_com_offset_m": {
+      "x": [
+        -0.0,
+        0.0
+      ],
+      "y": [
+        -0.0,
+        0.0
+      ],
+      "z": [
+        -0.0,
+        0.0
+      ]
+    },
+    "source_reference": "bounded robustness hypotheses, not identified hardware parameters"
+  },
+  "command_reference": {
+    "jump_reference_point": "whole_com_displacement_from_request",
+    "step_height_m": 0.4,
+    "step_down_height_m": 0.28,
+    "step_rise_seconds": 0.5,
+    "step_lower_seconds": 0.5,
+    "step_request_range_s": [
+      0.4,
+      1.4
+    ],
+    "step_hold_range_s": [
+      5.0,
+      9.0
+    ],
+    "step_start_x_range_m": [
+      -1.4,
+      -0.8
+    ],
+    "preload_seconds": 0.35,
+    "preload_depth_m": 0.06,
+    "release_offset_m": 0.035,
+    "landing_seconds": 0.3,
+    "takeoff_margin_seconds": 0.3,
+    "pitch_limit_rad": 0.15
+  },
+  "reference_reward": {
+    "velocity_huber_weight": 0.25,
+    "velocity_huber_delta_m_s": 0.5,
+    "velocity_wide_weight": 0.5,
+    "velocity_wide_sigma_m_s": 1.5,
+    "spin_translation_weight": 1.5,
+    "push_soft_cost_scale": 0.25,
+    "visible_reference_only": true,
+    "step_pitch_rad": 0.08,
+    "stationary_weight": 0.5,
+    "stationary_width_m_s": 0.1,
+    "upright_denominator": 0.1
+  },
+  "terrain_reset_before_entry": true,
+  "manual_context35": true,
+  "contact_domain": {
+    "enabled": false
+  },
+  "command_transport": {
+    "enabled": false
+  },
+  "precision_tracking": {
+    "velocity_weight": 1.0,
+    "velocity_width_m_s": 0.15,
+    "height_weight": 1.0,
+    "height_width_m": 0.01,
+    "lateral_weight": 0.25,
+    "lateral_width_m_s": 0.1,
+    "stationary_weight": 0.5,
+    "stationary_width_m_s": 0.03,
+    "fork_weight": 1.0,
+    "fork_width_m": 0.02
+  },
+  "scut_effort_reward_scale": 1.0,
+  "training_release": false,
+  "num_learning_epochs": 3,
+  "requires_design_preflight": true,
+  "policy_architecture": {
+    "actor_hidden_dims": [
+      256,
+      128,
+      64
+    ],
+    "critic_hidden_dims": [
+      256,
+      128,
+      64
+    ],
+    "activation": "elu",
+    "scope": "Fresh actor35, critic83, six fully trainable motor outputs"
+  },
+  "control_math_sha256": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+  "research_training_authorized": true,
+  "checkpoint_interval": 1,
+  "checkpoint_first_update": 1,
+  "checkpoint_snapshots": true,
+  "control_model_status": "wheel_response_calibrated_legs_nominal_research_only",
+  "physics_prior_scope": {
+    "plant_fit_applied": true,
+    "g1_release": false,
+    "hardware_release": false,
+    "source": "sealed_existing_bags_and_Isaac_wheel_same_trajectory_comparison",
+    "limitations": [
+      "six_parameter_conditional_closed_loop_fit_is_not_ground_truth",
+      "bag_knee_angles_about100_to107deg_do_not_validate_whole_workspace",
+      "full_torque_speed_thermal_load_jump_domains_not_identified",
+      "wheel_model_only_within_recorded_airborne_speed_scope; static_breakaway_and_independent_lag_not_identified",
+      "leg_candidate_not_adopted; self_righting_and_RL_handoff_not_validated_by_this_wheel_replay"
+    ],
+    "hip_axes": "continuous_no_physical_stops",
+    "knee_internal_nominal_bounds_deg": [
+      40,
+      105
+    ],
+    "stop_contact_data": "usable_only_with_explicit_contact_or_separate_stop_labels_not_free_motion_friction_fit",
+    "identified_axes": [
+      "L_joint3",
+      "R_joint3"
+    ],
+    "nominal_unidentified_axes": [
+      "L_joint1",
+      "LL_joint1",
+      "R_joint1",
+      "RR_joint1"
+    ]
+  },
+  "dense_tracking": {
+    "version": "v6-dense-visible35-v1",
+    "height": {
+      "broad_scale": 0.04,
+      "broad_weight": 3.0,
+      "fine_scale": 0.015,
+      "fine_weight": 1.5
+    },
+    "velocity": {
+      "broad_scale": 0.5,
+      "broad_weight": 6.0,
+      "fine_scale": 0.1,
+      "fine_weight": 1.7999999999999998
+    },
+    "lateral": {
+      "broad_scale": 0.15,
+      "broad_weight": 0.5,
+      "fine_scale": 0.08,
+      "fine_weight": 0.25
+    },
+    "yaw": {
+      "broad_scale": 1.0,
+      "broad_weight": 1.0,
+      "fine_scale": 0.2,
+      "fine_weight": 0.35
+    },
+    "stationary": {
+      "broad_scale": 0.1,
+      "broad_weight": 1.5,
+      "fine_scale": 0.04,
+      "fine_weight": 0.75
+    },
+    "stationary_vx_blend_m_s": 0.1,
+    "stationary_yaw_blend_rad_s": 0.2,
+    "tracking_peak_density": 1.0,
+    "ordinary_vertical_velocity_weight": 0.0,
+    "enabled": true,
+    "stand_still_lin_vel": {
+      "version": "scut-flat-linear-velocity-v2",
+      "weight": -2.0,
+      "command_threshold_m_s": 0.1,
+      "exclude_world_reference_motion": true
+    },
+    "locomotion_posture": {
+      "version": "bounded-posture-floor-v1",
+      "pitch_scale_floor": 3.0,
+      "roll_scale_floor": 4.0
+    }
+  },
+  "transfer_critic": false,
+  "evaluation_exact_cases": false,
+  "actuator_response": {
+    "enabled": true,
+    "schema": "chassis-actuator-response",
+    "version": 1,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "gain": 1.0,
+    "armature": [
+      0.0,
+      0.0,
+      0.0038669808882082915,
+      0.0,
+      0.0,
+      0.003818453742910773
+    ],
+    "frictionloss": [
+      0.0,
+      0.0,
+      0.049507400779663126,
+      0.0,
+      0.0,
+      0.06957712078102896
+    ],
+    "damping": [
+      0.0,
+      0.0,
+      0.0006085318417485766,
+      0.0,
+      0.0,
+      0.0003429025559035852
+    ],
+    "time_constant_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "actuator_response_evidence": {
+    "file": "contracts/v6_wheel_response_evidence_v1.json",
+    "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc"
+  },
+  "response_migration": "flat_base_paired107_actor_transfer_v1",
+  "curriculum_stage": "speed",
+  "budget_stage_id": "speed",
+  "ppo_minibatch_samples": 8192,
+  "enabled_stages": [
+    "speed"
+  ],
+  "curriculum_plan_id": "v6-new-asset-curriculum-plan-v1",
+  "updates_are_actual_not_reference_scaled": true,
+  "rollback_refunds_consumed_updates": false,
+  "release_scope": {
+    "training": "user_authorized_nominal_simulation_research",
+    "g1_hardware_release": false,
+    "conditional_reachability": "full_declared_command_domain_evaluated_not_claimed_hardware_reachable",
+    "stair_200_250_definition": "retired_invalid_case_not_retained;new_double_step_rises_0.20_0.25_tops_0.20_0.45",
+    "R0": "scripted_physical_recovery_then_RL_handoff_separate_acceptance"
+  },
+  "jump_assist": {
+    "enabled": false
+  },
+  "new_asset_curriculum": {
+    "enabled": false
+  },
+  "skill_specs": {
+    "stand_mid": {
+      "kind": "stand",
+      "command": [
+        0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "stand_low": {
+      "kind": "stand",
+      "command": [
+        0,
+        0.0,
+        0.23
+      ],
+      "mode": 0
+    },
+    "stand_high": {
+      "kind": "stand",
+      "command": [
+        0,
+        0.0,
+        0.43
+      ],
+      "mode": 0
+    },
+    "forward_low": {
+      "kind": "forward",
+      "command": [
+        0.75,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": true,
+      "amplitude_range": [
+        0.13333333333333333,
+        1.0
+      ],
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "backward_low": {
+      "kind": "backward",
+      "command": [
+        -0.75,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": true,
+      "amplitude_range": [
+        0.13333333333333333,
+        1.0
+      ],
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "forward_high": {
+      "kind": "forward",
+      "command": [
+        3.0,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": true,
+      "amplitude_range": [
+        0.5,
+        1.0
+      ],
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "backward_high": {
+      "kind": "backward",
+      "command": [
+        -3.0,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": true,
+      "amplitude_range": [
+        0.5,
+        1.0
+      ],
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "start_stop_3_0": {
+      "kind": "start_stop",
+      "command": [
+        3.0,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "segment_seconds": 3.0,
+      "acceleration_m_s2": 1.5,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "turn_left": {
+      "kind": "rotate",
+      "command": [
+        0,
+        4.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": true,
+      "amplitude_range": [
+        0.125,
+        1.0
+      ],
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "turn_right": {
+      "kind": "rotate",
+      "command": [
+        0,
+        -4.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": true,
+      "amplitude_range": [
+        0.125,
+        1.0
+      ],
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "forward_edge3": {
+      "kind": "forward",
+      "command": [
+        3.0,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": false,
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "backward_edge3": {
+      "kind": "backward",
+      "command": [
+        -3.0,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": false,
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      }
+    },
+    "backward_start_stop3": {
+      "kind": "start_stop",
+      "command": [
+        -3.0,
+        0.0,
+        0.305
+      ],
+      "mode": 1,
+      "segment_seconds": 3.0,
+      "acceleration_m_s2": 1.5,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      },
+      "sample_amplitude": false
+    },
+    "yaw_start_stop_positive": {
+      "kind": "rotate",
+      "command": [
+        0.0,
+        4.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": false,
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      },
+      "yaw_start_stop_segment_seconds": 3.0
+    },
+    "yaw_start_stop_negative": {
+      "kind": "rotate",
+      "command": [
+        0.0,
+        -4.0,
+        0.305
+      ],
+      "mode": 1,
+      "sample_amplitude": false,
+      "sample_yaw_sign": false,
+      "height_sampling": {
+        "range_m": [
+          0.23,
+          0.42
+        ],
+        "nominal_fraction": 0.5,
+        "endpoint_fraction": 0.5
+      },
+      "yaw_start_stop_segment_seconds": 3.0
+    }
+  },
+  "scene_groups": [
+    {
+      "name": "stand_mid",
+      "fraction": 0.03,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "stand_low",
+      "fraction": 0.02,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "stand_high",
+      "fraction": 0.02,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "forward_low",
+      "fraction": 0.015,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_low",
+      "fraction": 0.015,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "forward_high",
+      "fraction": 0.1,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_high",
+      "fraction": 0.15,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "start_stop_3_0",
+      "fraction": 0.05,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "turn_left",
+      "fraction": 0.075,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "turn_right",
+      "fraction": 0.075,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "forward_edge3",
+      "fraction": 0.1,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_edge3",
+      "fraction": 0.1,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_start_stop3",
+      "fraction": 0.1,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "yaw_start_stop_positive",
+      "fraction": 0.075,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "yaw_start_stop_negative",
+      "fraction": 0.075,
+      "terrain": [
+        "flat"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "name": "speed",
+      "updates": 10000,
+      "vx_max": 2.0,
+      "yaw_max": 10.471975511965978,
+      "push_max": 0.0,
+      "terrain": [
+        "flat"
+      ]
+    }
+  ],
+  "resume_critic_warmup_updates": 0,
+  "success_event_bonus": 30.0,
+  "reward_units": {
+    "densities": "per_second_times_policy_dt",
+    "termination_event_cost": "once_per_true_failure",
+    "success_event_bonus": "once_per_success"
+  },
+  "action_difference_reference_dt": 0.02,
+  "flat_base_continuation": {
+    "schema": "scratch-standing-context-v1",
+    "flat_context": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "initialization": "none; fresh native PPO"
+  },
+  "gamma": 0.9974905699336811,
+  "lam": 0.9872585449014338,
+  "critic_learning_rate": 0.0005,
+  "use_clipped_value_loss": false,
+  "entropy_coef": 0.001,
+  "contact_material": {
+    "enabled": true,
+    "combine_mode": "average",
+    "ground_static_friction_range": [
+      0.5,
+      0.5
+    ],
+    "ground_dynamic_friction_range": [
+      0.5,
+      0.5
+    ],
+    "wheel_static_friction": 0.7,
+    "wheel_dynamic_friction": 0.7,
+    "body_static_friction": 0.25,
+    "body_dynamic_friction": 0.25
+  },
+  "diagnostic_trace": false,
+  "flat_group_episode_seconds": {},
+  "stationary_tracking": {
+    "position_weight": 1.0,
+    "position_band_m": 0.03,
+    "velocity_scale": 1.0,
+    "position_cost": "capped_square",
+    "position_cost_cap": 25.0,
+    "failure_event_cost": 50.0
+  },
+  "flat_critic_anchor_xy": true,
+  "actor_adaptation": "original-static-grip-with-directional-motion-v12",
+  "static_feedback_recall": {
+    "checkpoint": "runs/flat_base_20261019/pilot023/model_001248.pt",
+    "sha256": "da285c8ddc1958af6c5e3b232c97bb3729370459235e2d90268738c2b0067d7d"
+  },
+  "flat_rmcs_command_training": {
+    "rmcs_root": "/home/noir/Documents/workspace/RMCS",
+    "contract": {
+      "schema": "flat-rmcs-command-reference-policy-rate-v2",
+      "source_sha256": {
+        "rmcs_rl/src/wheel_leg/observation.cpp": "7e98fc95cd4b198bc3b02790e0c1736267eb448ceb3efd1b94180b01d771376c",
+        "rmcs_rl/src/wheel_leg/policy.hpp": "debb9dda28b911271f4967a7ccab1f7d21cf041c6ed9ab11d0017981624ad5d5",
+        "rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "7d893f68040cb1e352c67e39af4a86e72b4b294d0981229fb5c1102361dcd063"
+      },
+      "policy_hz": 200,
+      "physics_hz": 1000,
+      "nominal_height_m": 0.305,
+      "height_command_is_reference": true,
+      "height_reference_rate_max_m_s": 0.6666666666666666,
+      "wheel_radius_m": 0.06,
+      "wheel_track_m": 0.4373,
+      "wheel_speed_limit_rad_s": 90.0,
+      "lateral_acceleration_m_s2": 2.06,
+      "heading_hold_enabled": true,
+      "heading_hold_gain": 5.0,
+      "vx_max_m_s": 3.0,
+      "yaw_rate_max_rad_s": 4.0,
+      "heading_hold_yaw_rate_max_rad_s": 4.0,
+      "envelope_source": "export_flat_base.py packaged YAML caps: vx=3, yaw/heading/spin=4",
+      "planar_slew": "none; next policy tick",
+      "takeover_blending": false,
+      "spinning": false,
+      "scope": "200 Hz native simulation derived from the inspected 50 Hz RMCS command math",
+      "source_policy_hz": 50,
+      "source_scope": "ordinary flat RL command assembly after takeover; native simulation only"
+    },
+    "moving_direct_fraction": 0.5,
+    "standing_direct_fraction": 1.0
+  },
+  "design_preflight": {
+    "file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/prone_motion_20261028/native_identified_spring002/config/design.json",
+    "sha256": "8531a3c5df5f02f2be1b61f25c24d8ad6567fc3f0068550d9eba026239e10771",
+    "stage": "speed"
+  },
+  "wheel_reduction": {
+    "schema": "wheel-leg-wheel-reduction-v1",
+    "gear_ratio": 15.62,
+    "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+    "reference": "wheel_output",
+    "motor_angle_and_speed": "divide_by_ratio_once",
+    "motor_torque": "multiply_by_ratio_once",
+    "output_torque_cap_nm": 4.5,
+    "legacy_asset_metadata_gear_ratio": 15.8,
+    "legacy_response_gear_ratio": 15.8,
+    "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+    "new_wheel_response_identified": false
+  },
+  "full_rl_square_ground": true,
+  "full_rl_isolated_origins": true
+}

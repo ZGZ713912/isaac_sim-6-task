@@ -1,0 +1,64 @@
+{
+  "sources": [
+    {
+      "file": "wheel_leg_膝关节气簧辨识数据.csv",
+      "path": "/home/noir/Documents/workspace/wheel_leg扫频/wheel_leg_膝关节气簧辨识数据.csv",
+      "bytes": 442671383,
+      "mtime_ns": 1793099405634034343,
+      "sha256": "17d8ebf42472573a28a85352df0584b964ec4ecc183d4b26e29d5f4c729dc0ba",
+      "columns": 243,
+      "records": 218309,
+      "malformed_lines_excluded": [
+        218311
+      ],
+      "source_id": 0,
+      "kind": "relative_knee",
+      "label": "knee_three_speeds"
+    },
+    {
+      "file": "左腿整腿转动，覆盖低速和约 2 秒一圈.csv",
+      "path": "/home/noir/Documents/workspace/wheel_leg扫频/左腿整腿转动，覆盖低速和约 2 秒一圈.csv",
+      "bytes": 492090254,
+      "mtime_ns": 1793092836295510240,
+      "sha256": "cd6db89bc493d5f0ddfb84ef775c4f9468429e511a7b2cd7dee355d34c5a196c",
+      "columns": 243,
+      "records": 245803,
+      "malformed_lines_excluded": [
+        245805
+      ],
+      "source_id": 1,
+      "kind": "common_rotation",
+      "label": "whole_leg_first"
+    },
+    {
+      "file": "左腿整腿转动，覆盖低速和约 2 秒一圈（2）.csv",
+      "path": "/home/noir/Documents/workspace/wheel_leg扫频/左腿整腿转动，覆盖低速和约 2 秒一圈（2）.csv",
+      "bytes": 459917371,
+      "mtime_ns": 1793094118515938298,
+      "sha256": "8f7e2c78639e917b8d7bb33956d904876598509ad18f9d2d20fe98170c6aff50",
+      "columns": 243,
+      "records": 223759,
+      "malformed_lines_excluded": [],
+      "source_id": 2,
+      "kind": "common_rotation",
+      "label": "whole_leg_repeat"
+    },
+    {
+      "file": "左腿关节不同夹角扫频.csv",
+      "path": "/home/noir/Documents/workspace/wheel_leg扫频/左腿关节不同夹角扫频.csv",
+      "bytes": 1117267915,
+      "mtime_ns": 1793098971286601870,
+      "sha256": "da4a6f2e3286870f2646639dad9f665244a086d829863801cc8ad32b44766597",
+      "columns": 243,
+      "records": 535072,
+      "malformed_lines_excluded": [],
+      "source_id": 3,
+      "kind": "common_angles",
+      "label": "whole_leg_multiple_angles"
+    }
+  ],
+  "rows": 189881,
+  "script_sha256": "f9cde2eb3ee056160030af80139b008f879a17f6f33bade9404999cb66d3d445",
+  "conditions": "user-confirmed horizontal suspended leg; no gravity/external load",
+  "preprocessing": "51-sample centered means; velocity derivatives averaged 101 samples; exclude +/-120 ms of >2ms gaps; every fifth valid sample; no saturation; actual angle and reported motor torque"
+}

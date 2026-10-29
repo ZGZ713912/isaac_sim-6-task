@@ -130,6 +130,15 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         row["invocation"]["num_envs"] = len(names) * projected["episodes_per_case"]
     response_declared = ("actuator_response" in config or "actuator_response" in expected
                          or "response_migration" in config)
+    gas = config.get("v5_control",{}).get("gas_spring_compensation",{})
+    expected_gas = expected.get("v5_control",{}).get("gas_spring_compensation",{})
+    if gas.get("enabled") or expected_gas.get("enabled"):
+        _compare(gas,expected_gas,"design.gas_spring_compensation",errors)
+        _compare(gas,_at(row,"runtime.gas_spring_compensation"),"design.runtime.gas_spring_compensation",errors)
+        _compare(True,_at(row,"runtime.modules.gas_spring_compensation"),"design.runtime.modules.gas_spring_compensation",errors)
+        _compare(True,_at(row,"runtime.gas_spring_force_each_iteration"),"design.runtime.gas_spring_force_each_iteration",errors)
+        _compare(config.get("gas_spring_compensation_evidence",_MISSING),
+            expected.get("gas_spring_compensation_evidence",_MISSING),"design.gas_spring_compensation_evidence",errors)
     if "identified_wheel_response" in config or "identified_wheel_response" in expected:
         _compare(config.get("identified_wheel_response", _MISSING), expected.get("identified_wheel_response", _MISSING),
                  "design.identified_wheel_response", errors)
@@ -539,6 +548,8 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
         source=str(path))
     if config.get("actuator_response", {}).get("enabled"):
         receipt["actuator_response_evidence"] = validate_response_evidence(config, root)
+    if config.get("v5_control",{}).get("gas_spring_compensation",{}).get("enabled"):
+        receipt["gas_spring_compensation_evidence"] = validate_gas_spring_compensation_evidence(config,root)
     if config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"):
         from .response_migration import validate_step_budget, validate_step_task_configuration
         if config.get("local_scratch"):
@@ -562,6 +573,33 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
     if "wheel_reduction" in config:
         receipt["wheel_reduction"] = deepcopy(config["wheel_reduction"])
     return receipt
+
+
+def validate_gas_spring_compensation_evidence(config,root):
+    from .gas_spring_compensation import load_compensation
+    settings,model = load_compensation(config["v5_control"]["gas_spring_compensation"],root)
+    asset = Path(root)/config["asset_directory"]/"model_spec.json"
+    if hashlib.sha256(asset.read_bytes()).hexdigest()!=model["model_spec_sha256"]:
+        raise ValueError("Gas compensation asset specification differs")
+    binding = config.get("gas_spring_compensation_evidence",{})
+    content = (Path(root)/binding["file"]).read_bytes()
+    if hashlib.sha256(content).hexdigest()!=binding["sha256"]:
+        raise ValueError("Gas compensation evidence hash differs")
+    evidence = json.loads(content)
+    if (evidence.get("schema")!="gas-spring-compensation-evidence-v1"
+            or evidence.get("status")!="validated_for_research"
+            or evidence.get("hardware_release") is not False
+            or evidence.get("settings")!=settings):
+        raise ValueError("Gas compensation evidence/configuration differs")
+    for path,sha in evidence["files_sha256"].items():
+        if hashlib.sha256((Path(root)/path).read_bytes()).hexdigest()!=sha:
+            raise ValueError(f"Gas compensation result SHA mismatch: {path}")
+    native = json.loads((Path(root)/evidence["native_report"]).read_text())
+    if (native.get("status")!="completed" or native.get("passed") is not True
+            or native.get("model_sha256")!=settings["model_sha256"]):
+        raise ValueError("Gas compensation lacks matching passed native component report")
+    return dict(status="authenticated",model_sha256=settings["model_sha256"],
+        scope=evidence["scope"],hardware_release=False)
 
 
 def validate_response_evidence(config, root):

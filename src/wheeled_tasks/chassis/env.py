@@ -88,7 +88,7 @@ class ChassisEnv:
                 if hashlib.sha256((directory / "model_spec.json").read_bytes()).hexdigest() != MODEL_SPEC_SHA256:
                     raise ValueError("Paired-107 control requires the exact declared model specification")
             fit = json.loads((directory / "fit_10mpa.json").read_text())
-            self.v5 = V5Control(manifest, self.model_spec, fit, control, config["v5_control"], device)
+            self.v5 = V5Control(manifest, self.model_spec, fit, control, config["v5_control"], device, root=root)
             if config.get("height_workspace"):
                 reference = config["height_workspace"]
                 if (reference["model_spec_sha256"] != manifest["files_sha256"]["model_spec.json"]
@@ -138,6 +138,10 @@ class ChassisEnv:
         self.max_episode_length = round(config["episode_seconds"] / self.policy_dt)
         self.generator = torch.Generator(device=device).manual_seed(seed)
         self.level = level
+        if self.v5 is not None and self.v5.gas_compensation is not None:
+            # Same force integration as the authenticated closed-chain gas probe.
+            from isaaclab_physx.physics import PhysxCfg
+            render_options["physics"] = PhysxCfg(enable_external_forces_every_iteration=True)
         self.sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(
             dt=self.dt, device=device, render_interval=self.decimation,
             enable_scene_query_support=config.get("enable_scene_queries", False), **render_options))
@@ -556,6 +560,9 @@ class ChassisEnv:
                 "config": response, "native_properties_verified": True,
                 "native_first_environment": {k: v[0].cpu().tolist() for k, v in native.items()},
                 "functional_probe": self.actuator_response.runtime_probe()}
+        if self.v5 is not None and getattr(self.v5,"gas_compensation",None) is not None:
+            self.startup_report["gas_spring_compensation"] = self.v5.gas_compensation.summary()
+            self.startup_report["gas_spring_force_each_iteration"] = bool(self.sim.cfg.physics.enable_external_forces_every_iteration)
         if self.identified_wheels.enabled:
             if not self.actuator_response.enabled:
                 wheel_ids = [self.robot.joint_names.index(n) for n in WHEEL_NAMES]
@@ -988,6 +995,10 @@ class ChassisEnv:
             if self.identified_wheels.enabled:
                 actual["modules"]["identified_wheel_response"] = True
                 actual["identified_wheel_response"] = dict(self.identified_wheels.cfg)
+            if getattr(self.v5,"gas_compensation",None) is not None:
+                actual["modules"]["gas_spring_compensation"] = True
+                actual["gas_spring_compensation"] = dict(self.v5.gas_compensation.cfg)
+                actual["gas_spring_force_each_iteration"] = bool(self.sim.cfg.physics.enable_external_forces_every_iteration)
             if "signal_delay" in config:
                 actual["modules"]["signal_delay"] = self.signal_delay is not None
                 actual["signal_delay"] = dict(config["signal_delay"])

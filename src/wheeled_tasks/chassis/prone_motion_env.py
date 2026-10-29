@@ -23,11 +23,18 @@ class ProneMotionEnv(RobustGetupEnv):
         self.prone_task = self.getup_cfg["prone_geometry"]
         from .training_wheel_response import install as install_wheels
         install_wheels(self)
-        from .training_gas_spring import TrainingGasSpring
-        self.identified_spring = TrainingGasSpring(self.cfg["v5_control"]["identified_gas_spring"], self.device)
-        self.identified_spring.install(self)
-        from .encoder_spring_feedforward import EncoderGasSpringFeedforward
-        EncoderGasSpringFeedforward(self.cfg["v5_control"]["encoder_spring_feedforward"]).install(self)
+        if self.plan.get("gas_spring_backend") == "dev_compensation_v2":
+            if self.v5.gas_compensation is None:
+                raise ValueError("Unified task is missing the dev gas-spring model")
+            self.v5.gas_compensation.install(self)
+        else:
+            if self.v5.gas_compensation is not None:
+                raise ValueError("Two gas-spring compensation implementations would be active")
+            from .training_gas_spring import TrainingGasSpring
+            self.identified_spring = TrainingGasSpring(self.cfg["v5_control"]["identified_gas_spring"], self.device)
+            self.identified_spring.install(self)
+            from .encoder_spring_feedforward import EncoderGasSpringFeedforward
+            EncoderGasSpringFeedforward(self.cfg["v5_control"]["encoder_spring_feedforward"]).install(self)
         from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
         from .standing_geometry107 import table_path
         self.prone_encoder_geometry = EncoderLegGeometry(json.loads(table_path().read_text()),

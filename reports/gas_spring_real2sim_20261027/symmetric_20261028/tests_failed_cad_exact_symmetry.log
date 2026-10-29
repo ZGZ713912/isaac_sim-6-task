@@ -1,0 +1,31 @@
+.........F.........                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_closed_chain_geometry_supplies_mirrored_motor_torque_signs ________
+
+    def test_closed_chain_geometry_supplies_mirrored_motor_torque_signs():
+        import numpy as np
+        root=Path(__file__).resolve().parents[1]
+        spec=importlib.util.spec_from_file_location("identify_gas_spring",root/"tools/identify_gas_spring.py")
+        module=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        left=module.geometry(module.BUNDLE,[60.,75.,100.],side="left")
+        right=module.geometry(module.BUNDLE,[60.,75.,100.],side="right")
+        np.testing.assert_allclose(left["compression_m"],right["compression_m"],atol=1e-7)
+>       np.testing.assert_allclose(left["jacobian_m_per_rad"],-right["jacobian_m_per_rad"],atol=1e-7)
+E       AssertionError: 
+E       Not equal to tolerance rtol=1e-07, atol=1e-07
+E       
+E       Mismatched elements: 3 / 6 (50%)
+E       Max absolute difference among violations: 3.51985129e-07
+E       Max relative difference among violations: 8.70183184e-06
+E        ACTUAL: array([[-0.034472,  0.034472],
+E              [-0.040917,  0.040917],
+E              [-0.042774,  0.042774]])
+E        DESIRED: array([[-0.034472,  0.034472],
+E              [-0.040917,  0.040917],
+E              [-0.042774,  0.042774]])
+
+tests/test_identified_gas_spring.py:70: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_identified_gas_spring.py::test_closed_chain_geometry_supplies_mirrored_motor_torque_signs
+1 failed, 18 passed in 1.71s

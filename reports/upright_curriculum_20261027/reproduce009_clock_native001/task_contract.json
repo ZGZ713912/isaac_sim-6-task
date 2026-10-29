@@ -1,0 +1,510 @@
+{
+  "schema": "009-reproduction-task-v1",
+  "settings": {
+    "schema": "wheel-leg-unified-getup-v1",
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "actor_dim": 35,
+    "action_dim": 6,
+    "passive_min_seconds": 0.2,
+    "passive_max_seconds": 1.2,
+    "passive_hold_seconds": 0.08,
+    "episode_seconds": 8.0,
+    "stable_seconds": 0.5,
+    "followup_seconds": 2.0,
+    "recovery_timeout_seconds": 9.0,
+    "leg_action_clip": 16.0,
+    "wheel_action_clip": 9.0,
+    "leg_position_scale": 0.25,
+    "closure_gap_m": 0.003,
+    "impact_limit_n": 3500.0,
+    "impact_window_seconds": 0.02,
+    "impact_impulse_limit_ns": 20.0,
+    "push_start_seconds": 5.0,
+    "push_duration_seconds": 0.3,
+    "push_force_n": 80.0,
+    "push_torque_nm": 32.0,
+    "motion_push_fraction": 0.0,
+    "motion_fraction": 1.0,
+    "arc_fraction_within_motion": 0.4,
+    "lateral_acceleration_m_s2": 2.06,
+    "wheel_radius_m": 0.06,
+    "wheel_track_m": 0.4373,
+    "wheel_speed_limit_rad_s": 90.0,
+    "friction_start": [
+      0.5,
+      0.5
+    ],
+    "friction_final": [
+      0.2,
+      0.5
+    ],
+    "curriculum_updates": 512,
+    "origin_updates": 0,
+    "motor_control": "six_axis_RL_after_zero_effort_settling",
+    "input_source": "IMU_encoders_commands_previous_action",
+    "fallback_script": false,
+    "state_writes": "episode_reset_only",
+    "version": "scratch-standing-v3-coupled-failure-resets-wheel-increment-v1-separated-leg-velocity-v1-static-load-init-v1-contact-events-v1",
+    "stance_aware_recovery": true,
+    "recovery_shape_aware": false,
+    "paired_feedback_winding": true,
+    "cyclic_leg_targets": true,
+    "recovery_leg_step": 0.3,
+    "smooth_knee_targets": true,
+    "recovery_knee_center": [
+      0.924544,
+      0.924537
+    ],
+    "recovery_leg_speed_cost": 0.0005,
+    "recovery_family_weights": [
+      0.0,
+      0.1,
+      0.1,
+      0.2,
+      0.2,
+      0.3,
+      0.1
+    ],
+    "side_recovery_birth_focus": false,
+    "standing_drift_speed_scale_m_s": 0.02,
+    "quiet_native_height_anchors": false,
+    "quiet_exploration_fraction": 0.35,
+    "quiet_wheel_exploration_fraction": null,
+    "quiet_velocity_feature_gain": 1.0,
+    "quiet_velocity_feedback": false,
+    "quiet_velocity_feedback_mode": "all",
+    "nominal_fraction": 0.25,
+    "motor_strength_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kp_scale_range": [
+      1.0,
+      1.0
+    ],
+    "leg_kd_scale_range": [
+      1.0,
+      1.0
+    ],
+    "spring_strength_range": [
+      1.0,
+      1.0
+    ],
+    "torque_delay_ms": [
+      0,
+      0
+    ],
+    "motor_tau_ms": [
+      0.0,
+      0.0
+    ],
+    "sensor_delay_policy_ticks": [
+      0,
+      0
+    ],
+    "encoder_bias_rad": 0.0,
+    "encoder_noise_rad": 0.0,
+    "gyro_bias_rad_s": 0.0,
+    "gyro_noise_rad_s": 0.0,
+    "gravity_noise": 0.0,
+    "velocity_noise_rad_s": [
+      0.0,
+      0.0
+    ],
+    "sensor_noise_scale": 1.0,
+    "domains_enabled": false,
+    "quiet_action_rate_cost": 0.0,
+    "quiet_motor_speed_cost": 0.0,
+    "quiet_effort_delta_cost": 0.0,
+    "quiet_actor_alpha": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.65,
+      0.65
+    ],
+    "boundary_xy_m": [
+      40.0,
+      40.0
+    ],
+    "push_torque_direction": -1.0,
+    "hold_motion_during_recovery": false,
+    "canonical_recovery": true,
+    "motion_residual_fraction": 0.25,
+    "domain_scale": 0.0,
+    "pd_feedback_delay_ms": [
+      0,
+      0
+    ],
+    "pd_feedback_period_ms": [
+      1,
+      1
+    ],
+    "pd_encoder_bias_rad": 0.0,
+    "reward_gamma": 0.998,
+    "reward_potential_gain": 5.0,
+    "quiet_frozen": false,
+    "quiet_training": true,
+    "quiet_sway_m": 0.05,
+    "quiet_spectral_cost": false,
+    "quiet_critic_anchor": true,
+    "quiet_velocity_feature_scale": null,
+    "quiet_wheel_bound": 0.5,
+    "arc_tuning_fraction": 0.0,
+    "standing_support_training": false,
+    "quiet_position_weight": 0.5,
+    "quiet_height_probabilities": [
+      0.5,
+      0.25,
+      0.25
+    ],
+    "quiet_high_common_alpha": null,
+    "quiet_high_leg_prediction_s": 0.0,
+    "standing_early_position_weight": 0.0,
+    "standing_drift_weight": 0.0,
+    "quiet_height_experts": false,
+    "fast_forward_reference": false,
+    "fast_forward_reference_range": [
+      1.5,
+      2.0
+    ],
+    "fast_forward_reference_yaw_fade": 0.25,
+    "native_origin_mode": "isolated_overlap_v1"
+  },
+  "training_origin": "seeded random actor and critic; empty Adam; no checkpoint reads",
+  "bank": "/home/noir/.codex/worktrees/standard-prone-training/isaac_wheeled_rl_train/reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+  "bank_sha256": "e85ae674548eb76101d8591726d24378a6be74cd9b3240b01150f9e28358d76a",
+  "mechanism_config_sha256": "7954d2e978d1934835a0513b5f4d253798d382b8f7e5eab709b022b7239e24d8",
+  "policy_hz": 200,
+  "physics_hz": 1000,
+  "action_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "wheel_reduction": {
+    "schema": "wheel-leg-wheel-reduction-v1",
+    "gear_ratio": 15.62,
+    "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+    "reference": "wheel_output",
+    "motor_angle_and_speed": "divide_by_ratio_once",
+    "motor_torque": "multiply_by_ratio_once",
+    "output_torque_cap_nm": 4.5,
+    "legacy_asset_metadata_gear_ratio": 15.8,
+    "legacy_response_gear_ratio": 15.8,
+    "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+    "new_wheel_response_identified": false
+  },
+  "leg_position_scale_rad": 0.25,
+  "wheel_velocity_scale_rad_s": 10.0,
+  "state_writes": "reset only",
+  "initial_pitch_range_deg": [
+    -0.5,
+    0.5
+  ],
+  "curriculum": {
+    "mid_height_until_update": 512,
+    "then_heights_m": [
+      0.23,
+      0.305,
+      0.42
+    ]
+  },
+  "current_scope": "nominal standing foundation; robustness and recovery are not qualified",
+  "randomization_study": null,
+  "precise_standing_objective": true,
+  "normalized_observations": true,
+  "desynchronized_initial_episode_lengths": true,
+  "standing_failure_resets": true,
+  "wheel_action_parameterization": "encoder_velocity_plus_learned_increment_v1",
+  "static_load_initialization": {
+    "schema": "scratch-static-load-initialization-v1",
+    "reference_sha256": "7d144218dd509d6e8cd1ec4aa813cce2f67cb6960841398638a9b14b08ffe728",
+    "native_pair_sha256": "88259d94013b904bbd8bee071a6694d17513e08bed3f96c41e5ec483b1f93ea0",
+    "geometry_policy_raw": [
+      0.29959918300456945,
+      -0.05938980783276504,
+      -0.29959918300456945,
+      0.05939136655550859,
+      0.0,
+      0.0
+    ],
+    "offset_policy_raw": [
+      0.09755037610874084,
+      -0.11062725925258295,
+      -0.09759822002341223,
+      0.11066859127489273,
+      0.0,
+      0.0
+    ],
+    "biased_policy_raw": [
+      0.3971495591133103,
+      -0.17001706708534797,
+      -0.3971974030279817,
+      0.17005995783040131,
+      0.0,
+      0.0
+    ],
+    "runtime_compensation": false,
+    "all_outputs_trainable": true,
+    "source": "nominal mechanism static torque divided by leg Kp; fresh trainable bias only",
+    "scope": "Startup initialization prior; no standing, robustness or hardware qualification",
+    "wheel_reduction_migration": {
+      "source_control_sha256": "29331fc8213e17382d4eb07aae34529214d41d7037a66b67cfe406be88e48215",
+      "control_sha256": "bce2961f6a39dfd064d4298a95194b47829fb7cfd65e622609d8741a7f73e1f4",
+      "wheel_gear_ratio": 15.62,
+      "scope": "Nominal leg-static bias only; no new-wheel motion or response validation"
+    }
+  },
+  "standing_contact_continuity_contract": {
+    "schema": "standing-contact-continuity-training-v2",
+    "reward_cost_per_break": 0.0,
+    "force_threshold_n": 2.0,
+    "physical_dt_s": 0.001,
+    "policy_dt_s": 0.005,
+    "startup_grace_s": 0.0,
+    "module_sha256": {
+      "src/wheeled_tasks/chassis/standing_contact_continuity.py": "38c7961c8df2dc158c338fcd50edc839cc627e018cadc2c6303c4b06e926bce3",
+      "src/wheeled_tasks/chassis/standing_contact_monitor.py": "932d9ca3edc3ee19d610c28af3725a52831704c59b9cf2dff84b5e3d05161e79"
+    },
+    "formula": "cost*count_1ms(supported_previous_ms and not supported_current_ms)",
+    "support": "both wheel contact force norms strictly exceed2N; previous support initialized true at explicit grounded reset",
+    "scope": "zero-request non-recovery pure-RL standing training only; dense load and separation cost retained; fixed evaluation unchanged; no added termination"
+  },
+  "standing_leg_target_rate_contract": null,
+  "hardware_ready": false,
+  "leg_velocity_feedback_architecture": {
+    "schema": "separated-neural-leg-velocity-v1",
+    "neutral_raw_features": [
+      16,
+      17,
+      18,
+      19
+    ],
+    "leg_policy_outputs": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "native_full_feedback_outputs": [
+      4,
+      5
+    ],
+    "physical_PD_velocity_feedback_hz": 1000,
+    "final_Gaussian_mean_before_sampling": true,
+    "action_filter": false,
+    "state_writes": "reset only",
+    "scope": "Fresh trainable six-output actor; no checkpoint, teacher or running target hold."
+  },
+  "reference_commit": "643a0de0d61f049cd0ffe2007d52dd85fffbf6e6",
+  "curriculum_plan": {
+    "schema": "wheel-leg-009-reproduction-curriculum-v2",
+    "reference_commit": "643a0de0d61f049cd0ffe2007d52dd85fffbf6e6",
+    "reference_run": "pilot009_leg_velocity_separated",
+    "initialization": "Fresh actor, critic and empty Adam; no checkpoint, teacher or donor reads at any stage",
+    "policy_hz": 200,
+    "physics_hz": 1000,
+    "seed": 261001,
+    "num_envs": 256,
+    "rollout_steps": 128,
+    "max_updates": 3072,
+    "standing_recipe": {
+      "precise_objective": true,
+      "normalize_observations": true,
+      "desync_episodes": true,
+      "standing_failures": true,
+      "wheel_velocity_increment": true,
+      "separate_leg_velocity_feedback": true,
+      "static_load_initialization": true,
+      "contact_break_cost": 0.0,
+      "speed_weight": 2.0,
+      "contact_weight": 8.0,
+      "learning_rate": 0.0003
+    },
+    "declared_mechanical_difference": "Keep user-confirmed wheel reduction15.62 and its matching v2 contract; historical009 used15.8. Leg mechanics, gains, caps, spring, material and rates are retained.",
+    "wheel_material_friction": 0.1,
+    "nominal_ground_friction": 0.5,
+    "review_interval_updates": 256,
+    "phases": [
+      {
+        "id": "standing",
+        "min_updates": 512,
+        "max_updates": 1024,
+        "task": "standing",
+        "profile": "nominal",
+        "strength": 0.0
+      },
+      {
+        "id": "tracking",
+        "min_updates": 512,
+        "max_updates": 1024,
+        "task": "tracking",
+        "profile": "nominal",
+        "strength": 0.0
+      },
+      {
+        "id": "domains",
+        "min_updates": 1024,
+        "max_updates": 1024,
+        "task": "tracking",
+        "profile": "progressive_v2",
+        "strength": 1.0
+      }
+    ],
+    "tracking": {
+      "episode_seconds": 30.0,
+      "heights_m": [
+        0.23,
+        0.305,
+        0.42
+      ],
+      "forward_speed_m_s": 0.3,
+      "yaw_rate_rad_s": 0.6,
+      "ramp_updates": 256,
+      "quiet_fraction": 0.4,
+      "roles_per20": [
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "forward",
+        "forward",
+        "reverse",
+        "reverse",
+        "left",
+        "left",
+        "right",
+        "right",
+        "height_low",
+        "height_high",
+        "forward_height",
+        "reverse_height"
+      ],
+      "command_ramps_seconds": [
+        2.0,
+        4.0,
+        8.0,
+        10.0
+      ],
+      "height_ramps_seconds": [
+        2.0,
+        5.0,
+        8.0,
+        11.0
+      ],
+      "motion_velocity_reward_width_m_s": 0.25,
+      "motion_yaw_reward_width_rad_s": 0.5,
+      "standing_reward": "Original009 score and native physical costs retained; tracking phase adds explicit anchored quiet-position cost and broad height-error cost. First standing phase is unchanged."
+    },
+    "domain_sequence": [
+      {
+        "until_phase_update": 128,
+        "profile": "sensors_only",
+        "strength": 0.25
+      },
+      {
+        "until_phase_update": 256,
+        "profile": "motor_only",
+        "strength": 0.25
+      },
+      {
+        "until_phase_update": 384,
+        "profile": "mass_com_only",
+        "strength": 0.25
+      },
+      {
+        "until_phase_update": 512,
+        "profile": "inertia_only",
+        "strength": 0.25
+      },
+      {
+        "until_phase_update": 640,
+        "profile": "friction_only",
+        "strength": 0.25
+      },
+      {
+        "until_phase_update": 768,
+        "profile": "timing_only",
+        "strength": 0.25
+      },
+      {
+        "until_phase_update": 896,
+        "profile": "requested",
+        "strength": 0.5
+      },
+      {
+        "until_phase_update": 1024,
+        "profile": "requested",
+        "strength": 1.0
+      }
+    ],
+    "phase_progression": "At a complete update, cold-test the same live actor with frozen normalization. Advance standing/tracking only after all declared30s cases pass; otherwise allow the declared maximum and stop sealed. Rebuild only simulation at curriculum/evaluation boundaries; keep identical live actor/critic/Adam/storage objects. No disk model loading.",
+    "evaluation": {
+      "seconds": 30.0,
+      "seed": 261101,
+      "pitch_deg": [
+        0.0,
+        -0.25,
+        0.25,
+        -0.5,
+        0.5,
+        -1.0,
+        1.0
+      ],
+      "tilt_peak_deg": 10.0,
+      "height_mae_m": 0.01,
+      "standing_xy_max_m": 0.05,
+      "standing_speed_rms_m_s": 0.03,
+      "standing_leg_speed_peak_rad_s": 3.0,
+      "motion_vx_mae_m_s": 0.1,
+      "motion_yaw_mae_rad_s": 0.2,
+      "closure_gap_max_m": 0.003,
+      "ignored_contiguous_support_loss_ms": 2,
+      "scope": "Engineering reproduction and basic command tracking; all13 long-term capabilities stay individually reported. Basic0.6rad/s yaw is not80-100rpm spin qualification."
+    },
+    "prone_task": "Preserved separately; no prone births or body-contact recovery rewards are mixed into this standing reproduction. Revisit only after upright behavior is established.",
+    "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
+    "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
+    "hardware_ready": false,
+    "repair": {
+      "version": "standing-retention-v2",
+      "position_weight": 8.0,
+      "position_deadband_m": 0.01,
+      "position_width_m": 0.04,
+      "position_cost_cap": 4.0,
+      "height_weight": 4.0,
+      "height_scale_m": 0.03,
+      "minimum_safe_height_m": 0.15,
+      "maximum_safe_height_m": 0.48,
+      "training_birth_height_m": 0.305,
+      "standing_episode_seconds": 30.0,
+      "motion_episode_seconds": 12.0,
+      "critic_anchor_abi": "Original009 last two privileged XY channels carry20*course_anchor_error_xy clamped to+/-5; actor35/critic83 and zero wheel joint positions unchanged",
+      "height_learning_roles": [
+        "height_low",
+        "height_high",
+        "forward_height",
+        "reverse_height"
+      ],
+      "evaluation_limits_unchanged": true,
+      "stop_handler_required": "registered and verified after AppLauncher and every simulation build; separately test first-update SIGTERM checkpoint"
+    }
+  },
+  "task": "standing",
+  "domain_profile": "nominal",
+  "domain_strength": 0.0,
+  "fully_randomized_holdout": false,
+  "cold_evaluation": false,
+  "standing_mid_height_until": "actual30s behavior gate;512 minimum,1024 maximum",
+  "declared_mechanical_difference": "Keep user-confirmed wheel reduction15.62 and its matching v2 contract; historical009 used15.8. Leg mechanics, gains, caps, spring, material and rates are retained."
+}
