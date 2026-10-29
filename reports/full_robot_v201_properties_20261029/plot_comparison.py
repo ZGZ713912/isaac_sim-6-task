@@ -54,7 +54,7 @@ ax.set_title('Base inertias, expressed in the same physical axes')
 ax.legend(frameon=False, fontsize=9)
 
 ax = axes[1, 1]
-full_path = ROOT / 'model/wheel_leg_v2.0.1/轮腿urdf.SLDASM/urdf/轮腿urdf.SLDASM.urdf'
+full_path = ROOT / 'model/wheel_leg_v2.0.1/轮腿整车URDFv2.0.1/urdf/轮腿整车URDFv2.0.1.urdf'
 link = ET.parse(full_path).getroot().find("link[@name='base_link']")
 path = full_path.parent.parent / link.find('visual/geometry/mesh').get('filename').split('/', 3)[3]
 mesh = trimesh.load_mesh(path, process=True)

@@ -1,5 +1,7 @@
 # 全车 v2.0.1 与纯底盘的质量、惯量和碰撞对比
 
+后续更新：本报告及 comparison.json 记录质心修正前的 `93be05a2…` 快照。用户随后要求沿用旧数据，左气弹簧下半件已采用旧原始 CAD 的 70.864 mm，并与右侧镜像一致；质量、质心惯量、碰撞和关节均保留。修正依据、最终 SHA、备份及回执见 [气弹簧质心修正报告](/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_robot_v201_spring_com_20261029/REVIEW.md)。
+
 日期：2026-10-29。比较对象为已统一腿轴的全车 v2.0.1 与 `纯底盘_v7_flat_base107`。本轮按用户后续要求将两轮碰撞改为旧底盘的圆柱方案；其余内容为静态检查，没有启动仿真、训练或实车。
 
 ## 主要结论
@@ -112,7 +114,7 @@ NVIDIA 文档说明了 [碰撞近似、凸包、凸分解和圆柱轮](https://d
 - SW 导出 CSV 的几何列只能记录 mesh 文件，不能表达本次圆柱 primitive，保留其导出来源；当前碰撞定义以最终 URDF 为准，避免用该 CSV 无损重建圆柱的误解。
 - 前一阶段轴向验证仍适用，因为本次所有 joint 元素完全未变；该阶段 18 个腿轴的有限差分及 64 组随机姿态均通过。
 - 当前 URDF SHA-256：`93be05a257f6458cad709406c4081fc449787a91d7424e211a4459d6c641ff9b`。
-- [当前 URDF](/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿urdf.SLDASM/urdf/轮腿urdf.SLDASM.urdf)
+- [当前 URDF](/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.1/轮腿整车URDFv2.0.1/urdf/轮腿整车URDFv2.0.1.urdf)
 - [完整质量/质心/惯量/碰撞数据](/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_robot_v201_properties_20261029/comparison.json)
 - [圆柱修改回执](/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_robot_v201_properties_20261029/wheel_collision_changes.json)
 - [圆柱修改前 URDF 备份](/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_robot_v201_properties_20261029/before_cylinder/轮腿urdf.SLDASM.urdf)
