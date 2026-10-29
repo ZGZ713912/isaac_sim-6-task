@@ -1,0 +1,3120 @@
+{
+  "scope": "Read-only mass, COM and inertia comparison; no closed-loop or inertia modifications",
+  "tensor_rule": "Old tensor rotated into current full link frame; both tensors about each own COM, not about root or joint origin",
+  "joint_origin_rule": "Separate parallel-axis comparison about current full joint origin",
+  "inputs": [
+    {
+      "name": "full",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/urdf/轮腿urdf.SLDASM.urdf",
+      "sha256": "a51bf9f8283edc602e199ad168da65ee04178396e32a66e10476c586cb0e398b"
+    },
+    {
+      "name": "baseline_v7",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/纯底盘_v7_flat_base107/urdf/robot.urdf",
+      "sha256": "04263bea83dc8d016fa4e27c5dfc4ebee531627a13c5f32361b2cd606df31a64"
+    },
+    {
+      "name": "baseline_v6",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/纯底盘_v6_232mm/urdf/robot.urdf",
+      "sha256": "a44c7118ca8721a1c7c5f1503aa27c634a0c87e7112c61880d86b11df9515841"
+    },
+    {
+      "name": "historical_v5",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/纯底盘_v5_232mm/urdf/robot.urdf",
+      "sha256": "e2571b449dfe6ae98c884010c8de3fdff361ae0590dfbcd3f91de65c9d05881b"
+    },
+    {
+      "name": "inertial_provenance",
+      "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/纯底盘_v7_flat_base107/urdf/inertial_sources.json",
+      "sha256": "26aa52a862c63f28bc43ffab059028a8441124c2b5393358d08c2ca73fbb90cf"
+    }
+  ],
+  "summary": {
+    "baseline_v6_v7_inertial_elements_identical": true,
+    "old_leg_mass_kg": 2.266,
+    "full_leg_mass_kg": 2.2640000000000002,
+    "leg_mass_delta_g": -2.0000000000000293,
+    "old_base_mass_kg": 11.62,
+    "full_base_mass_kg": 16.904,
+    "full_gimbal_mass_kg": 2.2738,
+    "full_invalid_links": [
+      "LLL_link2",
+      "LLL_link1",
+      "RRR_link2",
+      "RRR_link1",
+      "LL_link1",
+      "LL_link2",
+      "LL_link3",
+      "LL_link4",
+      "RR_link1",
+      "RR_link2",
+      "RR_link3",
+      "RR_link4"
+    ],
+    "baseline_mesh_prior_links": [
+      "LLL_link2",
+      "LLL_link1",
+      "RRR_link2",
+      "RRR_link1",
+      "LL_link2",
+      "LL_link3",
+      "LL_link4",
+      "RR_link2",
+      "RR_link3",
+      "RR_link4"
+    ],
+    "historical_v5_RR_link2_mass_kg": 0.84,
+    "baseline_v6_v7_RR_link2_mass_kg": 0.084,
+    "full_RR_link2_mass_kg": 0.0836
+  },
+  "links": [
+    {
+      "name": "L_link1",
+      "old_mass_kg": 0.161,
+      "full_mass_kg": 0.161,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        -0.0033671,
+        0.095035,
+        -0.0074867
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000945,
+          -2.2e-05,
+          0.0
+        ],
+        [
+          -2.2e-05,
+          7.8e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.001
+        ]
+      ],
+      "full_com_m": [
+        0.095035,
+        0.0033671,
+        -0.0074867
+      ],
+      "old_com_in_full_link_m": [
+        0.09503500000000313,
+        0.003367099999998543,
+        -0.007486699999961406
+      ],
+      "com_delta_mm": [
+        -3.1363800445660672e-12,
+        1.457167719820518e-12,
+        -3.8594127893532004e-11
+      ],
+      "com_distance_mm": 3.874876675985888e-11,
+      "old_link_to_full_link_rotation": [
+        [
+          8.340940366969994e-16,
+          1.0,
+          -4.1355711750904194e-13
+        ],
+        [
+          -1.0,
+          9.288543217690292e-16,
+          2.0644774272716462e-13
+        ],
+        [
+          2.0642232658956136e-13,
+          4.1342048343094897e-13,
+          1.0
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        4.081179838494543e-17,
+        6.901347018444841e-25,
+        1.4990851751450603e-22
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.00010361,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0009,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.001
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          7.799999999999997e-05,
+          2.199999999999928e-05,
+          -3.8585161098639814e-16
+        ],
+        [
+          2.199999999999928e-05,
+          0.000945,
+          2.0473894735510054e-17
+        ],
+        [
+          -3.8585161098639814e-16,
+          2.0473894735510057e-17,
+          0.001
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.00010361,
+          0.0009,
+          0.001
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          7.744211215553289e-05,
+          0.0009455578878444671,
+          0.001
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -4.1363920675910825e-13,
+        2.0644597142904786e-13,
+        1.0
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.001,
+      "full_axis_parallel_com_inertia_kg_m2": 0.001,
+      "axis_parallel_com_inertia_change_percent": 0.0,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.0024559211625730113,
+      "full_about_joint_origin_inertia_kg_m2": 0.002455921162572917,
+      "joint_origin_inertia_change_percent": -3.83026943495679e-12,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/L_link1.STL",
+        "sha256": "758e14b5f99c365d38952fd78fe477e66157fe76fa427b53527065b84d60c966",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 0.00010721420650352052,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.09561440696318231,
+          0.0033043160712895358,
+          -0.007488343006759556
+        ],
+        "com_tensor_kg_m2": [
+          [
+            7.756334571111498e-05,
+            -2.3059789882143448e-05,
+            3.8625190740156915e-06
+          ],
+          [
+            -2.3059789882143448e-05,
+            0.0009375841848657071,
+            -5.207470129570647e-07
+          ],
+          [
+            3.8625190740156915e-06,
+            -5.207470129570647e-07,
+            0.0010093005778115229
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.0010093005778115194,
+        "validation": {
+          "principal_moments_kg_m2": [
+            7.692961166417811e-05,
+            0.000938196569416297,
+            0.0010093219273078703
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": 0.9300577811519384
+      }
+    },
+    {
+      "name": "L_link2",
+      "old_mass_kg": 0.45,
+      "full_mass_kg": 0.45,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        -8.3417e-05,
+        0.15963,
+        0.011927
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.0049,
+          -8.4e-05,
+          0.0
+        ],
+        [
+          -8.4e-05,
+          0.000167,
+          0.000191
+        ],
+        [
+          0.0,
+          0.000191,
+          0.00496
+        ]
+      ],
+      "full_com_m": [
+        0.15963,
+        0.0001,
+        0.011927
+      ],
+      "old_com_in_full_link_m": [
+        0.15963000000000158,
+        8.341699999482797e-05,
+        0.011927000000063413
+      ],
+      "com_delta_mm": [
+        -1.582067810090848e-12,
+        0.016583000005172037,
+        -6.341281666433218e-11
+      ],
+      "com_distance_mm": 0.016583000005172037,
+      "old_link_to_full_link_rotation": [
+        [
+          9.47985172306624e-16,
+          1.0,
+          1.4693348849148606e-13
+        ],
+        [
+          -1.0,
+          9.420800641108081e-16,
+          -4.382473241911059e-13
+        ],
+        [
+          -4.3813221648871756e-13,
+          -1.4685478573208523e-13,
+          1.0
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -1.7319817174451742e-16,
+        -9.544148565269943e-17,
+        8.681948652895116e-14
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0002,
+          -0.0001,
+          -0.0002
+        ],
+        [
+          -0.0001,
+          0.0049,
+          0.0
+        ],
+        [
+          -0.0002,
+          0.0,
+          0.005
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          0.00016700000000005594,
+          8.399999999991181e-05,
+          0.0001910000000007411
+        ],
+        [
+          8.399999999991181e-05,
+          0.0049,
+          -3.901473190240725e-17
+        ],
+        [
+          0.0001910000000007411,
+          -3.901473190240724e-17,
+          0.0049599999999999445
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.00018956180446911148,
+          0.004901956969720988,
+          0.005008481225809896
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          0.00015791513822778676,
+          0.004901317405018797,
+          0.004967767456753417
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        1.4699179373689475e-13,
+        -4.3830434073854896e-13,
+        1.0
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.00496,
+      "full_axis_parallel_com_inertia_kg_m2": 0.004999999999999941,
+      "axis_parallel_com_inertia_change_percent": 0.8064516129020483,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.016426784736278125,
+      "full_about_joint_origin_inertia_kg_m2": 0.01646678610499969,
+      "joint_origin_inertia_change_percent": 0.24351307552732404,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/L_link2.STL",
+        "sha256": "7f9e4b184af1f188f98a60f0c889865215b0bac252e5290362719fb4592f88fb",
+        "watertight": false,
+        "winding_consistent": true,
+        "volume_m3": 0.00021994335968580925,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only"
+      }
+    },
+    {
+      "name": "L_link3",
+      "old_mass_kg": 0.2,
+      "full_mass_kg": 0.2,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.0,
+        0.020472
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000296,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.000296,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000575
+        ]
+      ],
+      "full_com_m": [
+        1.1102e-16,
+        1.3878e-17,
+        0.02035
+      ],
+      "old_com_in_full_link_m": [
+        1.540156834397791e-14,
+        9.080770622057369e-15,
+        0.02047200000005093
+      ],
+      "com_delta_mm": [
+        -1.529054834397791e-11,
+        -9.066892622057369e-12,
+        -0.12200000005092859
+      ],
+      "com_distance_mm": 0.12200000005092859,
+      "old_link_to_full_link_rotation": [
+        [
+          -3.6732050980842953e-06,
+          0.9999999999932538,
+          4.382470247036917e-13
+        ],
+        [
+          -0.9999999999932538,
+          -3.6732050982199168e-06,
+          1.4693326342569351e-13
+        ],
+        [
+          1.4685640496031025e-13,
+          -4.381319574955714e-13,
+          0.9999999999999999
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        6.429775254243934e-15,
+        6.0727528532065715e-15,
+        5.093078129080578e-14
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0002,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0002,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0004
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          0.000296,
+          -4.0143791491451744e-20,
+          1.223048201144346e-16
+        ],
+        [
+          -4.0144038562330185e-20,
+          0.000296,
+          4.1017606968983013e-17
+        ],
+        [
+          1.2230482011443458e-16,
+          4.1017606968983e-17,
+          0.0005749999999999998
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0002,
+          0.0002,
+          0.0004
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          0.00029599999999999993,
+          0.000296,
+          0.0005749999999999998
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        4.3830434073854896e-13,
+        1.4699179373689475e-13,
+        1.0
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.0005749999999999998,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0004,
+      "axis_parallel_com_inertia_change_percent": -30.43478260869562,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.0005749999999999998,
+      "full_about_joint_origin_inertia_kg_m2": 0.0004,
+      "joint_origin_inertia_change_percent": -30.43478260869562,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/L_link3.STL",
+        "sha256": "ebae32b94f438a9832a70d28e1ff33b6015c06d1ec5462a32c7b8c6f54efb69c",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 2.5972453499458484e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          1.0920306509223844e-05,
+          -6.879109445719711e-06,
+          0.020350000459172644
+        ],
+        "com_tensor_kg_m2": [
+          [
+            0.00022965465333455175,
+            -4.958593512107844e-07,
+            3.2567046087516486e-09
+          ],
+          [
+            -4.958593512107844e-07,
+            0.00022982067753622303,
+            2.107270732073523e-09
+          ],
+          [
+            3.2567046087516486e-09,
+            2.107270732073523e-09,
+            0.0004461273985424094
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.0004461273985424094,
+        "validation": {
+          "principal_moments_kg_m2": [
+            0.00022923490547906045,
+            0.00023024042532233496,
+            0.0004461273986117888
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -22.412626340450505
+      }
+    },
+    {
+      "name": "LLL_link2",
+      "old_mass_kg": 0.057,
+      "full_mass_kg": 0.057,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.070864,
+        -0.0035025
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          9.7e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          9.7e-05
+        ]
+      ],
+      "full_com_m": [
+        0.070864,
+        -2.2621e-15,
+        -0.0035025
+      ],
+      "old_com_in_full_link_m": [
+        0.05662052057205425,
+        2.269325813982511e-07,
+        -0.0035140562213579214
+      ],
+      "com_delta_mm": [
+        14.243479427945745,
+        -0.0002269325836603511,
+        0.011556221357921382
+      ],
+      "com_distance_mm": 14.243484117731311,
+      "old_link_to_full_link_rotation": [
+        [
+          9.433576269652397e-16,
+          1.0,
+          4.012224131502402e-13
+        ],
+        [
+          -1.0000000000000002,
+          9.929491488600235e-16,
+          -2.2950162207186046e-13
+        ],
+        [
+          -2.294672281535751e-13,
+          -4.0108701544818066e-13,
+          1.0
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -9.000928872532905e-16,
+        3.00330735633712e-16,
+        8.157565065757089e-14
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.00011633,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.00011638
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          1.5991564534501194e-06,
+          -6.555950488168431e-10,
+          1.3480209184032633e-07
+        ],
+        [
+          -6.555950488168431e-10,
+          9.980126855001223e-05,
+          6.586047044030912e-11
+        ],
+        [
+          1.3480209184032633e-07,
+          6.586047044030912e-11,
+          9.998907440421076e-05
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.00011633,
+          0.00011638
+        ],
+        "positive_definite": false,
+        "triangle_valid": false
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          1.5989717597236012e-06,
+          9.980126853194176e-05,
+          9.998925911600777e-05
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        4.01304369509331e-13,
+        -2.2950478323346957e-13,
+        1.0
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 9.998907440421087e-05,
+      "full_axis_parallel_com_inertia_kg_m2": 0.00011638,
+      "axis_parallel_com_inertia_change_percent": 16.392716597743462,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.00028272442534862924,
+      "full_about_joint_origin_inertia_kg_m2": 0.00040261727027201134,
+      "joint_origin_inertia_change_percent": 42.40625647237288,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/LLL_link2.STL",
+        "sha256": "8042d20920f99c45603c60bb5660ee2d4852f5043560302e877a992acf8d6134",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 1.5553847896511376e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.05662052069710041,
+          -3.725205505687294e-07,
+          -0.0035133908688893315
+        ],
+        "com_tensor_kg_m2": [
+          [
+            1.5991575021606615e-06,
+            1.0761020166277339e-09,
+            1.328800864913504e-07
+          ],
+          [
+            1.0761020166277339e-09,
+            9.980120544689603e-05,
+            7.29857427631829e-11
+          ],
+          [
+            1.328800864913504e-07,
+            7.29857427631829e-11,
+            9.998913776341788e-05
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 9.998913776341799e-05,
+        "validation": {
+          "principal_moments_kg_m2": [
+            1.5989780301745104e-06,
+            9.980120542922897e-05,
+            9.998931725307098e-05
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": 6.336613025403892e-05
+      }
+    },
+    {
+      "name": "LLL_link1",
+      "old_mass_kg": 0.035,
+      "full_mass_kg": 0.035,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.049165,
+        -0.0035738
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          3e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          3e-05
+        ]
+      ],
+      "full_com_m": [
+        0.049165,
+        0.0,
+        -0.0035738
+      ],
+      "old_com_in_full_link_m": [
+        0.028355459175069365,
+        1.4062210359199345e-07,
+        -0.0038034952940048123
+      ],
+      "com_delta_mm": [
+        20.809540824930636,
+        -0.00014062210359199346,
+        0.2296952940048125
+      ],
+      "com_distance_mm": 20.810808472818096,
+      "old_link_to_full_link_rotation": [
+        [
+          1.0197374668364875e-15,
+          1.0000000000000002,
+          -4.0122838135674287e-13
+        ],
+        [
+          -1.0000000000000002,
+          1.105791675959932e-15,
+          2.294906591300104e-13
+        ],
+        [
+          2.294574737538242e-13,
+          4.010929067243898e-13,
+          1.0
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        8.691247265671565e-16,
+        -4.527227851573952e-16,
+        1.6488844644078897e-14
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          7.999318534565271e-07,
+          1.3953592900655873e-10,
+          -2.098585161264915e-07
+        ],
+        [
+          1.3953592900655873e-10,
+          2.8926667592040253e-05,
+          -2.974624836754349e-12
+        ],
+        [
+          -2.098585161264915e-07,
+          -2.974624836754349e-12,
+          2.94430640932217e-05
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "positive_definite": false,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          7.983943731140176e-07,
+          2.892666759270135e-05,
+          2.9444601572903103e-05
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -4.0131038683138836e-13,
+        2.2949437489261376e-13,
+        1.0
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 2.944306409322187e-05,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0,
+      "axis_parallel_com_inertia_change_percent": -100.0,
+      "old_about_full_joint_origin_inertia_kg_m2": 5.758418636992684e-05,
+      "full_about_joint_origin_inertia_kg_m2": 8.460190287499509e-05,
+      "joint_origin_inertia_change_percent": 46.918638967135195,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/LLL_link1.STL",
+        "sha256": "e336b473ccc58fa855d99eead4588f8c5e46867cbc5f1f8782e4cf8f1f7d6035",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 5.118452990734662e-06,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.028355459175063883,
+          1.4062210488712504e-07,
+          -0.0038034952940320583
+        ],
+        "com_tensor_kg_m2": [
+          [
+            7.999318534564837e-07,
+            1.395359290840813e-10,
+            -2.0985851611455548e-07
+          ],
+          [
+            1.395359290840813e-10,
+            2.892666759203805e-05,
+            -2.974624956170517e-12
+          ],
+          [
+            -2.0985851611455548e-07,
+            -2.974624956170517e-12,
+            2.944306409321969e-05
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 2.944306409321986e-05,
+        "validation": {
+          "principal_moments_kg_m2": [
+            7.98394373114149e-07,
+            2.892666759269916e-05,
+            2.9444601572900927e-05
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -6.827871601444713e-12
+      }
+    },
+    {
+      "name": "R_link1",
+      "old_mass_kg": 0.161,
+      "full_mass_kg": 0.161,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        -0.0033671,
+        0.095035,
+        0.0074867
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000945,
+          -2.2e-05,
+          0.0
+        ],
+        [
+          -2.2e-05,
+          7.8e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.001
+        ]
+      ],
+      "full_com_m": [
+        0.095035,
+        0.0033671,
+        0.0074867
+      ],
+      "old_com_in_full_link_m": [
+        0.09503502755618717,
+        0.003366711704760517,
+        0.007484623918881684
+      ],
+      "com_delta_mm": [
+        -2.7556187179311742e-05,
+        0.00038829523948307257,
+        0.002076081118315351
+      ],
+      "com_distance_mm": 0.002112260719296412,
+      "old_link_to_full_link_rotation": [
+        [
+          -1.6910175271721575e-08,
+          0.9999999999932538,
+          3.6731657615532582e-06
+        ],
+        [
+          -0.9999999987514685,
+          -1.6726624831553143e-08,
+          -4.997061875322687e-05
+        ],
+        [
+          -4.997061869144978e-05,
+          -3.67316660206091e-06,
+          0.9999999987447227
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -4.0582704523429786e-17,
+        -1.2586389342158197e-08,
+        -1.8952484025996742e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.00010361,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0009,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.001
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          7.800000075648774e-05,
+          2.2000014464272393e-05,
+          4.486013170357837e-09
+        ],
+        [
+          2.2000014464272393e-05,
+          0.0009449999994013668,
+          -2.8291937647789186e-09
+        ],
+        [
+          4.486013170357836e-09,
+          -2.829193764778918e-09,
+          0.0009999999998421458
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.00010361,
+          0.0009,
+          0.001
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          7.74421121555329e-05,
+          0.0009455578878444671,
+          0.0010000000000000002
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -3.673165761471169e-06,
+        4.997061875322735e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.0010000000000000005,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0009999999997381997,
+      "axis_parallel_com_inertia_change_percent": -2.6180080325843846e-08,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.002455921149037151,
+      "full_about_joint_origin_inertia_kg_m2": 0.002455920726414877,
+      "joint_origin_inertia_change_percent": -1.7208299796234172e-05,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/R_link1.STL",
+        "sha256": "ddf546e1668429dc3e3089f560851958e0109a2d698727508650e05b991e5e15",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 0.00010715585270431547,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.09563151821478248,
+          0.0033142219977605673,
+          0.007486751268958155
+        ],
+        "com_tensor_kg_m2": [
+          [
+            7.755226412383866e-05,
+            -2.2974344111480183e-05,
+            -3.877275276928942e-06
+          ],
+          [
+            -2.2974344111480183e-05,
+            0.0009370472080563475,
+            5.189282989947911e-07
+          ],
+          [
+            -3.877275276928942e-06,
+            5.189282989947911e-07,
+            0.0010087523818244203
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.0010087523012951522,
+        "validation": {
+          "principal_moments_kg_m2": [
+            7.692259037119124e-05,
+            0.0009376554302318331,
+            0.001008773833401582
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": 0.8752301295151588
+      }
+    },
+    {
+      "name": "R_link2",
+      "old_mass_kg": 0.45,
+      "full_mass_kg": 0.45,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        -8.3412e-05,
+        0.15963,
+        -0.011927
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.0049,
+          -8.4e-05,
+          0.0
+        ],
+        [
+          -8.4e-05,
+          0.000167,
+          -0.000191
+        ],
+        [
+          0.0,
+          -0.000191,
+          0.00496
+        ]
+      ],
+      "full_com_m": [
+        0.15963,
+        8.3883e-05,
+        -0.011927
+      ],
+      "old_com_in_full_link_m": [
+        0.1596296189391127,
+        8.7449524724852e-05,
+        -0.011934888914273084
+      ],
+      "com_delta_mm": [
+        0.00038106088728895315,
+        -0.0035665247248520015,
+        0.007888914273083622
+      ],
+      "com_distance_mm": 0.008666041450446945,
+      "old_link_to_full_link_rotation": [
+        [
+          2.805978379410724e-05,
+          0.9999999990718684,
+          3.269422289290589e-05
+        ],
+        [
+          -0.9999999988855379,
+          2.8058542422875575e-05,
+          3.7968969892812066e-05
+        ],
+        [
+          3.796805250538935e-05,
+          -3.269528825749662e-05,
+          0.9999999987447227
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        1.1371789522142655e-08,
+        1.1395594759467787e-08,
+        -2.666613389036135e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0002,
+          -0.0001,
+          0.0002
+        ],
+        [
+          -0.0001,
+          0.0049,
+          0.0
+        ],
+        [
+          0.0002,
+          0.0,
+          0.005
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          0.00016698280561302427,
+          8.385994650714802e-05,
+          -0.0001908464801655935
+        ],
+        [
+          8.385994650714802e-05,
+          0.004900004709788452,
+          -5.82295802549461e-09
+        ],
+        [
+          -0.0001908464801655935,
+          -5.822958025494569e-09,
+          0.004960012484598526
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.00018956180446911148,
+          0.004901956969720988,
+          0.005008481225809896
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          0.00015791513822778686,
+          0.0049013174050188,
+          0.004967767456753416
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -3.269422289296428e-05,
+        -3.796896989275442e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.004960000000000002,
+      "full_axis_parallel_com_inertia_kg_m2": 0.005000013072165925,
+      "axis_parallel_com_inertia_change_percent": 0.8067151646355519,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.016426786383088494,
+      "full_about_joint_origin_inertia_kg_m2": 0.016466853887687937,
+      "joint_origin_inertia_change_percent": 0.2439156610735127,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/R_link2.STL",
+        "sha256": "b223cf55308bed7dbc724e94c9b7adb895cf526282d0c956e43f9daf73a4954b",
+        "watertight": false,
+        "winding_consistent": true,
+        "volume_m3": 0.00021999992123154135,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only"
+      }
+    },
+    {
+      "name": "R_link3",
+      "old_mass_kg": 0.2,
+      "full_mass_kg": 0.2,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.0,
+        -0.020472
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000296,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.000296,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000575
+        ]
+      ],
+      "full_com_m": [
+        1.3878e-17,
+        1.3878e-17,
+        -0.02035
+      ],
+      "old_com_in_full_link_m": [
+        1.1485897138759714e-06,
+        -5.6791959004467545e-06,
+        -0.020482840390925593
+      ],
+      "com_delta_mm": [
+        -0.0011485897138620933,
+        0.005679195900460632,
+        0.13284039092559263
+      ],
+      "com_distance_mm": 0.1329666950242461,
+      "old_link_to_full_link_rotation": [
+        [
+          2.0713374003907942e-05,
+          0.999999999251022,
+          -3.269422289290604e-05
+        ],
+        [
+          -0.9999999990646824,
+          2.0712132633999782e-05,
+          -3.796896989281156e-05
+        ],
+        [
+          -3.796829269735084e-05,
+          3.269500932774172e-05,
+          0.9999999987447226
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        4.792735828123989e-07,
+        -6.456496652092393e-06,
+        -1.0840416623632567e-05
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0002,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0002,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0004
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          0.0002960000002982265,
+          3.463410796343544e-13,
+          -9.12168817568793e-09
+        ],
+        [
+          3.463410796340177e-13,
+          0.0002960000004022183,
+          -1.0593342586779636e-08
+        ],
+        [
+          -9.121688175687931e-09,
+          -1.0593342586779636e-08,
+          0.0005749999992995552
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0002,
+          0.0002,
+          0.0004
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          0.000296,
+          0.00029600000000000004,
+          0.0005750000000000002
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        3.269422289296515e-05,
+        3.796896989275442e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.000575,
+      "full_axis_parallel_com_inertia_kg_m2": 0.00039999999949788913,
+      "axis_parallel_com_inertia_change_percent": -30.43478269601928,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.0005750000083842056,
+      "full_about_joint_origin_inertia_kg_m2": 0.0003999999997058246,
+      "joint_origin_inertia_change_percent": -30.434783674202816,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/R_link3.STL",
+        "sha256": "149deb79d32c2739ccc6a1fb589ee389fb59bc47ac580c1a634c527f062e9391",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 2.597245336045675e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          1.2114204854022767e-05,
+          4.450778182743707e-06,
+          -0.020350000442340085
+        ],
+        "com_tensor_kg_m2": [
+          [
+            0.00022986401822196878,
+            4.866308122651823e-07,
+            -2.7458845767814727e-09
+          ],
+          [
+            4.866308122651823e-07,
+            0.00022961131121993308,
+            2.7400149755413226e-09
+          ],
+          [
+            -2.7458845767814727e-09,
+            2.7400149755413226e-09,
+            0.00044612739682385014
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.000446127396253231,
+        "validation": {
+          "principal_moments_kg_m2": [
+            0.00022923489755487014,
+            0.00023024043181764852,
+            0.00044612739689323333
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -22.41262673856852
+      }
+    },
+    {
+      "name": "RRR_link2",
+      "old_mass_kg": 0.057,
+      "full_mass_kg": 0.057,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.070864,
+        0.0035025
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          9.7e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          9.7e-05
+        ]
+      ],
+      "full_com_m": [
+        0.070864,
+        3.4521e-16,
+        0.0035025
+      ],
+      "old_com_in_full_link_m": [
+        0.05661923293777079,
+        2.281706640762316e-06,
+        0.003508791459820024
+      ],
+      "com_delta_mm": [
+        14.244767062229206,
+        -0.002281706640417106,
+        -0.0062914598200239195
+      ],
+      "com_distance_mm": 14.24476863433808,
+      "old_link_to_full_link_rotation": [
+        [
+          2.5656815860701812e-05,
+          0.9999999996705088,
+          -8.4311280854877e-07
+        ],
+        [
+          -0.999999998415941,
+          2.5656858067042075e-05,
+          5.0098343745918984e-05
+        ],
+        [
+          5.0098365361042256e-05,
+          8.418274433149103e-07,
+          0.9999999987447227
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -1.284416315784828e-06,
+        8.799578815473959e-07,
+        -4.515872821367587e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.00011633,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.00011638
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          1.5991579440376711e-06,
+          -1.870570057956569e-09,
+          -1.3258402276355707e-07
+        ],
+        [
+          -1.8705700579565685e-09,
+          9.980126960256388e-05,
+          -6.021085885844664e-11
+        ],
+        [
+          -1.325840227635571e-07,
+          -6.021085885844716e-11,
+          9.998907405239245e-05
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.00011633,
+          0.00011638
+        ],
+        "positive_definite": false,
+        "triangle_valid": false
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          1.5989792468918352e-06,
+          9.98012696204933e-05,
+          9.998925273160898e-05
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        8.431128084668239e-07,
+        -5.009834374591557e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 9.998907426938497e-05,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0001163799999997918,
+      "axis_parallel_com_inertia_change_percent": 16.392716754479906,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.00028271613330902075,
+      "full_about_joint_origin_inertia_kg_m2": 0.0004026172941291636,
+      "joint_origin_inertia_change_percent": 42.410441674046886,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/RRR_link2.STL",
+        "sha256": "d2426b07c710cbc6a54d3912a2b053187e1f9df24510f93feb9fe775c34684a1",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 1.5553847761391864e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.056620520497088406,
+          3.7251910802409634e-07,
+          0.003513925043336204
+        ],
+        "com_tensor_kg_m2": [
+          [
+            1.599156666730823e-06,
+            -1.0760980583272237e-09,
+            -1.3442320966992863e-07
+          ],
+          [
+            -1.0760980583272237e-09,
+            9.980120454318839e-05,
+            -7.240539711612244e-11
+          ],
+          [
+            -1.3442320966992863e-07,
+            -7.240539711612244e-11,
+            9.998913770466835e-05
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 9.998913792353992e-05,
+        "validation": {
+          "principal_moments_kg_m2": [
+            1.598973002441114e-06,
+            9.980120452823414e-05,
+            9.99893213839123e-05
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": 6.366111038325073e-05
+      }
+    },
+    {
+      "name": "RRR_link1",
+      "old_mass_kg": 0.035,
+      "full_mass_kg": 0.035,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.049165,
+        0.0035738
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          3e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          3e-05
+        ]
+      ],
+      "full_com_m": [
+        0.049165,
+        -2.6715e-16,
+        0.0035738
+      ],
+      "old_com_in_full_link_m": [
+        0.028354980099569917,
+        -8.182942825475228e-07,
+        0.0037990923337798874
+      ],
+      "com_delta_mm": [
+        20.810019900430085,
+        0.0008182942822803728,
+        -0.2252923337798876
+      ],
+      "com_distance_mm": 20.811239404743812,
+      "old_link_to_full_link_rotation": [
+        [
+          3.2260713349669327e-09,
+          0.9999999999996451,
+          8.431128085486682e-07
+        ],
+        [
+          -0.9999999987450783,
+          3.268309921851089e-09,
+          -5.0098343745918984e-05
+        ],
+        [
+          -5.009834374866018e-05,
+          -8.431126459520137e-07,
+          0.9999999987447227
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -4.823349253299184e-07,
+        -4.872166135411037e-07,
+        -4.379038852626258e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          7.999322064372459e-07,
+          -1.501419706937316e-10,
+          2.0988266061626773e-07
+        ],
+        [
+          -1.501419706937316e-10,
+          2.8926667624301736e-05,
+          -2.8844789545236336e-11
+        ],
+        [
+          2.098826606162677e-07,
+          -2.8844789545236123e-11,
+          2.9443063768223963e-05
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "positive_definite": false,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          7.983943721718132e-07,
+          2.892666762336964e-05,
+          2.9444601603421463e-05
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -8.431128084667155e-07,
+        5.009834374591557e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 2.9443064123707218e-05,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0,
+      "axis_parallel_com_inertia_change_percent": -100.0,
+      "old_about_full_joint_origin_inertia_kg_m2": 5.7583229155538736e-05,
+      "full_about_joint_origin_inertia_kg_m2": 8.46018925062709e-05,
+      "joint_origin_inertia_change_percent": 46.921063210525645,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/RRR_link1.STL",
+        "sha256": "091fd869894ef8dd412350d4e0e890bc4ded89add61ec967b4008a3da3dce1ed",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 5.118453000620577e-06,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.028355459227731784,
+          -1.4062152907202706e-07,
+          0.0038034952912986233
+        ],
+        "com_tensor_kg_m2": [
+          [
+            7.999318525470722e-07,
+            -1.3953645546401107e-10,
+            2.0985851848370446e-07
+          ],
+          [
+            -1.3953645546401107e-10,
+            2.892666762271032e-05,
+            -2.9749926457202995e-12
+          ],
+          [
+            2.0985851848370446e-07,
+            -2.9749926457202995e-12,
+            2.9443064123708983e-05
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 2.9443064476559456e-05,
+        "validation": {
+          "principal_moments_kg_m2": [
+            7.983943721717053e-07,
+            2.8926667623371426e-05,
+            2.9444601603423272e-05
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": 1.1984222725303084e-06
+      }
+    },
+    {
+      "name": "LL_link1",
+      "old_mass_kg": 0.041,
+      "full_mass_kg": 0.0408,
+      "mass_delta_g": -0.1999999999999988,
+      "mass_change_percent": -0.4878048780487809,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.051943,
+        -0.0053948
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          9.4e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.4e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000107
+        ]
+      ],
+      "full_com_m": [
+        0.051943,
+        -1.6653e-16,
+        -0.0053948
+      ],
+      "old_com_in_full_link_m": [
+        0.051942802338559343,
+        -1.1564674391066442e-07,
+        -0.005394652730535156
+      ],
+      "com_delta_mm": [
+        0.00019766144065958002,
+        0.00011564674374413442,
+        -0.00014726946484435594
+      ],
+      "com_distance_mm": 0.0002722728589811793,
+      "old_link_to_full_link_rotation": [
+        [
+          -1.46661372865719e-06,
+          0.9999999993477691,
+          3.6087541936810134e-05
+        ],
+        [
+          -0.9999999999814815,
+          -1.4668268757807146e-06,
+          5.906366348779391e-06
+        ],
+        [
+          5.906419279066625e-06,
+          -3.6087533273740964e-05,
+          0.9999999993314019
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -2.9424905891035486e-09,
+        -7.591690323591702e-09,
+        2.02176059872929e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.00012422,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.00014195
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          1.4000000121286966e-05,
+          1.173489208917205e-10,
+          3.3561407048851858e-09
+        ],
+        [
+          1.173489208917205e-10,
+          9.400000000028136e-05,
+          7.677852775316395e-11
+        ],
+        [
+          3.3561407048851854e-09,
+          7.677852775316389e-11,
+          0.00010699999987843162
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.00012422,
+          0.00014195
+        ],
+        "positive_definite": false,
+        "triangle_valid": false
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          1.3999999999999996e-05,
+          9.399999999999998e-05,
+          0.00010699999999999996
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        1.4634324762100373e-05,
+        4.7920678452434765e-05,
+        0.9999999987447226
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.00010699999993424974,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0001419499999288845,
+      "axis_parallel_com_inertia_change_percent": 32.663551416926296,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.000217620579477896,
+      "full_about_joint_origin_inertia_kg_m2": 0.00025203180469776074,
+      "joint_origin_inertia_change_percent": 15.812486715375162,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/LL_link1.STL",
+        "sha256": "64ba42e14a01a3a403ba92564222b281f348bde258ee9401f59da7225a9423d1",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 2.6963668316101427e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.052062489298998704,
+          4.947364999077226e-06,
+          -0.005396051720818112
+        ],
+        "com_tensor_kg_m2": [
+          [
+            1.4013085803906628e-05,
+            1.0510135328517734e-08,
+            -9.23711088456567e-07
+          ],
+          [
+            1.0510135328517734e-08,
+            9.296164906095221e-05,
+            2.8454859941782965e-10
+          ],
+          [
+            -9.23711088456567e-07,
+            2.8454859941782965e-10,
+            0.00010631062396495061
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.00010631059690603957,
+        "validation": {
+          "principal_moments_kg_m2": [
+            1.4003840856195253e-05,
+            9.296165045817406e-05,
+            0.00010631986751544005
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -0.6443018959194302
+      }
+    },
+    {
+      "name": "LL_link2",
+      "old_mass_kg": 0.084,
+      "full_mass_kg": 0.0836,
+      "mass_delta_g": -0.40000000000001146,
+      "mass_change_percent": -0.4761904761904856,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0031995,
+        0.0675,
+        -0.014
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000157,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000157
+        ]
+      ],
+      "full_com_m": [
+        0.0675,
+        -0.0031995,
+        -0.014
+      ],
+      "old_com_in_full_link_m": [
+        0.06750008072296944,
+        -0.003197612299650795,
+        -0.014000722138429796
+      ],
+      "com_delta_mm": [
+        -8.072296943384405e-05,
+        -0.0018877003492051743,
+        0.0007221384297952799
+      ],
+      "com_distance_mm": 0.0020227240834999583,
+      "old_link_to_full_link_rotation": [
+        [
+          -2.9542384724289833e-05,
+          0.9999999993351794,
+          -2.1374961100726862e-05
+        ],
+        [
+          -0.9999999991234516,
+          -2.9543018912461188e-05,
+          -2.9669966033506322e-05
+        ],
+        [
+          -2.9670597494605793e-05,
+          2.1374084560434666e-05,
+          0.9999999993314019
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -1.2071211548986882e-07,
+        1.2525685483272955e-07,
+        -2.0705656745073417e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0002,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0002
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          3.0771155210952866e-06,
+          4.55709240561843e-09,
+          -3.34662189950929e-09
+        ],
+        [
+          4.5570924056184295e-09,
+          0.00015746971675171525,
+          -6.461621728912657e-11
+        ],
+        [
+          -3.34662189950929e-09,
+          -6.461621728912669e-11,
+          0.00015965083224940915
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0002,
+          0.0002
+        ],
+        "positive_definite": false,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          3.0771153150560138e-06,
+          0.0001574697168843034,
+          0.00015965083232286024
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        2.3486849327296723e-05,
+        -4.425971976031e-05,
+        0.9999999987447226
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.00015965083200727252,
+      "full_axis_parallel_com_inertia_kg_m2": 0.00019999999988967358,
+      "axis_parallel_com_inertia_change_percent": 25.273384031323467,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.000543239685902273,
+      "full_about_joint_origin_inertia_kg_m2": 0.0005817623386768005,
+      "joint_origin_inertia_change_percent": 7.091281026448715,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/LL_link2.STL",
+        "sha256": "f52b5f7154b792b8186617f8347b36191f970360cd33b3ed0e5a237758493242",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 1.8949425007079685e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.06749999665266804,
+          -0.0031961587851391735,
+          -0.0139999995008111
+        ],
+        "com_tensor_kg_m2": [
+          [
+            3.0624623849844274e-06,
+            -4.1128440299097414e-12,
+            -0.0
+          ],
+          [
+            -4.1128440299097414e-12,
+            0.00015671986108961624,
+            9.123271442747888e-22
+          ],
+          [
+            -0.0,
+            9.123271442747888e-22,
+            0.00015889059026418
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.0001588905901739679,
+        "validation": {
+          "principal_moments_kg_m2": [
+            3.0624623849843173e-06,
+            0.00015671986108961635,
+            0.00015889059026418
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -0.4761903359639108
+      }
+    },
+    {
+      "name": "LL_link3",
+      "old_mass_kg": 0.041,
+      "full_mass_kg": 0.0406,
+      "mass_delta_g": -0.4000000000000045,
+      "mass_change_percent": -0.9756097560975729,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0046889,
+        0.098135,
+        -0.0072398
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000172,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000174
+        ]
+      ],
+      "full_com_m": [
+        0.098135,
+        -0.0046868,
+        -0.0072399
+      ],
+      "old_com_in_full_link_m": [
+        0.09814404668300775,
+        -0.004712856834933455,
+        -0.007233662725529187
+      ],
+      "com_delta_mm": [
+        -0.009046683007746248,
+        0.026056834933455703,
+        -0.00623727447081248
+      ],
+      "com_distance_mm": 0.028279050779972288,
+      "old_link_to_full_link_rotation": [
+        [
+          -5.414778475656657e-05,
+          0.9999999979388164,
+          -3.450194473382567e-05
+        ],
+        [
+          -0.9999999984606254,
+          -5.414736673898025e-05,
+          1.2116585990743636e-05
+        ],
+        [
+          1.2114717776325545e-05,
+          3.450260076694917e-05,
+          0.9999999993314019
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -3.7396564628075877e-06,
+        -9.760754731302406e-07,
+        8.149357411425462e-07
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0002274,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.00023059
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          2.8504661073307825e-06,
+          -8.830742996764926e-07,
+          1.510968364510837e-08
+        ],
+        [
+          -8.830742996764925e-07,
+          0.00017220784390205304,
+          1.343372712947575e-09
+        ],
+        [
+          1.5109683645108372e-08,
+          1.3433727129475751e-09,
+          0.00017462594723038268
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0002274,
+          0.00023059
+        ],
+        "positive_definite": false,
+        "triangle_valid": false
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          2.845860318594905e-06,
+          0.000172212447697971,
+          0.00017462594922320042
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -3.581582468901697e-05,
+        -3.503971441707124e-05,
+        0.9999999987447226
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.00017462594582837393,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0002305899997002887,
+      "axis_parallel_com_inertia_change_percent": 32.04796034543311,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.0005704570199760054,
+      "full_about_joint_origin_inertia_kg_m2": 0.0006224772688831094,
+      "joint_origin_inertia_change_percent": 9.119047901153387,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/LL_link3.STL",
+        "sha256": "9127fdd24cadcd30b575cf40fbee9eadd5500c8a1af7f9aa9d799b93cb683960",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 2.7012258263110243e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.09814779166481104,
+          -0.0047064786233428175,
+          -0.007237921037841804
+        ],
+        "com_tensor_kg_m2": [
+          [
+            2.8227531078532346e-06,
+            -8.835399314986855e-07,
+            2.082037226120892e-08
+          ],
+          [
+            -8.835399314986855e-07,
+            0.0001705276721525422,
+            1.3325512443275878e-09
+          ],
+          [
+            2.082037226120892e-08,
+            1.3325512443275878e-09,
+            0.00017292227825020252
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.00017292227644206365,
+        "validation": {
+          "principal_moments_kg_m2": [
+            2.818095827681785e-06,
+            0.00017053232625701523,
+            0.0001729222814259009
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -0.9756106850150936
+      }
+    },
+    {
+      "name": "LL_link4",
+      "old_mass_kg": 0.064,
+      "full_mass_kg": 0.064,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        -0.0014867,
+        0.048484,
+        -0.015201
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          6.3e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.4e-05
+        ]
+      ],
+      "full_com_m": [
+        0.048484,
+        0.0014817,
+        -0.0152
+      ],
+      "old_com_in_full_link_m": [
+        0.04849081530331033,
+        0.0014633591758201798,
+        -0.015190711985647247
+      ],
+      "com_delta_mm": [
+        -0.006815303310328535,
+        0.018340824179820248,
+        -0.009288014352753018
+      ],
+      "com_distance_mm": 0.02165874884253013,
+      "old_link_to_full_link_rotation": [
+        [
+          -5.84581141285663e-05,
+          0.9999999977947608,
+          -3.151391658957928e-05
+        ],
+        [
+          -0.9999999981192556,
+          -5.845869870220698e-05,
+          -1.854909452431741e-05
+        ],
+        [
+          -1.855093674591825e-05,
+          3.1512832185198274e-05,
+          0.9999999993314018
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        7.313465678948607e-06,
+        -9.680952008426072e-06,
+        7.733052220924557e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0001,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0001
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          1.965939192443913e-06,
+          1.0333406413437238e-07,
+          -1.9625411061104366e-09
+        ],
+        [
+          1.0333406413437238e-07,
+          6.301886856499766e-05,
+          -2.0547077015007575e-11
+        ],
+        [
+          -1.962541106110436e-09,
+          -2.0547077015007714e-11,
+          6.430214074252234e-05
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0001,
+          0.0001
+        ],
+        "positive_definite": false,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          1.9657642349037142e-06,
+          6.301904346030941e-05,
+          6.430214080475082e-05
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        3.6731657597358152e-06,
+        -4.997061874627632e-05,
+        0.9999999987447226
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 6.430214072607498e-05,
+      "full_axis_parallel_com_inertia_kg_m2": 9.999999999865078e-05,
+      "axis_parallel_com_inertia_change_percent": 55.51581777758771,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.00021492638259271982,
+      "full_about_joint_origin_inertia_kg_m2": 0.00025058539868841827,
+      "joint_origin_inertia_change_percent": 16.59126984111179,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/LL_link4.STL",
+        "sha256": "a9e94cc1804e7adc26526f2f43fa48d27d5e4a4eb8957d917faf195fdb261c01",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 1.1608177758860802e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.04848293667265671,
+          0.0014755924337494393,
+          -0.015200000256299974
+        ],
+        "com_tensor_kg_m2": [
+          [
+            1.9659272577506865e-06,
+            9.976498794587079e-08,
+            -0.0
+          ],
+          [
+            9.976498794587079e-08,
+            6.301888043746245e-05,
+            -5.7006750222901835e-22
+          ],
+          [
+            -0.0,
+            -5.7006750222901835e-22,
+            6.430214080475087e-05
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 6.430214080066882e-05,
+        "validation": {
+          "principal_moments_kg_m2": [
+            1.9657642349037146e-06,
+            6.301904346030942e-05,
+            6.430214080475087e-05
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": 1.1600522764609877e-07
+      }
+    },
+    {
+      "name": "RR_link1",
+      "old_mass_kg": 0.041,
+      "full_mass_kg": 0.0408,
+      "mass_delta_g": -0.1999999999999988,
+      "mass_change_percent": -0.4878048780487809,
+      "baseline_method": "source_CAD_preserved",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0,
+        0.051943,
+        0.0046052
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          9.4e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.4e-05,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000107
+        ]
+      ],
+      "full_com_m": [
+        0.051943,
+        1.3184e-16,
+        0.0046052
+      ],
+      "old_com_in_full_link_m": [
+        0.05194316774949539,
+        -4.4881347484269586e-08,
+        0.00460131409277216
+      ],
+      "com_delta_mm": [
+        -0.00016774949538472805,
+        4.488134761610959e-05,
+        0.003885907227840074
+      ],
+      "com_distance_mm": 0.003889785239823068,
+      "old_link_to_full_link_rotation": [
+        [
+          -1.4666137214986972e-06,
+          0.9999999993477692,
+          3.608754193666891e-05
+        ],
+        [
+          -0.9999999999814816,
+          -1.4668268687115472e-06,
+          5.906366358672559e-06
+        ],
+        [
+          5.906419288983041e-06,
+          -3.6087533273655244e-05,
+          0.9999999993314019
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        1.5930260779029753e-09,
+        4.110042202255446e-09,
+        -2.011409407978837e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0001,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.00014195
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          1.400000012128697e-05,
+          1.1734892031782865e-10,
+          3.356140704871277e-09
+        ],
+        [
+          1.1734892031782865e-10,
+          9.400000000028139e-05,
+          7.6778527879586e-11
+        ],
+        [
+          3.3561407048712767e-09,
+          7.677852787958601e-11,
+          0.00010699999987843162
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0001,
+          0.00014195
+        ],
+        "positive_definite": false,
+        "triangle_valid": false
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          1.4e-05,
+          9.399999999999998e-05,
+          0.00010699999999999993
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -1.4634324761958993e-05,
+        -4.7920678462327025e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.00010699999993424976,
+      "full_axis_parallel_com_inertia_kg_m2": 0.0001419499998732659,
+      "axis_parallel_com_inertia_change_percent": 32.66355136494627,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.00021762151281188094,
+      "full_about_joint_origin_inertia_kg_m2": 0.0002520311843583377,
+      "joint_origin_inertia_change_percent": 15.811704965125184,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/RR_link1.STL",
+        "sha256": "a531a27b54d2ee6e4f1faa4a565b8f02670c79b71c0c3ce9b2cbcd37286497e2",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 2.6963667610875158e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.052062489484601425,
+          4.947365017914948e-06,
+          0.004603948175120167
+        ],
+        "com_tensor_kg_m2": [
+          [
+            1.4013085789057574e-05,
+            1.0510135405966826e-08,
+            -9.237110751990939e-07
+          ],
+          [
+            1.0510135405966826e-08,
+            9.296164892108976e-05,
+            2.84548593901795e-10
+          ],
+          [
+            -9.237110751990939e-07,
+            2.84548593901795e-10,
+            0.00010631062383752605
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.00010631059677861542,
+        "validation": {
+          "principal_moments_kg_m2": [
+            1.4003840841600213e-05,
+            9.29616503183117e-05,
+            0.00010631986738776155
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -0.6443020150074474
+      }
+    },
+    {
+      "name": "RR_link2",
+      "old_mass_kg": 0.084,
+      "full_mass_kg": 0.0836,
+      "mass_delta_g": -0.40000000000001146,
+      "mass_change_percent": -0.4761904761904856,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0031995,
+        0.0675,
+        0.014
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000157,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000157
+        ]
+      ],
+      "full_com_m": [
+        0.0675,
+        -0.0031995,
+        0.014
+      ],
+      "old_com_in_full_link_m": [
+        0.06749948727832203,
+        -0.0031984545459044353,
+        0.013995244605787034
+      ],
+      "com_delta_mm": [
+        0.0005127216779754473,
+        -0.001045454095564835,
+        0.004755394212966474
+      ],
+      "com_distance_mm": 0.004895879073845092,
+      "old_link_to_full_link_rotation": [
+        [
+          -2.9542384727329892e-05,
+          0.9999999993351791,
+          -2.137496109363998e-05
+        ],
+        [
+          -0.9999999991234515,
+          -2.954301891546185e-05,
+          -2.9669966040410393e-05
+        ],
+        [
+          -2.9670597501564734e-05,
+          2.1374084553369693e-05,
+          0.9999999993314019
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -1.1565785357427594e-07,
+        1.1376964843949525e-07,
+        -6.103735681212077e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0002,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0002
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          3.0771157297115436e-06,
+          4.557092406085595e-09,
+          -3.346621893911063e-09
+        ],
+        [
+          4.557092406085596e-09,
+          0.0001574697169603318,
+          -6.461621110819645e-11
+        ],
+        [
+          -3.346621893911063e-09,
+          -6.461621110819735e-11,
+          0.00015965083224940937
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0002,
+          0.0002
+        ],
+        "positive_definite": false,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          3.077115523672271e-06,
+          0.00015746971709292002,
+          0.00015965083232286046
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -2.348684933438372e-05,
+        4.42597197672142e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.0001596508320072728,
+      "full_axis_parallel_com_inertia_kg_m2": 0.00019999999988967363,
+      "axis_parallel_com_inertia_change_percent": 25.27338403132329,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.0005432252866011263,
+      "full_about_joint_origin_inertia_kg_m2": 0.0005817542536879576,
+      "joint_origin_inertia_change_percent": 7.092631369924041,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/RR_link2.STL",
+        "sha256": "99d56365d73ffc985e2babb9d728e5e44e05df26f54a8eb87fce963a4779481b",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 1.894942941908681e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.06749999665266804,
+          -0.0031961587851391717,
+          0.014000000432133675
+        ],
+        "com_tensor_kg_m2": [
+          [
+            3.0624625926072825e-06,
+            -4.1128440284324e-12,
+            -1.4597230909713717e-20
+          ],
+          [
+            -4.1128440284324e-12,
+            0.00015671986129723922,
+            -9.123269318571073e-22
+          ],
+          [
+            -1.4597230909713717e-20,
+            -9.123269318571073e-22,
+            0.0001588905902641801
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.00015889059017396806,
+        "validation": {
+          "principal_moments_kg_m2": [
+            3.0624625926071724e-06,
+            0.00015671986129723933,
+            0.0001588905902641801
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -0.4761903359639774
+      }
+    },
+    {
+      "name": "RR_link3",
+      "old_mass_kg": 0.041,
+      "full_mass_kg": 0.0406,
+      "mass_delta_g": -0.4000000000000045,
+      "mass_change_percent": -0.9756097560975729,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        0.0046889,
+        0.098135,
+        0.0071602
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          0.000171,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000174
+        ]
+      ],
+      "full_com_m": [
+        0.098135,
+        -0.0046868,
+        0.0071601
+      ],
+      "old_com_in_full_link_m": [
+        0.09814354027921333,
+        -0.004712690450361104,
+        0.007162303963019027
+      ],
+      "com_delta_mm": [
+        -0.008540279213334334,
+        0.02589045036110408,
+        -0.002203963019026603
+      ],
+      "com_distance_mm": 0.027351585729747767,
+      "old_link_to_full_link_rotation": [
+        [
+          -5.414778474950633e-05,
+          0.9999999979388163,
+          -3.4501944738444736e-05
+        ],
+        [
+          -0.9999999984606252,
+          -5.414736673199549e-05,
+          1.2116585981993686e-05
+        ],
+        [
+          1.2114717767581468e-05,
+          3.4502600771627625e-05,
+          0.9999999993314019
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        -3.7492465397260355e-06,
+        -9.841706511963234e-07,
+        -3.218234266504285e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0002274,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.00023059
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          2.850466144154987e-06,
+          -8.830742954375304e-07,
+          1.5109684103003147e-08
+        ],
+        [
+          -8.830742954375304e-07,
+          0.00017220784406804746,
+          1.3433727421526564e-09
+        ],
+        [
+          1.5109684103003147e-08,
+          1.3433727421526562e-09,
+          0.0001746259473576581
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0002274,
+          0.00023059
+        ],
+        "positive_definite": false,
+        "triangle_valid": false
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          2.8458603554667457e-06,
+          0.00017221244786391784,
+          0.00017462594935047597
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        3.5815824693635236e-05,
+        3.503971442582075e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 0.00017462594595564935,
+      "full_axis_parallel_com_inertia_kg_m2": 0.00023058999970028876,
+      "axis_parallel_com_inertia_change_percent": 32.047960249190524,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.0005704568349050774,
+      "full_about_joint_origin_inertia_kg_m2": 0.0006224811866279154,
+      "joint_origin_inertia_change_percent": 9.11977007541591,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/RR_link3.STL",
+        "sha256": "34266c62897378052e1356cade57785e4f72177f379e74dc19ea4c2a7c8a67ef",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 2.7012260650116662e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.09814779167909304,
+          -0.004706478622428915,
+          0.007162078830340969
+        ],
+        "com_tensor_kg_m2": [
+          [
+            2.8227531443177455e-06,
+            -8.83539927306805e-07,
+            2.0820372718564205e-08
+          ],
+          [
+            -8.83539927306805e-07,
+            0.0001705276723169179,
+            1.332551273618147e-09
+          ],
+          [
+            2.0820372718564205e-08,
+            1.332551273618147e-09,
+            0.0001729222783762363
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 0.0001729222765680975,
+        "validation": {
+          "principal_moments_kg_m2": [
+            2.8180958641939015e-06,
+            0.0001705323264213434,
+            0.00017292228155193478
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": -0.9756106850150048
+      }
+    },
+    {
+      "name": "RR_link4",
+      "old_mass_kg": 0.064,
+      "full_mass_kg": 0.064,
+      "mass_delta_g": 0.0,
+      "mass_change_percent": 0.0,
+      "baseline_method": "owned_mesh_uniform_density_research_prior",
+      "baseline_hardware_identified": false,
+      "baseline_raw_source_com_m": [
+        -0.0014867,
+        0.048484,
+        0.015199
+      ],
+      "baseline_raw_source_tensor": [
+        [
+          6.3e-05,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.4e-05
+        ]
+      ],
+      "full_com_m": [
+        0.048484,
+        0.0014817,
+        0.0152
+      ],
+      "old_com_in_full_link_m": [
+        0.04848985728022888,
+        0.001462782733378595,
+        0.015205255336620455
+      ],
+      "com_delta_mm": [
+        -0.005857280228879769,
+        0.018917266621405096,
+        -0.005255336620454618
+      ],
+      "com_distance_mm": 0.0204887596281289,
+      "old_link_to_full_link_rotation": [
+        [
+          -5.845811412574332e-05,
+          0.9999999977947608,
+          -3.15139165858731e-05
+        ],
+        [
+          -0.9999999981192554,
+          -5.845869869921731e-05,
+          -1.8549094533490988e-05
+        ],
+        [
+          -1.8550936755133007e-05,
+          3.1512832181534e-05,
+          0.9999999993314019
+        ]
+      ],
+      "old_link_to_full_link_translation_m": [
+        7.3134656779217136e-06,
+        -9.693501966969027e-06,
+        3.6998822142170196e-06
+      ],
+      "full_com_tensor_kg_m2": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0001,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0001
+        ]
+      ],
+      "old_com_tensor_in_full_link_kg_m2": [
+        [
+          1.9659391924439054e-06,
+          1.0333406413420092e-07,
+          -1.9625411058692535e-09
+        ],
+        [
+          1.0333406413420092e-07,
+          6.301886856499763e-05,
+          -2.0547077022840074e-11
+        ],
+        [
+          -1.962541105869254e-09,
+          -2.054707702284002e-11,
+          6.430214074252235e-05
+        ]
+      ],
+      "full_validation": {
+        "principal_moments_kg_m2": [
+          0.0,
+          0.0001,
+          0.0001
+        ],
+        "positive_definite": false,
+        "triangle_valid": true
+      },
+      "old_validation": {
+        "principal_moments_kg_m2": [
+          1.965764234903707e-06,
+          6.301904346030934e-05,
+          6.430214080475086e-05
+        ],
+        "positive_definite": true,
+        "triangle_valid": true
+      },
+      "full_axis_local": [
+        -3.6731657634420905e-06,
+        4.99706187554504e-05,
+        -0.9999999987447227
+      ],
+      "old_axis_parallel_com_inertia_kg_m2": 6.4302140726075e-05,
+      "full_axis_parallel_com_inertia_kg_m2": 9.999999999865081e-05,
+      "axis_parallel_com_inertia_change_percent": 55.51581777758771,
+      "old_about_full_joint_origin_inertia_kg_m2": 0.0002149199198868982,
+      "full_about_joint_origin_inertia_kg_m2": 0.00025058499381566224,
+      "joint_origin_inertia_change_percent": 16.594587392147186,
+      "full_owned_mesh_diagnostic": {
+        "path": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_legv2.0.0/meshes/RR_link4.STL",
+        "sha256": "ea232cf12a96937b5f1576a03213d1e009f98647845a3a88e088eefd94382148",
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_m3": 1.1608177758860802e-05,
+        "assumption": "Uniform density, current full mesh and current CAD mass; diagnostic only",
+        "com_m": [
+          0.04848293667265671,
+          0.0014755924337494393,
+          0.015200000256299978
+        ],
+        "com_tensor_kg_m2": [
+          [
+            1.9659272577506793e-06,
+            9.976498794587191e-08,
+            2.736324010699288e-20
+          ],
+          [
+            9.976498794587191e-08,
+            6.301888043746245e-05,
+            5.7006750222901835e-22
+          ],
+          [
+            2.736324010699288e-20,
+            5.7006750222901835e-22,
+            6.430214080475087e-05
+          ]
+        ],
+        "axis_parallel_com_inertia_kg_m2": 6.430214080066882e-05,
+        "validation": {
+          "principal_moments_kg_m2": [
+            1.9657642349037074e-06,
+            6.301904346030941e-05,
+            6.430214080475088e-05
+          ],
+          "positive_definite": true,
+          "triangle_valid": true
+        },
+        "axis_inertia_change_from_old_percent": 1.1600520544163828e-07
+      }
+    }
+  ]
+}

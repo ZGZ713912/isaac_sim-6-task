@@ -1,0 +1,20 @@
+{
+  "cpu_learning_imports": {
+    "exit_code": 1,
+    "seconds": 0.064,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/isaaclab-venv/lib/python3.12/site-packages/torch/__init__.py\", line 14, in <module>\n    import ctypes\n  File \"/isaac-sim/kit/python/lib/python3.12/ctypes/__init__.py\", line 8, in <module>\n    from _ctypes import Union, Structure, Array\nImportError: /isaac-sim/kit/python/lib/python3.12/lib-dynload/_ctypes.cpython-312-x86_64-linux-gnu.so: undefined symbol: _PyErr_SetLocaleString\n"
+  },
+  "app_launcher_import": {
+    "exit_code": 1,
+    "seconds": 0.27,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/isaaclab-venv/lib/python3.12/site-packages/lazy_loader/__init__.py\", line 78, in __getattr__\n    submod = importlib.import_module(submod_path)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/isaac-sim/kit/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/isaaclab/source/isaaclab/isaaclab/app/app_launcher.py\", line 15, in <module>\n    from .sim_launcher import add_launcher_args, launch_simulation\n  File \"/workspace/isaaclab/source/isaaclab/isaaclab/app/sim_launcher.py\", line 25, in <module>\n    from isaaclab_newton.physics import NewtonCfg, VBDSolverCfg\n  File \"/opt/isaaclab-venv/lib/python3.12/site-packages/lazy_loader/__init__.py\", line 78, in __getattr__\n    submod = importlib.import_module(submod_path)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/isaac-sim/kit/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/isaaclab/source/isaaclab_newton/isaaclab_newton/physics/newton_manager_cfg.py\", line 15, in <module>\n    from isaaclab.physics import PhysicsCfg\n  File \"/opt/isaaclab-venv/lib/python3.12/site-packages/lazy_loader/__init__.py\", line 78, in __getattr__\n    submod = importlib.import_module(submod_path)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/isaac-sim/kit/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/isaaclab/source/isaaclab/isaaclab/physics/physics_manager_cfg.py\", line 13, in <module>\n    from ..utils import configclass\n  File \"/workspace/isaaclab/source/isaaclab/isaaclab/utils/__init__.py\", line 24, in __getattr__\n    return importlib.import_module(f\"{__name__}.configclass\")\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/isaac-sim/kit/python/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/isaaclab/source/isaaclab/isaaclab/utils/configclass.py\", line 18, in <module>\n    from .dict import to_dict, update_from_dict\n  File \"/workspace/isaaclab/source/isaaclab/isaaclab/utils/dict.py\", line 15, in <module>\n    import torch\n  File \"/opt/isaaclab-venv/lib/python3.12/site-packages/torch/__init__.py\", line 14, in <module>\n    import ctypes\n  File \"/isaac-sim/kit/python/lib/python3.12/ctypes/__init__.py\", line 8, in <module>\n    from _ctypes import Union, Structure, Array\nImportError: /isaac-sim/kit/python/lib/python3.12/lib-dynload/_ctypes.cpython-312-x86_64-linux-gnu.so: undefined symbol: _PyErr_SetLocaleString\n"
+  },
+  "ffmpeg": {
+    "exit_code": 0,
+    "seconds": 0.13,
+    "stdout": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers\n",
+    "stderr": ""
+  }
+}

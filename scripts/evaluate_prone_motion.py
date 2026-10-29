@@ -193,6 +193,19 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
     return result
 
 
+def compensation_coverage(spring_reference, *, dev_gas, device):
+    """Scan the declared motor soft limits, not the outer geometry guard."""
+    if dev_gas:
+        limits = spring_reference.cfg["relative_soft_limits"]
+        delta = torch.linspace(limits["minimum"], limits["maximum"], 1001, device=device)
+        q = torch.stack((delta*0.-.42, delta-.42, delta*0.+.42, .42-delta), -1)
+        return spring_reference.evaluate(q)[0]
+    left, right = [spring_reference.get(i, "delta_rad") for i in range(2)]
+    delta = torch.linspace(float(left[0]), float(left[-1]), 1001, device=device)
+    mirror = torch.linspace(float(right[-1]), float(right[0]), 1001, device=device)
+    return spring_reference(torch.stack((delta*0.-.42, delta-.42, delta*0.+.42, mirror+.42), -1))
+
+
 @torch.inference_mode()
 def probe(env, plan, *, stop_requested=lambda: False):
     """No optimizer, no policy checkpoint; constants verify wiring only."""
@@ -223,16 +236,7 @@ def probe(env, plan, *, stop_requested=lambda: False):
         env.startup_report["encoder_spring_feedforward"]["physical_spring_retained"]
         and not env.startup_report["encoder_spring_feedforward"]["privileged_force_or_slider_input"])
     # Geometry/force coverage is an algebraic check, not a sampled motor move.
-    left, right = ([s["delta_rad"] for s in spring_reference.sides] if dev_gas else
-        [spring_reference.get(i, "delta_rad") for i in range(2)])
-    delta = torch.linspace(float(left[0]), float(left[-1]), 1001, device=env.device)
-    mirror = torch.linspace(float(right[-1]), float(right[0]), 1001, device=env.device)
-    if dev_gas:
-        mirror = torch.linspace(float(right[0]), float(right[-1]), 1001, device=env.device)
-        coverage, _ = spring_reference.evaluate(torch.stack(
-            (delta*0.-.42, delta-.42, delta*0.+.42, .42-mirror), -1))
-    else:
-        coverage = spring_reference(torch.stack((delta*0.-.42, delta-.42, delta*0.+.42, mirror+.42), -1))
+    coverage = compensation_coverage(spring_reference, dev_gas=dev_gas, device=env.device)
     checks["declared_full_soft_range_finite_nonzero_compensation"] = bool(
         spring_reference.last["geometry_valid"].all() and torch.isfinite(coverage).all()
         and (coverage.abs() > .01).all() and (coverage.abs() < 40.).all())

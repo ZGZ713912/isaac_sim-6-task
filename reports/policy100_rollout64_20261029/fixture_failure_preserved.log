@@ -1,0 +1,23 @@
+.................F...................................................... [ 84%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+_______ test_100hz_contact_excludes_birth_and_counts_raw_milliseconds[2] _______
+
+loss_ms = 2
+
+    @pytest.mark.parametrize("loss_ms", [2, 3])
+    def test_100hz_contact_excludes_birth_and_counts_raw_milliseconds(loss_ms):
+        from evaluate_prone_motion import review_arrays
+        arrays, case = trace_at_100hz()
+        arrays["wheel_force"][100, :loss_ms, 0] = 0.
+        row = review_arrays(arrays, [case], np.zeros((1, 2)), PLAN)[0]
+        assert row["full_horizon"] and row["full30s_quiet_window"]
+        assert row["post_event_start_sample"] == 100
+        assert row["support"]["ignored_loss_ms" if loss_ms == 2 else "retained_loss_ms"] == loss_ms
+>       assert row["engineering_screen_pass"] == (loss_ms == 2)
+E       assert False == (2 == 2)
+
+tests/test_prone_motion_timing.py:150: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_prone_motion_timing.py::test_100hz_contact_excludes_birth_and_counts_raw_milliseconds[2]
+1 failed, 84 passed in 3.32s

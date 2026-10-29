@@ -1,0 +1,216 @@
+{
+  "schema": "v6-local-scratch-plan-v1",
+  "source_worker_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+  "source_worker_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+  "source_design_file": "contracts/v6_task_campaign_speed_expectations_v18.json",
+  "source_design_sha256": "07040ed673eab2b56594206bfc123b1aef240dd153805e7b4621dc7ec52bf2b7",
+  "reward_reference_file": "contracts/v6_task_campaign_speed_worker_v27.json",
+  "reward_reference_sha256": "6591674143f2884ebe91c52aa4d9cdf1ac11ab4e6e8d423485567496d7f4f73f",
+  "initialization": "full_state_2688_return_window_trial",
+  "scope": "local_flat_locomotion_and_height_from_scratch",
+  "stage": "speed",
+  "seed": 290927,
+  "default_num_envs": 512,
+  "allowed_num_envs": [
+    256,
+    512,
+    1024
+  ],
+  "update_ceiling": 18784,
+  "checkpoint_first_update": 1,
+  "curriculum_origins": {
+    "nonstandard_start": 0,
+    "locomotion_difficulty": 0,
+    "ordinary_posture_curriculum": 0
+  },
+  "training_release": false,
+  "hardware_deployment_ready": false,
+  "control_file": "contracts/v6_wheel_response_control_policy200hz_v1.json",
+  "control_sha256": "270853429fc5036da7f68275e44d9a6cced7ea9d7baa710546185b04e0d285ef",
+  "timing": {
+    "physics_dt": 0.005,
+    "policy_dt": 0.005,
+    "pc_control_dt": 0.005,
+    "decimation": 1
+  },
+  "ppo_timing": {
+    "reference_policy_dt": 0.02,
+    "reference_num_steps_per_env": 24,
+    "reference_gamma": 0.99,
+    "reference_lam": 0.95,
+    "num_steps_per_env": 384,
+    "gamma": 0.9974905699336811,
+    "lam": 1.0
+  },
+  "action_difference_reference_dt": 0.02,
+  "initial_noise_std": 0.2,
+  "prior_experiment_consumption": 1216,
+  "prior_experiment_receipt_file": "reports/local_training_20261017/entropy_ab001_consumption.json",
+  "prior_experiment_receipt_sha256": "b932110cd564ea4a9f61451b353f6b4a92e693c11ff5ac486648d397b3655811",
+  "initial_exploration_basis": "Fresh same-seed comparison with identical actor mean, critic, empty Adam and RNG. Change only initial Gaussian std vector from uniform 0.2 to leg 0.05 / wheel 0.5 in policy order. Native Gaussian sampling, learnable std, entropy=0, reward, timing, curriculum and mechanical safeguards remain. Paired independent-process 0-PPO probes 004-006 have matching initial observation and standard-normal hashes; leg0.05/wheel0.5 increased untrained first-episode mean survival 0.573 to 0.705s across 32 episodes, all still failed. This is limited support for a bounded 128-update hypothesis, not behavior acceptance. All 1088 prior updates stay charged.",
+  "entropy_coef": 0.0005,
+  "initial_noise_std_policy_order": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.5,
+    0.5
+  ],
+  "local_birth_revision": {
+    "schema": "v6-local-birth-revision-v1",
+    "source_plan_file": "contracts/v6_local_scratch_200hz_v4.json",
+    "source_plan_sha256": "dca8aba16f8b54c89c4e85441ea95f1e76e9746d14317f7373e323ea8f71dd2c",
+    "checkpoint_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot008/model_final.pt",
+    "checkpoint_sha256": "f57d05f7f32c9a89ed400b7b2350b71879968175faa12a190858eb59cd8b9c0e",
+    "source_contract_sha256": "bf692fd6c861820a13dac2c94494aea1a0a216dddd4bbfd575f0388171a8e699",
+    "completion_sha256": "355e0e49a50efacae425c79414559aca6770470c934a21a2c3eef09392b44743",
+    "seal_sha256": "e285e1f7d4393de1c0d26e2c807e3caf675eefc25165a99de6d1bf51b094c7c5",
+    "learning_updates": 1024,
+    "prior_consumption": 1088,
+    "lineage_update_ceiling": 18912,
+    "first_block_update_ceiling": 128,
+    "training_transitions": 50331648,
+    "evidence": [
+      {
+        "file": "reports/local_training_20261017/pilot008.json",
+        "sha256": "9a161097a23c5f4b5f54e4938efc2f2273c4ea74fe1ce5a1fba98a0e67a2298d"
+      },
+      {
+        "file": "reports/local_training_20261017/birth_diagnosis002.json",
+        "sha256": "1040e0d370114029cabe2dfb21eae18c931df8af0aa1c0957057a63179b18e78"
+      },
+      {
+        "file": "docs/V6_LOCAL_BIRTH_RAMP_PLAN_20261017.md",
+        "sha256": "c054d52005b986d0649081036e48e5248d5472003722eac218b01be25fc5283b"
+      }
+    ]
+  },
+  "local_command_revision": {
+    "schema": "v6-local-command-revision-v1",
+    "source_plan_file": "contracts/v6_local_scratch_200hz_v5.json",
+    "source_plan_sha256": "877d2d6d6c3a5a3b945a3d38b28f53d323069045006ebaed7f8fba2e7bfc5bc9",
+    "checkpoint_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot011/model_final.pt",
+    "checkpoint_sha256": "872bc86d2007e5a664507278f4ec6c35c4acbe4a0e936cf306b14768c5710034",
+    "source_contract_sha256": "65abce0937c0e7222935674ae89642f8489f19622f873b7b65617116b33d5a15",
+    "completion_sha256": "78bd12bb7f41073a6ee5e9ceec6d13545b1ac5a096871551253c8d61daaa79e0",
+    "seal_sha256": "2ca7546f137707f89e4e4949ba9c2e3872a993aaba72b84b0c048faeb02df080",
+    "learning_updates": 2176,
+    "prior_consumption": 1088,
+    "lineage_update_ceiling": 18912,
+    "first_block_update_ceiling": 128,
+    "training_transitions": 106954752,
+    "evidence": [
+      {
+        "file": "reports/local_training_20261017/pilot011.json",
+        "sha256": "38b51f6d3385e81eb44694f5970ab993ab840eb7599cafb867448c3ee96f7687"
+      },
+      {
+        "file": "reports/local_training_20261017/credit_diagnosis001.json",
+        "sha256": "68830e57cacea96b98719590aee95ddef18a4211d78507c645632aa96aa8382a"
+      },
+      {
+        "file": "docs/V6_LOCAL_COMMAND_REHEARSAL_PLAN_20261018.md",
+        "sha256": "41ffcc2eb1ca149b1779cbec6e28cc3692798b5f5dc7317e0f6b98084d2f749a"
+      }
+    ]
+  },
+  "local_entropy_revision": {
+    "schema": "v6-local-entropy-revision-v1",
+    "source_plan_file": "contracts/v6_local_scratch_200hz_v6.json",
+    "source_plan_sha256": "d39f52c61b6eedacdb3589f5b5d48676ecf9eef9534c63eca7c4e01a387bf23e",
+    "checkpoint_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot013/model_final.pt",
+    "checkpoint_sha256": "2dfd8288c7df3e2da99b3ca9064b45fe9ca7b36f334b96a42e339f3174be3552",
+    "source_contract_sha256": "693aad6a37ff305f459589e8932990a674676bbdc909d426b2234a5c7777c8ab",
+    "completion_sha256": "a88412786bf44272f7ef861ad6c7832f90648336a9a004ce1588a98b27497640",
+    "seal_sha256": "454baf6077297f8feebdc13de22b32262efc4e2425ae655b52104ec7de507ade",
+    "learning_updates": 2560,
+    "prior_consumption": 1216,
+    "lineage_update_ceiling": 18784,
+    "first_block_update_ceiling": 128,
+    "training_transitions": 125829120,
+    "source_entropy_coef": 0.0,
+    "target_entropy_coef": 0.0005,
+    "control": {
+      "checkpoint_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot014/model_final.pt",
+      "checkpoint_sha256": "bd5a35112e89596ad1ab98bde1de1933a4f36b0b6253c6ffcaeff67ddcc5177f",
+      "completion_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot014/completion.json",
+      "completion_sha256": "101f50df0df88adc1ab0f7b09b24a0d6aed1e3a393d4774efb6515875c14ae53",
+      "evaluation_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/eval014/evaluation.json",
+      "evaluation_sha256": "3f71be7976869618db3b13ebd548c1c84c73174521097cf9d75a2368abc90fe6",
+      "learning_updates": 2688,
+      "additional_consumption": 128
+    },
+    "evidence": [
+      {
+        "file": "reports/local_training_20261017/pilot013.json",
+        "sha256": "78fef25a88d89ab8690a2717d245d8bfd3bfbddd8847b4b37df9bc0cf99783e0"
+      },
+      {
+        "file": "reports/local_training_20261017/action_credit_diagnosis001.json",
+        "sha256": "2d7240a19e66f1257e1cdf63550fdd401baa04162881ced0f6e4d41fec992544"
+      },
+      {
+        "file": "docs/V6_LOCAL_ENTROPY_AB_PLAN_20261018.md",
+        "sha256": "3c8ac17db08e8fdf354f5e9185bd3aef293e99304f96aa5b16635eccb00cc9f5"
+      },
+      {
+        "file": "reports/local_training_20261017/entropy_ab001_plan.json",
+        "sha256": "5664d36e15f2e352fa4bca0b6d17e0660eb94608b013aea759bd4fedd8ceca79"
+      },
+      {
+        "file": "reports/local_training_20261017/pilot014.json",
+        "sha256": "ad2f5857d46b1221ed8a8da7f9c4ff6c61b277badf46eaff7474dd920a44e21b"
+      },
+      {
+        "file": "reports/local_training_20261017/entropy_ab001_consumption.json",
+        "sha256": "b932110cd564ea4a9f61451b353f6b4a92e693c11ff5ac486648d397b3655811"
+      }
+    ]
+  },
+  "local_return_revision": {
+    "schema": "v6-local-return-revision-v1",
+    "source_plan_file": "contracts/v6_local_scratch_200hz_v7.json",
+    "source_plan_sha256": "4066923002b9f694c41a3048f8820f3eb3494a26469f47ee1e0ebb770eb93689",
+    "checkpoint_file": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/local_200hz_20261018/pilot015/model_final.pt",
+    "checkpoint_sha256": "988af5220e5de9cb3a00024c04c0eaec38f1570bf15805b03618b82187ed8479",
+    "source_contract_sha256": "533382b32cbec3a6be0f36d72bfb94197f981c2f2f985b2800da17b5987cf7c9",
+    "completion_sha256": "ba34070e1964c99867263f26b3c59331ae1e983e5578d20a85fd2045f97821ed",
+    "seal_sha256": "7090e2a7dc2d97d995f144535d00d1a797f77edc36204cc77b85348338055524",
+    "learning_updates": 2688,
+    "prior_consumption": 1216,
+    "lineage_update_ceiling": 18784,
+    "first_block_update_ceiling": 128,
+    "training_transitions": 132120576,
+    "source_num_steps_per_env": 96,
+    "target_num_steps_per_env": 384,
+    "source_lam": 0.9872585449014338,
+    "target_lam": 1.0,
+    "evidence": [
+      {
+        "file": "reports/local_training_20261017/pilot015.json",
+        "sha256": "fd4b3893a8598fc545db8c46a079ff4e40918f359c3a46300118fef64411c944"
+      },
+      {
+        "file": "reports/local_training_20261017/entropy_ab001_credit_followup.json",
+        "sha256": "74f56ece5782dd08056278a584bafadf0c3ab8f3e76d1537769b3b6034603c21"
+      },
+      {
+        "file": "reports/local_training_20261017/entropy_ab001_birth_credit.json",
+        "sha256": "6032a0c460dd02bb656d7878769cbfe593fb7be8d779a5902efe9ae2b537d095"
+      },
+      {
+        "file": "reports/local_training_20261017/action_horizon_diagnosis001.json",
+        "sha256": "999b31c5f7a4c2df6c8bf828fcf629ec5893c2af4a6e2ec994c53625242729de"
+      },
+      {
+        "file": "reports/local_training_20261017/return_sensitivity001.json",
+        "sha256": "5359be9c9dd0495e71b656a0de5ab5fb278483a7ce6c6de325ab2f9ec87ef12e"
+      },
+      {
+        "file": "docs/V6_LOCAL_RETURN_HORIZON_PLAN_20261018.md",
+        "sha256": "91d6d411258f2eb1266245ae9c41f6f0930c8b704da3d0b21708e9871135d314"
+      }
+    ]
+  }
+}

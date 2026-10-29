@@ -1,0 +1,103 @@
+{
+  "schema": "wheel-leg-standard-prone-v1",
+  "reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0",
+  "initial_target_pose_name": "floor_knee42_42_orbit0.8_r0_p0",
+  "initial_target_common_rotation_rad": [
+    -0.6,
+    0.6
+  ],
+  "initial_target_rotation_source": "Closed-chain mechanical prior: rotate both active axes on each side together from the declared42deg pose, bringing the wheel midpoint from about12cm behind the body origin to3.4cm; never rotates the physical reset or executes a runtime sequence",
+  "wheel_action_parameterization": "Fresh trainable absolute wheel-velocity targets; no measured-wheel-velocity identity added to the actor output",
+  "standard_prone_definition": "Body normally facing up, chassis belly resting on the floor, all six motors disabled during native settling; not forward tipped or inverted",
+  "enable_max_tilt_deg": 15.0,
+  "enable_height_range_m": [
+    0.15,
+    0.22
+  ],
+  "reset_collision_clearance_m": 5e-05,
+  "target_height_m": 0.305,
+  "episode_seconds": 12.0,
+  "leg_action_clip": 16.0,
+  "leg_target_range": "Retain the existing native recovery range16: at0.25rad per action unit, +/-4rad around the nominal target. Declare the same range in the mechanism config and task settings. Paired40..107deg relative projection and native torque caps remain active.",
+  "guided_path": "Learn to fold the physical passive knees near40deg, move wheel support below the whole-robot COM, then coordinate leg extension and wheel velocity to stand in place",
+  "knee_coordinate": "Physical passive included angle: left q_L_joint2 + calibrated model zero; right -q_R_jonit2 + the same zero. Not either active motor encoder angle.",
+  "encoder_geometry": {
+    "input": "Four calibrated model motor angles and velocities, left hip/auxiliary then right hip/auxiliary; existing35D actor retains these encoders and IMU",
+    "table": "contracts/standing_geometry107_v1.json",
+    "table_sha256": "7b313c807aefe51058567b1b2b8ce5300be85ccc8d9ec091d0aa7ae1708b9216",
+    "outputs": [
+      "body-relative wheel centers",
+      "physical knee included angles and rates",
+      "hip-to-wheel lengths and rates"
+    ],
+    "direction": "Negative knee angle rate means folding, positive means extension; leg-length rate is measured separately",
+    "relative_angle_numerical_margin_rad": 0.001,
+    "invalid": "More than1mrad outside the relative-angle lookup branch is invalid and supplies no folding/alignment shaping credit; within the numerical margin, interpolate at the physical endpoint and retain native error diagnostics; physical joint limits are unchanged",
+    "validation": "Independent full-link FK in CPU tests and native wheel/passive-joint truth in zero-PPO diagnostics; not real-robot encoder calibration"
+  },
+  "fold_target_deg": 40.0,
+  "fold_soft_band_deg": 3.0,
+  "fold_guidance_span_deg": 65.0,
+  "support_alignment_width_m": 0.1,
+  "fold_capture_release_power": 2.0,
+  "fold_release_rule": "Small potential-only folding guidance fades as wheel support aligns below the COM and as the body rises. No sustained folding reward or motor sequence.",
+  "support_min_below_com_m": 0.03,
+  "belly_height_m": 0.173,
+  "position_cost_scale_m": 0.15,
+  "position_cost_free_radius_m": 0.1,
+  "rise_translation_authority": "User explicitly allows about10cm of translation during get-up while coordinating wheel velocity and hip/knee motors; no position penalty inside that radius",
+  "target_height_width_m": 0.06,
+  "height_error_cost_per_second": 4.0,
+  "unrecovered_time_cost_per_second": 1.0,
+  "objective_limits_authority": "The quiet-goal5deg and40mm Gaussian scales are engineering reward scales, not hard acceptance thresholds. Broad height cost prevents vanishing height credit near the belly. Time cost stops only after actual stable recovery; the existing10s cold deadline is an engineering screen.",
+  "large_excursion_termination_m": 0.5,
+  "excursion_limit_authority": "Engineering pilot containment, not a user-approved final in-place recovery limit",
+  "stable_seconds": 1.0,
+  "stable_tilt_deg": 10.0,
+  "stable_height_error_m": 0.02,
+  "stable_planar_speed_m_s": 0.08,
+  "stable_body_rate_rad_s": 0.5,
+  "stable_leg_speed_rad_s": 3.0,
+  "refall_tilt_deg": 25.0,
+  "friction_profiles": {
+    "baseline": {
+      "wheel": 0.7,
+      "ground": 0.5
+    },
+    "legacy_low_grip": {
+      "wheel": 0.1,
+      "ground": 0.5
+    }
+  },
+  "friction_provenance": "Fixed engineering comparison, not identified real tire coefficients",
+  "body_contact_during_rise": "Allowed; native impact impulse, mechanical, spring, closure, numerical and timeout protection retained",
+  "guidance": "Normal quiet standing is the primary goal from enable onward. Encoder-derived folding/support is a small gamma-matched potential auxiliary only. No scripted targets, timed trajectory, fixed wheel speed, FSM motor takeover, teacher or donor.",
+  "initialization": "New actor, new critic, empty Adam; trainable output bias from declared closed-chain42deg geometry and fixed opposite common rotations of0.6rad toward support below the COM. Physical disabled reset stays103deg then passively settles. No scripted sequence or runtime target hold; every output remains trainable.",
+  "initial_std_policy_order": [
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.2,
+    0.2
+  ],
+  "randomization": "wheel_leg_randomization_study_v2 profiles; retain original ground bands and explicitly record wheel-material hypothesis",
+  "evaluation": {
+    "seconds": 40.0,
+    "recovery_deadline_seconds": 10.0,
+    "post_completion_standing_seconds": 30.0,
+    "ignored_contiguous_support_loss_ms": 2,
+    "getup_xy_max_m": 0.1,
+    "getup_xy_limit_authority": "User explicitly allows about10cm during get-up; this pilot uses0.10m as its fixed screen and still reports actual peak displacement",
+    "standing_xy_max_m": 0.05,
+    "scope": "One standard prone family only; not diverse-fall or full thirteen-capability qualification"
+  },
+  "state_writes": "Episode reset only",
+  "hardware_ready": false,
+  "reward_objective": "Ordinary upright_locomotion.reward_terms with zero forward/yaw commands and305mm height, plus broad height error and a coupled quiet supported-standing bonus; no sustained folding, alignment or partial-lift density reward",
+  "route_potential_gain": 0.1,
+  "quiet_goal_reward_per_second": 4.0,
+  "quiet_goal_height_width_m": 0.04,
+  "quiet_goal_level_scale_deg": 5.0,
+  "inversion_cost_per_second": 4.0
+}

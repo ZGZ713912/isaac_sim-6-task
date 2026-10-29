@@ -1,0 +1,91 @@
+diff --git a/docs/SERVER_TRAINING_20261028.md b/docs/SERVER_TRAINING_20261028.md
+index 82aa60c5..2f1fc5ba 100644
+--- a/docs/SERVER_TRAINING_20261028.md
++++ b/docs/SERVER_TRAINING_20261028.md
+@@ -54,10 +54,28 @@ CPU预检输出目录必须是新的，不启动Kit、创建PPO或读取旧权
+ 
+ ```bash
+ export WHEELED_RL_PYTHON="$PWD/scripts/server_isaac_python.sh"
+-bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run001"
++bash scripts/train_prone_motion.sh --output "$PWD/runs/prone_motion/run002"
+ ```
+ 
+ 脚本先运行名义域与完整域的零PPO原生探针并检查保存的结果，全部通过后才开始
+ 同一次`learn(10000)`。未通过不能仅凭返回码手动跳过。不要传本机旧009停止参数，
+ 不要加载中断运行、旧teacher或donor。训练中无冷测，结束后再按相同病例比较周期PT。
+ 服务器软件准备阶段不运行此命令。
++
++## Lab 3 场景路径兼容性
++
++GPU 首次探针的实际异常保存在 `run001.native_probe/progress.json` 的 `error` 字段：
++`Unexpected number of real loop constraints`。它不是上方 Protobuf 或 AppLauncher 警告引起的退出。
++原路径 `/World/envs/env_.*/Robot` 在服务器的 Lab 3 路径选择器中还匹配环境的地面、材质等子路径；
++80 个探针环境各生成 6 台机器人，实际闭链球铰 2880 个，预期 480 个。
++改用 `/World/envs/env_[0-9]+/Robot` 只匹配编号环境；闭链数量与求解器拓扑检查继续保留。
++探针验证失败时也会显示保存的原始异常，避免只看到泛化的拒绝 PPO 信息。
++
++保留失败目录，修复后的启动必须使用新的目录。可以先单独执行两个域的零 PPO 检查：
++
++```bash
++WHEELED_RL_PYTHON="$PWD/scripts/server_isaac_python.sh" \
++  bash scripts/train_prone_motion.sh --native-probe --output "$PWD/runs/prone_motion/gpu_probe002"
++```
++
++这只验证原生建模、控制、接触和域切换接线，不是自起、站立或运动能力验收。
+diff --git a/scripts/train_prone_motion.py b/scripts/train_prone_motion.py
+index 38c660b1..97db6cbe 100644
+--- a/scripts/train_prone_motion.py
++++ b/scripts/train_prone_motion.py
+@@ -173,7 +173,8 @@ def verify_native_probe(output):
+                 != [("nominal", 0.), ("requested", 1.)]
+             or any(p.get("all_checks_pass") is not True or p.get("new_PPO") != 0
+                 or not p.get("checks") or not all(v is True for v in p["checks"].values()) for p in probes)):
+-        raise RuntimeError("Native probe did not finish with two verified domains; refusing PPO: "+str(output))
++        detail = "\nSaved native exception:\n"+result["error"] if result.get("error") else ""
++        raise RuntimeError("Native probe did not finish with two verified domains; refusing PPO: "+str(output)+detail)
+     return result
+ 
+ 
+diff --git a/src/wheeled_tasks/chassis/env.py b/src/wheeled_tasks/chassis/env.py
+index 4f45418c..bb13d03c 100644
+--- a/src/wheeled_tasks/chassis/env.py
++++ b/src/wheeled_tasks/chassis/env.py
+@@ -370,7 +370,9 @@ class ChassisEnv:
+                     actuators["wheels"].effort_limit = self.identified_wheels.native_effort_limit
+                     actuators["wheels"].effort_limit_sim = self.identified_wheels.native_effort_limit
+         robot_cfg = ArticulationCfg(
+-            prim_path="/World/envs/env_.*/Robot",
++            # Match only the numbered environment, never its terrain descendants.
++            # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
++            prim_path="/World/envs/env_[0-9]+/Robot",
+             spawn=sim_utils.UsdFileCfg(
+                 usd_path=str(root / config["asset_directory"] / manifest["usd"]),
+                 activate_contact_sensors=True,
+@@ -414,7 +416,8 @@ class ChassisEnv:
+                     raise RuntimeError("Loop joint accidentally included in articulation tree")
+                 loop_count += 1
+         if loop_count != (6 if self.is_v5 else 4) * num_envs:
+-            raise RuntimeError("Unexpected number of real loop constraints")
++            expected = (6 if self.is_v5 else 4) * num_envs
++            raise RuntimeError(f"Unexpected number of real loop constraints: {loop_count}, expected {expected}")
+         native_isolation = None
+         if isolated_getup_origins:
+             from .isolated_origins import isolate_native_worlds
+diff --git a/tests/test_prone_motion.py b/tests/test_prone_motion.py
+index 43a02342..4bd2b03d 100644
+--- a/tests/test_prone_motion.py
++++ b/tests/test_prone_motion.py
+@@ -31,6 +31,13 @@ def test_population_and_full_budget():
+             task.validate(bad)
+ 
+ 
++def test_native_probe_surfaces_the_saved_exception(tmp_path):
++    (tmp_path/"progress.json").write_text(json.dumps(dict(status="failed",
++        error="RuntimeError: Unexpected number of real loop constraints: 2880, expected 480")))
++    with pytest.raises(RuntimeError, match="2880, expected 480"):
++        verify_native_probe(tmp_path)
++
++
+ def test_snapshots_count_completed_updates_not_zero_based_iterations():
+     assert [task.snapshot_name(n, PLAN) for n in (0, 1, 249, 251, 9999)] == [None]*5
+     assert task.snapshot_name(250, PLAN) == "model_00250.pt"

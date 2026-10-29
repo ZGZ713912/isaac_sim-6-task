@@ -1,0 +1,35 @@
+{
+  "schema": "wheel-leg-gas-spring-endpoint-trend-v1",
+  "policy": "positive_c1_endpoint_trend_v1",
+  "source_model_sha256": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0",
+  "soft_knee_domain_deg": [
+    40.0,
+    107.0
+  ],
+  "measured_knee_domain_deg": [
+    56.0,
+    101.0
+  ],
+  "physical_compression_domain_m": [
+    0.0,
+    0.08
+  ],
+  "endpoint_log_slopes_per_m": [
+    594.9398607543548,
+    24.379617365778664
+  ],
+  "lower_compression_formula": "F(s)=F_low*exp((Fprime_low/F_low)*(s-s_low))",
+  "upper_compression_formula": "F(s)=F_high*exp((Fprime_high/F_high)*(s-s_high))",
+  "endpoint_derivative": "Nearest measured segment one-sided derivative in N/m; matches force and derivative at both fit edges.",
+  "stroke_policy": "Hold at0/80mm only during numerical overtravel; original mechanical protection retained.",
+  "application_sides": [
+    "left",
+    "right"
+  ],
+  "measured_knots_unchanged": true,
+  "positive_monotone_C1_at_fit_edges": true,
+  "extrapolation_validated_by_measurement": false,
+  "physical_pressure_identified": false,
+  "authority": "User requested trend continuation over all existing soft limits on2026-10-28. Measured effective mean load, not a re-identification of gas pressure.",
+  "hardware_ready": false
+}
