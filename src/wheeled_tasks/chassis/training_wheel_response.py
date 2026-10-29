@@ -8,18 +8,30 @@ import json
 import torch
 
 from .identified_wheel_response import WHEEL_NAMES, configure_identified_wheels
+from .control_contract import (NEW_WHEEL_100_CONTROL_ID, FINE_POLICY_100_TIMING,
+                               validate_chassis_control)
 
 
 def configure(root, config, declaration, settings):
     """Authenticate the delivered model/control/evidence before deriving a task."""
-    for key in ("model", "control", "evidence"):
+    keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+    for key in keys:
         item = declaration[key]
         if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
             raise ValueError("Identified wheel input SHA differs: " + key)
     control = json.loads((root/declaration["control"]["file"]).read_text())
-    result, matched = configure_identified_wheels(config, control, declaration["model"]["file"], root)
-    if matched != control:
+    recorded = control
+    if control.get("control_id") == NEW_WHEEL_100_CONTROL_ID:
+        recorded = json.loads((root/declaration["recorded_control"]["file"]).read_text())
+        expected = deepcopy(recorded)
+        expected.update(control_id=NEW_WHEEL_100_CONTROL_ID, timing=FINE_POLICY_100_TIMING)
+        if control != expected:
+            raise ValueError("100Hz derivation may change only the recorded control identity and policy timing")
+    validate_chassis_control(control)
+    result, matched = configure_identified_wheels(config, recorded, declaration["model"]["file"], root)
+    if matched != recorded:
         raise ValueError("Delivered wheel control does not match the recorded controller")
+    result.update(physics_dt=control["timing"]["physics_dt"], policy_dt=control["timing"]["policy_dt"])
     result["control_math_source"] = declaration["control"]["file"]
     result["control_math_sha256"] = declaration["control"]["sha256"]
     result["actuator_response_evidence"] = deepcopy(declaration["evidence"])
@@ -81,5 +93,7 @@ def install(env):
         added_armature_kg_m2=actual.cpu().tolist(), effective_inertia_kg_m2=total.cpu().tolist(),
         native_cad_axial_inertia_kg_m2=cad.cpu().tolist(),
         inertia_scale=scale.cpu().tolist(), independent_inertia_range_unchanged=True,
-        policy_observation_age="Existing v2 0..1 policy ticks, additional to calibrated base I/O approximation",
+        policy_observation_age=dict(ticks=env.getup_cfg["sensor_delay_policy_ticks"],
+            tick_ms=env.policy_dt*1000.,
+            scope="Additional policy-frame age; calibrated 5.5/3.5ms wheel I/O delay is unchanged"),
         loaded_torque_speed_curve="Explicit delivered prior; not identified under load")

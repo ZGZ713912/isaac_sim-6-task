@@ -15,6 +15,7 @@ import traceback
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
+parser.add_argument('--plan', type=Path, help='Explicit versioned plan; default is 100Hz/64-step v2')
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--steps', type=int, default=96)
 parser.add_argument('--warmup', type=int, default=16)
@@ -37,14 +38,15 @@ sys.path[:0] = [str(root/'scripts'), str(root/'src')]
 import train_prone_motion as entry
 entry.check_other_learners()
 from wheeled_tasks.chassis.prone_motion import validate
-plan_path = root/'contracts/wheel_leg_prone_motion_v1.json'
+plan_path = (args.plan or root/'contracts/wheel_leg_prone_motion_v2.json').resolve()
 plan = validate(json.loads(plan_path.read_text()))
 hashes = entry.source_hashes(plan_path, plan)
 result = dict(schema='local-prone-motion-performance-v1', status='starting', pid=os.getpid(),
     start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19]),
     started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(), root=str(root),
     new_PPO=0, optimizer_attempts=0, actor_or_critic_created=False, checkpoint_reads=[],
-    source_hashes=hashes, backend=args.backend, args=vars(args)|{'root':str(root),'output':str(out)},
+    source_hashes=hashes, backend=args.backend,
+    args=vars(args)|{'root':str(root),'output':str(out),'plan':str(plan_path)},
     behavior_qualification=False, hardware_ready=False)
 entry.base.write_json(out/'result.json',result)
 launcher = env = None

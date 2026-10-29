@@ -28,6 +28,9 @@ import train_scratch_standing as base
 
 def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None, seed=None,
                   performance_backend="cuda_graph"):
+    from wheeled_tasks.chassis.prone_motion import validate, timing, discounts
+    plan = validate(plan)
+    rates, discount = timing(plan), discounts(plan)
     if performance_backend not in ("eager","cuda_graph"):
         raise ValueError("Unknown prone-motion performance backend")
     output.mkdir(parents=True, exist_ok=True)
@@ -44,12 +47,13 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         randomization_study=None if profile == "nominal" else ROOT/plan["randomization_contract"],
         randomization_profile=None if profile == "nominal" else profile, randomization_strength=strength)
     cfg, settings = base.prepare(args)
-    settings.update(version="prone-motion-long-v1", prone_motion_task=deepcopy(plan),
+    settings.update(version=plan["schema"], prone_motion_task=deepcopy(plan),
         prone_geometry=json.loads((ROOT/plan["prone_geometry_contract"]).read_text()),
         quiet_training=False, quiet_critic_anchor=True, hold_motion_during_recovery=True,
         motion_fraction=.7, motion_push_fraction=0., stable_seconds=plan["completion_hold_seconds"],
         episode_seconds=plan["training_prone_seconds"], recovery_timeout_seconds=plan["rise_deadline_seconds"],
-        reward_potential_gain=0., reward_gamma=.9974905699336811, boundary_xy_m=[45., 45.])
+        reward_potential_gain=0., reward_gamma=discount["gamma"], sensor_policy_dt=rates["policy_dt"],
+        boundary_xy_m=[45., 45.])
     if evaluation and profile != "nominal":
         settings["nominal_fraction"] = 0.
         cfg["dynamics_randomization"]["enabled_fraction"] = 1.
@@ -68,6 +72,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         ROOT/cfg["asset_directory"]/"model_spec.json")
     from wheeled_tasks.chassis.training_wheel_response import configure
     cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+    if wheel_control["timing"] != rates:
+        raise ValueError("Task and wheel-control policy/physics timing differ")
     for key in ("wheel_static_friction", "wheel_dynamic_friction"):
         cfg["contact_material"][key] = plan["friction"]["wheel"]
     if "randomization_study" in settings:
@@ -88,12 +94,17 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     row["runtime"]["modules"]["identified_wheel_response"] = True
     row["runtime"]["wheel_velocity_p"] = wheel_control["actuators"]["wheel"]["kd"]
     row["control"]["actuators.wheel"] = deepcopy(wheel_control["actuators"]["wheel"])
+    row["control"]["timing"] = deepcopy(wheel_control["timing"])
+    row["runtime"].update(rates)
     design["scope"] = "fresh_prone_motion_long"
     base.write_json(design_path, design)
     cfg["design_preflight"]["sha256"] = base.digest(design_path)
     base.write_json(output/"config/contract.json", cfg)
     base.write_json(output/"task_contract.json", dict(schema="prone-motion-native-task-v1", plan=plan,
-        settings=settings, actor_dim=35, critic_dim=83, action_dim=6, policy_hz=200, physics_hz=1000,
+        settings=settings, actor_dim=35, critic_dim=83, action_dim=6,
+        policy_hz=round(1./rates["policy_dt"]), physics_hz=round(1./rates["physics_dt"]),
+        timing=rates, rollout_steps=plan["rollout_steps"], discounts=discount,
+        policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
         gas_spring_feedforward=deepcopy(cfg["v5_control"]["encoder_spring_feedforward"]),
@@ -117,10 +128,12 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
 
 def learner_config(plan, device="cuda:0"):
     from wheeled_algo.scratch_standing import agent_config
+    from wheeled_tasks.chassis.prone_motion import discounts
     result = agent_config(plan["seed"], device, plan["rollout_steps"], plan["learning_rate"],
                           normalize_observations=True)
     result["actor"]["hidden_dims"] = result["critic"]["hidden_dims"] = [256, 128, 64]
     result["algorithm"]["entropy_coef"] = .001
+    result["algorithm"].update(discounts(plan))
     result.update(max_iterations=plan["max_updates"], save_interval=plan["snapshot_interval"], experiment_name="prone_motion_long")
     return result
 
@@ -132,12 +145,13 @@ def source_hashes(plan_path, plan):
              "scripts/server_isaac_python.sh", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
              "contracts/scratch_standing_base_mechanism_v2.json", "contracts/scratch_standing_base_design_v2.json",
+             "contracts/wheel_leg_prone_motion_v1.json", "contracts/wheel_leg_prone_motion_v2.json",
              plan["randomization_contract"],
              plan["acceptance_contract"], plan["prone_geometry_contract"], "contracts/standing_geometry107_v1.json",
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
              plan["gas_spring_model"]["trend_extension"]["file"],
              "tests/test_encoder_spring_feedforward.py",
-             "tests/test_prone_motion_performance.py",
+             "tests/test_prone_motion_performance.py", "tests/test_prone_motion_timing.py",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
              "scripts/review_gas_spring_soft_range.py",
              str(plan_path.relative_to(ROOT))]
@@ -224,7 +238,7 @@ def stop_previous_009():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--plan", type=Path, default=ROOT/"contracts/wheel_leg_prone_motion_v1.json")
+    parser.add_argument("--plan", type=Path, default=ROOT/"contracts/wheel_leg_prone_motion_v2.json")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--native-probe", action="store_true", help="Zero PPO; native reset/action/reward/contact wiring only")
     parser.add_argument("--performance-backend",choices=("cuda_graph","eager"),default="cuda_graph",

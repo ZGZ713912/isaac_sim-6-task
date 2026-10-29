@@ -49,4 +49,4 @@ def install(env, backend):
         route_cache="native read epoch and explicit reset generation; startup-static model",
         physics_or_optimizer_captured=False, finite_checks_retained=True,
         original_torch_kernels=True, fresh_output_storage=True,
-        physics_hz=1000,policy_hz=200)
+        physics_hz=round(1./env.dt),policy_hz=round(1./env.policy_dt))

@@ -25,15 +25,20 @@ POLICY_200_SCOPE = {**COARSE_SCOPE, "model": "200hz_policy_and_feedback_pd_with_
                     "fresh_feedback_per_policy_step": 1}
 FINE_POLICY_200_TIMING = {"physics_dt": .001, "policy_dt": .005, "pc_control_dt": .001, "decimation": 5}
 NEW_WHEEL_CONTROL_ID = "new-wheel-1562-recorded-P05-20261028-v1"
+FINE_POLICY_100_TIMING = {"physics_dt": .001, "policy_dt": .01, "pc_control_dt": .001, "decimation": 10}
+NEW_WHEEL_100_CONTROL_ID = "new-wheel-1562-recorded-P05-policy100hz-20261029-v1"
+NEW_WHEEL_CONTROL_IDS = frozenset((NEW_WHEEL_CONTROL_ID, NEW_WHEEL_100_CONTROL_ID))
 
 
 def declared_wheel_velocity_p(control):
     """Keep historical controls fixed; the new measured run used output P0.5."""
-    return .5 if control.get("control_id") == NEW_WHEEL_CONTROL_ID else .6
+    return .5 if control.get("control_id") in NEW_WHEEL_CONTROL_IDS else .6
 
 
 def declared_control_timing(control):
     if "simulation_timing_approximation" not in control:
+        if control.get("control_id") == NEW_WHEEL_100_CONTROL_ID:
+            return dict(FINE_POLICY_100_TIMING)
         if control.get("control_id") in ("flat-base-policy-200hz-control-v1", "flat-base-policy-200hz-control-v2", NEW_WHEEL_CONTROL_ID):
             return dict(FINE_POLICY_200_TIMING)
         return {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
@@ -82,7 +87,7 @@ def validate_chassis_control(control):
     # New controls use the full rotor-to-wheel ratio, matching the RMCS driver.
     # A wheel-output cap must still never be multiplied by this ratio again.
     ratio = 15.8 if control.get("control_id") in LEGACY_WHEEL_CONTROL_IDS else WHEEL_GEAR_RATIO
-    new_wheel = control.get("control_id") == NEW_WHEEL_CONTROL_ID
+    new_wheel = control.get("control_id") in NEW_WHEEL_CONTROL_IDS
     for key, expected in (("model", "M3508"), ("gear_ratio", ratio), ("gearbox_efficiency", 1.),
                           ("kd", declared_wheel_velocity_p(control)), ("effort_limit", 4.5), ("curve_side", "wheel_output"),
                           ("torque_reference", "wheel_output"),

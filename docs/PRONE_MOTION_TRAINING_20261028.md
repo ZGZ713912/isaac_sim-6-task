@@ -8,18 +8,18 @@
 `WHEELED_RL_PYTHON`可指定训练解释器或服务器Python启动器；不设置时保留下面的本机默认路径。
 
 ```bash
-bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
-  --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261028/run003
+bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
+  --output /home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion_20261029/run100hz001
 ```
 
-输出目录必须不存在。脚本首先串行运行80环境的独立零PPO原生接线探针，检查名义域和完整v2域中的35D/83D接口、实际奖励实付、五个1ms物理样本、失能零力矩、允许起立时底盘接地、实测气簧力和左右新轮模型等；探针失败或被中断就退出，不进入PPO。启动还要核对探针保存的两域完整结果，不能只凭进程返回码放行。探针通过后才创建新的actor、critic、空Adam。原生探针中的常值动作不作为学会起立的证据。
+输出目录必须不存在。脚本首先串行运行80环境的独立零PPO原生接线探针，检查名义域和完整v2域中的35D/83D接口、实际奖励实付、十个1ms物理样本、失能零力矩、允许起立时底盘接地、实测气簧力和左右新轮模型等；探针失败或被中断就退出，不进入PPO。启动还要核对探针保存的两域完整结果，不能只凭进程返回码放行。探针通过后才创建新的actor、critic、空Adam。原生探针中的常值动作不作为学会起立的证据。
 
 如果准备替换仍在运行的已知旧009，在同一命令末尾添加`--stop-existing-009`。这是操作者显式选择的操作：只允许核对PID2929818、start_ticks13480232、原工作目录、命令和输出路径均匹配的旧009；只发一次SIGTERM，等待完整更新检查点、进程与GPU退出，再开始零PPO探针。身份变化、未正常封存或其他训练存在时均拒绝启动；没有强杀、续训或加载旧模型。未加此参数时，遇到任一已有轮腿learner直接拒绝并行启动。
 
 只检查配置，不接触已有进程、不启动Isaac或PPO：
 
 ```bash
-bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
+bash /home/noir/.codex/worktrees/prone-motion-100hz/isaac_wheeled_rl_train/scripts/train_prone_motion.sh \
   --output /tmp/prone_motion_preflight001 --preflight-only
 ```
 
@@ -29,13 +29,23 @@ bash /home/noir/.codex/worktrees/prone-motion-long/isaac_wheeled_rl_train/script
 
 新启动默认使用`--performance-backend cuda_graph`。只对编码器气簧补偿、编码器腿几何和物理气簧曲线的固定形状纯张量计算复用CUDA执行图，保持原Torch内核、原公式和每次输入有效性检查；不捕获仿真、随机数、传感器/轮响应历史或优化器。回放输出复制到独立存储，保留每1ms原始诊断。原生读取epoch及显式reset代际限定几何结果缓存，域切换重建环境时重建执行图。逐角色指标的有样本判断合并为一次传输，保留原tag和选中样本的归约。
 
-物理1kHz、策略200Hz、64/32求解迭代、256环境、128步rollout、10000次更新、每250次完整检查点和全部reward/课程/域随机化不变。`--performance-backend eager`保留未回放的对照路径，适用于定位运行环境问题。运行中的冻结任务不热切换；采用新版需要在新目录从零启动，禁止用停止模型续训。
+当前v2默认物理1kHz、策略100Hz、64/32求解迭代、256环境、64步rollout、10000次更新、每250次完整检查点。控制时序见下节；原200Hz/128步v1合同与历史实测保持。`--performance-backend eager`保留未回放的对照路径，适用于定位运行环境问题。运行中的冻结任务不热切换；采用新版需要在新目录从零启动，禁止用停止模型续训。
 
 本机独立零PPO比较可运行`python scripts/benchmark_prone_motion.py --output <新目录> --backend cuda_graph`，对照改为`--backend eager`。使用训练所用的Isaac Python，两个进程串行运行；同样的环境数、seed、动作、warmup和测量长度才可比较。脚本保存原始轨迹、来源摘要和TensorBoard性能event，不创建actor/critic或读取checkpoint；测试不等于策略行为验收。实测结果见主工作区`reports/local_speedup_20261029/REVIEW.md`，不能将本机采样速度当作4090服务器的PPO总耗时。
 
 ## 训练课程与预算
 
-固定10000次完整PPO更新，256环境、每环境128步、200Hz策略/1000Hz物理。上限327680000个rollout位置，实际用于学习的数量会扣除失能落稳样本，并记录于`progress.json`。它和参考仓库24步rollout的“一轮”不是同一个样本量口径。运行时间由实际每轮耗时决定，不预报未经测量的小时数。
+默认计划为`contracts/wheel_leg_prone_motion_v2.json`：每10个1ms物理步更新一次策略；髋膝单环PD仍是P=160、D=2.5、1kHz，气簧物理力、编码器补偿、轮P0.5及实测左5.5/右3.5ms有效延迟仍每1ms计算。64步覆盖0.64秒，与原200Hz的128步相同，仍有640个物理步，故不能承诺采样耗时减半。每次PPO更新样本减半，完整训练行为效果需新测。
+
+为保持物理时间尺度，gamma改为0.99498743710662、GAE lambda改为0.9746794344808964（原值的平方）；稠密奖励按实际10ms积分，事件奖励保持；动作变化平方代价按原5ms参考归一化。回合70/30/20秒、起立后完整30秒静站和按更新数推进的课程保持。
+
+域随机化仍可开关且分组范围保持v2合同的单位：额外策略观测延迟0或1周期现在对应0或10ms；这与实测轮I/O延迟分开记录。IMU固定偏角和无晃动保持，观测白噪声现在每10ms采样。该变化明确写入任务合同、原生startup和TensorBoard延迟毫秒指标。
+
+历史`wheel_leg_prone_motion_v1.json`可通过`--plan`显式选择200Hz/128步。新旧策略都必须使用各自任务时序，不能将200Hz旧PT当100Hz新训练或给实车部署资格。
+
+本机run004使用原`prone-motion-long`目录的冻结200Hz源码；本100Hz版本在独立`prone-motion-100hz`目录。开始新的100Hz训练前需结束并封存已有learner；入口继续拒绝重复learner，从零创建actor、critic、空Adam，禁止加载中断模型。
+
+固定10000次完整PPO更新，256环境、每环境64步、100Hz策略/1000Hz物理。上限163840000个rollout位置，实际用于学习的数量会扣除失能落稳样本，并记录于`progress.json`。它和参考仓库24步rollout的“一轮”不是同一个样本量口径。运行时间由实际每轮耗时决定，不预报未经测量的小时数。
 
 每20个角色名额始终保留6个标准趴地、5个静站；另外有正反直行、正反自旋、四象限弧线及高度角色。256环境实际取整人口由原生记录披露。前1000次运动请求为零，先练起立与静站；以后幅度逐步增大，6000次达到前后±2m/s，7000次达到双向100rpm实际车体yaw请求。转弯终点为前进/后退±2m/s同时yaw±0.6rad/s，横向加速度1.2m/s²，保留当前2.06m/s²投影限制，四组合均不被裁剪。2m/s直行对应约33.3rad/s轮轴速度，100rpm原地自旋对应约38.2rad/s两轮反转，低于现有90rad/s命令上限；这不证明真实电机已辨识或实车达到该速度。
 

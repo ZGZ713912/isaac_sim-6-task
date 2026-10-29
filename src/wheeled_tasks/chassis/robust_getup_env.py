@@ -761,7 +761,7 @@ class RobustGetupEnv(ChassisEnv):
             "Standing/request_abs_vx_m_s": velocity[quiet_request, 0].abs().mean() if quiet_request.any() else velocity.new_zeros(()),
             "Robust/domain_fraction": self.domain.enabled.float().mean(),
             "Robust/motor_strength_mean": self.domain.strength.mean(),
-            "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * 5.})
+            "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * self.domain.sensor_policy_dt * 1000.})
         if gap_quality is not None:
             info["log"].update({
                 "LegQuality/physical_speed_peak_rad_s": leg_speed_peak.max(),
