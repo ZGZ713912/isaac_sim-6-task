@@ -37,6 +37,21 @@ def test_force_and_holding_keep_frozen_dev_outputs(reference):
                                atol=0., rtol=0.)
 
 
+@pytest.mark.parametrize("device", ["cpu", pytest.param("cuda",
+    marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable"))])
+def test_native_coverage_scans_actual_soft_limits_in_float32(device):
+    from evaluate_prone_motion import compensation_coverage
+    spring = GasSpringCompensation(SETTINGS, root=ROOT, device=device)
+    coverage = compensation_coverage(spring, dev_gas=True, device=device)
+    assert spring.last["geometry_valid"].all() and torch.isfinite(coverage).all()
+    assert (coverage.abs() > .01).all() and (coverage.abs() < 40.).all()
+    encoder = spring.last["encoder_position"]
+    relative = (encoder.unflatten(-1, (2, 2))*encoder.new_tensor([[-1., 1.], [1., -1.]])).sum(-1)
+    limits = SETTINGS["relative_soft_limits"]
+    torch.testing.assert_close(relative[[0, -1]], relative.new_tensor([
+        [limits["minimum"]]*2, [limits["maximum"]]*2]), atol=1e-7, rtol=0.)
+
+
 @pytest.mark.parametrize("correct_scaling", [False, True])
 def test_real_recovery_wrapper_matches_dev_and_adds_compensation_once(reference, correct_scaling):
     control = controller()
