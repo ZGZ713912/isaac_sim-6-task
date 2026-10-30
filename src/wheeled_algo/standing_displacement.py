@@ -44,9 +44,9 @@ wheel angles must be continuous, already corrected for the physical gearbox
 and axis signs. Only relative coordinate differences have a useful origin.
 """
 
-    def __init__(self):
+    def __init__(self, geometry=None):
         super().__init__()
-        self.geometry = frozen_rolling_estimator()
+        self.geometry = frozen_rolling_estimator() if geometry is None else geometry
 
     def forward(self, positions, gravity):
         q, wheels = positions[:, :4], positions[:, 4:6]

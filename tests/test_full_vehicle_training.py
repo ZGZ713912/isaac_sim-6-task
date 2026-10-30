@@ -85,7 +85,12 @@ def test_all_full_vehicle_births_have_closed_linkages_and_no_terrain_penetration
         assert abs(p["root_position_m"][2]-height) < 1e-8
 
 
-def test_full_vehicle_odometry_captures_stationary_reference_and_rejects_wrong_geometry():
+def test_full_vehicle_odometry_captures_stationary_reference_and_rejects_wrong_geometry(monkeypatch):
+    # A full-vehicle run must not secretly load a historical chassis table
+    # before replacing it with its admitted geometry.
+    def forbidden_chassis_table():
+        raise AssertionError("full-vehicle odometry read the historical chassis lookup")
+    monkeypatch.setattr("wheeled_algo.standing_displacement.frozen_rolling_estimator", forbidden_chassis_table)
     cfg = PLAN["standing_odometry"]
     odometry = LocalStandingOdometry(1, "cpu", .01, cfg, geometry_directory=BUNDLE)
     bank = json.loads((BUNDLE/"pose_bank.json").read_text())
@@ -137,6 +142,25 @@ def test_gimbal_rng_is_separate_from_policy_and_partial_resets_are_local():
     assert torch.equal(before[[0, 2, 3]], g.yaw_goal[[0, 2, 3]])
     same = GimbalMotion(4, "cpu", .001, motion_contract(), 103)
     assert torch.equal(before, same.yaw_goal)
+
+
+def test_fresh_native_ppo_accepts_the_larger_critic_without_loading_weights():
+    from types import SimpleNamespace
+    from tensordict import TensorDict
+    from rsl_rl.algorithms import PPO
+    from train_prone_motion import learner_config
+    from wheeled_algo.scratch_standing import initialize_fresh
+    obs = TensorDict(dict(policy=torch.zeros(8, 35), critic=torch.zeros(8, 87)), batch_size=[8])
+    cfg = learner_config(PLAN, "cpu")
+    cfg["multi_gpu"] = None
+    algorithm = PPO.construct_algorithm(obs, SimpleNamespace(num_envs=8, num_actions=6), cfg, "cpu")
+    proof = initialize_fresh(algorithm, torch.zeros(6), initial_std=PLAN["initial_std"])
+    actor_input = next(m for m in algorithm.actor.mlp.modules() if isinstance(m, torch.nn.Linear))
+    critic_input = next(m for m in algorithm.critic.mlp.modules() if isinstance(m, torch.nn.Linear))
+    assert (actor_input.in_features, critic_input.in_features) == (35, 87)
+    assert proof["checkpoint_loaded"] is False and proof["teacher_loaded"] is False
+    assert proof["optimizer_states"] == 0 and not algorithm.optimizer.state
+    assert all(p.requires_grad for model in (algorithm.actor, algorithm.critic) for p in model.parameters())
 
 
 def test_legacy_v3_remains_the_chassis_recipe(tmp_path):

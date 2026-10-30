@@ -75,8 +75,7 @@ class LocalStandingOdometry:
             from wheeled_algo.rolling_velocity import SPEC_SHA256
             spec_sha = SPEC_SHA256
             table = json.loads(table_path().read_text())
-        coordinate = WheelAngleCoordinate()
-        coordinate.geometry = RollingBaseVelocity(table, expected_spec_sha256=spec_sha)
+        coordinate = WheelAngleCoordinate(RollingBaseVelocity(table, expected_spec_sha256=spec_sha))
         self.coordinate = BoundedSensorCoordinate(coordinate).to(device).eval()
         self.legs = EncoderLegGeometry(table, expected_spec_sha256=spec_sha).to(device).eval()
         self.source_origin = torch.zeros(count, 2, dtype=torch.float64, device=device)
