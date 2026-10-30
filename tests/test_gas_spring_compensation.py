@@ -54,6 +54,10 @@ def test_hash_and_configuration_are_authenticated():
     for changes in (dict(gain=1.1), dict(force_extrapolation=None), dict(physical_curve_outside_geometry=None)):
         with pytest.raises(ValueError):
             GasSpringCompensation(dict(SETTINGS, **changes), root=ROOT, device="cpu")
+    changed = deepcopy(SETTINGS)
+    changed["relative_soft_limits"]["maximum"] += .01
+    with pytest.raises(ValueError,match="authenticated model"):
+        GasSpringCompensation(changed,root=ROOT,device="cpu")
 
 
 def test_extension_is_positive_monotone_and_preserves_measured_values_and_endpoint_slopes():

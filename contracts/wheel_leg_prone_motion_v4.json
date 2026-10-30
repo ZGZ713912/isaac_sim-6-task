@@ -70,7 +70,7 @@
   "wheel_model": {
     "model": {
       "file": "model/wheel_leg_v2.0.2/training/wheel_model.json",
-      "sha256": "f89af15231f944c15b4b988bd3bf77ad85c42f2fa27c2dfc970c1f8c7246346e"
+      "sha256": "01d52214771bb9dea2cb592eff4dc6fbd27bb096faa90ff1e17b5d898a1e877c"
     },
     "control": {
       "file": "contracts/wheel_leg_prone_motion_control_100hz_v1.json",
@@ -92,18 +92,18 @@
   },
   "gas_spring_model": {
     "file": "model/wheel_leg_v2.0.2/training/gas_spring_model.json",
-    "sha256": "69d9afbbf32f8835214c5a191d32a6576872b3578ed9a4c2b4cdd099f022c9f1"
+    "sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9"
   },
   "gas_spring_feedforward": {
     "enabled": true,
     "model_file": "model/wheel_leg_v2.0.2/training/gas_spring_model.json",
-    "model_sha256": "69d9afbbf32f8835214c5a191d32a6576872b3578ed9a4c2b4cdd099f022c9f1",
+    "model_sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9",
     "gain": 1.0,
     "force_extrapolation": "positive_c1_endpoint_trend_v1",
     "physical_curve_outside_geometry": "hold_geometry_endpoint",
     "relative_soft_limits": {
-      "minimum": -0.140638855,
-      "maximum": 1.3889088544,
+      "minimum": -0.14084732125908495,
+      "maximum": 1.4282761689185115,
       "margin": 0.03,
       "projection": "outward_relative_torque_v1"
     }
@@ -226,7 +226,7 @@
     "severe_gravity_z": -0.5,
     "wheel_increment_margin_rad": 0.02,
     "wheel_increment_speed_allowance": 3.0,
-    "geometry_table_sha256": "96d656672cade2cfc07c80f2f427b8f6ff5aae70aa2c0e35fcaab738f9805dd6",
+    "geometry_table_sha256": "c30136fdae9b504b0033629c4b95e187cbcb841b7307f05be3d0d6f9ce6850b9",
     "source": "same_policy_encoder_IMU_stream_after_sensor_delay_and_noise",
     "wheel_input": "driver_continuous_output_shaft_angles; subtract_float64_request_origin_before_float32",
     "reference": "capture_once_after_contiguous_sensor_standing; preserve_during_height_change_and_drift",
@@ -234,7 +234,7 @@
     "invalid": "zero_features_and_validity; retain_reference; wheel_jump_fault_until_next_request",
     "control_outputs": false,
     "privileged_position_or_contact": false,
-    "geometry_model_spec_sha256": "7f62e0b47546a047219c078bdaa44fc2d82553af04b36b72ec1a94be29a22e18",
+    "geometry_model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
     "geometry_file": "model/wheel_leg_v2.0.2/training/encoder_geometry.json"
   },
   "quiet_position_tail": {
@@ -244,15 +244,20 @@
   },
   "full_vehicle": {
     "file": "model/wheel_leg_v2.0.2/training/recipe.json",
-    "sha256": "038ae83a0cdf3b638644bdffdffa0fe652c7dcf26da67f72ef8d9466d5fe127c"
+    "sha256": "f979f9aaa56d6f1ed04ccd1431c915b7d1ff98f419fefd13a5f267db441816e7"
   },
   "mechanism": {
     "file": "model/wheel_leg_v2.0.2/training/mechanism.json",
-    "sha256": "1c8ee2a8b65fc55ad7c4a3f825a6ba281142c59e9d272c8f4003e656ab60aae5"
+    "sha256": "bd443d5f1da22c363799fb6b64902101c85df5161689c1489b992eff9ff9c65b"
   },
   "pose_bank": {
     "file": "model/wheel_leg_v2.0.2/training/pose_bank.json",
-    "sha256": "21b55479e743d2090eb984b7cdad3df56ba41a0982a47a7ad504a28c8363c7ff"
+    "sha256": "eb737dabf554b26d997e2f55c730cef0fc2722e340bc8193db3ae7c5a03f3a09"
   },
-  "full_vehicle_scope": "Full21-body21.44174kg vehicle;20 tree joints and6 external loops. Independent torque-limited yaw/pitch motion, zero friction on merged base guide-roller collision hulls. Fresh training only; historical chassis tasks remain available for read-only comparison."
+  "full_vehicle_scope": "Full21-body21.44174kg vehicle;20 tree joints and6 external loops. Independent torque-limited yaw/pitch motion, zero friction on merged base guide-roller collision hulls. Fresh training only; historical chassis tasks remain available for read-only comparison.",
+  "mechanical_inner_knee_range_deg": [
+    40.0,
+    110.0
+  ],
+  "encoder_zero_inner_knee_deg": 110.0
 }

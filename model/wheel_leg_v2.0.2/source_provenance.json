@@ -39,7 +39,7 @@
   },
   "exporter_sha256": "a3caeb71e1ef9e2955095224c1cec9ab21d5ec5a4619e887e22ed9c16b384658",
   "generator": "tools/full_robot_v202.py",
-  "generator_sha256": "4fb90fc546b33d2c898d7e450f8a26570e28e67abc442fcb978c99a2e4f13f89",
+  "generator_sha256": "3c0a9c813fab055a1140fd670b0cc826f5857623aa54482c4f045a507320aa48",
   "user_gimbal_limits": {
     "source": "user specification 2026-10-30",
     "position_unit": "rad",
@@ -63,5 +63,17 @@
     "urdf_pitch_velocity_guard_rad_s": 100.0,
     "actuator_identified": false,
     "urdf_actuator_field_scope": "unactuated reference with inherited100rad/s solver guard; not motor specifications"
+  },
+  "previous_generators": [
+    {
+      "sha256": "4fb90fc546b33d2c898d7e450f8a26570e28e67abc442fcb978c99a2e4f13f89",
+      "scope": "original CAD frame and collision generation"
+    }
+  ],
+  "knee_limit_update": {
+    "generator": "scripts/sync_full_vehicle_knee_limits.py",
+    "generator_sha256": "27825699403b3b528c011873ed98df5cd35dbd9e10eb549b4c28c72c5e6b2434",
+    "source": "user confirmed 110-degree zero and 40-110 degree stops 2026-10-30",
+    "cad_frames_masses_and_collisions_unchanged": true
   }
 }

@@ -210,6 +210,8 @@ def source_hashes(plan_path, plan):
         recipe = json.loads((ROOT/plan["full_vehicle"]["file"]).read_text())
         binding = recipe["parent_component_validation"]
         names.extend([binding["file"], "model/wheel_leg_v2.0.2/build_receipt.json", "scripts/build_full_vehicle_training.py", "scripts/train_chassis.py",
+                      "scripts/sync_full_vehicle_knee_limits.py", "tools/full_robot_v202.py",
+                      "model/wheel_leg_v2.0.2/knee_limits_sync_receipt.json", "model/wheel_leg_v2.0.2/source_provenance.json",
                       "tests/test_full_vehicle_training.py", "docs/FULL_VEHICLE_TRAINING_20261030.md"])
         receipt = json.loads((ROOT/binding["file"]).read_text())
         names.extend(run["path"] for run in receipt["native_runs"])

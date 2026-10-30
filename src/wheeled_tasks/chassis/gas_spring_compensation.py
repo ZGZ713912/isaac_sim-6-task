@@ -36,9 +36,11 @@ def load_compensation(settings, root):
         raise ValueError("Declare the unmeasured endpoint-trend extrapolation explicitly")
     if cfg.get("physical_curve_outside_geometry") != "hold_geometry_endpoint":
         raise ValueError("Declare the physical-force prior outside the geometry lookup")
-    if cfg.get("relative_soft_limits") != dict(minimum=-.140638855,maximum=1.3889088544,
-            margin=.03,projection="outward_relative_torque_v1"):
-        raise ValueError("Gas-compensated training requires matching RMCS relative soft limits")
+    bounds = model["soft_limit_active_difference_rad"]
+    if (len(bounds) != 2 or not all(math.isfinite(v) for v in bounds) or bounds[0] >= bounds[1]
+            or cfg.get("relative_soft_limits") != dict(minimum=bounds[0],maximum=bounds[1],
+                margin=.03,projection="outward_relative_torque_v1")):
+        raise ValueError("Gas-compensated training requires relative soft limits matching its authenticated model")
     return cfg, model
 
 
