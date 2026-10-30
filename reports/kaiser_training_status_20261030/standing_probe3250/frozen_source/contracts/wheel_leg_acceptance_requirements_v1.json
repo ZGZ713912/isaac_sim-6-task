@@ -1,0 +1,86 @@
+{
+  "schema": "wheel-leg-permanent-user-requirements-v1",
+  "recorded_date": "2026-10-26",
+  "authority": "User requirements in this conversation; durable capability and measurement requirements",
+  "document": "docs/WHEEL_LEG_ACCEPTANCE.md",
+  "execution_effect": "Requirements only; does not change a running policy, evaluator, training budget, controller, or deployment",
+  "change_policy": "Preserve this version and historical results. User changes require an explicit successor version; a failure does not authorize lowering requirements.",
+  "training_origin": {
+    "fresh_actor": true,
+    "fresh_critic": true,
+    "empty_Adam": true,
+    "resume_old_training": false,
+    "old_policy_teacher_or_donor": false,
+    "old_checkpoints_for_readonly_comparison": true,
+    "nominal_mechanical_initialization_prior": "Allowed when documented; no learned weights or runtime scripted recovery"
+  },
+  "standing_contact": {
+    "required_both_wheels_supported_fraction": 1.0,
+    "allowed_missing_physical_samples": 0,
+    "startup_grace_seconds": 0.0,
+    "current_native_sampling_hz": 1000,
+    "current_observer": "Both wheel contact force norms strictly exceed 2 N at every native physical sample; retain clearance and force diagnostics together",
+    "scope": "Standing begins from the first physical sample of the grounded test; after recovery, apply to the declared stable-standing segment without erasing the preceding recovery trajectory",
+    "no_threshold_or_clearance_relabeling_to_hide_support_loss": true
+  },
+  "stationary_spin": {
+    "target_rpm": 100,
+    "minimum_acceptable_rpm": 80,
+    "measured_quantity": "Actual body yaw rate, not wheel speed, requested command, clipped command, or reward",
+    "directions": ["clockwise", "counterclockwise"],
+    "must_measure_xy_max_excursion_terminal_offset_and_outward_trend": true,
+    "must_remain_upright_and_smooth": true,
+    "height_combinations_required": true
+  },
+  "capabilities": [
+    {"id": "initial_recovery", "requirement": "Recover from initial front/back/left/right/upside-down and asymmetric leg poses; stabilize and continue the requested task"},
+    {"id": "moving_fall_recovery", "requirement": "Detect and recover quickly after a real fall during forward/reverse/turning/spinning motion; resume the request without scripted assistance"},
+    {"id": "standing", "requirement": "Stable quiet standing at low/mid/high heights with continuous dual-wheel support, small true XY drift and no sustained outward drift"},
+    {"id": "low_speed_straight", "requirement": "Track low positive and negative speeds and the straight path smoothly"},
+    {"id": "high_speed_straight", "requirement": "Track high forward and reverse speeds while retaining straight-path accuracy and balance"},
+    {"id": "stationary_spin", "requirement": "Target100rpm, at least80rpm, both directions, near the same ground location without falling or vibration"},
+    {"id": "four_direction_arcs", "requirement": "Forward-left, forward-right, reverse-left and reverse-right simultaneous translation and turning, including transitions"},
+    {"id": "standing_height_change", "requirement": "Smooth low/mid/high height changes while standing without lift, drift or loss of balance"},
+    {"id": "moving_height_change", "requirement": "Change height during forward/reverse/turning motion while maintaining tracking and balance"},
+    {"id": "spinning_height_change", "requirement": "Change height during both spin directions while maintaining yaw, location and balance"},
+    {"id": "high_speed_braking", "requirement": "Abruptly command zero from high forward and reverse speeds; stop promptly, smoothly and upright with small overshoot and little rebound"},
+    {"id": "smoothness", "requirement": "All tasks must avoid high-frequency leg/wheel excitation, contact chatter and dangerous measured joint speed"},
+    {"id": "robustness", "requirement": "Confirm nominal and randomized held-out dynamics, actuator/sensor/timing/friction domains, seeds and disturbances; preserve all failures"}
+  ],
+  "leg_wheel_coordination": {
+    "four_leg_joints_remain_active": true,
+    "use_case": "Coordinate hip/knee motion to move wheel centers fore/aft relative to the body together with driven-wheel control for acceleration, reversal and braking",
+    "measure": ["left/right virtual-leg length and angle", "wheel-center fore/aft body position and velocity", "actual wheel speed", "pitch and pitch rate", "true XY velocity", "contact and slip", "applied torque and power"],
+    "not_proven_by_architecture_or_action_range_alone": true,
+    "no_leg_freeze_or_scripted_recovery_substitute": true
+  },
+  "inherited_references": {
+    "standing_heights_m": [0.23, 0.305, 0.42],
+    "standing_xy_max_excursion_m": {"low": 0.05, "mid": 0.05, "high": 0.10},
+    "high_stance_recentering": "Keep the prior30s final10s mean radius<=max(5cm,80percent peak) and outward radial slope<=1mm/s; finite-window evidence only",
+    "closed_chain_gap_max_m": 0.003,
+    "foundation_native_test_seconds": 8,
+    "long_standing_confirmation_seconds": 30,
+    "note": "Older grace periods, survival-only gates and incomplete skill-success thresholds do not override the user's100percent standing-contact requirement. References are not proof of passing the new complete suite."
+  },
+  "not_yet_quantified_by_user": [
+    "maximum time from fall to stable recovery",
+    "allowed transient speed/yaw errors and settling time for every requested speed",
+    "maximum straight-path lateral and heading error",
+    "maximum spin-center excursion and long-term drift",
+    "maximum height-transition settling time and overshoot",
+    "maximum braking time, distance, overshoot and rebound",
+    "absolute smoothness limits for spectral energy, jerk, torque slew and joint speed across dynamic recovery"
+  ],
+  "unquantified_rule": "Retain these objectives and report their measurements. Freeze engineering test ranges and numeric thresholds before each new evaluation; do not represent an unspecified value as a user-approved threshold or infer overall qualification from an absent limit.",
+  "evidence": {
+    "same_checkpoint_required_for_integrated_qualification": true,
+    "separate_initial_fall_from_in_motion_fall": true,
+    "separate_rise_from_stable_hold_and_followup": true,
+    "separate_requested_from_applied_and_measured_commands": true,
+    "separate_nominal_DR_simulation_and_hardware": true,
+    "unknown_or_unmeasured_is_not_pass": true,
+    "training_means_are_not_deterministic_behavior_acceptance": true,
+    "curve_source": "Existing RSL-RL TensorBoard event logging; checkpoint, native trace, contract, judgment and SHA receipts preserve provenance"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "wheel-leg-randomization-study-v1",
+  "status": "prepared_research_profiles_not_behavior_qualified",
+  "nominal_fraction": 0.5,
+  "default_profile": "sensor_first",
+  "reference": "Full research bounds, not measured hardware tolerances. Each group scale multiplies its radius once. Timing uses explicit discrete ranges independently.",
+  "groups": ["observation_noise", "encoder_bias", "imu_alignment", "imu_wobble", "actuator_gains", "rigid_body", "ground_friction"],
+  "profiles": {
+    "nominal": {"observation_noise": 0, "encoder_bias": 0, "imu_alignment": 0, "imu_wobble": 0, "actuator_gains": 0, "rigid_body": 0, "ground_friction": 0},
+    "sensor_first": {"observation_noise": 0.25, "encoder_bias": 0.2, "imu_alignment": 0, "imu_wobble": 0, "actuator_gains": 0, "rigid_body": 0, "ground_friction": 0},
+    "imu_alignment_only": {"observation_noise": 0, "encoder_bias": 0, "imu_alignment": 0.2, "imu_wobble": 0, "actuator_gains": 0, "rigid_body": 0, "ground_friction": 0},
+    "imu_wobble_only": {"observation_noise": 0, "encoder_bias": 0, "imu_alignment": 0, "imu_wobble": 0.2, "actuator_gains": 0, "rigid_body": 0, "ground_friction": 0},
+    "actuator_only": {"observation_noise": 0, "encoder_bias": 0, "imu_alignment": 0, "imu_wobble": 0, "actuator_gains": 0.25, "rigid_body": 0, "ground_friction": 0},
+    "rigid_body_only": {"observation_noise": 0, "encoder_bias": 0, "imu_alignment": 0, "imu_wobble": 0, "actuator_gains": 0, "rigid_body": 0.2, "ground_friction": 0},
+    "friction_only": {"observation_noise": 0, "encoder_bias": 0, "imu_alignment": 0, "imu_wobble": 0, "actuator_gains": 0, "rigid_body": 0, "ground_friction": 0.25},
+    "combined_light": {"observation_noise": 0.25, "encoder_bias": 0.2, "imu_alignment": 0.2, "imu_wobble": 0, "actuator_gains": 0.25, "rigid_body": 0.2, "ground_friction": 0}
+  },
+  "timing": {
+    "torque_delay_ms": [0, 0],
+    "motor_tau_ms": [0.0, 0.0],
+    "sensor_delay_policy_ticks": [0, 0],
+    "pd_feedback_delay_ms": [0, 0],
+    "pd_feedback_period_ms": [1, 1]
+  },
+  "notes": [
+    "The initial selected study tests noise and encoder bias, without simultaneously changing dynamics, moving IMU mount, ground or timing.",
+    "All training remains fresh actor, fresh critic, empty Adam. No checkpoint resume, donor or teacher.",
+    "Motor/encoder velocity white noise is policy-rate observation noise; this does not claim 1kHz PD white-noise coverage.",
+    "Legacy policy-encoder and PD encoder biases are independently drawn. Their disagreement is reported, not hidden or claimed hardware-identified.",
+    "The nominal fraction applies to the shared rigid-body/actuator/sensor mask. When friction varies it applies to every ground lane, so that fraction is not a fully nominal-scene guarantee.",
+    "Native timing is retained initially. Delay experiments must explicitly edit the discrete timing ranges and use a new frozen profile/receipt.",
+    "A strength argument scales the named profile's group radii. It does not silently change timing or the randomized population fraction."
+  ]
+}
