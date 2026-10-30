@@ -1,0 +1,127 @@
+{
+  "schema": "local-standing-odometry-implementation-review-v1",
+  "observed_utc": "2026-10-30T09:33:07.823597+00:00",
+  "code_commit": "e2d75a7c9e76b010ce3926afa392ee3330c91e6d",
+  "branch": "dev/wheel-leg-unified",
+  "pushed": false,
+  "tests": {
+    "passed": 153,
+    "failed": 0,
+    "command": "PYTHONPATH=src:scripts /home/noir/miniconda3/envs/isaacsim6/bin/python -m pytest -q tests/test_standing_local_odometry.py tests/test_prone_motion_cli.py tests/test_prone_motion.py tests/test_prone_motion_timing.py tests/test_unified_training.py tests/test_standing_displacement.py tests/test_standing_sensor_uncertainty.py tests/test_scut_observation.py tests/test_prone_motion_performance.py --disable-warnings --maxfail=3"
+  },
+  "native": {
+    "status": "native_probe_completed_unqualified",
+    "completed_updates": 0,
+    "optimizer_attempts": 0,
+    "checkpoint_reads": [],
+    "all_checks_pass": true,
+    "source_mismatches_at_exit": [],
+    "source_commit": "e2d75a7c9e76b010ce3926afa392ee3330c91e6d",
+    "source_count": 349,
+    "archive_sha256": "973f0d291c10abd79154fa8663784931eb7d2dfda69d4ecbd61fc674380d8e0b",
+    "process_exited": true,
+    "contexts": [
+      {
+        "profile": "nominal",
+        "strength": 0.0,
+        "checks": 34,
+        "passed": 34,
+        "valid_standing_samples": 5768,
+        "active_prone_samples": 3024
+      },
+      {
+        "profile": "requested",
+        "strength": 1.0,
+        "checks": 34,
+        "passed": 34,
+        "valid_standing_samples": 5103,
+        "active_prone_samples": 3024
+      }
+    ]
+  },
+  "compatibility": {
+    "legacy_contract_unchanged": true,
+    "original_plan_field_changes": [
+      "schema"
+    ],
+    "additional_fields": [
+      "quiet_position_tail",
+      "standing_odometry"
+    ],
+    "actor_dim": 35,
+    "critic_dim": 83,
+    "action_dim": 6,
+    "policy_hz": 100,
+    "physics_and_PD_hz": 1000,
+    "all_six_actions_trainable": true,
+    "high_speed_spin_and_rise_reward_identity_tested": true
+  },
+  "remote": {
+    "status": "training",
+    "pid": 3250943,
+    "start_ticks": 94217696,
+    "completed_updates": 3474,
+    "optimizer_attempts": 3474,
+    "observed_utc": "2026-10-30T09:31:21.281957+00:00",
+    "same_owner": true,
+    "source_commit": "e77f1675fd9d5906b41bc18a73e808e83ecb2a69",
+    "remote_modified": false
+  },
+  "new_training_started": false,
+  "restart_choice": "pending_user_selection",
+  "full_capability_qualified": false,
+  "capability_status": {
+    "R01": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "R02": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "S01": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "M01": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "M02": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "M03": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "M04": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "H01": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "H02": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "H03": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "B01": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "Q01": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    },
+    "D01": {
+      "status": "not_evaluated_with_trained_v4_policy",
+      "qualified": false
+    }
+  }
+}
