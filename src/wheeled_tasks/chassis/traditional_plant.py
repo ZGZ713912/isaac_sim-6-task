@@ -1,4 +1,4 @@
-"""Native 1 ms full-CAD plant for the shared RMCS traditional controller.
+"""Native 1 ms v2.0.2 plant for the shared RMCS traditional controller.
 
 Create after AppLauncher. No policy environment, action decimation, position
 teleports during physics, or ground-truth controller velocity is used.
@@ -13,6 +13,7 @@ from scipy.spatial.transform import Rotation
 
 from .full_robot_asset import ACTIVE, SPRINGS, digest
 from .traditional_model import equilibrium_pose, geometry
+from .traditional_asset import TraditionalAsset
 
 
 class FullRobotTraditionalPlant:
@@ -37,13 +38,10 @@ class FullRobotTraditionalPlant:
         if not 1 <= self.substeps <= 8 or abs(self.substeps*self.physics_dt-self.dt)>1e-12:
             raise ValueError("Physics dt must divide the 1 ms controller interval")
         self.root, self.bundle = Path(root), Path(bundle)
-        manifest = json.loads((self.bundle / "manifest.json").read_text())
-        for name, checksum in manifest["files_sha256"].items():
-            if digest(self.bundle / name) != checksum:
-                raise ValueError("Plant manifest mismatch: " + name)
-        self.spec = json.loads((self.bundle / "model_spec.json").read_text())
-        self.curve = json.loads((self.root / "model/gas_spring_compensation_20261028/model.json").read_text())
-        wheel_path = "model/wheel_identified_1562_20261028/model.json"
+        self.asset = TraditionalAsset(self.bundle)
+        manifest, self.spec = self.asset.manifest, self.asset.spec
+        self.springs = self.asset.spring_component(self.root, device)
+        wheel_path = str(self.bundle / "wheel_model.json")
         self.wheels = IdentifiedWheelResponse(1, device, self.physics_dt, dict(enabled=True,
             model_path=wheel_path, model_sha256=digest(self.root / wheel_path), apply_aggregate_delay=True), root=self.root)
         self.sim = su.SimulationContext(su.SimulationCfg(device=device, dt=self.physics_dt,
@@ -67,11 +65,12 @@ class FullRobotTraditionalPlant:
 
         def actuator(names, limit, **extra):
             parameters = dict(stiffness=0., damping=0., effort_limit=limit,
-                effort_limit_sim=limit, velocity_limit_sim=1e9)
+                effort_limit_sim=limit, velocity_limit_sim=self.asset.limits["passive_joint_velocity_limit_rad_s"])
             parameters.update(extra)
             return IdealPDActuatorCfg(joint_names_expr=names, **parameters)
 
-        passive = [j["name"] for j in self.spec["joints"] if j["name"] not in ACTIVE + SPRINGS]
+        passive = [j["name"] for j in self.spec["joints"]
+            if j["name"] not in ACTIVE + SPRINGS and j["type"] != "fixed"]
         native_wheel = self.wheels.native_parameters()
         native_wheel["friction"] = native_wheel.pop("frictionloss")
         native_wheel["viscous_friction"] = native_wheel.pop("damping")
@@ -109,12 +108,33 @@ class FullRobotTraditionalPlant:
         self.ids = [self.robot.joint_names.index(n) for n in ACTIVE]
         self.canonical_ids = [self.ids[i] for i in self.canonical_to_asset]
         self.gas_ids = [self.robot.joint_names.index(n) for n in SPRINGS]
-        self.gimbal_ids = [self.robot.joint_names.index(n) for n in ("M_joint1", "M_joint2")]
-        self.passive_ids = [self.robot.joint_names.index(n) for n in passive if n not in ("M_joint1", "M_joint2")]
+        self.passive_ids = [self.robot.joint_names.index(n) for n in passive]
+        if set(self.robot.joint_names) != set(manifest["tree_joint_names"]):
+            raise ValueError("v2.0.2 native moving DOFs differ")
+        fixed = [p for p in self.sim.stage.Traverse() if p.IsA(UsdPhysics.FixedJoint)
+            and p.GetName() in manifest["fixed_joint_names"]]
+        if len(fixed) != 2:
+            raise ValueError("v2.0.2 requires its two fixed-zero gimbal joints")
+        self.limit_ids = [self.robot.joint_names.index(n) for n in ("L_joint2", "R_jonit2", *SPRINGS)]
+        by_name = {j["name"]:j for j in self.spec["joints"]}
+        self.mechanical_limits = np.array([[float(by_name[n]["limit"][k]) for k in ("lower","upper")]
+            for n in ("L_joint2", "R_jonit2", *SPRINGS)])
+        native_limits = wp.to_torch(self.robot.root_view.get_dof_limits())[0,self.limit_ids].cpu().numpy()
+        if not np.allclose(native_limits,self.mechanical_limits,atol=2e-6,rtol=0.):
+            raise ValueError("v2.0.2 native mechanical limits differ")
         masses = wp.to_torch(self.robot.root_view.get_masses())
         expected_mass = sum(b["mass"] for b in self.spec["bodies"])
         if len(self.robot.body_names) != 21 or abs(float(masses.sum()) - expected_mass) > 1e-4:
             raise ValueError("Native PhysX mass differs from the full CAD")
+        coms = wp.to_torch(self.robot.root_view.get_coms())[0].cpu().numpy()
+        inertias = wp.to_torch(self.robot.root_view.get_inertias())[0].cpu().numpy().reshape(-1,3,3)
+        by_body = {b["name"]:b for b in self.spec["bodies"]}
+        com_error = max(float(abs(coms[i,:3]-by_body[n]["com"]).max())
+            for i,n in enumerate(self.robot.body_names))
+        inertia_error = max(float(abs(inertias[i]-by_body[n]["inertia"]).max())
+            for i,n in enumerate(self.robot.body_names))
+        if com_error > 2e-7 or inertia_error > 3e-7:
+            raise ValueError("v2.0.2 native COM/inertias differ from canonical link frames")
         if not .7 <= mass_scale <= 1.3:
             raise ValueError("Mass perturbation outside reviewed range")
         if mass_scale != 1.:
@@ -126,14 +146,18 @@ class FullRobotTraditionalPlant:
         expected_added = [r["additional_armature_kg_m2"] for r in self.wheels.rows]
         if not np.allclose(added, expected_added, atol=1e-8):
             raise ValueError("Native wheel armature mismatch")
-        self.receipt = dict(plant="full_robot_v201_closedchain_research", body_count=21,
+        self.receipt = dict(plant=manifest["model_kind"], body_count=21,
+            asset_manifest_sha256=digest(self.bundle/"manifest.json"),
+            control_frame=manifest["control_frame"], additional_root_rotation=False,
             tree_joint_count=len(self.robot.joint_names), external_loop_count=len(loops),
             mass_kg=float(masses.sum()), mass_scale=mass_scale, friction=friction,
             physics_dt_s=self.physics_dt, control_dt_s=self.dt, action_hold_ticks=self.substeps,
             wheel_response=self.wheels.summary(), wheel_armature_readback=added.tolist(),
-            gimbal_control="explicit PD hold at CAD zero; 30 Nm/rad, 1 Nms/rad, 8 Nm cap",
-            gas_spring="identified axial-force knots reused with endpoint hold; right symmetry assumed",
-            closedchain_source="v201 CAD plus datum-checked transported loop pins",
+            gimbal_control="supplied v2.0.2 fixed-zero joints; full CAD masses retained",
+            gas_spring="v2.0.2 bound force curve and declared C1 endpoint trend; right symmetry assumed",
+            closedchain_source="supplied v2.0.2 USD loop joints; no pin regeneration",
+            native_mechanical_limits=self.mechanical_limits.tolist(),
+            native_com_max_error_m=com_error, native_inertia_max_error_kg_m2=inertia_error,
             ground_representation="native infinite Plane at z=0; finite display-only quad",
             fixed_base=fixed_base, hardware_deployment_ready=False)
         self.previous_velocity = np.zeros(3)
@@ -177,6 +201,9 @@ class FullRobotTraditionalPlant:
         # The controller packet contains only motor encoders and synthetic IMU.
         packet = np.r_[q, dq, pitch, angular[1], yaw, angular[2], self.specific_force]
         truth_velocity = rotation.inv().apply(data.root_link_lin_vel_w.torch[0].detach().cpu().numpy())
+        limited = data.joint_pos.torch[0,self.limit_ids].detach().cpu().numpy()
+        excess = np.maximum(np.maximum(self.mechanical_limits[:,0]-limited,
+            limited-self.mechanical_limits[:,1]),0.)
         bodies = data.body_link_pose_w.torch[0].detach().cpu().numpy()
         lengths = []
         for side in ("L", "R"):
@@ -186,6 +213,7 @@ class FullRobotTraditionalPlant:
         return dict(packet=packet, time_ns=self.tick*1_000_000, pitch=float(pitch), roll=float(roll),
             yaw_rate=float(angular[2]), velocity=float(truth_velocity[0]), base_height=float(pose[2]),
             leg_length_m=lengths,
+            knee_limit_excess_rad=float(excess[:2].max()), spring_limit_excess_m=float(excess[2:].max()),
             position=pose[:3].tolist(), loop_gap_m=self.loop_gap(),
             wheel_force_n=np.linalg.norm(self.wp.to_torch(
                 self.contact_view.get_contact_force_matrix(dt=self.physics_dt)).cpu().numpy().reshape(2, 3), axis=1))
@@ -230,12 +258,10 @@ class FullRobotTraditionalPlant:
             self.effort[:, self.ids] = motor
             self.effort[:, [self.ids[2], self.ids[5]]] += self.wheels.passive_effort
             q = self.robot.data.joint_pos.torch
-            for i, name in enumerate(SPRINGS):
-                compression = self.spec["spring_binding"][name]["compression_at_q_zero_m"] - float(q[0, self.gas_ids[i]])
-                self.effort[0, self.gas_ids[i]] = float(np.interp(compression,
-                    self.curve["compression_knots_m"], self.curve["force_knots_n"]))
+            compression = q.new_tensor([self.spec["spring_binding"][n]["compression_at_q_zero_m"]
+                for n in SPRINGS])-q[:,self.gas_ids]
+            self.effort[:,self.gas_ids] = self.springs.physical_force(compression)
             self.effort[:, self.passive_ids] = -.002*dq[:, self.passive_ids]
-            self.effort[:, self.gimbal_ids] = (-30.*q[:, self.gimbal_ids]-dq[:, self.gimbal_ids]).clamp(-8., 8.)
             self.robot.set_joint_effort_target_index(target=self.effort)
             self.robot.write_data_to_sim()
             self.sim.step(render=False)

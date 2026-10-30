@@ -1,4 +1,4 @@
-"""Offline equilibria, constrained virtual work and LQR seeds for v2.0.1."""
+"""Offline equilibria, constrained virtual work and LQR seeds for v2.0.2."""
 from __future__ import annotations
 
 import numpy as np
@@ -30,7 +30,8 @@ def equilibrium_pose(spec, length, initial=None):
     if not .22 <= length <= .355:
         raise ValueError("Length outside the initial reviewed research interval")
     beta = np.arccos((.21**2 + .25**2 - length**2) / (2*.21*.25))
-    knee = beta - (np.pi - 2.3573)
+    zeros = spec["passive_knee_zero_inner_rad"]
+    knee = beta - zeros["L_joint2"]
     seed = initial or spec["nominal_joint_pos"]
     fixed = dict(L_joint2=knee, R_jonit2=-knee, L_joint3=0., R_joint3=0., M_joint1=0., M_joint2=0.)
 
@@ -46,7 +47,7 @@ def equilibrium_pose(spec, length, initial=None):
                    - frames[s+"_link1"][:3, 3])[[0, 2]]) for s in ("L", "R")]
         return np.array([com[0] - axle_x, lengths[0] - length, lengths[1] - length])
 
-    result = least_squares(balance, [-.42, knee, -knee], xtol=1e-11, ftol=1e-11, gtol=1e-11,
+    result = least_squares(balance, [-.42, knee, -(beta-zeros["R_jonit2"])], xtol=1e-11, ftol=1e-11, gtol=1e-11,
                            bounds=([-1.4, -.08, -1.08], [.6, 1.08, .08]), diff_step=1e-4)
     if np.max(np.abs(balance(result.x))) > 1e-7:
         raise ValueError("No supported full-robot equilibrium at requested length")
@@ -56,7 +57,7 @@ def equilibrium_pose(spec, length, initial=None):
 def virtual_work(spec, q):
     names = [j["name"] for j in spec["joints"]]
     active = [names.index(n) for n in ACTIVE]
-    passive = [i for i, n in enumerate(names) if n not in ACTIVE + ["M_joint1", "M_joint2"]]
+    passive = [i for i, j in enumerate(spec["joints"]) if j["name"] not in ACTIVE and j["type"] != "fixed"]
     columns, gradient = [], []
     for name in names:
         plus, minus = dict(q), dict(q)
@@ -122,6 +123,6 @@ def posture_table(spec, lengths):
             spring_extension_jacobian=spring.tolist(), tangent_residual_m=error,
             compression_m=[spec["spring_binding"][n]["compression_at_q_zero_m"] - q[n] for n in SPRINGS],
             axle_x_m=float((frames["L_link3"][0, 3]+frames["R_link3"][0, 3])/2), **seed))
-    return dict(schema="full-robot-v201-traditional-postures/v1", active_order=ACTIVE,
+    return dict(schema="full-robot-v202-traditional-postures/v1", active_order=ACTIVE,
         positions_are_cad_joint_coordinates=True, hardware_mapping_verified=False,
         lengths_m=[float(v) for v in lengths], knots=rows)
