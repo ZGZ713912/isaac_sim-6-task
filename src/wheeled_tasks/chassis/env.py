@@ -779,7 +779,8 @@ class ChassisEnv:
             self.full_tasks = FullTaskSemantics(num_envs, device, self.policy_dt, semantics)
         if config.get("command_reference"):
             from .references import CommandReference
-            if not self.scut35 or self.body_count != 19 or self.full_tasks is None:
+            expected_bodies = 21 if config.get("full_vehicle") else 19
+            if not self.scut35 or self.body_count != expected_bodies or self.full_tasks is None:
                 raise ValueError("Command-reference control requires the declared V5 task interface")
             self.references = CommandReference(num_envs, device, config["command_reference"])
         if config.get("step_jump_task", {}).get("enabled"):
