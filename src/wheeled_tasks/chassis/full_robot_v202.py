@@ -12,7 +12,7 @@ import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_BUNDLE = ROOT / "model/wheel_leg_v2.0.2/isaac"
+DEFAULT_BUNDLE = ROOT / "model/wheel_leg_v2.0.2/friction_v1/isaac"
 ACTIVE = ("L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3")
 
 
@@ -66,6 +66,14 @@ class FullRobotV202:
         wheel = json.loads((self.bundle / "wheel_model.json").read_text())
         if wheel["asset_rebinding"]["model_spec_sha256"] != self.spec_sha256:
             raise ValueError("Full-vehicle wheel inertia binding differs")
+        from .leg_motor_friction import load
+        self.leg_friction_settings, _ = load(self.runtime.get("leg_motor_friction"), ROOT)
+        if bool(self.manifest.get("runtime_leg_motor_friction_required")) != self.leg_friction_settings["enabled"]:
+            raise ValueError("Full-vehicle leg friction is missing from its runtime")
+
+    def leg_friction(self, count, device="cpu"):
+        from .leg_motor_friction import LegMotorFriction
+        return LegMotorFriction(count, device, self.runtime.get("leg_motor_friction"), root=ROOT)
 
     def encoder_geometry(self, device="cpu"):
         from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry

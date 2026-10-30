@@ -219,6 +219,11 @@ class ProneMotionEnv(RobustGetupEnv):
             "ProneMotion/timeout_events": (done & ~terminated).float().sum(),
             "ProneMotion/wheel_speed_peak_rad_s": state["dq"][:, [2, 5]].abs().max()}
         physical = self.prone_motion_physical
+        if self.leg_friction.enabled:
+            loss, speed = physical["leg_friction_passive_effort"], physical["leg_friction_velocity"]
+            result["LegFriction/dissipated_power_mean_w"] = -(loss*speed).sum(-1).mean()
+            for index, name in enumerate(self.leg_friction.model["motor_names"]):
+                result["LegFriction/"+name+"_passive_abs_mean_nm"] = loss[..., index].abs().mean()
         result.update({
             "ProneMotion/gas_spring/outside_identified_fraction": physical["spring_outside_identified"].float().mean(),
             "ProneMotion/gas_spring/compression_min_m": physical["spring_compression"].min(),

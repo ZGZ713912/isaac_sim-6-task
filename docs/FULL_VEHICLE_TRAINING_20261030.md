@@ -1,6 +1,6 @@
 # v4 整车训练配置
 
-默认 `WheelLeg-ProneMotion-v4` 使用 `model/wheel_leg_v2.0.2/training`，继承 2.0.2 的全部 21 个刚体、21.44174 kg 质量、惯量、碰撞与六个闭链约束。原始 CAD 资产和历史纯底盘 v1/v2/v3 配置保留。只训练全新 actor、critic 和空 Adam；没有旧权重、teacher 或 donor。
+默认 `WheelLeg-ProneMotion-v4` 使用 `model/wheel_leg_v2.0.2/friction_v1/training`，继承 2.0.2 的全部 21 个刚体、21.44174 kg 质量、惯量、碰撞与六个闭链约束，并加入2026-10-31辨识的腿电机动摩擦初值。原 `model/wheel_leg_v2.0.2/training` 和原父资产冻结保留，供既有运行继续使用；原始 CAD 资产和历史纯底盘 v1/v2/v3 配置保留。只训练全新 actor、critic 和空 Adam；没有旧权重、teacher 或 donor。动摩擦适用范围、未辨识参数及数值实现见 [接入说明](LEG_MOTOR_FRICTION_20261031.md)。
 
 2026-10-31 已把默认整车训练链同步到用户确认的 **40°–110° 大小腿机械内夹角**，电机置零参考为 **110°**。父资产及可动云台派生资产的 USD、机械限位、编码器和气簧几何、主动轴相对角软限位、出生姿态库、站立里程计、训练合同和源文件归档均已重新绑定。原始气簧力节点保留，不把限位修改称作重新辨识。旧 40°–107° 回执只保留历史身份，当前检查记录在 `reports/full_vehicle_limits110_20261031/`。
 

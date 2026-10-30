@@ -138,7 +138,7 @@ class ResetGeometry:
 def main():
     if DIRECTORY.exists():
         raise ValueError("Training derivative already exists; preserve it before an intentional rebuild")
-    asset = FullRobotV202()
+    asset = FullRobotV202(ROOT/"model/wheel_leg_v2.0.2/isaac")
     DIRECTORY.mkdir()
     spec = deepcopy(asset.spec)
     for j in spec["joints"]:

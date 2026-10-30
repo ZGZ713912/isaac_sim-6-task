@@ -1,0 +1,39 @@
+#usda 1.0
+(
+    defaultPrim = "Robot"
+    subLayers = [
+        @robot.usda@
+    ]
+)
+
+over "Robot" (
+    customData = {
+        string control_frame = "Xforward_Yleft_Zup"
+        string gimbal_mode = "free_uncontrolled"
+        bool hardware_deployment_ready = 0
+        string model_kind = "full_robot_v202_gas_spring_closedchain"
+    }
+)
+{
+    over "tree_joints"
+    {
+        def PhysicsRevoluteJoint "M_joint1"
+        {
+            uniform token physics:axis = "Z"
+            quatf physics:localRot0 = (0.9999974, -0.0022780346, 9.445522e-10, 0)
+            quatf physics:localRot1 = (0.9999974, -0.0022780346, 9.445522e-10, 0)
+            float physics:lowerLimit = -inf
+            float physics:upperLimit = inf
+        }
+
+        def PhysicsRevoluteJoint "M_joint2"
+        {
+            uniform token physics:axis = "Z"
+            quatf physics:localRot0 = (0.70871574, 0.7054941, 5.3118656e-15, 0)
+            quatf physics:localRot1 = (0.70871574, 0.7054941, 5.3118656e-15, 0)
+            float physics:lowerLimit = -30
+            float physics:upperLimit = 35
+        }
+    }
+}
+

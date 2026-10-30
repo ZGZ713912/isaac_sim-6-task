@@ -69,6 +69,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         authenticate(cfg, ROOT)
         if cfg["full_vehicle"] != full_vehicle:
             raise ValueError("Plan and mechanism select different full vehicles")
+        if cfg.get("leg_motor_friction") != plan.get("leg_motor_friction"):
+            raise ValueError("Plan and mechanism select different leg friction models")
         settings["prone_geometry"]["encoder_geometry"].update(
             table=plan["standing_odometry"]["geometry_file"],
             table_sha256=plan["standing_odometry"]["geometry_table_sha256"],
@@ -124,6 +126,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     row["control"]["timing"] = deepcopy(wheel_control["timing"])
     row["runtime"].update(rates)
     row["runtime"]["gas_spring_compensation"] = deepcopy(cfg["v5_control"].get("gas_spring_compensation"))
+    if "leg_motor_friction" in cfg:
+        row["runtime"]["leg_motor_friction"] = deepcopy(cfg["leg_motor_friction"])
+        row["runtime"]["modules"]["leg_motor_friction"] = True
     design["scope"] = "fresh_prone_motion_long"
     base.write_json(design_path, design)
     cfg["design_preflight"]["sha256"] = base.digest(design_path)
@@ -137,6 +142,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
+        leg_motor_friction=deepcopy(cfg.get("leg_motor_friction")),
         gas_spring_feedforward=deepcopy(cfg["v5_control"].get("gas_spring_compensation") or
             cfg["v5_control"]["encoder_spring_feedforward"]),
         action_order=["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
@@ -203,11 +209,17 @@ def source_hashes(plan_path, plan):
             names.append(gas_evidence["previous_binding"]["file"])
     names.extend(item["file"] for item in plan["wheel_model"].values() if isinstance(item, dict) and "file" in item)
     if plan.get("full_vehicle"):
-        directory = ROOT/"model/wheel_leg_v2.0.2/training"
-        source = ROOT/"model/wheel_leg_v2.0.2/isaac"
+        directory = (ROOT/plan["mechanism"]["file"]).parent
+        recipe = json.loads((ROOT/plan["full_vehicle"]["file"]).read_text())
+        source = ROOT/recipe["source_bundle"]
         names.extend(str(p.relative_to(ROOT)) for folder in (directory, source)
             for p in folder.rglob("*") if p.is_file())
-        recipe = json.loads((ROOT/plan["full_vehicle"]["file"]).read_text())
+        if plan.get("leg_motor_friction"):
+            model_directory = (ROOT/plan["leg_motor_friction"]["model_path"]).parent
+            names.extend(str(p.relative_to(ROOT)) for p in model_directory.iterdir() if p.is_file())
+            names.extend(["scripts/build_leg_friction_v202.py", "scripts/probe_leg_motor_friction.py", "tests/test_leg_motor_friction.py",
+                "docs/LEG_MOTOR_FRICTION_20261031.md"])
+            names.extend(str(p.relative_to(ROOT)) for p in source.parent.glob("*.json"))
         binding = recipe["parent_component_validation"]
         names.extend([binding["file"], "model/wheel_leg_v2.0.2/build_receipt.json", "scripts/build_full_vehicle_training.py", "scripts/train_chassis.py",
                       "scripts/sync_full_vehicle_knee_limits.py", "tools/full_robot_v202.py",

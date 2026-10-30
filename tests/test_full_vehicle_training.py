@@ -18,8 +18,8 @@ from wheeled_tasks.chassis.gimbal_motion import GimbalMotion, motion_contract
 from wheeled_tasks.chassis.standing_local_odometry import LocalStandingOdometry
 
 ROOT = Path(__file__).resolve().parents[1]
-BUNDLE = ROOT/"model/wheel_leg_v2.0.2/training"
 PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
+BUNDLE = (ROOT/PLAN["mechanism"]["file"]).parent
 
 
 @pytest.fixture(scope="module")
