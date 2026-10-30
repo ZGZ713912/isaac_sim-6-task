@@ -47,8 +47,11 @@ def equilibrium_pose(spec, length, initial=None):
                    - frames[s+"_link1"][:3, 3])[[0, 2]]) for s in ("L", "R")]
         return np.array([com[0] - axle_x, lengths[0] - length, lengths[1] - length])
 
+    joints = {j["name"]:j for j in spec["joints"]}
+    low = [-1.4, *(float(joints[n]["limit"]["lower"])+1e-7 for n in ("L_joint2", "R_jonit2"))]
+    high = [.6, *(float(joints[n]["limit"]["upper"])-1e-7 for n in ("L_joint2", "R_jonit2"))]
     result = least_squares(balance, [-.42, knee, -(beta-zeros["R_jonit2"])], xtol=1e-11, ftol=1e-11, gtol=1e-11,
-                           bounds=([-1.4, -.08, -1.08], [.6, 1.08, .08]), diff_step=1e-4)
+                           bounds=(low, high), diff_step=1e-4)
     if np.max(np.abs(balance(result.x))) > 1e-7:
         raise ValueError("No supported full-robot equilibrium at requested length")
     return pose(result.x)

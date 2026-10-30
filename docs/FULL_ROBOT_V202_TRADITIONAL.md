@@ -36,7 +36,22 @@ The plant loads v2.0.2's bound wheel model so reflected armature is applied once
 It invokes the existing physical gas-force component with the bound v2.0.2 curve
 and declared C1 endpoint trend. The native fixed gimbal joints replace the retired
 model's extra PD motors. Native COM, inertia, wheel armature, knee limits and
-spring travel are read back and checked; all limits retain their supplied values.
+spring travel are read back and checked.
+
+The user subsequently corrected the measured thigh/shank included-angle stops
+to 35–105 degrees and accepted the symmetric right gas spring. This branch
+applies that correction with `scripts/apply_traditional_measured_limits.py`;
+`model/wheel_leg_v2.0.2/measured_limits_receipt.json` records the upstream identity
+and changed dependencies. The normalized CAD source remains unchanged. New
+closed-chain encoder/spring lookup rows cover 35–105 degrees; measured force
+knots still cover 56–101 degrees, with the declared endpoint trend elsewhere.
+The CPU pose solver and native USD/URDF use the same physical stops. The
+controller's reviewed height interval remains narrower than the mechanical range.
+
+Contact friction is explicitly bound to the robot collision shapes and ground:
+static=dynamic=0.8 by default, with average combination. USD binding and values
+are read back per collider. Earlier results set only the ground coefficient;
+they are not evidence of a pair with both materials explicitly set to 0.8.
 
 The working height interval is 0.24–0.35 m. This controller interval is narrower
 than the full mechanical knee domain; it does not redefine the mechanical stops.

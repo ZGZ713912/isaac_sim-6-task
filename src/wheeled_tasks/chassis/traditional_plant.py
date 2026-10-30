@@ -25,7 +25,7 @@ class FullRobotTraditionalPlant:
                  physics_dt=.001):
         import torch
         import warp as wp
-        from pxr import Gf, PhysxSchema, UsdGeom, UsdPhysics, Vt
+        from pxr import Gf, PhysxSchema, UsdGeom, UsdPhysics, UsdShade, Vt
         import isaaclab.sim as su
         from isaaclab.assets import Articulation, ArticulationCfg
         from isaaclab.actuators import IdealPDActuatorCfg
@@ -46,7 +46,8 @@ class FullRobotTraditionalPlant:
             model_path=wheel_path, model_sha256=digest(self.root / wheel_path), apply_aggregate_delay=True), root=self.root)
         self.sim = su.SimulationContext(su.SimulationCfg(device=device, dt=self.physics_dt,
             render_interval=100, physics=PhysxCfg(solver_type=1, enable_external_forces_every_iteration=True)))
-        material = su.RigidBodyMaterialCfg(static_friction=friction, dynamic_friction=friction, restitution=0.)
+        material = su.RigidBodyMaterialCfg(static_friction=friction, dynamic_friction=friction,
+            friction_combine_mode="average", restitution=0.)
         # Native Plane collision follows the installed PhysX ground-plane helper.
         # The finite quad below is for display only.
         UsdGeom.Xform.Define(self.sim.stage, "/World/Ground")
@@ -76,6 +77,7 @@ class FullRobotTraditionalPlant:
         native_wheel["viscous_friction"] = native_wheel.pop("damping")
         self.robot = Articulation(ArticulationCfg(prim_path="/World/Robot",
             spawn=su.UsdFileCfg(usd_path=str(self.bundle / "robot.usda"),
+                physics_material=material, physics_material_path="contact_material",
                 activate_contact_sensors=True,
                 rigid_props=su.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
                 articulation_props=su.ArticulationRootPropertiesCfg(fix_root_link=fixed_base,
@@ -88,6 +90,25 @@ class FullRobotTraditionalPlant:
                     **native_wheel),
                 passive=actuator(passive, 100.), springs=actuator(SPRINGS, 1500.)),
             soft_joint_pos_limit_factor=1.))
+        contact_materials = {}
+        for prim in self.sim.stage.Traverse():
+            if not prim.HasAPI(UsdPhysics.CollisionAPI):
+                continue
+            path = prim.GetPath().pathString
+            if path != "/World/Ground/CollisionPlane" and not path.startswith("/World/Robot/"):
+                continue
+            bound, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial("physics")
+            physical = UsdPhysics.MaterialAPI(bound.GetPrim())
+            coefficients = [physical.GetStaticFrictionAttr().Get(), physical.GetDynamicFrictionAttr().Get()]
+            combine = PhysxSchema.PhysxMaterialAPI(bound.GetPrim()).GetFrictionCombineModeAttr().Get()
+            if not np.allclose(coefficients, [friction, friction], atol=1e-7, rtol=0.):
+                raise ValueError("Contact material differs from configured friction: "+path)
+            if combine != "average":
+                raise ValueError("Unexpected friction combine mode: "+path)
+            contact_materials[path] = dict(material=bound.GetPath().pathString,
+                static_friction=coefficients[0], dynamic_friction=coefficients[1], combine_mode=combine)
+        if not any("L_link3/" in n for n in contact_materials) or not any("R_link3/" in n for n in contact_materials):
+            raise ValueError("Wheel contact material binding was not verified")
         loops = [p for p in self.sim.stage.Traverse() if p.IsA(UsdPhysics.SphericalJoint)]
         if len(loops) != 6:
             raise ValueError("Full model requires six external loop closures")
@@ -151,10 +172,12 @@ class FullRobotTraditionalPlant:
             control_frame=manifest["control_frame"], additional_root_rotation=False,
             tree_joint_count=len(self.robot.joint_names), external_loop_count=len(loops),
             mass_kg=float(masses.sum()), mass_scale=mass_scale, friction=friction,
+            contact_materials=contact_materials, friction_combine_mode="average",
             physics_dt_s=self.physics_dt, control_dt_s=self.dt, action_hold_ticks=self.substeps,
             wheel_response=self.wheels.summary(), wheel_armature_readback=added.tolist(),
             gimbal_control="supplied v2.0.2 fixed-zero joints; full CAD masses retained",
-            gas_spring="v2.0.2 bound force curve and declared C1 endpoint trend; right symmetry assumed",
+            gas_spring="v2.0.2 bound force curve and declared C1 endpoint trend; right symmetry accepted by user",
+            knee_inner_limits_deg=self.asset.limits["knee_inner_limits_deg"],
             closedchain_source="supplied v2.0.2 USD loop joints; no pin regeneration",
             native_mechanical_limits=self.mechanical_limits.tolist(),
             native_com_max_error_m=com_error, native_inertia_max_error_kg_m2=inertia_error,

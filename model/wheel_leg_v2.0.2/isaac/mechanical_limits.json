@@ -1,15 +1,15 @@
 {
   "knee_inner_limits_deg": [
-    40.0,
-    107.0
+    35.0,
+    105.0
   ],
   "passive_knee_zero_inner_rad": {
     "L_joint2": 0.7842926535898199,
     "R_jonit2": 0.7842645776082379
   },
   "relative_soft_limits": {
-    "minimum": -0.140638855,
-    "maximum": 1.3889088544,
+    "minimum": -0.2973003816786003,
+    "maximum": 1.3293864563532733,
     "margin": 0.03,
     "projection": "outward_relative_torque_v1"
   },
@@ -40,5 +40,7 @@
     "urdf_pitch_velocity_guard_rad_s": 100.0,
     "actuator_identified": false,
     "urdf_actuator_field_scope": "unactuated reference with inherited100rad/s solver guard; not motor specifications"
-  }
+  },
+  "knee_limit_source": "user reported measured thigh-shank inner angle 2026-10-30",
+  "knee_limit_coordinate": "physical included angle between thigh and shank; not two independent motor stops"
 }
