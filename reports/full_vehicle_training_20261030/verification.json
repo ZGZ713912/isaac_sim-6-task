@@ -1,0 +1,147 @@
+{
+  "schema": "full-vehicle-v4-integration-verification-v1",
+  "verified_utc": "2026-10-30T12:26:00.402845+00:00",
+  "source_commit": "fd73050348e0b20a529e7f93b4044582d5d46e1c",
+  "source_count": 499,
+  "source_archive_sha256": "1915c5acae3ee5d9759f1a8e416202e7aabf6a58bdc8c1bcf1fe6d6567d35b54",
+  "source_mismatches_at_exit": [],
+  "task": "WheelLeg-ProneMotion-v4",
+  "asset": "model/wheel_leg_v2.0.2/training",
+  "body_count": 21,
+  "tree_joint_count": 20,
+  "external_closed_loop_count": 6,
+  "total_mass_kg": 21.44174,
+  "pitch_limits_deg": [
+    -30,
+    35
+  ],
+  "pitch_positive": "up",
+  "yaw_position_limits": "continuous",
+  "actor_dim": 35,
+  "critic_dim": 87,
+  "action_dim": 6,
+  "guide_contact_approximation": {
+    "bodies": [
+      "base_link"
+    ],
+    "merged_collision_hulls": 8,
+    "static_friction": 0,
+    "dynamic_friction": 0,
+    "combine_mode": "min",
+    "scope": "entire merged base hull set containing guide rollers; wheels and other links keep their materials"
+  },
+  "unit_tests": {
+    "passed": 424,
+    "log": "tests_final.log",
+    "sha256": "610d2e6e865f64fbbd865725471c95bc72329a5477e9b12216cba1a8458371e2"
+  },
+  "native": {
+    "exit_code": 0,
+    "status": "native_probe_completed_unqualified",
+    "progress": "native006/progress.json",
+    "progress_sha256": "7144c82195ffdbaf17e43f4a202f93f6eea615b955267c82472d6355bb1fb03d",
+    "contexts": [
+      {
+        "profile": "nominal",
+        "strength": 0.0,
+        "environment_count": 80,
+        "policy_steps_per_environment": 150,
+        "physical_steps_per_environment": 1500,
+        "checks_passed": 41,
+        "checks_total": 41,
+        "all_checks_pass": true,
+        "gimbal": {
+          "speed_abs_peak_rad_s": [
+            12.799980163574219,
+            17.36223030090332
+          ],
+          "position_min_rad": [
+            -1.6526793241500854,
+            -0.5246254801750183
+          ],
+          "position_max_rad": [
+            1.618165373802185,
+            0.39481857419013977
+          ],
+          "effort_abs_peak_nm": [
+            2.0,
+            10.0
+          ]
+        },
+        "learned_behavior": false
+      },
+      {
+        "profile": "requested",
+        "strength": 1.0,
+        "environment_count": 80,
+        "policy_steps_per_environment": 150,
+        "physical_steps_per_environment": 1500,
+        "checks_passed": 41,
+        "checks_total": 41,
+        "all_checks_pass": true,
+        "gimbal": {
+          "speed_abs_peak_rad_s": [
+            10.113834381103516,
+            19.107463836669922
+          ],
+          "position_min_rad": [
+            -1.6634935140609741,
+            -0.5246149897575378
+          ],
+          "position_max_rad": [
+            2.3194849491119385,
+            0.5632206797599792
+          ],
+          "effort_abs_peak_nm": [
+            2.0,
+            10.0
+          ]
+        },
+        "learned_behavior": false
+      }
+    ]
+  },
+  "snapshot_preflight": {
+    "status": "passed",
+    "snapshot_root": "/tmp/full_vehicle_v4_snapshot_ocnjnqyn",
+    "actor_dim": 35,
+    "critic_dim": 87,
+    "action_dim": 6,
+    "geometry_bound": true,
+    "old_chassis_lookup_present": false,
+    "new_PPO": 0
+  },
+  "parent_cad_source_changes": [],
+  "new_PPO": 0,
+  "optimizer_attempts": 0,
+  "checkpoint_reads": [],
+  "hardware_ready": false,
+  "full_capability_qualified": false,
+  "capability_status": "capability_status.json",
+  "all_13_capabilities": "unmeasured_for_new_full_vehicle",
+  "process_cleanup": {
+    "native_pid": 3326434,
+    "proc_absent": true,
+    "no_rl_process_on_local_gpu": true
+  },
+  "remote": {
+    "changes": 0,
+    "signals": 0,
+    "training_launches": 0,
+    "last_read_only_check": "SSH no route to host 192.168.64.234 port 2222; current v3 state unconfirmed"
+  },
+  "previous_native_attempts": {
+    "native001": "startup failed: missing gimbal nominal joint positions",
+    "native002": "startup failed: old 19-body command-reference guard",
+    "native003": "startup failed: wheel axial rotation rejected",
+    "native004": "startup failed: old generic reset family not present in the new bank",
+    "native005": "two native contexts passed before final odometry-constructor independence fix",
+    "native006": "final source: two contexts passed; no source mismatch"
+  },
+  "evidence_files": {
+    "native006/progress.json": "7144c82195ffdbaf17e43f4a202f93f6eea615b955267c82472d6355bb1fb03d",
+    "tests_final.log": "610d2e6e865f64fbbd865725471c95bc72329a5477e9b12216cba1a8458371e2",
+    "snapshot_preflight.json": "7451a93f018df53209bb9ec7c1f7c3e2da33259226ed50db4025eaa7f0c5e7f0",
+    "capability_status.json": "2c429ad8df852e05f6b105dacb52190d53b5907ada80c826ab8eda3d3eb6bdff"
+  }
+}
