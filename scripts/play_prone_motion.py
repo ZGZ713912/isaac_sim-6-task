@@ -29,6 +29,9 @@ def parser():
     result.add_argument("--checkpoint", type=Path, required=True, help="Read-only .pt; never used to resume training")
     result.add_argument("--run", type=Path, help="Run containing agent_config.json and pose_bank.json; default: checkpoint parent")
     result.add_argument("--scene", choices=task.ROLES, default="prone")
+    from wheeled_tasks.chassis.multi_pose_recovery import FAMILIES, LEG_CLASSES
+    result.add_argument("--fallen-family",choices=FAMILIES,default="belly_down")
+    result.add_argument("--leg-class",choices=LEG_CLASSES,default="rear_rear")
     result.add_argument("--height", type=float, default=.305, help="Target height in metres (.23..42)")
     result.add_argument("--birth_height", "--birth-height", type=float, default=.305, choices=(.23, .305, .42))
     result.add_argument("--vx", type=float, help="Signed forward target m/s; default follows --scene")
@@ -145,8 +148,18 @@ def case_for(args, env, plan):
         target[0] = args.vx
     if args.yaw_rate is not None:
         target[1] = args.yaw_rate
-    return dict(role=args.scene, recovery=prone, birth_height=.173 if prone else args.birth_height,
-        pose_index=env.prone_index if prone else env.height_pose[args.birth_height], pitch_deg=0.,
+    pose_index = env.prone_index if prone else env.height_pose[args.birth_height]
+    birth_height = .173 if prone else args.birth_height
+    if prone and plan.get("multi_pose_recovery") is not None:
+        matches = [i for i,p in enumerate(env.poses) if
+            (p.get("recovery",{}).get("family"),p.get("recovery",{}).get("leg_class"),p.get("recovery",{}).get("split"))
+            == (args.fallen_family,args.leg_class,"holdout")]
+        if not matches:
+            raise ValueError("No admitted pose for the requested body-family / leg-class")
+        pose_index = matches[0]
+        birth_height = env.poses[pose_index]["root_position_m"][2]
+    return dict(role=args.scene, recovery=prone, birth_height=birth_height,
+        pose_index=pose_index, pitch_deg=0.,
         target=target, command=[0., 0., .305 if prone else args.birth_height])
 
 
@@ -165,7 +178,7 @@ def main():
     cfg, settings, control = prepare(args, bundle, output)
     import torch
     from tensordict import TensorDict
-    critic_dim = 87 if plan.get("full_vehicle") else 83
+    critic_dim = 87 if bundle["plan"].get("full_vehicle") else 83
     dummy = TensorDict(dict(policy=torch.zeros(args.num_envs, 35), critic=torch.zeros(args.num_envs, critic_dim)), batch_size=[args.num_envs])
     actor = build_actor(dummy, bundle, "cpu")
     with torch.inference_mode():

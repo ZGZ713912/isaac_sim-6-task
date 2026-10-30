@@ -1,0 +1,21 @@
+{
+  "schema": "multi-pose-recovery-native-probe-v1",
+  "status": "failed",
+  "device": "cpu",
+  "new_PPO": 0,
+  "optimizer_attempts": 0,
+  "checkpoint_reads": [],
+  "behavior_qualified": false,
+  "hardware_motion": false,
+  "bank_sha256": "6064f36a56dfa11da0aa576ca9f0c2bdc687a52b369ce16252cf27d1367e2675",
+  "profiles": [],
+  "source_sha256": {
+    "scripts/probe_multi_pose_recovery.py": "ee3f3bb1935f7bb1a39be35c6e141347e9ff38b69fa21070654316e2867a6dd4",
+    "src/wheeled_tasks/chassis/prone_motion_env.py": "85230a1ccc8183203694a54d20bb75a7c126c063a27653e5d267e6fbcb3b108b",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "4671ef0ade43da0cb7a03023ce88cd318caf692bf88e7087ee445d6c2e033b39",
+    "src/wheeled_tasks/chassis/multi_pose_recovery.py": "e1bd1ea71f126f347ca24452eb82a00028ee182e31382ff1b3a9f9a275fce5e9",
+    "src/wheeled_tasks/chassis/recovery_impact.py": "05c8c1af506cd3460d9b9a188bb6f97010c08767e9816b0823eb5b2cc612f62b"
+  },
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/.codex/worktrees/leg-friction-v202/isaac_wheeled_rl_train/scripts/probe_multi_pose_recovery.py\", line 84, in main\n    env.reset(torch.arange(env.num_envs,device=env.device))\n  File \"/home/noir/.codex/worktrees/leg-friction-v202/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/grounded_standing_reset.py\", line 100, in reset\n    result = native_reset(ids)\n             ^^^^^^^^^^^^^^^^^\n  File \"/home/noir/.codex/worktrees/leg-friction-v202/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/prone_motion_env.py\", line 172, in reset\n    self.recovery_stages.reset(ids, family, leg)\n  File \"/home/noir/.codex/worktrees/leg-friction-v202/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/multi_pose_recovery.py\", line 138, in reset\n    self.upright_hold[ids] = 0.\n    ~~~~~~~~~~~~~~~~~^^^^^\nRuntimeError: Inplace update to inference tensor outside InferenceMode is not allowed.You can make a clone to get a normal tensor before doing inplace update.See https://github.com/pytorch/rfcs/pull/17 for more details.\n"
+}

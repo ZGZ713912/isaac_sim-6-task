@@ -10,10 +10,12 @@ import math
 from pathlib import Path
 import re
 
-TASKS = {f"WheelLeg-ProneMotion-v{v}": f"contracts/wheel_leg_prone_motion_v{v}.json" for v in (1, 2, 3, 4)}
-DEFAULT_TASK = "WheelLeg-ProneMotion-v4"
+TASKS = {f"WheelLeg-ProneMotion-v{v}": f"contracts/wheel_leg_prone_motion_v{v}.json" for v in (1, 2, 3, 4, 5)}
+DEFAULT_TASK = "WheelLeg-ProneMotion-v5"
 OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_rate",
-               "domain_randomization", "dr_strength", "num_steps_per_env")
+               "domain_randomization", "dr_strength", "num_steps_per_env", "recovery_curriculum",
+               "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns")
+LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
 
 
 def _hash(value):
@@ -21,6 +23,8 @@ def _hash(value):
 
 
 def _configured(base, options):
+    if set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base:
+        options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
     result = deepcopy(base)
@@ -45,6 +49,24 @@ def _configured(base, options):
     scale = result["max_updates"]/base["max_updates"]
     for key in ("foundation_until_update", "speed_full_update", "spin_full_update", "height_full_update"):
         result[key] = round(base[key]*scale)
+    recovery_options = ("recovery_curriculum", "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns")
+    if result.get("multi_pose_recovery") is None:
+        if any(options[k] is not None for k in recovery_options):
+            raise ValueError("Recovery options require --task WheelLeg-ProneMotion-v5")
+    else:
+        from .multi_pose_recovery import validate as validate_recovery
+        from .recovery_impact import validate as validate_impact
+        for stage in result["multi_pose_recovery"]["curriculum"]:
+            stage["start_update"] = round(stage["start_update"]*scale)
+        if options["recovery_curriculum"] is not None:
+            result["multi_pose_recovery"]["curriculum_mode"] = options["recovery_curriculum"]
+        if options["recovery_impact_window_ms"] is not None:
+            result["recovery_impact"]["window_seconds"] = options["recovery_impact_window_ms"]/1000.
+        for option,field in (("recovery_force_limits_n","force_limits_n"),("recovery_impulse_limits_ns","impulse_limits_ns")):
+            if options[option] is not None:
+                result["recovery_impact"][field] = deepcopy(options[option])
+        validate_recovery(result["multi_pose_recovery"])
+        validate_impact(result["recovery_impact"])
     if mode == "off" or strength == 0:
         result["domain_sequence"] = [dict(start_update=0, profile="nominal", strength=0.)]
     elif mode == "on":
@@ -94,7 +116,7 @@ def validate_resolved(plan):
 def add_common(parser, *, training):
     parser.add_argument("--python", help="Python executable or launcher selected by the train/play shell entrypoint")
     parser.add_argument("--task", choices=TASKS, default=DEFAULT_TASK if training else None,
-                        help="Training defaults to v4; play infers the task from its checkpoint unless explicitly selected")
+                        help="Training defaults to multi-pose v5; play infers its original task from the checkpoint")
     parser.add_argument("--plan", type=Path, help="Original task JSON; defaults to --task's contract")
     parser.add_argument("--output", type=Path, help="New output directory (must not already exist)")
     parser.add_argument("--run_name", "--run-name", help="Directory name under runs/prone_motion or runs/prone_motion_play")
@@ -118,6 +140,12 @@ def train_parser():
     parser.add_argument("--save_interval", "--save-interval", type=int)
     parser.add_argument("--num_steps_per_env", "--num-steps-per-env", "--rollout-steps", type=int)
     parser.add_argument("--learning_rate", "--learning-rate", type=float)
+    parser.add_argument("--recovery-curriculum", choices=("staged","all"), default=None)
+    parser.add_argument("--recovery-impact-window-ms", type=float, default=None)
+    parser.add_argument("--recovery-force-limits-n", type=json.loads, default=None,
+                        help='JSON object with chassis/gimbal/legs/wheels limits in N; null means unmeasured')
+    parser.add_argument("--recovery-impulse-limits-ns", type=json.loads, default=None,
+                        help='JSON object with chassis/gimbal/legs/wheels fixed-window impulse limits in N.s')
     parser.add_argument("--native-probe", "--native_probe", action="store_true", help="Two-domain native wiring check; zero PPO")
     parser.add_argument("--stop-existing-009", action="store_true", help="Retire only the authenticated old009; never resume it")
     return parser
