@@ -87,7 +87,7 @@ def test_pose_solver_rejects_the_new_mechanical_limits(asset):
         solve_pose(asset.spec,q,q)
 
 
-@pytest.mark.parametrize("beta", [35., 40., 75., 101., 105.])
+@pytest.mark.parametrize("beta", [40., 45., 75., 105., 110.])
 def test_measured_thigh_shank_inner_angle_and_full_branch(asset, beta):
     zeros = asset.spec["passive_knee_zero_inner_rad"]
     q = solve_pose(asset.spec, dict(L_joint1=.42, R_joint1=-.42, L_joint3=0., R_joint3=0.,
@@ -107,13 +107,14 @@ def test_measured_thigh_shank_inner_angle_and_full_branch(asset, beta):
         actual = np.rad2deg(np.arccos(np.clip(thigh@shank/np.linalg.norm(thigh)/np.linalg.norm(shank), -1., 1.)))
         assert actual == pytest.approx(beta, abs=2e-6)
     assert np.max(abs(closure_residual(asset.spec, q))) < 1e-8
-    assert asset.limits["knee_inner_limits_deg"] == [35., 105.]
-    assert asset.curve["geometry_beta_domain_deg"] == [35., 105.]
+    assert asset.limits["knee_inner_limits_deg"] == [40., 110.]
+    assert asset.limits["hardware_zero_reference_inner_deg"] == 110.
+    assert asset.curve["geometry_beta_domain_deg"] == [40., 110.]
     assert asset.curve["measured_beta_domain_deg"] == [56., 101.]
     assert asset.curve["right_leg_symmetry_basis"] == "user accepted 2026-10-30"
 
 
-@pytest.mark.parametrize("beta", [34., 106.])
+@pytest.mark.parametrize("beta", [39., 111.])
 def test_measured_inner_angle_stops_reject_outside_pose(asset, beta):
     zero = asset.spec["passive_knee_zero_inner_rad"]["L_joint2"]
     with pytest.raises(ValueError, match="limit"):

@@ -1,4 +1,4 @@
-"""Bind the user's 35–105 degree inner-angle stops to the v2.0.2 plant.
+"""Bind the user's 110-degree zero and 40–110 degree stops to the v2.0.2 plant.
 
 Run on this task's copied asset only. CAD frames, masses and measured force
 knots are preserved; the original source workspace is never written.
@@ -16,7 +16,8 @@ from wheeled_tasks.chassis.traditional_model import virtual_work
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT/"model/wheel_leg_v2.0.2/isaac"
-INNER_DEG = [35., 105.]
+INNER_DEG = [40., 110.]
+ENCODER_ZERO_INNER_DEG = 110.
 
 
 def main():
@@ -90,7 +91,8 @@ def main():
     curve.update(model_spec_sha256=spec_hash, geometry_beta_domain_deg=INNER_DEG,
         soft_limit_active_difference_rad=[signed_low, signed_high],
         right_leg_symmetry_assumed=True, right_leg_symmetry_basis="user accepted 2026-10-30")
-    encoder.update(model_spec_sha256=spec_hash, passive_knee_domain_deg=INNER_DEG, max_closure_gap_m=gap)
+    encoder.update(model_spec_sha256=spec_hash, passive_knee_domain_deg=INNER_DEG,
+        hardware_zero_reference_inner_deg=ENCODER_ZERO_INNER_DEG, max_closure_gap_m=gap)
     write_json(BUNDLE/"gas_spring_model.json", curve)
     write_json(BUNDLE/"encoder_geometry.json", encoder)
     wheel = json.loads((BUNDLE/"wheel_model.json").read_text())
@@ -103,10 +105,12 @@ def main():
     write_json(BUNDLE/"runtime.json", runtime)
     limits = json.loads((BUNDLE/"mechanical_limits.json").read_text())
     limits.update(knee_inner_limits_deg=INNER_DEG, relative_soft_limits=soft,
-        knee_limit_source="user reported measured thigh-shank inner angle 2026-10-30",
+        hardware_zero_reference_inner_deg=ENCODER_ZERO_INNER_DEG,
+        knee_limit_source="user corrected encoder-zero reference to 110 and limits to 40-110 degrees 2026-10-30",
         knee_limit_coordinate="physical included angle between thigh and shank; not two independent motor stops")
     write_json(BUNDLE/"mechanical_limits.json", limits)
-    manifest.update(knee_inner_limits_deg=INNER_DEG, asset_revision="full_robot_v202_measured_knee_35_105",
+    manifest.update(knee_inner_limits_deg=INNER_DEG, hardware_zero_reference_inner_deg=ENCODER_ZERO_INNER_DEG,
+        asset_revision="full_robot_v202_zero110_knee_40_110",
         files_sha256={name:digest(BUNDLE/name) for name in manifest["files_sha256"]})
     write_json(BUNDLE/"manifest.json", manifest)
     receipt = json.loads((BUNDLE.parent/"build_receipt.json").read_text())
@@ -115,6 +119,7 @@ def main():
     write_json(BUNDLE.parent/"build_receipt.json", receipt)
     write_json(BUNDLE.parent/"measured_limits_receipt.json", dict(schema="v202-measured-limits-override/v1",
         source="direct user instruction 2026-10-30", knee_inner_limits_deg=INNER_DEG,
+        encoder_zero_reference_inner_deg=ENCODER_ZERO_INNER_DEG,
         right_gas_spring_symmetry="accepted modeling convention", upstream_manifest_sha256=old_manifest,
         result_manifest_sha256=digest(BUNDLE/"manifest.json"), model_spec_sha256=spec_hash,
         generator_sha256=digest(__file__), geometry_max_closure_gap_m=gap,
@@ -122,7 +127,7 @@ def main():
         original_workspace_modified=False, cad_frames_and_mass_properties_unchanged=True,
         measured_force_knots_unchanged=True, force_measurement_domain_deg=curve["measured_beta_domain_deg"],
         dynamic_behavior_qualification=False))
-    print("Applied measured 35–105 degree stops; closure gap", gap, flush=True)
+    print("Applied 110-degree zero reference and 40–110 degree stops; closure gap", gap, flush=True)
 
 
 if __name__ == "__main__":
