@@ -5,12 +5,12 @@ right hip/auxiliary. No body pose, passive encoder or simulator FK is read.
 """
 import torch
 
-from .rolling_velocity import RollingBaseVelocity
+from .rolling_velocity import RollingBaseVelocity, SPEC_SHA256
 
 
 class EncoderLegGeometry(RollingBaseVelocity):
-    def __init__(self, table, relative_margin_rad=.001):
-        super().__init__(table)
+    def __init__(self, table, relative_margin_rad=.001, *, expected_spec_sha256=SPEC_SHA256):
+        super().__init__(table, expected_spec_sha256=expected_spec_sha256)
         if not 0. <= relative_margin_rad <= .001:
             raise ValueError("Encoder geometry margin must be within0..1mrad")
         self.relative_margin_rad = relative_margin_rad

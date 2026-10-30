@@ -1,0 +1,28 @@
+{
+  "status": "failed",
+  "started_at": "2026-10-29T16:47:41.338805+00:00",
+  "fixture": "fixed root, zero gravity, no floor/contact; unrestrained closed-chain legs",
+  "physics_dt_s": 0.001,
+  "policy_dt_s": 0.01,
+  "leg_motor_armature_kg_m2": 0.0,
+  "reset_pose_writes_per_case": 1,
+  "passive_pose_writes_during_physics": 0,
+  "ppo_updates": 0,
+  "hardware_motion": false,
+  "behavior_qualified": false,
+  "device": "cpu",
+  "asset_manifest_sha256": "8cf6a8c1496ac73f87c450f79cac4ea0159164bf44ac9e77aa647231a8a2bf63",
+  "model_spec_sha256": "6fdd576725874e48a82ac71272cb61987a876bbba4ae6bd6e2212aecdda75c09",
+  "script_sha256": "5588f539255d9fd9e5744394977f6624f7ac31e796fdd0cb4ecf8d196f6c0ef8",
+  "versions": {
+    "isaacsim": "6.0.0.1",
+    "isaaclab": "6.1.14",
+    "isaaclab-physx": "1.1.3",
+    "torch": "2.11.0+cu128"
+  },
+  "cases": [],
+  "passed": false,
+  "error": "Native CAD mass properties differ: 6.713867186647349e-07, 3.5868431974561688e-09, 0.00933595094161172",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/probe_full_robot_v202.py\", line 122, in main\n    raise ValueError(f\"Native CAD mass properties differ: {max_mass_error}, {max_com_error}, {max_inertia_error}\")\nValueError: Native CAD mass properties differ: 6.713867186647349e-07, 3.5868431974561688e-09, 0.00933595094161172\n",
+  "elapsed_s": 4.905704007003806
+}

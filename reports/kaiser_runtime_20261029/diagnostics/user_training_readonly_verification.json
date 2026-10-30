@@ -1,0 +1,183 @@
+{
+  "observed_utc": "2026-10-29T16:04:49.482885+00:00",
+  "source": "e77f1675fd9d5906b41bc18a73e808e83ecb2a69",
+  "mode": "Read-only review of a separately launched user-terminal training; no signals and no additional learner",
+  "run": "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104",
+  "identity": {
+    "pid": 3250943,
+    "start_ticks": 94217696,
+    "cwd": "/home/kaiser/workspace/isaac_sim-6-task",
+    "argv": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "/home/kaiser/workspace/isaac_sim-6-task/scripts/train_prone_motion.py",
+      "--task",
+      "WheelLeg-ProneMotion-v3",
+      "--num_envs",
+      "256",
+      "--max_iterations",
+      "10000",
+      "--num_steps_per_env",
+      "64",
+      "--save_interval",
+      "250",
+      "--seed",
+      "103",
+      "--run_name",
+      "train_10000_seed104",
+      "--domain_randomization",
+      "curriculum",
+      "--device",
+      "cuda:0",
+      "--headless",
+      "--output",
+      "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104"
+    ],
+    "stdout": "/dev/pts/2"
+  },
+  "progress": {
+    "status": "training",
+    "requested_updates": 10000,
+    "completed_updates": 5,
+    "optimizer_attempts": 5,
+    "optimizer_update_in_flight": false,
+    "checkpoint_reads": [],
+    "last_losses": {
+      "value": 1.4078484376271565,
+      "surrogate": -0.0011156713590025902,
+      "entropy": -0.24731558561325073
+    },
+    "error": null
+  },
+  "initialization": {
+    "schema": "scratch-ppo-initialization-v1",
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "actor_updates": 0,
+    "critic_updates": 0,
+    "optimizer_states": 0,
+    "actor_tensor_sha256": "ba96f127d5d0286cad207e313d0e1decf778c2aa35c90cbdfccc5c08394cfb3a",
+    "critic_tensor_sha256": "d8d972ad0d3c9933e3928bd71e83be3bb3cafbc74a3315d0d9165f4a86ef65ea",
+    "actor_trainable_parameters": 50764,
+    "critic_trainable_parameters": 62721,
+    "output_bias_source": "feasible 0.305 m reset joint geometry; all six outputs trainable",
+    "output_bias_policy_order": [
+      0.29959917068481445,
+      -0.05938982591032982,
+      -0.29959917068481445,
+      0.05939134582877159,
+      0.0,
+      0.0
+    ],
+    "initial_std_policy_order": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.2,
+      0.2
+    ]
+  },
+  "initial_checkpoint": {
+    "iter": 0,
+    "optimizer_state_entries": {
+      "optimizer_state_dict": 0
+    },
+    "sha256": "3b929de6dac457b042a3c43d8b3844b3b7cc2ce09a29ce54b0ccccc32a1c78a9"
+  },
+  "first_update_audit": {
+    "committed_optimizer_calls": 12,
+    "all_recorded_values_finite": true,
+    "actor_changed_parameter_tensors": 9,
+    "critic_changed_parameter_tensors": 8
+  },
+  "all_frozen_source_bytes_match": true,
+  "event_files": [
+    "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104/events.out.tfevents.1793289771.Kaiser.3250943.0"
+  ],
+  "scalar_tag_count": 223,
+  "performance_events": {
+    "Perf/total_fps": [
+      {
+        "step": 0,
+        "value": 778.0,
+        "wall_time": 1793289792.9849484
+      },
+      {
+        "step": 1,
+        "value": 717.0,
+        "wall_time": 1793289816.0977435
+      },
+      {
+        "step": 2,
+        "value": 691.0,
+        "wall_time": 1793289840.0181832
+      },
+      {
+        "step": 3,
+        "value": 731.0,
+        "wall_time": 1793289862.6377044
+      },
+      {
+        "step": 4,
+        "value": 789.0,
+        "wall_time": 1793289883.5899208
+      }
+    ],
+    "Perf/collection_time": [
+      {
+        "step": 0,
+        "value": 20.72624397277832,
+        "wall_time": 1793289792.9849555
+      },
+      {
+        "step": 1,
+        "value": 22.772695541381836,
+        "wall_time": 1793289816.0977504
+      },
+      {
+        "step": 2,
+        "value": 23.614309310913086,
+        "wall_time": 1793289840.0181952
+      },
+      {
+        "step": 3,
+        "value": 22.328365325927734,
+        "wall_time": 1793289862.6377232
+      },
+      {
+        "step": 4,
+        "value": 20.687129974365234,
+        "wall_time": 1793289883.5899289
+      }
+    ],
+    "Perf/learning_time": [
+      {
+        "step": 0,
+        "value": 0.3103959560394287,
+        "wall_time": 1793289792.9849613
+      },
+      {
+        "step": 1,
+        "value": 0.07735371589660645,
+        "wall_time": 1793289816.0977564
+      },
+      {
+        "step": 2,
+        "value": 0.06954407691955566,
+        "wall_time": 1793289840.018202
+      },
+      {
+        "step": 3,
+        "value": 0.06226611137390137,
+        "wall_time": 1793289862.6377378
+      },
+      {
+        "step": 4,
+        "value": 0.05617642402648926,
+        "wall_time": 1793289883.5899348
+      }
+    ]
+  },
+  "behavior_qualified": false,
+  "stop_checkpoint_test": "Not performed: current user training continues unchanged"
+}

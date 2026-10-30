@@ -1,0 +1,414 @@
+{
+  "schema": "wheel-leg-prone-motion-v3",
+  "seed": 103,
+  "num_envs": 256,
+  "rollout_steps": 64,
+  "max_updates": 10000,
+  "snapshot_interval": 250,
+  "execution": "single_learn_call_manual_review",
+  "review_updates": [],
+  "reference": {
+    "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
+    "commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
+    "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14",
+    "adopted": "Long training, additive objectives, persistent old-skill exposure. No teacher, scripted assistance, mechanism, noise ranges or gimbal ABI copied."
+  },
+  "initialization": "Fresh fully trainable six-output actor, critic and empty Adam. No checkpoint, teacher, donor, resume or scripted motor targets.",
+  "foundation_until_update": 1000,
+  "speed_full_update": 6000,
+  "spin_full_update": 7000,
+  "height_full_update": 5000,
+  "forward_speed_m_s": 2.0,
+  "spin_target_rpm": 100.0,
+  "spin_minimum_rpm": 80.0,
+  "arc_yaw_rad_s": 0.6,
+  "roles_per20": [
+    "prone",
+    "prone",
+    "prone",
+    "prone",
+    "prone",
+    "prone",
+    "stand",
+    "stand",
+    "stand",
+    "stand",
+    "stand",
+    "forward",
+    "reverse",
+    "spin_left",
+    "spin_right",
+    "arc_fl",
+    "arc_fr",
+    "arc_rl",
+    "arc_rr",
+    "height"
+  ],
+  "training_prone_seconds": 70.0,
+  "standing_seconds": 30.0,
+  "motion_seconds": 20.0,
+  "rise_deadline_seconds": 20.0,
+  "completion_hold_seconds": 1.0,
+  "post_completion_quiet_seconds": 30.0,
+  "rise_target_excursion_m": 0.1,
+  "rise_training_abort_excursion_m": 0.35,
+  "friction": {
+    "wheel": 0.7,
+    "ground_nominal": 0.5,
+    "provenance": "Existing standard-prone baseline; engineering hypothesis, not measured hardware friction. DR preserves the requested ground0.3..0.5 range."
+  },
+  "learning_rate": 0.0003,
+  "initial_std": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.2,
+    0.2
+  ],
+  "route_potential_gain": 0.05,
+  "wheel_model": {
+    "model": {
+      "file": "model/wheel_identified_1562_20261028/model.json",
+      "sha256": "2c67e1113f0a460cd477e3ec6897e258619304a69879da3acabec148bb61823d"
+    },
+    "control": {
+      "file": "contracts/wheel_leg_prone_motion_control_100hz_v1.json",
+      "sha256": "679f972b201ed639e28fa9b8babbd3fecd3fc2fc3206bfc3ca973558a6033ed7"
+    },
+    "evidence": {
+      "file": "model/wheel_identified_1562_20261028/evidence.json",
+      "sha256": "a19357979636190be8f923e680c769714b31c3b7732109a00017c787e9d23abd"
+    },
+    "scope": "Independent measured 15.62/24V left/right output axes, P0.5. Aggregate I/O delay once; existing v2 policy-observation age remains additional uncertainty. Shared body/armature inertia draw; no added randomization range. Loaded high-speed torque remains a prior. The100Hz control derives only identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.",
+    "recorded_control": {
+      "file": "model/wheel_identified_1562_20261028/control.json",
+      "sha256": "38c94b9040bf8acfa1bc97fb2f5420dd2259e2cba8a62561bd12c59397362b2d"
+    }
+  },
+  "gas_spring_model": {
+    "file": "model/gas_spring_compensation_20261028/model.json",
+    "sha256": "098fd7d5fbd876cd57d0b6e01e239eb16f6789690a5eadf7820ec20d974919a3"
+  },
+  "gas_spring_feedforward": {
+    "enabled": true,
+    "model_file": "model/gas_spring_compensation_20261028/model.json",
+    "model_sha256": "098fd7d5fbd876cd57d0b6e01e239eb16f6789690a5eadf7820ec20d974919a3",
+    "gain": 1.0,
+    "force_extrapolation": "positive_c1_endpoint_trend_v1",
+    "physical_curve_outside_geometry": "hold_geometry_endpoint",
+    "relative_soft_limits": {
+      "minimum": -0.140638855,
+      "maximum": 1.3889088544,
+      "margin": 0.03,
+      "projection": "outward_relative_torque_v1"
+    }
+  },
+  "domain_sequence": [
+    {
+      "start_update": 0,
+      "profile": "nominal",
+      "strength": 0.0
+    },
+    {
+      "start_update": 6000,
+      "profile": "sensors_only",
+      "strength": 0.25
+    },
+    {
+      "start_update": 6250,
+      "profile": "motor_only",
+      "strength": 0.25
+    },
+    {
+      "start_update": 6500,
+      "profile": "mass_com_only",
+      "strength": 0.25
+    },
+    {
+      "start_update": 6750,
+      "profile": "inertia_only",
+      "strength": 0.25
+    },
+    {
+      "start_update": 7000,
+      "profile": "friction_only",
+      "strength": 0.25
+    },
+    {
+      "start_update": 7250,
+      "profile": "timing_only",
+      "strength": 0.25
+    },
+    {
+      "start_update": 7500,
+      "profile": "requested",
+      "strength": 0.25
+    },
+    {
+      "start_update": 8000,
+      "profile": "requested",
+      "strength": 0.5
+    },
+    {
+      "start_update": 8500,
+      "profile": "requested",
+      "strength": 0.75
+    },
+    {
+      "start_update": 9000,
+      "profile": "requested",
+      "strength": 1.0
+    }
+  ],
+  "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
+  "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
+  "prone_geometry_contract": "contracts/wheel_leg_standard_prone_v1.json",
+  "training_progression": "One continuous learn(10000) call; snapshots every 250 complete updates. Manual checkpoint selection; no resume. Curriculum update thresholds scale with this run's budget; acceptance limits do not change.",
+  "evaluation": {
+    "seconds": 70.0,
+    "seed": 261128,
+    "standing_xy_max_m": 0.05,
+    "standing_speed_rms_m_s": 0.03,
+    "height_mae_m": 0.01,
+    "tilt_peak_deg": 10.0,
+    "motion_vx_mae_m_s": 0.15,
+    "motion_yaw_mae_rad_s": 0.2,
+    "ignored_contiguous_support_loss_ms": 2,
+    "scope": "Fixed final-target cases, including both signs2m/s, both actual body spins80..100rpm, four arc directions, three standing heights, and actual standard-prone completion followed by a full30s quiet window. Failure remains failure; no later suffix can replace the first window. This matrix does not qualify untested jumping/terrain/other fallen families or real hardware."
+  },
+  "hardware_ready": false,
+  "timing": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.01,
+    "pc_control_dt": 0.001,
+    "decimation": 10
+  },
+  "discounts": {
+    "gamma": 0.99498743710662,
+    "lam": 0.9746794344808964
+  },
+  "action_rate_reference_dt": 0.005,
+  "timing_scope": "Policy100Hz; physics and feedback PD1000Hz.64 actor steps cover0.64s and640 physical steps per lane. Discount/GAE horizons retain seconds; action-rate density uses the5ms reference. Extra sensor age remains0..1 policy ticks, now0..10ms when timing DR is enabled; measured wheel I/O5.5/3.5ms remains unchanged. No hardware deployment qualification.",
+  "gas_spring_backend": "dev_compensation_v2",
+  "integration_provenance": {
+    "policy": "codex/prone-motion-100hz@a4d2e1fd",
+    "curriculum_performance": "codex/prone-motion-long@f4996e0d",
+    "gas_spring": "dev/self_righting_policy@7359170b",
+    "scope": "Same dev measured 16-knot mean-load fit, linear high-compression and positive exponential low-compression tails, both legs symmetric; same encoder geometry, saturation and outward relative-torque projection. One compensation owner; no policy-weight transfer."
+  },
+  "runtime_cli": {
+    "schema": "prone-motion-cli-v1",
+    "base_plan": {
+      "schema": "wheel-leg-prone-motion-v3",
+      "seed": 261028,
+      "num_envs": 256,
+      "rollout_steps": 64,
+      "max_updates": 10000,
+      "snapshot_interval": 250,
+      "execution": "single_learn_call_manual_review",
+      "review_updates": [],
+      "reference": {
+        "repository": "/home/noir/Documents/workspace/example/wheeled-legged_RL",
+        "commit": "b5e1353b34660ac3bbac77f93727501cc5a618db",
+        "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14",
+        "adopted": "Long training, additive objectives, persistent old-skill exposure. No teacher, scripted assistance, mechanism, noise ranges or gimbal ABI copied."
+      },
+      "initialization": "Fresh fully trainable six-output actor, critic and empty Adam. No checkpoint, teacher, donor, resume or scripted motor targets.",
+      "foundation_until_update": 1000,
+      "speed_full_update": 6000,
+      "spin_full_update": 7000,
+      "height_full_update": 5000,
+      "forward_speed_m_s": 2.0,
+      "spin_target_rpm": 100.0,
+      "spin_minimum_rpm": 80.0,
+      "arc_yaw_rad_s": 0.6,
+      "roles_per20": [
+        "prone",
+        "prone",
+        "prone",
+        "prone",
+        "prone",
+        "prone",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "stand",
+        "forward",
+        "reverse",
+        "spin_left",
+        "spin_right",
+        "arc_fl",
+        "arc_fr",
+        "arc_rl",
+        "arc_rr",
+        "height"
+      ],
+      "training_prone_seconds": 70.0,
+      "standing_seconds": 30.0,
+      "motion_seconds": 20.0,
+      "rise_deadline_seconds": 20.0,
+      "completion_hold_seconds": 1.0,
+      "post_completion_quiet_seconds": 30.0,
+      "rise_target_excursion_m": 0.1,
+      "rise_training_abort_excursion_m": 0.35,
+      "friction": {
+        "wheel": 0.7,
+        "ground_nominal": 0.5,
+        "provenance": "Existing standard-prone baseline; engineering hypothesis, not measured hardware friction. DR preserves the requested ground0.3..0.5 range."
+      },
+      "learning_rate": 0.0003,
+      "initial_std": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.2,
+        0.2
+      ],
+      "route_potential_gain": 0.05,
+      "wheel_model": {
+        "model": {
+          "file": "model/wheel_identified_1562_20261028/model.json",
+          "sha256": "2c67e1113f0a460cd477e3ec6897e258619304a69879da3acabec148bb61823d"
+        },
+        "control": {
+          "file": "contracts/wheel_leg_prone_motion_control_100hz_v1.json",
+          "sha256": "679f972b201ed639e28fa9b8babbd3fecd3fc2fc3206bfc3ca973558a6033ed7"
+        },
+        "evidence": {
+          "file": "model/wheel_identified_1562_20261028/evidence.json",
+          "sha256": "a19357979636190be8f923e680c769714b31c3b7732109a00017c787e9d23abd"
+        },
+        "scope": "Independent measured 15.62/24V left/right output axes, P0.5. Aggregate I/O delay once; existing v2 policy-observation age remains additional uncertainty. Shared body/armature inertia draw; no added randomization range. Loaded high-speed torque remains a prior. The100Hz control derives only identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.",
+        "recorded_control": {
+          "file": "model/wheel_identified_1562_20261028/control.json",
+          "sha256": "38c94b9040bf8acfa1bc97fb2f5420dd2259e2cba8a62561bd12c59397362b2d"
+        }
+      },
+      "gas_spring_model": {
+        "file": "model/gas_spring_compensation_20261028/model.json",
+        "sha256": "098fd7d5fbd876cd57d0b6e01e239eb16f6789690a5eadf7820ec20d974919a3"
+      },
+      "gas_spring_feedforward": {
+        "enabled": true,
+        "model_file": "model/gas_spring_compensation_20261028/model.json",
+        "model_sha256": "098fd7d5fbd876cd57d0b6e01e239eb16f6789690a5eadf7820ec20d974919a3",
+        "gain": 1.0,
+        "force_extrapolation": "positive_c1_endpoint_trend_v1",
+        "physical_curve_outside_geometry": "hold_geometry_endpoint",
+        "relative_soft_limits": {
+          "minimum": -0.140638855,
+          "maximum": 1.3889088544,
+          "margin": 0.03,
+          "projection": "outward_relative_torque_v1"
+        }
+      },
+      "domain_sequence": [
+        {
+          "start_update": 0,
+          "profile": "nominal",
+          "strength": 0.0
+        },
+        {
+          "start_update": 6000,
+          "profile": "sensors_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 6250,
+          "profile": "motor_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 6500,
+          "profile": "mass_com_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 6750,
+          "profile": "inertia_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 7000,
+          "profile": "friction_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 7250,
+          "profile": "timing_only",
+          "strength": 0.25
+        },
+        {
+          "start_update": 7500,
+          "profile": "requested",
+          "strength": 0.25
+        },
+        {
+          "start_update": 8000,
+          "profile": "requested",
+          "strength": 0.5
+        },
+        {
+          "start_update": 8500,
+          "profile": "requested",
+          "strength": 0.75
+        },
+        {
+          "start_update": 9000,
+          "profile": "requested",
+          "strength": 1.0
+        }
+      ],
+      "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
+      "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
+      "prone_geometry_contract": "contracts/wheel_leg_standard_prone_v1.json",
+      "training_progression": "One native learn(10000) call; continuous global iteration and ETA. Save every250 completed updates without cold tests. Only declared domain changes rebuild the physical environment before the next rollout's first observation/action, preserving the live actor/critic/Adam/storage/logger. After training, the operator selects any250-update snapshot or the10000-update final model for separate read-only review. Stop on explicit signal, nonfinite state or implementation failure. No automatic restart or resume.",
+      "evaluation": {
+        "seconds": 70.0,
+        "seed": 261128,
+        "standing_xy_max_m": 0.05,
+        "standing_speed_rms_m_s": 0.03,
+        "height_mae_m": 0.01,
+        "tilt_peak_deg": 10.0,
+        "motion_vx_mae_m_s": 0.15,
+        "motion_yaw_mae_rad_s": 0.2,
+        "ignored_contiguous_support_loss_ms": 2,
+        "scope": "Fixed final-target cases, including both signs2m/s, both actual body spins80..100rpm, four arc directions, three standing heights, and actual standard-prone completion followed by a full30s quiet window. Failure remains failure; no later suffix can replace the first window. This matrix does not qualify untested jumping/terrain/other fallen families or real hardware."
+      },
+      "hardware_ready": false,
+      "timing": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.01,
+        "pc_control_dt": 0.001,
+        "decimation": 10
+      },
+      "discounts": {
+        "gamma": 0.99498743710662,
+        "lam": 0.9746794344808964
+      },
+      "action_rate_reference_dt": 0.005,
+      "timing_scope": "Policy100Hz; physics and feedback PD1000Hz.64 actor steps cover0.64s and640 physical steps per lane. Discount/GAE horizons retain seconds; action-rate density uses the5ms reference. Extra sensor age remains0..1 policy ticks, now0..10ms when timing DR is enabled; measured wheel I/O5.5/3.5ms remains unchanged. No hardware deployment qualification.",
+      "gas_spring_backend": "dev_compensation_v2",
+      "integration_provenance": {
+        "policy": "codex/prone-motion-100hz@a4d2e1fd",
+        "curriculum_performance": "codex/prone-motion-long@f4996e0d",
+        "gas_spring": "dev/self_righting_policy@7359170b",
+        "scope": "Same dev measured 16-knot mean-load fit, linear high-compression and positive exponential low-compression tails, both legs symmetric; same encoder geometry, saturation and outward relative-torque projection. One compensation owner; no policy-weight transfer."
+      }
+    },
+    "base_plan_sha256": "2d5508420c799b79a525d6c50cdbe15a239f29be747f34b9d68213f6007ebdca",
+    "options": {
+      "num_envs": 256,
+      "max_iterations": 10000,
+      "seed": 103,
+      "save_interval": 250,
+      "learning_rate": null,
+      "domain_randomization": "curriculum",
+      "dr_strength": 1.0,
+      "num_steps_per_env": 64
+    }
+  }
+}

@@ -1,0 +1,375 @@
+{
+  "schema": "kaiser-runtime-repair-review-v1",
+  "reviewed_utc": "2026-10-29T16:06:56.515922+00:00",
+  "status": "native_and_fresh_PPO_runtime_verified_user_training_continues",
+  "source_commit": "e77f1675fd9d5906b41bc18a73e808e83ecb2a69",
+  "branch": "dev/wheel-leg-unified",
+  "remote_checkout": "/home/kaiser/workspace/isaac_sim-6-task",
+  "root_causes": [
+    {
+      "problem": "PhysX could not dlopen libcuda.so although Torch could load libcuda.so.1; PhysX fell back to CPU and failed in a Warp ProxyArray argument",
+      "fix": "Train/play bootstrap exposes the actual /usr/lib/wsl/lib driver directory only when libcuda.so exists",
+      "evidence": [
+        "diagnostics/gpu_probe.log",
+        "diagnostics/gpu_wsl_path.log",
+        "diagnostics/native_original/progress.json"
+      ]
+    },
+    {
+      "problem": "MaterialX runtime dependency libXt.so.6 missing",
+      "fix": "Configured Ubuntu libxt6/libsm6/libice6 packages extracted to user runtime directory without sudo or system install",
+      "evidence": [
+        "runtime_libs_manifest.json",
+        "diagnostics/native_loader_fixed.log"
+      ]
+    }
+  ],
+  "native_verification": {
+    "source": {
+      "schema": "scratch-committed-source-v1",
+      "commit": "e77f1675fd9d5906b41bc18a73e808e83ecb2a69",
+      "source_count": 344,
+      "all_source_bytes_match_commit": true,
+      "archive": "/home/kaiser/rl_envcheck_20261029/prone-runtime-33l6tvb4/native_loader_fixed/committed_source.tar",
+      "archive_sha256": "3f66eb0d5b3be20956a875013f05a4c22367ac80d4467f72720b2992a4e1b7c1"
+    },
+    "status": "native_probe_completed_unqualified",
+    "total_checks": 60,
+    "all_checks_pass": true,
+    "profiles": [
+      {
+        "profile": "nominal",
+        "strength": 0.0,
+        "checks": 30
+      },
+      {
+        "profile": "requested",
+        "strength": 1.0,
+        "checks": 30
+      }
+    ],
+    "environments_per_context": 80,
+    "new_PPO": 0,
+    "checkpoint_reads": [],
+    "source_mismatches": [],
+    "policy_hz": 100,
+    "physics_hz": 1000
+  },
+  "existing_user_training_review": {
+    "observed_utc": "2026-10-29T16:04:49.482885+00:00",
+    "source": "e77f1675fd9d5906b41bc18a73e808e83ecb2a69",
+    "mode": "Read-only review of a separately launched user-terminal training; no signals and no additional learner",
+    "run": "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104",
+    "identity": {
+      "pid": 3250943,
+      "start_ticks": 94217696,
+      "cwd": "/home/kaiser/workspace/isaac_sim-6-task",
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "/home/kaiser/workspace/isaac_sim-6-task/scripts/train_prone_motion.py",
+        "--task",
+        "WheelLeg-ProneMotion-v3",
+        "--num_envs",
+        "256",
+        "--max_iterations",
+        "10000",
+        "--num_steps_per_env",
+        "64",
+        "--save_interval",
+        "250",
+        "--seed",
+        "103",
+        "--run_name",
+        "train_10000_seed104",
+        "--domain_randomization",
+        "curriculum",
+        "--device",
+        "cuda:0",
+        "--headless",
+        "--output",
+        "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104"
+      ],
+      "stdout": "/dev/pts/2"
+    },
+    "progress": {
+      "status": "training",
+      "requested_updates": 10000,
+      "completed_updates": 5,
+      "optimizer_attempts": 5,
+      "optimizer_update_in_flight": false,
+      "checkpoint_reads": [],
+      "last_losses": {
+        "value": 1.4078484376271565,
+        "surrogate": -0.0011156713590025902,
+        "entropy": -0.24731558561325073
+      },
+      "error": null
+    },
+    "initialization": {
+      "schema": "scratch-ppo-initialization-v1",
+      "checkpoint_loaded": false,
+      "teacher_loaded": false,
+      "actor_updates": 0,
+      "critic_updates": 0,
+      "optimizer_states": 0,
+      "actor_tensor_sha256": "ba96f127d5d0286cad207e313d0e1decf778c2aa35c90cbdfccc5c08394cfb3a",
+      "critic_tensor_sha256": "d8d972ad0d3c9933e3928bd71e83be3bb3cafbc74a3315d0d9165f4a86ef65ea",
+      "actor_trainable_parameters": 50764,
+      "critic_trainable_parameters": 62721,
+      "output_bias_source": "feasible 0.305 m reset joint geometry; all six outputs trainable",
+      "output_bias_policy_order": [
+        0.29959917068481445,
+        -0.05938982591032982,
+        -0.29959917068481445,
+        0.05939134582877159,
+        0.0,
+        0.0
+      ],
+      "initial_std_policy_order": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.2,
+        0.2
+      ]
+    },
+    "initial_checkpoint": {
+      "iter": 0,
+      "optimizer_state_entries": {
+        "optimizer_state_dict": 0
+      },
+      "sha256": "3b929de6dac457b042a3c43d8b3844b3b7cc2ce09a29ce54b0ccccc32a1c78a9"
+    },
+    "first_update_audit": {
+      "committed_optimizer_calls": 12,
+      "all_recorded_values_finite": true,
+      "actor_changed_parameter_tensors": 9,
+      "critic_changed_parameter_tensors": 8
+    },
+    "all_frozen_source_bytes_match": true,
+    "event_files": [
+      "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104/events.out.tfevents.1793289771.Kaiser.3250943.0"
+    ],
+    "scalar_tag_count": 223,
+    "performance_events": {
+      "Perf/total_fps": [
+        {
+          "step": 0,
+          "value": 778.0,
+          "wall_time": 1793289792.9849484
+        },
+        {
+          "step": 1,
+          "value": 717.0,
+          "wall_time": 1793289816.0977435
+        },
+        {
+          "step": 2,
+          "value": 691.0,
+          "wall_time": 1793289840.0181832
+        },
+        {
+          "step": 3,
+          "value": 731.0,
+          "wall_time": 1793289862.6377044
+        },
+        {
+          "step": 4,
+          "value": 789.0,
+          "wall_time": 1793289883.5899208
+        }
+      ],
+      "Perf/collection_time": [
+        {
+          "step": 0,
+          "value": 20.72624397277832,
+          "wall_time": 1793289792.9849555
+        },
+        {
+          "step": 1,
+          "value": 22.772695541381836,
+          "wall_time": 1793289816.0977504
+        },
+        {
+          "step": 2,
+          "value": 23.614309310913086,
+          "wall_time": 1793289840.0181952
+        },
+        {
+          "step": 3,
+          "value": 22.328365325927734,
+          "wall_time": 1793289862.6377232
+        },
+        {
+          "step": 4,
+          "value": 20.687129974365234,
+          "wall_time": 1793289883.5899289
+        }
+      ],
+      "Perf/learning_time": [
+        {
+          "step": 0,
+          "value": 0.3103959560394287,
+          "wall_time": 1793289792.9849613
+        },
+        {
+          "step": 1,
+          "value": 0.07735371589660645,
+          "wall_time": 1793289816.0977564
+        },
+        {
+          "step": 2,
+          "value": 0.06954407691955566,
+          "wall_time": 1793289840.018202
+        },
+        {
+          "step": 3,
+          "value": 0.06226611137390137,
+          "wall_time": 1793289862.6377378
+        },
+        {
+          "step": 4,
+          "value": 0.05617642402648926,
+          "wall_time": 1793289883.5899348
+        }
+      ]
+    },
+    "behavior_qualified": false,
+    "stop_checkpoint_test": "Not performed: current user training continues unchanged"
+  },
+  "snapshot_completed_updates": 7,
+  "performance_event_summary": {
+    "Perf/total_fps": {
+      "samples": 5,
+      "mean": 741.2,
+      "min": 691.0,
+      "max": 789.0
+    },
+    "Perf/collection_time": {
+      "samples": 5,
+      "mean": 22.025748825073244,
+      "min": 20.687129974365234,
+      "max": 23.614309310913086
+    },
+    "Perf/learning_time": {
+      "samples": 5,
+      "mean": 0.11514725685119628,
+      "min": 0.05617642402648926,
+      "max": 0.3103959560394287
+    }
+  },
+  "cpu_regression": {
+    "passed": 110,
+    "command": "PYTHONPATH=src /home/noir/miniconda3/envs/isaacsim6/bin/python -m pytest -q tests/test_prone_motion.py tests/test_prone_motion_cli.py tests/test_prone_motion_python.py tests/test_prone_motion_performance.py tests/test_prone_motion_timing.py",
+    "additional_checks": [
+      "bash syntax",
+      "git diff --check"
+    ]
+  },
+  "diagnostic_accounting": {
+    "native_PPO": 0,
+    "first_attempt": {
+      "output": "diagnostics/result_ppo_startup.json",
+      "outcome": "20-update declared budget rejected before output directory/model/PPO creation because curriculum stage boundaries collide",
+      "completed_updates": 0
+    },
+    "second_attempt": {
+      "output": "diagnostics/result_ppo_startup002.json",
+      "outcome": "Concurrent learner protection rejected launch while user native probe was running",
+      "completed_updates": 0
+    },
+    "total_agent_diagnostic_PPO_updates": 0,
+    "signals_sent_to_user_training": 0,
+    "checkpoint_reuse": false,
+    "user_training_updates_are_separate_ongoing_consumption": true
+  },
+  "full_capability_qualified": false,
+  "capabilities": [
+    {
+      "id": "initial_recovery",
+      "requirement": "Recover from initial front/back/left/right/upside-down and asymmetric leg poses; stabilize and continue the requested task",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "moving_fall_recovery",
+      "requirement": "Detect and recover quickly after a real fall during forward/reverse/turning/spinning motion; resume the request without scripted assistance",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "standing",
+      "requirement": "Stable quiet low/mid/high standing after actual recovery completion, with continuous effective dual-wheel support allowing<=2ms pulses, small true XY drift and no sustained outward drift",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "low_speed_straight",
+      "requirement": "Track low positive and negative speeds and the straight path smoothly",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "high_speed_straight",
+      "requirement": "Track high forward and reverse speeds while retaining straight-path accuracy and balance",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "stationary_spin",
+      "requirement": "Target100rpm, at least80rpm, both directions, near the same ground location without falling or vibration",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "four_direction_arcs",
+      "requirement": "Forward-left, forward-right, reverse-left and reverse-right simultaneous translation and turning, including transitions",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "standing_height_change",
+      "requirement": "Smooth standing height changes without meaningful wheel lift, excessive drift or loss of balance; apply the post-completion<=2ms contact tolerance",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "moving_height_change",
+      "requirement": "Change height during forward/reverse/turning motion while maintaining tracking and balance",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "spinning_height_change",
+      "requirement": "Change height during both spin directions while maintaining yaw, location and balance",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "high_speed_braking",
+      "requirement": "Abruptly command zero from high forward and reverse speeds; stop promptly, smoothly and upright with small overshoot and little rebound",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "smoothness",
+      "requirement": "All tasks must avoid high-frequency leg/wheel excitation, contact chatter and dangerous measured joint speed",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    },
+    {
+      "id": "robustness",
+      "requirement": "Confirm nominal and randomized held-out dynamics, actuator/sensor/timing/friction domains, seeds and disturbances; preserve all failures",
+      "status": "not_measured_by_this_runtime_check",
+      "passed": false
+    }
+  ],
+  "limitations": [
+    "Native probes and finite first PPO updates do not qualify standing, get-up, tracking, spin or robustness",
+    "User terminal training remains running unchanged; no stop-checkpoint test was performed",
+    "Event-derived five-update performance window is an early sample, not a steady-state speed comparison",
+    "The run name ends in seed104 but the actual --seed argument and resolved plan are 103"
+  ],
+  "evidence_manifest": "evidence_manifest.json"
+}

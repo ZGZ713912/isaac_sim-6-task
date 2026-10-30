@@ -1,0 +1,90 @@
+{
+  "schema": "full-robot-v202-gimbal-limits-update-v1",
+  "status": "completed",
+  "source": "user specification2026-10-30",
+  "gimbal_limits": {
+    "source": "user specification 2026-10-30",
+    "position_unit": "rad",
+    "yaw": {
+      "joint": "M_joint1",
+      "type": "continuous",
+      "lower": null,
+      "upper": null
+    },
+    "pitch": {
+      "joint": "M_joint2",
+      "type": "revolute",
+      "positive_direction": "up",
+      "lower_deg": -30.0,
+      "upper_deg": 35.0,
+      "lower": -0.5235987755982988,
+      "upper": 0.6108652381980153
+    },
+    "training_variant": "both gimbal joints fixed at zero",
+    "urdf_passive_pitch_effort_nm": 0.0,
+    "urdf_pitch_velocity_guard_rad_s": 100.0,
+    "actuator_identified": false,
+    "urdf_actuator_field_scope": "unactuated reference with inherited100rad/s solver guard; not motor specifications"
+  },
+  "previous_asset_manifest_sha256": "ad1744f8d9a71050703384654a31b0339dba3a0adcd523db037c2e614747d5cf",
+  "asset_manifest_sha256": "9045468047c1094782522ce8da1f243fc3ec13bdfe54f478cec6eec433b8c203",
+  "previous_validation_receipt_sha256": "415c8093cf34c101943240ee7f6972b75580f1883f89dc11ef4950c0aaac881b",
+  "previous_validation_receipt": "reports/full_robot_v202_20261030/validation_receipt.json",
+  "inherited_native_validation_scope": "fixed-zero gimbal six-motor model only; all previous physics bundle files except free-gimbal USD and limit metadata are byte-identical",
+  "inherited_physics_files_verified": 78,
+  "training_usd_sha256": "1cc4f9528616183f83694b5f65cc584b66533566f9d7f354ea579885f0f98f0c",
+  "model_spec_sha256": "f4a9b373c1dcf448f967ed1eeb0647b1d8652392e3c236b6773dfccb998650d5",
+  "geometry_frame_check": {
+    "passed": true,
+    "poses": 65,
+    "maximum_errors": {
+      "visual_transform": 4.1949360651827305e-12,
+      "collision_transform": 4.1949360651827305e-12,
+      "com_m": 3.3463509740983e-13,
+      "inertia_kg_m2": 7.065853978305281e-15,
+      "joint_axis": 4.206593733498182e-12
+    },
+    "masses_exact": true,
+    "active_joint_signs": {
+      "L_joint1": 1,
+      "LL_joint1": 1,
+      "L_joint3": 1,
+      "R_joint1": 1,
+      "RR_joint1": 1,
+      "R_joint3": 1
+    },
+    "encoder_zero_changes": 0,
+    "gimbal_zero_link_frames": "parallel to normalized base; actual CAD screw-axis tilt retained"
+  },
+  "new_PPO": 0,
+  "hardware_motion": false,
+  "training_ready": false,
+  "passed": true,
+  "updated_at": "2026-10-30T16:08:52.870769+08:00",
+  "native_readback": {
+    "path": "reports/full_robot_v202_20261030/gimbal_limits_update001/native_readback.json",
+    "sha256": "63d65293d076fa3782144b2b2b0ae3dd5907caaf474f793ccc32871271f54f22",
+    "passed": true
+  },
+  "cpu_tests": {
+    "passed": 37,
+    "path": "reports/full_robot_v202_20261030/gimbal_limits_update001/tests.log",
+    "sha256": "842ba57ab7ce24ce5076b7aaf3a9afa7a826c0e309b16ca400a7974e78d173bd"
+  },
+  "generated_files_sha256": {
+    "model/wheel_leg_v2.0.2/轮腿整车URDFv2.0.2/urdf/轮腿整车URDFv2.0.2.urdf": "49c690e7eb6679608203445dffab265a0954ef995339e8a97ac9f690a7fee90c",
+    "model/wheel_leg_v2.0.2/轮腿整车URDFv2.0.2/urdf/轮腿整车URDFv2.0.2.csv": "2304202285d1efd1b4962cd57758464d01b5f2b400e1b2bc98fd5754dcf2a8e5",
+    "model/wheel_leg_v2.0.2/isaac/robot_gimbal_free.usda": "27018f5862c79f1aa4602c7aa99853b54b4f96006bbba6b9b41cf70f6bcbfe43",
+    "model/wheel_leg_v2.0.2/isaac/gimbal_limits.json": "4065ebdbeca989c2cfb1b2b467a9bad0b82a6a1118570cad8806de40ca53993f",
+    "model/wheel_leg_v2.0.2/isaac/mechanical_limits.json": "98e4c1a6407eae7f213cb6495790bbe076f819e2ab5b4d9bd91a5cc572fd2696",
+    "model/wheel_leg_v2.0.2/source_provenance.json": "c16e5a21a7b99f69d119dbbecf836536b81666a97df0c0bd6a35f63ab8935d2d",
+    "model/wheel_leg_v2.0.2/README.md": "5ce26483816de20922f83e09f600b1468c5831e787468771b98a95f8e5a93302"
+  },
+  "runtime_sources_sha256": {
+    "tools/full_robot_v202.py": "4fb90fc546b33d2c898d7e450f8a26570e28e67abc442fcb978c99a2e4f13f89",
+    "tests/test_full_robot_v202.py": "ae677f4f2ed89340ccc899ef43239d4e1c6453e3dc5f34c97c62e0c63966ff0c",
+    "docs/FULL_ROBOT_V202.md": "5ce26483816de20922f83e09f600b1468c5831e787468771b98a95f8e5a93302"
+  },
+  "source_v201_unchanged": true,
+  "gimbal_stop_force_or_control_qualified": false
+}

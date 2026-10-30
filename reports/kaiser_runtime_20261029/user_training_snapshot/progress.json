@@ -1,0 +1,133 @@
+{
+  "schema": "prone-motion-progress-v1",
+  "status": "training",
+  "pid": 3250943,
+  "start_ticks": 94217696,
+  "started_utc": "2026-10-29T16:02:41.135189+00:00",
+  "requested_updates": 10000,
+  "completed_updates": 7,
+  "optimizer_attempts": 7,
+  "checkpoint_reads": [],
+  "contexts": [
+    {
+      "index": 0,
+      "profile": "nominal",
+      "strength": 0.0,
+      "evaluation": false,
+      "directory": "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104/contexts/000_nominal_0_train",
+      "completed_updates": 0,
+      "seed": 103
+    }
+  ],
+  "cold_reviews": [],
+  "committed_source": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "e77f1675fd9d5906b41bc18a73e808e83ecb2a69",
+    "source_count": 344,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104/committed_source.tar",
+    "archive_sha256": "3f66eb0d5b3be20956a875013f05a4c22367ac80d4467f72720b2992a4e1b7c1"
+  },
+  "run_options": {
+    "argv": [
+      "--task",
+      "WheelLeg-ProneMotion-v3",
+      "--num_envs",
+      "256",
+      "--max_iterations",
+      "10000",
+      "--num_steps_per_env",
+      "64",
+      "--save_interval",
+      "250",
+      "--seed",
+      "103",
+      "--run_name",
+      "train_10000_seed104",
+      "--domain_randomization",
+      "curriculum",
+      "--device",
+      "cuda:0",
+      "--headless",
+      "--output",
+      "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104"
+    ],
+    "task": "WheelLeg-ProneMotion-v3",
+    "output": "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104",
+    "run_name": "train_10000_seed104",
+    "device": "cuda:0",
+    "headless": true,
+    "performance_backend": "cuda_graph",
+    "python_executable": "/home/kaiser/robot-rl-sim60/env/bin/python",
+    "python_prefix": "/home/kaiser/robot-rl-sim60/env",
+    "options": {
+      "num_envs": 256,
+      "max_iterations": 10000,
+      "seed": 103,
+      "save_interval": 250,
+      "learning_rate": null,
+      "domain_randomization": "curriculum",
+      "dr_strength": 1.0,
+      "num_steps_per_env": 64
+    },
+    "base_plan": "/home/kaiser/workspace/isaac_sim-6-task/contracts/wheel_leg_prone_motion_v3.json",
+    "resolved_plan_sha256": "ed8213608f047f00457c4c5aad04b24fadcd4da4a649a2b09e9b4b82d3ac0eab"
+  },
+  "hardware_ready": false,
+  "full_capability_qualified": false,
+  "initialization": {
+    "schema": "scratch-ppo-initialization-v1",
+    "checkpoint_loaded": false,
+    "teacher_loaded": false,
+    "actor_updates": 0,
+    "critic_updates": 0,
+    "optimizer_states": 0,
+    "actor_tensor_sha256": "ba96f127d5d0286cad207e313d0e1decf778c2aa35c90cbdfccc5c08394cfb3a",
+    "critic_tensor_sha256": "d8d972ad0d3c9933e3928bd71e83be3bb3cafbc74a3315d0d9165f4a86ef65ea",
+    "actor_trainable_parameters": 50764,
+    "critic_trainable_parameters": 62721,
+    "output_bias_source": "feasible 0.305 m reset joint geometry; all six outputs trainable",
+    "output_bias_policy_order": [
+      0.29959917068481445,
+      -0.05938982591032982,
+      -0.29959917068481445,
+      0.05939134582877159,
+      0.0,
+      0.0
+    ],
+    "initial_std_policy_order": [
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.2,
+      0.2
+    ]
+  },
+  "last_checkpoint": {
+    "path": "/home/kaiser/workspace/isaac_sim-6-task/runs/prone_motion/train_10000_seed104/model_initial.pt",
+    "sha256": "3b929de6dac457b042a3c43d8b3844b3b7cc2ce09a29ce54b0ccccc32a1c78a9",
+    "updates": 0
+  },
+  "execution": {
+    "mode": "single_learn_call_manual_review",
+    "learn_calls": 1,
+    "requested_updates": 10000,
+    "snapshot_interval": 250,
+    "intermediate_cold_reviews": false,
+    "checkpoint_selection": "manual after training"
+  },
+  "optimizer_update_in_flight": false,
+  "elapsed_s": 164.05968325899448,
+  "valid_rollout": {
+    "valid_transitions": 16384,
+    "script_or_blend_transitions": 0,
+    "valid_fraction": 1.0,
+    "minimum_mini_batch_population": 4096
+  },
+  "last_losses": {
+    "value": 1.0475661158561707,
+    "surrogate": -0.0011876188218593597,
+    "entropy": -0.2509814500808716
+  }
+}
