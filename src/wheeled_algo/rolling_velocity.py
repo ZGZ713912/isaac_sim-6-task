@@ -28,11 +28,21 @@ def frozen_rolling_estimator():
 
 
 class RollingBaseVelocity(nn.Module):
-    def __init__(self, table):
+    def __init__(self, table, *, expected_spec_sha256=SPEC_SHA256):
         super().__init__()
-        if table.get("model_spec_sha256") != SPEC_SHA256:
-            raise ValueError("Rolling velocity requires the authenticated107 geometry")
-        self.register_buffer("nominal", torch.tensor([-.42, .13742282595395358, .42, -.1374155762580851]))
+        # A new asset must supply an independently authenticated identity. Never
+        # derive the expected hash from the untrusted table being checked.
+        if (not isinstance(expected_spec_sha256, str) or len(expected_spec_sha256) != 64
+                or any(c not in "0123456789abcdef" for c in expected_spec_sha256)
+                or table.get("model_spec_sha256") != expected_spec_sha256):
+            label = "authenticated107" if expected_spec_sha256 == SPEC_SHA256 else "authenticated"
+            raise ValueError(f"Rolling velocity requires the {label} geometry model_spec_sha256")
+        nominal = ([-.42, .13742282595395358, .42, -.1374155762580851]
+                   if expected_spec_sha256 == SPEC_SHA256 else table["nominal_motor_positions"])
+        nominal = torch.tensor(nominal, dtype=torch.float32)
+        if nominal.shape != (4,) or not torch.isfinite(nominal).all():
+            raise ValueError("Rolling geometry needs four finite nominal motor positions")
+        self.register_buffer("nominal", nominal)
         for index, name in enumerate(("left", "right")):
             source = table["sides"][name]
             for key in ("delta_rad", "wheel_center_b_m", "hip_origin_b_m", "hip_axis_b",
