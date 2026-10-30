@@ -39,5 +39,29 @@
   },
   "exporter_sha256": "a3caeb71e1ef9e2955095224c1cec9ab21d5ec5a4619e887e22ed9c16b384658",
   "generator": "tools/full_robot_v202.py",
-  "generator_sha256": "baf18ac6fbfbcf9c17eea85b9cc382dac6fd60ce7a79b4b60be499b41320da8d"
+  "generator_sha256": "4fb90fc546b33d2c898d7e450f8a26570e28e67abc442fcb978c99a2e4f13f89",
+  "user_gimbal_limits": {
+    "source": "user specification 2026-10-30",
+    "position_unit": "rad",
+    "yaw": {
+      "joint": "M_joint1",
+      "type": "continuous",
+      "lower": null,
+      "upper": null
+    },
+    "pitch": {
+      "joint": "M_joint2",
+      "type": "revolute",
+      "positive_direction": "up",
+      "lower_deg": -30.0,
+      "upper_deg": 35.0,
+      "lower": -0.5235987755982988,
+      "upper": 0.6108652381980153
+    },
+    "training_variant": "both gimbal joints fixed at zero",
+    "urdf_passive_pitch_effort_nm": 0.0,
+    "urdf_pitch_velocity_guard_rad_s": 100.0,
+    "actuator_identified": false,
+    "urdf_actuator_field_scope": "unactuated reference with inherited100rad/s solver guard; not motor specifications"
+  }
 }

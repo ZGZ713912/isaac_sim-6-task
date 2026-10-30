@@ -594,10 +594,11 @@
       </geometry>
     </collision>
   </link>
-  <joint name="M_joint2" type="continuous">
+  <joint name="M_joint2" type="revolute">
     <origin xyz="0.00028850711711987686 0.00044170762429889465 0.096998994295686522" rpy="0 0 0" />
     <parent link="M_link1" />
     <child link="M_link2" />
     <axis xyz="7.5292056116524253e-15 -0.99998962111751144 0.0045560572051090405" />
+    <limit lower="-0.52359877559829882" upper="0.6108652381980153" effort="0" velocity="100" />
   </joint>
 </robot>

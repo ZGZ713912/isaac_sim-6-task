@@ -13,6 +13,11 @@ asset has 18 moving tree joints, six external spherical loop joints, two physica
 spring sliders, and two fixed-zero gimbal joints. Gimbal mass is retained; this
 fixture is the supplied six-motor chassis variant.
 
+The latest copied package also retains the supplied gimbal reference limits:
+yaw is continuous and pitch ranges from -30 to +35 degrees. The chassis USD and
+model spec are unchanged by that package update; the posture contract is rebound
+to its new manifest without changing any pose, gain or feedforward values.
+
 `traditional_asset.py` validates model identity, frame, manifest, spring/encoder
 bindings and wheel CAD inertia. `full_robot_asset.py` now supplies only generic
 CPU geometry. `traditional_model.py` regenerates equilibria, constrained virtual

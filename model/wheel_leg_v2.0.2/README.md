@@ -7,7 +7,7 @@
 
 - `轮腿整车URDFv2.0.2/urdf/轮腿整车URDFv2.0.2.urdf`：归一化后的完整 CAD 开链 URDF，保留 yaw/pitch 两轴；配套 CSV、ROS 包和 STL。
 - `isaac/robot.usda`：底盘训练用模型；云台在零位固定，包含原整车全部 21 个刚体、质量、质心与惯量。
-- `isaac/robot_gimbal_free.usda`：云台两轴可动的参考模型，未配置云台电机或控制器。
+- `isaac/robot_gimbal_free.usda`：云台两轴可动的参考模型；yaw 连续转动、无位置限位，pitch 上仰 35°/下俯 30°，未配置云台电机或控制器。
 - `isaac/robot.urdf`：六电机训练模型的树结构表示，含云台固定关节和两个气簧滑动关节。普通 URDF 无法独立表示六个闭链约束；应通过 USD 加载完整物理机构。
 - `isaac/runtime.json`、`control.json`、`model_spec.json`、`manifest.json`：控制、几何、参数及 SHA-256 绑定。
 
@@ -16,6 +16,8 @@
 这是坐标重表达，不是电机反向或编码器重标定；六电机顺序和符号仍为：
 
 `L_joint1, LL_joint1, L_joint3, R_joint1, RR_joint1, R_joint3`
+
+用户于 2026-10-30 确认云台限位：`M_joint1`（yaw）为 continuous；`M_joint2`（pitch）正角度上仰，URDF 范围 `[-0.5235987756, +0.6108652382] rad`，USD 范围 `[-30, +35]°`。`isaac/gimbal_limits.json` 记录这一约定。URDF 的 pitch `effort=0` 表示无驱动参考，`velocity=100` 沿用被动关节数值保护，均不是已辨识的云台电机规格；底盘训练版本仍将两轴固定在零位。
 
 坐标变换详见 `coordinate_mapping.json`；`frame_validation.json` 检查 65 组姿态的网格位置、质心、惯量及关节轴不变。
 
