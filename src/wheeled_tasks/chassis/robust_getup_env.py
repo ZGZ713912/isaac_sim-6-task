@@ -92,7 +92,8 @@ class RobustGetupEnv(ChassisEnv):
             if self.standing_observer is not None or settings.get("version") != "wheel-leg-prone-motion-v4":
                 raise ValueError("Local standing odometry requires its separate v4 task, without a legacy observer")
             self.local_standing_odometry = LocalStandingOdometry(n, device, self.policy_dt,
-                                                               settings["standing_odometry"])
+                settings["standing_odometry"],
+                geometry_directory=(root/config["asset_directory"] if config.get("full_vehicle") else None))
             self.startup_report["standing_odometry"] = dict(settings["standing_odometry"])
         if self.dynamics_randomization is not None:
             self.domain.enabled.copy_(self.dynamics_randomization.enabled)
@@ -473,6 +474,11 @@ class RobustGetupEnv(ChassisEnv):
             if bool(pushing.any()):
                 self.robot.instantaneous_wrench_composer.add_forces_and_torques_index(
                     forces=self.push_force, torques=self.push_torque, body_ids=self.push_body_ids, is_global=False)
+            if self.gimbal is not None:
+                gimbal_feedback_q = self.robot.data.joint_pos.torch[:, self.gimbal_ids].clone()
+                gimbal_feedback_dq = self.robot.data.joint_vel.torch[:, self.gimbal_ids].clone()
+                effort[:, self.gimbal_ids] = self.gimbal.step(
+                    gimbal_feedback_q, gimbal_feedback_dq, ~(self.passive | self.finished))
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
@@ -516,6 +522,12 @@ class RobustGetupEnv(ChassisEnv):
                     wheel_passive_effort=self.identified_wheels.passive_effort.clone(),
                     wheel_net_effort=effort[:, [self.ids[2], self.ids[5]]].clone(),
                     wheel_disabled=(self.passive | self.finished).clone(),
+                    **(dict(gimbal_feedback_q=gimbal_feedback_q, gimbal_feedback_dq=gimbal_feedback_dq,
+                        gimbal_position=self.robot.data.joint_pos.torch[:, self.gimbal_ids].clone(),
+                        gimbal_velocity=self.robot.data.joint_vel.torch[:, self.gimbal_ids].clone(),
+                        gimbal_target=self.gimbal.target.clone(), gimbal_effort=effort[:, self.gimbal_ids].clone(),
+                        gimbal_applied_effort=self.robot.data.applied_torque.torch[:, self.gimbal_ids].clone())
+                        if self.gimbal is not None else {}),
                     **{"spring_ff_"+key: value.clone() for key, value in self.spring_feedforward.last.items()}))
             gap_peak = torch.maximum(gap_peak, self.closure_gap())
             body_force = self.contact_force.norm(dim=-1).amax(-1)
@@ -821,6 +833,17 @@ class RobustGetupEnv(ChassisEnv):
                     "StandingReference/sensor_projection_abs_mean_rad": self.standing_coordinate.last_projection_abs_rad.mean()})
         if self.local_standing_odometry is not None:
             info["log"].update(self.local_standing_odometry.metrics())
+        if self.gimbal is not None:
+            gq = self.robot.data.joint_pos.torch[:, self.gimbal_ids]
+            gdq = self.robot.data.joint_vel.torch[:, self.gimbal_ids]
+            info["log"].update({"Gimbal/yaw_speed_abs_mean_rad_s": gdq[:, 0].abs().mean(),
+                "Gimbal/pitch_mean_deg": torch.rad2deg(gq[:, 1]).mean(),
+                "Gimbal/pitch_min_deg": torch.rad2deg(gq[:, 1]).min(),
+                "Gimbal/pitch_max_deg": torch.rad2deg(gq[:, 1]).max(),
+                "Gimbal/yaw_target_abs_mean_rad_s": self.gimbal.target[:, 0].abs().mean(),
+                "Gimbal/pitch_target_mean_deg": torch.rad2deg(self.gimbal.target[:, 1]).mean(),
+                "Gimbal/yaw_effort_abs_mean_nm": self.gimbal.effort[:, 0].abs().mean(),
+                "Gimbal/pitch_effort_abs_mean_nm": self.gimbal.effort[:, 1].abs().mean()})
         for f, name in enumerate(FAMILIES):
             mask = self.settled_family == f
             info["log"][f"UnifiedGetup/post_settle/{name}_episodes"] = (enable & mask).float().sum()

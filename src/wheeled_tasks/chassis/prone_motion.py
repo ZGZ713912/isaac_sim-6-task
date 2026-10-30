@@ -42,6 +42,10 @@ def validate(plan):
         validate_contract(plan.get("standing_odometry"))
         if plan.get("quiet_position_tail") != dict(start_m=.09, scale_m=.04, weight=2.):
             raise ValueError("v4 requires its zero-command-only continuous position cost tail")
+        if bool(plan.get("full_vehicle")) != ("geometry_file" in plan["standing_odometry"]):
+            raise ValueError("Full-vehicle v4 must bind its own encoder geometry")
+        if plan.get("full_vehicle") and not (plan.get("mechanism") and plan.get("pose_bank")):
+            raise ValueError("Full-vehicle v4 requires its new mechanism and reset bank")
     elif "standing_odometry" in plan or "quiet_position_tail" in plan:
         raise ValueError("Changed standing observation/reward semantics require the v4 task")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"

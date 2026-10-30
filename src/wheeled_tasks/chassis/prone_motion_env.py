@@ -35,10 +35,14 @@ class ProneMotionEnv(RobustGetupEnv):
             self.identified_spring.install(self)
             from .encoder_spring_feedforward import EncoderGasSpringFeedforward
             EncoderGasSpringFeedforward(self.cfg["v5_control"]["encoder_spring_feedforward"]).install(self)
-        from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
-        from .standing_geometry107 import table_path
-        self.prone_encoder_geometry = EncoderLegGeometry(json.loads(table_path().read_text()),
-            relative_margin_rad=.001).to(self.device)
+        if self.cfg.get("full_vehicle"):
+            from .full_vehicle_training import encoder_geometry
+            self.prone_encoder_geometry = encoder_geometry(self.cfg, self.asset_root).to(self.device)
+        else:
+            from wheeled_algo.encoder_leg_geometry import EncoderLegGeometry
+            from .standing_geometry107 import table_path
+            self.prone_encoder_geometry = EncoderLegGeometry(json.loads(table_path().read_text()),
+                relative_margin_rad=.001).to(self.device)
         self.prone_index = next(i for i, p in enumerate(self.poses) if p["name"] == self.prone_task["reset_pose_name"])
         mapping = self.bank["diagnostic_height_starts"]["mapping"]
         self.height_pose = {h: mapping[n] for h, n in ((.23, "stand_low"), (.305, "stand"), (.42, "stand_high"))}
@@ -61,7 +65,7 @@ class ProneMotionEnv(RobustGetupEnv):
         self.startup_report["prone_motion"] = dict(
             motor_owner="Trainable six-axis RL for every active physical interval",
             state_writes="episode reset only", fallback_script=False,
-            actor_dim=35, critic_dim=83, wheel_target_units="rad/s, output shaft",
+            actor_dim=35, critic_dim=self.cfg["critic_dim"], wheel_target_units="rad/s, output shaft",
             reset="Normally-up belly-grounded103deg pose, zero torque until settled; initialized standing rehearsal",
             route_bias="No folded target initialization; weak encoder/COM potential only",
             full_commands=dict(forward_m_s=self.plan["forward_speed_m_s"],
