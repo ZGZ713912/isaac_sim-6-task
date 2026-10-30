@@ -152,6 +152,27 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
         observation, _, _, extras = env.step(actor(observation))
         state = extras["diagnostics"]
         physical = env.prone_motion_physical
+        if getattr(env, "gimbal", None) is not None:
+            q, dq, target = (physical[k] for k in ("gimbal_feedback_q", "gimbal_feedback_dq", "gimbal_target"))
+            expected_gimbal = torch.stack((.5*(target[..., 0]-dq[..., 0]),
+                20.*(target[..., 1]-q[..., 1])-.5*dq[..., 1]), -1)
+            caps = expected_gimbal.new_tensor([2., 10.])
+            expected_gimbal = expected_gimbal.clamp(-caps, caps)
+            expected_gimbal[physical["wheel_disabled"]] = 0.
+            checks["gimbal_actual_1khz_torque_servo"] = checks.get("gimbal_actual_1khz_torque_servo", True) and bool(
+                torch.allclose(physical["gimbal_effort"], expected_gimbal, atol=1e-6, rtol=1e-6)
+                and torch.allclose(physical["gimbal_applied_effort"], expected_gimbal, atol=1e-6, rtol=1e-6))
+            checks["gimbal_disabled_effort_zero"] = checks.get("gimbal_disabled_effort_zero", True) and bool(
+                (physical["gimbal_effort"][physical["wheel_disabled"]] == 0.).all())
+            checks["gimbal_pitch_targets_within_user_limits"] = checks.get("gimbal_pitch_targets_within_user_limits", True) and bool(
+                (target[..., 1] >= -math.pi/6.-1e-6).all() and (target[..., 1] <= math.radians(35.)+1e-6).all())
+            checks["gimbal_yaw_actually_moves"] = checks.get("gimbal_yaw_actually_moves", False) or bool(
+                (physical["gimbal_velocity"][..., 0].abs() > .05).any())
+            checks["gimbal_pitch_actually_moves"] = checks.get("gimbal_pitch_actually_moves", False) or bool(
+                (physical["gimbal_velocity"][..., 1].abs() > .05).any())
+            checks["gimbal_native_twenty_joint_topology"] = len(env.robot.joint_names) == 20 and len(env.robot.body_names) == 21
+            counts = env.startup_report["contact_material"]["native_readback"]["usd_collision_counts"]
+            checks["zero_friction_guide_hulls_native_readback"] = counts.get("guide") == 8*env.num_envs
         values = {key:state[source][:count] for key, source in dict(position="local_position", velocity="velocity",
             omega="omega", gravity="gravity", height="height", time="time", commands="commands", gap="gap",
             requested="interval_requested_command", terminated="terminated", completed_event="recovery_completed_event",
@@ -350,7 +371,8 @@ def probe(env, plan, *, stop_requested=lambda: False):
         spring_outside_low += (physical["spring_compression"] < curve.compression_knots_m[0]).sum(dim=(0, 1))
         spring_outside_high += (physical["spring_compression"] > curve.compression_knots_m[-1]).sum(dim=(0, 1))
         spring_count += physical["spring_compression"].shape[0] * env.num_envs
-        checks["actor35_critic83"] = observation["policy"].shape == (env.num_envs,35) and observation["critic"].shape == (env.num_envs,83)
+        critic_dim = env.cfg["critic_dim"]
+        checks[f"actor35_critic{critic_dim}"] = observation["policy"].shape == (env.num_envs,35) and observation["critic"].shape == (env.num_envs,critic_dim)
         odometry = getattr(env, "local_standing_odometry", None)
         if odometry is not None:
             frame = observation["policy"]

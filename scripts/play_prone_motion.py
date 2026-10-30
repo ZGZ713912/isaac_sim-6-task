@@ -165,7 +165,8 @@ def main():
     cfg, settings, control = prepare(args, bundle, output)
     import torch
     from tensordict import TensorDict
-    dummy = TensorDict(dict(policy=torch.zeros(args.num_envs, 35), critic=torch.zeros(args.num_envs, 83)), batch_size=[args.num_envs])
+    critic_dim = 87 if plan.get("full_vehicle") else 83
+    dummy = TensorDict(dict(policy=torch.zeros(args.num_envs, 35), critic=torch.zeros(args.num_envs, critic_dim)), batch_size=[args.num_envs])
     actor = build_actor(dummy, bundle, "cpu")
     with torch.inference_mode():
         if actor(dummy).shape != (args.num_envs, 6):

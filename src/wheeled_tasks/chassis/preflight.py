@@ -14,7 +14,8 @@ from pathlib import Path
 
 ROLES = ("train", "baseline", "quick", "full", "confirmation")
 GAS_SPRING_MODEL_KINDS = frozenset(("v5_gas_spring_closedchain_research",
-                                    "v6_gas_spring_closedchain_research"))
+                                    "v6_gas_spring_closedchain_research",
+                                    "full_robot_v202_gas_spring_closedchain"))
 REQUIRED_CONTRACT_PATHS = (
     "curriculum_stage", "enabled_stages", "stages", "evaluation",
     "physics_dt", "policy_dt", "v5_control", "usb_transport", "command_transport",
@@ -113,6 +114,9 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     # Case definitions, criteria, canonical slots and replica counts stay fixed.
     row = deepcopy(row)
     expected = row.get("contract", {})
+    if "full_vehicle" in config or "full_vehicle" in expected:
+        for key in ("full_vehicle", "gimbal_motion", "zero_friction_bodies", "asset_directory", "critic_dim"):
+            _compare(config.get(key, _MISSING), expected.get(key, _MISSING), "design."+key, errors)
     canonical = expected.get("evaluation", {}).get("cases", [])
     effective = config.get("evaluation", {}).get("cases", [])
     if canonical and [c.get("name") for c in effective] != [c["name"] for c in canonical]:
@@ -576,6 +580,15 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
 
 
 def validate_gas_spring_compensation_evidence(config,root):
+    if config.get("full_vehicle"):
+        from .full_vehicle_training import authenticate
+        receipt = authenticate(config, root)
+        from .gas_spring_compensation import load_compensation
+        settings, model = load_compensation(config["v5_control"]["gas_spring_compensation"], root)
+        if model["model_spec_sha256"] != receipt["model_spec_sha256"]:
+            raise ValueError("Full-vehicle spring compensation has another geometry")
+        receipt["model_sha256"] = settings["model_sha256"]
+        return receipt
     from .gas_spring_compensation import load_compensation
     settings,model = load_compensation(config["v5_control"]["gas_spring_compensation"],root)
     asset = Path(root)/config["asset_directory"]/"model_spec.json"
@@ -591,6 +604,10 @@ def validate_gas_spring_compensation_evidence(config,root):
             or evidence.get("hardware_release") is not False
             or evidence.get("settings")!=settings):
         raise ValueError("Gas compensation evidence/configuration differs")
+    if "previous_binding" in evidence:
+        previous = evidence["previous_binding"]
+        if hashlib.sha256((Path(root)/previous["file"]).read_bytes()).hexdigest() != previous["sha256"]:
+            raise ValueError("Previous gas compensation source binding changed")
     for path,sha in evidence["files_sha256"].items():
         if hashlib.sha256((Path(root)/path).read_bytes()).hexdigest()!=sha:
             raise ValueError(f"Gas compensation result SHA mismatch: {path}")
@@ -608,6 +625,18 @@ def validate_response_evidence(config, root):
     Hashes authenticate reviewed results; they do not turn a failed fit into a
     passed one. Publication of the receipt is a separate model-review decision.
     """
+    if config.get("full_vehicle"):
+        from .full_vehicle_training import authenticate
+        receipt = authenticate(config, root)
+        # Authenticate the measured data and leg response with their original
+        # evidence. The derivative above separately proves that only the spec
+        # identity changed in the full-vehicle wheel table, not the fit/inertia.
+        inherited = deepcopy(config)
+        inherited.pop("full_vehicle")
+        evidence = json.loads((Path(root)/config["actuator_response_evidence"]["file"]).read_text())
+        inherited["identified_wheel_response"] = evidence["identified_wheel_response"]
+        receipt["measured_response"] = validate_response_evidence(inherited, root)
+        return receipt
     from .actuator_response import validate_actuator_response
     response = validate_actuator_response(config.get("actuator_response"))
     binding = config.get("actuator_response_evidence")

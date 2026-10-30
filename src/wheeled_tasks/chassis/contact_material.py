@@ -136,12 +136,14 @@ class ContactMaterialDomain:
         self.ground_static = self.ground_static[indices]
         self.ground_dynamic = self.ground_dynamic[indices]
 
-    def verify_native(self, stage, robot, env_paths):
+    def verify_native(self, stage, robot, env_paths, *, zero_friction_bodies=()):
         """Read USD bindings and PhysX shape coefficients after sim.reset()."""
         import warp as wp
         from pxr import UsdPhysics, UsdShade
 
         usd_counts = {"wheel": 0, "body": 0, "ground": 0}
+        if zero_friction_bodies:
+            usd_counts["guide"] = 0
         by_path = {path: i for i, path in enumerate(env_paths)}
         for prim in stage.Traverse():
             path = str(prim.GetPath())
@@ -156,6 +158,8 @@ class ContactMaterialDomain:
                 kind = "wheel" if wheel else "body"
                 expected = ((self.wheel_static, self.wheel_dynamic) if wheel
                             else (self.body_static, self.body_dynamic))
+                if any(f"/{name}/" in path for name in zero_friction_bodies):
+                    kind, expected = "guide", (0., 0.)
             elif "/Terrain/" in path:
                 kind = "ground"
                 expected = (float(self.ground_static[i]), float(self.ground_dynamic[i]))
@@ -165,7 +169,7 @@ class ContactMaterialDomain:
             api = UsdPhysics.MaterialAPI(material.GetPrim())
             actual = (api.GetStaticFrictionAttr().Get(), api.GetDynamicFrictionAttr().Get())
             mode = material.GetPrim().GetAttribute("physxMaterial:frictionCombineMode").Get()
-            if (any(value is None for value in actual) or mode != self.mode
+            if (any(value is None for value in actual) or mode != ("min" if kind == "guide" else self.mode)
                     or any(abs(a - b) > 1e-6 for a, b in zip(actual, expected))):
                 raise RuntimeError(f"Contact material binding/readback mismatch at {path}: {actual}, {mode}, expected {expected}")
             usd_counts[kind] += 1
@@ -175,9 +179,12 @@ class ContactMaterialDomain:
         static, dynamic = properties[..., 0], properties[..., 1]
         wheel = torch.isclose(static, static.new_tensor(self.wheel_static), atol=1e-6, rtol=0.)
         body = torch.isclose(static, static.new_tensor(self.body_static), atol=1e-6, rtol=0.)
+        guide = torch.isclose(static, static.new_tensor(0.), atol=1e-6, rtol=0.) if zero_friction_bodies else torch.zeros_like(body)
         expected_dynamic = torch.where(wheel, dynamic.new_tensor(self.wheel_dynamic),
                                        dynamic.new_tensor(self.body_dynamic))
-        if (not (wheel | body).all() or not wheel.any() or not body.any()
+        expected_dynamic = torch.where(guide, 0., expected_dynamic)
+        if (not (wheel | body | guide).all() or not wheel.any() or not body.any()
+                or (zero_friction_bodies and not guide.any())
                 or not torch.allclose(dynamic, expected_dynamic, atol=1e-6, rtol=0.)):
             raise RuntimeError("Separate robot shape materials were not imported by PhysX")
         return {"usd_collision_bindings_verified": True, "usd_collision_counts": usd_counts,

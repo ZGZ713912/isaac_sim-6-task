@@ -34,8 +34,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     if performance_backend not in ("eager","cuda_graph"):
         raise ValueError("Unknown prone-motion performance backend")
     output.mkdir(parents=True, exist_ok=True)
+    full_vehicle = plan.get("full_vehicle")
     args = SimpleNamespace(output=output,
-        bank=ROOT/"reports/robust_policy_repair_20261024/pose_bank_height_matched073.json",
+        bank=ROOT/(plan["pose_bank"]["file"] if full_vehicle else "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json"),
         updates=plan["max_updates"], num_envs=num_envs or plan["num_envs"], rollout_steps=plan["rollout_steps"],
         seed=(plan["evaluation"]["seed"] if evaluation else plan["seed"]) if seed is None else seed,
         all_heights_after=1000,
@@ -48,6 +49,11 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         randomization_profile=None if profile == "nominal" else profile, randomization_strength=strength,
         mechanism=None if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4") else
             ROOT/"contracts/scratch_standing_base_mechanism_v2.json")
+    if full_vehicle:
+        for item in (plan["mechanism"], plan["pose_bank"]):
+            if base.digest(ROOT/item["file"]) != item["sha256"]:
+                raise ValueError("Full-vehicle mechanism or reset bank changed")
+        args.mechanism = ROOT/plan["mechanism"]["file"]
     cfg, settings = base.prepare(args)
     settings.update(version=plan["schema"], prone_motion_task=deepcopy(plan),
         prone_geometry=json.loads((ROOT/plan["prone_geometry_contract"]).read_text()),
@@ -58,6 +64,18 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         boundary_xy_m=[45., 45.])
     if "standing_odometry" in plan:
         settings["standing_odometry"] = deepcopy(plan["standing_odometry"])
+    if full_vehicle:
+        from wheeled_tasks.chassis.full_vehicle_training import authenticate
+        authenticate(cfg, ROOT)
+        if cfg["full_vehicle"] != full_vehicle:
+            raise ValueError("Plan and mechanism select different full vehicles")
+        # The generic parent constructor briefly resets before assigning the
+        # explicit prone-motion roles. Its seed pool contains upright births.
+        settings["recovery_family_weights"] = [1., 0., 0., 0., 0., 0., 0.]
+        settings["prone_geometry"]["encoder_geometry"].update(
+            table=plan["standing_odometry"]["geometry_file"],
+            table_sha256=plan["standing_odometry"]["geometry_table_sha256"],
+            model_spec_sha256=plan["standing_odometry"]["geometry_model_spec_sha256"])
     if evaluation and profile != "nominal":
         settings["nominal_fraction"] = 0.
         cfg["dynamics_randomization"]["enabled_fraction"] = 1.
@@ -65,7 +83,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
                curriculum="prone_motion_long_v1", learning_rate=plan["learning_rate"], entropy_coef=.001,
                prone_motion_performance=performance_backend)
     cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
-    cfg["policy_architecture"]["scope"] = "Fresh actor35, critic83, six fully trainable motor outputs"
+    cfg["policy_architecture"]["scope"] = f"Fresh actor35, critic{cfg['critic_dim']}, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
     if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4"):
         gas = cfg["v5_control"]["gas_spring_compensation"]
@@ -108,12 +126,14 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     row["control"]["actuators.wheel"] = deepcopy(wheel_control["actuators"]["wheel"])
     row["control"]["timing"] = deepcopy(wheel_control["timing"])
     row["runtime"].update(rates)
+    row["runtime"]["gas_spring_compensation"] = deepcopy(cfg["v5_control"].get("gas_spring_compensation"))
     design["scope"] = "fresh_prone_motion_long"
     base.write_json(design_path, design)
     cfg["design_preflight"]["sha256"] = base.digest(design_path)
     base.write_json(output/"config/contract.json", cfg)
     base.write_json(output/"task_contract.json", dict(schema="prone-motion-native-task-v1", plan=plan,
-        settings=settings, actor_dim=35, critic_dim=83, action_dim=6,
+        settings=settings, actor_dim=35, critic_dim=cfg["critic_dim"], action_dim=6,
+        full_vehicle=deepcopy(full_vehicle), gimbal_motion=deepcopy(cfg.get("gimbal_motion")),
         policy_hz=round(1./rates["policy_dt"]), physics_hz=round(1./rates["physics_dt"]),
         timing=rates, rollout_steps=plan["rollout_steps"], discounts=discount,
         standing_odometry=deepcopy(plan.get("standing_odometry")),
@@ -182,7 +202,20 @@ def source_hashes(plan_path, plan):
         gas_evidence = json.loads((ROOT/gas_cfg["gas_spring_compensation_evidence"]["file"]).read_text())
         names.extend(gas_evidence["files_sha256"])
         names.append(gas_evidence["basis"]["file"])
+        if "previous_binding" in gas_evidence:
+            names.append(gas_evidence["previous_binding"]["file"])
     names.extend(item["file"] for item in plan["wheel_model"].values() if isinstance(item, dict) and "file" in item)
+    if plan.get("full_vehicle"):
+        directory = ROOT/"model/wheel_leg_v2.0.2/training"
+        source = ROOT/"model/wheel_leg_v2.0.2/isaac"
+        names.extend(str(p.relative_to(ROOT)) for folder in (directory, source)
+            for p in folder.rglob("*") if p.is_file())
+        recipe = json.loads((ROOT/plan["full_vehicle"]["file"]).read_text())
+        binding = recipe["parent_component_validation"]
+        names.extend([binding["file"], "model/wheel_leg_v2.0.2/build_receipt.json", "scripts/build_full_vehicle_training.py", "scripts/train_chassis.py",
+                      "tests/test_full_vehicle_training.py", "docs/FULL_VEHICLE_TRAINING_20261030.md"])
+        receipt = json.loads((ROOT/binding["file"]).read_text())
+        names.extend(run["path"] for run in receipt["native_runs"])
     evidence = json.loads((ROOT/plan["wheel_model"]["evidence"]["file"]).read_text())
     names.extend(evidence["files_sha256"])
     names.extend(["tests/test_identified_wheel_response.py", "tests/test_training_wheel_response.py"])

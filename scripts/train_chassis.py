@@ -343,7 +343,8 @@ def preflight(path, *, asset_directory=None):
              "v5-gas-spring-mixed-research-v1": "v5_gas_spring_closedchain_research",
              "v5-gas-spring-locomotion-research-v2": "v5_gas_spring_closedchain_research",
              "v5-gas-spring-full-stage-research-v2": "v5_gas_spring_closedchain_research",
-             "v6-gas-spring-full-stage-research-v1": "v6_gas_spring_closedchain_research"}
+             "v6-gas-spring-full-stage-research-v1": "v6_gas_spring_closedchain_research",
+             "full-robot-v202-gas-spring-training-v1": "full_robot_v202_gas_spring_closedchain"}
     if c["contract_id"] not in kinds or c["task_source"] != "upper_level_commands":
         raise ValueError("Unsupported full-task interface")
     if c["contract_id"] == "v6-gas-spring-full-stage-research-v1":
@@ -361,6 +362,9 @@ def preflight(path, *, asset_directory=None):
             raise ValueError(f"Asset dependency mismatch: {name}")
     if manifest["model_kind"] != kinds[c["contract_id"]]:
         raise ValueError("This task requires the multi-body asset")
+    if c["contract_id"] == "full-robot-v202-gas-spring-training-v1":
+        from wheeled_tasks.chassis.full_vehicle_training import authenticate
+        authenticate(c, ROOT)
     if version("rsl-rl-lib") != "5.5.1":
         raise ValueError("This entry requires the validated RSL-RL 5.5.1 runtime")
     return c, manifest

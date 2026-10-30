@@ -37,22 +37,48 @@ def observation_contract():
 
 
 def validate_contract(contract):
-    if contract != observation_contract():
+    expected = observation_contract()
+    if isinstance(contract, dict) and "geometry_file" in contract:
+        from pathlib import PurePosixPath
+        path = PurePosixPath(contract["geometry_file"])
+        if (path.is_absolute() or ".." in path.parts
+                or str(path) != "model/wheel_leg_v2.0.2/training/encoder_geometry.json"):
+            raise ValueError("Full-vehicle odometry needs its explicit geometry file")
+        for key in ("geometry_table_sha256", "geometry_model_spec_sha256"):
+            sha = contract.get(key, "")
+            if not isinstance(sha, str) or len(sha) != 64 or any(c not in "0123456789abcdef" for c in sha):
+                raise ValueError("Full-vehicle odometry needs authenticated geometry identities")
+        expected.update({key: contract[key] for key in
+            ("geometry_file", "geometry_table_sha256", "geometry_model_spec_sha256")})
+    if contract != expected:
         raise ValueError("Local standing odometry requires its complete versioned sensor contract")
     return deepcopy(contract)
 
 
 class LocalStandingOdometry:
-    def __init__(self, count, device, dt, contract):
+    def __init__(self, count, device, dt, contract, *, geometry_directory=None):
         self.cfg = validate_contract(contract)
         if not math.isfinite(dt) or dt <= 0.:
             raise ValueError("Local standing odometry needs a positive policy period")
         self.dt = dt
-        table = json.loads(table_path().read_text())
+        if geometry_directory is not None:
+            import hashlib
+            path = geometry_directory/"encoder_geometry.json"
+            spec_sha = hashlib.sha256((geometry_directory/"model_spec.json").read_bytes()).hexdigest()
+            if (spec_sha != self.cfg.get("geometry_model_spec_sha256")
+                    or hashlib.sha256(path.read_bytes()).hexdigest() != self.cfg["geometry_table_sha256"]):
+                raise ValueError("Local odometry geometry differs from the admitted full vehicle")
+            table = json.loads(path.read_text())
+        else:
+            if "geometry_file" in self.cfg:
+                raise ValueError("Full-vehicle odometry needs the admitted geometry directory")
+            from wheeled_algo.rolling_velocity import SPEC_SHA256
+            spec_sha = SPEC_SHA256
+            table = json.loads(table_path().read_text())
         coordinate = WheelAngleCoordinate()
-        coordinate.geometry = RollingBaseVelocity(table)
+        coordinate.geometry = RollingBaseVelocity(table, expected_spec_sha256=spec_sha)
         self.coordinate = BoundedSensorCoordinate(coordinate).to(device).eval()
-        self.legs = EncoderLegGeometry(table).to(device).eval()
+        self.legs = EncoderLegGeometry(table, expected_spec_sha256=spec_sha).to(device).eval()
         self.source_origin = torch.zeros(count, 2, dtype=torch.float64, device=device)
         self.source_active = torch.zeros(count, dtype=torch.bool, device=device)
         self.source_fault = torch.zeros_like(self.source_active)

@@ -67,6 +67,7 @@ class ChassisEnv:
         self.stage_cfg = next(s for s in config["stages"] if s["name"] == stage_name)
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
         self.control, self.manifest = control, manifest
+        self.asset_root = root
         self.is_v5 = manifest["model_kind"] in GAS_SPRING_MODEL_KINDS
         self.scut35 = config.get("actor_observation_source") in ("scut35_encoders_imu_commands", "encoders_imu_command_reference36")
         self.references = None
@@ -77,6 +78,7 @@ class ChassisEnv:
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
+        self.gimbal = None
         self.height_margin = None
         if self.is_v5:
             from .v5_control import V5Control
@@ -85,7 +87,11 @@ class ChassisEnv:
             if config["v5_control"].get("leg_target_winding") == "paired_branch107_v1":
                 import hashlib
                 from .paired_leg_targets import MODEL_SPEC_SHA256
-                if hashlib.sha256((directory / "model_spec.json").read_bytes()).hexdigest() != MODEL_SPEC_SHA256:
+                expected = MODEL_SPEC_SHA256
+                if config.get("full_vehicle"):
+                    from .full_vehicle_training import authenticate
+                    expected = authenticate(config, root)["model_spec_sha256"]
+                if hashlib.sha256((directory / "model_spec.json").read_bytes()).hexdigest() != expected:
                     raise ValueError("Paired-107 control requires the exact declared model specification")
             fit = json.loads((directory / "fit_10mpa.json").read_text())
             self.v5 = V5Control(manifest, self.model_spec, fit, control, config["v5_control"], device, root=root)
@@ -373,6 +379,13 @@ class ChassisEnv:
                     actuators["wheels"].viscous_friction = native["damping"]
                     actuators["wheels"].effort_limit = self.identified_wheels.native_effort_limit
                     actuators["wheels"].effort_limit_sim = self.identified_wheels.native_effort_limit
+            if config.get("gimbal_motion"):
+                names = config["gimbal_motion"]["joint_names"]
+                group = "passive" if "passive" in actuators else "rotary"
+                actuators[group].joint_names_expr = [n for n in actuators[group].joint_names_expr if n not in names]
+                for index, cap in enumerate((2., 10.)):
+                    actuators["gimbal_"+str(index)] = IdealPDActuatorCfg(joint_names_expr=[names[index]],
+                        stiffness=0., damping=0., effort_limit=cap, effort_limit_sim=cap, velocity_limit_sim=1e9)
         robot_cfg = ArticulationCfg(
             # Match only the numbered environment, never its terrain descendants.
             # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
@@ -404,6 +417,10 @@ class ChassisEnv:
         material.func("/World/RobotMaterial", material)
         if wheel_material is not None:
             wheel_material.func("/World/WheelMaterial", wheel_material)
+        if config.get("zero_friction_bodies"):
+            guide_material = sim_utils.RigidBodyMaterialCfg(static_friction=0., dynamic_friction=0.,
+                restitution=0., friction_combine_mode="min")
+            guide_material.func("/World/GuideRollerMaterial", guide_material)
         loop_count = 0
         for prim in self.sim.stage.Traverse():
             if "/Robot/" not in str(prim.GetPath()):
@@ -413,7 +430,9 @@ class ChassisEnv:
             if prim.HasAPI(UsdPhysics.CollisionAPI):
                 path = str(prim.GetPath())
                 wheel = wheel_material is not None and any(f"/{name}/" in path for name in ("L_link3", "R_link3"))
-                sim_utils.bind_physics_material(path, "/World/WheelMaterial" if wheel else "/World/RobotMaterial")
+                guide = any(f"/{name}/" in path for name in config.get("zero_friction_bodies", []))
+                material_path = "/World/GuideRollerMaterial" if guide else "/World/WheelMaterial" if wheel else "/World/RobotMaterial"
+                sim_utils.bind_physics_material(path, material_path)
             if prim.IsA(UsdPhysics.SphericalJoint):
                 joint = UsdPhysics.SphericalJoint(prim)
                 if not joint.GetExcludeFromArticulationAttr().Get():
@@ -469,7 +488,8 @@ class ChassisEnv:
         contact_material_readback = None
         if self.contact_material is not None:
             self.contact_material.reorder(order)
-            contact_material_readback = self.contact_material.verify_native(self.sim.stage, self.robot, self.env_paths)
+            contact_material_readback = self.contact_material.verify_native(self.sim.stage, self.robot, self.env_paths,
+                zero_friction_bodies=config.get("zero_friction_bodies", []))
         body_paths = [p + "/Robot/" + n for p in self.env_paths for n in self.robot.body_names]
         filters = [[p + f"/Terrain/surface_{j}/geometry/mesh" for j in range(len(self.surfaces[i]))]
                    for i, p in enumerate(self.env_paths) for _ in self.robot.body_names]
@@ -646,6 +666,11 @@ class ChassisEnv:
         else:
             self.knee_bounds = control["joints"]["knee_hard_limits"]
         self.nominal = torch.tensor([[manifest["nominal_joint_pos"][n] for n in self.robot.joint_names]], device=device).repeat(num_envs, 1)
+        if config.get("gimbal_motion"):
+            from .gimbal_motion import GimbalMotion
+            self.gimbal_ids = [self.robot.joint_names.index(n) for n in config["gimbal_motion"]["joint_names"]]
+            self.gimbal = GimbalMotion(num_envs, device, self.dt, config["gimbal_motion"], seed)
+            self.startup_report["gimbal_motion"] = dict(config["gimbal_motion"])
         self.episode_length_buf = torch.zeros(num_envs, dtype=torch.long, device=device)
         self.episode_limits = torch.full_like(self.episode_length_buf, self.max_episode_length)
         if config.get("evaluation_exact_cases"):
@@ -978,6 +1003,9 @@ class ChassisEnv:
             if "contact_material" in config:
                 actual["modules"]["contact_material"] = self.contact_material is not None
                 actual["contact_material"] = dict(config["contact_material"])
+            if self.gimbal is not None:
+                actual["gimbal_motion"] = dict(self.gimbal.cfg)
+                actual["zero_friction_bodies"] = list(config["zero_friction_bodies"])
             if "wheel_reduction" in config:
                 actual["wheel_reduction"] = dict(config["wheel_reduction"],
                     gear_ratio=self.v5.wheel_prior["gear_ratio"])
@@ -1291,6 +1319,8 @@ class ChassisEnv:
 
     def reset(self, ids):
         count = len(ids)
+        if self.gimbal is not None:
+            self.gimbal.reset(ids)
         root = torch.zeros(count, 7, device=self.device)
         root[:, :3], root[:, 6] = self.reset_positions[ids], 1.
         reset_velocity = torch.zeros(count, 6, device=self.device)
@@ -1582,6 +1612,10 @@ class ChassisEnv:
             # training for unrelated jump/step tasks must not reach this actor.
             frame[:, 28:35] = frame.new_tensor([1., 0., 0., 0., 0., 0., 0.])
         critic_q = self.robot.data.joint_pos.torch
+        if self.gimbal is not None:
+            critic_q = critic_q.clone()
+            critic_q[:, self.gimbal_ids[0]] = torch.atan2(critic_q[:, self.gimbal_ids[0]].sin(),
+                critic_q[:, self.gimbal_ids[0]].cos())
         if self.cfg.get("zero_critic_wheel_positions"):
             critic_q = critic_q.clone()
             critic_q[:, [self.ids[2], self.ids[5]]] = 0.
@@ -1758,6 +1792,11 @@ class ChassisEnv:
                     evaluation=self.cfg.get("evaluation_exact_cases", False))
                 self.robot.instantaneous_wrench_composer.add_forces_and_torques_index(
                     forces=self.assist_force, body_ids=self.assist_body_ids, is_global=True)
+            if self.gimbal is not None:
+                effort[:, self.gimbal_ids] = self.gimbal.step(
+                    self.robot.data.joint_pos.torch[:, self.gimbal_ids],
+                    self.robot.data.joint_vel.torch[:, self.gimbal_ids],
+                    torch.ones(self.num_envs, device=self.device, dtype=torch.bool))
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
             self.sim.step(render=False)

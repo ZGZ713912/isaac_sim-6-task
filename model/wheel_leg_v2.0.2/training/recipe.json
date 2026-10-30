@@ -1,0 +1,38 @@
+{
+  "schema": "full-vehicle-training-derivative-v1",
+  "source_bundle": "model/wheel_leg_v2.0.2/isaac",
+  "source_manifest_sha256": "9045468047c1094782522ce8da1f243fc3ec13bdfe54f478cec6eec433b8c203",
+  "source_spec_sha256": "f4a9b373c1dcf448f967ed1eeb0647b1d8652392e3c236b6773dfccb998650d5",
+  "model_spec_sha256": "7f62e0b47546a047219c078bdaa44fc2d82553af04b36b72ec1a94be29a22e18",
+  "asset_manifest_sha256": "a153a7dab6748a72b10dafbf5a9c9863bb282b58dd93c7cd5cf90f8ff99c8b3c",
+  "files_sha256": {
+    "manifest.json": "a153a7dab6748a72b10dafbf5a9c9863bb282b58dd93c7cd5cf90f8ff99c8b3c",
+    "pose_bank.json": "4621f469f897d2fac3bdb3c31c3f74a6f0b9d41a91d6b9966cc3e21ac93655aa",
+    "gimbal_motion.json": "04ca3c88e63b7c30061505f790609f75e781378c0aa0c648620a6ff604cd7e6b"
+  },
+  "parent_component_validation": {
+    "file": "reports/full_robot_v202_20261030/validation_receipt.json",
+    "sha256": "415c8093cf34c101943240ee7f6972b75580f1883f89dc11ef4950c0aaac881b"
+  },
+  "zero_friction_bodies": [
+    "base_link"
+  ],
+  "zero_friction_combine_mode": "min",
+  "zero_friction_scope": "all8 merged base collision hulls include belly guide rollers; driving wheels and other bodies retain their materials",
+  "references": [
+    {
+      "file": "/home/noir/Documents/workspace/example/wheeled-legged_RL/src/agent_world/assets/wheelbipe_V14_2.py",
+      "sha256": "aaa1593c5eb5236131722fe02b8ec7e888dbb32d7d43e5def60dc91266d1ea95"
+    },
+    {
+      "file": "/home/noir/Documents/workspace/example/wheeled-legged_RL/src/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+      "sha256": "00ed3758350ce48584a8d1ef34e474d26f9e4e085a1890168b9f71a1ab0311ac"
+    }
+  ],
+  "allowed_changes": "release two gimbal joints; bind unchanged chassis component tables to this derived specification; new reset-only geometry",
+  "actor_dim": 35,
+  "critic_dim": 87,
+  "action_dim": 6,
+  "policy_abi": "v4 local wheel standing odometry; independent gimbal disturbance is not a policy output",
+  "hardware_ready": false
+}

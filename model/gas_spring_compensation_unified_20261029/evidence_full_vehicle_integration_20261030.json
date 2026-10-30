@@ -1,0 +1,43 @@
+{
+  "schema": "gas-spring-compensation-evidence-v1",
+  "status": "validated_for_research",
+  "hardware_release": false,
+  "settings": {
+    "enabled": true,
+    "model_file": "model/gas_spring_compensation_20261028/model.json",
+    "model_sha256": "098fd7d5fbd876cd57d0b6e01e239eb16f6789690a5eadf7820ec20d974919a3",
+    "gain": 1.0,
+    "force_extrapolation": "positive_c1_endpoint_trend_v1",
+    "physical_curve_outside_geometry": "hold_geometry_endpoint",
+    "relative_soft_limits": {
+      "minimum": -0.140638855,
+      "maximum": 1.3889088544,
+      "margin": 0.03,
+      "projection": "outward_relative_torque_v1"
+    }
+  },
+  "native_report": "reports/gas_spring_compensation_20261028/native_final/report.json",
+  "scope": "Inherited V7 static gas-spring component evidence; fitted force, chassis geometry and compensation formula unchanged. Current source binding explicitly updated for guarded full-vehicle support on20261030; native integration is checked separately. This does not qualify new behavior or hardware.",
+  "files_sha256": {
+    "model/gas_spring_compensation_20261028/model.json": "098fd7d5fbd876cd57d0b6e01e239eb16f6789690a5eadf7820ec20d974919a3",
+    "reports/gas_spring_compensation_20261028/native_final/report.json": "c19766a3f9c7751d3e39da47380459bf0353aed22b6272f7c5125912ee21f72a",
+    "model/gas_spring_compensation_unified_20261029/component_reference/traces.npz": "ce29962ca529eaacd230ee3fc148e2a6f69e3222be1691de4f8a4870d30721c9",
+    "reports/gas_spring_compensation_20261028/native_final/probe.source.py": "960d584a15c5cc2b11f7ecb17259029a8e7e4073d7b9950d888edfe7fa989345",
+    "scripts/probe_gas_spring_compensation.py": "960d584a15c5cc2b11f7ecb17259029a8e7e4073d7b9950d888edfe7fa989345",
+    "src/wheeled_tasks/chassis/v5_control.py": "141e21d88513e5f8cccdb6cdbf19abcd66f433c6e0ccb3cd7e93d5afc0c7c7fe",
+    "src/wheeled_tasks/chassis/gas_spring_compensation.py": "337eea09412ca59e3bd256133e7ffc13ee8cb4840d88f952f9671c1ff835b2d9",
+    "src/wheeled_tasks/chassis/env.py": "4258d9c8b1ff8893c94ea3c928e3426f4229974f2250cb0291cc75b092500e46",
+    "model/gas_spring_identified_symmetric_20261028/model.json": "eb0c709e8915c14a4cb852551a6079af89a6f4b8a9d135751fdf86cc98c1baf0"
+  },
+  "basis": {
+    "file": "model/gas_spring_compensation_20261028/evidence.json",
+    "sha256": "a4e8d6e364fc80ed0119a68545b978497129053bf71a272b9c615cc29ea8c6b1",
+    "source_commit": "7359170bd47cdd679e10ea66300a13b3c7ee3bd6",
+    "reused_component_test": true,
+    "new_training_or_behavior_evidence": false
+  },
+  "previous_binding": {
+    "file": "model/gas_spring_compensation_unified_20261029/evidence.json",
+    "sha256": "aa140f2b968720c226c1d9c8fab380a0566b1c2328321d2fa0dd7f1838e22fd5"
+  }
+}

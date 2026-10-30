@@ -1,0 +1,33 @@
+{
+  "schema": "full-vehicle-gimbal-motion-v1",
+  "joint_names": [
+    "M_joint1",
+    "M_joint2"
+  ],
+  "yaw_velocity_range_rad_s": [
+    -3.141592653589793,
+    3.141592653589793
+  ],
+  "yaw_kd": 0.5,
+  "yaw_effort_limit_nm": 2.0,
+  "yaw_acceleration_rad_s2": 3.141592653589793,
+  "pitch_limits_deg": [
+    -30.0,
+    35.0
+  ],
+  "pitch_kp": 20.0,
+  "pitch_kd": 0.5,
+  "pitch_effort_limit_nm": 10.0,
+  "pitch_period_seconds": [
+    8.0,
+    16.0
+  ],
+  "pitch_positive": "up",
+  "pitch_trajectory": "bounded_sinusoid_random_period_and_direction",
+  "yaw_sampling": "uniform_per_episode",
+  "disabled": "zero_motor_effort_and_pause_motion_clock",
+  "reference": "wheelbipe_V14_2 yaw velocity PD and pitch position PD; engineering disturbance, not identified motors",
+  "reference_pitch": "wheelbipe holds a fixed pitch; this task adds a smooth bounded scan",
+  "state_writes": "episode_reset_only",
+  "policy_motor_outputs": 6
+}
