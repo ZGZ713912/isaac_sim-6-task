@@ -255,6 +255,7 @@ def probe(env, plan, *, stop_requested=lambda: False):
                        for r in env.course_roles]
     checks["actual_per_role_episode_limits"] = env.episode_limits.tolist() == expected_limits
     passive_seen = active_prone_seen = body_allowed = 0
+    odometry_seen = 0
     spring_min = torch.full((2, 2), float("inf"), device=env.device)
     spring_max = -spring_min.clone()
     spring_outside = torch.zeros(2, dtype=torch.int64, device=env.device)
@@ -350,6 +351,20 @@ def probe(env, plan, *, stop_requested=lambda: False):
         spring_outside_high += (physical["spring_compression"] > curve.compression_knots_m[-1]).sum(dim=(0, 1))
         spring_count += physical["spring_compression"].shape[0] * env.num_envs
         checks["actor35_critic83"] = observation["policy"].shape == (env.num_envs,35) and observation["critic"].shape == (env.num_envs,83)
+        odometry = getattr(env, "local_standing_odometry", None)
+        if odometry is not None:
+            frame = observation["policy"]
+            unavailable = ~odometry.requested(frame, ~(env.passive | env.finished)) | ~odometry.valid
+            checks["standing_odometry_invalid_or_motion_features_zero"] = checks.get(
+                "standing_odometry_invalid_or_motion_features_zero", True) and bool(
+                    (frame[unavailable][:, [14, 15, 31]] == 0.).all())
+            checks["standing_odometry_TensorBoard_metrics"] = all(k in extra["log"] for k in odometry.metrics())
+            previous = odometry.filtered.clone()
+            repeated = env.get_observations()["policy"]
+            checks["standing_odometry_repeated_read_idempotent"] = checks.get(
+                "standing_odometry_repeated_read_idempotent", True) and bool(
+                    torch.equal(previous, odometry.filtered) and torch.equal(frame, repeated))
+            odometry_seen += int((odometry.valid & ~env.recovery_lane).sum())
         checks["zero_disabled_torque"] = checks.get("zero_disabled_torque", True) and bool((state["passive_motor_peak"][state["passive"]] == 0.).all())
         checks["disabled_samples_masked"] = checks.get("disabled_samples_masked", True) and not bool((state["passive"] & extra["policy_learning_mask"]).any())
         passive_seen += int(state["passive"].sum())
@@ -358,8 +373,11 @@ def probe(env, plan, *, stop_requested=lambda: False):
     checks.update(disabled_birth_observed=passive_seen > 0, active_prone_observed=active_prone_seen > 0,
                   body_contact_permitted_during_rise=body_allowed > 0,
                   active_nonzero_encoder_compensation_observed=spring_ff_peak > 1. and spring_valid_count > 0)
+    if getattr(env, "local_standing_odometry", None) is not None:
+        checks["standing_odometry_initialized_standing_capture_observed"] = odometry_seen > 0
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                standing_odometry_valid_initialized_samples=odometry_seen,
                 spring_feedforward=dict(startup=env.startup_report["encoder_spring_feedforward"],
                     replay_max_error_nm=max(spring_replay_error["limited_effort_nm"], spring_replay_error["holding_effort_nm"]),
                     replay_max_error_by_quantity=spring_replay_error, holding_effort_peak_nm=spring_ff_peak,

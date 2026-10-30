@@ -10,8 +10,8 @@ import math
 from pathlib import Path
 import re
 
-TASKS = {f"WheelLeg-ProneMotion-v{v}": f"contracts/wheel_leg_prone_motion_v{v}.json" for v in (1, 2, 3)}
-DEFAULT_TASK = "WheelLeg-ProneMotion-v3"
+TASKS = {f"WheelLeg-ProneMotion-v{v}": f"contracts/wheel_leg_prone_motion_v{v}.json" for v in (1, 2, 3, 4)}
+DEFAULT_TASK = "WheelLeg-ProneMotion-v4"
 OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_rate",
                "domain_randomization", "dr_strength", "num_steps_per_env")
 
@@ -93,7 +93,8 @@ def validate_resolved(plan):
 
 def add_common(parser, *, training):
     parser.add_argument("--python", help="Python executable or launcher selected by the train/play shell entrypoint")
-    parser.add_argument("--task", choices=TASKS, default=DEFAULT_TASK)
+    parser.add_argument("--task", choices=TASKS, default=DEFAULT_TASK if training else None,
+                        help="Training defaults to v4; play infers the task from its checkpoint unless explicitly selected")
     parser.add_argument("--plan", type=Path, help="Original task JSON; defaults to --task's contract")
     parser.add_argument("--output", type=Path, help="New output directory (must not already exist)")
     parser.add_argument("--run_name", "--run-name", help="Directory name under runs/prone_motion or runs/prone_motion_play")

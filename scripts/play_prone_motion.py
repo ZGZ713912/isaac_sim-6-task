@@ -67,7 +67,7 @@ def load_bundle(args):
     plan = task.validate(info.get("resolved_plan", json.loads(plan_file.read_text())))
     if task.validate(json.loads(plan_file.read_text())) != plan:
         raise ValueError("Run plan differs from the checkpoint's resolved plan")
-    if plan["schema"] != "wheel-leg-prone-motion-v"+args.task.rsplit("v", 1)[1]:
+    if args.task is not None and plan["schema"] != "wheel-leg-prone-motion-v"+args.task.rsplit("v", 1)[1]:
         raise ValueError("--task differs from checkpoint version; select its original task")
     completed = state["iter"]
     if type(completed) is not int or not 0 <= completed <= plan["max_updates"] or info["completed_updates"] != completed:
