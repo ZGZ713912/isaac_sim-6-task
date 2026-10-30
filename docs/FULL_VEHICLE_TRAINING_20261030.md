@@ -39,4 +39,6 @@ bash scripts/train_prone_motion.sh --task WheelLeg-ProneMotion-v4 \
 
 重现这次限位迁移时，先运行 `scripts/sync_full_vehicle_knee_limits.py --asset-only`，随后执行新父资产的 `scripts/probe_full_robot_v202.py` 并归档匹配模型身份的组件回执，再运行 `scripts/sync_full_vehicle_knee_limits.py --training-only --component-validation <新回执路径>`。普通构建器仍拒绝覆盖既有输出；迁移入口在重建训练目录时暂存旧目录，失败会恢复。历史回执、测量数据及旧 checkpoint 不修改。
 
+本次同步已通过 180 项集成测试。新父资产在 41°、75°、109° 各执行 1000 个 GPU 物理步，并读取确认 40°–110° 原生关节限位；整车 v4 训练入口在名义域和全强度随机化域分别通过 41 项原生接线检查。检查绑定实现提交 `0c67f0b6`，PPO 更新、优化器尝试和 checkpoint 读取均为零，退出时源文件无差异。完整摘要及文件哈希见 [verification.json](../reports/full_vehicle_limits110_20261031/verification.json)。
+
 工程检查不能证明已学会整车静站、自起、高速或旋转，也不构成实车资格。训练及后续冷启动行为评测仍从零开始，并完整记录未测的既有能力。

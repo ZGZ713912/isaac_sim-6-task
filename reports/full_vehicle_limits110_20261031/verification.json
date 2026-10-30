@@ -1,0 +1,256 @@
+{
+  "schema": "full-vehicle-knee-limits-sync-verification-v1",
+  "created_at": "2026-10-30T17:12:41.835572+00:00",
+  "implementation_commit": "0c67f0b62cea9fa12e5d0aad560c287e3741efb1",
+  "physical_knee_inner_limits_deg": [
+    40.0,
+    110.0
+  ],
+  "motor_zero_reference_inner_deg": 110.0,
+  "mechanical_scope": "physical thigh-shank inner angle; no motor set-zero operation",
+  "asset_identities": {
+    "isaac": [
+      {
+        "path": "model/wheel_leg_v2.0.2/isaac/manifest.json",
+        "sha256": "01c7fa6762b63f32f0b0b6d7a38cc4e6c65d1b7b82970530f57aec25e4dcde29",
+        "bytes": 10874
+      },
+      {
+        "path": "model/wheel_leg_v2.0.2/isaac/model_spec.json",
+        "sha256": "388dbdc69cbc7021ea02e553caaed098a05e237a6867b45ee7df172858050b29",
+        "bytes": 79319
+      }
+    ],
+    "training": [
+      {
+        "path": "model/wheel_leg_v2.0.2/training/manifest.json",
+        "sha256": "5d4e4b951e5e3edfddffe7239c310da67eb9c63fe1533010e5cd0860b1653b6e",
+        "bytes": 8005
+      },
+      {
+        "path": "model/wheel_leg_v2.0.2/training/model_spec.json",
+        "sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
+        "bytes": 79533
+      }
+    ]
+  },
+  "cpu_integration": {
+    "passed": 180,
+    "failed": 0,
+    "evidence": {
+      "path": "reports/full_vehicle_limits110_20261031/integration_tests002.log",
+      "sha256": "61f31c04dbdb170e0ea2520ee80ba634d0a26c2c7492b85ac302450201835f35",
+      "bytes": 261
+    }
+  },
+  "parent_native_component": {
+    "passed": true,
+    "physical_steps": 3000,
+    "fixture": {
+      "device": "cuda:0",
+      "angles_deg": [
+        41.0,
+        75.0,
+        109.0
+      ],
+      "fixture": "fixed_zero_g",
+      "actual_knee_limits_read_back": true
+    },
+    "evidence": {
+      "path": "reports/full_vehicle_limits110_20261031/parent_component_validation.json",
+      "sha256": "ca248ceaee661df6126e59662dde603fc620ecfa37d53e95aa7cd7fee0beb6fb",
+      "bytes": 2704
+    },
+    "historical_failed_probe_preserved": true
+  },
+  "full_vehicle_training_native": {
+    "task": "WheelLeg-ProneMotion-v4",
+    "num_envs": 80,
+    "device": "cuda:0",
+    "status": "native_probe_completed_unqualified",
+    "all_native_checks_pass": true,
+    "contexts": [
+      {
+        "profile": "nominal",
+        "strength": 0.0,
+        "checks_passed": 41,
+        "checks_failed": 0,
+        "new_PPO": 0,
+        "learned_behavior": false
+      },
+      {
+        "profile": "requested",
+        "strength": 1.0,
+        "checks_passed": 41,
+        "checks_failed": 0,
+        "new_PPO": 0,
+        "learned_behavior": false
+      }
+    ],
+    "completed_updates": 0,
+    "optimizer_attempts": 0,
+    "new_PPO": 0,
+    "checkpoint_reads": [],
+    "source_mismatches_at_exit": [],
+    "evidence": {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/progress.json",
+      "sha256": "1b509c22db042b4088d1619dc88c1fe61657d692b2368de526660402da95a880",
+      "bytes": 78984
+    },
+    "run_log": {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001.log",
+      "sha256": "2f976ec46741c1349d9158b7dd4e6dead358d80804b5972decc7b9a54a3fa39d",
+      "bytes": 11269
+    }
+  },
+  "source_freeze": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "0c67f0b62cea9fa12e5d0aad560c287e3741efb1",
+    "source_count": 501,
+    "all_source_bytes_match_commit": true,
+    "archive": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/reports/full_vehicle_limits110_20261031/training_native001/committed_source.tar",
+    "archive_sha256": "28002aaef9017f19ef31ac2d6a67fd10bbbe8b28f662867e104e1d97b2911fe8",
+    "archive_bytes": 83599360,
+    "archive_retained_locally": true,
+    "archive_tracked_in_git": false,
+    "reproduction": "Committed source identities and per-file hashes are archived beside this receipt; source tar is excluded to avoid duplicating repository assets."
+  },
+  "run_artifacts": [
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/config/contract.json",
+      "sha256": "0f7ae537d68ff0197191c706217f00359b8460065db3991e352bee7e057f45cb",
+      "bytes": 51973
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/config/design.json",
+      "sha256": "29fa19f79a3ff49a1310d1cf36101600fb7b8c7c522ab9a183dd7912ddbc7ad1",
+      "bytes": 77415
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/000_nominal_0_train/config/contract.json",
+      "sha256": "b929acafd684e892e18d23b2378702b7a79fbcbf9e462c6b2cb334653ff67d2e",
+      "bytes": 52002
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/000_nominal_0_train/config/design.json",
+      "sha256": "02cd1c7972628b55bb85a97c73b548e316323bd6a098354e5113dd6fa7aa435c",
+      "bytes": 77444
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/000_nominal_0_train/design_preflight.json",
+      "sha256": "1e1666658eb86e45e3c07afc8209fc67073fcbb3239374ffdeec1b8bb6055668",
+      "bytes": 7646
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/000_nominal_0_train/domain_samples.json",
+      "sha256": "ec25864cc961491fcaec94c6061ab0b6e6d74556c891faa12768592d13678b01",
+      "bytes": 67200
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/000_nominal_0_train/native_startup.json",
+      "sha256": "061a6d329b845d1cfebefd7a9f20b6a765c357dfe3c1956453909b2c3bc2f6d3",
+      "bytes": 265116
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/000_nominal_0_train/task_contract.json",
+      "sha256": "a50e6ded922b0df4d085c46d49abfe14f5d2d1347afbc922f08b0c286dfe6b11",
+      "bytes": 64322
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/config/contract.json",
+      "sha256": "b60a40f8f576427ef8eb8ab9e21083b3d66fbfb3f4b1862cb2ee7c4e1dd91465",
+      "bytes": 52047
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/config/design.json",
+      "sha256": "98502157821064cda1e9e3620f1281bcd3505d5a5533e311cd96ab0edd434b34",
+      "bytes": 77488
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/design_preflight.json",
+      "sha256": "4ae8aeb44320c8cbbdb50cb53dab797f11c74b52d5086ec26d9335cf786446c2",
+      "bytes": 7647
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/domain_samples.json",
+      "sha256": "22240ffc13319ff3085365ca108d20a938cabd6c54c184c5d2870e414d9bb8a1",
+      "bytes": 218954
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/native_startup.json",
+      "sha256": "d7867ada918290d1c588746c4dd57293e14de2368843b103d9034bb9ce931676",
+      "bytes": 279910
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/randomization_study.input.json",
+      "sha256": "5e2e64523bd1c3ed0a40b537b8fef7cfc48d9b8173860550d470e98da8272157",
+      "bytes": 4267
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/randomization_study.resolved.json",
+      "sha256": "1c770b3ffc96f4984087c4d95f6ab2a4b0616a679917ed6664f6aacdf6723a34",
+      "bytes": 3124
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/contexts/001_requested_1_train/task_contract.json",
+      "sha256": "43d402020f1e940038a4070e72d2a4612bec533679a001a3a149ccd88c5e4695",
+      "bytes": 68337
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/curriculum_plan.input.json",
+      "sha256": "26cf1ecee8df1077867ec6938e822a2bab5d1edff11222fb64b98cae83e0a05c",
+      "bytes": 10183
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/curriculum_plan.resolved.json",
+      "sha256": "e00b06ca0a9228ace8486c577e8d74d9cd63fbe9ee8a8e6155fc94355f9958e1",
+      "bytes": 21534
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/design_preflight.json",
+      "sha256": "62efb51a4173847b4c179b06d3a74a8f8e5b39f3855ea35b90f71e49f81cc634",
+      "bytes": 7617
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/input_hashes.json",
+      "sha256": "ea0d2de390b7baf10d27eb26f13dcbbe62aaed6894a90255322208a72ffa7667",
+      "bytes": 267
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/pose_bank.json",
+      "sha256": "eb737dabf554b26d997e2f55c730cef0fc2722e340bc8193db3ae7c5a03f3a09",
+      "bytes": 6391
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/progress.json",
+      "sha256": "1b509c22db042b4088d1619dc88c1fe61657d692b2368de526660402da95a880",
+      "bytes": 78984
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/run_options.json",
+      "sha256": "baef58e553234792254d981fbcfb07a0f02ab1a1f172a58fff9d0c47718ad282",
+      "bytes": 1293
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/source_hashes.json",
+      "sha256": "d2fadbf217b1406c145544cdd51ea20d5a655f4bd32ca87b713bbe1a0d893439",
+      "bytes": 60363
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/source_revision.json",
+      "sha256": "af13b808648b85deedfb3c561b616742dc408ca7eb2fdc9ef8aa3d9fbff160b1",
+      "bytes": 404
+    },
+    {
+      "path": "reports/full_vehicle_limits110_20261031/training_native001/task_contract.json",
+      "sha256": "41f8907b30986c3020aaa61fd10e328701885d161c339109513637bf7877fce4",
+      "bytes": 64322
+    }
+  ],
+  "original_component_measurements_unchanged": true,
+  "gas_force_angles_reidentified": false,
+  "long_training_started": false,
+  "hardware_motion": false,
+  "behavior_qualified": false,
+  "scope": "Asset/encoder/geometry/hash synchronization and native wiring verification. Zero PPO; does not qualify learned standing, recovery, tracking or hardware behavior."
+}
