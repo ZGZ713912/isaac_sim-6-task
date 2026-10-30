@@ -45,6 +45,7 @@ def authenticate(config, root):
         raise ValueError("Only the two declared gimbal joint overrides are allowed")
     if (manifest["rigid_body_names"] != source.manifest["rigid_body_names"]
             or manifest["tree_joint_names"] != [j["name"] for j in spec["joints"]]
+            or manifest["nominal_joint_pos"] != {**source.manifest["nominal_joint_pos"], "M_joint1": 0., "M_joint2": 0.}
             or manifest["control_joint_names"] != source.manifest["control_joint_names"]
             or manifest["gimbal_mode"] != "independent_servo"
             or config.get("gimbal_motion") != motion_contract()

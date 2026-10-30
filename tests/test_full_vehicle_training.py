@@ -35,6 +35,8 @@ def test_full_vehicle_is_the_default_v4_with_a_fresh_six_motor_policy(prepared):
     assert default["full_vehicle"] == PLAN["full_vehicle"]
     assert (cfg["actor_dim"], cfg["critic_dim"], cfg["action_dim"]) == (35, 87, 6)
     assert cfg["asset_directory"] == str(BUNDLE.relative_to(ROOT))
+    manifest = json.loads((BUNDLE/"manifest.json").read_text())
+    assert set(manifest["nominal_joint_pos"]) == set(manifest["tree_joint_names"])
     assert bank == BUNDLE/"pose_bank.json"
     assert settings["standing_odometry"] == PLAN["standing_odometry"]
     assert cfg["v5_control"]["leg_kp"] == 160. and cfg["v5_control"]["leg_kd"] == 2.5
