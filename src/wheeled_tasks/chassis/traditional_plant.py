@@ -14,6 +14,7 @@ from scipy.spatial.transform import Rotation
 from .full_robot_asset import ACTIVE, SPRINGS, digest
 from .traditional_model import equilibrium_pose, geometry
 from .traditional_asset import TraditionalAsset
+from .traditional_contact import TraditionalContactDomain
 
 
 class FullRobotTraditionalPlant:
@@ -21,8 +22,8 @@ class FullRobotTraditionalPlant:
     # RMCS canonical order: left hip/crank, right hip/crank, left/right wheel.
     canonical_to_asset = [0, 1, 3, 4, 2, 5]
 
-    def __init__(self, root, bundle, *, device="cpu", friction=.8, mass_scale=1., fixed_base=False,
-                 physics_dt=.001):
+    def __init__(self, root, bundle, *, device="cpu", wheel_ground_friction_range=(.2, .4),
+                 friction_seed=42, mass_scale=1., fixed_base=False, physics_dt=.001):
         import torch
         import warp as wp
         from pxr import Gf, PhysxSchema, UsdGeom, UsdPhysics, UsdShade, Vt
@@ -33,6 +34,8 @@ class FullRobotTraditionalPlant:
         from .identified_wheel_response import IdentifiedWheelResponse
 
         self.torch, self.wp, self.device = torch, wp, device
+        self.contact_domain = TraditionalContactDomain(wheel_ground_friction_range, friction_seed)
+        self.contact_episode = 0
         self.physics_dt = float(physics_dt)
         self.substeps = round(self.dt/self.physics_dt)
         if not 1 <= self.substeps <= 8 or abs(self.substeps*self.physics_dt-self.dt)>1e-12:
@@ -46,8 +49,9 @@ class FullRobotTraditionalPlant:
             model_path=wheel_path, model_sha256=digest(self.root / wheel_path), apply_aggregate_delay=True), root=self.root)
         self.sim = su.SimulationContext(su.SimulationCfg(device=device, dt=self.physics_dt,
             render_interval=100, physics=PhysxCfg(solver_type=1, enable_external_forces_every_iteration=True)))
-        material = su.RigidBodyMaterialCfg(static_friction=friction, dynamic_friction=friction,
-            friction_combine_mode="average", restitution=0.)
+        def material(coefficient):
+            return su.RigidBodyMaterialCfg(static_friction=coefficient, dynamic_friction=coefficient,
+                friction_combine_mode=self.contact_domain.combine_mode, restitution=0.)
         # Native Plane collision follows the installed PhysX ground-plane helper.
         # The finite quad below is for display only.
         UsdGeom.Xform.Define(self.sim.stage, "/World/Ground")
@@ -61,7 +65,8 @@ class FullRobotTraditionalPlant:
         plane.CreateAxisAttr("Z")
         plane.CreatePurposeAttr("guide")
         UsdPhysics.CollisionAPI.Apply(plane.GetPrim()).CreateCollisionEnabledAttr(True)
-        material.func("/World/Ground/Material", material)
+        ground_material = material(self.contact_domain.ground_coefficient)
+        ground_material.func("/World/Ground/Material", ground_material)
         su.bind_physics_material(plane.GetPath().pathString, "/World/Ground/Material")
 
         def actuator(names, limit, **extra):
@@ -77,7 +82,7 @@ class FullRobotTraditionalPlant:
         native_wheel["viscous_friction"] = native_wheel.pop("damping")
         self.robot = Articulation(ArticulationCfg(prim_path="/World/Robot",
             spawn=su.UsdFileCfg(usd_path=str(self.bundle / "robot.usda"),
-                physics_material=material, physics_material_path="contact_material",
+                physics_material=material(self.contact_domain.other_body_coefficient), physics_material_path="contact_material",
                 activate_contact_sensors=True,
                 rigid_props=su.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
                 articulation_props=su.ArticulationRootPropertiesCfg(fix_root_link=fixed_base,
@@ -90,6 +95,13 @@ class FullRobotTraditionalPlant:
                     **native_wheel),
                 passive=actuator(passive, 100.), springs=actuator(SPRINGS, 1500.)),
             soft_joint_pos_limit_factor=1.))
+        wheel_material = material(float(self.contact_domain.band.mean()))
+        wheel_material.func("/World/Robot/wheel_contact_material", wheel_material)
+        roller_material = material(self.contact_domain.body_roller_coefficient)
+        roller_material.func("/World/Robot/roller_contact_material", roller_material)
+        for name in ("L_link3", "R_link3", "base_link"):
+            target = "roller_contact_material" if name == "base_link" else "wheel_contact_material"
+            su.bind_physics_material("/World/Robot/"+name, "/World/Robot/"+target)
         contact_materials = {}
         for prim in self.sim.stage.Traverse():
             if not prim.HasAPI(UsdPhysics.CollisionAPI):
@@ -101,9 +113,12 @@ class FullRobotTraditionalPlant:
             physical = UsdPhysics.MaterialAPI(bound.GetPrim())
             coefficients = [physical.GetStaticFrictionAttr().Get(), physical.GetDynamicFrictionAttr().Get()]
             combine = PhysxSchema.PhysxMaterialAPI(bound.GetPrim()).GetFrictionCombineModeAttr().Get()
-            if not np.allclose(coefficients, [friction, friction], atol=1e-7, rtol=0.):
+            name = path.removeprefix("/World/Robot/").split("/")[0]
+            expected = self.contact_domain.ground_coefficient if path.startswith("/World/Ground/") else \
+                self.contact_domain.body_coefficient(name, float(self.contact_domain.band.mean()))
+            if not np.allclose(coefficients, [expected, expected], atol=1e-7, rtol=0.):
                 raise ValueError("Contact material differs from configured friction: "+path)
-            if combine != "average":
+            if combine != self.contact_domain.combine_mode:
                 raise ValueError("Unexpected friction combine mode: "+path)
             contact_materials[path] = dict(material=bound.GetPath().pathString,
                 static_friction=coefficients[0], dynamic_friction=coefficients[1], combine_mode=combine)
@@ -126,6 +141,14 @@ class FullRobotTraditionalPlant:
         self.contact_view = PhysxManager.get_physics_sim_view().create_rigid_contact_view(
             ["/World/Robot/L_link3", "/World/Robot/R_link3"],
             filter_patterns=[["/World/Ground/CollisionPlane"]]*2, max_contact_data_count=128)
+        self.material_slices = {}
+        offset = 0
+        for name, path in zip(self.robot.body_names, self.robot.root_view.link_paths[0]):
+            count = PhysxManager.get_physics_sim_view().create_rigid_body_view(path).max_shapes
+            self.material_slices[name] = slice(offset, offset+count)
+            offset += count
+        if offset != self.robot.root_view.max_shapes:
+            raise ValueError("Articulation material shape order differs from its link views")
         self.ids = [self.robot.joint_names.index(n) for n in ACTIVE]
         self.canonical_ids = [self.ids[i] for i in self.canonical_to_asset]
         self.gas_ids = [self.robot.joint_names.index(n) for n in SPRINGS]
@@ -171,8 +194,8 @@ class FullRobotTraditionalPlant:
             asset_manifest_sha256=digest(self.bundle/"manifest.json"),
             control_frame=manifest["control_frame"], additional_root_rotation=False,
             tree_joint_count=len(self.robot.joint_names), external_loop_count=len(loops),
-            mass_kg=float(masses.sum()), mass_scale=mass_scale, friction=friction,
-            contact_materials=contact_materials, friction_combine_mode="average",
+            mass_kg=float(masses.sum()), mass_scale=mass_scale,
+            contact_materials=contact_materials, contact_domain=self.contact_domain.summary(),
             physics_dt_s=self.physics_dt, control_dt_s=self.dt, action_hold_ticks=self.substeps,
             wheel_response=self.wheels.summary(), wheel_armature_readback=added.tolist(),
             gimbal_control="supplied v2.0.2 fixed-zero joints; full CAD masses retained",
@@ -188,8 +211,30 @@ class FullRobotTraditionalPlant:
         self.tick = 0
         self.effort = torch.zeros_like(self.robot.data.joint_pos.torch)
 
-    def reset(self, length=.334, pitch=0., lift=0.):
+    def reset(self, length=.334, pitch=0., lift=0., friction_case=None):
         torch = self.torch
+        case = self.contact_episode if friction_case is None else friction_case
+        self.contact_episode += 1
+        wheel_friction = self.contact_domain.sample(case)
+        materials = self.wp.to_torch(self.robot.root_view.get_material_properties()).clone().cpu()
+        for name, indices in self.material_slices.items():
+            materials[0, indices, :2] = self.contact_domain.body_coefficient(name, wheel_friction)
+            materials[0, indices, 2] = 0.
+        env_ids = torch.tensor([0], dtype=torch.int32)
+        self.robot.root_view.set_material_properties(self.wp.from_torch(materials, dtype=self.wp.float32),
+            self.wp.from_torch(env_ids, dtype=self.wp.int32))
+        actual = self.wp.to_torch(self.robot.root_view.get_material_properties()).cpu()
+        if not torch.allclose(actual, materials, atol=1e-7, rtol=0.):
+            raise ValueError("PhysX material randomization readback differs")
+        left = self.material_slices["L_link3"].start
+        effective_mu = float(actual[0, left, 0])*self.contact_domain.ground_coefficient
+        self.current_contact = dict(case=case, seed=self.contact_domain.seed,
+            sampled_wheel_ground_friction=wheel_friction,
+            effective_wheel_ground_static_friction=effective_mu,
+            effective_wheel_ground_dynamic_friction=effective_mu,
+            effective_body_ground_friction=0.,
+            native_materials_verified=True,
+            native_materials_by_body={name:actual[0, indices].tolist() for name, indices in self.material_slices.items()})
         q = equilibrium_pose(self.spec, length)
         frames, height, _, _ = geometry(self.spec, q)
         delta = frames["L_link3"][:3, 3] - frames["R_link3"][:3, 3]

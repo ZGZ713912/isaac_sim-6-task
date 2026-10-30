@@ -48,10 +48,14 @@ knots still cover 56–101 degrees, with the declared endpoint trend elsewhere.
 The CPU pose solver and native USD/URDF use the same physical stops. The
 controller's reviewed height interval remains narrower than the mechanical range.
 
-Contact friction is explicitly bound to the robot collision shapes and ground:
-static=dynamic=0.8 by default, with average combination. USD binding and values
-are read back per collider. Earlier results set only the ground coefficient;
-they are not evidence of a pair with both materials explicitly set to 0.8.
+Contact friction follows the user's corrected domain: effective wheel/ground
+static=dynamic is uniformly sampled in0.2–0.4 on each episode reset. The ground
+coefficient is1 and the wheel coefficient is the sample, with multiply mode on
+both. All base_link collision hulls (bottom/front/rear roller approximation) have
+zero friction; other body/leg materials retain0.8. Each reset writes and reads
+native PhysX shape materials. Case-local seeds give every candidate the same
+scenario draw. Motor/gearbox friction from wheel real2sim remains unchanged.
+Earlier fixed-friction results are historical and do not qualify this domain.
 
 The working height interval is 0.24–0.35 m. This controller interval is narrower
 than the full mechanical knee domain; it does not redefine the mechanical stops.
