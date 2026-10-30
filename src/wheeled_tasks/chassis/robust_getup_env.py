@@ -470,6 +470,10 @@ class RobustGetupEnv(ChassisEnv):
             motor_peak_passive = torch.maximum(motor_peak_passive, tau.abs().amax(-1) * self.passive)
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = tau
+            if self.leg_friction.enabled:
+                # Friction remains passive while motor torque is disabled.
+                effort[:, [self.ids[i] for i in self.v5.LEGS]] += self.leg_friction.effort(
+                    dq[:, list(self.v5.LEGS)])
             if self.identified_wheels.enabled:
                 # Dissipation remains physical while the motor is disabled.
                 effort[:, [self.ids[2], self.ids[5]]] += self.identified_wheels.passive_effort
@@ -528,6 +532,11 @@ class RobustGetupEnv(ChassisEnv):
                     wheel_passive_effort=self.identified_wheels.passive_effort.clone(),
                     wheel_net_effort=effort[:, [self.ids[2], self.ids[5]]].clone(),
                     wheel_disabled=(self.passive | self.finished).clone(),
+                    **(dict(leg_friction_velocity=self.leg_friction.velocity.clone(),
+                        leg_friction_passive_effort=self.leg_friction.passive_effort.clone(),
+                        leg_net_effort=effort[:, [self.ids[i] for i in self.v5.LEGS]].clone(),
+                        leg_applied_effort=self.robot.data.applied_torque.torch[:,
+                            [self.ids[i] for i in self.v5.LEGS]].clone()) if self.leg_friction.enabled else {}),
                     **(dict(gimbal_feedback_q=gimbal_feedback_q, gimbal_feedback_dq=gimbal_feedback_dq,
                         gimbal_position=self.robot.data.joint_pos.torch[:, self.gimbal_ids].clone(),
                         gimbal_velocity=self.robot.data.joint_vel.torch[:, self.gimbal_ids].clone(),

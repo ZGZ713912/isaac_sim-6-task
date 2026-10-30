@@ -20,7 +20,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "tools")]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--bundle", type=Path, default=ROOT / "model/wheel_leg_v2.0.2/isaac")
+    parser.add_argument("--bundle", type=Path, default=ROOT / "model/wheel_leg_v2.0.2/friction_v1/isaac")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--steps", type=int, default=1000, help="1 ms steps per reset case")
     parser.add_argument("--device", default="cpu")
@@ -65,6 +65,9 @@ def main():
         from isaaclab.utils.math import quat_apply
         torch.set_num_threads(4)
         control, response = asset.components(1, args.device)
+        leg_friction = asset.leg_friction(1, args.device)
+        if leg_friction.enabled:
+            report["leg_motor_friction"] = leg_friction.summary()
         observer = asset.encoder_geometry(args.device)
         native = response.native_parameters()
         sim = su.SimulationContext(su.SimulationCfg(device=args.device, dt=.001, gravity=gravity,
@@ -82,7 +85,7 @@ def main():
                     enabled_self_collisions=False, solver_position_iteration_count=64, solver_velocity_iteration_count=32)),
             init_state=ArticulationCfg.InitialStateCfg(pos=(0.,0.,2.),
                 joint_pos=manifest["nominal_joint_pos"], joint_vel={".*":0.}),
-            actuators=dict(legs=actuator(leg_names,40.,armature=0.),
+            actuators=dict(legs=actuator(leg_names,leg_friction.native_effort_limit if leg_friction.enabled else 40.,armature=0.),
                 wheels=actuator(wheel_names,response.native_effort_limit,armature=native["armature"],
                     friction=native["frictionloss"],dynamic_friction=native["dynamic_friction"],
                     viscous_friction=native["damping"]),
@@ -223,6 +226,8 @@ def main():
                 requested = control.motor_efforts(q[:,ids],dq[:,ids],leg_target,reference)
                 motor = response.apply_torque(requested,dq[:,ids])
                 effort.zero_();effort[:,ids] = motor
+                if leg_friction.enabled:
+                    effort[:, [ids[i] for i in control.LEGS]] += leg_friction.effort(dq[:,ids][:,list(control.LEGS)])
                 effort[:,wheel_ids] += response.passive_effort
                 effort[:,spring_ids] = control.spring_efforts(q[:,spring_ids])
                 if not torch.isfinite(effort).all():

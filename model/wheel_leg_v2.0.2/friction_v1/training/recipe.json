@@ -1,0 +1,43 @@
+{
+  "schema": "full-vehicle-training-derivative-v1",
+  "source_bundle": "model/wheel_leg_v2.0.2/friction_v1/isaac",
+  "source_manifest_sha256": "01b3f0e8714ad30236a1b45be9f61e2986a19f81504fc96ea5fd97bde5cbe2e0",
+  "source_spec_sha256": "388dbdc69cbc7021ea02e553caaed098a05e237a6867b45ee7df172858050b29",
+  "model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
+  "asset_manifest_sha256": "46197630c19cf78286b1771cc6bf6351fde69038a310226b5c2bdee16cf81c65",
+  "files_sha256": {
+    "manifest.json": "46197630c19cf78286b1771cc6bf6351fde69038a310226b5c2bdee16cf81c65",
+    "pose_bank.json": "4a34cf15c3fc84eb8220a175bfc45b37d65a44857775b0c07476842b36d600c1",
+    "gimbal_motion.json": "04ca3c88e63b7c30061505f790609f75e781378c0aa0c648620a6ff604cd7e6b"
+  },
+  "parent_component_validation": {
+    "file": "reports/full_vehicle_limits110_20261031/parent_component_validation.json",
+    "sha256": "ca248ceaee661df6126e59662dde603fc620ecfa37d53e95aa7cd7fee0beb6fb"
+  },
+  "zero_friction_bodies": [
+    "base_link"
+  ],
+  "zero_friction_combine_mode": "min",
+  "zero_friction_scope": "all8 merged base collision hulls include belly guide rollers; driving wheels and other bodies retain their materials",
+  "references": [
+    {
+      "file": "/home/noir/Documents/workspace/example/wheeled-legged_RL/src/agent_world/assets/wheelbipe_V14_2.py",
+      "sha256": "aaa1593c5eb5236131722fe02b8ec7e888dbb32d7d43e5def60dc91266d1ea95"
+    },
+    {
+      "file": "/home/noir/Documents/workspace/example/wheeled-legged_RL/src/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+      "sha256": "00ed3758350ce48584a8d1ef34e474d26f9e4e085a1890168b9f71a1ab0311ac"
+    }
+  ],
+  "allowed_changes": "release two gimbal joints; bind unchanged chassis component tables to this derived specification; new reset-only geometry; add separately identified passive leg moving friction",
+  "actor_dim": 35,
+  "critic_dim": 87,
+  "action_dim": 6,
+  "policy_abi": "v4 local wheel standing odometry; independent gimbal disturbance is not a policy output",
+  "hardware_ready": false,
+  "leg_motor_friction": {
+    "enabled": true,
+    "model_path": "model/dm_leg_friction_20261031/model.json",
+    "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+  }
+}

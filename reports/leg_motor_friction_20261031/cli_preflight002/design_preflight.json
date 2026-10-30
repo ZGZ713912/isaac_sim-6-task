@@ -1,0 +1,249 @@
+{
+  "status": "static_passed",
+  "source": "/home/noir/.codex/worktrees/leg-friction-v202/isaac_wheeled_rl_train/reports/leg_motor_friction_20261031/cli_preflight002/config/design.json",
+  "stage": "speed",
+  "role": "train",
+  "seed": 261028,
+  "block_index": 0,
+  "num_envs": 80,
+  "physics_dt": 0.001,
+  "policy_dt": 0.01,
+  "decimation": 10,
+  "runtime_expected": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.01,
+    "pc_control_dt": 0.001,
+    "decimation": 10,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "wheel_velocity_p": 0.5,
+    "seed": 261028,
+    "action_difference_reference_dt": 0.02,
+    "precision_tracking": true,
+    "actuator_response": {
+      "enabled": true,
+      "schema": "chassis-actuator-response",
+      "version": 1,
+      "joint_names": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "gain": 1.0,
+      "armature": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "time_constant_s": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "locomotion_quality_rewards": {
+      "stand_still_lin_vel": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      },
+      "locomotion_posture": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    "modules": {
+      "usb_transport": false,
+      "command_transport": false,
+      "signal_perturbations": false,
+      "dynamics_randomization": false,
+      "contact_domain": false,
+      "contact_material": true,
+      "step_assist": false,
+      "actuator_response": true,
+      "stand_still_lin_vel": true,
+      "locomotion_posture_floor": true,
+      "gas_spring_compensation": true,
+      "leg_motor_friction": true,
+      "identified_wheel_response": true
+    },
+    "contact_material": {
+      "enabled": true,
+      "combine_mode": "average",
+      "ground_static_friction_range": [
+        0.5,
+        0.5
+      ],
+      "ground_dynamic_friction_range": [
+        0.5,
+        0.5
+      ],
+      "wheel_static_friction": 0.7,
+      "wheel_dynamic_friction": 0.7,
+      "body_static_friction": 0.25,
+      "body_dynamic_friction": 0.25
+    },
+    "wheel_reduction": {
+      "schema": "wheel-leg-wheel-reduction-v1",
+      "gear_ratio": 15.62,
+      "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+      "reference": "wheel_output",
+      "motor_angle_and_speed": "divide_by_ratio_once",
+      "motor_torque": "multiply_by_ratio_once",
+      "output_torque_cap_nm": 4.5,
+      "legacy_asset_metadata_gear_ratio": 15.8,
+      "legacy_response_gear_ratio": 15.8,
+      "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+      "new_wheel_response_identified": false
+    },
+    "gas_spring_compensation": {
+      "enabled": true,
+      "model_file": "model/wheel_leg_v2.0.2/friction_v1/training/gas_spring_model.json",
+      "model_sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9",
+      "gain": 1.0,
+      "force_extrapolation": "positive_c1_endpoint_trend_v1",
+      "physical_curve_outside_geometry": "hold_geometry_endpoint",
+      "relative_soft_limits": {
+        "minimum": -0.14084732125908495,
+        "maximum": 1.4282761689185115,
+        "margin": 0.03,
+        "projection": "outward_relative_torque_v1"
+      }
+    },
+    "gas_spring_force_each_iteration": true,
+    "gimbal_motion": {
+      "schema": "full-vehicle-gimbal-motion-v1",
+      "joint_names": [
+        "M_joint1",
+        "M_joint2"
+      ],
+      "yaw_velocity_range_rad_s": [
+        -3.141592653589793,
+        3.141592653589793
+      ],
+      "yaw_kd": 0.5,
+      "yaw_effort_limit_nm": 2.0,
+      "yaw_acceleration_rad_s2": 3.141592653589793,
+      "pitch_limits_deg": [
+        -30.0,
+        35.0
+      ],
+      "pitch_kp": 20.0,
+      "pitch_kd": 0.5,
+      "pitch_effort_limit_nm": 10.0,
+      "pitch_period_seconds": [
+        8.0,
+        16.0
+      ],
+      "pitch_positive": "up",
+      "pitch_trajectory": "bounded_sinusoid_random_period_and_direction",
+      "yaw_sampling": "uniform_per_episode",
+      "disabled": "zero_motor_effort_and_pause_motion_clock",
+      "reference": "wheelbipe_V14_2 yaw velocity PD and pitch position PD; engineering disturbance, not identified motors",
+      "reference_pitch": "wheelbipe holds a fixed pitch; this task adds a smooth bounded scan",
+      "state_writes": "episode_reset_only",
+      "policy_motor_outputs": 6
+    },
+    "zero_friction_bodies": [
+      "base_link"
+    ],
+    "leg_motor_friction": {
+      "enabled": true,
+      "model_path": "model/dm_leg_friction_20261031/model.json",
+      "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+    },
+    "identified_wheel_response": {
+      "enabled": true,
+      "model_path": "model/wheel_leg_v2.0.2/friction_v1/training/wheel_model.json",
+      "model_sha256": "01d52214771bb9dea2cb592eff4dc6fbd27bb096faa90ff1e17b5d898a1e877c",
+      "apply_aggregate_delay": true
+    }
+  },
+  "actuator_response_evidence": {
+    "status": "authenticated_geometry_derivation",
+    "source_spec_sha256": "388dbdc69cbc7021ea02e553caaed098a05e237a6867b45ee7df172858050b29",
+    "model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
+    "recipe_sha256": "304d8ddcc8af3c00dc186a46c8222671f45307637833e364ad1a82d6bebefd75",
+    "knee_inner_limits_deg": [
+      40.0,
+      110.0
+    ],
+    "hardware_zero_reference_inner_deg": 110.0,
+    "component_scope": "unchanged chassis geometry, mass, spring curves and wheel dynamics; only two free gimbal joints",
+    "leg_motor_friction": {
+      "enabled": true,
+      "model_path": "model/dm_leg_friction_20261031/model.json",
+      "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+    },
+    "moving_gimbal_behavior_qualified": false,
+    "hardware_release": false,
+    "measured_response": {
+      "status": "authenticated",
+      "sha256": "a19357979636190be8f923e680c769714b31c3b7732109a00017c787e9d23abd",
+      "scope": "airborne new 15.62 gearbox effective dynamics and native component readback/replay; empirical residuals retained; no whole-robot qualification",
+      "validated_file_count": 8
+    }
+  },
+  "gas_spring_compensation_evidence": {
+    "status": "authenticated_geometry_derivation",
+    "source_spec_sha256": "388dbdc69cbc7021ea02e553caaed098a05e237a6867b45ee7df172858050b29",
+    "model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
+    "recipe_sha256": "304d8ddcc8af3c00dc186a46c8222671f45307637833e364ad1a82d6bebefd75",
+    "knee_inner_limits_deg": [
+      40.0,
+      110.0
+    ],
+    "hardware_zero_reference_inner_deg": 110.0,
+    "component_scope": "unchanged chassis geometry, mass, spring curves and wheel dynamics; only two free gimbal joints",
+    "leg_motor_friction": {
+      "enabled": true,
+      "model_path": "model/dm_leg_friction_20261031/model.json",
+      "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+    },
+    "moving_gimbal_behavior_qualified": false,
+    "hardware_release": false,
+    "model_sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9"
+  },
+  "design_sha256": "5ffb20a4b8923b6feb60f3ef2fa0e18fe4a31c28ff71755ac677f14476ee2ff5",
+  "environment_stage": "speed",
+  "wheel_reduction": {
+    "schema": "wheel-leg-wheel-reduction-v1",
+    "gear_ratio": 15.62,
+    "source": "user_confirmed_20261027_and_RMCS_explicit_driver",
+    "reference": "wheel_output",
+    "motor_angle_and_speed": "divide_by_ratio_once",
+    "motor_torque": "multiply_by_ratio_once",
+    "output_torque_cap_nm": 4.5,
+    "legacy_asset_metadata_gear_ratio": 15.8,
+    "legacy_response_gear_ratio": 15.8,
+    "response_scope": "historical_wheel_output_prior_pending_new_wheel_identification",
+    "new_wheel_response_identified": false
+  }
+}

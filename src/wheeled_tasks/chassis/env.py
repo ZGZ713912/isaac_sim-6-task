@@ -20,6 +20,7 @@ from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torq
 from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
 from .actuator_response import ActuatorResponse
 from .identified_wheel_response import IdentifiedWheelResponse, WHEEL_NAMES
+from .leg_motor_friction import LegMotorFriction, JOINTS as LEG_FRICTION_JOINTS
 from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data
 from .training_schedule import stage_actor_updates
 from .terrain_runout import append_route_runout, apply_route_boundary, route_runout_selection, validate_runout
@@ -127,6 +128,13 @@ class ChassisEnv:
         self.landing_reward_mask = torch.zeros(num_envs, device=device)
         self.actuator_response = ActuatorResponse(num_envs, device, self.dt,
             config.get("actuator_response"))
+        self.leg_friction = LegMotorFriction(num_envs, device, config.get("leg_motor_friction"), root=root)
+        if self.leg_friction.enabled:
+            if not self.is_v5 or not config.get("monitor_applied_effort"):
+                raise ValueError("Leg moving friction requires monitored output-axis control")
+            if self.actuator_response.enabled and any(self.actuator_response.cfg[k][i] != 0
+                    for k in ("frictionloss", "damping") for i in (0, 1, 3, 4)):
+                raise ValueError("Leg friction/damping would be applied twice")
         if self.actuator_response.enabled and (not self.is_v5 or not config.get("monitor_applied_effort")):
             raise ValueError("Identified response requires explicit six-axis V5 effort monitoring")
         self.identified_wheels = IdentifiedWheelResponse(num_envs, device, self.dt,
@@ -379,6 +387,9 @@ class ChassisEnv:
                     actuators["wheels"].viscous_friction = native["damping"]
                     actuators["wheels"].effort_limit = self.identified_wheels.native_effort_limit
                     actuators["wheels"].effort_limit_sim = self.identified_wheels.native_effort_limit
+            if self.leg_friction.enabled:
+                actuators["legs"].effort_limit = self.leg_friction.native_effort_limit
+                actuators["legs"].effort_limit_sim = self.leg_friction.native_effort_limit
             if config.get("gimbal_motion"):
                 names = config["gimbal_motion"]["joint_names"]
                 group = "passive" if "passive" in actuators else "rotary"
@@ -550,6 +561,13 @@ class ChassisEnv:
             "self_collision_enabled": False, "solver_order": order}
         if native_isolation is not None:
             self.startup_report["native_environment_isolation"] = native_isolation
+        if self.leg_friction.enabled:
+            ids = [self.robot.joint_names.index(n) for n in LEG_FRICTION_JOINTS]
+            actual = wp.to_torch(self.robot.root_view.get_dof_friction_properties())[:, ids]
+            if not torch.equal(actual, torch.zeros_like(actual)):
+                raise RuntimeError("Explicit moving friction overlaps native leg friction")
+            self.startup_report["leg_motor_friction"] = self.leg_friction.summary()
+            self.startup_report["leg_motor_friction"]["native_zero_friction_verified"] = True
         if self.route_runout_settings is not None:
             self.startup_report["terrain_route_runout"] = {
                 **self.route_runout_settings,
@@ -1007,6 +1025,9 @@ class ChassisEnv:
             if self.gimbal is not None:
                 actual["gimbal_motion"] = dict(self.gimbal.cfg)
                 actual["zero_friction_bodies"] = list(config["zero_friction_bodies"])
+            if self.leg_friction.enabled:
+                actual["leg_motor_friction"] = dict(self.leg_friction.cfg)
+                actual["modules"]["leg_motor_friction"] = True
             if "wheel_reduction" in config:
                 actual["wheel_reduction"] = dict(config["wheel_reduction"],
                     gear_ratio=self.v5.wheel_prior["gear_ratio"])
@@ -1780,6 +1801,9 @@ class ChassisEnv:
                 self.v5.current_motor_bounds[:, list(self.v5.WHEELS)] = self.identified_wheels.drive_bound
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = self.torque
+            if self.leg_friction.enabled:
+                effort[:, [self.ids[i] for i in self.v5.LEGS]] += self.leg_friction.effort(
+                    dq_now[:, list(self.v5.LEGS)])
             if self.identified_wheels.enabled:
                 effort[:, [self.ids[2], self.ids[5]]] += self.identified_wheels.passive_effort
             if self.is_v5:
@@ -1813,6 +1837,9 @@ class ChassisEnv:
                 self.feedback_transport.observe(self._transport_sensors())
             if self.torque_monitor is not None:
                 applied = self.robot.data.applied_torque.torch
+                if self.leg_friction.enabled:
+                    applied = applied.clone()
+                    applied[:, [self.ids[i] for i in self.v5.LEGS]] -= self.leg_friction.passive_effort
                 if self.identified_wheels.enabled:
                     applied = applied.clone()
                     applied[:, [self.ids[2], self.ids[5]]] -= self.identified_wheels.passive_effort

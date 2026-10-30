@@ -115,7 +115,7 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     row = deepcopy(row)
     expected = row.get("contract", {})
     if "full_vehicle" in config or "full_vehicle" in expected:
-        for key in ("full_vehicle", "gimbal_motion", "zero_friction_bodies", "asset_directory", "critic_dim"):
+        for key in ("full_vehicle", "gimbal_motion", "zero_friction_bodies", "asset_directory", "critic_dim", "leg_motor_friction"):
             _compare(config.get(key, _MISSING), expected.get(key, _MISSING), "design."+key, errors)
     canonical = expected.get("evaluation", {}).get("cases", [])
     effective = config.get("evaluation", {}).get("cases", [])
@@ -150,6 +150,13 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append("design.runtime.modules.identified_wheel_response: explicit enabled expectation required")
         _compare(config.get("identified_wheel_response", _MISSING), _at(row, "runtime.identified_wheel_response"),
                  "design.runtime.identified_wheel_response", errors)
+    if "leg_motor_friction" in config or "leg_motor_friction" in expected:
+        _compare(config.get("leg_motor_friction", _MISSING), expected.get("leg_motor_friction", _MISSING),
+                 "design.leg_motor_friction", errors)
+        _compare(config.get("leg_motor_friction", _MISSING), _at(row, "runtime.leg_motor_friction"),
+                 "design.runtime.leg_motor_friction", errors)
+        _compare(True, _at(row, "runtime.modules.leg_motor_friction"),
+                 "design.runtime.modules.leg_motor_friction", errors)
     if "contact_material" in config or "contact_material" in expected:
         settings = config.get("contact_material")
         if (not isinstance(settings, dict) or type(settings.get("enabled")) is not bool):

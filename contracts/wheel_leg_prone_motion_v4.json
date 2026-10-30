@@ -69,7 +69,7 @@
   "route_potential_gain": 0.05,
   "wheel_model": {
     "model": {
-      "file": "model/wheel_leg_v2.0.2/training/wheel_model.json",
+      "file": "model/wheel_leg_v2.0.2/friction_v1/training/wheel_model.json",
       "sha256": "01d52214771bb9dea2cb592eff4dc6fbd27bb096faa90ff1e17b5d898a1e877c"
     },
     "control": {
@@ -91,12 +91,12 @@
     }
   },
   "gas_spring_model": {
-    "file": "model/wheel_leg_v2.0.2/training/gas_spring_model.json",
+    "file": "model/wheel_leg_v2.0.2/friction_v1/training/gas_spring_model.json",
     "sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9"
   },
   "gas_spring_feedforward": {
     "enabled": true,
-    "model_file": "model/wheel_leg_v2.0.2/training/gas_spring_model.json",
+    "model_file": "model/wheel_leg_v2.0.2/friction_v1/training/gas_spring_model.json",
     "model_sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9",
     "gain": 1.0,
     "force_extrapolation": "positive_c1_endpoint_trend_v1",
@@ -235,7 +235,7 @@
     "control_outputs": false,
     "privileged_position_or_contact": false,
     "geometry_model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
-    "geometry_file": "model/wheel_leg_v2.0.2/training/encoder_geometry.json"
+    "geometry_file": "model/wheel_leg_v2.0.2/friction_v1/training/encoder_geometry.json"
   },
   "quiet_position_tail": {
     "start_m": 0.09,
@@ -243,21 +243,26 @@
     "weight": 2.0
   },
   "full_vehicle": {
-    "file": "model/wheel_leg_v2.0.2/training/recipe.json",
-    "sha256": "f979f9aaa56d6f1ed04ccd1431c915b7d1ff98f419fefd13a5f267db441816e7"
+    "file": "model/wheel_leg_v2.0.2/friction_v1/training/recipe.json",
+    "sha256": "304d8ddcc8af3c00dc186a46c8222671f45307637833e364ad1a82d6bebefd75"
   },
   "mechanism": {
-    "file": "model/wheel_leg_v2.0.2/training/mechanism.json",
-    "sha256": "bd443d5f1da22c363799fb6b64902101c85df5161689c1489b992eff9ff9c65b"
+    "file": "model/wheel_leg_v2.0.2/friction_v1/training/mechanism.json",
+    "sha256": "25a1e69b650f99416f40b2a3d1312c037b348c2d06d134bd9e5e5f19be28f6d8"
   },
   "pose_bank": {
-    "file": "model/wheel_leg_v2.0.2/training/pose_bank.json",
-    "sha256": "eb737dabf554b26d997e2f55c730cef0fc2722e340bc8193db3ae7c5a03f3a09"
+    "file": "model/wheel_leg_v2.0.2/friction_v1/training/pose_bank.json",
+    "sha256": "4a34cf15c3fc84eb8220a175bfc45b37d65a44857775b0c07476842b36d600c1"
   },
   "full_vehicle_scope": "Full21-body21.44174kg vehicle;20 tree joints and6 external loops. Independent torque-limited yaw/pitch motion, zero friction on merged base guide-roller collision hulls. Fresh training only; historical chassis tasks remain available for read-only comparison.",
   "mechanical_inner_knee_range_deg": [
     40.0,
     110.0
   ],
-  "encoder_zero_inner_knee_deg": 110.0
+  "encoder_zero_inner_knee_deg": 110.0,
+  "leg_motor_friction": {
+    "enabled": true,
+    "model_path": "model/dm_leg_friction_20261031/model.json",
+    "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+  }
 }

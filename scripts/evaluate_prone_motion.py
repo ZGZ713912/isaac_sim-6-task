@@ -152,6 +152,24 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
         observation, _, _, extras = env.step(actor(observation))
         state = extras["diagnostics"]
         physical = env.prone_motion_physical
+        if env.leg_friction.enabled:
+            speed, loss = physical["leg_friction_velocity"], physical["leg_friction_passive_effort"]
+            # Independent algebra on the actual pre-solver velocity, including
+            # disabled lanes; no commanded/filtered velocity is substituted.
+            expected_loss = -speed.clamp(-.05, .05)/.05*speed.new_tensor(
+                env.leg_friction.model["coulomb_nm"])
+            net = physical["motor_effort"][..., [0, 1, 3, 4]]+loss
+            checks["leg_moving_friction_exactly_once_at_1khz"] = checks.get(
+                "leg_moving_friction_exactly_once_at_1khz", True) and bool(
+                    torch.allclose(loss, expected_loss, atol=1e-6, rtol=1e-6)
+                    and torch.allclose(physical["leg_net_effort"], net, atol=2e-6, rtol=1e-6)
+                    and torch.allclose(physical["leg_applied_effort"], net, atol=2e-6, rtol=1e-6))
+            checks["leg_moving_friction_dissipative_zero_at_rest"] = checks.get(
+                "leg_moving_friction_dissipative_zero_at_rest", True) and bool(
+                    (loss*speed <= 1e-8).all() and (loss[speed == 0.] == 0.).all())
+            checks["leg_friction_native_not_duplicated"] = env.startup_report[
+                "leg_motor_friction"]["native_zero_friction_verified"]
+            checks["leg_friction_tensorboard_metrics"] = "LegFriction/dissipated_power_mean_w" in extra["log"]
         values = {key:state[source][:count] for key, source in dict(position="local_position", velocity="velocity",
             omega="omega", gravity="gravity", height="height", time="time", commands="commands", gap="gap",
             requested="interval_requested_command", terminated="terminated", completed_event="recovery_completed_event",

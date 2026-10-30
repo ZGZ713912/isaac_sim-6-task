@@ -1,0 +1,23 @@
+{
+  "schema": "leg-friction-native-probe-v1",
+  "status": "failed",
+  "device": "cpu",
+  "started_utc": "2026-10-30T19:33:14.413509+00:00",
+  "num_envs": 80,
+  "checkpoint_reads": [],
+  "new_PPO": 0,
+  "optimizer_attempts": 0,
+  "native_probes": [],
+  "behavior_qualified": false,
+  "hardware_motion": false,
+  "source_sha256": {
+    "scripts/probe_leg_motor_friction.py": "2667fba832a59e84a5b2d399cbffe80d0b2d373023e404111e2ed71928203574",
+    "src/wheeled_tasks/chassis/env.py": "3bb1559043df136914378aab2bd2cdd95dee95c2a57f9b54e06286eb2e3aea4f",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "55db13c21226c40ef71d11f946d5d617ea33292af3c71836e8d40344251c31b0",
+    "src/wheeled_tasks/chassis/leg_motor_friction.py": "09473ff4559826416685ba09495af758a3288afd2e4bc90879feeb58be2e12d6",
+    "scripts/evaluate_prone_motion.py": "2561564e59bec97a5a377d15934b0b50a205c8f9b796a004ba5900d49fb61012",
+    "contracts/wheel_leg_prone_motion_v4.json": "7a6d5d52d0542effccfb4780a05b094b31ad54a2be4917a6bcbb8a7489483375"
+  },
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/probe_leg_motor_friction.py\", line 64, in main\n    result = probe(env, plan)\n             ^^^^^^^^^^^^^^^^\n  File \"/home/noir/miniconda3/envs/isaacsim6/lib/python3.12/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/evaluate_prone_motion.py\", line 230, in probe\n    action = nominal_action(env).expand(env.num_envs, -1).clone()\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/train_scratch_standing.py\", line 310, in nominal_action\n    result[list(env.v5.LEGS)] = torch.atan2(delta[list(env.v5.LEGS)].sin(), delta[list(env.v5.LEGS)].cos()) / .25\n                                ^^^^^\nNameError: name 'torch' is not defined\n"
+}

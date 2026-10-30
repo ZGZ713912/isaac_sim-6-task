@@ -23,6 +23,9 @@ def authenticate(config, root):
     if (digest(source.bundle/"manifest.json") != recipe["source_manifest_sha256"]
             or source.spec_sha256 != recipe["source_spec_sha256"]):
         raise ValueError("Parent full-vehicle asset changed")
+    friction = recipe.get("leg_motor_friction")
+    if config.get("leg_motor_friction") != friction or source.runtime.get("leg_motor_friction") != friction:
+        raise ValueError("Full-vehicle leg moving friction differs from its declared parent")
     directory = root/config["asset_directory"]
     for name, expected in recipe["files_sha256"].items():
         path = (directory/name).resolve()
@@ -91,6 +94,7 @@ def authenticate(config, root):
         knee_inner_limits_deg=source.limits["knee_inner_limits_deg"],
         hardware_zero_reference_inner_deg=source.limits["hardware_zero_reference_inner_deg"],
         component_scope="unchanged chassis geometry, mass, spring curves and wheel dynamics; only two free gimbal joints",
+        leg_motor_friction=deepcopy(friction),
         moving_gimbal_behavior_qualified=False, hardware_release=False)
 
 

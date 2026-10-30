@@ -1,0 +1,81 @@
+{
+  "schema": "full-robot-v202-six-motor-runtime-v1",
+  "gimbal_mode": "fixed_zero",
+  "physics_dt": 0.001,
+  "policy_dt": 0.01,
+  "pc_control_dt": 0.001,
+  "solver_position_iterations": 64,
+  "solver_velocity_iterations": 32,
+  "enable_external_forces_every_iteration": true,
+  "control_joint_names": [
+    "L_joint1",
+    "LL_joint1",
+    "L_joint3",
+    "R_joint1",
+    "RR_joint1",
+    "R_joint3"
+  ],
+  "v5_control": {
+    "active_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "action_clip": 3.0,
+    "leg_position_scale": 0.25,
+    "wheel_velocity_scale": 10.0,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "preview_feedforward_used": false,
+    "spring_pressure_mpa": null,
+    "spring_reserve_model": "inherited measured effective load and explicit endpoint trend",
+    "source_inertia_scope": "v201 CAD mass COM inertia preserved; coordinate re-expression only",
+    "mass_asymmetry": "v201 CAD retained; LL_link2 and RR_link2 are both0.08357kg; no imposed offset",
+    "hardware_motor_mapping_verified": false,
+    "wheel_action_clip": 9.0,
+    "leg_target_winding": "paired_branch107_v1",
+    "gas_spring_compensation": {
+      "enabled": true,
+      "model_file": "model/wheel_leg_v2.0.2/friction_v1/isaac/gas_spring_model.json",
+      "model_sha256": "5682982f82c35c3864771d4822e6d6d3932cea2800464b255a1de6d4bd7fec41",
+      "gain": 1.0,
+      "force_extrapolation": "positive_c1_endpoint_trend_v1",
+      "physical_curve_outside_geometry": "hold_geometry_endpoint",
+      "relative_soft_limits": {
+        "minimum": -0.14084732125908495,
+        "maximum": 1.4282761689185115,
+        "margin": 0.03,
+        "projection": "outward_relative_torque_v1"
+      }
+    }
+  },
+  "identified_wheel_response": {
+    "enabled": true,
+    "model_path": "model/wheel_leg_v2.0.2/friction_v1/isaac/wheel_model.json",
+    "model_sha256": "22e02a731dbe3c00cb89f04ea695d1d80a3f11cb2a9574f3dac6eb680b1f7657",
+    "apply_aggregate_delay": true
+  },
+  "low_level_extra_delay_ms": 0.0,
+  "wheel_delay_ms": [
+    5.5,
+    3.5
+  ],
+  "policy_observation_age": "existing v2 uncertainty, separate from calibrated wheel delay",
+  "control_file": "control.json",
+  "encoder_geometry_file": "encoder_geometry.json",
+  "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
+  "training_initialization": "fresh actor critic and empty Adam; no checkpoint teacher donor",
+  "loaded_wheel_torque_curve_identified": false,
+  "physical_gas_pressure_identified": false,
+  "right_gas_spring_symmetry_assumed": true,
+  "right_gas_spring_symmetry_basis": "user accepted 2026-10-30",
+  "behavior_qualified": false,
+  "leg_motor_friction": {
+    "enabled": true,
+    "model_path": "model/dm_leg_friction_20261031/model.json",
+    "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+  }
+}

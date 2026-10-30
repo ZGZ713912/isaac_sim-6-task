@@ -42,7 +42,8 @@ def validate_contract(contract):
         from pathlib import PurePosixPath
         path = PurePosixPath(contract["geometry_file"])
         if (path.is_absolute() or ".." in path.parts
-                or str(path) != "model/wheel_leg_v2.0.2/training/encoder_geometry.json"):
+                or str(path) not in ("model/wheel_leg_v2.0.2/training/encoder_geometry.json",
+                    "model/wheel_leg_v2.0.2/friction_v1/training/encoder_geometry.json")):
             raise ValueError("Full-vehicle odometry needs its explicit geometry file")
         for key in ("geometry_table_sha256", "geometry_model_spec_sha256"):
             sha = contract.get(key, "")

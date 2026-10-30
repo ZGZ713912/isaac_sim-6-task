@@ -142,6 +142,7 @@ def test_actual_robust_physics_loop_clears_queued_torque_and_keeps_passive_losse
     for tick in range(10):
         env.v5.current_motor_bounds.fill_(4.5)
         exec(control,scope)
+        env.leg_friction = SimpleNamespace(enabled=False)
         exec(effort_block,scope)
         observed.append(scope['tau'].clone())
     assert all(torch.count_nonzero(t[:,2])==0 for t in observed[:5])

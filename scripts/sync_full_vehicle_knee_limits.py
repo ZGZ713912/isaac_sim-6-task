@@ -155,7 +155,7 @@ def refresh_compensation_binding():
 
 def sync_training(validation):
     from wheeled_tasks.chassis.full_robot_v202 import FullRobotV202
-    asset = FullRobotV202()
+    asset = FullRobotV202(geometry.TARGET/"isaac")
     validation = validation.resolve()
     if not validation.is_relative_to(ROOT):
         raise ValueError("The component receipt must be archived inside the repository")
