@@ -164,6 +164,7 @@ def main():
     manifest.update(asset_revision="full_robot_v202_moving_gimbal_training_v1", usd="robot.usda",
         tree_joint_names=[j["name"] for j in spec["joints"]], fixed_joint_names=[],
         gimbal_mode="independent_servo", training_ready=False, hardware_ready=False)
+    manifest["nominal_joint_pos"].update(M_joint1=0., M_joint2=0.)
     for k in ("gimbal_free_usd", "gimbal_limits", "urdf"):
         manifest.pop(k, None)
     manifest["files_sha256"] = {str(p.relative_to(DIRECTORY)): digest(p) for p in sorted(DIRECTORY.rglob("*")) if p.is_file()}
