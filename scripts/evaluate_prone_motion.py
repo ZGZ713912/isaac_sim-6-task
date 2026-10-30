@@ -152,27 +152,6 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
         observation, _, _, extras = env.step(actor(observation))
         state = extras["diagnostics"]
         physical = env.prone_motion_physical
-        if getattr(env, "gimbal", None) is not None:
-            q, dq, target = (physical[k] for k in ("gimbal_feedback_q", "gimbal_feedback_dq", "gimbal_target"))
-            expected_gimbal = torch.stack((.5*(target[..., 0]-dq[..., 0]),
-                20.*(target[..., 1]-q[..., 1])-.5*dq[..., 1]), -1)
-            caps = expected_gimbal.new_tensor([2., 10.])
-            expected_gimbal = expected_gimbal.clamp(-caps, caps)
-            expected_gimbal[physical["wheel_disabled"]] = 0.
-            checks["gimbal_actual_1khz_torque_servo"] = checks.get("gimbal_actual_1khz_torque_servo", True) and bool(
-                torch.allclose(physical["gimbal_effort"], expected_gimbal, atol=1e-6, rtol=1e-6)
-                and torch.allclose(physical["gimbal_applied_effort"], expected_gimbal, atol=1e-6, rtol=1e-6))
-            checks["gimbal_disabled_effort_zero"] = checks.get("gimbal_disabled_effort_zero", True) and bool(
-                (physical["gimbal_effort"][physical["wheel_disabled"]] == 0.).all())
-            checks["gimbal_pitch_targets_within_user_limits"] = checks.get("gimbal_pitch_targets_within_user_limits", True) and bool(
-                (target[..., 1] >= -math.pi/6.-1e-6).all() and (target[..., 1] <= math.radians(35.)+1e-6).all())
-            checks["gimbal_yaw_actually_moves"] = checks.get("gimbal_yaw_actually_moves", False) or bool(
-                (physical["gimbal_velocity"][..., 0].abs() > .05).any())
-            checks["gimbal_pitch_actually_moves"] = checks.get("gimbal_pitch_actually_moves", False) or bool(
-                (physical["gimbal_velocity"][..., 1].abs() > .05).any())
-            checks["gimbal_native_twenty_joint_topology"] = len(env.robot.joint_names) == 20 and len(env.robot.body_names) == 21
-            counts = env.startup_report["contact_material"]["native_readback"]["usd_collision_counts"]
-            checks["zero_friction_guide_hulls_native_readback"] = counts.get("guide") == 8*env.num_envs
         values = {key:state[source][:count] for key, source in dict(position="local_position", velocity="velocity",
             omega="omega", gravity="gravity", height="height", time="time", commands="commands", gap="gap",
             requested="interval_requested_command", terminated="terminated", completed_event="recovery_completed_event",
@@ -277,6 +256,8 @@ def probe(env, plan, *, stop_requested=lambda: False):
     checks["actual_per_role_episode_limits"] = env.episode_limits.tolist() == expected_limits
     passive_seen = active_prone_seen = body_allowed = 0
     odometry_seen = 0
+    gimbal_observed = dict(speed_abs_peak_rad_s=[0., 0.], position_min_rad=[0., 0.],
+        position_max_rad=[0., 0.], effort_abs_peak_nm=[0., 0.])
     spring_min = torch.full((2, 2), float("inf"), device=env.device)
     spring_max = -spring_min.clone()
     spring_outside = torch.zeros(2, dtype=torch.int64, device=env.device)
@@ -295,6 +276,34 @@ def probe(env, plan, *, stop_requested=lambda: False):
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
         checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
         physical = env.prone_motion_physical
+        if getattr(env, "gimbal", None) is not None:
+            q, dq, target = (physical[k] for k in ("gimbal_feedback_q", "gimbal_feedback_dq", "gimbal_target"))
+            expected_gimbal = torch.stack((.5*(target[..., 0]-dq[..., 0]),
+                20.*(target[..., 1]-q[..., 1])-.5*dq[..., 1]), -1)
+            caps = expected_gimbal.new_tensor([2., 10.])
+            expected_gimbal = expected_gimbal.clamp(-caps, caps)
+            expected_gimbal[physical["wheel_disabled"]] = 0.
+            checks["gimbal_actual_1khz_torque_servo"] = checks.get("gimbal_actual_1khz_torque_servo", True) and bool(
+                torch.allclose(physical["gimbal_effort"], expected_gimbal, atol=1e-6, rtol=1e-6)
+                and torch.allclose(physical["gimbal_applied_effort"], expected_gimbal, atol=1e-6, rtol=1e-6))
+            checks["gimbal_disabled_effort_zero"] = checks.get("gimbal_disabled_effort_zero", True) and bool(
+                (physical["gimbal_effort"][physical["wheel_disabled"]] == 0.).all())
+            checks["gimbal_pitch_targets_within_user_limits"] = checks.get("gimbal_pitch_targets_within_user_limits", True) and bool(
+                (target[..., 1] >= -math.pi/6.-1e-6).all() and (target[..., 1] <= math.radians(35.)+1e-6).all())
+            for axis, index in (("yaw", 0), ("pitch", 1)):
+                checks[f"gimbal_{axis}_actually_moves"] = checks.get(f"gimbal_{axis}_actually_moves", False) or bool(
+                    (physical["gimbal_velocity"][..., index].abs() > .05).any())
+            checks["gimbal_native_twenty_joint_topology"] = len(env.robot.joint_names) == 20 and len(env.robot.body_names) == 21
+            counts = env.startup_report["contact_material"]["native_readback"]["usd_collision_counts"]
+            checks["zero_friction_guide_hulls_native_readback"] = counts.get("guide") == 8*env.num_envs
+            for name, tensor, reduction in (
+                ("speed_abs_peak_rad_s", physical["gimbal_velocity"].abs(), "max"),
+                ("position_min_rad", physical["gimbal_position"], "min"),
+                ("position_max_rad", physical["gimbal_position"], "max"),
+                ("effort_abs_peak_nm", physical["gimbal_effort"].abs(), "max")):
+                value = tensor.amin(dim=(0, 1)) if reduction == "min" else tensor.amax(dim=(0, 1))
+                operation = min if reduction == "min" else max
+                gimbal_observed[name] = [operation(old, float(new)) for old, new in zip(gimbal_observed[name], value)]
         for tick in range(env.decimation):
             ff = spring_reference.motor_efforts(physical["spring_ff_pd_effort_nm"][tick],
                 physical["spring_ff_encoder_position"][tick])
@@ -400,6 +409,7 @@ def probe(env, plan, *, stop_requested=lambda: False):
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
                 standing_odometry_valid_initialized_samples=odometry_seen,
+                gimbal=(gimbal_observed if getattr(env, "gimbal", None) is not None else None),
                 spring_feedforward=dict(startup=env.startup_report["encoder_spring_feedforward"],
                     replay_max_error_nm=max(spring_replay_error["limited_effort_nm"], spring_replay_error["holding_effort_nm"]),
                     replay_max_error_by_quantity=spring_replay_error, holding_effort_peak_nm=spring_ff_peak,

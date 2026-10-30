@@ -60,6 +60,16 @@ def authenticate(config, root):
             expected["model_spec_sha256"] = recipe["model_spec_sha256"]
         if json.loads((directory/name).read_text()) != expected:
             raise ValueError("Inherited full-vehicle component changed beyond identity: "+name)
+    gas = deepcopy(source.runtime["v5_control"]["gas_spring_compensation"])
+    gas.update(model_file=str((directory/"gas_spring_model.json").relative_to(root)),
+        model_sha256=digest(directory/"gas_spring_model.json"))
+    if config["v5_control"]["gas_spring_compensation"] != gas:
+        raise ValueError("Full-vehicle gas configuration differs from its inherited component")
+    wheels = config.get("identified_wheel_response")
+    if wheels is not None and wheels != dict(enabled=True,
+            model_path=str((directory/"wheel_model.json").relative_to(root)),
+            model_sha256=digest(directory/"wheel_model.json"), apply_aggregate_delay=True):
+        raise ValueError("Full-vehicle wheel configuration differs from its inherited component")
     for body in spec["bodies"]:
         for collision in body["collisions"]:
             if collision["type"] == "mesh" and digest(directory/collision["file"]) != digest(source.bundle/collision["file"]):
