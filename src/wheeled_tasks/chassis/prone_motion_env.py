@@ -18,6 +18,15 @@ class ProneMotionEnv(RobustGetupEnv):
     def __init__(self, *args, all_heights_after=None, **kwargs):
         self.course_ready = False
         self.evaluation_cases = None
+        if kwargs["settings"]["prone_motion_task"].get("full_vehicle") and kwargs.get("fixed_cases") is None:
+            # The generic recovery constructor performs a reset before this
+            # course assigns its explicit roles. Use a valid local seed pose;
+            # it must not sample unsupported front/back families from the old
+            # chassis bank. No physics/action occurs in this bootstrap reset.
+            bank = json.loads(kwargs["bank"].read_text())
+            middle = bank["diagnostic_height_starts"]["mapping"]["stand"]
+            kwargs["fixed_cases"] = [dict(pose_index=middle, recovery=False,
+                command=[0., 0., .305]) for _ in range(kwargs["num_envs"])]
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
         self.prone_task = self.getup_cfg["prone_geometry"]
