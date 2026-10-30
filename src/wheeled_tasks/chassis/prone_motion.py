@@ -35,9 +35,9 @@ def validate(plan):
         from .prone_motion_cli import validate_resolved
         return validate_resolved(plan)
     if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2",
-                                 "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4"):
+                                 "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         raise ValueError("Need the explicit prone-motion contract")
-    if plan["schema"] == "wheel-leg-prone-motion-v4":
+    if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))
         if plan.get("quiet_position_tail") != dict(start_m=.09, scale_m=.04, weight=2.):
@@ -48,6 +48,15 @@ def validate(plan):
             raise ValueError("Full-vehicle v4 requires its new mechanism and reset bank")
     elif "standing_odometry" in plan or "quiet_position_tail" in plan:
         raise ValueError("Changed standing observation/reward semantics require the v4 task")
+    if plan["schema"] == "wheel-leg-prone-motion-v5":
+        from .multi_pose_recovery import validate as validate_recovery
+        from .recovery_impact import validate as validate_impact
+        validate_recovery(plan["multi_pose_recovery"])
+        validate_impact(plan["recovery_impact"], timing(plan)["physics_dt"])
+        if not plan.get("full_vehicle") or not plan.get("leg_motor_friction", {}).get("enabled"):
+            raise ValueError("Multi-pose v5 requires the full friction-calibrated vehicle")
+    elif "multi_pose_recovery" in plan or "recovery_impact" in plan:
+        raise ValueError("Multi-pose semantics require their explicit v5 task")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):

@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import os
 import subprocess
+import sys
 
 import pytest
 import torch
@@ -20,8 +21,8 @@ PLAN_FILE = ROOT/"contracts/wheel_leg_prone_motion_v4.json"
 BASE = json.loads(PLAN_FILE.read_text())
 
 
-def test_default_options_preserve_the_accepted_recipe(tmp_path):
-    args = train_parser().parse_args(["--output", str(tmp_path/"train")])
+def test_explicit_v4_options_preserve_the_accepted_recipe(tmp_path):
+    args = train_parser().parse_args(["--task","WheelLeg-ProneMotion-v4","--output", str(tmp_path/"train")])
     path, plan, output = training_options(args, ROOT)
     assert path == PLAN_FILE and output == tmp_path/"train"
     for key, value in BASE.items():
@@ -32,7 +33,7 @@ def test_default_options_preserve_the_accepted_recipe(tmp_path):
 
 
 def test_isaac_style_flags_reach_contract_and_learner(tmp_path):
-    args = train_parser().parse_args(["--num_envs", "128", "--max_iterations", "5000", "--seed", "103",
+    args = train_parser().parse_args(["--task","WheelLeg-ProneMotion-v4","--num_envs", "128", "--max_iterations", "5000", "--seed", "103",
         "--run_name", "manual_5000", "--device", "cuda:1", "--headless", "--save_interval", "100",
         "--learning_rate", ".0001", "--domain_randomization", "off"])
     _, plan, output = training_options(args, ROOT)
@@ -103,7 +104,7 @@ def test_both_flag_spellings_and_no_gui():
 
 
 def test_python_override_is_accepted_by_train_and_play_without_changing_the_plan():
-    args = train_parser().parse_args(["--python", "/custom/isaac/python"])
+    args = train_parser().parse_args(["--task","WheelLeg-ProneMotion-v4","--python", "/custom/isaac/python"])
     assert args.python == "/custom/isaac/python"
     _, plan, _ = training_options(args, ROOT)
     assert plan == resolve_plan(BASE)
@@ -111,17 +112,18 @@ def test_python_override_is_accepted_by_train_and_play_without_changing_the_plan
     assert args.python == "/custom/isaac/python"
 
 
-@pytest.mark.parametrize("version", [3, 4])
-def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version):
+@pytest.mark.parametrize("version", [3, 4, 5])
+def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version, monkeypatch):
     from rsl_rl.utils import resolve_class
     from train_scratch_standing import digest
     original = json.loads((ROOT/f"contracts/wheel_leg_prone_motion_v{version}.json").read_text())
     plan = resolve_plan(original, max_iterations=5000)
     agent = learner_config(plan, "cuda:0")
-    obs = TensorDict(dict(policy=torch.zeros(1,35), critic=torch.zeros(1,83)), batch_size=[1])
+    obs = TensorDict(dict(policy=torch.zeros(1,35), critic=torch.zeros(1,87 if plan.get("full_vehicle") else 83)), batch_size=[1])
     cls, settings = resolve_class(deepcopy(agent["actor"]))
     actor = cls(obs, agent["obs_groups"], "actor", 6, **settings).eval()
-    (tmp_path/"pose_bank.json").write_bytes((ROOT/"reports/robust_policy_repair_20261024/pose_bank_height_matched073.json").read_bytes())
+    bank_file = plan.get("pose_bank",{}).get("file","reports/robust_policy_repair_20261024/pose_bank_height_matched073.json")
+    (tmp_path/"pose_bank.json").write_bytes((ROOT/bank_file).read_bytes())
     (tmp_path/"agent_config.json").write_text(json.dumps(agent))
     (tmp_path/"curriculum_plan.resolved.json").write_text(json.dumps(plan))
     checkpoint = tmp_path/"model_00250.pt"
@@ -138,18 +140,39 @@ def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version):
     assert cfg["target_num_envs"] == 1 and cfg["scene_groups"][0]["fraction"] == 1.
     assert settings["prone_motion_task"] == plan
     assert settings.get("standing_odometry") == plan.get("standing_odometry")
-    env = SimpleNamespace(prone_index=7, height_pose={.305:2})
+    env = SimpleNamespace(prone_index=7, height_pose={.305:2},
+        poses=json.loads((tmp_path/"pose_bank.json").read_text())["poses"])
     assert play.case_for(args, env, plan)["target"] == [1.2,0.,.42]
     assert bundle["profile"] == "nominal" and not any(k.startswith("optimizer") for k in bundle["state"])
+    preview = tmp_path/"main_preview"
+    monkeypatch.setattr(sys,"argv",["play_prone_motion.py","--checkpoint",str(checkpoint),
+        "--output",str(preview),"--preflight-only","--device","cuda:0"])
+    play.main()
+    receipt = json.loads((preview/"receipt.json").read_text())
+    assert receipt["status"] == "preflight_completed" and receipt["new_PPO"] == 0
     args.scene = "prone"
+    if version == 5:
+        args.fallen_family,args.leg_class = "roof_down","front_rear"
     case = play.case_for(args, env, plan)
-    assert case["recovery"] and case["pose_index"] == 7
+    assert case["recovery"]
+    if version == 5:
+        selected = env.poses[case["pose_index"]]["recovery"]
+        assert (selected["family"],selected["leg_class"],selected["split"]) == ("roof_down","front_rear","holdout")
+    else:
+        assert case["pose_index"] == 7
     # A copied/changed recipe cannot silently replace the checkpoint's mechanism.
     bad = deepcopy(plan)
     bad["gas_spring_backend"] = "other"
     (tmp_path/"curriculum_plan.resolved.json").write_text(json.dumps(bad))
     with pytest.raises(ValueError):
         play.load_bundle(args)
+
+
+def test_old_resolved_checkpoint_with_eight_runtime_options_stays_readable():
+    from wheeled_tasks.chassis.prone_motion_cli import LEGACY_OPTION_KEYS
+    old = resolve_plan(BASE,max_iterations=5000)
+    old["runtime_cli"]["options"] = {k:v for k,v in old["runtime_cli"]["options"].items() if k in LEGACY_OPTION_KEYS}
+    assert task.validate(old) == old
 
 
 def test_explicit_v3_training_keeps_legacy_zero_wheel_position_slots(tmp_path):

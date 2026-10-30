@@ -39,6 +39,8 @@ class RobustGetupEnv(ChassisEnv):
         self.bank_joints = torch.tensor([[p["full_joint_positions"][name] for name in self.robot.joint_names]
                                          for p in self.poses], device=self.device)
         self.bank_roots = torch.tensor([p["root_position_m"] + p["root_quaternion_xyzw"] for p in self.poses], device=self.device)
+        self.bank_velocities = torch.tensor([[p.get("full_joint_velocities", {}).get(name, 0.)
+                                              for name in self.robot.joint_names] for p in self.poses], device=self.device)
         self.bank_family = torch.tensor([FAMILIES.index(p["family"]) for p in self.poses], device=self.device)
         self.bank_tilt = torch.tensor([max(abs(p["roll_deg"]), abs(p["pitch_deg"])) for p in self.poses], device=self.device)
         self.family_pools = [(self.bank_family == i).nonzero().flatten() for i in range(len(FAMILIES))]
@@ -89,7 +91,7 @@ class RobustGetupEnv(ChassisEnv):
         self.local_standing_odometry = None
         if settings.get("standing_odometry") is not None:
             from .standing_local_odometry import LocalStandingOdometry
-            if self.standing_observer is not None or settings.get("version") != "wheel-leg-prone-motion-v4":
+            if self.standing_observer is not None or settings.get("version") not in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
                 raise ValueError("Local standing odometry requires its separate v4 task, without a legacy observer")
             self.local_standing_odometry = LocalStandingOdometry(n, device, self.policy_dt,
                 settings["standing_odometry"],
@@ -252,7 +254,7 @@ class RobustGetupEnv(ChassisEnv):
         self.robot.write_root_link_pose_to_sim_index(root_pose=roots, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=torch.zeros(count, 6, device=self.device), env_ids=ids)
         self.robot.write_joint_position_to_sim_index(position=self.bank_joints[chosen], env_ids=ids)
-        self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
+        self.robot.write_joint_velocity_to_sim_index(velocity=self.bank_velocities[chosen], env_ids=ids)
         self.robot.reset(ids)
         update_robot_data(self, self.dt)
         self.passive[ids] = self.recovery_lane[ids]
@@ -410,6 +412,9 @@ class RobustGetupEnv(ChassisEnv):
         physical_samples = [] if prone_motion else None
         interval_request = self.goal_command.clone() if prone_motion else None
         active_interval = ~self.passive.clone()
+        recovery_impact = getattr(self, "recovery_impact", None)
+        if recovery_impact is not None:
+            recovery_impact.begin_interval()
         previous = self.actions.clone()
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, self.ids]
@@ -496,6 +501,8 @@ class RobustGetupEnv(ChassisEnv):
             for ids, view in self.contact_views:
                 matrix = wp.to_torch(view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
+            if recovery_impact is not None:
+                recovery_impact.observe(self.contact_force, active_interval & ~self.finished)
             if upright_task is not None or prone_task is not None or tracking009 or prone_motion:
                 nonwheel_force_peak = torch.maximum(nonwheel_force_peak,
                     self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1))
@@ -729,7 +736,10 @@ class RobustGetupEnv(ChassisEnv):
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
         timeout = self.episode_length_buf >= self.episode_limits
         done = terminated | timeout
-        failure_cost = 3. if upright_task is None else upright_task["termination"]["failure_cost"]
+        failure_cost = (self.getup_cfg.get("multi_pose_failure_cost", 3.) if upright_task is None
+                        else upright_task["termination"]["failure_cost"])
+        if self.getup_cfg.get("multi_pose_failure_cost") is not None:
+            failure_cost = torch.where(self.recovery_lane, failure_cost, 3.)
         reward -= failure_cost * terminated
         info = dict(time_outs=timeout & ~terminated, policy_learning_mask=active_interval,
                     policy_bootstrap_mask=~self.passive & ~terminated,

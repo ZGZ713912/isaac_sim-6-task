@@ -47,7 +47,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         contact_break_cost=None, speed_weight=2., contact_weight=8., learning_rate=plan["learning_rate"],
         randomization_study=None if profile == "nominal" else ROOT/plan["randomization_contract"],
         randomization_profile=None if profile == "nominal" else profile, randomization_strength=strength,
-        mechanism=None if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4") else
+        mechanism=None if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5") else
             ROOT/"contracts/scratch_standing_base_mechanism_v2.json")
     if full_vehicle:
         for item in (plan["mechanism"], plan["pose_bank"]):
@@ -84,7 +84,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
     cfg["policy_architecture"]["scope"] = f"Fresh actor35, critic{cfg['critic_dim']}, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
-    if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4"):
+    if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         gas = cfg["v5_control"]["gas_spring_compensation"]
         if (plan.get("gas_spring_backend") != "dev_compensation_v2"
                 or gas != plan["gas_spring_feedforward"]
@@ -99,6 +99,13 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         cfg["v5_control"]["encoder_spring_feedforward"] = resolve_feedforward(ROOT,
             plan["gas_spring_feedforward"], cfg["v5_control"]["identified_gas_spring"],
             ROOT/cfg["asset_directory"]/"model_spec.json")
+    if plan.get("multi_pose_recovery") is not None:
+        from wheeled_tasks.chassis.multi_pose_recovery import validate_bank
+        validate_bank(json.loads(args.bank.read_text()),plan["multi_pose_recovery"],
+                      cfg["asset_manifest_sha256"],base.digest(ROOT/cfg["asset_directory"]/"model_spec.json"))
+        settings["multi_pose_failure_cost"] = plan["multi_pose_recovery"]["failure_cost"]
+        # Near-ground feasible placements, not an assumption of static equilibria.
+        settings.update(passive_min_seconds=.05,passive_max_seconds=.15,passive_hold_seconds=.05)
     from wheeled_tasks.chassis.training_wheel_response import configure
     cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
     if wheel_control["timing"] != rates:
@@ -143,6 +150,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
         leg_motor_friction=deepcopy(cfg.get("leg_motor_friction")),
+        multi_pose_recovery=deepcopy(plan.get("multi_pose_recovery")), recovery_impact=deepcopy(plan.get("recovery_impact")),
         gas_spring_feedforward=deepcopy(cfg["v5_control"].get("gas_spring_compensation") or
             cfg["v5_control"]["encoder_spring_feedforward"]),
         action_order=["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
@@ -227,6 +235,13 @@ def source_hashes(plan_path, plan):
                       "tests/test_full_vehicle_training.py", "docs/FULL_VEHICLE_TRAINING_20261030.md"])
         receipt = json.loads((ROOT/binding["file"]).read_text())
         names.extend(run["path"] for run in receipt["native_runs"])
+    if plan.get("multi_pose_recovery") is not None:
+        names.extend([plan["pose_bank"]["file"], "model/recovery_v202_20261031/pose_bank.build.json",
+            "scripts/build_multi_pose_recovery_bank.py", "scripts/probe_multi_pose_recovery.py",
+            "tests/test_multi_pose_recovery.py", "tests/test_recovery_impact.py",
+            "docs/MULTI_POSE_RECOVERY_20261031.md"])
+        reset_bank = json.loads((ROOT/plan["pose_bank"]["file"]).read_text())
+        names.extend(reset_bank["multi_pose_recovery"]["source_mesh_sha256"])
     evidence = json.loads((ROOT/plan["wheel_model"]["evidence"]["file"]).read_text())
     names.extend(evidence["files_sha256"])
     names.extend(["tests/test_identified_wheel_response.py", "tests/test_training_wheel_response.py"])

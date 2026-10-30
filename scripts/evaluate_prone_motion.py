@@ -28,7 +28,37 @@ def evaluation_cases(env, plan):
         row.update(pose_index=env.prone_index if prone else env.height_pose[row["birth_height"]],
             recovery=prone, target=task.target(row["role"], plan["max_updates"], plan, final=True, height=height),
             command=[0., 0., .305 if prone else row["birth_height"]])
+    if plan.get("multi_pose_recovery") is not None:
+        from wheeled_tasks.chassis.multi_pose_recovery import FAMILIES, LEG_CLASSES
+        for family in FAMILIES:
+            for cls in LEG_CLASSES:
+                for i,pose in enumerate(env.poses):
+                    r = pose.get("recovery",{})
+                    if (r.get("family"),r.get("leg_class"),r.get("split")) == (family,cls,"holdout"):
+                        rows.append(dict(role="prone",recovery=True,pose_index=i,
+                            birth_height=pose["root_position_m"][2],pitch_deg=0.,
+                            recovery_family=family,recovery_leg_class=cls,recovery_split="holdout",
+                            target=task.target("prone",plan["max_updates"],plan,final=True),command=[0.,0.,.305]))
     return rows
+
+
+def recovery_summary(rows):
+    """Failures retain their denominators; time quantiles are labelled successful-only."""
+    groups = {}
+    for row in rows:
+        if "recovery_family" not in row:
+            continue
+        groups.setdefault(row["recovery_family"]+"/"+row["recovery_leg_class"],[]).append(row)
+    result = {}
+    for group,values in groups.items():
+        times = [r["active_rise_time_s"] for r in values
+                 if r["rise_completed"] and not r["terminated"] and r["active_rise_time_s"] is not None]
+        result[group] = dict(cases=len(values),successes=len(times),
+            failures=sum(r["terminated"] for r in values),
+            unfinished=sum(not r["rise_completed"] for r in values),
+            successful_only_completion_median_s=float(np.median(times)) if times else None,
+            successful_only_completion_p95_s=float(np.percentile(times,95)) if times else None)
+    return result
 
 
 def review_arrays(a, cases, initial_xy, plan, dt=None):
@@ -108,7 +138,9 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
                       and row["quiet_speed_rms_m_s"] <= limits["standing_speed_rms_m_s"]
                       and row["quiet_tilt_peak_deg"] <= limits["tilt_peak_deg"])
             if prone:
-                passed = passed and row["completion_time_s"] <= plan["rise_deadline_seconds"] and row["rise_xy_max_m"] <= .1
+                completion_clock = row["active_rise_time_s"] if plan.get("multi_pose_recovery") is not None else row["completion_time_s"]
+                passed = (passed and completion_clock is not None and completion_clock <= plan["rise_deadline_seconds"]
+                          and row["rise_xy_max_m"] <= .1)
                 passed = (passed and int(plateau.sum()) >= round(2./dt)
                     and row["motion_vx_mae_m_s"] <= limits["motion_vx_mae_m_s"]
                     and row["motion_yaw_mae_rad_s"] <= limits["motion_yaw_mae_rad_s"])
@@ -132,6 +164,24 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
                 spring_encoder_compression_error_peak_m=float(np.abs(a["spring_ff_compression_m"][:n, :, lane]
                     -a["spring_compression"][:n, :, lane]).max()),
                 spring_total_request_saturated_fraction=float((np.abs(a["spring_ff_requested_effort_nm"][:n, :, lane]) > 40.).mean()))
+        if "recovery_enabled_at" in a and prone:
+            from wheeled_tasks.chassis.recovery_impact import GROUPS
+            row.update(recovery_family=case.get("recovery_family","belly_down"),
+                       recovery_leg_class=case.get("recovery_leg_class","legacy_standard"))
+            if n:
+                enabled = float(a["recovery_enabled_at"][n-1,lane])
+                entry = float(a["recovery_upright_at"][n-1,lane])
+                row.update(actor_enabled_time_s=enabled if math.isfinite(enabled) else None,
+                    flip_entry_time_s=entry-enabled if math.isfinite(entry) and math.isfinite(enabled) else None,
+                    active_rise_time_s=float(a["time"][first[0],lane]-enabled) if len(first) and math.isfinite(enabled) else None,
+                    suffix_time_s=float(a["time"][first[0],lane]-entry) if len(first) and math.isfinite(entry) else None,
+                    entry_leg_class=int(a["recovery_entry_leg_class"][n-1,lane]),
+                    entry_q_rad=a["recovery_entry_q"][n-1,lane].tolist(),
+                    entry_dq_rad_s=a["recovery_entry_dq"][n-1,lane].tolist(),
+                    entry_omega_rad_s=a["recovery_entry_omega"][n-1,lane].tolist(),
+                    part_impact_failure=bool(a["recovery_part_impact_bad"][:n,lane].any()),
+                    part_impact={g:dict(force_peak_n=float(a["recovery_force_peak_n"][:n,lane,i].max()),
+                        window_impulse_peak_ns=float(a["recovery_impulse_peak_ns"][:n,lane,i].max())) for i,g in enumerate(GROUPS)})
         rows.append(row)
     return rows
 
@@ -140,11 +190,14 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
 def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lambda: False):
     cases = evaluation_cases(env, plan)
     count = len(cases)
+    if env.num_envs < count:
+        raise ValueError(f"The complete cold matrix requires at least {count} environments")
     env.evaluation_cases = [cases[i % count].copy() for i in range(env.num_envs)]
     env.reset(torch.arange(env.num_envs, device=env.device))
     initial_xy = env.robot.data.root_link_pose_w.torch[:count, :2].cpu().numpy().copy()-env.origins[:count, :2].cpu().numpy()
     observation = env.get_observations()
     trace = {}
+    checks = {}
     for _ in range(round(plan["evaluation"]["seconds"]/env.policy_dt)):
         if stop_requested():
             break
@@ -169,7 +222,7 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
                     (loss*speed <= 1e-8).all() and (loss[speed == 0.] == 0.).all())
             checks["leg_friction_native_not_duplicated"] = env.startup_report[
                 "leg_motor_friction"]["native_zero_friction_verified"]
-            checks["leg_friction_tensorboard_metrics"] = "LegFriction/dissipated_power_mean_w" in extra["log"]
+            checks["leg_friction_tensorboard_metrics"] = "LegFriction/dissipated_power_mean_w" in extras["log"]
         values = {key:state[source][:count] for key, source in dict(position="local_position", velocity="velocity",
             omega="omega", gravity="gravity", height="height", time="time", commands="commands", gap="gap",
             requested="interval_requested_command", terminated="terminated", completed_event="recovery_completed_event",
@@ -180,6 +233,8 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
             "encoder_leg_length_m", "encoder_leg_length_rate_m_s", "encoder_wheel_body_m",
             "encoder_valid", "encoder_vs_native_wheel_error_m", "encoder_vs_passive_knee_error_deg")})
         values.update({key:value[:, :count] for key, value in physical.items()})
+        values.update({key:value[:count] for key,value in state.items() if key.startswith("recovery_")
+                       and isinstance(value,torch.Tensor) and value.ndim and value.shape[0] == env.num_envs})
         values["valid"] = valid
         for key, value in values.items():
             trace.setdefault(key, []).append(value.cpu().numpy().copy())
@@ -197,6 +252,7 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
         contact_scope="Initialized standing or the first actual completion event; <=2ms only diagnostic; <=2N is not proof of visible separation",
         capability_status={key:dict(status="partial_evidence" if key in ("R01", "S01", "M02", "M03", "M04", "H01", "Q01", "D01")
                                   else "not_tested", qualified=False) for key in CAPABILITIES})
+    result.update(recovery_groups=recovery_summary(rows),component_checks=checks)
     write_json(output/"result.json", result)
     if writer is not None:
         profile = env.getup_cfg.get("randomization_study", {}).get("profile", "nominal")
@@ -288,8 +344,10 @@ def probe(env, plan, *, stop_requested=lambda: False):
             raise TrainingStopped()
         observation, reward, done, extra = env.step(action)
         state = extra["diagnostics"]
+        failure_cost = torch.where(env.recovery_lane,env.getup_cfg["multi_pose_failure_cost"],3.) if (
+            plan.get("multi_pose_recovery") is not None) else 3.
         expected = ((sum(state["task_reward_terms"].values())*env.policy_dt+state["reward_potential_progress"]
-                    +3.*state["recovery_completed_event"])*extra["policy_learning_mask"]-3.*state["terminated"])
+                    +3.*state["recovery_completed_event"])*extra["policy_learning_mask"]-failure_cost*state["terminated"])
         checks["actual_reward_payment"] = checks.get("actual_reward_payment", True) and bool(torch.allclose(reward, expected, atol=1e-5))
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
         checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
