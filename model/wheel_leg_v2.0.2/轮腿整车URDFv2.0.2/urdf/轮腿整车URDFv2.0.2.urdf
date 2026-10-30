@@ -1,0 +1,603 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="轮腿整车URDFv2.0.2">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0.0034106000000000002 0.00079967999999999999 -0.046891000000000002" rpy="0 0 0" />
+      <mass value="16.904" />
+      <inertia ixx="0.29731000000000002" ixy="-2.9139999999999999e-05" ixz="-0.0093959000000000004" iyy="0.32743" iyz="0.0010961" izz="0.53495000000000004" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5707963267948966" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/base_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 1.5707963267948966" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="L_link1">
+    <inertial>
+      <origin xyz="-0.0033671000000014589 0.095034999999996886 -0.0074867000000385904" rpy="0 0 0" />
+      <mass value="0.161" />
+      <inertia ixx="0.00094501999999999997" ixy="2.2360000000000274e-05" ixz="5.2000000000564791e-07" iyy="7.8150000000003201e-05" iyz="3.9200000003839327e-06" izz="0.0010172999999999957" />
+    </inertial>
+    <visual>
+      <origin xyz="-1.7448878713438587e-19 0 2.7755575615628914e-17" rpy="2.0650148258027912e-13 4.1389114358025836e-13 1.5707963267948959" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/L_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-1.7448878713438587e-19 0 2.7755575615628914e-17" rpy="2.0650148258027912e-13 4.1389114358025836e-13 1.5707963267948959" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/L_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="L_joint1" type="continuous">
+    <origin xyz="0 0.18379999999999999 -0.00083697000000000003" rpy="-3.1415926535895715 1.5661926535899999 -1.5707926535899852" />
+    <parent link="base_link" />
+    <child link="L_link1" />
+    <axis xyz="-2.4155948080474946e-17 8.5408099591830266e-17 1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="L_link2">
+    <inertial>
+      <origin xyz="-8.3884000005092049e-05 0.15962999999999822 0.011927000000023429" rpy="0 0 0" />
+      <mass value="0.45" />
+      <inertia ixx="0.0049086499999999979" ixy="8.4230000000079077e-05" ixz="-3.2000000001218542e-07" iyy="0.00016756000000005622" iyz="-0.0001917300000006685" izz="0.0049642499999999392" />
+    </inertial>
+    <visual>
+      <origin xyz="-2.7755575615628914e-17 -2.7755575615628914e-17 0" rpy="-4.383160501220118e-13 -1.4677148385544569e-13 1.5707963267948957" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/L_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-2.7755575615628914e-17 -2.7755575615628914e-17 0" rpy="-4.383160501220118e-13 -1.4677148385544569e-13 1.5707963267948957" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/L_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="L_joint2" type="continuous">
+    <origin xyz="1.8988615204957454e-16 0.20999999999999994 -8.6819440525687241e-14" rpy="0 0 -2.3572999999999995" />
+    <parent link="L_link1" />
+    <child link="L_link2" />
+    <axis xyz="-4.2036671727031101e-17 -7.8097706212055466e-17 1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="L_link3">
+    <inertial>
+      <origin xyz="2.9651417477784134e-15 -8.8648471198130914e-15 0.020350000000000024" rpy="0 0 0" />
+      <mass value="0.2" />
+      <inertia ixx="0.00030099999999999989" ixy="9.5994351860228702e-20" ixz="4.1522315264488856e-17" iyy="0.000301" iyz="-1.2372388371269179e-16" izz="0.00058324999999999978" />
+    </inertial>
+    <visual>
+      <origin xyz="-1.3877787807814457e-17 0 2.7755575615628914e-17" rpy="1.4699352846037073e-13 -4.383160501220118e-13 1.5707963267948957" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/L_link3.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="2.979019868531752e-15 -8.9203584797195062e-15 0.020350000821054006" rpy="1.4699352846037073e-13 -4.383160501220118e-13 1.5707963267948957" />
+      <geometry>
+        <cylinder radius="0.059999999999999998" length="0.02500000037252903" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="L_joint3" type="continuous">
+    <origin xyz="-6.3282712403633923e-15 0.24999999999999778 0.015000000000036762" rpy="0 0 -1.5707999999999993" />
+    <parent link="L_link2" />
+    <child link="L_link3" />
+    <axis xyz="7.7603509468934589e-17 -4.2929296771556995e-17 1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="LLL_link2">
+    <inertial>
+      <origin xyz="8.7597701224168566e-16 0.070864000000001384 -0.0035024999999715566" rpy="0 0 0" />
+      <mass value="0.057" />
+      <inertia ixx="9.6719999999999996e-05" ixy="-1.1208029492687044e-19" ixz="-3.1783745407817501e-20" iyy="1.5199999999999192e-06" iyz="9.9999999961727262e-08" izz="9.6870000000000026e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="-2.2959412149248237e-13 -4.0123460109953157e-13 1.5707963267948957" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LLL_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.77647 0.75686 0.73725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="-2.2959412149248237e-13 -4.0123460109953157e-13 1.5707963267948957" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LLL_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LLL_joint2" type="continuous">
+    <origin xyz="-0.0049999999999990885 0.050754000000000285 -0.0019999999999947282" rpy="0 0 -0.72772000000000014" />
+    <parent link="L_link2" />
+    <child link="LLL_link2" />
+    <axis xyz="2.1586315466751939e-17 -8.6790774738439618e-17 1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="LLL_link1">
+    <inertial>
+      <origin xyz="8.467486511408603e-10 0.042198999999998529 -0.003650800000016937" rpy="0 0 0" />
+      <mass value="0.035" />
+      <inertia ixx="3.0389999999999992e-05" ixy="-6.0016300693721367e-13" ixz="-3.6117566018409718e-15" iyy="4.799999999998674e-07" iyz="-1.7999999998789378e-07" izz="3.0640000000000134e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="6.9388939039072284e-18 3.4694469519536142e-18 0" rpy="2.2959412149248237e-13 4.0123460109953157e-13 1.5707963067292674" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LLL_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="6.9388939039072284e-18 3.4694469519536142e-18 0" rpy="2.2959412149248237e-13 4.0123460109953157e-13 1.5707963067292674" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LLL_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LLL_jointt1" type="continuous">
+    <origin xyz="0.048558599029848493 0.015590460553116626 -0.0020000000000176543" rpy="0 0 0.056547000000000007" />
+    <parent link="L_link1" />
+    <child link="LLL_link1" />
+    <axis xyz="-1.8850845814417385e-17 8.6755812306696962e-17 1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="R_link1">
+    <inertial>
+      <origin xyz="-0.0033670999999983685 0.095035000000003075 0.007486699999961377" rpy="0 0 0" />
+      <mass value="0.161" />
+      <inertia ixx="0.00094501999999999954" ixy="2.2359999999998227e-05" ixz="-5.1999999999435876e-07" iyy="7.8149999999996695e-05" iyz="-3.9199999996160609e-06" izz="0.0010173000000000027" />
+    </inertial>
+    <visual>
+      <origin xyz="2.3716922523120409e-20 -1.0587911840678754e-22 0" rpy="2.0650148258027912e-13 4.1389114358025836e-13 1.5707963267948959" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/R_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="2.3716922523120409e-20 -1.0587911840678754e-22 0" rpy="2.0650148258027912e-13 4.1389114358025836e-13 1.5707963267948959" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/R_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_joint1" type="continuous">
+    <origin xyz="0 -0.18279999999999999 0.00083241000000000001" rpy="-3.1415926535895715 1.5661926535899999 -1.5707926535899852" />
+    <parent link="base_link" />
+    <child link="R_link1" />
+    <axis xyz="2.4155948080474946e-17 -8.5408099591830266e-17 -1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="R_link2">
+    <inertial>
+      <origin xyz="-7.9401231030576432e-05 0.15963000229218427 -0.011926999999976561" rpy="0 0 0" />
+      <mass value="0.45" />
+      <inertia ixx="0.0049086547259426308" ixy="8.4096889111919467e-05" ixz="3.253830078000868e-07" iyy="0.00016755527405731255" iyz="0.00019172999093945069" izz="0.0049642500000000537" />
+    </inertial>
+    <visual>
+      <origin xyz="-5.5511151231257827e-17 -2.7755575615628914e-17 0" rpy="-4.3842707242447432e-13 -1.4699352846037073e-13 1.5707682508133658" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/R_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-5.5511151231257827e-17 -2.7755575615628914e-17 0" rpy="-4.3842707242447432e-13 -1.4699352846037073e-13 1.5707682508133658" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/R_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_jonit2" type="continuous">
+    <origin xyz="1.9008435775923205e-16 0.20999999999999994 -8.6874951676918499e-14" rpy="0 0 -2.3572999999999995" />
+    <parent link="R_link1" />
+    <child link="R_link2" />
+    <axis xyz="4.1378999436743935e-17 7.7826746115358348e-17 -1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="R_link3">
+    <inertial>
+      <origin xyz="-8.9758457661260541e-15 -3.020690576584331e-15 -0.020349999999999997" rpy="0 0 0" />
+      <mass value="0.2" />
+      <inertia ixx="0.00030100000000000005" ixy="-1.6576523489342594e-20" ixz="1.2372302120137206e-16" iyy="0.000301" iyz="4.1522647189594246e-17" izz="0.00058324999999999978" />
+    </inertial>
+    <visual>
+      <origin xyz="-5.5511151231257827e-17 -2.7755575615628914e-17 0" rpy="4.383160501220118e-13 1.4699352846037073e-13 1.5707755972231623" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/R_link3.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-8.9758461260315201e-15 -3.0206906973391813e-15 -0.020350000821053978" rpy="4.383160501220118e-13 1.4699352846037073e-13 1.5707755972231623" />
+      <geometry>
+        <cylinder radius="0.059999999999999998" length="0.02500000037252903" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_joint3" type="continuous">
+    <origin xyz="7.0189953883526002e-06 0.2499999999014656 -0.01499999999996382" rpy="0 0 3.1415853071800002" />
+    <parent link="R_link2" />
+    <child link="R_link3" />
+    <axis xyz="-4.13291056749482e-17 -7.7688368406572951e-17 -1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="RRR_link2">
+    <inertial>
+      <origin xyz="1.8193379137684661e-06 0.07086399997664404 0.0035025000000284412" rpy="0 0 0" />
+      <mass value="0.057" />
+      <inertia ixx="9.6719999937250196e-05" ixy="-2.4441319914383739e-09" ixz="-2.5673655710099308e-12" iyy="1.520000062749883e-06" iyz="-1.0000000000531638e-07" izz="9.6869999999999864e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 -2.7755575615628914e-17 0" rpy="-2.2948309919001986e-13 -4.0123460109953157e-13 1.5707706531395131" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RRR_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.77647 0.75686 0.73725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 -2.7755575615628914e-17 0" rpy="-2.2948309919001986e-13 -4.0123460109953157e-13 1.5707706531395131" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RRR_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RRR_joint2" type="continuous">
+    <origin xyz="-0.0049985750209567692 0.050754450521701605 0.0020000000000043316" rpy="0 0 -0.72772000000000014" />
+    <parent link="R_link2" />
+    <child link="RRR_link2" />
+    <axis xyz="-2.1481002156948777e-17 8.6719754541511702e-17 -1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="RRR_link1">
+    <inertial>
+      <origin xyz="8.4674070257078649e-10 0.042198600000001453 0.0036508299999830347" rpy="0 0 0" />
+      <mass value="0.035" />
+      <inertia ixx="3.0389999999999992e-05" ixy="-6.0016179650048758e-13" ixz="3.6118630792490002e-15" iyy="4.8000000000015623e-07" iyz="1.8000000001210608e-07" izz="3.0639999999999849e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 -2.7755575615628914e-17" rpy="2.2959412149248237e-13 4.0123460109953157e-13 1.5707963067293051" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RRR_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -2.7755575615628914e-17" rpy="2.2959412149248237e-13 4.0123460109953157e-13 1.5707963067293051" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RRR_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RRR_joint1" type="continuous">
+    <origin xyz="0.048558599029848916 0.015590460553121082 0.0019999999999826268" rpy="0 0 0.056547000000000007" />
+    <parent link="R_link1" />
+    <child link="RRR_link1" />
+    <axis xyz="1.8850845799271256e-17 -8.6755812298013182e-17 -1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="LL_link1">
+    <inertial>
+      <origin xyz="-7.5520344813131193e-14 0.051943000000026301 -0.0053947999997468995" rpy="0 0 0" />
+      <mass value="0.0408" />
+      <inertia ixx="9.3670000000000003e-05" ixy="1.1589149811274211e-16" ixz="1.0836824596187267e-18" iyy="1.4030000000008971e-05" iyz="-9.2000000045316599e-07" izz="0.00010702999999999108" />
+    </inertial>
+    <visual>
+      <origin xyz="-2.3928680759933985e-20 6.0139339255055324e-20 0" rpy="-1.9095836023552692e-14 -4.872546810474887e-12 1.5707963267963516" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-2.3928680759933985e-20 6.0139339255055324e-20 0" rpy="-1.9095836023552692e-14 -4.872546810474887e-12 1.5707963267963516" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LL_joint1" type="continuous">
+    <origin xyz="0 0.19500000000000001 -0.00088796999999999997" rpy="-1.5834473984299997 -1.20100530796 0.011764463786700485" />
+    <parent link="base_link" />
+    <child link="LL_link1" />
+    <axis xyz="-4.2014280642943896e-05 -2.1453278768335082e-05 0.99999999888727864" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="LL_link2">
+    <inertial>
+      <origin xyz="0.0031976048699357156 0.067500089802455296 -0.014000000000222808" rpy="0 0 0" />
+      <mass value="0.08357" />
+      <inertia ixx="0.0001566799998789231" ixy="4.3124709842032892e-09" ixz="-7.5300958221357984e-18" iyy="3.0800001210768624e-06" iyz="5.3949103987631393e-16" izz="0.00015887000000000006" />
+    </inertial>
+    <visual>
+      <origin xyz="-2.7755575615628914e-17 1.3877787807814457e-17 -2.7755575615628914e-17" rpy="-3.4281466554375584e-12 3.4632297030157133e-12 1.5708244027778815" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-2.7755575615628914e-17 1.3877787807814457e-17 -2.7755575615628914e-17" rpy="-3.4281466554375584e-12 3.4632297030157133e-12 1.5708244027778815" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LL_joint2" type="continuous">
+    <origin xyz="-1.6498194429132073e-13 0.11340000000000001 5.5255799935594041e-13" rpy="0 0 2.3573" />
+    <parent link="LL_link1" />
+    <child link="LL_link2" />
+    <axis xyz="1.458842840593329e-05 4.48622414119142e-05 0.99999999888727864" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="LL_link3">
+    <inertial>
+      <origin xyz="0.004681630157585534 0.098135246768433632 -0.0072399000004297808" rpy="0 0 0" />
+      <mass value="0.0406" />
+      <inertia ixx="0.00017159989416993136" ixy="1.0088904158510365e-06" ixz="-1.0536157693676086e-12" iyy="2.8401058300688844e-06" iyz="2.0000000700306205e-08" izz="0.00017400999999999989" />
+    </inertial>
+    <visual>
+      <origin xyz="0 -6.9388939039072284e-18 0" rpy="2.3526736114831692e-12 4.2672532174492517e-12 1.5708490076518413" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link3.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 -6.9388939039072284e-18 0" rpy="2.3526736114831692e-12 4.2672532174492517e-12 1.5708490076518413" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LL_joint3" type="continuous">
+    <origin xyz="-3.7902577025017425e-06 0.13499999994679243 -4.6751491566965342e-13" rpy="0 0 1.2842000000000002" />
+    <parent link="LL_link2" />
+    <child link="LL_link3" />
+    <axis xyz="4.7156371472477853e-05 -1.3113265823861025e-06 0.99999999888727864" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="LL_link4">
+    <inertial>
+      <origin xyz="-0.0014844631825482815 0.048483915476608082 -0.015200000000223196" rpy="0 0 0" />
+      <mass value="0.064" />
+      <inertia ixx="6.3110011199751559e-05" ixy="-9.6515527576814277e-08" ixz="-1.8114920807044434e-18" iyy="1.9699888002484282e-06" iyz="2.8390104675877687e-16" izz="6.4399999999999993e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 2.7755575615628914e-17 0" rpy="-1.7430501486614958e-12 4.5505821333335916e-12 1.5708533184825171" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link4.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 2.7755575615628914e-17 0" rpy="-1.7430501486614958e-12 4.5505821333335916e-12 1.5708533184825171" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/LL_link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LL_link4" type="continuous">
+    <origin xyz="-1.0562982789855124e-05 0.20050893992108751 -8.5559337392737689e-13" rpy="0 0 -0.86973" />
+    <parent link="LL_link3" />
+    <child link="LL_link4" />
+    <axis xyz="3.1419467203056507e-05 3.5188919115709827e-05 0.99999999888727853" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="RR_link1">
+    <inertial>
+      <origin xyz="-7.5787634715807407e-14 0.051942999999977577 0.0046052000002531025" rpy="0 0 0" />
+      <mass value="0.0408" />
+      <inertia ixx="9.3670000000000003e-05" ixy="1.1589149811274211e-16" ixz="1.0836824596187267e-18" iyy="1.4030000000008971e-05" iyz="-9.2000000045316599e-07" izz="0.00010702999999999108" />
+    </inertial>
+    <visual>
+      <origin xyz="-2.4775713707188285e-20 -3.2187251995663413e-20 0" rpy="-1.9095836023552692e-14 -4.872546810474887e-12 1.5707963267963516" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-2.4775713707188285e-20 -3.2187251995663413e-20 0" rpy="-1.9095836023552692e-14 -4.872546810474887e-12 1.5707963267963516" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RR_joint1" type="continuous">
+    <origin xyz="0 -0.19400000000000001 0.00088342" rpy="-1.5834473984299997 -1.20100530796 0.011764463786700485" />
+    <parent link="base_link" />
+    <child link="RR_link1" />
+    <axis xyz="4.2014280642943896e-05 2.1453278768335082e-05 -0.99999999888727864" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="RR_link2">
+    <inertial>
+      <origin xyz="0.0031976048698390751 0.067500089802552246 0.013999999999777225" rpy="0 0 0" />
+      <mass value="0.08357" />
+      <inertia ixx="0.00015667999987892308" ixy="4.3124709857395771e-09" ixz="-7.530165997785034e-18" iyy="3.080000121076862e-06" iyz="5.3949103967283288e-16" izz="0.00015887000000000006" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="-3.4281466554375584e-12 3.4630076584107883e-12 1.5708244027778917" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="-3.4281466554375584e-12 3.4630076584107883e-12 1.5708244027778917" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RR_joint2" type="continuous">
+    <origin xyz="-1.6497911626006808e-13 0.11340000000000001 5.5255799935594041e-13" rpy="0 0 2.3573" />
+    <parent link="RR_link1" />
+    <child link="RR_link2" />
+    <axis xyz="-1.4588428405933705e-05 -4.4862241411914336e-05 -0.99999999888727864" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="RR_link3">
+    <inertial>
+      <origin xyz="0.0046816301576194314 0.098135246768495055 0.0071600999995702222" rpy="0 0 0" />
+      <mass value="0.0406" />
+      <inertia ixx="0.00017159989416993133" ixy="1.0088904158510416e-06" ixz="-1.0536157693775268e-12" iyy="2.8401058300688832e-06" iyz="2.0000000700306198e-08" izz="0.00017400999999999989" />
+    </inertial>
+    <visual>
+      <origin xyz="1.3877787807814457e-17 -6.9388939039072284e-18 0" rpy="2.3527846337856317e-12 4.2672532174492517e-12 1.5708490076518413" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link3.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="1.3877787807814457e-17 -6.9388939039072284e-18 0" rpy="2.3527846337856317e-12 4.2672532174492517e-12 1.5708490076518413" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RR_joint3" type="continuous">
+    <origin xyz="-3.7902577038201324e-06 0.1349999999467924 -4.6751491566965342e-13" rpy="0 0 1.2842000000000002" />
+    <parent link="RR_link2" />
+    <child link="RR_link3" />
+    <axis xyz="-4.7156371472477413e-05 1.3113265823847998e-06 -0.99999999888727864" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="RR_link4">
+    <inertial>
+      <origin xyz="-0.0014844631826014722 0.048483915476746395 0.015199999999776835" rpy="0 0 0" />
+      <mass value="0.064" />
+      <inertia ixx="6.3110011199751559e-05" ixy="-9.651552757656292e-08" ixz="-1.8115241675681088e-18" iyy="1.9699888002484274e-06" iyz="2.8390104780215719e-16" izz="6.440000000000002e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="6.9388939039072284e-18 2.7755575615628914e-17 2.7755575615628914e-17" rpy="-1.7430501486614958e-12 4.5503600887286666e-12 1.5708533184825213" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link4.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="6.9388939039072284e-18 2.7755575615628914e-17 2.7755575615628914e-17" rpy="-1.7430501486614958e-12 4.5503600887286666e-12 1.5708533184825213" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/RR_link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RR_joint4" type="continuous">
+    <origin xyz="-1.0562982789827369e-05 0.20050893992108748 -8.5559337392737689e-13" rpy="0 0 -0.86973" />
+    <parent link="RR_link3" />
+    <child link="RR_link4" />
+    <axis xyz="-3.1419467203055484e-05 -3.5188919115710335e-05 -0.99999999888727864" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="1" />
+  </joint>
+  <link name="M_link1">
+    <inertial>
+      <origin xyz="-0.074466432953659539 0.068579684804513638 0.080904392193945185" rpy="0 0 0" />
+      <mass value="1.0263" />
+      <inertia ixx="0.0046762825526381058" ixy="0.00057221094686573423" ixz="0.00053020158258589565" iyy="0.0061173626216096226" iyz="-0.00088497401807667575" izz="0.0044893548257522783" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="-2.5638007616560463 -1.56535734201249 0.99220070518874226" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/M_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="-2.5638007616560463 -1.56535734201249 0.99220070518874226" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/M_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="M_joint1" type="continuous">
+    <origin xyz="0 0.00087112029410396597 0.081496878157591005" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="M_link1" />
+    <axis xyz="1.8890995910671607e-09 0.0045560572036035547 0.99998962111751821" />
+  </joint>
+  <link name="M_link2">
+    <inertial>
+      <origin xyz="0.066232000000000346 7.4283752063418465e-05 0.017752845813675498" rpy="0 0 0" />
+      <mass value="1.2475" />
+      <inertia ixx="0.0017133000000000079" ixy="2.5298252126418611e-06" ixz="0.00019091045540883215" iyy="0.0034125038415658946" iyz="1.1031689615465398e-06" izz="0.0037116961584341013" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="-1.5753523997623313 1.865174681370263e-14 7.1054273576010019e-15" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/M_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="-1.5753523997623313 1.865174681370263e-14 7.1054273576010019e-15" />
+      <geometry>
+        <mesh filename="package://轮腿整车URDFv2.0.2/meshes/M_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="M_joint2" type="continuous">
+    <origin xyz="0.00028850711711987686 0.00044170762429889465 0.096998994295686522" rpy="0 0 0" />
+    <parent link="M_link1" />
+    <child link="M_link2" />
+    <axis xyz="7.5292056116524253e-15 -0.99998962111751144 0.0045560572051090405" />
+  </joint>
+</robot>

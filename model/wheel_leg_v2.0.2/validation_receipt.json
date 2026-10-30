@@ -1,0 +1,86 @@
+{
+  "schema": "full-robot-v202-physics-migration-validation-v1",
+  "created_at": "2026-10-29T17:09:26.544821+00:00",
+  "asset_directory": "model/wheel_leg_v2.0.2/isaac",
+  "asset_manifest_sha256": "ad1744f8d9a71050703384654a31b0339dba3a0adcd523db037c2e614747d5cf",
+  "model_spec_sha256": "f4a9b373c1dcf448f967ed1eeb0647b1d8652392e3c236b6773dfccb998650d5",
+  "branch": "dev/wheel-leg-unified",
+  "base_commit": "e77f1675fd9d5906b41bc18a73e808e83ecb2a69",
+  "component_migration_passed": true,
+  "training_entry_migrated": false,
+  "training_ready": false,
+  "behavior_qualified": false,
+  "new_PPO": 0,
+  "hardware_motion": false,
+  "fixed_gimbal_zero": true,
+  "total_mass_kg": 21.44174,
+  "source_v201_unchanged": true,
+  "control_joint_names": [
+    "L_joint1",
+    "LL_joint1",
+    "L_joint3",
+    "R_joint1",
+    "RR_joint1",
+    "R_joint3"
+  ],
+  "native_runs": [
+    {
+      "path": "reports/full_robot_v202_20261030/native004/report.json",
+      "sha256": "c52fa65058eb71e2191d5831682a9cdaed4944ac345fabd0e0061981c5f5d816",
+      "physical_steps": 5000,
+      "passed": true
+    },
+    {
+      "path": "reports/full_robot_v202_20261030/native_gpu001/report.json",
+      "sha256": "fab19607a809918a8c2cbcba15857f417885ecbe4b9d89ae6ef33db2d2629730",
+      "physical_steps": 5000,
+      "passed": true
+    },
+    {
+      "path": "reports/full_robot_v202_20261030/native_freefall002/report.json",
+      "sha256": "996874da1fcceed96188f92dae396700a51dcae68e7a19b3d321af0ec0f39325",
+      "physical_steps": 1500,
+      "passed": true
+    }
+  ],
+  "physical_steps_total": 11500,
+  "cpu_tests": {
+    "passed": 36,
+    "log": "reports/full_robot_v202_20261030/tests.log",
+    "sha256": "8a4041bfb02ce619ae2819be23c9c64cf52b420ca4b4483d4cdb0ae96795160c"
+  },
+  "runtime_source_seal": "sealed after native probes; probe.source.py preserves each executed probe version",
+  "runtime_sources_sha256": {
+    "tools/full_robot_v202.py": "baf18ac6fbfbcf9c17eea85b9cc382dac6fd60ce7a79b4b60be499b41320da8d",
+    "scripts/build_full_robot_v202.py": "6406fc11c207f899c80f194548496bcebe591fe0e66f671c816d8cc30e303762",
+    "scripts/probe_full_robot_v202.py": "aee293bce2cc9049a6f2c1fa3654dd927f8bb216970f5085a98dc132cb89a830",
+    "src/wheeled_tasks/chassis/full_robot_v202.py": "b426675f575b8e093f6391bb1b2d31969185ea2fdec607bc083eb36955362981",
+    "src/wheeled_tasks/chassis/v5_control.py": "141e21d88513e5f8cccdb6cdbf19abcd66f433c6e0ccb3cd7e93d5afc0c7c7fe",
+    "src/wheeled_tasks/chassis/gas_spring_compensation.py": "337eea09412ca59e3bd256133e7ffc13ee8cb4840d88f952f9671c1ff835b2d9",
+    "src/wheeled_tasks/chassis/identified_wheel_response.py": "775451a040d28c52b775c12d9c8cd35660a597168ff1beda92a54aa9126858c8",
+    "src/wheeled_algo/encoder_leg_geometry.py": "e20380b4b2a0124d2aa3a256b01b3cafbb454b4881bc6c413825cf16a2386e60",
+    "src/wheeled_algo/rolling_velocity.py": "dfb4889af2bf73f38b5e9590fcf0ccb16d0c98caffcd777225ba7afc5676e65d",
+    "tests/test_full_robot_v202.py": "73624863b265fdaa184efa91eb2bd114c5e886361bc6713e664ac2f4139b9e2a",
+    "docs/FULL_ROBOT_V202.md": "c62ea6124d497c8821abcf29b6eab6be03033238952225c1c520fe23f8b94ac4"
+  },
+  "collision_coverage": {
+    "path": "reports/full_robot_v202_20261030/collision_coverage.json",
+    "sha256": "56df0100bf05adc9a49e75bfe4d476c2664848d718fd1da90e89f174b6a9cd3d",
+    "all_nonwheel_CAD_vertices_covered": true
+  },
+  "capability_status": {
+    "path": "reports/full_robot_v202_20261030/capability_status.json",
+    "sha256": "2a04598f2fdf0d2f235ce39eb8fc3a98c4c13b0c8dc67989971029687e3f2c46"
+  },
+  "pending": [
+    "new full-vehicle pose and landing bank",
+    "full training/curriculum entry admission",
+    "ground contact and all policy behavior acceptance"
+  ],
+  "limitations": [
+    "right spring symmetry assumption",
+    "gas endpoint trend and hardware stops unmeasured",
+    "loaded wheel torque curve and tire contact not identified",
+    "conservative collision envelopes, self-collision disabled"
+  ]
+}
