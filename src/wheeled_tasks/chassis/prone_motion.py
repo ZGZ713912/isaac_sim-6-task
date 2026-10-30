@@ -34,8 +34,16 @@ def validate(plan):
     if "runtime_cli" in plan:
         from .prone_motion_cli import validate_resolved
         return validate_resolved(plan)
-    if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2", "wheel-leg-prone-motion-v3"):
+    if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2",
+                                 "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4"):
         raise ValueError("Need the explicit prone-motion contract")
+    if plan["schema"] == "wheel-leg-prone-motion-v4":
+        from .standing_local_odometry import validate_contract
+        validate_contract(plan.get("standing_odometry"))
+        if plan.get("quiet_position_tail") != dict(start_m=.09, scale_m=.04, weight=2.):
+            raise ValueError("v4 requires its zero-command-only continuous position cost tail")
+    elif "standing_odometry" in plan or "quiet_position_tail" in plan:
+        raise ValueError("Changed standing observation/reward semantics require the v4 task")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):
@@ -115,13 +123,21 @@ def stable(gravity, height, velocity, omega, dq, wheel_contact, nonwheel_force):
 
 
 def reward_terms(gravity, height, velocity, omega, command, torque, dq, action_delta,
-                 excursion, anchor_error, rising, supported):
+                 excursion, anchor_error, rising, supported, *, position_tail=None):
     """Independent dense terms; wrong height never zeroes speed/yaw credit."""
     quiet = (command[:, :2].abs() < command.new_tensor([.05, .1])).all(-1) & ~rising
     position_hold = (command[:, 0].abs() < .05) & ~rising
     ev, ew, eh = velocity[:, 0]-command[:, 0], omega[:, 2]-command[:, 1], height-command[:, 2]
     # Gaussian terms encourage precision; log1p terms retain a slope far away.
     pos = ((anchor_error-.01).clamp_min(0.)/.04).square().clamp_max(4.)
+    position_cost = -2.*position_hold*pos
+    if position_tail is not None:
+        # Retain the old <=9cm cost exactly. Only zero translation AND yaw,
+        # after recovery, retain distance discrimination outside that range.
+        zero_request = (command[:, :2].abs() < .001).all(-1) & ~rising
+        position_cost -= (position_tail["weight"]*zero_request
+                          * torch.log1p((anchor_error-position_tail["start_m"]).clamp_min(0.)
+                                        / position_tail["scale_m"]))
     level = (gravity-gravity.new_tensor([0., 0., -1.])).square().sum(-1)
     return dict(upright=2.*(-gravity[:, 2]).clamp(-1., 1.),
         height=2.*torch.exp(-(eh/.025).square()), height_error=-2.*torch.log1p((eh/.04).square()),
@@ -131,7 +147,7 @@ def reward_terms(gravity, height, velocity, omega, command, torque, dq, action_d
         body_rate=-.05*omega[:, :2].square().sum(-1), vertical=-.1*velocity[:, 2].square(),
         quiet=4.*quiet*supported*torch.exp(-(eh/.02).square()-level/math.sin(math.radians(5.))**2-(velocity[:, :2]/.08).square().sum(-1)
             -(omega/.5).square().sum(-1)),
-        quiet_position=-2.*position_hold*pos, rise_position=-rising.float()*((excursion-.1).clamp_min(0.)/.1).square(),
+        quiet_position=position_cost, rise_position=-rising.float()*((excursion-.1).clamp_min(0.)/.1).square(),
         rise_time=-rising.float(), effort=-.0001*torque.square().mean(-1),
         leg_speed=-.002*dq[:, [0, 1, 3, 4]].square().mean(-1), action_rate=-.01*action_delta)
 

@@ -132,7 +132,8 @@ class RobustDomain:
         self.bias[ids, :3] = self.uniform(ids, [-cfg["gyro_bias_rad_s"] / 2, cfg["gyro_bias_rad_s"] / 2], 3)
         self.bias[ids, 6:10] = self.uniform(ids, [-cfg["encoder_bias_rad"], cfg["encoder_bias_rad"]], 4)
         self.bias[ids] *= enabled
-        wheel_sigma = cfg["encoder_noise_rad"] if cfg.get("quiet_velocity_feedback_mode") == "standing_displacement" else 0.
+        wheel_sigma = (cfg["encoder_noise_rad"] if cfg.get("quiet_velocity_feedback_mode") == "standing_displacement"
+                       or cfg.get("standing_odometry") is not None else 0.)
         sigma = sensors.new_tensor([cfg["gyro_noise_rad_s"] / 2] * 3 + [cfg["gravity_noise"]] * 3
             + [cfg["encoder_noise_rad"]] * 4 + [wheel_sigma] * 2
             + [cfg["velocity_noise_rad_s"][0] * .1] * 4 + [cfg["velocity_noise_rad_s"][1] * .1] * 2)

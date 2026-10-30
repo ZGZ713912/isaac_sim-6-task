@@ -86,6 +86,14 @@ class RobustGetupEnv(ChassisEnv):
             self.standing_coordinate = coordinate_from_settings(settings).to(device).eval()
             self.standing_sensor_winding = winding_from_settings(settings, n, device, self.standing_coordinate)
             self.standing_entry_tick = torch.full((n,), self.tick, dtype=torch.long, device=device)
+        self.local_standing_odometry = None
+        if settings.get("standing_odometry") is not None:
+            from .standing_local_odometry import LocalStandingOdometry
+            if self.standing_observer is not None or settings.get("version") != "wheel-leg-prone-motion-v4":
+                raise ValueError("Local standing odometry requires its separate v4 task, without a legacy observer")
+            self.local_standing_odometry = LocalStandingOdometry(n, device, self.policy_dt,
+                                                               settings["standing_odometry"])
+            self.startup_report["standing_odometry"] = dict(settings["standing_odometry"])
         if self.dynamics_randomization is not None:
             self.domain.enabled.copy_(self.dynamics_randomization.enabled)
         self.getup_feedback = GetupFeedback(n, device, self.domain.enabled, settings, self.domain.rng)
@@ -273,6 +281,11 @@ class RobustGetupEnv(ChassisEnv):
                 self.standing_entry_tick[ids] = self.tick
                 if self.standing_sensor_winding is not None:
                     self.standing_sensor_winding.reset(ids)
+            if self.local_standing_odometry is not None:
+                self.local_standing_odometry.reset(ids)
+                reset_frame = reset_frame.clone()
+                reset_frame[:, 14:16] = self.local_standing_odometry.local_wheel_angles(reset_frame,
+                    self._standing_wheel_feedback(), ~(self.passive | self.finished), self.tick)
             self.domain.reset(ids, reset_frame[ids, 4:22], self.tick)
             self.getup_feedback.reset(ids, self.robot.data.joint_pos.torch[ids][:, self.ids],
                                       self.robot.data.joint_vel.torch[ids][:, self.ids])
@@ -286,6 +299,9 @@ class RobustGetupEnv(ChassisEnv):
             frame = observations["policy"].clone()
             if self.standing_observer is not None:
                 frame[:, 14:16] = self.robot.data.joint_pos.torch[:, self.ids][:, [2, 5]]
+            if self.local_standing_odometry is not None:
+                frame[:, 14:16] = self.local_standing_odometry.local_wheel_angles(frame,
+                    self._standing_wheel_feedback(), ~(self.passive | self.finished), self.tick)
             frame[:, 4:22] = self.domain.observe(frame[:, 4:22], self.tick)
             if self.standing_observer is not None:
                 from wheeled_algo.robust_getup import quiet_gate
@@ -305,6 +321,10 @@ class RobustGetupEnv(ChassisEnv):
                     & ((self.tick-self.standing_entry_tick)*self.policy_dt >= self.standing_observer.capture_delay_seconds))
                 displacement, _ = self.standing_observer.update(coordinate, valid, requested, eligible, self.tick)
                 frame[:, 14:16] = 20. * displacement
+            if self.local_standing_odometry is not None:
+                from .scut_observation import POLICY_FROM_CONTROL
+                frame = self.local_standing_odometry.update(frame,
+                    self.v5.nominal[list(POLICY_FROM_CONTROL)][:4], ~(self.passive | self.finished), self.tick)
             observations["policy"] = frame
             if self.getup_cfg["quiet_critic_anchor"]:
                 xy = self.robot.data.root_link_pose_w.torch[:, :2] - self.origins[:, :2]
@@ -312,6 +332,17 @@ class RobustGetupEnv(ChassisEnv):
                 # height channels, explicitly versioned in the task contract.
                 observations["critic"][:, -2:] = (20. * self.quiet_standing.displacement(xy)).clamp(-5., 5.)
         return observations
+
+    def _standing_wheel_feedback(self):
+        # Match ChassisEnv's encoder/IMU source before the shared RobustDomain
+        # policy delay. Do not bypass a configured feedback transport.
+        if self._pc_feedback_transport is not None:
+            q = self._pc_feedback_transport.feedback[:, :6]
+        elif self.signal_delay is not None:
+            q = self.signal_delay.feedback[:, :6]
+        else:
+            q = self.robot.data.joint_pos.torch[:, self.ids]
+        return q[:, [2, 5]]
 
     def _measured_action_history(self, ids):
         q = self.robot.data.joint_pos.torch[ids][:, self.ids]
@@ -788,6 +819,8 @@ class RobustGetupEnv(ChassisEnv):
                     "StandingReference/sensor_projected_fraction": self.standing_coordinate.last_projected.float().mean(),
                     "StandingReference/sensor_rejected_fraction": self.standing_coordinate.last_rejected.float().mean(),
                     "StandingReference/sensor_projection_abs_mean_rad": self.standing_coordinate.last_projection_abs_rad.mean()})
+        if self.local_standing_odometry is not None:
+            info["log"].update(self.local_standing_odometry.metrics())
         for f, name in enumerate(FAMILIES):
             mask = self.settled_family == f
             info["log"][f"UnifiedGetup/post_settle/{name}_episodes"] = (enable & mask).float().sum()

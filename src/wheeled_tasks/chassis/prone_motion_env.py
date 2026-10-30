@@ -170,7 +170,8 @@ class ProneMotionEnv(RobustGetupEnv):
         error = (xy-self.course_anchor).norm(dim=-1)
         terms = task.reward_terms(state["gravity"], state["height"], state["velocity"], state["omega"],
             self.commands, state["torque"], state["dq"], task.normalized_action_delta(state["action_delta"], self.plan),
-            route["xy_excursion_m"], error, rising, state["dual_support"])
+            route["xy_excursion_m"], error, rising, state["dual_support"],
+            position_tail=self.plan.get("quiet_position_tail"))
         terms["leg_speed"] = -.002*state["leg_speed_square"]
         bad = task.failures(state["gravity"], state["height"], state["nonwheel_force"],
             route["xy_excursion_m"], state["elapsed"], rising, ~self.recovery_lane, self.plan)

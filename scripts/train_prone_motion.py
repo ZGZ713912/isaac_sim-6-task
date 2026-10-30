@@ -46,7 +46,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         contact_break_cost=None, speed_weight=2., contact_weight=8., learning_rate=plan["learning_rate"],
         randomization_study=None if profile == "nominal" else ROOT/plan["randomization_contract"],
         randomization_profile=None if profile == "nominal" else profile, randomization_strength=strength,
-        mechanism=None if plan["schema"] == "wheel-leg-prone-motion-v3" else
+        mechanism=None if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4") else
             ROOT/"contracts/scratch_standing_base_mechanism_v2.json")
     cfg, settings = base.prepare(args)
     settings.update(version=plan["schema"], prone_motion_task=deepcopy(plan),
@@ -56,6 +56,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         episode_seconds=plan["training_prone_seconds"], recovery_timeout_seconds=plan["rise_deadline_seconds"],
         reward_potential_gain=0., reward_gamma=discount["gamma"], sensor_policy_dt=rates["policy_dt"],
         boundary_xy_m=[45., 45.])
+    if "standing_odometry" in plan:
+        settings["standing_odometry"] = deepcopy(plan["standing_odometry"])
     if evaluation and profile != "nominal":
         settings["nominal_fraction"] = 0.
         cfg["dynamics_randomization"]["enabled_fraction"] = 1.
@@ -65,7 +67,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
     cfg["policy_architecture"]["scope"] = "Fresh actor35, critic83, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
-    if plan["schema"] == "wheel-leg-prone-motion-v3":
+    if plan["schema"] in ("wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4"):
         gas = cfg["v5_control"]["gas_spring_compensation"]
         if (plan.get("gas_spring_backend") != "dev_compensation_v2"
                 or gas != plan["gas_spring_feedforward"]
@@ -114,6 +116,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         settings=settings, actor_dim=35, critic_dim=83, action_dim=6,
         policy_hz=round(1./rates["policy_dt"]), physics_hz=round(1./rates["physics_dt"]),
         timing=rates, rollout_steps=plan["rollout_steps"], discounts=discount,
+        standing_odometry=deepcopy(plan.get("standing_odometry")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
@@ -160,6 +163,8 @@ def source_hashes(plan_path, plan):
              "contracts/scratch_standing_base_mechanism_v2.json", "contracts/scratch_standing_base_design_v2.json",
              "contracts/wheel_leg_prone_motion_v1.json", "contracts/wheel_leg_prone_motion_v2.json",
              "contracts/wheel_leg_prone_motion_v3.json",
+             "contracts/wheel_leg_prone_motion_v4.json", "tests/test_standing_local_odometry.py",
+             "docs/STANDING_ODOMETRY_20261030.md",
              plan["randomization_contract"],
              plan["acceptance_contract"], plan["prone_geometry_contract"], "contracts/standing_geometry107_v1.json",
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",

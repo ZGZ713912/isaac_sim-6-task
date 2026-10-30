@@ -16,7 +16,7 @@ from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, train_parser, t
 import play_prone_motion as play
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN_FILE = ROOT/"contracts/wheel_leg_prone_motion_v3.json"
+PLAN_FILE = ROOT/"contracts/wheel_leg_prone_motion_v4.json"
 BASE = json.loads(PLAN_FILE.read_text())
 
 
@@ -111,10 +111,12 @@ def test_python_override_is_accepted_by_train_and_play_without_changing_the_plan
     assert args.python == "/custom/isaac/python"
 
 
-def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path):
+@pytest.mark.parametrize("version", [3, 4])
+def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version):
     from rsl_rl.utils import resolve_class
     from train_scratch_standing import digest
-    plan = resolve_plan(BASE, max_iterations=5000)
+    original = json.loads((ROOT/f"contracts/wheel_leg_prone_motion_v{version}.json").read_text())
+    plan = resolve_plan(original, max_iterations=5000)
     agent = learner_config(plan, "cuda:0")
     obs = TensorDict(dict(policy=torch.zeros(1,35), critic=torch.zeros(1,83)), batch_size=[1])
     cls, settings = resolve_class(deepcopy(agent["actor"]))
@@ -135,6 +137,7 @@ def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path):
     cfg, settings, _ = play.prepare(args, bundle, tmp_path/"preview")
     assert cfg["target_num_envs"] == 1 and cfg["scene_groups"][0]["fraction"] == 1.
     assert settings["prone_motion_task"] == plan
+    assert settings.get("standing_odometry") == plan.get("standing_odometry")
     env = SimpleNamespace(prone_index=7, height_pose={.305:2})
     assert play.case_for(args, env, plan)["target"] == [1.2,0.,.42]
     assert bundle["profile"] == "nominal" and not any(k.startswith("optimizer") for k in bundle["state"])
@@ -147,6 +150,14 @@ def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path):
     (tmp_path/"curriculum_plan.resolved.json").write_text(json.dumps(bad))
     with pytest.raises(ValueError):
         play.load_bundle(args)
+
+
+def test_explicit_v3_training_keeps_legacy_zero_wheel_position_slots(tmp_path):
+    args = train_parser().parse_args(["--task", "WheelLeg-ProneMotion-v3"])
+    _, plan, _ = training_options(args, ROOT)
+    cfg, settings, _ = configuration(tmp_path, plan)
+    assert "standing_odometry" not in settings and "quiet_position_tail" not in plan
+    assert cfg["actor_frame_dim"] == 35 and not settings["quiet_velocity_feedback"]
 
 
 def test_all_new_entrypoints_are_part_of_the_source_freeze():
