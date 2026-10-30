@@ -69,9 +69,6 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         authenticate(cfg, ROOT)
         if cfg["full_vehicle"] != full_vehicle:
             raise ValueError("Plan and mechanism select different full vehicles")
-        # The generic parent constructor briefly resets before assigning the
-        # explicit prone-motion roles. Its seed pool contains upright births.
-        settings["recovery_family_weights"] = [1., 0., 0., 0., 0., 0., 0.]
         settings["prone_geometry"]["encoder_geometry"].update(
             table=plan["standing_odometry"]["geometry_file"],
             table_sha256=plan["standing_odometry"]["geometry_table_sha256"],
