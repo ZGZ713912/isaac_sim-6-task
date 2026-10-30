@@ -154,10 +154,16 @@ class RobustGetupEnv(ChassisEnv):
         for name in ("L_link3", "R_link3"):
             body = next(body for body in self.model_spec["bodies"] if body["name"] == name)
             collider = body["collisions"][0]
+            aligned = all(collider["origin"][i][j] == float(i == j) for i in range(3) for j in range(3))
+            if config.get("full_vehicle"):
+                # The normalized CAD rotates the circular cylinder about its
+                # own axis. Only its axial direction affects support extent;
+                # all full-vehicle collision transforms were authenticated.
+                aligned = all(abs(collider["origin"][i][2]-float(i == 2)) < 1e-10 for i in range(3))
             if (len(body["collisions"]) != 1 or collider["type"] != "cylinder"
                     or collider["radius"] != .06
                     or abs(collider["length"] - .02500000037252903) > 1e-9
-                    or any(collider["origin"][i][j] != float(i == j) for i in range(3) for j in range(3))):
+                    or not aligned):
                 raise ValueError("Standing clearance requires the authenticated 107 wheel cylinders")
         self.robust_ready = True
         self.unified_ready = True
