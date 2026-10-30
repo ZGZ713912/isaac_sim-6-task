@@ -1,0 +1,62 @@
+{
+  "schema": "full-robot-v202-physics-migration-validation-v1",
+  "created_at": "2026-10-30T17:02:30.935287+00:00",
+  "component_migration_passed": true,
+  "model_spec_sha256": "388dbdc69cbc7021ea02e553caaed098a05e237a6867b45ee7df172858050b29",
+  "asset_manifest_sha256": "01c7fa6762b63f32f0b0b6d7a38cc4e6c65d1b7b82970530f57aec25e4dcde29",
+  "knee_inner_limits_deg": [
+    40.0,
+    110.0
+  ],
+  "hardware_zero_reference_inner_deg": 110.0,
+  "native_runs": [
+    {
+      "path": "reports/full_vehicle_limits110_20261031/parent_native002/report.json",
+      "sha256": "34421d7ab46d37eb13b48780a13b46445172e16d4d3c8a21926a349d687c048f",
+      "physical_steps": 3000,
+      "passed": true
+    }
+  ],
+  "native_fixture": {
+    "device": "cuda:0",
+    "angles_deg": [
+      41.0,
+      75.0,
+      109.0
+    ],
+    "fixture": "fixed_zero_g",
+    "actual_knee_limits_read_back": true
+  },
+  "cpu_tests": {
+    "passed": 26,
+    "failed": 0,
+    "log": "reports/full_vehicle_limits110_20261031/parent_tests002.log",
+    "sha256": "5d86522ee66ca25a9c3cda2b49f989d3ee0c1a5dc7ad71bb4a4cb264fddbc858"
+  },
+  "source_binding": {
+    "files_sha256": {
+      "tools/full_robot_v202.py": "3c0a9c813fab055a1140fd670b0cc826f5857623aa54482c4f045a507320aa48",
+      "scripts/probe_full_robot_v202.py": "aee293bce2cc9049a6f2c1fa3654dd927f8bb216970f5085a98dc132cb89a830",
+      "src/wheeled_tasks/chassis/full_robot_v202.py": "9f3628f098cc83b66beac42899b9e5ed9779f7b69b76ef93abaca9f159716ac3",
+      "src/wheeled_tasks/chassis/v5_control.py": "141e21d88513e5f8cccdb6cdbf19abcd66f433c6e0ccb3cd7e93d5afc0c7c7fe",
+      "src/wheeled_tasks/chassis/gas_spring_compensation.py": "47fe59b4dd385c74702ef0d52ae5d81ddaeecaa57eb4d7f3f0d00c259c50e14b"
+    }
+  },
+  "original_component_measurements_unchanged": true,
+  "gas_force_angles_reidentified": false,
+  "previous_component_receipt": {
+    "file": "reports/full_robot_v202_20261030/validation_receipt.json",
+    "sha256": "415c8093cf34c101943240ee7f6972b75580f1883f89dc11ef4950c0aaac881b",
+    "scope": "historical 40-107 domain; retained, not reused as new-range behavior acceptance"
+  },
+  "initial_rejected_probe": {
+    "file": "reports/full_vehicle_limits110_20261031/parent_native001/report.json",
+    "sha256": "1060c030dce147541648b0e9e1af8e80aeaed2086675819ae0a80ac8d516413d",
+    "reason": "loader still required hard-coded old RMCS soft limits; zero physics steps; fixed and repeated as parent_native002"
+  },
+  "new_PPO": 0,
+  "hardware_motion": false,
+  "behavior_qualified": false,
+  "training_ready": false,
+  "scope": "Updated physical knee-stop readback and bounded full-vehicle component wiring; no learned standing, get-up, contact or hardware qualification"
+}

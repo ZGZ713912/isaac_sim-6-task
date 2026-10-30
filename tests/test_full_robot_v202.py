@@ -101,7 +101,7 @@ def test_gimbal_urdf_csv_and_physical_pitch_direction_agree():
         assert elevation==pytest.approx(expected,abs=.001)
 
 
-@pytest.mark.parametrize("beta",[42.,75.,106.])
+@pytest.mark.parametrize("beta",[40.,75.,107.,109.,110.])
 def test_closed_chain_has_twelve_independent_constraints_and_six_motor_dofs(asset,beta):
     spec = asset.spec
     q = geometry.solve_pose(spec,dict(L_joint1=.42,R_joint1=-.42,L_joint3=0.,R_joint3=0.,
@@ -140,6 +140,49 @@ def test_spring_force_knots_are_inherited_but_virtual_work_uses_new_geometry(ass
         m = geometry.solve_pose(asset.spec,minus,q)
         derivative = np.array([(p[n]-m[n])/2e-5 for n in asset.manifest["spring_joint_names"]])
         assert tau[0,index].item() == pytest.approx(-float(forces@derivative),abs=.002)
+
+
+def test_physical_40_110_stops_and_110_zero_match_all_native_and_geometry_declarations(asset):
+    assert asset.limits["knee_inner_limits_deg"] == [40.,110.]
+    assert asset.limits["hardware_zero_reference_inner_deg"] == 110.
+    encoder = json.loads((BUNDLE/"encoder_geometry.json").read_text())
+    spring = json.loads((BUNDLE/"gas_spring_model.json").read_text())
+    assert encoder["passive_knee_domain_deg"] == spring["geometry_beta_domain_deg"] == [40.,110.]
+    assert encoder["hardware_zero_reference_inner_deg"] == 110.
+    for filename in ("robot.usda","robot_gimbal_free.usda"):
+        stage = Usd.Stage.Open(str(BUNDLE/filename))
+        for name in ("L_joint2","R_jonit2"):
+            joint = next(j for j in asset.spec["joints"] if j["name"] == name)
+            usd = UsdPhysics.RevoluteJoint.Get(stage,"/Robot/tree_joints/"+name)
+            np.testing.assert_allclose([usd.GetLowerLimitAttr().Get(),usd.GetUpperLimitAttr().Get()],
+                np.rad2deg([float(joint["limit"][k]) for k in ("lower","upper")]),atol=2e-6,rtol=0.)
+
+
+@pytest.mark.parametrize("beta",[40.,110.])
+def test_encoder_recovers_actual_physical_boundary_angles_and_rejects_outward_feedback(asset,beta):
+    spec = asset.spec
+    q = geometry.solve_pose(spec,dict(L_joint1=.42,R_joint1=-.42,L_joint3=0.,R_joint3=0.,
+        L_joint2=np.deg2rad(beta)-spec["passive_knee_zero_inner_rad"]["L_joint2"],
+        R_jonit2=-(np.deg2rad(beta)-spec["passive_knee_zero_inner_rad"]["R_jonit2"])),spec["nominal_joint_pos"])
+    frames = geometry.fk(spec,q)
+    for side,name in (("L","L_joint2"),("R","R_jonit2")):
+        knee = frames[side+"_link2"][:3,3]
+        a,b = (frames[side+"_link"+str(i)][:3,3]-knee for i in (1,3))
+        joint = next(j for j in spec["joints"] if j["name"] == name)
+        axis = frames[joint["child"]][:3,:3]@joint["axis"]
+        a,b = a-axis*(axis@a),b-axis*(axis@b)
+        actual = np.rad2deg(np.arccos(np.clip(a@b/np.linalg.norm(a)/np.linalg.norm(b),-1.,1.)))
+        assert actual == pytest.approx(beta,abs=2e-6)
+    observer = asset.encoder_geometry()
+    position = torch.tensor([[q[n] for n in ("L_joint1","LL_joint1","R_joint1","RR_joint1")]])
+    result = observer(position,torch.zeros_like(position))
+    assert result["valid"].all()
+    torch.testing.assert_close(result["knee_deg"],torch.full((1,2),beta),atol=.002,rtol=0.)
+    # Outward motor differences must be invalid, even though interpolation
+    # can return a finite endpoint and the absolute hip can rotate freely.
+    position[:,1] += -.01 if beta == 40. else .01
+    position[:,3] += .01 if beta == 40. else -.01
+    assert not observer(position,torch.zeros_like(position))["valid"].any()
 
 
 def test_measured_wheel_total_inertia_and_fractional_delay_are_used_once(asset):

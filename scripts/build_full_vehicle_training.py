@@ -95,7 +95,8 @@ class ResetGeometry:
     def bank(self, manifest_sha):
         poses = []
         for name, height in (("stand_low", .23), ("stand", .305), ("stand_high", .42)):
-            beta = brentq(lambda b: self.balanced(b)[2]-height, 40.001, 106.999, xtol=1e-7)
+            lower, upper = geometry.KNEE_INNER_DEG
+            beta = brentq(lambda b: self.balanced(b)[2]-height, lower+.001, upper-.001, xtol=1e-7)
             q, rot, actual, bounds = self.balanced(beta)
             poses.append(self.pose(name, q, rot, actual, min(v[2]+actual for _, v in bounds)))
         # Same geometric construction as the chassis birth: aligned103deg legs,
@@ -161,7 +162,7 @@ def main():
     (DIRECTORY/"robot.usda").write_text('#usda 1.0\n(\n    defaultPrim = "Robot"\n    subLayers = [@../isaac/robot_gimbal_free.usda@]\n)\n')
     save(DIRECTORY/"gimbal_motion.json", motion_contract())
     manifest = deepcopy(asset.manifest)
-    manifest.update(asset_revision="full_robot_v202_moving_gimbal_training_v1", usd="robot.usda",
+    manifest.update(asset_revision="full_robot_v202_moving_gimbal_zero110_knee_40_110", usd="robot.usda",
         tree_joint_names=[j["name"] for j in spec["joints"]], fixed_joint_names=[],
         gimbal_mode="independent_servo", training_ready=False, hardware_ready=False)
     manifest["nominal_joint_pos"].update(M_joint1=0., M_joint2=0.)
@@ -173,12 +174,19 @@ def main():
     save(DIRECTORY/"pose_bank.json", bank)
     reference = ROOT.parent/"example/wheeled-legged_RL/src/agent_world/assets/wheelbipe_V14_2.py"
     envcfg = ROOT.parent/"example/wheeled-legged_RL/src/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py"
+    validation = json.loads((asset.bundle.parent/"build_receipt.json").read_text()).get(
+        "component_validation", dict(file="reports/full_robot_v202_20261030/validation_receipt.json",
+            sha256=digest(ROOT/"reports/full_robot_v202_20261030/validation_receipt.json")))
+    if digest(ROOT/validation["file"]) != validation["sha256"]:
+        raise ValueError("Parent component validation changed")
+    receipt = json.loads((ROOT/validation["file"]).read_text())
+    if not receipt.get("component_migration_passed") or receipt["model_spec_sha256"] != asset.spec_sha256:
+        raise ValueError("New parent geometry needs its own component validation")
     recipe = dict(schema="full-vehicle-training-derivative-v1", source_bundle=str(asset.bundle.relative_to(ROOT)),
         source_manifest_sha256=digest(asset.bundle/"manifest.json"), source_spec_sha256=asset.spec_sha256,
         model_spec_sha256=spec_sha, asset_manifest_sha256=digest(DIRECTORY/"manifest.json"),
         files_sha256={name: digest(DIRECTORY/name) for name in ("manifest.json", "pose_bank.json", "gimbal_motion.json")},
-        parent_component_validation=dict(file="reports/full_robot_v202_20261030/validation_receipt.json",
-            sha256=digest(ROOT/"reports/full_robot_v202_20261030/validation_receipt.json")),
+        parent_component_validation=validation,
         zero_friction_bodies=["base_link"], zero_friction_combine_mode="min",
         zero_friction_scope="all8 merged base collision hulls include belly guide rollers; driving wheels and other bodies retain their materials",
         references=[dict(file=str(p), sha256=digest(p)) for p in (reference, envcfg)],

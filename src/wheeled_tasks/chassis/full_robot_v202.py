@@ -8,6 +8,7 @@ from __future__ import annotations
 from copy import deepcopy
 import hashlib
 import json
+import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -32,6 +33,7 @@ class FullRobotV202:
                 raise ValueError(f"Full-vehicle asset dependency changed: {name}")
         self.spec = json.loads((self.bundle / "model_spec.json").read_text())
         self.runtime = json.loads((self.bundle / "runtime.json").read_text())
+        self.limits = json.loads((self.bundle / "mechanical_limits.json").read_text())
         self.prior = json.loads((self.bundle / self.runtime["control_file"]).read_text())
         self.spec_sha256 = digest(self.bundle / "model_spec.json")
         if (self.manifest.get("model_kind") != "full_robot_v202_gas_spring_closedchain"
@@ -43,6 +45,24 @@ class FullRobotV202:
         for filename in ("encoder_geometry.json", "gas_spring_model.json"):
             if json.loads((self.bundle / filename).read_text())["model_spec_sha256"] != self.spec_sha256:
                 raise ValueError(f"Full-vehicle geometry binding differs: {filename}")
+        encoder = json.loads((self.bundle / "encoder_geometry.json").read_text())
+        spring = json.loads((self.bundle / "gas_spring_model.json").read_text())
+        inner = self.limits["knee_inner_limits_deg"]
+        zero = self.limits["hardware_zero_reference_inner_deg"]
+        if (self.manifest["knee_inner_limits_deg"] != inner
+                or encoder["passive_knee_domain_deg"] != inner
+                or spring["geometry_beta_domain_deg"] != inner
+                or self.manifest["hardware_zero_reference_inner_deg"] != zero
+                or encoder["hardware_zero_reference_inner_deg"] != zero
+                or self.runtime["v5_control"]["gas_spring_compensation"]["relative_soft_limits"]
+                    != self.limits["relative_soft_limits"]):
+            raise ValueError("Full-vehicle knee stops, zero reference or soft limits differ")
+        for name, sign in (("L_joint2", 1.), ("R_jonit2", -1.)):
+            expected = sorted((math.radians(v)-self.spec["passive_knee_zero_inner_rad"][name])/sign for v in inner)
+            joint = next(j for j in self.spec["joints"] if j["name"] == name)
+            if any(not math.isclose(float(joint["limit"][key]), value, rel_tol=0., abs_tol=1e-10)
+                   for key, value in zip(("lower", "upper"), expected)):
+                raise ValueError("CAD passive knee limits differ from the physical included-angle stops")
         wheel = json.loads((self.bundle / "wheel_model.json").read_text())
         if wheel["asset_rebinding"]["model_spec_sha256"] != self.spec_sha256:
             raise ValueError("Full-vehicle wheel inertia binding differs")

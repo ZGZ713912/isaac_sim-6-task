@@ -35,6 +35,8 @@ def test_full_vehicle_is_the_default_v4_with_a_fresh_six_motor_policy(prepared):
     assert default["full_vehicle"] == PLAN["full_vehicle"]
     assert (cfg["actor_dim"], cfg["critic_dim"], cfg["action_dim"]) == (35, 87, 6)
     assert cfg["asset_directory"] == str(BUNDLE.relative_to(ROOT))
+    assert default["mechanical_inner_knee_range_deg"] == [40.,110.]
+    assert default["encoder_zero_inner_knee_deg"] == 110.
     manifest = json.loads((BUNDLE/"manifest.json").read_text())
     assert set(manifest["nominal_joint_pos"]) == set(manifest["tree_joint_names"])
     assert bank == BUNDLE/"pose_bank.json"
@@ -42,6 +44,8 @@ def test_full_vehicle_is_the_default_v4_with_a_fresh_six_motor_policy(prepared):
     assert cfg["v5_control"]["leg_kp"] == 160. and cfg["v5_control"]["leg_kd"] == 2.5
     proof = authenticate(cfg, ROOT)
     assert proof["status"] == "authenticated_geometry_derivation"
+    assert proof["knee_inner_limits_deg"] == [40.,110.]
+    assert proof["hardware_zero_reference_inner_deg"] == 110.
     assert proof["moving_gimbal_behavior_qualified"] is False
 
 
@@ -62,6 +66,13 @@ def test_actual_layer_releases_gimbal_and_keeps_all_six_external_loops():
     yaw = UsdPhysics.RevoluteJoint.Get(stage, "/Robot/tree_joints/M_joint1")
     assert (pitch.GetLowerLimitAttr().Get(), pitch.GetUpperLimitAttr().Get()) == (-30., 35.)
     assert yaw.GetLowerLimitAttr().Get() == -float("inf") and yaw.GetUpperLimitAttr().Get() == float("inf")
+    spec = json.loads((BUNDLE/"model_spec.json").read_text())
+    for name,sign in (("L_joint2",1.),("R_jonit2",-1.)):
+        joint = next(j for j in spec["joints"] if j["name"] == name)
+        usd = UsdPhysics.RevoluteJoint.Get(stage,"/Robot/tree_joints/"+name)
+        angles = sorted(sign*np.deg2rad(v)+spec["passive_knee_zero_inner_rad"][name]
+            for v in (usd.GetLowerLimitAttr().Get(),usd.GetUpperLimitAttr().Get()))
+        np.testing.assert_allclose(np.rad2deg(angles),[40.,110.],atol=2e-6,rtol=0.)
 
 
 def test_all_full_vehicle_births_have_closed_linkages_and_no_terrain_penetration():

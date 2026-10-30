@@ -1,0 +1,262 @@
+...............EEEEE.................................................... [ 40%]
+....F......................F............................................ [ 80%]
+....................................                                     [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_full_vehicle_is_the_default_v4_with_a_fresh_six_motor_policy _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f3fe2b1c2f0>, _basetemp=PosixPath('/tmp/pytest-of-noir/pytest-66'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def prepared(tmp_path_factory):
+>       return configuration(tmp_path_factory.mktemp("full_vehicle"), PLAN, num_envs=80, performance_backend="eager")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_full_vehicle_training.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_prone_motion.py:101: in configuration
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+config = {'contract_id': 'full-robot-v202-gas-spring-training-v1', 'asset_directory': 'model/wheel_leg_v2.0.2/training', 'asset...e7239c310da67eb9c63fe1533010e5cd0860b1653b6e', 'control_math_source': 'contracts/flat_base_200hz_control_v2.json', ...}
+declaration = {'model': {'file': 'model/wheel_leg_v2.0.2/training/wheel_model.json', 'sha256': 'f89af15231f944c15b4b988bd3bf77ad85c4...ly identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.', ...}
+settings = {'schema': 'wheel-leg-unified-getup-v1', 'policy_hz': 200, 'physics_hz': 1000, 'actor_dim': 35, ...}
+
+    def configure(root, config, declaration, settings):
+        """Authenticate the delivered model/control/evidence before deriving a task."""
+        keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+        for key in keys:
+            item = declaration[key]
+            if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+>               raise ValueError("Identified wheel input SHA differs: " + key)
+E               ValueError: Identified wheel input SHA differs: model
+
+src/wheeled_tasks/chassis/training_wheel_response.py:21: ValueError
+_ ERROR at setup of test_full_vehicle_rejects_unbound_configuration_changes[gimbal_motion-value0] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f3fe2b1c2f0>, _basetemp=PosixPath('/tmp/pytest-of-noir/pytest-66'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def prepared(tmp_path_factory):
+>       return configuration(tmp_path_factory.mktemp("full_vehicle"), PLAN, num_envs=80, performance_backend="eager")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_full_vehicle_training.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_prone_motion.py:101: in configuration
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+config = {'contract_id': 'full-robot-v202-gas-spring-training-v1', 'asset_directory': 'model/wheel_leg_v2.0.2/training', 'asset...e7239c310da67eb9c63fe1533010e5cd0860b1653b6e', 'control_math_source': 'contracts/flat_base_200hz_control_v2.json', ...}
+declaration = {'model': {'file': 'model/wheel_leg_v2.0.2/training/wheel_model.json', 'sha256': 'f89af15231f944c15b4b988bd3bf77ad85c4...ly identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.', ...}
+settings = {'schema': 'wheel-leg-unified-getup-v1', 'policy_hz': 200, 'physics_hz': 1000, 'actor_dim': 35, ...}
+
+    def configure(root, config, declaration, settings):
+        """Authenticate the delivered model/control/evidence before deriving a task."""
+        keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+        for key in keys:
+            item = declaration[key]
+            if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+>               raise ValueError("Identified wheel input SHA differs: " + key)
+E               ValueError: Identified wheel input SHA differs: model
+
+src/wheeled_tasks/chassis/training_wheel_response.py:21: ValueError
+_ ERROR at setup of test_full_vehicle_rejects_unbound_configuration_changes[zero_friction_bodies-value1] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f3fe2b1c2f0>, _basetemp=PosixPath('/tmp/pytest-of-noir/pytest-66'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def prepared(tmp_path_factory):
+>       return configuration(tmp_path_factory.mktemp("full_vehicle"), PLAN, num_envs=80, performance_backend="eager")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_full_vehicle_training.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_prone_motion.py:101: in configuration
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+config = {'contract_id': 'full-robot-v202-gas-spring-training-v1', 'asset_directory': 'model/wheel_leg_v2.0.2/training', 'asset...e7239c310da67eb9c63fe1533010e5cd0860b1653b6e', 'control_math_source': 'contracts/flat_base_200hz_control_v2.json', ...}
+declaration = {'model': {'file': 'model/wheel_leg_v2.0.2/training/wheel_model.json', 'sha256': 'f89af15231f944c15b4b988bd3bf77ad85c4...ly identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.', ...}
+settings = {'schema': 'wheel-leg-unified-getup-v1', 'policy_hz': 200, 'physics_hz': 1000, 'actor_dim': 35, ...}
+
+    def configure(root, config, declaration, settings):
+        """Authenticate the delivered model/control/evidence before deriving a task."""
+        keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+        for key in keys:
+            item = declaration[key]
+            if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+>               raise ValueError("Identified wheel input SHA differs: " + key)
+E               ValueError: Identified wheel input SHA differs: model
+
+src/wheeled_tasks/chassis/training_wheel_response.py:21: ValueError
+_ ERROR at setup of test_full_vehicle_rejects_unbound_configuration_changes[critic_dim-83] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f3fe2b1c2f0>, _basetemp=PosixPath('/tmp/pytest-of-noir/pytest-66'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def prepared(tmp_path_factory):
+>       return configuration(tmp_path_factory.mktemp("full_vehicle"), PLAN, num_envs=80, performance_backend="eager")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_full_vehicle_training.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_prone_motion.py:101: in configuration
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+config = {'contract_id': 'full-robot-v202-gas-spring-training-v1', 'asset_directory': 'model/wheel_leg_v2.0.2/training', 'asset...e7239c310da67eb9c63fe1533010e5cd0860b1653b6e', 'control_math_source': 'contracts/flat_base_200hz_control_v2.json', ...}
+declaration = {'model': {'file': 'model/wheel_leg_v2.0.2/training/wheel_model.json', 'sha256': 'f89af15231f944c15b4b988bd3bf77ad85c4...ly identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.', ...}
+settings = {'schema': 'wheel-leg-unified-getup-v1', 'policy_hz': 200, 'physics_hz': 1000, 'actor_dim': 35, ...}
+
+    def configure(root, config, declaration, settings):
+        """Authenticate the delivered model/control/evidence before deriving a task."""
+        keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+        for key in keys:
+            item = declaration[key]
+            if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+>               raise ValueError("Identified wheel input SHA differs: " + key)
+E               ValueError: Identified wheel input SHA differs: model
+
+src/wheeled_tasks/chassis/training_wheel_response.py:21: ValueError
+_ ERROR at setup of test_full_vehicle_rejects_unbound_configuration_changes[asset_manifest_sha256-0000000000000000000000000000000000000000000000000000000000000000] _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f3fe2b1c2f0>, _basetemp=PosixPath('/tmp/pytest-of-noir/pytest-66'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def prepared(tmp_path_factory):
+>       return configuration(tmp_path_factory.mktemp("full_vehicle"), PLAN, num_envs=80, performance_backend="eager")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_full_vehicle_training.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_prone_motion.py:101: in configuration
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+config = {'contract_id': 'full-robot-v202-gas-spring-training-v1', 'asset_directory': 'model/wheel_leg_v2.0.2/training', 'asset...e7239c310da67eb9c63fe1533010e5cd0860b1653b6e', 'control_math_source': 'contracts/flat_base_200hz_control_v2.json', ...}
+declaration = {'model': {'file': 'model/wheel_leg_v2.0.2/training/wheel_model.json', 'sha256': 'f89af15231f944c15b4b988bd3bf77ad85c4...ly identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.', ...}
+settings = {'schema': 'wheel-leg-unified-getup-v1', 'policy_hz': 200, 'physics_hz': 1000, 'actor_dim': 35, ...}
+
+    def configure(root, config, declaration, settings):
+        """Authenticate the delivered model/control/evidence before deriving a task."""
+        keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+        for key in keys:
+            item = declaration[key]
+            if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+>               raise ValueError("Identified wheel input SHA differs: " + key)
+E               ValueError: Identified wheel input SHA differs: model
+
+src/wheeled_tasks/chassis/training_wheel_response.py:21: ValueError
+=================================== FAILURES ===================================
+______________ test_isaac_style_flags_reach_contract_and_learner _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-66/test_isaac_style_flags_reach_c0')
+
+    def test_isaac_style_flags_reach_contract_and_learner(tmp_path):
+        args = train_parser().parse_args(["--num_envs", "128", "--max_iterations", "5000", "--seed", "103",
+            "--run_name", "manual_5000", "--device", "cuda:1", "--headless", "--save_interval", "100",
+            "--learning_rate", ".0001", "--domain_randomization", "off"])
+        _, plan, output = training_options(args, ROOT)
+        assert output == ROOT/"runs/prone_motion/manual_5000"
+        assert plan["foundation_until_update"] == 500 and plan["height_full_update"] == 2500
+        assert plan["speed_full_update"] == 3000 and plan["spin_full_update"] == 3500
+        assert task.domain_stage(plan, 4999) == ("nominal", 0.)
+>       cfg, settings, _ = configuration(tmp_path, plan, device=args.device)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_prone_motion_cli.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/train_prone_motion.py:101: in configuration
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+config = {'contract_id': 'full-robot-v202-gas-spring-training-v1', 'asset_directory': 'model/wheel_leg_v2.0.2/training', 'asset...e7239c310da67eb9c63fe1533010e5cd0860b1653b6e', 'control_math_source': 'contracts/flat_base_200hz_control_v2.json', ...}
+declaration = {'model': {'file': 'model/wheel_leg_v2.0.2/training/wheel_model.json', 'sha256': 'f89af15231f944c15b4b988bd3bf77ad85c4...ly identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.', ...}
+settings = {'schema': 'wheel-leg-unified-getup-v1', 'policy_hz': 200, 'physics_hz': 1000, 'actor_dim': 35, ...}
+
+    def configure(root, config, declaration, settings):
+        """Authenticate the delivered model/control/evidence before deriving a task."""
+        keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+        for key in keys:
+            item = declaration[key]
+            if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+>               raise ValueError("Identified wheel input SHA differs: " + key)
+E               ValueError: Identified wheel input SHA differs: model
+
+src/wheeled_tasks/chassis/training_wheel_response.py:21: ValueError
+_________ test_play_has_the_same_role_plan_and_restores_actor_only[4] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-noir/pytest-66/test_play_has_the_same_role_pl1')
+version = 4
+
+    @pytest.mark.parametrize("version", [3, 4])
+    def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version):
+        from rsl_rl.utils import resolve_class
+        from train_scratch_standing import digest
+        original = json.loads((ROOT/f"contracts/wheel_leg_prone_motion_v{version}.json").read_text())
+        plan = resolve_plan(original, max_iterations=5000)
+        agent = learner_config(plan, "cuda:0")
+        obs = TensorDict(dict(policy=torch.zeros(1,35), critic=torch.zeros(1,83)), batch_size=[1])
+        cls, settings = resolve_class(deepcopy(agent["actor"]))
+        actor = cls(obs, agent["obs_groups"], "actor", 6, **settings).eval()
+        (tmp_path/"pose_bank.json").write_bytes((ROOT/"reports/robust_policy_repair_20261024/pose_bank_height_matched073.json").read_bytes())
+        (tmp_path/"agent_config.json").write_text(json.dumps(agent))
+        (tmp_path/"curriculum_plan.resolved.json").write_text(json.dumps(plan))
+        checkpoint = tmp_path/"model_00250.pt"
+        torch.save(dict(actor_state_dict=actor.state_dict(), iter=250, infos=dict(schema="prone-motion-checkpoint-v1",
+            training_origin="scratch", completed_updates=250, resolved_plan=plan,
+            bank_sha256=digest(tmp_path/"pose_bank.json"), source_revision={"commit":"test-only-untrained"})), checkpoint)
+        args = play.parser().parse_args(["--checkpoint", str(checkpoint), "--scene", "forward", "--vx", "1.2", "--height", ".42",
+            "--num_envs", "1", "--headless", "--preflight-only"])
+        bundle = play.load_bundle(args)
+        restored = play.build_actor(obs, bundle, "cpu")
+        with torch.inference_mode():
+            torch.testing.assert_close(restored(obs), actor(obs), rtol=0., atol=0.)
+>       cfg, settings, _ = play.prepare(args, bundle, tmp_path/"preview")
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_prone_motion_cli.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/play_prone_motion.py:107: in prepare
+    cfg, settings, _ = configuration(output, bundle["plan"], profile=bundle["profile"], strength=bundle["strength"],
+scripts/train_prone_motion.py:101: in configuration
+    cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+config = {'contract_id': 'full-robot-v202-gas-spring-training-v1', 'asset_directory': 'model/wheel_leg_v2.0.2/training', 'asset...e7239c310da67eb9c63fe1533010e5cd0860b1653b6e', 'control_math_source': 'contracts/flat_base_200hz_control_v2.json', ...}
+declaration = {'model': {'file': 'model/wheel_leg_v2.0.2/training/wheel_model.json', 'sha256': 'f89af15231f944c15b4b988bd3bf77ad85c4...ly identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.', ...}
+settings = {'schema': 'wheel-leg-unified-getup-v1', 'policy_hz': 200, 'physics_hz': 1000, 'actor_dim': 35, ...}
+
+    def configure(root, config, declaration, settings):
+        """Authenticate the delivered model/control/evidence before deriving a task."""
+        keys = ("model", "control", "evidence") + (("recorded_control",) if "recorded_control" in declaration else ())
+        for key in keys:
+            item = declaration[key]
+            if hashlib.sha256((root/item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+>               raise ValueError("Identified wheel input SHA differs: " + key)
+E               ValueError: Identified wheel input SHA differs: model
+
+src/wheeled_tasks/chassis/training_wheel_response.py:21: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_prone_motion_cli.py::test_isaac_style_flags_reach_contract_and_learner
+FAILED tests/test_prone_motion_cli.py::test_play_has_the_same_role_plan_and_restores_actor_only[4]
+ERROR tests/test_full_vehicle_training.py::test_full_vehicle_is_the_default_v4_with_a_fresh_six_motor_policy
+ERROR tests/test_full_vehicle_training.py::test_full_vehicle_rejects_unbound_configuration_changes[gimbal_motion-value0]
+ERROR tests/test_full_vehicle_training.py::test_full_vehicle_rejects_unbound_configuration_changes[zero_friction_bodies-value1]
+ERROR tests/test_full_vehicle_training.py::test_full_vehicle_rejects_unbound_configuration_changes[critic_dim-83]
+ERROR tests/test_full_vehicle_training.py::test_full_vehicle_rejects_unbound_configuration_changes[asset_manifest_sha256-0000000000000000000000000000000000000000000000000000000000000000]
+2 failed, 173 passed, 5 errors in 14.66s

@@ -1,0 +1,113 @@
+.........F...F.                                                          [100%]
+=================================== FAILURES ===================================
+___ test_spring_force_knots_are_inherited_but_virtual_work_uses_new_geometry ___
+
+asset = <wheeled_tasks.chassis.full_robot_v202.FullRobotV202 object at 0x7fefcd5f5bb0>
+
+    def test_spring_force_knots_are_inherited_but_virtual_work_uses_new_geometry(asset):
+        old = json.loads((ROOT / "model/gas_spring_compensation_20261028/model.json").read_text())
+        new = json.loads((BUNDLE / "gas_spring_model.json").read_text())
+        for key in ("compression_knots_m","force_knots_n","force_extension","source_curve_sha256"):
+            assert new[key] == old[key]
+>       control,_ = asset.components(1)
+                    ^^^^^^^^^^^^^^^^^^^
+
+tests/test_full_robot_v202.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/full_robot_v202.py:85: in components
+    control = V5Control(self.manifest, self.spec, fit, self.prior, settings, device, root=ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/v5_control.py:35: in __init__
+    self.gas_compensation = GasSpringCompensation(settings["gas_spring_compensation"],
+src/wheeled_tasks/chassis/gas_spring_compensation.py:47: in __init__
+    self.cfg, self.model = load_compensation(settings, root)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+settings = {'enabled': True, 'model_file': '/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.2/isaac/ga...ring_model.json', 'model_sha256': '5682982f82c35c3864771d4822e6d6d3932cea2800464b255a1de6d4bd7fec41', 'gain': 1.0, ...}
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+
+    def load_compensation(settings, root):
+        cfg = dict(settings)
+        if cfg.get("enabled") is not True:
+            raise ValueError("Gas-spring compensation must be explicitly enabled")
+        path = Path(cfg["model_file"])
+        if not path.is_absolute():
+            path = Path(root) / path
+        content = path.read_bytes()
+        if hashlib.sha256(content).hexdigest() != cfg["model_sha256"]:
+            raise ValueError("Gas-spring compensation model hash differs")
+        model = json.loads(content)
+        if (model.get("schema") != "wheel-leg-gas-spring-compensation-v2"
+                or model.get("coordinate") != "active_model_output"
+                or model.get("direction_friction_compensated") is not False):
+            raise ValueError("Unsupported gas-spring compensation model")
+        gain = cfg.get("gain", 1.)
+        if not math.isfinite(gain) or not 0. <= gain <= 1.:
+            raise ValueError("Invalid gas-spring compensation gain")
+        if cfg.get("force_extrapolation") != "positive_c1_endpoint_trend_v1":
+            raise ValueError("Declare the unmeasured endpoint-trend extrapolation explicitly")
+        if cfg.get("physical_curve_outside_geometry") != "hold_geometry_endpoint":
+            raise ValueError("Declare the physical-force prior outside the geometry lookup")
+        if cfg.get("relative_soft_limits") != dict(minimum=-.140638855,maximum=1.3889088544,
+                margin=.03,projection="outward_relative_torque_v1"):
+>           raise ValueError("Gas-compensated training requires matching RMCS relative soft limits")
+E           ValueError: Gas-compensated training requires matching RMCS relative soft limits
+
+src/wheeled_tasks/chassis/gas_spring_compensation.py:41: ValueError
+_____ test_measured_wheel_total_inertia_and_fractional_delay_are_used_once _____
+
+asset = <wheeled_tasks.chassis.full_robot_v202.FullRobotV202 object at 0x7fefcd5f5bb0>
+
+    def test_measured_wheel_total_inertia_and_fractional_delay_are_used_once(asset):
+        source = json.loads((ROOT / "model/wheel_identified_1562_20261028/model.json").read_text())
+>       _,wheels = asset.components(1)
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/test_full_robot_v202.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/full_robot_v202.py:85: in components
+    control = V5Control(self.manifest, self.spec, fit, self.prior, settings, device, root=ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/v5_control.py:35: in __init__
+    self.gas_compensation = GasSpringCompensation(settings["gas_spring_compensation"],
+src/wheeled_tasks/chassis/gas_spring_compensation.py:47: in __init__
+    self.cfg, self.model = load_compensation(settings, root)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+settings = {'enabled': True, 'model_file': '/home/noir/Documents/workspace/isaac_wheeled_rl_train/model/wheel_leg_v2.0.2/isaac/ga...ring_model.json', 'model_sha256': '5682982f82c35c3864771d4822e6d6d3932cea2800464b255a1de6d4bd7fec41', 'gain': 1.0, ...}
+root = PosixPath('/home/noir/Documents/workspace/isaac_wheeled_rl_train')
+
+    def load_compensation(settings, root):
+        cfg = dict(settings)
+        if cfg.get("enabled") is not True:
+            raise ValueError("Gas-spring compensation must be explicitly enabled")
+        path = Path(cfg["model_file"])
+        if not path.is_absolute():
+            path = Path(root) / path
+        content = path.read_bytes()
+        if hashlib.sha256(content).hexdigest() != cfg["model_sha256"]:
+            raise ValueError("Gas-spring compensation model hash differs")
+        model = json.loads(content)
+        if (model.get("schema") != "wheel-leg-gas-spring-compensation-v2"
+                or model.get("coordinate") != "active_model_output"
+                or model.get("direction_friction_compensated") is not False):
+            raise ValueError("Unsupported gas-spring compensation model")
+        gain = cfg.get("gain", 1.)
+        if not math.isfinite(gain) or not 0. <= gain <= 1.:
+            raise ValueError("Invalid gas-spring compensation gain")
+        if cfg.get("force_extrapolation") != "positive_c1_endpoint_trend_v1":
+            raise ValueError("Declare the unmeasured endpoint-trend extrapolation explicitly")
+        if cfg.get("physical_curve_outside_geometry") != "hold_geometry_endpoint":
+            raise ValueError("Declare the physical-force prior outside the geometry lookup")
+        if cfg.get("relative_soft_limits") != dict(minimum=-.140638855,maximum=1.3889088544,
+                margin=.03,projection="outward_relative_torque_v1"):
+>           raise ValueError("Gas-compensated training requires matching RMCS relative soft limits")
+E           ValueError: Gas-compensated training requires matching RMCS relative soft limits
+
+src/wheeled_tasks/chassis/gas_spring_compensation.py:41: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_full_robot_v202.py::test_spring_force_knots_are_inherited_but_virtual_work_uses_new_geometry
+FAILED tests/test_full_robot_v202.py::test_measured_wheel_total_inertia_and_fractional_delay_are_used_once
+2 failed, 13 passed in 2.84s

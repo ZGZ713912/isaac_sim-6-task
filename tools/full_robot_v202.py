@@ -31,6 +31,8 @@ REFERENCE_MANIFEST_SHA = "d3af5b544b874c8629860a9cc0c1529d215b0e3644126b3b9da7ad
 ACTIVE = ["L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3"]
 GIMBAL = ["M_joint1", "M_joint2"]
 GIMBAL_PITCH_DEG = (-30., 35.)
+KNEE_INNER_DEG = (40., 110.)
+ENCODER_ZERO_INNER_DEG = 110.
 SPRINGS = ["L_spring_slide", "R_spring_slide"]
 ALIGN = np.array([[0., -1., 0.], [1., 0., 0.], [0., 0., 1.]])
 MODEL_KIND = "full_robot_v202_gas_spring_closedchain"
@@ -383,7 +385,7 @@ def make_spec(robot, reference, bundle):
         beta0 = float(np.arccos(np.clip(upper@lower/np.linalg.norm(upper)/np.linalg.norm(lower), -1., 1.)))
         spec["passive_knee_zero_inner_rad"][name] = beta0
         sign = 1. if side == "L" else -1.
-        bounds = sorted((np.deg2rad(np.array([40., 107.]))-beta0)/sign)
+        bounds = sorted((np.deg2rad(np.array(KNEE_INNER_DEG))-beta0)/sign)
         j["type"] = "revolute"
         j["limit"].update(lower=str(bounds[0]), upper=str(bounds[1]))
     for c in reference["constraints"]:
@@ -617,7 +619,7 @@ def finish_bundle(staging, published, spec):
     passive = [i for i in range(len(names)) if i not in active]
     rows, q, max_gap = [], spec["nominal_joint_pos"], 0.
     print("Solving v2.0.2 closed-chain gas-spring and encoder geometry", flush=True)
-    for beta in np.linspace(39.5, 108.5, 277):
+    for beta in np.linspace(*KNEE_INNER_DEG, 281):
         prescribed = {"L_joint1": .42, "R_joint1": -.42, "L_joint3": 0., "R_joint3": 0.,
             "L_joint2": np.deg2rad(beta)-spec["passive_knee_zero_inner_rad"]["L_joint2"],
             "R_jonit2": -(np.deg2rad(beta)-spec["passive_knee_zero_inner_rad"]["R_jonit2"])}
@@ -638,7 +640,8 @@ def finish_bundle(staging, published, spec):
         max_gap = max(max_gap, gap)
         rows.append((float(beta), dict(q), mapping, fk(spec, q)))
     table = dict(schema="full_robot_v202_encoder_geometry_v1", model_spec_sha256=model["model_spec_sha256"],
-        control_joint_names=ACTIVE, passive_knee_domain_deg=[40., 107.], max_closure_gap_m=max_gap,
+        control_joint_names=ACTIVE, passive_knee_domain_deg=list(KNEE_INNER_DEG), max_closure_gap_m=max_gap,
+        hardware_zero_reference_inner_deg=ENCODER_ZERO_INNER_DEG,
         nominal_motor_positions=[spec["nominal_joint_pos"][n] for n in (ACTIVE[0], ACTIVE[1], ACTIVE[3], ACTIVE[4])],
         hardware_calibrated=False, sides={})
     for word, side, columns in (("left", "L", slice(0, 2)), ("right", "R", slice(3, 5))):
@@ -649,7 +652,7 @@ def finish_bundle(staging, published, spec):
         model["sides"][word] = dict(motor_names=[hip, aux], delta_rad=delta.tolist(),
             beta_deg=[r[0] for r in rows], compression_m=[spec["spring_binding"][slide]["compression_at_q_zero_m"]-r[1][slide] for r in rows],
             length_jacobian_m_per_rad=[r[2][names.index(slide), columns].tolist() for r in rows], closure_max_m=max_gap)
-        subset = [r for r in rows if 40. <= r[0] <= 107.]
+        subset = [r for r in rows if KNEE_INNER_DEG[0] <= r[0] <= KNEE_INNER_DEG[1]]
         subset.sort(key=lambda r:r[1][aux]-r[1][hip])
         hj = next(j for j in spec["joints"] if j["name"] == hip)
         bodies = {b["name"]:b for b in spec["bodies"]}
@@ -661,6 +664,13 @@ def finish_bundle(staging, published, spec):
             wheel_axis_b=wheel_frames[0][:3,2].tolist(), wheel_radius_m=wheel["radius"],
             delta_rad=[r[1][aux]-r[1][hip] for r in subset], passive_inner_deg=[r[0] for r in subset],
             wheel_center_b_m=[f[:3,3].tolist() for f in wheel_frames])
+    signed_low = max(side["delta_rad"][0] for side in model["sides"].values())
+    signed_high = min(side["delta_rad"][-1] for side in model["sides"].values())
+    soft = dict(minimum=signed_low, maximum=signed_high, margin=.03,
+        projection="outward_relative_torque_v1")
+    model.update(geometry_beta_domain_deg=list(KNEE_INNER_DEG),
+        soft_limit_active_difference_rad=[signed_low, signed_high],
+        right_leg_symmetry_basis="user accepted 2026-10-30")
     save(bundle/"gas_spring_model.json", model)
     save(bundle/"encoder_geometry.json", table)
     wheel_source = ROOT/"model/wheel_identified_1562_20261028/model.json"
@@ -686,7 +696,7 @@ def finish_bundle(staging, published, spec):
         model_file=str((published/"isaac/gas_spring_model.json").relative_to(ROOT)),
         model_sha256=digest(bundle/"gas_spring_model.json"), gain=1.,
         force_extrapolation="positive_c1_endpoint_trend_v1", physical_curve_outside_geometry="hold_geometry_endpoint",
-        relative_soft_limits=dict(minimum=-.140638855, maximum=1.3889088544, margin=.03, projection="outward_relative_torque_v1"))
+        relative_soft_limits=soft)
     settings["source_inertia_scope"] = "v201 CAD mass COM inertia preserved; coordinate re-expression only"
     settings["mass_asymmetry"] = "v201 CAD retained; LL_link2 and RR_link2 are both0.08357kg; no imposed offset"
     settings["spring_pressure_mpa"] = None
@@ -702,15 +712,20 @@ def finish_bundle(staging, published, spec):
         randomization_contract="contracts/wheel_leg_randomization_study_v2.json",
         training_initialization="fresh actor critic and empty Adam; no checkpoint teacher donor",
         loaded_wheel_torque_curve_identified=False, physical_gas_pressure_identified=False,
-        right_gas_spring_symmetry_assumed=True, behavior_qualified=False))
-    save(bundle/"mechanical_limits.json", dict(knee_inner_limits_deg=[40.,107.],
+        right_gas_spring_symmetry_assumed=True, right_gas_spring_symmetry_basis="user accepted 2026-10-30",
+        behavior_qualified=False))
+    save(bundle/"mechanical_limits.json", dict(knee_inner_limits_deg=list(KNEE_INNER_DEG),
+        hardware_zero_reference_inner_deg=ENCODER_ZERO_INNER_DEG,
+        knee_limit_source="user confirmed 110-degree zero and 40-110 degree mechanical inner-angle stops 2026-10-30",
+        knee_limit_coordinate="physical included angle between thigh and shank; not independent motor stops",
         passive_knee_zero_inner_rad=spec["passive_knee_zero_inner_rad"],
         relative_soft_limits=settings["gas_spring_compensation"]["relative_soft_limits"],
         leg_total_limit_nm=40., wheel_motor_limit_nm=4.5,
         passive_joint_velocity_limit_rad_s=100., velocity_limit_scope="inherited solver guard, not newly identified motor speed",
         gimbal=gimbal_limits()))
     save(bundle/"gimbal_limits.json",gimbal_limits())
-    manifest = dict(schema_version=1, model_kind=MODEL_KIND, asset_revision="full_robot_v202_gimbal_fixed_v2_pitch_limits",
+    manifest = dict(schema_version=1, model_kind=MODEL_KIND, asset_revision="full_robot_v202_zero110_knee_40_110",
+        hardware_zero_reference_inner_deg=ENCODER_ZERO_INNER_DEG,
         coordinate_schema=spec["coordinate_schema"], control_frame=spec["control_frame"],
         urdf="robot.urdf", usd="robot.usda", gimbal_free_usd="robot_gimbal_free.usda",gimbal_limits="gimbal_limits.json",
         usd_prim_path="/Robot", usd_articulation_root_path="/Robot/base_link",
@@ -719,13 +734,14 @@ def finish_bundle(staging, published, spec):
         fixed_joint_names=GIMBAL, control_joint_names=ACTIVE, spring_joint_names=SPRINGS,
         nominal_joint_pos={k:v for k,v in spec["nominal_joint_pos"].items() if k not in GIMBAL},
         nominal_base_height_m=.32, total_mass_kg=sum(b["mass"] for b in spec["bodies"]),
-        wheel_gear_ratio=15.62, knee_inner_limits_deg=[40.,107.], gimbal_mode="fixed_zero",
+        wheel_gear_ratio=15.62, knee_inner_limits_deg=list(KNEE_INNER_DEG), gimbal_mode="fixed_zero",
         self_collision_enabled=False, runtime_spring_force_required=True,
         inertia_rebuilt_count=0, source_urdf_sha256=SOURCE_SHA,
         static_validation_passed=True, physx_validation="pending; separate probe receipt required",
         training_ready=False, hardware_deployment_ready=False,
         pending_gates=["native_PhysX_component_probe", "new_full_vehicle_pose_bank_and_curriculum_admission", "full_behavior_acceptance"],
-        files_sha256={str(p.relative_to(bundle)):digest(p) for p in sorted(bundle.rglob("*")) if p.is_file()})
+        files_sha256={str(p.relative_to(bundle)):digest(p) for p in sorted(bundle.rglob("*"))
+            if p.is_file() and p != bundle/"manifest.json"})
     save(bundle/"manifest.json", manifest)
     save(staging/"build_receipt.json", dict(version="2.0.2", source_version="2.0.1", new_PPO=0,
         raw_source_unchanged=True, total_mass_kg=manifest["total_mass_kg"], bodies=21,

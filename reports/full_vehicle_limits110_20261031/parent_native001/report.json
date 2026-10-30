@@ -1,0 +1,34 @@
+{
+  "status": "failed",
+  "started_at": "2026-10-30T16:57:26.549044+00:00",
+  "fixture": "fixed_zero_g",
+  "gravity_m_s2": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "floor_present": false,
+  "physics_dt_s": 0.001,
+  "policy_dt_s": 0.01,
+  "leg_motor_armature_kg_m2": 0.0,
+  "reset_pose_writes_per_case": 1,
+  "passive_pose_writes_during_physics": 0,
+  "ppo_updates": 0,
+  "hardware_motion": false,
+  "behavior_qualified": false,
+  "device": "cuda:0",
+  "asset_manifest_sha256": "01c7fa6762b63f32f0b0b6d7a38cc4e6c65d1b7b82970530f57aec25e4dcde29",
+  "model_spec_sha256": "388dbdc69cbc7021ea02e553caaed098a05e237a6867b45ee7df172858050b29",
+  "script_sha256": "aee293bce2cc9049a6f2c1fa3654dd927f8bb216970f5085a98dc132cb89a830",
+  "versions": {
+    "isaacsim": "6.0.0.1",
+    "isaaclab": "6.1.14",
+    "isaaclab-physx": "1.1.3",
+    "torch": "2.11.0+cu128"
+  },
+  "cases": [],
+  "passed": false,
+  "error": "Gas-compensated training requires matching RMCS relative soft limits",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/scripts/probe_full_robot_v202.py\", line 67, in main\n    control, response = asset.components(1, args.device)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/full_robot_v202.py\", line 85, in components\n    control = V5Control(self.manifest, self.spec, fit, self.prior, settings, device, root=ROOT)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/v5_control.py\", line 35, in __init__\n    self.gas_compensation = GasSpringCompensation(settings[\"gas_spring_compensation\"],\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/gas_spring_compensation.py\", line 47, in __init__\n    self.cfg, self.model = load_compensation(settings, root)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/noir/Documents/workspace/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/gas_spring_compensation.py\", line 41, in load_compensation\n    raise ValueError(\"Gas-compensated training requires matching RMCS relative soft limits\")\nValueError: Gas-compensated training requires matching RMCS relative soft limits\n",
+  "elapsed_s": 6.921539806993678
+}

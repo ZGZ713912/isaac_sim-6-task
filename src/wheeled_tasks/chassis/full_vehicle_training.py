@@ -88,6 +88,8 @@ def authenticate(config, root):
             raise ValueError("Inherited full-vehicle native component report changed")
     return dict(status="authenticated_geometry_derivation", source_spec_sha256=source.spec_sha256,
         model_spec_sha256=recipe["model_spec_sha256"], recipe_sha256=declaration["sha256"],
+        knee_inner_limits_deg=source.limits["knee_inner_limits_deg"],
+        hardware_zero_reference_inner_deg=source.limits["hardware_zero_reference_inner_deg"],
         component_scope="unchanged chassis geometry, mass, spring curves and wheel dynamics; only two free gimbal joints",
         moving_gimbal_behavior_qualified=False, hardware_release=False)
 
