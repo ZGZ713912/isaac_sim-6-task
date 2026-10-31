@@ -206,6 +206,9 @@ def test_solver_override_reaches_authenticated_design_and_preserves_other_physic
     # Zero velocity iterations is an explicit PhysX setting, not an omitted flag.
     zero = resolve_plan(BASE,position_iterations=12,velocity_iterations=0)
     assert zero["solver_iterations"]["velocity_iterations"] == 0
+    raw = deepcopy(BASE)
+    raw["solver_iterations"] = dict(position_iterations=12,velocity_iterations=6,asset_directory="other")
+    with pytest.raises(ValueError,match="only"):task.validate(raw)
 
 
 def test_old_eighteen_option_global_checkpoint_keeps_original_solver(tmp_path):

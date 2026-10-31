@@ -37,6 +37,13 @@ def validate(plan):
     if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2",
                                  "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         raise ValueError("Need the explicit prone-motion contract")
+    if "solver_iterations" in plan:
+        solver = plan["solver_iterations"]
+        if type(solver) is not dict or set(solver) != {"position_iterations", "velocity_iterations"}:
+            raise ValueError("Solver override must contain only position_iterations and velocity_iterations")
+        for key, minimum in (("position_iterations", 1), ("velocity_iterations", 0)):
+            if type(solver[key]) is not int or not minimum <= solver[key] <= 255:
+                raise ValueError(f"{key} must be an integer in [{minimum},255]")
     if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))
