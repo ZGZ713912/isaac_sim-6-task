@@ -16,10 +16,12 @@ OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_
                "domain_randomization", "dr_strength", "num_steps_per_env", "recovery_curriculum",
                "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns",
                "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials",
-               "curriculum_eval_every", "curriculum_success_rate", "curriculum_required_passes")
+               "curriculum_eval_every", "curriculum_success_rate", "curriculum_required_passes",
+               "position_iterations", "velocity_iterations")
 LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
 LEGACY_RECOVERY_OPTION_KEYS = OPTION_KEYS[:12]
 LEGACY_MASTERY_OPTION_KEYS = OPTION_KEYS[:15]
+LEGACY_GLOBAL_OPTION_KEYS = OPTION_KEYS[:18]
 
 
 def _hash(value):
@@ -28,7 +30,8 @@ def _hash(value):
 
 def _configured(base, options):
     if ((set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base)
-            or set(options) in (set(LEGACY_RECOVERY_OPTION_KEYS),set(LEGACY_MASTERY_OPTION_KEYS))):
+            or set(options) in (set(LEGACY_RECOVERY_OPTION_KEYS),set(LEGACY_MASTERY_OPTION_KEYS),
+                                set(LEGACY_GLOBAL_OPTION_KEYS))):
         options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
@@ -46,6 +49,14 @@ def _configured(base, options):
         raise ValueError("seed must fit NumPy's uint32 seed range")
     if result["num_envs"] > 512:
         raise ValueError("This isolated-world task currently supports --num_envs 20..512")
+    if any(options[key] is not None for key in ("position_iterations", "velocity_iterations")):
+        solver = dict(result.get("solver_iterations", dict(position_iterations=64, velocity_iterations=32)))
+        for key, minimum in (("position_iterations", 1), ("velocity_iterations", 0)):
+            if options[key] is not None:
+                solver[key] = options[key]
+            if type(solver[key]) is not int or not minimum <= solver[key] <= 255:
+                raise ValueError(f"{key} must be an integer in [{minimum},255]")
+        result["solver_iterations"] = solver
     if not math.isfinite(result["learning_rate"]) or result["learning_rate"] <= 0:
         raise ValueError("learning_rate must be finite and positive")
     mode, strength = options["domain_randomization"], options["dr_strength"]
@@ -165,6 +176,10 @@ def train_parser():
     parser.add_argument("--save_interval", "--save-interval", type=int)
     parser.add_argument("--num_steps_per_env", "--num-steps-per-env", "--rollout-steps", type=int)
     parser.add_argument("--learning_rate", "--learning-rate", type=float)
+    parser.add_argument("--position-iterations", "--position_iterations", type=int,
+                        help="PhysX position solver iterations per physics step; inherited default64")
+    parser.add_argument("--velocity-iterations", "--velocity_iterations", type=int,
+                        help="PhysX velocity solver iterations per physics step; inherited default32")
     parser.add_argument("--recovery-curriculum", choices=("staged","all"), default=None)
     parser.add_argument("--recovery-gate-success-rate",type=float,default=None)
     parser.add_argument("--recovery-gate-every",type=int,default=None,help="PPO updates between four-class cold checks")

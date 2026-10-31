@@ -76,7 +76,9 @@ def test_explicit_domains_and_scaled_schedule(mode, strength, expected):
 
 @pytest.mark.parametrize("override", [dict(num_envs=19), dict(num_envs=513), dict(max_iterations=0), dict(seed=-1),
     dict(seed=2**32), dict(save_interval=0), dict(learning_rate=float("nan")), dict(dr_strength=1.1),
-    dict(domain_randomization="unknown"), dict(num_steps_per_env=0)])
+    dict(domain_randomization="unknown"), dict(num_steps_per_env=0), dict(position_iterations=0),
+    dict(position_iterations=256), dict(position_iterations=True), dict(velocity_iterations=-1),
+    dict(velocity_iterations=256)])
 def test_invalid_run_options_fail_before_output_or_kit(override):
     with pytest.raises(ValueError):
         resolve_plan(BASE, **override)
@@ -181,6 +183,38 @@ def test_old_resolved_checkpoint_with_eight_runtime_options_stays_readable():
     old = resolve_plan(legacy,max_iterations=5000)
     old["runtime_cli"]["options"] = {k:v for k,v in old["runtime_cli"]["options"].items() if k in LEGACY_OPTION_KEYS}
     assert task.validate(old) == old
+
+
+def test_solver_override_reaches_authenticated_design_and_preserves_other_physics(tmp_path):
+    args = train_parser().parse_args(["--position-iterations", "12", "--velocity_iterations", "6"])
+    _, plan, _ = training_options(args, ROOT)
+    cfg, _, _ = configuration(tmp_path/"reduced", plan)
+    original, _, _ = configuration(tmp_path/"original", resolve_plan(BASE))
+    assert (original["position_iterations"], original["velocity_iterations"]) == (64,32)
+    assert (cfg["position_iterations"], cfg["velocity_iterations"]) == (12,6)
+    saved = json.loads((tmp_path/"reduced/task_contract.json").read_text())
+    assert saved["solver_iterations"] == plan["solver_iterations"] == dict(position_iterations=12,velocity_iterations=6)
+    design = json.loads((tmp_path/"reduced/config/design.json").read_text())
+    row = design["stages"]["speed"]["roles"]["train"]["contract"]
+    assert (row["position_iterations"],row["velocity_iterations"]) == (12,6)
+    for key in ("closure_gap_termination_m", "asset_manifest_sha256", "full_vehicle", "leg_motor_friction"):
+        assert cfg[key] == original[key]
+    assert plan["timing"] == BASE["timing"] and plan["global_curriculum"] == BASE["global_curriculum"]
+    changed = deepcopy(plan)
+    changed["solver_iterations"]["velocity_iterations"] = 7
+    with pytest.raises(ValueError):task.validate(changed)
+    # Zero velocity iterations is an explicit PhysX setting, not an omitted flag.
+    zero = resolve_plan(BASE,position_iterations=12,velocity_iterations=0)
+    assert zero["solver_iterations"]["velocity_iterations"] == 0
+
+
+def test_old_eighteen_option_global_checkpoint_keeps_original_solver(tmp_path):
+    from wheeled_tasks.chassis.prone_motion_cli import LEGACY_GLOBAL_OPTION_KEYS
+    old = resolve_plan(BASE)
+    old["runtime_cli"]["options"] = {k:v for k,v in old["runtime_cli"]["options"].items() if k in LEGACY_GLOBAL_OPTION_KEYS}
+    assert task.validate(old) == old and "solver_iterations" not in old
+    cfg, _, _ = configuration(tmp_path, old)
+    assert (cfg["position_iterations"],cfg["velocity_iterations"]) == (64,32)
 
 
 def test_explicit_v3_training_keeps_legacy_zero_wheel_position_slots(tmp_path):

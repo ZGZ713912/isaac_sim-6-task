@@ -55,6 +55,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
                 raise ValueError("Full-vehicle mechanism or reset bank changed")
         args.mechanism = ROOT/plan["mechanism"]["file"]
     cfg, settings = base.prepare(args)
+    if "solver_iterations" in plan:
+        cfg.update(plan["solver_iterations"])
     settings.update(version=plan["schema"], prone_motion_task=deepcopy(plan),
         prone_geometry=json.loads((ROOT/plan["prone_geometry_contract"]).read_text()),
         quiet_training=False, quiet_critic_anchor=True, hold_motion_during_recovery=True,
@@ -145,6 +147,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         full_vehicle=deepcopy(full_vehicle), gimbal_motion=deepcopy(cfg.get("gimbal_motion")),
         policy_hz=round(1./rates["policy_dt"]), physics_hz=round(1./rates["physics_dt"]),
         timing=rates, rollout_steps=plan["rollout_steps"], discounts=discount,
+        solver_iterations={key:cfg[key] for key in ("position_iterations", "velocity_iterations")},
         standing_odometry=deepcopy(plan.get("standing_odometry")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",

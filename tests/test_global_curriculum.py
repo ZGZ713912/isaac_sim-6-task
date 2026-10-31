@@ -181,7 +181,8 @@ def test_contract_cycles_cli_thresholds_legacy_runtime_and_formal_no_checkpoint(
     assert p['global_curriculum']['required_consecutive_passes']==2
     legacy=json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4_recovery_20261031.json').read_text())
     p=resolve_plan(legacy)
-    for key in ('curriculum_eval_every','curriculum_success_rate','curriculum_required_passes'):
+    for key in ('curriculum_eval_every','curriculum_success_rate','curriculum_required_passes',
+                'position_iterations','velocity_iterations'):
         del p['runtime_cli']['options'][key]
     assert validate_resolved(p)==p
     with pytest.raises(SystemExit):train_parser().parse_args(['--checkpoint','old.pt'])
