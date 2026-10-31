@@ -39,7 +39,7 @@ def save(path, value):
 
 class Controller:
     def __init__(self, library, rows, settings, program=None, relative=True, wheel_limit=20., distance_gain=.98,
-                 flip_handoff=(math.degrees(math.acos(.85)),2.,0.),fold_first=False,flip_completion=(0.,False)):
+                 flip_handoff=(math.degrees(math.acos(.85)),2.,0.),fold_first=False,flip_completion=(0.,False),flip_stall_dwell=0.,first_orbit_hold_mask=0):
         self.lib = ct.CDLL(str(library))
         pointer = ct.POINTER(ct.c_double)
         self.lib.wheelleg_recovery_create.argtypes = [pointer, ct.c_int, pointer, ct.c_int]
@@ -52,6 +52,10 @@ class Controller:
         self.lib.wheelleg_recovery_configure_flip_handoff.argtypes = [ct.c_void_p,ct.c_double,ct.c_double,ct.c_double]
         self.lib.wheelleg_recovery_set_flip_fold_first.argtypes = [ct.c_void_p,ct.c_int]
         self.lib.wheelleg_recovery_configure_flip_completion.argtypes = [ct.c_void_p,ct.c_double,ct.c_int]
+        self.lib.wheelleg_recovery_configure_flip_stall.argtypes = [ct.c_void_p,ct.c_double]
+        self.lib.wheelleg_recovery_stalled_waypoints.argtypes = [ct.c_void_p]
+        self.lib.wheelleg_recovery_stalled_waypoints.restype = ct.c_int
+        self.lib.wheelleg_recovery_configure_flip_first_orbit_hold.argtypes = [ct.c_void_p,ct.c_int]
         self.lib.wheelleg_recovery_compensation.argtypes = [pointer,pointer]
         if self.lib.wheelleg_recovery_abi_version() != 6:
             raise ValueError("Recovery ABI differs")
@@ -71,6 +75,15 @@ class Controller:
         if self.lib.wheelleg_recovery_configure_flip_completion(self.handle,*flip_completion):
             self.close()
             raise ValueError('C++ rejected flip leg-orbit handoff')
+        if self.lib.wheelleg_recovery_configure_flip_stall(self.handle,flip_stall_dwell):
+            self.close()
+            raise ValueError('C++ rejected flip stall dwell')
+        if isinstance(first_orbit_hold_mask,bool) or not isinstance(first_orbit_hold_mask,int)or not 0<=first_orbit_hold_mask<=3:
+            self.close()
+            raise ValueError('First-waypoint orbit hold mask must be an integer between zero and three')
+        if self.lib.wheelleg_recovery_configure_flip_first_orbit_hold(self.handle,first_orbit_hold_mask):
+            self.close()
+            raise ValueError('C++ rejected first-waypoint orbit hold mask')
         if program:
             waypoints=np.ascontiguousarray(program,dtype=np.float64)
             if waypoints.ndim!=2 or waypoints.shape[1]!=9:
@@ -223,6 +236,8 @@ def run(args):
             row['flip_fold_first']=variant.get('fold_first',args.flip_fold_first)
             row['flip_handoff_orbit_limit_deg']=variant.get('flip_handoff_orbit_limit_deg',args.flip_handoff_orbit_limit)
             row['flip_balance_when_upright']=variant.get('flip_balance_when_upright',args.flip_balance_when_upright)
+            row['flip_stall_dwell_seconds']=variant.get('flip_stall_dwell_seconds',args.flip_stall_dwell)
+            row['flip_first_orbit_hold_mask']=variant.get('flip_first_orbit_hold_mask',args.flip_first_orbit_hold_mask)
             expanded.append(row)
     starts=expanded
     if args.motor_servo=='implicit-velocity' and any(s['controller_settings'][2]!=args.velocity_gain for s in starts):
@@ -239,6 +254,7 @@ def run(args):
         motor_servo=args.motor_servo,
         body_friction=args.body_friction,base_friction=args.base_friction,
         collision_geometry=args.collision_geometry,
+        base_ground_vertex_guards=args.base_ground_vertex_guards,
         research_filter_leg_assembly=args.filter_leg_assembly,
         research_filter_base_gas_cavity=args.filter_base_gas_cavity,
         requested_control_seconds=args.seconds,requested_passive_settle_seconds=args.settle,
@@ -282,7 +298,12 @@ def run(args):
         floor=su.CuboidCfg(size=(80.,80.,.1),collision_props=su.CollisionPropertiesCfg(contact_offset=.002,rest_offset=0.),
             physics_material=su.RigidBodyMaterialCfg(static_friction=.5,dynamic_friction=.5,restitution=0.))
         floor.func("/World/Ground",floor,translation=(20.,20.,-.05))
-        origins=np.array([[i%8*4.,i//8*4.,0.] for i in range(count)])
+        origin_indices=np.arange(count)+args.origin_index_offset
+        origins=np.array([[i%8*4.,i//8*4.,0.]for i in origin_indices])
+        if origins[:,1].max()>56.:
+            raise ValueError('Environment origins exceed the fixed research floor')
+        receipt['environment_origin_index_offset']=args.origin_index_offset
+        receipt['authored_environment_origins_m']=origins.tolist()
         for i,origin in enumerate(origins):
             UsdGeom.Xform.Define(sim.stage,f"/World/envs/env_{i}").AddTranslateOp().Set(tuple(origin))
         active=manifest["control_joint_names"]; springs=manifest["spring_joint_names"]
@@ -319,10 +340,12 @@ def run(args):
                 ("Base",args.base_friction,args.nonwheel_friction_combine),("Wheel",.7,"average")):
             m=su.RigidBodyMaterialCfg(static_friction=mu,dynamic_friction=mu,restitution=0.,friction_combine_mode=combine)
             m.func("/World/"+name+"Material",m)
-        if args.collision_geometry in ('cad-decomposition','cad-component-hulls','cad-sdf','cad-gimbal-hulls','cad-link-hulls','cad-outer-hulls','cad-gimbal-guards'):
+        if args.collision_geometry in ('cad-decomposition','cad-component-hulls','cad-sdf','cad-gimbal-hulls','cad-link-hulls','cad-outer-hulls','cad-gimbal-guards','cad-gimbal-tight-guards','cad-gimbal-component-guards'):
             import trimesh
             cad_meshes=[]
+            base_guard_points=None
             outer_hull_counts={}
+            gimbal_component_counts={}
             receipt['temporary_collision_source_sha256']={}
             for body in spec['bodies']:
                 if body['name'] in ('L_link3','R_link3'):continue
@@ -334,7 +357,17 @@ def run(args):
                     cad.update_faces(cad.nondegenerate_faces())
                     cad.remove_unreferenced_vertices()
                 transform=np.array(body['mesh_origin'])
+                if args.base_ground_vertex_guards and body['name']=='base_link':
+                    base_guard_points=np.asarray(cad.convex_hull.vertices)@transform[:3,:3].T+transform[:3,3]
                 components=[cad]
+                if args.collision_geometry=='cad-gimbal-tight-guards' and body['name'].startswith('M_'):
+                    # Minkowski sum with a cube gives an outward margin of at
+                    # least m and at most sqrt(3)*m from the true CAD convex
+                    # hull, unlike a sparse outer support-plane approximation.
+                    hull=cad.convex_hull
+                    offsets=np.array(np.meshgrid(*[[-args.cad_guard_margin,args.cad_guard_margin]]*3)).reshape(3,-1).T
+                    components=[trimesh.convex.convex_hull((hull.vertices[:,None,:]+offsets[None,:,:]).reshape(-1,3))]
+                    outer_hull_counts[body['name']]=len(components[0].vertices)
                 if (args.collision_geometry=='cad-outer-hulls' and body['name']!='base_link') or \
                         (args.collision_geometry=='cad-gimbal-guards' and body['name'].startswith('M_')):
                     from scipy.spatial import HalfspaceIntersection
@@ -351,7 +384,8 @@ def run(args):
                     outer=trimesh.convex.convex_hull(intersections)
                     if len(outer.vertices)>64:raise ValueError('Outer support hull exceeds the native vertex budget')
                     components=[outer];outer_hull_counts[body['name']]=len(outer.vertices)
-                if args.collision_geometry=='cad-component-hulls':
+                if args.collision_geometry=='cad-component-hulls' or \
+                        (args.collision_geometry=='cad-gimbal-component-guards' and body['name'].startswith('M_')):
                     from scipy.sparse import coo_matrix
                     from scipy.sparse.csgraph import connected_components
                     edges=cad.edges_unique
@@ -366,9 +400,14 @@ def run(args):
                         except Exception:
                             hull=trimesh.creation.box(extents=np.maximum(component.extents,1e-6))
                             hull.apply_translation(component.bounds.mean(0))
-                        if len(hull.vertices)>256:
+                        if args.collision_geometry=='cad-gimbal-component-guards':
+                            offsets=np.array(np.meshgrid(*[[-args.cad_guard_margin,args.cad_guard_margin]]*3)).reshape(3,-1).T
+                            hull=trimesh.convex.convex_hull((hull.vertices[:,None,:]+offsets[None,:,:]).reshape(-1,3))
+                        elif len(hull.vertices)>256:
                             hull=component.bounding_box_oriented
                         components.append(hull)
+                    if args.collision_geometry=='cad-gimbal-component-guards':
+                        gimbal_component_counts[body['name']]=[len(c.vertices)for c in components]
                 if len(components)>1000:
                     raise ValueError('CAD is too fragmented for per-component hulls; use a different collision representation')
                 for part,component in enumerate(components):
@@ -391,10 +430,12 @@ def run(args):
                         sdf.CreateSdfResolutionAttr(args.sdf_resolution)
                         sdf.CreateSdfSubgridResolutionAttr(5)
                         sdf.CreateSdfEnableRemeshingAttr(True)
-                    elif args.collision_geometry=='cad-component-hulls' or (args.collision_geometry in ('cad-gimbal-hulls','cad-gimbal-guards') and name.startswith('M_')) \
+                    elif args.collision_geometry=='cad-component-hulls' or (args.collision_geometry in ('cad-gimbal-hulls','cad-gimbal-guards','cad-gimbal-tight-guards','cad-gimbal-component-guards') and name.startswith('M_')) \
                             or (args.collision_geometry in ('cad-link-hulls','cad-outer-hulls') and name!='base_link'):
                         UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr('convexHull')
                         PhysxSchema.PhysxConvexHullCollisionAPI.Apply(mesh.GetPrim()).CreateHullVertexLimitAttr(256)
+                        if args.collision_geometry=='cad-gimbal-component-guards' and name.startswith('M_'):
+                            PhysxSchema.PhysxConvexHullCollisionAPI(mesh.GetPrim()).CreateMinThicknessAttr(0.)
                     else:
                         UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr('convexDecomposition')
                         decomposition=PhysxSchema.PhysxConvexDecompositionCollisionAPI.Apply(mesh.GetPrim())
@@ -403,6 +444,25 @@ def run(args):
                         decomposition.CreateShrinkWrapAttr(True)
                     props=PhysxSchema.PhysxCollisionAPI.Apply(mesh.GetPrim())
                     props.CreateContactOffsetAttr(args.cad_contact_offset);props.CreateRestOffsetAttr(0.)
+            if args.base_ground_vertex_guards:
+                if base_guard_points is None:raise ValueError('Missing original CAD base vertices')
+                # A flat plane has the same support minimum over a CAD mesh
+                # and its convex-hull vertices. These small native spheres
+                # preserve that function to their radius without hull cooking.
+                # Filter them against all other robot collider prims below.
+                for i in range(count):
+                    for j,point in enumerate(base_guard_points):
+                        sphere=UsdGeom.Sphere.Define(sim.stage,
+                            f'/World/envs/env_{i}/Robot/base_link/RecoveryGroundVertex{j}')
+                        sphere.CreateRadiusAttr(.0001)
+                        sphere.AddTranslateOp().Set(Gf.Vec3d(*point))
+                        UsdPhysics.CollisionAPI.Apply(sphere.GetPrim()).CreateCollisionEnabledAttr(True)
+                        props=PhysxSchema.PhysxCollisionAPI.Apply(sphere.GetPrim())
+                        props.CreateContactOffsetAttr(args.cad_contact_offset);props.CreateRestOffsetAttr(0.)
+                receipt['base_ground_vertex_guard_geometry']=dict(count_per_robot=len(base_guard_points),
+                    radius_m=.0001,vertices_body_frame_m=base_guard_points.tolist(),
+                    flat_plane_outward_support_error_m=.0001,
+                    scope='Original CAD convex-hull vertex spheres, ground only; support-function identity applies to a flat plane, not arbitrary terrain')
             receipt['temporary_collision_decomposition']=dict(max_hulls=64,hull_vertices=64,voxels=500000,error_percentage=.1,
                 shrink_wrap=True,contact_offset_m=args.cad_contact_offset,rest_offset_m=0.)
             if args.collision_geometry=='cad-component-hulls':
@@ -423,6 +483,16 @@ def run(args):
             elif args.collision_geometry=='cad-gimbal-guards':
                 receipt['temporary_collision_decomposition'].update(gimbal_outer_support_hulls=True,
                     support_planes=30,source_margin_m=args.cad_guard_margin,gimbal_hull_vertex_counts=outer_hull_counts)
+            elif args.collision_geometry=='cad-gimbal-tight-guards':
+                receipt['temporary_collision_decomposition'].update(gimbal_minkowski_cube_guards=True,
+                    source_margin_m=args.cad_guard_margin,
+                    precook_outward_distance_upper_bound_m=np.sqrt(3.)*args.cad_guard_margin,
+                    gimbal_hull_vertex_counts=outer_hull_counts)
+            elif args.collision_geometry=='cad-gimbal-component-guards':
+                receipt['temporary_collision_decomposition'].update(gimbal_component_guards=True,
+                    source_margin_m=args.cad_guard_margin,min_thickness_m=0.,
+                    component_hull_vertex_counts=gimbal_component_counts,
+                    precook_cube_outward_distance_m=np.sqrt(3.)*args.cad_guard_margin)
             save(args.output/'receipt.json',receipt)
         adjacent={b['name']:set() for b in spec['bodies']}
         for joint in spec['joints']:
@@ -494,6 +564,18 @@ def run(args):
                     if str(prim.GetPath()).startswith(prefix+'base_link/')and prim.HasAPI(UsdPhysics.CollisionAPI) \
                             and UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get():
                         UsdPhysics.FilteredPairsAPI.Apply(prim).CreateFilteredPairsRel().SetTargets(gas_colliders)
+        if args.base_ground_vertex_guards:
+            for i in range(count):
+                prefix=f'/World/envs/env_{i}/Robot/'
+                colliders=[prim for prim in sim.stage.Traverse()
+                    if str(prim.GetPath()).startswith(prefix)and prim.HasAPI(UsdPhysics.CollisionAPI)
+                    and UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get()]
+                guard_prefix=prefix+'base_link/RecoveryGroundVertex'
+                targets=[prim.GetPath()for prim in colliders
+                    if not str(prim.GetPath()).startswith(guard_prefix)]
+                for prim in colliders:
+                    if str(prim.GetPath()).startswith(guard_prefix):
+                        UsdPhysics.FilteredPairsAPI.Apply(prim).CreateFilteredPairsRel().SetTargets(targets)
         receipt['root_pair_filter_policy']=('No articulation-root pair targets; optional base/gas masks apply only to collider prims'
             if args.self_collision else 'Self-collision disabled; source pair filters retained')
         root_paths={prim.GetPath()for prim in sim.stage.Traverse()if prim.HasAPI(UsdPhysics.ArticulationRootAPI)}
@@ -536,17 +618,19 @@ def run(args):
             from omni.physx import get_physx_cooking_interface
             cooked=[]
             for name in args.diagnostic_targets:
-                path=f'/World/envs/env_0/Robot/{name}/RecoveryCadCollision0'
-                prim=sim.stage.GetPrimAtPath(path)
-                if not prim.IsValid():continue
-                def on_cooked(result,convexes,mesh_path=path):
-                    cooked.append(dict(path=mesh_path,result=str(result),convexes=[dict(
-                        vertices=[list(v)for v in convex.vertices],indices=list(convex.indices),
-                        polygons=[dict(index_base=p.index_base,num_vertices=p.num_vertices,plane=list(p.plane))
-                            for p in convex.polygons])for convex in convexes]))
-                get_physx_cooking_interface().request_convex_collision_representation(
-                    stage_id=UsdUtils.StageCache.Get().GetId(sim.stage).ToLongInt(),
-                    collision_prim_id=PhysicsSchemaTools.sdfPathToInt(path),run_asynchronously=False,on_result=on_cooked)
+                prefix=f'/World/envs/env_0/Robot/{name}/RecoveryCadCollision'
+                paths=[prim.GetPath()for prim in sim.stage.Traverse()
+                    if str(prim.GetPath()).startswith(prefix)and prim.HasAPI(UsdPhysics.CollisionAPI)
+                    and UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get()]
+                for path in paths:
+                    def on_cooked(result,convexes,mesh_path=str(path)):
+                        cooked.append(dict(path=mesh_path,result=str(result),convexes=[dict(
+                            vertices=[list(v)for v in convex.vertices],indices=list(convex.indices),
+                            polygons=[dict(index_base=p.index_base,num_vertices=p.num_vertices,plane=list(p.plane))
+                                for p in convex.polygons])for convex in convexes]))
+                    get_physx_cooking_interface().request_convex_collision_representation(
+                        stage_id=UsdUtils.StageCache.Get().GetId(sim.stage).ToLongInt(),
+                        collision_prim_id=PhysicsSchemaTools.sdfPathToInt(path),run_asynchronously=False,on_result=on_cooked)
             save(args.output/'cooked_collision_geometry.json',dict(meshes=cooked))
             from omni.physx import get_physx_property_query_interface
             queried=[]
@@ -613,7 +697,8 @@ def run(args):
         controllers=[Controller(library,geo["rows"],s['controller_settings'],s['flip_program'],
             s['flip_program_relative_to_side'],s['balance_wheel_speed_limit_rad_s'],s['balance_distance_gain'],
             s['flip_handoff'],s['flip_fold_first'],
-            (s['flip_handoff_orbit_limit_deg'],s['flip_balance_when_upright'])) for s in starts]
+            (s['flip_handoff_orbit_limit_deg'],s['flip_balance_when_upright']),s['flip_stall_dwell_seconds'],
+            s['flip_first_orbit_hold_mask'])for s in starts]
         effort=torch.zeros_like(q0); gravity0=torch.tensor([[0.,0.,-1.]]).expand(count,3)
         peaks=np.zeros((count,4)); active_peaks=peaks.copy(); reference_peaks=peaks.copy(); gaps=np.zeros(count)
         position_rate_peaks=peaks.copy()
@@ -646,6 +731,7 @@ def run(args):
         control_every=round(args.control_dt/dt)
         commands=np.zeros((count,24))
         observation_termination='planned_duration'
+        control_started=False
         for tick in range(steps):
             q=robot.data.joint_pos.torch; dq=robot.data.joint_vel.torch
             root=robot.data.root_link_pose_w.torch
@@ -660,6 +746,15 @@ def run(args):
             leg_q=raw_leg_q+leg_turn_offset
             previous_leg_q=raw_leg_q.copy()
             enabled=tick*dt>=args.settle
+            if enabled and not control_started:
+                receipt['controlled_initial_states']=[dict(name=s['name'],simulation_time_s=tick*dt,
+                    root_pose_xyzw=root[i].tolist(),gravity_body=gravity[i].tolist(),gyro_body_rad_s=gyro[i].tolist(),
+                    full_joint_positions=dict(zip(robot.joint_names,q[i].tolist())),
+                    full_joint_velocities=dict(zip(robot.joint_names,dq[i].tolist())),
+                    root_com_velocity_world=robot.data.root_com_vel_w.torch[i].tolist(),
+                    tilt_deg=float(torch.acos(torch.clamp(-gravity[i,2],-1.,1.))*180./math.pi))
+                    for i,s in enumerate(starts)]
+                control_started=True;save(args.output/'receipt.json',receipt)
             if tick%control_every==0:
                 commands=np.array([c.step(np.r_[leg_q[i],dq[i,leg_ids].numpy(),c.compensation(leg_q[i]),
                     gravity[i].numpy(),gyro[i].numpy(),dq[i,[ids[2],ids[5]]].numpy()],args.control_dt,enabled) for i,c in enumerate(controllers)])
@@ -771,6 +866,7 @@ def run(args):
                     writer.add_scalar(prefix+"/phase",commands[i,14],tick)
                     writer.add_scalar(prefix+"/height_m",float(root[i,2]),tick)
                     writer.add_scalar(prefix+"/loop_gap_m",float(gap[i]),tick)
+                    writer.add_scalar(prefix+"/stalled_waypoints",controllers[i].lib.wheelleg_recovery_stalled_waypoints(controllers[i].handle),tick)
                 print(json.dumps(dict(simulation_seconds=round(tick*dt,3),phases=commands[:,14].astype(int).tolist(),
                     tilt_deg=np.rad2deg(np.arccos(np.clip(-gravity[:,2].numpy(),-1,1))).round(1).tolist(),
                     height_m=root[:,2].numpy().round(3).tolist(),speed_peak=peaks.max(-1).round(3).tolist(),
@@ -785,6 +881,7 @@ def run(args):
             body_poses=np.asarray(body_trace),body_time_s=body_trace_time)
         for i,s in enumerate(starts):
             receipt["records"].append(dict(name=s["name"],completion_seconds=completion[i],
+                stalled_flip_waypoints=controllers[i].lib.wheelleg_recovery_stalled_waypoints(controllers[i].handle),
                 final_stable_seconds=float(stable[i]),fault=int(faults[i]),leg_speed_peak_rad_s=peaks[i].tolist(),
                 recovery_sequence_completed=bool(completion[i]is not None and max(completion_speed[i])<=3.140001
                     and max(completion_position_rate[i])<=3.140001 and completion_gap[i]<=.003),
@@ -842,6 +939,8 @@ def main():
         flip_capture_gyro=2.,flip_capture_dwell=0.,body_record_period=.05).items():
         p.add_argument("--"+name.replace("_","-"),type=float,default=value)
     p.add_argument("--seed",type=int,default=261031)
+    p.add_argument('--origin-index-offset',type=int,default=0,
+        help='Offset the fixed 4m origin grid to test placement sensitivity without adding unused actors')
     p.add_argument('--diagnostic-steps',type=int,default=0,help='Record individual native self-contact pairs for one case')
     p.add_argument('--diagnostic-targets',nargs='+',help='Restrict pair diagnosis to named target bodies')
     p.add_argument("--random-gimbal",action="store_true")
@@ -852,12 +951,18 @@ def main():
         help='Require both measured leg orbits within this many degrees of below-body before leaving flip; zero disables')
     p.add_argument('--flip-balance-when-upright',action='store_true',
         help='Use the existing bounded wheel balance while the flip program is near upright')
+    p.add_argument('--flip-stall-dwell',type=float,default=0.,
+        help='Optional Flip search policy: abandon a stopped blocked waypoint after this dwell; zero disables it')
+    p.add_argument('--flip-first-orbit-hold-mask',type=int,choices=range(4),default=0,
+        help='Bits 1/2 keep the first/second program leg at its own initial orbit in waypoint zero')
     p.add_argument('--self-collision',action='store_true',help='Native nonadjacent collision-envelope probe; filter joint/loop adjacent bodies and two nominal CAD assembly pairs')
-    p.add_argument('--collision-geometry',choices=['model-spec','cad-decomposition','cad-component-hulls','cad-sdf','cad-gimbal-hulls','cad-link-hulls','cad-outer-hulls','cad-gimbal-guards'],default='model-spec',
+    p.add_argument('--collision-geometry',choices=['model-spec','cad-decomposition','cad-component-hulls','cad-sdf','cad-gimbal-hulls','cad-link-hulls','cad-outer-hulls','cad-gimbal-guards','cad-gimbal-tight-guards','cad-gimbal-component-guards'],default='model-spec',
         help='Experimental temporary CAD convex decomposition; mass, inertia and mechanism remain authenticated')
     p.add_argument('--sdf-resolution',type=int,default=512)
     p.add_argument('--cad-guard-margin',type=float,default=.001,
         help='Outward support-plane margin of temporary gimbal guard hulls, in meters')
+    p.add_argument('--base-ground-vertex-guards',action='store_true',
+        help='Add ground-only 0.1mm spheres at original base CAD hull vertices; flat-plane research fixture')
     p.add_argument('--filter-leg-assembly',action='store_true',
         help='Research mask: exclude internal pairs within each leg assembly; body, opposite leg and gimbal contacts remain. Requires separate CAD screening.')
     p.add_argument('--filter-base-gas-cavity',action='store_true',
@@ -873,6 +978,7 @@ def main():
     args=p.parse_args()
     if not 16<=args.sdf_resolution<=2048:p.error('SDF resolution must be between 16 and 2048')
     if args.diagnostic_steps<0:p.error('diagnostic steps cannot be negative')
+    if args.origin_index_offset<0:p.error('origin index offset cannot be negative')
     if args.body_record_period<=0.:p.error('body record period must be positive')
     for key,value in vars(args).items():
         if isinstance(value,float) and not math.isfinite(value):p.error(key+' must be finite')
@@ -881,6 +987,8 @@ def main():
         p.error('Invalid duration, settling time, native speed limit or initial knee angle')
     if not 0.<args.cad_contact_offset<=.002:p.error('CAD contact offset must be positive and at most 2mm')
     if not 0.<args.cad_guard_margin<=.005:p.error('CAD gimbal guard margin must be positive and at most 5mm')
+    if args.base_ground_vertex_guards and args.collision_geometry=='model-spec':
+        p.error('Base ground vertex guards require an authenticated CAD collision fixture')
     if not 0.<args.control_dt<=.01 or not math.isclose(args.control_dt/args.dt,round(args.control_dt/args.dt),abs_tol=1e-9):
         p.error('Control dt must be an integer multiple of physics dt')
     if args.leg_friction_scale not in (0.,1.): p.error('Friction scale is 1, or 0 for an explicitly unqualified diagnostic')

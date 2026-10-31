@@ -5,8 +5,10 @@ import argparse
 from collections import Counter
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
+import textwrap
 import numpy as np
 from scipy.spatial.transform import Rotation
 import matplotlib
@@ -33,6 +35,11 @@ def main():
     if receipt['status']!='completed' or digest(args.run/'trace.npz')!=receipt['trace_sha256']:
         raise ValueError('Need a completed, unchanged native trace')
     args.output.mkdir(parents=True,exist_ok=False)
+    sources={}
+    for source in (Path(__file__),ROOT/'scripts/audit_fallen_pose_contacts.py'):
+        target=args.output/'sources'/source.name
+        target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(source,target);sources[str(source.resolve())]=digest(target)
     data=np.load(args.run/'trace.npz');times=data['body_time_s'];poses=data['body_poses'];trace=data['values']
     settings=json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4.json').read_text())
     mechanism=json.loads((ROOT/settings['mechanism']['file']).read_text())
@@ -47,13 +54,17 @@ def main():
         mesh=trimesh.load(path,force='mesh',process=True)
         if len(mesh.faces)>1800:mesh=mesh.simplify_quadric_decimation(face_count=1800)
         parts.append((names.index(body['name']),body['name'],np.array(mesh.vertices),np.array(mesh.faces),np.array(body['mesh_origin'])))
-    fig=plt.figure(figsize=(17,3.7*len(indices)),facecolor='#f8fafc')
-    sampled=[];mapping=[]
+    figure_height=4.2*len(indices)+.65
+    fig=plt.figure(figsize=(17,figure_height),facecolor='#f8fafc')
+    fig.subplots_adjust(left=.01,right=.99,top=1.-.8/figure_height,bottom=.025,wspace=.01,hspace=.22)
+    sampled=[];mapping=[];figure_end_times={}
+    settle=float(receipt.get('requested_passive_settle_seconds',0.))
     for row_index,i in enumerate(indices):
         record=rows[i]
         duration=record['completion_seconds']
-        if duration is None:duration=record.get('first_fault_seconds') or float(times[-1])
-        end=min(float(times[-1]),float(duration))
+        if duration is None:duration=record.get('first_fault_seconds')
+        end=float(times[-1])if duration is None else min(float(times[-1]),settle+float(duration))
+        figure_end_times[record['name']]=end
         chosen=[int(np.abs(times-t).argmin())for t in np.linspace(times[0],end,5)]
         for col,k in enumerate(chosen):
             ax=fig.add_subplot(len(indices),5,row_index*5+col+1,projection='3d',computed_zorder=False)
@@ -70,7 +81,9 @@ def main():
             ax.set_proj_type('ortho');ax.view_init(elev=22,azim=-55);ax.set_axis_off()
             ax.set_title(f"t = {times[k]:.2f} s",fontsize=10)
             if col==0:
-                ax.text2D(0.,1.12,record['name'],transform=ax.transAxes,fontsize=10,fontweight='bold')
+                fig.text(.018,ax.get_position().y1+.2/figure_height,
+                    textwrap.fill(record['name'],width=110,break_on_hyphens=False),
+                    fontsize=9.5,fontweight='bold',va='bottom')
         if args.audit:
             if args.full_window:end=float(times[-1])
             stride=max(1,round(args.audit_period/float(np.median(np.diff(times)))))
@@ -79,8 +92,7 @@ def main():
                 index=len(sampled)
                 sampled.append(dict(index=index,final_pose=dict(native_body_poses_world=dict(zip(names,poses[k,i].tolist())))))
                 mapping.append(dict(index=index,case=record['name'],time_s=float(times[k])))
-    fig.suptitle('Measured native body poses | blue/red: legs, orange: passive gimbal | ground z=0',fontsize=12)
-    fig.subplots_adjust(left=.01,right=.99,top=.90,bottom=.02,wspace=.01,hspace=.08)
+    fig.suptitle('Measured native body poses | blue/red: legs, orange: passive gimbal | time since placement',fontsize=11,y=.985)
     fig.savefig(args.output/'measured_poses.png',dpi=150);plt.close(fig)
     n=len(receipt['native_joint_names']);leg_ids=[receipt['native_joint_names'].index(j)for j in ('L_joint1','LL_joint1','R_joint1','RR_joint1')]
     fig,axes=plt.subplots(len(indices),3,figsize=(14,2.7*len(indices)),squeeze=False)
@@ -90,11 +102,15 @@ def main():
         axes[r,0].plot(time,np.rad2deg(np.arccos(np.clip(-x[:,g0+2],-1,1))));axes[r,0].set_ylabel(rows[i]['name']+'\nTilt (deg)')
         axes[r,1].plot(time,x[:,2]);axes[r,1].axhline(.305,color='#888',ls='--');axes[r,1].set_ylabel('Height (m)')
         axes[r,2].plot(time,x[:,7+n+np.array(leg_ids)]);axes[r,2].axhline(3.14,color='red',ls='--');axes[r,2].axhline(-3.14,color='red',ls='--');axes[r,2].set_ylabel('Four shaft speeds (rad/s)')
-        for ax in axes[r]:ax.grid(alpha=.2);ax.set_xlabel('Simulation time (s)')
+        for ax in axes[r]:
+            if settle>0.:ax.axvspan(0.,settle,color='#b8c4cf',alpha=.35)
+            ax.grid(alpha=.2);ax.set_xlabel('Time since placement (s)')
     fig.tight_layout();fig.savefig(args.output/'measured_trajectory.png',dpi=150);plt.close(fig)
     summary=dict(schema='traditional-recovery-native-review/v1',native_run=str(args.run.resolve()),
         native_trace_sha256=receipt['trace_sha256'],actual_native_body_poses=True,cases=args.cases,
-        source_sha256=digest(__file__),scope='Review figures; rendering does not qualify collisions or hardware')
+        source_sha256=digest(__file__),sources=sources,plot_time_origin='episode placement',
+        passive_settle_seconds=settle,figure_end_times_since_placement_s=figure_end_times,
+        scope='Review figures; rendering does not qualify collisions or hardware')
     if args.audit:
         save(args.output/'sample_mapping.json',dict(samples=mapping))
         save(args.output/'samples.json',dict(status='completed',asset_directory=mechanism['asset_directory'],
