@@ -24,6 +24,9 @@ parser.add_argument('--trace-steps', type=int, default=32)
 parser.add_argument('--profile', default='nominal')
 parser.add_argument('--strength', type=float, default=0.)
 parser.add_argument('--actor-updates', type=int, default=0)
+parser.add_argument('--num-envs', type=int, default=256)
+parser.add_argument('--position-iterations', type=int)
+parser.add_argument('--velocity-iterations', type=int)
 parser.add_argument('--backend',choices=('eager','cuda_graph'),default='cuda_graph')
 parser.add_argument('--instrument', action='store_true')
 parser.add_argument('--kit-threads', type=int, default=0)
@@ -40,6 +43,9 @@ entry.check_other_learners()
 from wheeled_tasks.chassis.prone_motion import validate
 plan_path = (args.plan or root/'contracts/wheel_leg_prone_motion_v3.json').resolve()
 plan = validate(json.loads(plan_path.read_text()))
+from wheeled_tasks.chassis.prone_motion_cli import resolve_plan
+plan = resolve_plan(plan, num_envs=args.num_envs, position_iterations=args.position_iterations,
+                    velocity_iterations=args.velocity_iterations)
 hashes = entry.source_hashes(plan_path, plan)
 result = dict(schema='local-prone-motion-performance-v1', status='starting', pid=os.getpid(),
     start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19]),
@@ -74,10 +80,23 @@ try:
     backend_kw = ({'performance_backend':args.backend}
         if 'performance_backend' in inspect.signature(entry.configuration).parameters else {})
     cfg, settings, bank = entry.configuration(out/'config_context',plan,profile=args.profile,
-        strength=args.strength,num_envs=256,seed=seed,**backend_kw)
+        strength=args.strength,num_envs=args.num_envs,seed=seed,**backend_kw)
     manifest = json.loads((root/cfg['asset_directory']/'manifest.json').read_text())
     env = ProneMotionEnv(cfg,manifest,load_chassis_control(root/cfg['control_math_source']),root,
-        stage_name='speed',num_envs=256,device='cuda:0',seed=seed,level=1.,run_role='train',bank=bank,settings=settings)
+        stage_name='speed',num_envs=args.num_envs,device='cuda:0',seed=seed,level=1.,run_role='train',bank=bank,settings=settings)
+    from pxr import PhysxSchema
+    solver_readback = []
+    for prim in env.sim.stage.Traverse():
+        if str(prim.GetPath()).startswith('/World/envs/env_') and prim.HasAPI(PhysxSchema.PhysxArticulationAPI):
+            api = PhysxSchema.PhysxArticulationAPI(prim)
+            solver_readback.append([api.GetSolverPositionIterationCountAttr().Get(),
+                                    api.GetSolverVelocityIterationCountAttr().Get()])
+    expected_solver = [cfg['position_iterations'],cfg['velocity_iterations']]
+    result['solver_usd_readback'] = dict(articulation_count=len(solver_readback),
+        unique_iteration_counts=sorted({tuple(v) for v in solver_readback}),
+        all_match_requested=len(solver_readback)==env.num_envs and all(v==expected_solver for v in solver_readback))
+    if not result['solver_usd_readback']['all_match_requested']:
+        raise RuntimeError('Authored articulation solver iterations do not match the requested run')
     if args.backend != 'eager' and not hasattr(env,'performance_backend'):
         from wheeled_tasks.chassis.prone_motion_performance import install
         install(env, args.backend)
@@ -139,10 +158,14 @@ try:
                     (env,'closure_gap','closure_gap'),(env.robot,'update','robot_update')):
                 wrap(obj,name,label)
         times = []
+        closure_peak_m = 0.
+        termination_events = 0
         for _ in range(args.steps):
             torch.cuda.synchronize(); t = time.perf_counter()
             obs,reward,done,info = env.step(action)
             torch.cuda.synchronize(); times.append(time.perf_counter()-t)
+            closure_peak_m = max(closure_peak_m, float(env.closure_gap().max()))
+            termination_events += int(done.sum())
         result['instrumented_calls'] = {k:dict(count=v[0],total_s=v[1]) for k,v in counters.items()}
         prof = cProfile.Profile()
         prof.enable()
@@ -155,6 +178,7 @@ try:
     result.update(status='completed' if finite else 'failed_nonfinite', finite=finite,
         step_mean_s=float(np.mean(times)),step_median_s=float(np.median(times)),step_p90_s=float(np.quantile(times,.9)),
         measured_policy_steps=len(times), measured_physics_steps=len(times)*env.decimation,
+        post_step_closure_peak_m=closure_peak_m, termination_events=termination_events,
         step_times_s=times, trace_sha256=entry.base.digest(out/'trace.npz'))
     writer = SummaryWriter(str(out/'events'))
     for i,v in enumerate(times): writer.add_scalar('PerformanceProbe/policy_step_s',v,i)
