@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--cases',nargs='+',required=True)
     parser.add_argument('--audit-period',type=float,default=.1)
     parser.add_argument('--audit',action='store_true')
+    parser.add_argument('--full-window',action='store_true',help='Audit beyond first completion through the entire observation window')
     args=parser.parse_args()
     receipt=json.loads((args.run/'receipt.json').read_text())
     if receipt['status']!='completed' or digest(args.run/'trace.npz')!=receipt['trace_sha256']:
@@ -67,8 +68,11 @@ def main():
             ax.add_collection3d(Poly3DCollection([square],facecolors='#dce4ec',alpha=.5,zorder=1))
             ax.set(xlim=(-.57,.57),ylim=(-.57,.57),zlim=(-.03,.78));ax.set_box_aspect((1,1,.71))
             ax.set_proj_type('ortho');ax.view_init(elev=22,azim=-55);ax.set_axis_off()
-            ax.set_title(f"{record['name']}\nt = {times[k]:.2f} s",fontsize=10)
+            ax.set_title(f"t = {times[k]:.2f} s",fontsize=10)
+            if col==0:
+                ax.text2D(0.,1.12,record['name'],transform=ax.transAxes,fontsize=10,fontweight='bold')
         if args.audit:
+            if args.full_window:end=float(times[-1])
             stride=max(1,round(args.audit_period/float(np.median(np.diff(times)))))
             steps=sorted(set([0,int(np.abs(times-end).argmin()),*range(0,int(np.searchsorted(times,end)),stride)]))
             for k in steps:
@@ -102,8 +106,9 @@ def main():
             chosen=[audit['records'][r['index']]for r in mapping if r['case']==name]
             screen.append(dict(case=name,samples=len(chosen),flagged=sum(a['review_required']for a in chosen),
                 new_pairs=dict(Counter('+'.join(p)for a in chosen for p in a['new_nonadjacent_cad_surface_contacts']))))
-        summary.update(audit_period_s=args.audit_period,cad_screen=screen,
-            cad_scope='Finite triangle-surface samples until first recovery completion or fault; adjacent and nominal assembly contacts exempt; no containment or between-sample proof')
+        summary.update(audit_period_s=max(args.audit_period,float(np.median(np.diff(times)))),cad_screen=screen,
+            full_window=args.full_window,
+            cad_scope='Finite triangle-surface samples '+('through the full observation window'if args.full_window else'until first recovery completion or fault')+'; adjacent and nominal assembly contacts exempt; no containment or between-sample proof')
     save(args.output/'review.json',summary);print(json.dumps(summary))
 
 

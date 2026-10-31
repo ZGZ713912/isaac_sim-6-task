@@ -34,22 +34,32 @@ def main():
             gravity_y = -2.*(y*z+x*w)
             tilt = math.degrees(math.acos(max(-1., min(1., 1.-2.*(x*x+y*y)))))
             records.append(dict(name=row['name'], source_family=case['family'],
+                initial_leg_combination=case.get('legs'),
                 initial_tilt_deg=tilt, strict_side_start=abs(gravity_y)>.98 and 80.<tilt<100.,
                 first_completion_s=row['completion_seconds'],
                 sequence_completed=row.get('recovery_sequence_completed'),
                 observation_end_passed=row['passed'], fault=row['fault'],
                 final_stable_s=row['final_stable_seconds'],
                 actual_speed_peak_rad_s=max(row['leg_speed_peak_rad_s']),
+                position_increment_rate_peak_rad_s=max(row['leg_position_increment_rate_peak_rad_s'])
+                    if row.get('leg_position_increment_rate_peak_rad_s') else None,
                 loop_gap_peak_m=row['loop_gap_peak_m']))
         trace = path.parent/'trace.npz'
         snapshot_valid = all((path.parent/'sources'/Path(name).name).is_file()
             and digest(path.parent/'sources'/Path(name).name)==sha for name,sha in receipt['sources'].items())
+        corrected_root_filter=bool(receipt.get('self_collision_enabled') and
+            receipt.get('root_pair_filter_policy','').startswith('No articulation-root pair targets'))
+        contact_scope=('corrected root-filter policy recorded; trajectory and CAD admission remain separate'
+            if corrected_root_filter else 'unqualified root-level pair filtering or disabled self-contact')
         runs.append(dict(run=path.parent.name, status=status, receipt_sha256=digest(path),
             closure=str(closure)if closure.exists()else None, error=receipt.get('error'),
             case_count=len(receipt['cases']), completed_records=len(records),
             first_completion_count=sum(r['first_completion_s']is not None for r in records),
             observation_end_pass_count=sum(r['observation_end_passed']for r in records),
             self_collision=receipt.get('self_collision_enabled'),
+            contact_fixture_scope=contact_scope,
+            root_pair_filter_policy=receipt.get('root_pair_filter_policy'),
+            effective_pair_filter_relations_recorded='effective_pair_filter_relations' in receipt,
             collision_geometry=receipt.get('collision_geometry','model-spec'),
             model_spec_sha256=receipt['model_spec_sha256'],sources=receipt['sources'],
             physics_dt_s=receipt.get('physics_dt_s'),controller_dt_s=receipt.get('controller_dt_s'),
@@ -66,17 +76,24 @@ def main():
         scope='Observed finite recovery windows and engineering checks; no complete traditional self-righting or hardware qualification',
         speed_requirement_rad_s=3.14,
         blockers=[
-            'Strict side-lying recovery has not succeeded in the tested bounded leg programs.',
+            'Corrected self-contact trials have finite successes, but strict left/right side recovery is not robustly covered.',
             'Random passive gimbal configurations and independent front/rear leg combinations are not fully covered.',
             'CAD surface intersections invalidate some apparent recovery successes.',
-            'Native self-contact collision envelopes are not validated; replacement probes remain unqualified.',
+            'Earlier root-level collision masks invalidated apparent successes; corrected SDF and convex fixtures still disagree.',
+            'Some CAD-grounded poses are not proven passive equilibria; measured endpoints may retain residual motion.',
             'PhysX speed governor is not proof of hardware or controller-only actual speed enforcement.',
             'Sustained standing and complete v202 traditional-control handoff remain unverified.'],
         fixture_history=dict(native001_to_native014='Missing passive numerical damping/wheel hull correction; debug only',
             native015_and_native018='Implicit actuator configured without an authored DriveAPI; invalid motor implementation',
             native016='Trace exists but NumPy-bool receipt serialization failed; never a completed receipt',
             native019_onwards='Explicit angular DriveAPI in implicit mode; later source/settings remain per run',
-            native030_to_native032='Nonphysical self-contact ejection; explicitly stopped, closure records retained'),
+            native030_to_native032='Nonphysical self-contact ejection; explicitly stopped, closure records retained',
+            native039_to_native069='Research filters on articulation-root base_link unintentionally suppress unrelated link contact; debug only',
+            native070='Corrected filters on deliberately intersecting positive-control start; not a recovery trial',
+            native071_onwards='No articulation-root pair targets; optional base/gas filters at collider level; source and contact representation remain per run'),
+        contact_controls=[dict(path=str(p),sha256=digest(p),
+            all_controls_passed=json.loads(p.read_text()).get('all_controls_passed'))
+            for p in sorted(args.root.glob('contact_control*/receipt.json'))],
         runs=runs,reviews=reviews)
     save(args.output,result)
     print(json.dumps(dict(runs=len(runs),reviews=len(reviews),required_case_qualification=False)))

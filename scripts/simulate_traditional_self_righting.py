@@ -38,13 +38,20 @@ def save(path, value):
 
 
 class Controller:
-    def __init__(self, library, rows, settings):
+    def __init__(self, library, rows, settings, program=None, relative=True, wheel_limit=20., distance_gain=.98,
+                 flip_handoff=(math.degrees(math.acos(.85)),2.,0.),fold_first=False,flip_completion=(0.,False)):
         self.lib = ct.CDLL(str(library))
         pointer = ct.POINTER(ct.c_double)
         self.lib.wheelleg_recovery_create.argtypes = [pointer, ct.c_int, pointer, ct.c_int]
         self.lib.wheelleg_recovery_create.restype = ct.c_void_p
         self.lib.wheelleg_recovery_step.argtypes = [ct.c_void_p, pointer, ct.c_double, ct.c_int, ct.c_int, pointer]
         self.lib.wheelleg_recovery_destroy.argtypes = [ct.c_void_p]
+        self.lib.wheelleg_recovery_destroy.restype = None
+        self.lib.wheelleg_recovery_set_flip_program.argtypes = [ct.c_void_p,pointer,ct.c_int,ct.c_int]
+        self.lib.wheelleg_recovery_configure_capture.argtypes = [ct.c_void_p,ct.c_double,ct.c_double]
+        self.lib.wheelleg_recovery_configure_flip_handoff.argtypes = [ct.c_void_p,ct.c_double,ct.c_double,ct.c_double]
+        self.lib.wheelleg_recovery_set_flip_fold_first.argtypes = [ct.c_void_p,ct.c_int]
+        self.lib.wheelleg_recovery_configure_flip_completion.argtypes = [ct.c_void_p,ct.c_double,ct.c_int]
         self.lib.wheelleg_recovery_compensation.argtypes = [pointer,pointer]
         if self.lib.wheelleg_recovery_abi_version() != 6:
             raise ValueError("Recovery ABI differs")
@@ -52,6 +59,26 @@ class Controller:
         self.handle = self.lib.wheelleg_recovery_create(self.ptr(rows), len(rows), self.ptr(settings), len(settings))
         if not self.handle:
             raise ValueError("C++ rejected recovery configuration")
+        if self.lib.wheelleg_recovery_configure_capture(self.handle,wheel_limit,distance_gain):
+            self.close()
+            raise ValueError('C++ rejected balance wheel speed limit')
+        if self.lib.wheelleg_recovery_configure_flip_handoff(self.handle,*flip_handoff):
+            self.close()
+            raise ValueError('C++ rejected flip handoff')
+        if self.lib.wheelleg_recovery_set_flip_fold_first(self.handle,fold_first):
+            self.close()
+            raise ValueError('C++ rejected flip preparation')
+        if self.lib.wheelleg_recovery_configure_flip_completion(self.handle,*flip_completion):
+            self.close()
+            raise ValueError('C++ rejected flip leg-orbit handoff')
+        if program:
+            waypoints=np.ascontiguousarray(program,dtype=np.float64)
+            if waypoints.ndim!=2 or waypoints.shape[1]!=9:
+                self.close()
+                raise ValueError('Flip program must contain rows of nine numbers')
+            if self.lib.wheelleg_recovery_set_flip_program(self.handle,self.ptr(waypoints),len(waypoints),relative):
+                self.close()
+                raise ValueError('C++ rejected flip program')
         self.result = np.zeros(24)
 
     @staticmethod
@@ -120,10 +147,10 @@ def prepare(args, bundle, spec, manifest):
                 raise ValueError('Invalid measured initial state')
             if set(q)!=set(manifest['tree_joint_names']) or set(dq)!=set(q) or len(velocity)!=6:
                 raise ValueError('Measured initial state has incomplete feedback')
-            starts.append(dict(name=pose['name'],family=pose['family'],legs='measured',
+            starts.append(dict(name=pose['name'],family=pose['family'],legs=pose.get('legs','measured'),
                 root_position_m=pose['root_position_m'],quaternion_xyzw=quaternion,
                 full_joint_positions=q,full_joint_velocities=dq,root_com_velocity_world=velocity,
-                initial_condition='measured passive endpoint, including residual velocities',
+                initial_condition=pose.get('initial_condition','measured passive endpoint, including residual velocities'),
                 source_bank=str(args.starts.resolve()),source_bank_sha256=digest(args.starts),
                 source_static_equilibrium_proven=pose.get('static_equilibrium_proven',False)))
         if not starts or (args.start_names and set(args.start_names)!={s['name']for s in starts}):
@@ -188,6 +215,14 @@ def run(args):
             for key,value in variant['settings'].items():
                 if key not in names: raise ValueError('Unknown variant setting: '+key)
                 row['controller_settings'][names.index(key)]=float(value)
+            row['flip_program']=variant.get('flip_program',[])
+            row['flip_program_relative_to_side']=variant.get('relative_to_side',True)
+            row['balance_wheel_speed_limit_rad_s']=variant.get('balance_wheel_speed_limit_rad_s',args.balance_wheel_speed_limit)
+            row['balance_distance_gain']=variant.get('balance_distance_gain',args.balance_distance_gain)
+            row['flip_handoff']=variant.get('flip_handoff',[args.flip_capture_tilt,args.flip_capture_gyro,args.flip_capture_dwell])
+            row['flip_fold_first']=variant.get('fold_first',args.flip_fold_first)
+            row['flip_handoff_orbit_limit_deg']=variant.get('flip_handoff_orbit_limit_deg',args.flip_handoff_orbit_limit)
+            row['flip_balance_when_upright']=variant.get('flip_balance_when_upright',args.flip_balance_when_upright)
             expanded.append(row)
     starts=expanded
     if args.motor_servo=='implicit-velocity' and any(s['controller_settings'][2]!=args.velocity_gain for s in starts):
@@ -204,6 +239,10 @@ def run(args):
         motor_servo=args.motor_servo,
         body_friction=args.body_friction,base_friction=args.base_friction,
         collision_geometry=args.collision_geometry,
+        research_filter_leg_assembly=args.filter_leg_assembly,
+        research_filter_base_gas_cavity=args.filter_base_gas_cavity,
+        requested_control_seconds=args.seconds,requested_passive_settle_seconds=args.settle,
+        stop_when_all_faulted=args.stop_when_all_faulted,
         nonwheel_friction_combine=args.nonwheel_friction_combine,
         gimbal="both axes passive, yaw optionally randomized",ppo_updates=0,hardware_motion=False,
         records=[],hardware_deployment_ready=False)
@@ -280,17 +319,60 @@ def run(args):
                 ("Base",args.base_friction,args.nonwheel_friction_combine),("Wheel",.7,"average")):
             m=su.RigidBodyMaterialCfg(static_friction=mu,dynamic_friction=mu,restitution=0.,friction_combine_mode=combine)
             m.func("/World/"+name+"Material",m)
-        if args.collision_geometry=='cad-decomposition':
+        if args.collision_geometry in ('cad-decomposition','cad-component-hulls','cad-sdf','cad-gimbal-hulls','cad-link-hulls','cad-outer-hulls','cad-gimbal-guards'):
             import trimesh
             cad_meshes=[]
+            outer_hull_counts={}
             receipt['temporary_collision_source_sha256']={}
             for body in spec['bodies']:
                 if body['name'] in ('L_link3','R_link3'):continue
                 mesh_path=bundle/body['mesh']
                 if not mesh_path.exists():mesh_path=bundle.parent/'isaac'/body['mesh']
                 cad=trimesh.load(mesh_path,force='mesh',process=True)
+                if args.collision_geometry in ('cad-sdf','cad-component-hulls'):
+                    cad.update_faces(cad.unique_faces())
+                    cad.update_faces(cad.nondegenerate_faces())
+                    cad.remove_unreferenced_vertices()
                 transform=np.array(body['mesh_origin'])
-                cad_meshes.append((body['name'],np.asarray(cad.vertices)@transform[:3,:3].T+transform[:3,3],np.asarray(cad.faces)))
+                components=[cad]
+                if (args.collision_geometry=='cad-outer-hulls' and body['name']!='base_link') or \
+                        (args.collision_geometry=='cad-gimbal-guards' and body['name'].startswith('M_')):
+                    from scipy.spatial import HalfspaceIntersection
+                    # Thirty support planes give at most 56 vertices. Every
+                    # source CAD vertex lies inside, avoiding an inscribed
+                    # simplification when PhysX cooks a large raw point cloud.
+                    index=np.arange(24);z=1.-2.*(index+.5)/24
+                    phi=index*np.pi*(3.-np.sqrt(5.));radius=np.sqrt(1.-z*z)
+                    directions=np.r_[np.eye(3),-np.eye(3),np.c_[radius*np.cos(phi),radius*np.sin(phi),z]]
+                    margin=args.cad_guard_margin if args.collision_geometry=='cad-gimbal-guards' else .00002
+                    supports=(np.asarray(cad.vertices)@directions.T).max(0)+margin
+                    interior=np.asarray(cad.convex_hull.vertices).mean(0)
+                    intersections=HalfspaceIntersection(np.c_[directions,-supports],interior).intersections
+                    outer=trimesh.convex.convex_hull(intersections)
+                    if len(outer.vertices)>64:raise ValueError('Outer support hull exceeds the native vertex budget')
+                    components=[outer];outer_hull_counts[body['name']]=len(outer.vertices)
+                if args.collision_geometry=='cad-component-hulls':
+                    from scipy.sparse import coo_matrix
+                    from scipy.sparse.csgraph import connected_components
+                    edges=cad.edges_unique
+                    graph=coo_matrix((np.ones(len(edges)),(edges[:,0],edges[:,1])),shape=(len(cad.vertices),len(cad.vertices)))
+                    total,labels=connected_components(graph,directed=False)
+                    components=[]
+                    for component_index in range(total):
+                        # Vertex connectivity includes CAD's non-manifold seams;
+                        # face-adjacency splitting alone produced 30k fragments.
+                        component=cad.submesh([np.flatnonzero(labels[cad.faces[:,0]]==component_index)],append=True,repair=False)
+                        try: hull=component.convex_hull
+                        except Exception:
+                            hull=trimesh.creation.box(extents=np.maximum(component.extents,1e-6))
+                            hull.apply_translation(component.bounds.mean(0))
+                        if len(hull.vertices)>256:
+                            hull=component.bounding_box_oriented
+                        components.append(hull)
+                if len(components)>1000:
+                    raise ValueError('CAD is too fragmented for per-component hulls; use a different collision representation')
+                for part,component in enumerate(components):
+                    cad_meshes.append((body['name'],part,np.asarray(component.vertices)@transform[:3,:3].T+transform[:3,3],np.asarray(component.faces)))
                 receipt['temporary_collision_source_sha256'][str(mesh_path)]=digest(mesh_path)
             for prim in list(sim.stage.Traverse()):
                 path=str(prim.GetPath())
@@ -298,20 +380,49 @@ def run(args):
                         and not any('/'+n+'/'in path for n in ('L_link3','R_link3')):
                     UsdPhysics.CollisionAPI(prim).CreateCollisionEnabledAttr(False)
             for i in range(count):
-                for name,vertices,faces in cad_meshes:
-                    mesh=UsdGeom.Mesh.Define(sim.stage,f'/World/envs/env_{i}/Robot/{name}/RecoveryCadCollision')
+                for name,part,vertices,faces in cad_meshes:
+                    mesh=UsdGeom.Mesh.Define(sim.stage,f'/World/envs/env_{i}/Robot/{name}/RecoveryCadCollision{part}')
                     mesh.CreatePointsAttr([Gf.Vec3f(*v)for v in vertices]);mesh.CreateFaceVertexCountsAttr([3]*len(faces))
                     mesh.CreateFaceVertexIndicesAttr(faces.reshape(-1).tolist())
                     UsdPhysics.CollisionAPI.Apply(mesh.GetPrim()).CreateCollisionEnabledAttr(True)
-                    UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr('convexDecomposition')
-                    decomposition=PhysxSchema.PhysxConvexDecompositionCollisionAPI.Apply(mesh.GetPrim())
-                    decomposition.CreateMaxConvexHullsAttr(64);decomposition.CreateHullVertexLimitAttr(64)
-                    decomposition.CreateVoxelResolutionAttr(500000);decomposition.CreateErrorPercentageAttr(.1)
-                    decomposition.CreateShrinkWrapAttr(True)
+                    if args.collision_geometry=='cad-sdf':
+                        UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr('sdf')
+                        sdf=PhysxSchema.PhysxSDFMeshCollisionAPI.Apply(mesh.GetPrim())
+                        sdf.CreateSdfResolutionAttr(args.sdf_resolution)
+                        sdf.CreateSdfSubgridResolutionAttr(5)
+                        sdf.CreateSdfEnableRemeshingAttr(True)
+                    elif args.collision_geometry=='cad-component-hulls' or (args.collision_geometry in ('cad-gimbal-hulls','cad-gimbal-guards') and name.startswith('M_')) \
+                            or (args.collision_geometry in ('cad-link-hulls','cad-outer-hulls') and name!='base_link'):
+                        UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr('convexHull')
+                        PhysxSchema.PhysxConvexHullCollisionAPI.Apply(mesh.GetPrim()).CreateHullVertexLimitAttr(256)
+                    else:
+                        UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr('convexDecomposition')
+                        decomposition=PhysxSchema.PhysxConvexDecompositionCollisionAPI.Apply(mesh.GetPrim())
+                        decomposition.CreateMaxConvexHullsAttr(64);decomposition.CreateHullVertexLimitAttr(64)
+                        decomposition.CreateVoxelResolutionAttr(500000);decomposition.CreateErrorPercentageAttr(.1)
+                        decomposition.CreateShrinkWrapAttr(True)
                     props=PhysxSchema.PhysxCollisionAPI.Apply(mesh.GetPrim())
                     props.CreateContactOffsetAttr(args.cad_contact_offset);props.CreateRestOffsetAttr(0.)
             receipt['temporary_collision_decomposition']=dict(max_hulls=64,hull_vertices=64,voxels=500000,error_percentage=.1,
                 shrink_wrap=True,contact_offset_m=args.cad_contact_offset,rest_offset_m=0.)
+            if args.collision_geometry=='cad-component-hulls':
+                receipt['temporary_collision_decomposition']=dict(method='one convex hull per connected CAD component',
+                    component_count=len(cad_meshes),hull_vertex_limit=256,contact_offset_m=args.cad_contact_offset,
+                    component_counts={body['name']:sum(n==body['name'] for n,_,_,_ in cad_meshes)for body in spec['bodies']})
+            elif args.collision_geometry=='cad-sdf':
+                receipt['temporary_collision_decomposition']=dict(method='native SDF of raw CAD',
+                    sdf_resolution=args.sdf_resolution,subgrid_resolution=5,
+                    enable_remeshing=True,contact_offset_m=args.cad_contact_offset,rest_offset_m=0.)
+            elif args.collision_geometry=='cad-gimbal-hulls':
+                receipt['temporary_collision_decomposition']['gimbal_whole_body_convex_hulls']=True
+            elif args.collision_geometry=='cad-link-hulls':
+                receipt['temporary_collision_decomposition']['all_nonbase_links_whole_body_convex_hulls']=True
+            elif args.collision_geometry=='cad-outer-hulls':
+                receipt['temporary_collision_decomposition'].update(nonbase_outer_support_hulls=True,
+                    support_planes=30,source_margin_m=.00002,nonbase_hull_vertex_counts=outer_hull_counts)
+            elif args.collision_geometry=='cad-gimbal-guards':
+                receipt['temporary_collision_decomposition'].update(gimbal_outer_support_hulls=True,
+                    support_planes=30,source_margin_m=args.cad_guard_margin,gimbal_hull_vertex_counts=outer_hull_counts)
             save(args.output/'receipt.json',receipt)
         adjacent={b['name']:set() for b in spec['bodies']}
         for joint in spec['joints']:
@@ -321,6 +432,11 @@ def run(args):
         # These two closed-link assembly surfaces also touch in nominal CAD.
         nominal_assembly=[('LLL_link2','LL_link3'),('RRR_link2','RR_link3')]
         for a,b in nominal_assembly:adjacent[a].add(b);adjacent[b].add(a)
+        if args.filter_base_gas_cavity:
+            # Diagnostic mask for conservative hulls spanning the base cavity.
+            # Exact CAD trajectory screening remains required for these pairs.
+            for body in ('LLL_link1','RRR_link1'):
+                adjacent['base_link'].add(body);adjacent[body].add('base_link')
         if args.filter_leg_assembly:
             for side in ('L','R'):
                 assembly=[b['name']for b in spec['bodies']if b['name'].startswith(side)]
@@ -340,8 +456,15 @@ def run(args):
                 PhysxSchema.PhysxContactReportAPI.Apply(prim).CreateThresholdAttr().Set(0.)
                 if args.self_collision:
                     base=path.rsplit('/',1)[0]
+                    # FilteredPairsAPI on an articulation root (or targeting
+                    # it) filters the whole articulation. Tree parent/child
+                    # pairs are already suppressed by PhysX. Never let the
+                    # root's adjacent gimbal/leg masks suppress all contacts
+                    # involving those links.
+                    targets=[] if prim.HasAPI(UsdPhysics.ArticulationRootAPI) else \
+                        [base+'/'+n for n in sorted(adjacent[prim.GetName()])if n!='base_link']
                     UsdPhysics.FilteredPairsAPI.Apply(prim).CreateFilteredPairsRel().SetTargets(
-                        [base+'/'+n for n in sorted(adjacent[prim.GetName()])])
+                        targets)
             if prim.HasAPI(UsdPhysics.CollisionAPI):
                 material="Wheel" if any("/"+n+"/" in path for n in ("L_link3","R_link3")) else "Base" if "/base_link/" in path else "Body"
                 if material=='Wheel' and prim.IsA(UsdGeom.Cylinder):
@@ -358,13 +481,93 @@ def run(args):
                     UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr('convexHull')
                     PhysxSchema.PhysxConvexHullCollisionAPI.Apply(mesh.GetPrim()).CreateHullVertexLimitAttr(256)
                 su.bind_physics_material(path,"/World/"+material+"Material")
+        if args.self_collision and args.filter_base_gas_cavity:
+            # These two research masks must be authored at collider level;
+            # placing them on base_link would mask entire articulated links.
+            for i in range(count):
+                prefix=f'/World/envs/env_{i}/Robot/'
+                gas_colliders=[prim.GetPath()for prim in sim.stage.Traverse()
+                    if any(str(prim.GetPath()).startswith(prefix+n+'/')for n in ('LLL_link1','RRR_link1'))
+                    and prim.HasAPI(UsdPhysics.CollisionAPI)
+                    and UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get()]
+                for prim in sim.stage.Traverse():
+                    if str(prim.GetPath()).startswith(prefix+'base_link/')and prim.HasAPI(UsdPhysics.CollisionAPI) \
+                            and UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get():
+                        UsdPhysics.FilteredPairsAPI.Apply(prim).CreateFilteredPairsRel().SetTargets(gas_colliders)
+        receipt['root_pair_filter_policy']=('No articulation-root pair targets; optional base/gas masks apply only to collider prims'
+            if args.self_collision else 'Self-collision disabled; source pair filters retained')
+        root_paths={prim.GetPath()for prim in sim.stage.Traverse()if prim.HasAPI(UsdPhysics.ArticulationRootAPI)}
+        receipt['articulation_root_paths']=sorted(str(p)for p in root_paths)
+        filter_relations=[dict(path=str(prim.GetPath()),targets=[str(p)for p in
+            UsdPhysics.FilteredPairsAPI(prim).GetFilteredPairsRel().GetTargets()])
+            for prim in sim.stage.Traverse()if prim.HasAPI(UsdPhysics.FilteredPairsAPI)]
+        if args.self_collision and any(
+                (row['path']in {str(p)for p in root_paths}and row['targets'])
+                or any(target in {str(p)for p in root_paths}for target in row['targets'])
+                for row in filter_relations):
+            raise ValueError('An articulation-root pair filter would suppress unrelated link contacts')
+        receipt['effective_pair_filter_relations']=filter_relations
+        receipt['self_collision_schema_readback']=[dict(path=str(prim.GetPath()),
+            enabled=PhysxSchema.PhysxArticulationAPI(prim).GetEnabledSelfCollisionsAttr().Get())
+            for prim in sim.stage.Traverse()if prim.HasAPI(PhysxSchema.PhysxArticulationAPI)]
+        if len(receipt['self_collision_schema_readback'])!=count or any(
+                row['enabled']!=args.self_collision for row in receipt['self_collision_schema_readback']):
+            raise ValueError('Authored articulation self-collision setting differs from requested fixture')
+        if args.diagnostic_steps:
+            authoring=[]
+            for prim in sim.stage.Traverse():
+                if '/Robot/'not in str(prim.GetPath()):continue
+                row=dict(path=str(prim.GetPath()))
+                if prim.HasAPI(UsdPhysics.CollisionAPI):
+                    row['collision_enabled']=UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get()
+                    if prim.HasAPI(UsdPhysics.MeshCollisionAPI):
+                        row['approximation']=UsdPhysics.MeshCollisionAPI(prim).GetApproximationAttr().Get()
+                    if prim.IsA(UsdGeom.Mesh):
+                        points=np.asarray(UsdGeom.Mesh(prim).GetPointsAttr().Get())
+                        row.update(point_count=len(points),bounds=np.array([points.min(0),points.max(0)]).tolist())
+                if prim.HasAPI(UsdPhysics.FilteredPairsAPI):
+                    row['filtered_pairs']=[str(p)for p in UsdPhysics.FilteredPairsAPI(prim).GetFilteredPairsRel().GetTargets()]
+                if len(row)>1:authoring.append(row)
+            save(args.output/'collision_authoring.json',dict(prims=authoring,
+                articulation_self_collision=receipt['self_collision_schema_readback']))
         sim.reset(); robot.update(0.)
+        if args.diagnostic_steps and args.diagnostic_targets:
+            from pxr import PhysicsSchemaTools,UsdUtils
+            from omni.physx import get_physx_cooking_interface
+            cooked=[]
+            for name in args.diagnostic_targets:
+                path=f'/World/envs/env_0/Robot/{name}/RecoveryCadCollision0'
+                prim=sim.stage.GetPrimAtPath(path)
+                if not prim.IsValid():continue
+                def on_cooked(result,convexes,mesh_path=path):
+                    cooked.append(dict(path=mesh_path,result=str(result),convexes=[dict(
+                        vertices=[list(v)for v in convex.vertices],indices=list(convex.indices),
+                        polygons=[dict(index_base=p.index_base,num_vertices=p.num_vertices,plane=list(p.plane))
+                            for p in convex.polygons])for convex in convexes]))
+                get_physx_cooking_interface().request_convex_collision_representation(
+                    stage_id=UsdUtils.StageCache.Get().GetId(sim.stage).ToLongInt(),
+                    collision_prim_id=PhysicsSchemaTools.sdfPathToInt(path),run_asynchronously=False,on_result=on_cooked)
+            save(args.output/'cooked_collision_geometry.json',dict(meshes=cooked))
+            from omni.physx import get_physx_property_query_interface
+            queried=[]
+            for name in args.diagnostic_targets:
+                def on_collider(response,body=name):
+                    queried.append(dict(body=body,result=str(response.result),
+                        path=str(PhysicsSchemaTools.intToSdfPath(response.path_id)),
+                        local_pos=list(response.local_pos),local_rot=list(response.local_rot),
+                        aabb_min=list(response.aabb_local_min),aabb_max=list(response.aabb_local_max)))
+                    save(args.output/'native_collider_query.json',dict(colliders=queried))
+                get_physx_property_query_interface().query_prim(
+                    stage_id=UsdUtils.StageCache.Get().GetId(sim.stage).ToLongInt(),
+                    prim_id=PhysicsSchemaTools.sdfPathToInt(f'/World/envs/env_0/Robot/{name}'),
+                    collider_fn=on_collider)
         if not math.isclose(sim.get_physics_dt(),dt,abs_tol=1e-12): raise ValueError('Native physics dt differs')
         order=[int(p.split("/env_")[1].split("/")[0]) for p in robot.root_view.prim_paths]
         starts=[starts[i] for i in order]; origins=torch.tensor(origins[order],dtype=torch.float32)
         ids=[robot.joint_names.index(n) for n in active]
         leg_ids=[robot.joint_names.index(n) for n in legs]
         gas_ids=[robot.joint_names.index(n) for n in springs]
+        gimbal_ids=[robot.joint_names.index(n) for n in gimbals]
         q0=torch.tensor([[s["full_joint_positions"][n] for n in robot.joint_names] for s in starts],dtype=torch.float32)
         roots=torch.tensor([s["root_position_m"]+s["quaternion_xyzw"] for s in starts],dtype=torch.float32)
         roots[:,:3]+=origins
@@ -382,6 +585,21 @@ def run(args):
         contact=view.create_rigid_contact_view(bodies,filter_patterns=[colliders for _ in bodies],max_contact_data_count=64*len(bodies))
         if not colliders or contact.filter_count != len(colliders): raise ValueError("Missing native ground contacts")
         contact_order=[contact.sensor_paths.index(p) for p in bodies]
+        diagnostic_views=[]
+        if args.diagnostic_steps:
+            if count!=1:raise ValueError('Pair diagnosis requires exactly one case')
+            targets=bodies if not args.diagnostic_targets else [next(p for p in bodies if p.split('/')[-1]==name)
+                for name in args.diagnostic_targets]
+            for target in targets:
+                cv=view.create_rigid_contact_view(bodies,filter_patterns=[[target]for _ in bodies],max_contact_data_count=4096)
+                if cv.filter_count!=1:raise ValueError('Pair diagnosis has an ambiguous target')
+                diagnostic_views.append((target,cv,[cv.sensor_paths.index(p)for p in bodies]))
+        receipt['native_mass_readback_kg']=wp.to_torch(robot.root_view.get_masses()).tolist()
+        receipt['native_com_readback']=wp.to_torch(robot.root_view.get_coms()).tolist()
+        receipt['native_inertia_readback']=wp.to_torch(robot.root_view.get_inertias()).tolist()
+        receipt.update(powered_joint_names=active,gimbal_commanded_effort_peak_nm=[0.,0.],
+            gimbal_actuator=dict(stiffness=0.,damping=0.,commanded_effort=0.),
+            body_pose_record_period_s=args.body_record_period)
         c0=torch.tensor([c["local_pos0_m"] for c in spec["constraints"]]); c1=torch.tensor([c["local_pos1_m"] for c in spec["constraints"]])
         b0=[robot.body_names.index(c["body0"]) for c in spec["constraints"]]
         b1=[robot.body_names.index(c["body1"]) for c in spec["constraints"]]
@@ -392,13 +610,22 @@ def run(args):
         wheel_axes=torch.tensor(np.array([np.array(c['origin'])[:3,2]for c in wheel_collisions]),dtype=torch.float32)
         wheel_radius=torch.tensor([c['radius']for c in wheel_collisions])
         wheel_half_width=torch.tensor([c['length']*.5 for c in wheel_collisions])
-        controllers=[Controller(library,geo["rows"],s['controller_settings']) for s in starts]
+        controllers=[Controller(library,geo["rows"],s['controller_settings'],s['flip_program'],
+            s['flip_program_relative_to_side'],s['balance_wheel_speed_limit_rad_s'],s['balance_distance_gain'],
+            s['flip_handoff'],s['flip_fold_first'],
+            (s['flip_handoff_orbit_limit_deg'],s['flip_balance_when_upright'])) for s in starts]
         effort=torch.zeros_like(q0); gravity0=torch.tensor([[0.,0.,-1.]]).expand(count,3)
         peaks=np.zeros((count,4)); active_peaks=peaks.copy(); reference_peaks=peaks.copy(); gaps=np.zeros(count)
+        position_rate_peaks=peaks.copy()
         first_fault_seconds=[None]*count
         contact_peaks=np.zeros((count,len(robot.body_names)))
+        impulse_peaks=np.zeros_like(contact_peaks)
+        impulse_window=np.zeros((max(1,round(.01/dt)),count,len(robot.body_names)))
+        impulse_sum=np.zeros_like(contact_peaks)
+        gimbal_effort_peaks=np.zeros((count,2))
         stable=np.zeros(count); completion=[None]*count; faults=np.zeros(count,dtype=int)
         completion_speed=[None]*count;completion_gap=[None]*count
+        completion_position_rate=[None]*count
         trace=[]; body_trace=[]; body_trace_time=[]; start_time=time.monotonic()
         writer=SummaryWriter(str(args.output/"events"))
         native_friction=wp.to_torch(robot.root_view.get_dof_friction_properties()).clone()
@@ -418,6 +645,7 @@ def run(args):
         steps=round((args.seconds+args.settle)/dt)
         control_every=round(args.control_dt/dt)
         commands=np.zeros((count,24))
+        observation_termination='planned_duration'
         for tick in range(steps):
             q=robot.data.joint_pos.torch; dq=robot.data.joint_vel.torch
             root=robot.data.root_link_pose_w.torch
@@ -459,10 +687,26 @@ def run(args):
                 robot.root_view.set_dof_friction_properties(wp.from_torch(native_friction),articulation_indices)
             compression=q.new_tensor([spec["spring_binding"][n]["compression_at_q_zero_m"] for n in springs])-q[:,gas_ids]
             effort[:,gas_ids]=spring.physical_force(compression)
+            gimbal_effort_peaks=np.maximum(gimbal_effort_peaks,np.abs(effort[:,gimbal_ids].numpy()))
             robot.set_joint_effort_target_index(target=effort)
             robot.write_data_to_sim(); sim.step(render=False); robot.update(dt)
+            if tick==0 and args.diagnostic_steps and args.diagnostic_targets:
+                from omni.physx import get_physx_scene_query_interface
+                overlaps=[]
+                for name in args.diagnostic_targets:
+                    path=f'/World/envs/env_0/Robot/{name}/RecoveryCadCollision0'
+                    hits=[]
+                    def on_overlap(hit):
+                        hits.append(dict(collider=hit.collision,body=hit.rigid_body));return True
+                    encoded=PhysicsSchemaTools.encodeSdfPath(path)
+                    number=get_physx_scene_query_interface().overlap_shape(encoded[0],encoded[1],on_overlap,False)
+                    overlaps.append(dict(path=path,hit_count=number,hits=hits))
+                save(args.output/'native_shape_overlaps.json',dict(queries=overlaps))
             root=robot.data.root_link_pose_w.torch
             q=robot.data.joint_pos.torch; dq=robot.data.joint_vel.torch
+            position_increment=q[:,leg_ids].numpy()-previous_leg_q
+            position_increment-=np.round(position_increment/(4.*math.pi))*(4.*math.pi)
+            position_rate=np.abs(position_increment/dt)
             gravity=quat_apply_inverse(root[:,3:],gravity0)
             gyro=quat_apply_inverse(root[:,3:],robot.data.root_com_vel_w.torch[:,3:])
             poses=robot.data.body_link_pose_w.torch
@@ -474,6 +718,15 @@ def run(args):
             points0=poses[:,b0,:3]+quat_apply(poses[:,b0,3:],c0[None].expand(count,-1,-1))
             points1=poses[:,b1,:3]+quat_apply(poses[:,b1,3:],c1[None].expand(count,-1,-1))
             gap=(points0-points1).norm(dim=-1).max(-1).values.numpy()
+            if diagnostic_views and tick<args.diagnostic_steps:
+                pairs=[]
+                for target,cv,indices in diagnostic_views:
+                    force=wp.to_torch(cv.get_contact_force_matrix(dt=dt))[indices,0].numpy()
+                    for j in np.flatnonzero(np.linalg.norm(force,axis=1)>1e-4):
+                        pairs.append(dict(body=bodies[j].split('/')[-1],target=target.split('/')[-1],force_n=force[j].tolist()))
+                record=dict(time_s=(tick+1)*dt,pairs=pairs,loop_gap_m=gap.tolist(),
+                    body_poses_world=poses[0].tolist(),q=q[0].tolist(),dq=dq[0].tolist())
+                with (args.output/'contact_pairs.jsonl').open('a')as stream:stream.write(json.dumps(record,allow_nan=False)+'\n')
             if not torch.isfinite(poses).all() or not torch.isfinite(dq).all() or gap.max()>.01 \
                     or root[:,2].max()>2. or root[:,2].min()<-.1:
                 receipt['invalid_state_diagnostics']=dict(simulation_seconds=(tick+1)*dt,
@@ -481,7 +734,13 @@ def run(args):
                 raise FloatingPointError('Invalid native plant state; inspect collision envelopes and closed chains')
             forces=wp.to_torch(contact.get_contact_force_matrix(dt=dt))[contact_order].reshape(count,len(robot.body_names),-1,3).sum(2).norm(dim=-1).numpy()
             if enabled:
+                window_index=tick%len(impulse_window)
+                impulse_sum-=impulse_window[window_index]
+                impulse_window[window_index]=forces*dt
+                impulse_sum+=impulse_window[window_index]
+                impulse_peaks=np.maximum(impulse_peaks,impulse_sum)
                 peaks=np.maximum(peaks,np.abs(dq[:,leg_ids].numpy()))
+                position_rate_peaks=np.maximum(position_rate_peaks,position_rate)
                 active_peaks=np.maximum(active_peaks,np.where((faults==0)[:,None],np.abs(dq[:,leg_ids].numpy()),0.))
                 reference_peaks=np.maximum(reference_peaks,np.abs(commands[:,4:8]))
                 gaps=np.maximum(gaps,gap); contact_peaks=np.maximum(contact_peaks,forces)
@@ -498,15 +757,17 @@ def run(args):
                 if completion[i] is None and stable[i]>=.5:
                     completion[i]=float((tick+1)*dt-args.settle)
                     completion_speed[i]=peaks[i].tolist();completion_gap[i]=float(gaps[i])
+                    completion_position_rate[i]=position_rate_peaks[i].tolist()
             row=np.c_[root.numpy(),q.numpy(),dq.numpy(),gravity.numpy(),gyro.numpy(),forces,commands,gap,wheel_bottom,
                 robot.data.root_link_lin_vel_w.torch.numpy(),robot.data.root_com_vel_w.torch[:,3:].numpy()]
             trace.append(row.astype(np.float32))
-            if tick%max(1,round(.05/dt))==0:
+            if tick%max(1,round(args.body_record_period/dt))==0:
                 body_trace.append(poses.numpy().copy()); body_trace_time.append((tick+1)*dt)
             if tick%max(1,round(1./dt))==0:
                 for i,s in enumerate(starts):
                     prefix="TraditionalRecovery/"+s["name"]
                     writer.add_scalar(prefix+"/leg_speed_peak_rad_s",peaks[i].max(),tick)
+                    writer.add_scalar(prefix+"/leg_position_increment_rate_peak_rad_s",position_rate_peaks[i].max(),tick)
                     writer.add_scalar(prefix+"/phase",commands[i,14],tick)
                     writer.add_scalar(prefix+"/height_m",float(root[i,2]),tick)
                     writer.add_scalar(prefix+"/loop_gap_m",float(gap[i]),tick)
@@ -514,6 +775,11 @@ def run(args):
                     tilt_deg=np.rad2deg(np.arccos(np.clip(-gravity[:,2].numpy(),-1,1))).round(1).tolist(),
                     height_m=root[:,2].numpy().round(3).tolist(),speed_peak=peaks.max(-1).round(3).tolist(),
                     completion=completion)),flush=True)
+            if enabled and args.stop_when_all_faulted and np.all(faults!=0):
+                observation_termination='all_cases_faulted'
+                print(json.dumps(dict(observation_termination=observation_termination,
+                    simulation_seconds=(tick+1)*dt)),flush=True)
+                break
         writer.close()
         np.savez_compressed(args.output/"trace.npz",values=np.asarray(trace),dt_s=dt,
             body_poses=np.asarray(body_trace),body_time_s=body_trace_time)
@@ -521,22 +787,30 @@ def run(args):
             receipt["records"].append(dict(name=s["name"],completion_seconds=completion[i],
                 final_stable_seconds=float(stable[i]),fault=int(faults[i]),leg_speed_peak_rad_s=peaks[i].tolist(),
                 recovery_sequence_completed=bool(completion[i]is not None and max(completion_speed[i])<=3.140001
-                    and completion_gap[i]<=.003),
+                    and max(completion_position_rate[i])<=3.140001 and completion_gap[i]<=.003),
+                leg_position_increment_rate_peak_rad_s=position_rate_peaks[i].tolist(),
+                position_increment_rate_peak_to_completion_rad_s=completion_position_rate[i],
                 speed_peak_to_completion_rad_s=completion_speed[i],loop_gap_to_completion_m=completion_gap[i],
                 first_fault_seconds=first_fault_seconds[i],
                 speed_peak_until_first_fault_rad_s=active_peaks[i].tolist(),
                 reference_speed_peak_rad_s=reference_peaks[i].tolist(),loop_gap_peak_m=float(gaps[i]),
                 contact_force_peak_n=contact_peaks[i].tolist(),
+                ground_load_impulse_peak_10ms_n_s=impulse_peaks[i].tolist(),
+                gimbal_commanded_effort_peak_nm=gimbal_effort_peaks[i].tolist(),
                 final_root_pose=root[i].tolist(),final_joint_positions=dict(zip(robot.joint_names,q[i].tolist())),
                 passed=bool(args.leg_friction_scale==1. and completion[i] is not None and stable[i]>=.5
-                    and faults[i]==0 and peaks[i].max()<=3.140001 and gaps[i]<=.003)))
+                    and faults[i]==0 and peaks[i].max()<=3.140001 and position_rate_peaks[i].max()<=3.140001 and gaps[i]<=.003)))
         receipt.update(status="completed",all_cases_passed=all(r["passed"] for r in receipt["records"]),
+            observation_termination=observation_termination,observed_simulation_seconds=(tick+1)*dt,
             trace_sha256=digest(args.output/"trace.npz"),elapsed_wall_seconds=time.monotonic()-start_time,
             trace_layout=["root_xyzw7",f"positions{len(robot.joint_names)}",f"velocities{len(robot.joint_names)}",
                 "gravity3","gyro3",f"body_contact_force{len(robot.body_names)}","controller24","loop_gap1","wheel_bottom2_m",
                 'root_link_linear_velocity_world3','root_angular_velocity_world3'],
-            success_rule='0.5s continuous in Capture/Complete: tilt<8deg, height305+/-30mm, gyro<0.5rad/s, translation<0.12m/s, both wheel surfaces within3mm, leg speed<0.6rad/s; plus whole controlled window speed<=3.14rad/s and loop gap<=3mm; CAD contact admission is separate',
+            success_rule='0.5s continuous in Capture/Complete: tilt<8deg, height305+/-30mm, gyro<0.5rad/s, translation<0.12m/s, both wheel surfaces within3mm, leg speed<0.6rad/s; plus whole controlled window native velocity and position-increment rate<=3.14rad/s and loop gap<=3mm; CAD contact admission is separate',
             contact_interpretation='Contact force<=2N is a raw diagnostic, not a wheel-liftoff criterion')
+        receipt['gimbal_commanded_effort_peak_nm']=gimbal_effort_peaks.max(0).tolist()
+        receipt['impulse_interpretation']='Maximum moving 10ms integral of resultant ground force magnitude per body during control, including support load. Diagnostic only; not material damage or collision-event qualification.'
+        receipt['position_increment_interpretation']='Unwrapped output-angle increment divided by physics dt. Includes solver position corrections, and is checked separately from native joint velocity; finite-interval diagnostic, not instantaneous hardware speed.'
         save(args.output/"receipt.json",receipt)
     except BaseException as error:
         exit_code=1
@@ -563,15 +837,31 @@ def main():
         fold_knee=75.,flip_knee=105.,flip_orbit=0.,sweep_orbit=180.,balance_kp=35.,balance_kd=5.,balance_kv=2.,
         flip_asymmetry=0.,body_friction=.7,base_friction=.7,native_speed_limit=2.8,
         pitch_trim_gain=0.,yaw_rate_gain=.6,integral_gain=50.,integral_limit=30.,
-        control_dt=.001,leg_friction_scale=1.,support_gain=1.,cad_contact_offset=.00002).items():
+        control_dt=.001,leg_friction_scale=1.,support_gain=1.,cad_contact_offset=.00002,
+        balance_wheel_speed_limit=20.,balance_distance_gain=.98,flip_capture_tilt=math.degrees(math.acos(.85)),
+        flip_capture_gyro=2.,flip_capture_dwell=0.,body_record_period=.05).items():
         p.add_argument("--"+name.replace("_","-"),type=float,default=value)
     p.add_argument("--seed",type=int,default=261031)
+    p.add_argument('--diagnostic-steps',type=int,default=0,help='Record individual native self-contact pairs for one case')
+    p.add_argument('--diagnostic-targets',nargs='+',help='Restrict pair diagnosis to named target bodies')
     p.add_argument("--random-gimbal",action="store_true")
+    p.add_argument('--stop-when-all-faulted',action='store_true',
+        help='End a failed search batch after every controller has latched a fault; retain the shorter observed duration')
+    p.add_argument('--flip-fold-first',action='store_true',help='Fold at the measured independent leg orbits before the flip program')
+    p.add_argument('--flip-handoff-orbit-limit',type=float,default=0.,
+        help='Require both measured leg orbits within this many degrees of below-body before leaving flip; zero disables')
+    p.add_argument('--flip-balance-when-upright',action='store_true',
+        help='Use the existing bounded wheel balance while the flip program is near upright')
     p.add_argument('--self-collision',action='store_true',help='Native nonadjacent collision-envelope probe; filter joint/loop adjacent bodies and two nominal CAD assembly pairs')
-    p.add_argument('--collision-geometry',choices=['model-spec','cad-decomposition'],default='model-spec',
+    p.add_argument('--collision-geometry',choices=['model-spec','cad-decomposition','cad-component-hulls','cad-sdf','cad-gimbal-hulls','cad-link-hulls','cad-outer-hulls','cad-gimbal-guards'],default='model-spec',
         help='Experimental temporary CAD convex decomposition; mass, inertia and mechanism remain authenticated')
+    p.add_argument('--sdf-resolution',type=int,default=512)
+    p.add_argument('--cad-guard-margin',type=float,default=.001,
+        help='Outward support-plane margin of temporary gimbal guard hulls, in meters')
     p.add_argument('--filter-leg-assembly',action='store_true',
         help='Research mask: exclude internal pairs within each leg assembly; body, opposite leg and gimbal contacts remain. Requires separate CAD screening.')
+    p.add_argument('--filter-base-gas-cavity',action='store_true',
+        help='Diagnostic mask for base vs two gas mounts; only usable with exact CAD trajectory screening')
     p.add_argument("--prepare-only",action="store_true")
     p.add_argument("--variants",type=Path,help="JSON list of named C++ controller parameter overrides")
     p.add_argument('--starts',type=Path,help='Measured passive bank. Preserves all measured residual velocities.')
@@ -581,12 +871,16 @@ def main():
         help='Implicit mode integrates the same bounded Kd*(v_cmd-v)+feedforward servo inside PhysX; its bias target is not an extra speed command')
     p.add_argument('--nonwheel-friction-combine',choices=['max','average'],default='max')
     args=p.parse_args()
+    if not 16<=args.sdf_resolution<=2048:p.error('SDF resolution must be between 16 and 2048')
+    if args.diagnostic_steps<0:p.error('diagnostic steps cannot be negative')
+    if args.body_record_period<=0.:p.error('body record period must be positive')
     for key,value in vars(args).items():
         if isinstance(value,float) and not math.isfinite(value):p.error(key+' must be finite')
     if not 0.<args.speed<3.14 or not 0.<args.dt<=.001: p.error("Speed must be below3.14;physics dt at most1ms")
     if args.seconds<=0. or args.settle<0. or args.native_speed_limit<=0. or min(args.knees)<40. or max(args.knees)>110.:
         p.error('Invalid duration, settling time, native speed limit or initial knee angle')
     if not 0.<args.cad_contact_offset<=.002:p.error('CAD contact offset must be positive and at most 2mm')
+    if not 0.<args.cad_guard_margin<=.005:p.error('CAD gimbal guard margin must be positive and at most 5mm')
     if not 0.<args.control_dt<=.01 or not math.isclose(args.control_dt/args.dt,round(args.control_dt/args.dt),abs_tol=1e-9):
         p.error('Control dt must be an integer multiple of physics dt')
     if args.leg_friction_scale not in (0.,1.): p.error('Friction scale is 1, or 0 for an explicitly unqualified diagnostic')
