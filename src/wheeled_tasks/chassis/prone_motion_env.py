@@ -32,6 +32,22 @@ class ProneMotionEnv(RobustGetupEnv):
                 command=[0., 0., .305]) for _ in range(kwargs["num_envs"])]
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
+        from pxr import PhysxSchema
+        solver_rows = []
+        for prim in self.sim.stage.Traverse():
+            if (str(prim.GetPath()).startswith("/World/envs/env_")
+                    and prim.HasAPI(PhysxSchema.PhysxArticulationAPI)):
+                api = PhysxSchema.PhysxArticulationAPI(prim)
+                solver_rows.append([api.GetSolverPositionIterationCountAttr().Get(),
+                                    api.GetSolverVelocityIterationCountAttr().Get()])
+        solver_matches = len(solver_rows) == self.num_envs and all(
+            row == [self.cfg["position_iterations"], self.cfg["velocity_iterations"]] for row in solver_rows)
+        self.startup_report["solver_iterations"] = dict(
+            source="live_stage_PhysxArticulationAPI_attributes", articulation_count=len(solver_rows),
+            unique_iteration_counts=sorted({tuple(row) for row in solver_rows}),
+            all_match_requested=solver_matches)
+        if not solver_matches:
+            raise RuntimeError("Native articulation solver attributes differ from the selected iteration counts")
         self.prone_task = self.getup_cfg["prone_geometry"]
         self.multi_pose_cfg = self.plan.get("multi_pose_recovery")
         self.recovery_stages = self.recovery_impact = None

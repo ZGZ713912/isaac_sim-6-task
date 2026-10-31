@@ -93,7 +93,8 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
         force = a["wheel_force"][:n, :, lane]
         supported = (np.linalg.norm(force, axis=-1) > 2.).all(-1).reshape(-1)
         support = support_review(supported, standing_start_sample=start*substeps if start is not None and start*substeps < len(supported) else None,
-            ignored_max_ms=limits["ignored_contiguous_support_loss_ms"]) if n else dict(evaluated=False, support_pass=False)
+            ignored_max_ms=limits["ignored_contiguous_support_loss_ms"],
+            sample_period_ms=rates["physics_dt"]*1000.) if n else dict(evaluated=False, support_pass=False)
         v, omega, command = a["velocity"][:n, lane], a["omega"][:n, lane], a["commands"][:n, lane]
         xy = a["position"][:n, lane, :2]
         quiet_anchor = xy[start-1] if full_quiet and prone and start > 0 else initial_xy[lane]
@@ -235,8 +236,9 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
             expected_loss = -speed.clamp(-.05, .05)/.05*speed.new_tensor(
                 env.leg_friction.model["coulomb_nm"])
             net = physical["motor_effort"][..., [0, 1, 3, 4]]+loss
-            checks["leg_moving_friction_exactly_once_at_1khz"] = checks.get(
-                "leg_moving_friction_exactly_once_at_1khz", True) and bool(
+            rate_label = "1khz" if env.dt == .001 else f"{round(1./env.dt)}hz"
+            friction_check = f"leg_moving_friction_exactly_once_at_{rate_label}"
+            checks[friction_check] = checks.get(friction_check, True) and bool(
                     torch.allclose(loss, expected_loss, atol=1e-6, rtol=1e-6)
                     and torch.allclose(physical["leg_net_effort"], net, atol=2e-6, rtol=1e-6)
                     and torch.allclose(physical["leg_applied_effort"], net, atol=2e-6, rtol=1e-6))
@@ -347,6 +349,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         and (env.domain.spring == 1.).all()), rates=(env.dt == rates["physics_dt"]
         and env.policy_dt == rates["policy_dt"] and env.decimation == rates["decimation"]))
     checks["policy_sensor_clock"] = env.domain.sensor_policy_dt == env.policy_dt
+    checks["requested_solver_on_all_articulations"] = env.startup_report["solver_iterations"]["all_match_requested"]
     checks["same_identified_axial_model_both_sides"] = bool(
         env.identified_spring.curve.force_knots_n == env.identified_spring.right_curve.force_knots_n
         and env.startup_report["identified_gas_spring"]["default_catalogue_force_replaced_for_this_task"])
@@ -372,8 +375,11 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         spring_reference.last["geometry_valid"].all() and torch.isfinite(coverage).all()
         and (coverage.abs() > .01).all() and (coverage.abs() < 40.).all())
     checks["measured_wheel_native_properties"] = env.startup_report["training_identified_wheels"]["native_properties_verified"]
+    delay_ticks = [row["aggregate_delay_s"]/env.dt for row in reference.rows]
     checks["independent_wheels_P05_delay_once"] = bool(env.v5.wheel_prior["kd"] == .5
-        and reference.whole_delay == [5, 3] and reference.fractional_delay == [.5, .5])
+        and reference.whole_delay == [math.floor(v) for v in delay_ticks]
+        and all(math.isclose(actual, expected-math.floor(expected), abs_tol=1e-7)
+                for actual, expected in zip(reference.fractional_delay, delay_ticks)))
     wheel_replay_max_error = 0.
     spring_replay_error = {key:0. for key in ("limited_effort_nm", "holding_effort_nm", "length_m",
         "compression_m", "axial_force_n", "length_jacobian_m_rad")}
@@ -539,7 +545,15 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                   active_nonzero_encoder_compensation_observed=spring_ff_peak > 1. and spring_valid_count > 0)
     if getattr(env, "local_standing_odometry", None) is not None:
         checks["standing_odometry_initialized_standing_capture_observed"] = odometry_seen > 0
+    audit = env.startup_report["control_timing"]["runtime_substep_verification"]
+    checks["fresh_PD_solver_feedback_substeps_verified"] = (isinstance(audit, dict)
+        and audit["pd_updates"] == audit["feedback_refreshes"] == env.decimation
+        and audit["physics_steps"] == audit["policy_steps"]*env.decimation)
+    if env.dt != .001:
+        checks = {k.replace("1khz", f"{round(1./env.dt)}hz").replace("1ms", f"{env.dt*1000:g}ms"):v
+                  for k,v in checks.items()}
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
+                timing=rates, runtime_substep_verification=audit,
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
                 standing_odometry_valid_initialized_samples=odometry_seen,
                 gimbal=(gimbal_observed if getattr(env, "gimbal", None) is not None else None),
@@ -549,7 +563,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                     valid_side_samples=spring_valid_count, invalid_side_samples=spring_invalid_count,
                     valid_encoder_compression_error_peak_m=spring_encoder_error_peak,
                     valid_encoder_compression_error_mean_m=spring_encoder_error_sum/max(1, spring_valid_count),
-                    geometry_error_scope="sampled/delayed encoders against native slider before the same1ms interval; diagnostic, not force calibration or learned behavior"),
+                    geometry_error_scope=f"sampled/delayed encoders against native slider before the same{env.dt*1000:g}ms interval; diagnostic, not force calibration or learned behavior"),
                 wheels=dict(model_sha256=env.identified_wheels.cfg["model_sha256"],
                     replay_max_error_nm=wheel_replay_max_error, physical_samples_per_side=spring_count,
                     native=env.startup_report["training_identified_wheels"]),

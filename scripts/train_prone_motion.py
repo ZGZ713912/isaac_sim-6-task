@@ -147,6 +147,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         full_vehicle=deepcopy(full_vehicle), gimbal_motion=deepcopy(cfg.get("gimbal_motion")),
         policy_hz=round(1./rates["policy_dt"]), physics_hz=round(1./rates["physics_dt"]),
         timing=rates, rollout_steps=plan["rollout_steps"], discounts=discount,
+        simulation_timing_approximation=deepcopy(plan.get("simulation_timing_approximation")),
         solver_iterations={key:cfg[key] for key in ("position_iterations", "velocity_iterations")},
         standing_odometry=deepcopy(plan.get("standing_odometry")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
@@ -204,6 +205,7 @@ def source_hashes(plan_path, plan):
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
              "tests/test_encoder_spring_feedforward.py",
              "tests/test_prone_motion_performance.py", "tests/test_prone_motion_timing.py",
+             "tests/test_prone_motion_200hz.py", "docs/PRONE_MOTION_200HZ_20261101.md",
              "tests/test_unified_training.py", "tests/data/unified_dev_gas_reference.json",
              "tests/data/unified_dev_gas_reference.npz", "docs/WHEEL_LEG_UNIFIED_20261029.md",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
@@ -502,6 +504,7 @@ def main():
                     expected = env.get_observations()
                 fresh = all(torch.equal(observation[k], expected[k]) for k in expected.keys())
                 reports.append(probe(env, plan, stop_requested=lambda: stop_requested))
+                base.write_json(active_directory/"native_startup.json", env.startup_report)
                 reports[-1]["checks"]["continuous_domain_switch_uses_new_observation"] = fresh
                 reports[-1]["all_checks_pass"] = all(reports[-1]["checks"].values())
                 print(f"[prone-motion] Zero-PPO probe {profile}: "
@@ -562,6 +565,11 @@ def main():
             losses = native_update()
             report["completed_updates"] += 1
             report["optimizer_update_in_flight"] = False
+            context = report["contexts"][-1]
+            if "runtime_substep_verification" not in context:
+                context["runtime_substep_verification"] = deepcopy(
+                    env.startup_report["control_timing"]["runtime_substep_verification"])
+                base.write_json(active_directory/"native_startup.json", env.startup_report)
             if identity() != identities or not all(torch.isfinite(p).all() for m in (runner.alg.actor, runner.alg.critic) for p in m.parameters()):
                 raise RuntimeError("Learner identity or finite parameter guard failed")
             if report["completed_updates"] == 1:

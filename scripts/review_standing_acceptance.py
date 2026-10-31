@@ -18,7 +18,7 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def support_review(supported, *, standing_start_sample, ignored_max_ms=2):
+def support_review(supported, *, standing_start_sample, ignored_max_ms=2, sample_period_ms=1.):
     """Use a declared completion/start event, never the best supported suffix.
 
     Samples before the event are excluded. A later loss/fall remains in the
@@ -26,7 +26,9 @@ def support_review(supported, *, standing_start_sample, ignored_max_ms=2):
     """
     values = np.asarray(supported)
     if values.ndim != 1 or values.dtype != np.bool_ or not len(values):
-        raise ValueError("Need an actual1kHz Boolean contact sequence")
+        raise ValueError("Need an actual Boolean contact sequence")
+    if not math.isfinite(sample_period_ms) or sample_period_ms <= 0:
+        raise ValueError("Contact sample period must be positive and finite")
     if type(ignored_max_ms) is not int or ignored_max_ms < 0:
         raise ValueError("Need a nonnegative integer millisecond tolerance")
     if standing_start_sample is None:
@@ -37,17 +39,19 @@ def support_review(supported, *, standing_start_sample, ignored_max_ms=2):
     edges = np.diff(np.r_[False, ~active, False].astype(np.int8))
     starts, ends = np.flatnonzero(edges == 1), np.flatnonzero(edges == -1)
     intervals = [dict(first_missing_sample=int(a + standing_start_sample),
-                      end_sample_exclusive=int(b + standing_start_sample), duration_ms=int(b-a),
-                      ignored_for_acceptance=bool(b-a <= ignored_max_ms)) for a, b in zip(starts, ends)]
+                      end_sample_exclusive=int(b + standing_start_sample), duration_ms=int(b-a)*sample_period_ms,
+                      ignored_for_acceptance=bool((b-a)*sample_period_ms <= ignored_max_ms)) for a, b in zip(starts, ends)]
     retained = [r for r in intervals if not r["ignored_for_acceptance"]]
     retained_ms = sum(r["duration_ms"] for r in retained)
     return dict(evaluated=True, standing_start_sample=standing_start_sample,
-        excluded_pre_standing_samples=standing_start_sample, evaluated_physical_ms=len(active),
-        raw_missing_ms=int((~active).sum()), raw_support_fraction=float(active.mean()),
+        excluded_pre_standing_samples=standing_start_sample, evaluated_physical_ms=len(active)*sample_period_ms,
+        raw_missing_ms=int((~active).sum())*sample_period_ms, raw_support_fraction=float(active.mean()),
         raw_loss_events=len(intervals), ignored_loss_events=len(intervals)-len(retained),
-        ignored_loss_ms=int((~active).sum())-retained_ms,
+        ignored_loss_ms=int((~active).sum())*sample_period_ms-retained_ms,
         retained_loss_events=len(retained), retained_loss_ms=retained_ms,
-        effective_support_fraction=1.-retained_ms/len(active), support_pass=not retained,
+        effective_support_fraction=1.-retained_ms/(len(active)*sample_period_ms),
+        sample_period_ms=sample_period_ms, contact_tolerance_resolved=sample_period_ms <= 1.,
+        sampled_support_pass=not retained, support_pass=not retained and sample_period_ms <= 1.,
         longest_raw_loss_ms=max((r["duration_ms"] for r in intervals), default=0), intervals=intervals)
 
 

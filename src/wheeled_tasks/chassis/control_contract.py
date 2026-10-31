@@ -27,7 +27,18 @@ FINE_POLICY_200_TIMING = {"physics_dt": .001, "policy_dt": .005, "pc_control_dt"
 NEW_WHEEL_CONTROL_ID = "new-wheel-1562-recorded-P05-20261028-v1"
 FINE_POLICY_100_TIMING = {"physics_dt": .001, "policy_dt": .01, "pc_control_dt": .001, "decimation": 10}
 NEW_WHEEL_100_CONTROL_ID = "new-wheel-1562-recorded-P05-policy100hz-20261029-v1"
-NEW_WHEEL_CONTROL_IDS = frozenset((NEW_WHEEL_CONTROL_ID, NEW_WHEEL_100_CONTROL_ID))
+COARSE_POLICY_100_TIMING = {"physics_dt": .005, "policy_dt": .01, "pc_control_dt": .005, "decimation": 2}
+COARSE_POLICY_100_SCOPE = {
+    "model": "policy100hz_physics200hz_feedback_pd_fractional_delay_v1",
+    "hardware_pd_dt": .001, "raw_bag_dt": .001,
+    "fresh_feedback_per_policy_step": 2, "hardware_equivalence_verified": False,
+    "delay_model": "causal_linear_interpolation_of_physical_samples",
+    "feedback_period_model": "ceil_to_physical_step_minimum_one_step",
+    "contact_resolution_ms": 5., "sub_5ms_contact_acceptance_verified": False}
+NEW_WHEEL_100_COARSE_CONTROL_ID = "new-wheel-1562-P05-policy100hz-pd200hz-20261101-v1"
+COARSE_POLICY_100_CONTROL_FILE = "contracts/wheel_leg_prone_motion_control_pd200hz_v1.json"
+NEW_WHEEL_CONTROL_IDS = frozenset((NEW_WHEEL_CONTROL_ID, NEW_WHEEL_100_CONTROL_ID,
+                                  NEW_WHEEL_100_COARSE_CONTROL_ID))
 
 
 def declared_wheel_velocity_p(control):
@@ -47,6 +58,8 @@ def declared_control_timing(control):
         return dict(COARSE_TIMING)
     if scope == POLICY_200_SCOPE:
         return dict(POLICY_200_TIMING)
+    if scope == COARSE_POLICY_100_SCOPE:
+        return dict(COARSE_POLICY_100_TIMING)
     raise ValueError("Unknown simulation motor-control timing approximation")
 
 
