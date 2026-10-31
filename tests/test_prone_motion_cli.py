@@ -112,7 +112,7 @@ def test_python_override_is_accepted_by_train_and_play_without_changing_the_plan
     assert args.python == "/custom/isaac/python"
 
 
-@pytest.mark.parametrize("version", [3, 4, 5])
+@pytest.mark.parametrize("version", [3, 4, 5, "4_standard_20261031"])
 def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version, monkeypatch):
     from rsl_rl.utils import resolve_class
     from train_scratch_standing import digest
@@ -151,11 +151,11 @@ def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version, 
     receipt = json.loads((preview/"receipt.json").read_text())
     assert receipt["status"] == "preflight_completed" and receipt["new_PPO"] == 0
     args.scene = "prone"
-    if version == 5:
+    if "multi_pose_recovery" in plan:
         args.fallen_family,args.leg_class = "roof_down","front_rear"
     case = play.case_for(args, env, plan)
     assert case["recovery"]
-    if version == 5:
+    if "multi_pose_recovery" in plan:
         selected = env.poses[case["pose_index"]]["recovery"]
         assert (selected["family"],selected["leg_class"],selected["split"]) == ("roof_down","front_rear","holdout")
     else:
@@ -170,7 +170,8 @@ def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version, 
 
 def test_old_resolved_checkpoint_with_eight_runtime_options_stays_readable():
     from wheeled_tasks.chassis.prone_motion_cli import LEGACY_OPTION_KEYS
-    old = resolve_plan(BASE,max_iterations=5000)
+    legacy = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
+    old = resolve_plan(legacy,max_iterations=5000)
     old["runtime_cli"]["options"] = {k:v for k,v in old["runtime_cli"]["options"].items() if k in LEGACY_OPTION_KEYS}
     assert task.validate(old) == old
 

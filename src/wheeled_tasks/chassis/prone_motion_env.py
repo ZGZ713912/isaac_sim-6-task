@@ -16,6 +16,7 @@ class ProneMotionEnv(RobustGetupEnv):
     route_state = StandardProneEnv.route_state
 
     def __init__(self, *args, all_heights_after=None, **kwargs):
+        recovery_mastery = kwargs.pop("recovery_mastery",None)
         self.course_ready = False
         self.evaluation_cases = None
         if kwargs["settings"]["prone_motion_task"].get("full_vehicle") and kwargs.get("fixed_cases") is None:
@@ -73,7 +74,7 @@ class ProneMotionEnv(RobustGetupEnv):
             from .full_robot_v202 import digest
             validate_bank(self.bank, self.multi_pose_cfg, self.cfg["asset_manifest_sha256"],
                           digest(self.asset_root/self.cfg["asset_directory"]/"model_spec.json"))
-            self.recovery_sampler = ResetSampler(self.bank, self.multi_pose_cfg, kwargs["seed"])
+            self.recovery_sampler = ResetSampler(self.bank, self.multi_pose_cfg, kwargs["seed"],mastery=recovery_mastery)
             self.recovery_stages = RecoveryStages(self.num_envs, self.device, self.multi_pose_cfg, self.policy_dt)
             self.recovery_impact = RecoveryImpact(self.num_envs, self.device, self.robot.body_names,
                 self.plan["recovery_impact"], self.dt, self.body_mass.sum(-1))

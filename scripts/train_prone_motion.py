@@ -238,6 +238,8 @@ def source_hashes(plan_path, plan):
     if plan.get("multi_pose_recovery") is not None:
         names.extend([plan["pose_bank"]["file"], "model/recovery_v202_20261031/pose_bank.build.json",
             "scripts/build_multi_pose_recovery_bank.py", "scripts/probe_multi_pose_recovery.py",
+            "contracts/wheel_leg_prone_motion_v4_standard_20261031.json", "scripts/evaluate_recovery_mastery.py",
+            "scripts/validate_recovery_continuation.py", "tests/test_recovery_mastery.py",
             "tests/test_multi_pose_recovery.py", "tests/test_recovery_impact.py",
             "docs/MULTI_POSE_RECOVERY_20261031.md"])
         reset_bank = json.loads((ROOT/plan["pose_bank"]["file"]).read_text())
@@ -373,7 +375,11 @@ def main():
         nonlocal stop_requested
         stop_requested = True
         report["requested_stop_signal"] = signum
-    launcher = env = runner = audit = original_load = domain_switch = None
+    launcher = env = runner = audit = original_load = domain_switch = mastery_hook = None
+    mastery = None
+    if plan.get("multi_pose_recovery",{}).get("mastery_gate") is not None:
+        from wheeled_tasks.chassis.recovery_mastery import RecoveryMastery
+        mastery = RecoveryMastery(plan["multi_pose_recovery"]["mastery_gate"])
     active_directory = output
     start = time.monotonic()
     try:
@@ -427,7 +433,7 @@ def main():
                 performance_backend=args.performance_backend, device=args.device)
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
-                stage_name="speed", num_envs=cfg["target_num_envs"], device=args.device,
+                stage_name="speed", num_envs=cfg["target_num_envs"], device=args.device,recovery_mastery=mastery,
                 seed=runtime_seed,
                 level=1., run_role="train", bank=output/"pose_bank.json", settings=settings)
             env.actor_updates = report["completed_updates"]
@@ -525,6 +531,7 @@ def main():
                 training_origin="scratch", continuation_forbidden=True, initialization=report["initialization"],
                 source_revision=committed, source_hashes=hashes, configuration=str(active_directory),
                 resolved_plan=deepcopy(plan), run_options=run_options,
+                recovery_mastery=mastery.state_dict() if mastery is not None else None,
                 completed_updates=report["completed_updates"], bank_sha256=base.digest(output/"pose_bank.json"),
                 torch_rng=torch.get_rng_state(), cuda_rng=torch.cuda.get_rng_state_all(),
                 env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state()))
@@ -556,6 +563,8 @@ def main():
             env.actor_updates = report["completed_updates"]
             report.update(status="training", elapsed_s=time.monotonic()-start, valid_rollout=mask.metrics,
                           last_losses={k:float(v) for k,v in losses.items()})
+            if mastery is not None:
+                report["recovery_mastery"] = mastery.state_dict()
             base.write_json(output/"progress.json", report)
             if stop_requested:
                 save(output/"model_stopped.pt")
@@ -574,15 +583,20 @@ def main():
             desired=lambda completed: domain_stage(plan, completed),
             current=lambda: (report["contexts"][-1]["profile"], report["contexts"][-1]["strength"]),
             rebuild=build)
+        if mastery is not None:
+            from wheeled_algo.recovery_mastery import RecoveryMasteryHook
+            mastery_hook = RecoveryMasteryHook(runner,mastery,completed=lambda:report["completed_updates"],
+                output=output,stop_requested=lambda:stop_requested)
         if stop_requested:
             save(output/"model_stopped.pt")
             raise base.TrainingStopped()
         report["execution"] = dict(mode=plan["execution"], learn_calls=1,
             requested_updates=plan["max_updates"], snapshot_interval=plan["snapshot_interval"],
-            intermediate_cold_reviews=False, checkpoint_selection="manual after training")
+            intermediate_cold_reviews=mastery is not None, checkpoint_selection="manual after training")
         base.write_json(output/"progress.json", report)
         print(f"[prone-motion] Starting one continuous learn({plan['max_updates']}); "
-              f"snapshots every{plan['snapshot_interval']} COMPLETE updates; reviews are manual.", flush=True)
+              f"snapshots every{plan['snapshot_interval']} COMPLETE updates; "
+              f"automatic recovery admission={mastery is not None}; final review is manual.", flush=True)
         runner.learn(plan["max_updates"], init_at_random_ep_len=False)
         if report["completed_updates"] != plan["max_updates"] or identity() != identities:
             raise RuntimeError("Continuous training ended before its declared full-update budget")
@@ -603,6 +617,8 @@ def main():
             torch.load = original_load
         if audit is not None:
             audit.close()
+        if mastery_hook is not None:
+            mastery_hook.close()
         if domain_switch is not None:
             domain_switch.close()
         if runner is not None and runner.logger.writer is not None:

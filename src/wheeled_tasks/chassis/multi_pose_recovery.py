@@ -40,9 +40,20 @@ def validate(config):
         raise ValueError("Recovery curriculum must start at update zero")
     for stage in stages:
         weights = stage["family_weights"]
-        if (set(weights) != set(FAMILIES) or any(not math.isfinite(v) or v <= 0 for v in weights.values())
+        if (set(weights) != set(FAMILIES) or any(not math.isfinite(v) or v < 0 for v in weights.values())
                 or not math.isclose(sum(weights.values()), 1., abs_tol=1e-8)):
-            raise ValueError("Every curriculum stage must retain every fallen family")
+            raise ValueError("Recovery family weights must be nonnegative and sum to one")
+    if any(v <= 0 for v in stages[-1]["family_weights"].values()):
+        raise ValueError("The final recovery stage must retain every fallen family")
+    if c.get("mastery_gate") is not None:
+        from .recovery_mastery import validate as validate_mastery
+        validate_mastery(c["mastery_gate"])
+        if len(stages) < 2:
+            raise ValueError("Gated recovery needs separate prerequisite and complex stages")
+        if stages[0]["family_weights"] != {f:float(f == "belly_down") for f in FAMILIES}:
+            raise ValueError("Gated recovery must begin with only four-class belly recovery")
+        if c["curriculum_mode"] != "staged":
+            raise ValueError("A mastery gate cannot be bypassed with all-family sampling")
     return c
 
 
@@ -89,15 +100,26 @@ def validate_bank(bank, config, manifest_sha256, spec_sha256):
         pools[key].append(i)
     if any(not pool for pool in pools.values()):
         raise ValueError("Missing body-family x independent-leg reset cell")
+    gate = config.get("mastery_gate")
+    if gate is not None:
+        for cls in LEG_CLASSES:
+            heldout = sum(bank["poses"][i]["recovery"]["split"] == "holdout" for i in pools[("belly_down",cls)])
+            if heldout*len(gate["evaluation_headings_rad"]) < gate["minimum_trials_per_leg_class"]:
+                raise ValueError("Mastery minimum exceeds independent available held-out trials")
     return pools
 
 
 class ResetSampler:
     """Seeded weighted family sampling; cycle all four leg classes per family."""
-    def __init__(self, bank, config, seed):
+    def __init__(self, bank, config, seed, mastery=None):
         self.config = validate(config)
         self.bank = bank
         self.rng = random.Random(seed)
+        if config.get("mastery_gate") is not None:
+            from .recovery_mastery import RecoveryMastery
+            self.mastery = mastery or RecoveryMastery(config["mastery_gate"])
+        else:
+            self.mastery = None
         self.class_cursor = dict.fromkeys(FAMILIES, 0)
         self.pools = {(f, l): [] for f in FAMILIES for l in LEG_CLASSES}
         for i, p in enumerate(bank["poses"]):
@@ -109,8 +131,15 @@ class ResetSampler:
 
     def sample(self, completed):
         stages = self.config["curriculum"]
+        if self.mastery is not None:
+            # Update numbers alone cannot unlock side/inverted births. After
+            # mastery, retain the original staged mixture on a relative clock.
+            clock = (stages[1]["start_update"]+max(0,completed-self.mastery.unlocked_at)
+                     if self.mastery.unlocked else 0)
+        else:
+            clock = completed
         stage = stages[-1] if self.config["curriculum_mode"] == "all" else next(
-            s for s in reversed(stages) if completed >= s["start_update"])
+            s for s in reversed(stages) if clock >= s["start_update"])
         weights = stage["family_weights"]
         family = self.rng.choices(FAMILIES, [weights[f] for f in FAMILIES])[0]
         cls = LEG_CLASSES[self.class_cursor[family] % len(LEG_CLASSES)]

@@ -11,11 +11,13 @@ from pathlib import Path
 import re
 
 TASKS = {f"WheelLeg-ProneMotion-v{v}": f"contracts/wheel_leg_prone_motion_v{v}.json" for v in (1, 2, 3, 4, 5)}
-DEFAULT_TASK = "WheelLeg-ProneMotion-v5"
+DEFAULT_TASK = "WheelLeg-ProneMotion-v4"
 OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_rate",
                "domain_randomization", "dr_strength", "num_steps_per_env", "recovery_curriculum",
-               "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns")
+               "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns",
+               "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials")
 LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
+LEGACY_RECOVERY_OPTION_KEYS = OPTION_KEYS[:12]
 
 
 def _hash(value):
@@ -23,7 +25,8 @@ def _hash(value):
 
 
 def _configured(base, options):
-    if set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base:
+    if ((set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base)
+            or set(options) == set(LEGACY_RECOVERY_OPTION_KEYS)):
         options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
@@ -49,10 +52,10 @@ def _configured(base, options):
     scale = result["max_updates"]/base["max_updates"]
     for key in ("foundation_until_update", "speed_full_update", "spin_full_update", "height_full_update"):
         result[key] = round(base[key]*scale)
-    recovery_options = ("recovery_curriculum", "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns")
+    recovery_options = OPTION_KEYS[8:]
     if result.get("multi_pose_recovery") is None:
         if any(options[k] is not None for k in recovery_options):
-            raise ValueError("Recovery options require --task WheelLeg-ProneMotion-v5")
+            raise ValueError("Recovery options require an explicit multi-pose recovery plan, included in the current v4 task")
     else:
         from .multi_pose_recovery import validate as validate_recovery
         from .recovery_impact import validate as validate_impact
@@ -65,6 +68,13 @@ def _configured(base, options):
         for option,field in (("recovery_force_limits_n","force_limits_n"),("recovery_impulse_limits_ns","impulse_limits_ns")):
             if options[option] is not None:
                 result["recovery_impact"][field] = deepcopy(options[option])
+        for option,field in (("recovery_gate_success_rate","minimum_success_rate"),
+                             ("recovery_gate_every","evaluation_interval_updates"),
+                             ("recovery_gate_min_trials","minimum_trials_per_leg_class")):
+            if options[option] is not None:
+                if result["multi_pose_recovery"].get("mastery_gate") is None:
+                    raise ValueError("Mastery options require a gated recovery plan")
+                result["multi_pose_recovery"]["mastery_gate"][field] = options[option]
         validate_recovery(result["multi_pose_recovery"])
         validate_impact(result["recovery_impact"])
     if mode == "off" or strength == 0:
@@ -116,7 +126,7 @@ def validate_resolved(plan):
 def add_common(parser, *, training):
     parser.add_argument("--python", help="Python executable or launcher selected by the train/play shell entrypoint")
     parser.add_argument("--task", choices=TASKS, default=DEFAULT_TASK if training else None,
-                        help="Training defaults to multi-pose v5; play infers its original task from the checkpoint")
+                        help="Training defaults to v4 with integrated multi-pose recovery; play uses its checkpoint's original plan")
     parser.add_argument("--plan", type=Path, help="Original task JSON; defaults to --task's contract")
     parser.add_argument("--output", type=Path, help="New output directory (must not already exist)")
     parser.add_argument("--run_name", "--run-name", help="Directory name under runs/prone_motion or runs/prone_motion_play")
@@ -141,6 +151,9 @@ def train_parser():
     parser.add_argument("--num_steps_per_env", "--num-steps-per-env", "--rollout-steps", type=int)
     parser.add_argument("--learning_rate", "--learning-rate", type=float)
     parser.add_argument("--recovery-curriculum", choices=("staged","all"), default=None)
+    parser.add_argument("--recovery-gate-success-rate",type=float,default=None)
+    parser.add_argument("--recovery-gate-every",type=int,default=None,help="PPO updates between four-class cold checks")
+    parser.add_argument("--recovery-gate-min-trials",type=int,default=None)
     parser.add_argument("--recovery-impact-window-ms", type=float, default=None)
     parser.add_argument("--recovery-force-limits-n", type=json.loads, default=None,
                         help='JSON object with chassis/gimbal/legs/wheels limits in N; null means unmeasured')
