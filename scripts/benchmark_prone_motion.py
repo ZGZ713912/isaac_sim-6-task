@@ -27,6 +27,7 @@ parser.add_argument('--actor-updates', type=int, default=0)
 parser.add_argument('--num-envs', type=int, default=256)
 parser.add_argument('--position-iterations', type=int)
 parser.add_argument('--velocity-iterations', type=int)
+parser.add_argument('--global-initial',action='store_true',help='Use the actual mastery course initial all-standing reset')
 parser.add_argument('--backend',choices=('eager','cuda_graph'),default='cuda_graph')
 parser.add_argument('--instrument', action='store_true')
 parser.add_argument('--kit-threads', type=int, default=0)
@@ -82,8 +83,14 @@ try:
     cfg, settings, bank = entry.configuration(out/'config_context',plan,profile=args.profile,
         strength=args.strength,num_envs=args.num_envs,seed=seed,**backend_kw)
     manifest = json.loads((root/cfg['asset_directory']/'manifest.json').read_text())
+    course_kw = {}
+    if args.global_initial:
+        from wheeled_tasks.chassis.global_curriculum import GlobalCurriculum
+        from wheeled_tasks.chassis.recovery_mastery import RecoveryMastery
+        mastery = RecoveryMastery(plan['multi_pose_recovery']['mastery_gate'])
+        course_kw = dict(recovery_mastery=mastery,global_curriculum=GlobalCurriculum(plan,mastery))
     env = ProneMotionEnv(cfg,manifest,load_chassis_control(root/cfg['control_math_source']),root,
-        stage_name='speed',num_envs=args.num_envs,device='cuda:0',seed=seed,level=1.,run_role='train',bank=bank,settings=settings)
+        stage_name='speed',num_envs=args.num_envs,device='cuda:0',seed=seed,level=1.,run_role='train',bank=bank,settings=settings,**course_kw)
     from pxr import PhysxSchema
     solver_readback = []
     for prim in env.sim.stage.Traverse():
@@ -159,13 +166,18 @@ try:
                 wrap(obj,name,label)
         times = []
         closure_peak_m = 0.
+        physics_closure_peak_m = 0.
         termination_events = 0
+        termination_reasons = dict.fromkeys(('mechanical','closure_gap','impact_bad','boundary_bad'),0)
         for _ in range(args.steps):
             torch.cuda.synchronize(); t = time.perf_counter()
             obs,reward,done,info = env.step(action)
             torch.cuda.synchronize(); times.append(time.perf_counter()-t)
             closure_peak_m = max(closure_peak_m, float(env.closure_gap().max()))
+            physics_closure_peak_m = max(physics_closure_peak_m,float(info['log']['UnifiedGetup/closure_gap_max_m']))
             termination_events += int(done.sum())
+            for key in termination_reasons:
+                termination_reasons[key] += int(info['diagnostics'][key].sum())
         result['instrumented_calls'] = {k:dict(count=v[0],total_s=v[1]) for k,v in counters.items()}
         prof = cProfile.Profile()
         prof.enable()
@@ -179,6 +191,7 @@ try:
         step_mean_s=float(np.mean(times)),step_median_s=float(np.median(times)),step_p90_s=float(np.quantile(times,.9)),
         measured_policy_steps=len(times), measured_physics_steps=len(times)*env.decimation,
         post_step_closure_peak_m=closure_peak_m, termination_events=termination_events,
+        physics_closure_peak_m=physics_closure_peak_m,termination_reason_events=termination_reasons,
         step_times_s=times, trace_sha256=entry.base.digest(out/'trace.npz'))
     writer = SummaryWriter(str(out/'events'))
     for i,v in enumerate(times): writer.add_scalar('PerformanceProbe/policy_step_s',v,i)
