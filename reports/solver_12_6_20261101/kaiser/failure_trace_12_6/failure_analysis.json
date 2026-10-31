@@ -1,0 +1,24 @@
+{
+  "schema": "fixed-action-task-failure-analysis-v1",
+  "new_PPO": 0,
+  "frames": 80,
+  "num_envs": 256,
+  "done_events": 64,
+  "task_failure_events": {
+    "diag/task_failures/refall": 64,
+    "diag/task_failures/rise_timeout": 0,
+    "diag/task_failures/rise_excursion": 0,
+    "diag/task_failures/part_impact": 0,
+    "diag/task_failures/invalid_prone_start": 0
+  },
+  "refall_tilt_events": 64,
+  "refall_height_events": 0,
+  "refall_with_neither_tilt_nor_height": 0,
+  "nonwheel_inference": "refall is tilt OR out-of-range height OR nonwheel force>2N; neither tilt nor height implies the nonwheel branch",
+  "closure_guard_events": 0,
+  "mechanical_guard_events": 0,
+  "max_physics_closure_m": 0.00014718243619427085,
+  "unique_terminated_lanes": 64,
+  "max_events_per_lane": 1,
+  "first_done_step": 73
+}

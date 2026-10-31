@@ -1,0 +1,264 @@
+{
+  "schema": "solver-iteration-runtime-verification-v1",
+  "recorded_utc": "2026-10-31T17:22:40.599975+00:00",
+  "source_commit": "85c68ed9acdaaa90c4619fbe93aadf83a61d960a",
+  "branch": "dev/leg-friction-v202-20261031",
+  "kaiser_directory": "/home/kaiser/workspace/isaac_sim-6-task",
+  "fresh_formal_training_started_by_agent": false,
+  "new_PPO": 0,
+  "checkpoint_reads": [],
+  "training_process_signals_sent": 0,
+  "configuration": {
+    "requested_position_iterations": 12,
+    "requested_velocity_iterations": 6,
+    "unflagged_default_position_iterations": 64,
+    "unflagged_default_velocity_iterations": 32,
+    "old_checkpoint_solver_preserved": true,
+    "physics_dt_s": 0.001,
+    "policy_dt_s": 0.01,
+    "rollout_steps": 64,
+    "num_envs": 256,
+    "max_updates": 10000,
+    "closure_termination_m": 0.003,
+    "gas_spring_friction_limits_rewards_and_curriculum_unchanged": true
+  },
+  "source": {
+    "frozen_commit": "85c68ed9acdaaa90c4619fbe93aadf83a61d960a",
+    "all_source_bytes_match_commit": true,
+    "all_current_535_hashes_match": true,
+    "archive_sha256": "cef60a13abf384ccee4834723b501dd695e0d289bc762b9265c44433fb18071e"
+  },
+  "tests": {
+    "passed": 137,
+    "log": "tests_final.txt",
+    "sha256": "40766547b5a8608fb5e7f6735b3353742c2885bf0cefe3b355196e14a844141d"
+  },
+  "cpu_native": {
+    "passed": true,
+    "solver": [
+      12,
+      6
+    ],
+    "profiles": [
+      {
+        "profile": "nominal",
+        "poses": 252,
+        "policy_intervals_per_pose": 16,
+        "wiring_checks": 44,
+        "max_closure_m": 0.0005445515853352845,
+        "solver_usd_readback": {
+          "articulation_count": 32,
+          "unique_iteration_counts": [
+            [
+              12,
+              6
+            ]
+          ]
+        }
+      },
+      {
+        "profile": "requested",
+        "poses": 252,
+        "policy_intervals_per_pose": 16,
+        "wiring_checks": 44,
+        "max_closure_m": 0.00054583401652053,
+        "solver_usd_readback": {
+          "articulation_count": 32,
+          "unique_iteration_counts": [
+            [
+              12,
+              6
+            ]
+          ]
+        }
+      }
+    ],
+    "qualified_behavior": false
+  },
+  "gpu_native": {
+    "initial_64_32": {
+      "step_mean_s": 0.3092855507816239,
+      "step_median_s": 0.30756224050128367,
+      "post_step_closure_peak_m": 1.4807046682108194e-05,
+      "physics_closure_peak_m": 1.6744677850510925e-05,
+      "termination_events": 1,
+      "termination_reason_events": {
+        "mechanical": 0,
+        "closure_gap": 0,
+        "impact_bad": 0,
+        "boundary_bad": 0
+      },
+      "solver_usd_readback": {
+        "articulation_count": 256,
+        "unique_iteration_counts": [
+          [
+            64,
+            32
+          ]
+        ],
+        "all_match_requested": true
+      },
+      "runtime": {
+        "torch": "2.11.0+cu128",
+        "device": "NVIDIA GeForce RTX 4090",
+        "policy_dt": 0.01,
+        "physics_dt": 0.001,
+        "decimation": 10,
+        "num_envs": 256,
+        "position_iterations": 64,
+        "velocity_iterations": 32,
+        "record_diagnostics": true,
+        "kit_threads": {
+          "/plugins/carb.tasking.plugin/threadCount": 32,
+          "/plugins/omni.tbb.globalcontrol/maxThreadCount": 32,
+          "/persistent/physics/numThreads": 8
+        }
+      },
+      "gpu_dynamics_enabled": true
+    },
+    "initial_12_6": {
+      "step_mean_s": 0.22923683782812532,
+      "step_median_s": 0.21952664049968007,
+      "post_step_closure_peak_m": 0.00010417900193715468,
+      "physics_closure_peak_m": 0.00014596039545722306,
+      "termination_events": 64,
+      "termination_reason_events": {
+        "mechanical": 0,
+        "closure_gap": 0,
+        "impact_bad": 0,
+        "boundary_bad": 0
+      },
+      "solver_usd_readback": {
+        "articulation_count": 256,
+        "unique_iteration_counts": [
+          [
+            12,
+            6
+          ]
+        ],
+        "all_match_requested": true
+      },
+      "runtime": {
+        "torch": "2.11.0+cu128",
+        "device": "NVIDIA GeForce RTX 4090",
+        "policy_dt": 0.01,
+        "physics_dt": 0.001,
+        "decimation": 10,
+        "num_envs": 256,
+        "position_iterations": 12,
+        "velocity_iterations": 6,
+        "record_diagnostics": true,
+        "kit_threads": {
+          "/plugins/carb.tasking.plugin/threadCount": 32,
+          "/plugins/omni.tbb.globalcontrol/maxThreadCount": 32,
+          "/persistent/physics/numThreads": 8
+        }
+      },
+      "gpu_dynamics_enabled": true
+    }
+  },
+  "performance": {
+    "policy_step_time_reduction_fraction": 0.2588181463737964,
+    "throughput_ratio": 1.349196550222511,
+    "scope": "One short sequential64-step fixed-action run per setting,256 environments; includes environment stepping only, no PPO optimizer or cold-review time. Not a repeated randomized benchmark or complete10000update training ETA."
+  },
+  "observed_behavior_change": {
+    "fixed_action_baseline_termination_events": 1,
+    "fixed_action_12_6_termination_events": 64,
+    "failure_trace": {
+      "schema": "fixed-action-task-failure-analysis-v1",
+      "new_PPO": 0,
+      "frames": 80,
+      "num_envs": 256,
+      "done_events": 64,
+      "task_failure_events": {
+        "diag/task_failures/refall": 64,
+        "diag/task_failures/rise_timeout": 0,
+        "diag/task_failures/rise_excursion": 0,
+        "diag/task_failures/part_impact": 0,
+        "diag/task_failures/invalid_prone_start": 0
+      },
+      "refall_tilt_events": 64,
+      "refall_height_events": 0,
+      "refall_with_neither_tilt_nor_height": 0,
+      "nonwheel_inference": "refall is tilt OR out-of-range height OR nonwheel force>2N; neither tilt nor height implies the nonwheel branch",
+      "closure_guard_events": 0,
+      "mechanical_guard_events": 0,
+      "max_physics_closure_m": 0.00014718243619427085,
+      "unique_terminated_lanes": 64,
+      "max_events_per_lane": 1,
+      "first_done_step": 73
+    },
+    "interpretation": "The constant open-loop test tilts more with12/6, without triggering the3mm closure guard. This is a measured dynamics/control response change, not a learned-policy capability assessment. Do not claim64/32behavior equivalence or training convergence."
+  },
+  "reset_scope": "The v4 environment automatically creates the initial mastery course even without explicit global manager kwargs; all v4 benchmark directory names here, including gpu_* and mixed_*, use all-nominal-standing starts. initial_* are the final source-bound paired reports.",
+  "capability_status": [
+    {
+      "id": "initial_recovery",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "moving_fall_recovery",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "standing",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "low_speed_straight",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "high_speed_straight",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "stationary_spin",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "four_direction_arcs",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "standing_height_change",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "moving_height_change",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "spinning_height_change",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "high_speed_braking",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "smoothness",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    },
+    {
+      "id": "robustness",
+      "status": "not_measured_for_learned_12_6_policy",
+      "qualified": false
+    }
+  ],
+  "full_capability_qualified": false,
+  "hardware_ready": false
+}
