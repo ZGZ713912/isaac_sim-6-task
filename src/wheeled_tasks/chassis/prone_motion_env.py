@@ -17,6 +17,8 @@ class ProneMotionEnv(RobustGetupEnv):
 
     def __init__(self, *args, all_heights_after=None, **kwargs):
         recovery_mastery = kwargs.pop("recovery_mastery",None)
+        global_curriculum = kwargs.pop("global_curriculum",None)
+        self.global_curriculum = None
         self.course_ready = False
         self.evaluation_cases = None
         if kwargs["settings"]["prone_motion_task"].get("full_vehicle") and kwargs.get("fixed_cases") is None:
@@ -63,6 +65,8 @@ class ProneMotionEnv(RobustGetupEnv):
         self.quiet_hold = torch.zeros(self.num_envs, device=self.device)
         self.quiet_completed = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self.course_targets = torch.zeros(self.num_envs, 3, device=self.device)
+        self.course_moving_height = torch.zeros(self.num_envs,dtype=torch.bool,device=self.device)
+        self.course_abrupt_brake = self.course_moving_height.clone()
         self.course_roles = [self.plan["roles_per20"][i % 20] for i in range(self.num_envs)]
         self._role_signature = None
         self.prone_reset_generation = 0
@@ -81,6 +85,10 @@ class ProneMotionEnv(RobustGetupEnv):
             joints = {j["name"]: j for j in spec["joints"]}
             self.recovery_hips = self.prone_start_xy.new_tensor(
                 [joints[s+"_joint1"]["origin"][i][3] for s in ("L", "R") for i in range(3)]).reshape(2,3)
+        if self.plan.get("global_curriculum") is not None:
+            from .global_curriculum import GlobalCurriculum
+            self.global_curriculum = global_curriculum or GlobalCurriculum(self.plan,self.recovery_sampler.mastery)
+            self._append_urdf_nominal_pose()
         self.course_ready = True
         self.reset(torch.arange(self.num_envs, device=self.device))
         from .grounded_standing_reset import install
@@ -107,6 +115,30 @@ class ProneMotionEnv(RobustGetupEnv):
                 reset_admission=self.bank["multi_pose_recovery"], impact=self.plan["recovery_impact"])
             self.startup_report["prone_motion"]["reset"] = "CAD-screened full-vehicle body-family x four independent fore/aft leg classes"
             self.startup_report["prone_motion"]["route_bias"] = "No fixed fold angle; shared upright-recoverable suffix; bounded progress potential"
+        if self.global_curriculum is not None:
+            self.startup_report["global_curriculum"] = dict(config=self.global_curriculum.config,
+                nominal_pose_index=self.nominal_pose_index,initial_state=self.global_curriculum.state_dict(),
+                admission="cold per-case/per-leg evaluation; elapsed updates never unlock commands")
+
+    def _append_urdf_nominal_pose(self):
+        """Authenticate literal nominal joints; only reset placement is grounded."""
+        from copy import deepcopy
+        manifest = json.loads((self.asset_root/self.cfg["asset_directory"]/"manifest.json").read_text())
+        height = self.global_curriculum.config["nominal_height_m"]
+        if manifest["nominal_base_height_m"] != height:
+            raise ValueError("Global standing birth differs from the declared URDF nominal height")
+        pose = deepcopy(self.poses[self.height_pose[.305]])
+        pose.update(name="urdf_nominal",root_position_m=[0.,0.,height],
+                    full_joint_positions=deepcopy(manifest["nominal_joint_pos"]))
+        self.nominal_pose_index = len(self.poses)
+        self.poses.append(pose)
+        self.bank_joints = torch.cat((self.bank_joints,self.bank_joints.new_tensor(
+            [[pose["full_joint_positions"][name] for name in self.robot.joint_names]])))
+        self.bank_roots = torch.cat((self.bank_roots,self.bank_roots.new_tensor(
+            [pose["root_position_m"]+pose["root_quaternion_xyzw"]])))
+        self.bank_velocities = torch.cat((self.bank_velocities,torch.zeros_like(self.bank_velocities[:1])))
+        self.bank_family = torch.cat((self.bank_family,self.bank_family[self.height_pose[.305]:self.height_pose[.305]+1]))
+        self.bank_tilt = torch.cat((self.bank_tilt,torch.zeros_like(self.bank_tilt[:1])))
 
     @torch.inference_mode()
     def reset(self, ids):
@@ -123,10 +155,21 @@ class ProneMotionEnv(RobustGetupEnv):
             cases.append(dict(pose_index=self.prone_index if role == "prone" else self.height_pose[birth],
                 recovery=role == "prone", role=role, target=task.target(role, self.actor_updates, self.plan, height=h),
                 command=[0., 0., birth], pitch_deg=0., birth_height=birth))
-            if self.multi_pose_cfg is not None and role == "prone" and self.evaluation_cases is None:
+            if self.multi_pose_cfg is not None and self.global_curriculum is None and role == "prone" and self.evaluation_cases is None:
                 selected = (self.recovery_sampler.sample(self.actor_updates) if i in reset_ids
                             else self.course_cases[i]["pose_index"])
                 cases[-1].update(pose_index=selected, birth_height=self.poses[selected]["root_position_m"][2])
+        if self.global_curriculum is not None and self.evaluation_cases is None:
+            assignments = self.global_curriculum.training_descriptors(self.num_envs,self.prone_reset_generation)
+            for i,row in enumerate(assignments):
+                if i not in reset_ids:
+                    cases[i] = self.course_cases[i]
+                    continue
+                birth = row["birth_height"]
+                pose = (self.nominal_pose_index if row.get("nominal_birth") else self.height_pose.get(birth,self.height_pose[.305]))
+                if row["recovery"]:pose = self.recovery_sampler.sample(self.actor_updates)
+                cases[i] = dict(row,pose_index=pose,birth_height=self.poses[pose]["root_position_m"][2],
+                    command=[0.,0.,birth])
         if self.evaluation_cases is not None:
             cases = self.evaluation_cases
         self.course_cases = cases
@@ -139,7 +182,9 @@ class ProneMotionEnv(RobustGetupEnv):
             case = cases[i]
             self.course_roles[i] = case["role"]
             self.course_targets[i] = self.course_targets.new_tensor(case["target"])
-            duration = (self.plan["evaluation"]["seconds"] if self.evaluation_cases is not None else
+            self.course_moving_height[i] = case.get("moving_height",False)
+            self.course_abrupt_brake[i] = case.get("abrupt_brake",False)
+            duration = (case.get("evaluation_seconds",self.plan["evaluation"]["seconds"]) if self.evaluation_cases is not None else
                 self.plan["training_prone_seconds"] if case["recovery"] else
                 self.plan["standing_seconds"] if case["role"] == "stand" else self.plan["motion_seconds"])
             self.episode_limits[i] = round(duration/self.policy_dt)
@@ -214,7 +259,8 @@ class ProneMotionEnv(RobustGetupEnv):
         return task.stable(*args)
 
     def task_commands(self, elapsed):
-        value = task.commands(self.course_targets, elapsed, self.recovered_at, self.recovery_lane, self.plan)
+        value = task.commands(self.course_targets, elapsed, self.recovered_at, self.recovery_lane, self.plan,
+            moving_height=self.course_moving_height,abrupt_brake=self.course_abrupt_brake)
         self._refresh_role_tensors()
         stand = self._stand_roles
         value[stand] = self.course_targets[stand]

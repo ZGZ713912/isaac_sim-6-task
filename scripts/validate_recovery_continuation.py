@@ -139,11 +139,17 @@ def main():
         assert_restored(restored,state["optimizer_state_dict"])
         report["restored"]=dict(actor=True,critic=True,adam_state_entries=len(restored["state"]),
             learning_rate=runner.alg.optimizer.param_groups[0]["lr"])
+        if env.global_curriculum is not None:
+            from wheeled_algo.global_curriculum import GlobalCurriculumHook
+            hook=GlobalCurriculumHook(runner,env.global_curriculum,completed=lambda:env.actor_updates,output=args.output)
+            hook.review(state["iter"],force=True)
+            report["global_curriculum"]=env.global_curriculum.state_dict()
         baseline=evaluate(env,runner.alg.actor,mastery.config)
         baseline["decision"]=mastery.review(baseline["cases"],state["iter"])
         write_json(args.output/"baseline_mastery.json",baseline)
         report["baseline_mastery"]=baseline["decision"]
-        if args.updates and (mastery.unlocked or args.allow_belly_pretraining):
+        standing_passed=env.global_curriculum is None or env.global_curriculum.levels["standing"] > 0
+        if args.updates and (mastery.unlocked and standing_passed or args.allow_belly_pretraining):
             RecoveryRolloutMask(runner.alg,num_envs=args.num_envs)
             native_update=runner.alg.update
             def update():
@@ -154,7 +160,8 @@ def main():
                 write_json(args.output/"receipt.json",report)
                 return result
             runner.alg.update=update
-            hook=RecoveryMasteryHook(runner,mastery,completed=lambda:env.actor_updates,output=args.output)
+            if hook is None:
+                hook=RecoveryMasteryHook(runner,mastery,completed=lambda:env.actor_updates,output=args.output)
             # The research artifact has an incompatible origin marker. The
             # final training CLI has no checkpoint option or loading path.
             def save(filename,infos=None):

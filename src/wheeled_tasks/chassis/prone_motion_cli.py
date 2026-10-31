@@ -15,9 +15,11 @@ DEFAULT_TASK = "WheelLeg-ProneMotion-v4"
 OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_rate",
                "domain_randomization", "dr_strength", "num_steps_per_env", "recovery_curriculum",
                "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns",
-               "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials")
+               "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials",
+               "curriculum_eval_every", "curriculum_success_rate", "curriculum_required_passes")
 LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
 LEGACY_RECOVERY_OPTION_KEYS = OPTION_KEYS[:12]
+LEGACY_MASTERY_OPTION_KEYS = OPTION_KEYS[:15]
 
 
 def _hash(value):
@@ -26,7 +28,7 @@ def _hash(value):
 
 def _configured(base, options):
     if ((set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base)
-            or set(options) == set(LEGACY_RECOVERY_OPTION_KEYS)):
+            or set(options) in (set(LEGACY_RECOVERY_OPTION_KEYS),set(LEGACY_MASTERY_OPTION_KEYS))):
         options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
@@ -52,7 +54,7 @@ def _configured(base, options):
     scale = result["max_updates"]/base["max_updates"]
     for key in ("foundation_until_update", "speed_full_update", "spin_full_update", "height_full_update"):
         result[key] = round(base[key]*scale)
-    recovery_options = OPTION_KEYS[8:]
+    recovery_options = OPTION_KEYS[8:15]
     if result.get("multi_pose_recovery") is None:
         if any(options[k] is not None for k in recovery_options):
             raise ValueError("Recovery options require an explicit multi-pose recovery plan, included in the current v4 task")
@@ -77,6 +79,16 @@ def _configured(base, options):
                 result["multi_pose_recovery"]["mastery_gate"][field] = options[option]
         validate_recovery(result["multi_pose_recovery"])
         validate_impact(result["recovery_impact"])
+    global_options = (("curriculum_eval_every","evaluation_interval_updates"),
+                      ("curriculum_success_rate","minimum_success_rate"),
+                      ("curriculum_required_passes","required_consecutive_passes"))
+    for option,field in global_options:
+        if options[option] is not None:
+            if result.get("global_curriculum") is None:raise ValueError("Global gate options need the new v4 curriculum")
+            result["global_curriculum"][field] = options[option]
+    if result.get("global_curriculum") is not None:
+        from .global_curriculum import validate as validate_global
+        validate_global(result["global_curriculum"])
     if mode == "off" or strength == 0:
         result["domain_sequence"] = [dict(start_update=0, profile="nominal", strength=0.)]
     elif mode == "on":
@@ -90,6 +102,9 @@ def _configured(base, options):
         f"One continuous learn({result['max_updates']}) call; snapshots every "
         f"{result['snapshot_interval']} complete updates. Manual checkpoint selection; no resume. "
         "Curriculum update thresholds scale with this run's budget; acceptance limits do not change.")
+    if result.get("global_curriculum") is not None:
+        result["training_progression"] = (f"One fresh learn({result['max_updates']}); URDF nominal standing first; "
+            "cold per-skill/per-level admission, persistent replay and measured domain admission; no elapsed-update unlock or resume.")
     return result
 
 
@@ -154,6 +169,9 @@ def train_parser():
     parser.add_argument("--recovery-gate-success-rate",type=float,default=None)
     parser.add_argument("--recovery-gate-every",type=int,default=None,help="PPO updates between four-class cold checks")
     parser.add_argument("--recovery-gate-min-trials",type=int,default=None)
+    parser.add_argument("--curriculum-eval-every",type=int,default=None,help="Updates between global cold skill reviews")
+    parser.add_argument("--curriculum-success-rate",type=float,default=None)
+    parser.add_argument("--curriculum-required-passes",type=int,default=None)
     parser.add_argument("--recovery-impact-window-ms", type=float, default=None)
     parser.add_argument("--recovery-force-limits-n", type=json.loads, default=None,
                         help='JSON object with chassis/gimbal/legs/wheels limits in N; null means unmeasured')

@@ -54,6 +54,10 @@ def validate(config):
             raise ValueError("Gated recovery must begin with only four-class belly recovery")
         if c["curriculum_mode"] != "staged":
             raise ValueError("A mastery gate cannot be bypassed with all-family sampling")
+    if c.get("mastery_family_weights") is not None:
+        w = c["mastery_family_weights"]
+        if set(w) != set(FAMILIES) or any(not math.isfinite(v) or v <= 0 for v in w.values()) or not math.isclose(sum(w.values()),1.):
+            raise ValueError("Post-mastery replay must retain every family")
     return c
 
 
@@ -141,6 +145,8 @@ class ResetSampler:
         stage = stages[-1] if self.config["curriculum_mode"] == "all" else next(
             s for s in reversed(stages) if clock >= s["start_update"])
         weights = stage["family_weights"]
+        if self.mastery is not None and self.mastery.unlocked and self.config.get("mastery_family_weights"):
+            weights = self.config["mastery_family_weights"]
         family = self.rng.choices(FAMILIES, [weights[f] for f in FAMILIES])[0]
         cls = LEG_CLASSES[self.class_cursor[family] % len(LEG_CLASSES)]
         self.class_cursor[family] += 1

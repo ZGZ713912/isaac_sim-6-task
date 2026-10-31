@@ -242,6 +242,11 @@ def source_hashes(plan_path, plan):
             "scripts/validate_recovery_continuation.py", "tests/test_recovery_mastery.py",
             "tests/test_multi_pose_recovery.py", "tests/test_recovery_impact.py",
             "docs/MULTI_POSE_RECOVERY_20261031.md"])
+        if plan.get("global_curriculum") is not None:
+            names.extend(["contracts/wheel_leg_prone_motion_v4_recovery_20261031.json",
+                "scripts/evaluate_global_curriculum.py","tests/test_global_curriculum.py",
+                "scripts/probe_global_curriculum.py",
+                "docs/GLOBAL_MASTERY_CURRICULUM_20261031.md"])
         reset_bank = json.loads((ROOT/plan["pose_bank"]["file"]).read_text())
         names.extend(reset_bank["multi_pose_recovery"]["source_mesh_sha256"])
     evidence = json.loads((ROOT/plan["wheel_model"]["evidence"]["file"]).read_text())
@@ -376,10 +381,14 @@ def main():
         stop_requested = True
         report["requested_stop_signal"] = signum
     launcher = env = runner = audit = original_load = domain_switch = mastery_hook = None
+    global_course = None
     mastery = None
     if plan.get("multi_pose_recovery",{}).get("mastery_gate") is not None:
         from wheeled_tasks.chassis.recovery_mastery import RecoveryMastery
         mastery = RecoveryMastery(plan["multi_pose_recovery"]["mastery_gate"])
+    if plan.get("global_curriculum") is not None:
+        from wheeled_tasks.chassis.global_curriculum import GlobalCurriculum
+        global_course = GlobalCurriculum(plan,mastery)
     active_directory = output
     start = time.monotonic()
     try:
@@ -434,6 +443,7 @@ def main():
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
                 stage_name="speed", num_envs=cfg["target_num_envs"], device=args.device,recovery_mastery=mastery,
+                global_curriculum=global_course,
                 seed=runtime_seed,
                 level=1., run_role="train", bank=output/"pose_bank.json", settings=settings)
             env.actor_updates = report["completed_updates"]
@@ -532,6 +542,7 @@ def main():
                 source_revision=committed, source_hashes=hashes, configuration=str(active_directory),
                 resolved_plan=deepcopy(plan), run_options=run_options,
                 recovery_mastery=mastery.state_dict() if mastery is not None else None,
+                global_curriculum=global_course.state_dict() if global_course is not None else None,
                 completed_updates=report["completed_updates"], bank_sha256=base.digest(output/"pose_bank.json"),
                 torch_rng=torch.get_rng_state(), cuda_rng=torch.cuda.get_rng_state_all(),
                 env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state()))
@@ -565,6 +576,8 @@ def main():
                           last_losses={k:float(v) for k,v in losses.items()})
             if mastery is not None:
                 report["recovery_mastery"] = mastery.state_dict()
+            if global_course is not None:
+                report["global_curriculum"] = global_course.state_dict()
             base.write_json(output/"progress.json", report)
             if stop_requested:
                 save(output/"model_stopped.pt")
@@ -580,10 +593,14 @@ def main():
         audit = NativePPOAudit(runner.alg)
 
         domain_switch = RolloutDomainSwitch(runner, completed=lambda: report["completed_updates"],
-            desired=lambda completed: domain_stage(plan, completed),
+            desired=lambda completed: domain_stage(plan, completed,global_course),
             current=lambda: (report["contexts"][-1]["profile"], report["contexts"][-1]["strength"]),
             rebuild=build)
-        if mastery is not None:
+        if global_course is not None:
+            from wheeled_algo.global_curriculum import GlobalCurriculumHook
+            mastery_hook = GlobalCurriculumHook(runner,global_course,completed=lambda:report["completed_updates"],
+                output=output,stop_requested=lambda:stop_requested)
+        elif mastery is not None:
             from wheeled_algo.recovery_mastery import RecoveryMasteryHook
             mastery_hook = RecoveryMasteryHook(runner,mastery,completed=lambda:report["completed_updates"],
                 output=output,stop_requested=lambda:stop_requested)
@@ -600,6 +617,10 @@ def main():
         runner.learn(plan["max_updates"], init_at_random_ep_len=False)
         if report["completed_updates"] != plan["max_updates"] or identity() != identities:
             raise RuntimeError("Continuous training ended before its declared full-update budget")
+        if global_course is not None:
+            mastery_hook.review(report["completed_updates"],force=True)
+            report["global_curriculum"] = global_course.state_dict()
+            report["recovery_mastery"] = mastery.state_dict()
         save(output/"model_final.pt")
         report.update(status="completed_unreviewed", elapsed_s=time.monotonic()-start)
     except base.TrainingStopped:

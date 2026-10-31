@@ -25,16 +25,19 @@ def cases_for(env, config):
 
 
 @torch.inference_mode()
-def evaluate(env, actor, config, *, stop_requested=lambda:False):
+def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=None):
     """Restore RNGs/mode, then reset training; the caller refreshes its observation.
 
     The test deliberately ends old training episodes at an empty rollout. Their
     partial episode logger totals must be discarded by the rollout-boundary hook.
     Learner parameters, optimizer, policy normalizer and PPO storage are untouched.
     """
-    cases = cases_for(env,config)
+    cases = cases_for(env,config) if cases_override is None else cases_override
+    if not cases or len(cases) > env.num_envs:
+        raise ValueError("Recovery cold batch exceeds environment count")
     n = len(cases)
     old_cases,old_fixed = env.evaluation_cases,env.fixed_cases
+    old_roles = list(env.course_roles)
     was_training = actor.training
     rng = (torch.get_rng_state(),torch.cuda.get_rng_state_all() if torch.cuda.is_available() else [],
         env.generator.get_state(),env.domain.rng.get_state(),np.random.get_state(),random.getstate(),
@@ -79,6 +82,7 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False):
             scope="curriculum_admission_only",new_PPO=0)
     finally:
         env.evaluation_cases,env.fixed_cases = old_cases,old_fixed
+        env.course_roles = old_roles
         torch.set_rng_state(rng[0])
         if rng[1]: torch.cuda.set_rng_state_all(rng[1])
         env.generator.set_state(rng[2]); env.domain.rng.set_state(rng[3])
