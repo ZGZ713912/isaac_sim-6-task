@@ -13,7 +13,7 @@ from wheeled_tasks.chassis.multi_pose_recovery import (FAMILIES,LEG_CLASSES,Rese
 from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, train_parser, training_options
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v5.json").read_text())
+PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
 BANK = json.loads((ROOT/PLAN["pose_bank"]["file"]).read_text())
 
 
@@ -34,11 +34,15 @@ def test_missing_cell_or_unreviewed_candidate_cannot_silently_use_standard_pose(
 
 
 def test_sampler_never_trains_on_holdout_and_retains_every_class_while_curriculum_expands():
+    from test_recovery_mastery import trials
     first,last = ResetSampler(BANK,PLAN["multi_pose_recovery"],31),ResetSampler(BANK,PLAN["multi_pose_recovery"],31)
+    last.mastery.review(trials(),250)
     sampled = [[BANK["poses"][s.sample(u)]["recovery"] for _ in range(4000)] for s,u in ((first,0),(last,9000))]
     for rows in sampled:
         assert {r["split"] for r in rows} == {"train"}
-        assert {(r["family"],r["leg_class"]) for r in rows} == {(f,l) for f in FAMILIES for l in LEG_CLASSES}
+        assert {r["leg_class"] for r in rows} == set(LEG_CLASSES)
+    assert {r["family"] for r in sampled[0]} == {"belly_down"}
+    assert {(r["family"],r["leg_class"]) for r in sampled[1]} == {(f,l) for f in FAMILIES for l in LEG_CLASSES}
     assert sum(r["family"] == "belly_down" for r in sampled[0]) > 2*sum(r["family"] == "belly_down" for r in sampled[1])
 
 
@@ -84,10 +88,10 @@ def test_time_primary_reward_does_not_reward_idle_pose_or_impose_half_turn_limit
 
 
 def test_cli_exposes_curriculum_and_part_limits_and_keeps_nonrecovery_roles():
-    args = train_parser().parse_args(["--recovery-curriculum","all","--recovery-impact-window-ms","30",
+    args = train_parser().parse_args(["--recovery-curriculum","staged","--recovery-impact-window-ms","30",
         "--recovery-force-limits-n",'{"chassis":500,"gimbal":100,"legs":null,"wheels":null}'])
     _,p,_ = training_options(args,ROOT)
-    assert p["multi_pose_recovery"]["curriculum_mode"] == "all"
+    assert p["multi_pose_recovery"]["curriculum_mode"] == "staged"
     assert p["recovery_impact"]["window_seconds"] == .03
     assert p["recovery_impact"]["force_limits_n"]["gimbal"] == 100.
     assert p["roles_per20"] == PLAN["roles_per20"] and p["roles_per20"].count("prone") == 6
@@ -111,7 +115,7 @@ def test_cold_matrix_keeps_all_independent_holdouts_and_failure_denominators():
     assert group["successful_only_completion_median_s"] == 2.
 
 
-def test_v5_deadline_excludes_disabled_birth_but_quiet_window_starts_after_completion():
+def test_integrated_v4_deadline_excludes_disabled_birth_but_quiet_starts_after_completion():
     from test_prone_motion_timing import trace_at_100hz
     from evaluate_prone_motion import review_arrays
     arrays,case = trace_at_100hz()
@@ -126,3 +130,39 @@ def test_v5_deadline_excludes_disabled_birth_but_quiet_window_starts_after_compl
     row = review_arrays(arrays,[case],np.zeros((1,2)),PLAN)[0]
     assert row["active_rise_time_s"] == pytest.approx(19.95)
     assert row["post_event_start_sample"] == 2010 and row["engineering_screen_pass"]
+
+
+def test_recovery_is_inside_the_original_single_v4_budget_and_role_pool(tmp_path):
+    from train_prone_motion import configuration,learner_config
+    from wheeled_tasks.chassis.prone_motion import target,validate
+    legacy = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
+    args = train_parser().parse_args([])
+    _,resolved,_ = training_options(args,ROOT)
+    assert args.task == "WheelLeg-ProneMotion-v4" and resolved["schema"] == legacy["schema"]
+    assert resolved["max_updates"] == 10000
+    assert resolved["execution"] == "single_learn_call_manual_review" and resolved["review_updates"] == []
+    changed = {k for k in legacy if legacy[k] != PLAN[k]}
+    assert changed == {"pose_bank","full_vehicle_scope","evaluation"}
+    assert set(PLAN)-set(legacy) == {"multi_pose_recovery","recovery_impact"}
+    assert resolved["roles_per20"] == legacy["roles_per20"]
+    for completed in (0,999,1000,1999,2000,4499,4500,6000,7000,9000,10000):
+        for role in set(legacy["roles_per20"]):
+            assert target(role,completed,PLAN) == target(role,completed,legacy)
+    agent = learner_config(resolved,"cuda:0")
+    assert agent["max_iterations"] == 10000 and not agent["resume"]
+    cfg,settings,bank = configuration(tmp_path,resolved,performance_backend="eager")
+    assert settings["version"] == "wheel-leg-prone-motion-v4"
+    assert settings["prone_motion_task"] == resolved and settings["multi_pose_failure_cost"] == 40.
+    assert bank == ROOT/PLAN["pose_bank"]["file"]
+    assert (cfg["actor_dim"],cfg["critic_dim"],cfg["action_dim"]) == (35,87,6)
+    assert validate(legacy) == legacy  # Old checkpoint carries its complete original plan.
+
+
+def test_recovery_contracts_cannot_be_partially_attached_or_silently_added_to_old_tasks():
+    from wheeled_tasks.chassis.prone_motion import validate
+    for field in ("multi_pose_recovery","recovery_impact"):
+        bad = deepcopy(PLAN); bad.pop(field)
+        with pytest.raises(ValueError): validate(bad)
+    old = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v3.json").read_text())
+    old.update({k:PLAN[k] for k in ("multi_pose_recovery","recovery_impact")})
+    with pytest.raises(ValueError): validate(old)

@@ -8,7 +8,7 @@ import torch
 
 from wheeled_tasks.chassis.recovery_impact import RecoveryImpact, GROUPS, validate
 
-CONFIG = json.loads((Path(__file__).resolve().parents[1]/"contracts/wheel_leg_prone_motion_v5.json").read_text())["recovery_impact"]
+CONFIG = json.loads((Path(__file__).resolve().parents[1]/"contracts/wheel_leg_prone_motion_v4.json").read_text())["recovery_impact"]
 NAMES = ["base_link","M_link1","L_link1","L_link2","L_link3"]
 
 

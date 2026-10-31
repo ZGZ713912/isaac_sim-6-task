@@ -48,15 +48,18 @@ def validate(plan):
             raise ValueError("Full-vehicle v4 requires its new mechanism and reset bank")
     elif "standing_odometry" in plan or "quiet_position_tail" in plan:
         raise ValueError("Changed standing observation/reward semantics require the v4 task")
-    if plan["schema"] == "wheel-leg-prone-motion-v5":
+    recovery_fields = {"multi_pose_recovery", "recovery_impact"}
+    if recovery_fields.intersection(plan):
+        if plan["schema"] not in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5") or not recovery_fields.issubset(plan):
+            raise ValueError("Multi-pose recovery requires both explicit contracts on the full-vehicle v4 course")
         from .multi_pose_recovery import validate as validate_recovery
         from .recovery_impact import validate as validate_impact
         validate_recovery(plan["multi_pose_recovery"])
         validate_impact(plan["recovery_impact"], timing(plan)["physics_dt"])
         if not plan.get("full_vehicle") or not plan.get("leg_motor_friction", {}).get("enabled"):
-            raise ValueError("Multi-pose v5 requires the full friction-calibrated vehicle")
-    elif "multi_pose_recovery" in plan or "recovery_impact" in plan:
-        raise ValueError("Multi-pose semantics require their explicit v5 task")
+            raise ValueError("Multi-pose recovery requires the full friction-calibrated vehicle")
+    elif plan["schema"] == "wheel-leg-prone-motion-v5":
+        raise ValueError("The historical v5 prototype requires its multi-pose contracts")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):

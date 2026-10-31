@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent zero-PPO native wiring/reset probe, including every v5 bank pose."""
+"""Independent zero-PPO check of the integrated v4 course and every bank pose."""
 from __future__ import annotations
 
 import argparse
@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--num-envs",type=int,default=32)
     parser.add_argument("--steps",type=int,default=20)
     parser.add_argument("--device",default="cpu")
+    parser.add_argument("--task",choices=("WheelLeg-ProneMotion-v4","WheelLeg-ProneMotion-v5"),default="WheelLeg-ProneMotion-v4")
     parser.add_argument("--performance-backend",choices=("eager","cuda_graph"),default="eager")
     parser.add_argument("--wiring-suite",action="store_true",help="Also verify the standard training native gate without constructing a learner")
     parser.add_argument("--profiles",nargs="+",choices=("nominal","requested"),default=["nominal","requested"])
@@ -31,16 +32,21 @@ def main():
     args.output.mkdir(parents=True,exist_ok=False)
     from train_prone_motion import configuration
     from train_scratch_standing import write_json,digest
-    plan = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v5.json").read_text())
+    from wheeled_tasks.chassis.prone_motion_cli import TASKS
+    plan_path = ROOT/TASKS[args.task]
+    plan = json.loads(plan_path.read_text())
+    if plan.get("multi_pose_recovery") is None:
+        parser.error("The native recovery probe requires an explicitly integrated multi-pose plan")
     bank_data = json.loads((ROOT/plan["pose_bank"]["file"]).read_text())
-    report = dict(schema="multi-pose-recovery-native-probe-v1",status="starting",device=args.device,
+    report = dict(schema="multi-pose-recovery-native-probe-v1",status="starting",device=args.device,task=args.task,
         performance_backend=args.performance_backend,
         new_PPO=0,optimizer_attempts=0,checkpoint_reads=[],behavior_qualified=False,hardware_motion=False,
         bank_sha256=digest(ROOT/plan["pose_bank"]["file"]),profiles=[],
         source_sha256={str(p.relative_to(ROOT)):digest(p) for p in [Path(__file__),
             ROOT/"scripts/train_prone_motion.py",ROOT/"scripts/evaluate_prone_motion.py",
-            ROOT/"contracts/wheel_leg_prone_motion_v5.json",
+            plan_path,
             ROOT/"src/wheeled_tasks/chassis/prone_motion_env.py",ROOT/"src/wheeled_tasks/chassis/robust_getup_env.py",
+            ROOT/"src/wheeled_tasks/chassis/recovery_mastery.py",
             ROOT/"src/wheeled_tasks/chassis/multi_pose_recovery.py",ROOT/"src/wheeled_tasks/chassis/recovery_impact.py"]})
     report_path = args.output/"report.json"
     write_json(report_path,report)
@@ -70,10 +76,35 @@ def main():
                 run_role="train",bank=bank,settings=settings)
             write_json(directory/"startup.json",env.startup_report)
             wiring = None
+            milestones = []
             if args.wiring_suite:
                 from evaluate_prone_motion import probe
                 wiring = probe(env,plan)
                 write_json(directory/"training_native_gate.json",wiring)
+                from wheeled_tasks.chassis.prone_motion import target
+                for completed in (0,2000,4500):
+                    env.actor_updates = completed
+                    env.reset(torch.arange(env.num_envs,device=env.device))
+                    expected = env.course_targets.new_tensor([target(role,completed,plan,
+                        height=(.23,.305,.42)[i % 3] if role in ("height","stand") else .305)
+                        for i,role in enumerate(env.course_roles)])
+                    selected = [bank_data["poses"][int(env.pose_index[i])]["recovery"]
+                        for i in range(env.num_envs) if bool(env.recovery_lane[i])]
+                    checks_at_update = dict(original_role_pool_retained=env.course_roles ==
+                        [plan["roles_per20"][i % 20] for i in range(env.num_envs)],
+                        original_motion_targets_use_same_update=bool(torch.allclose(env.course_targets,expected)),
+                        explicit_recovery_train_bank=bool(selected) and all(p["split"] == "train" for p in selected),
+                        finite_role_transitions=True)
+                    if env.recovery_sampler.mastery is not None:
+                        checks_at_update["complex_births_locked_without_four_class_evaluation"] = all(
+                            p["family"] == "belly_down" for p in selected)
+                    for _ in range(16):
+                        obs,reward,done,extra = env.step(env.actions[:,list(POLICY_FROM_CONTROL)].clone())
+                        checks_at_update["finite_role_transitions"] &= bool(torch.isfinite(reward).all()
+                            and all(torch.isfinite(v).all() for v in obs.values()))
+                    milestones.append(dict(completed_updates=completed,checks=checks_at_update,
+                        sampled_recovery_states=selected,all_checks_pass=all(checks_at_update.values())))
+                write_json(directory/"course_milestones.json",milestones)
             checks = dict(all_bank_roots_and_joints_read_back=True,all_bank_velocities_read_back=True,
                 finite_transitions=True,all_eight_motor_efforts_zero_while_disabled=True,
                 suffix_and_impact_diagnostics_present=True,friction_passive_and_exactly_once=True,
@@ -165,7 +196,8 @@ def main():
                 recovery_root_readback_error_peak=root_error_peak)
             if wiring is not None:
                 result["training_native_gate"] = wiring
-                result["all_checks_pass"] &= wiring["all_checks_pass"]
+                result["course_milestones"] = milestones
+                result["all_checks_pass"] &= wiring["all_checks_pass"] and all(m["all_checks_pass"] for m in milestones)
             write_json(directory/"native.json",result)
             report["profiles"].append(result)
             write_json(report_path,report)

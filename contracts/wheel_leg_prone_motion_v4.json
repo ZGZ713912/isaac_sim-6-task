@@ -179,7 +179,7 @@
     "motion_vx_mae_m_s": 0.15,
     "motion_yaw_mae_rad_s": 0.2,
     "ignored_contiguous_support_loss_ms": 2,
-    "scope": "Fixed final-target cases, including both signs2m/s, both actual body spins80..100rpm, four arc directions, three standing heights, and actual standard-prone completion followed by a full30s quiet window. Failure remains failure; no later suffix can replace the first window. This matrix does not qualify untested jumping/terrain/other fallen families or real hardware."
+    "scope": "Fixed final-target cases, including both signs2m/s, both actual body spins80..100rpm, four arc directions, three standing heights, and actual standard-prone completion followed by a full30s quiet window. Failure remains failure; no later suffix can replace the first window. This matrix does not qualify untested jumping/terrain/other fallen families or real hardware. The v4 prone-role pool additionally covers held-out body-family x leg-class initial states, continuous flip-to-rise timing and per-part impacts within the same10000-update run."
   },
   "hardware_ready": false,
   "timing": {
@@ -251,10 +251,10 @@
     "sha256": "25a1e69b650f99416f40b2a3d1312c037b348c2d06d134bd9e5e5f19be28f6d8"
   },
   "pose_bank": {
-    "file": "model/wheel_leg_v2.0.2/friction_v1/training/pose_bank.json",
-    "sha256": "4a34cf15c3fc84eb8220a175bfc45b37d65a44857775b0c07476842b36d600c1"
+    "file": "model/recovery_v202_20261031/pose_bank.json",
+    "sha256": "785b0b16b5fadbed887e61598f3ab4caba9108fd63ed5291f67bb362202199a4"
   },
-  "full_vehicle_scope": "Full21-body21.44174kg vehicle;20 tree joints and6 external loops. Independent torque-limited yaw/pitch motion, zero friction on merged base guide-roller collision hulls. Fresh training only; historical chassis tasks remain available for read-only comparison.",
+  "full_vehicle_scope": "Full21-body21.44174kg vehicle;20 tree joints and6 external loops. Independent torque-limited yaw/pitch motion, zero friction on merged base guide-roller collision hulls. Fresh training only; historical chassis tasks remain available for read-only comparison. Multi-pose recovery replaces the original prone-role reset distribution inside this same v4 run; the single10000-update budget, other roles, measured physics and fresh initialization remain unchanged.",
   "mechanical_inner_knee_range_deg": [
     40.0,
     110.0
@@ -264,5 +264,115 @@
     "enabled": true,
     "model_path": "model/dm_leg_friction_20261031/model.json",
     "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+  },
+  "multi_pose_recovery": {
+    "schema": "wheel-leg-multi-pose-recovery-v1",
+    "families": [
+      "belly_down",
+      "left_side",
+      "right_side",
+      "roof_down",
+      "front_down",
+      "rear_down",
+      "diagonal"
+    ],
+    "leg_classes": [
+      "front_front",
+      "rear_rear",
+      "front_rear",
+      "rear_front"
+    ],
+    "motor_owner": "one_continuous_six_axis_rl",
+    "state_writes": "episode_reset_only",
+    "leg_speed_limit_rad_s": null,
+    "curriculum_mode": "staged",
+    "curriculum": [
+      {
+        "start_update": 0,
+        "family_weights": {
+          "belly_down": 1.0,
+          "left_side": 0.0,
+          "right_side": 0.0,
+          "roof_down": 0.0,
+          "front_down": 0.0,
+          "rear_down": 0.0,
+          "diagonal": 0.0
+        }
+      },
+      {
+        "start_update": 2000,
+        "family_weights": {
+          "belly_down": 0.6,
+          "left_side": 0.1,
+          "right_side": 0.1,
+          "roof_down": 0.1,
+          "front_down": 0.025,
+          "rear_down": 0.025,
+          "diagonal": 0.05
+        }
+      },
+      {
+        "start_update": 4500,
+        "family_weights": {
+          "belly_down": 0.4,
+          "left_side": 0.1,
+          "right_side": 0.1,
+          "roof_down": 0.1,
+          "front_down": 0.1,
+          "rear_down": 0.1,
+          "diagonal": 0.1
+        }
+      }
+    ],
+    "time_cost_per_second": 1.0,
+    "failure_cost": 40.0,
+    "flip_event_bonus": 0.2,
+    "potential_gain": 0.25,
+    "upright_tilt_deg": 30.0,
+    "upright_max_body_rate_rad_s": 3.0,
+    "upright_max_leg_speed_rad_s": 12.0,
+    "upright_max_encoder_error_m": 0.01,
+    "upright_hold_seconds": 0.05,
+    "suffix_semantics": "same actor continues without state/velocity/history reset; four fore/aft leg classes and dynamic belly starts; entire recovery time and impact remain primary diagnostics",
+    "speed_parameter_scope": "suffix entry envelope and diagnostics only; not a uniform motor speed limit",
+    "mastery_gate": {
+      "schema": "wheel-leg-belly-mastery-v1",
+      "evaluation_interval_updates": 250,
+      "minimum_trials_per_leg_class": 4,
+      "minimum_success_rate": 1.0,
+      "required_consecutive_passes": 1,
+      "post_completion_hold_seconds": 3.0,
+      "max_active_recovery_seconds": 20.0,
+      "evaluation_headings_rad": [
+        0.0,
+        1.5707963267948966
+      ],
+      "scope": "curriculum_admission_only_not_long_term_or_hardware_qualification"
+    }
+  },
+  "recovery_impact": {
+    "schema": "wheel-leg-recovery-impact-v1",
+    "window_seconds": 0.02,
+    "force_limits_n": {
+      "chassis": null,
+      "gimbal": null,
+      "legs": null,
+      "wheels": null
+    },
+    "impulse_limits_ns": {
+      "chassis": null,
+      "gimbal": null,
+      "legs": null,
+      "wheels": null
+    },
+    "cost_weights": {
+      "chassis": 0.015,
+      "gimbal": 0.04,
+      "legs": 0.01,
+      "wheels": 0.001
+    },
+    "scope": "flat_ground_body_resultants_not_self_collision_or_structural_stress",
+    "structural_limits_identified": false,
+    "legacy_engineering_guard": "Inherited20N.s peak-body window still active; not an identified structural damage threshold"
   }
 }

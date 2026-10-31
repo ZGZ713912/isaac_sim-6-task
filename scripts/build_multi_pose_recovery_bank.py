@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile closed-chain, original-CAD-screened recovery placements for v5.
+"""Compile closed-chain, original-CAD-screened recovery placements for v4.
 
 Uses python-fcl only at build/audit time, never in the learner. Placements are
 near-ground initial states, not claims of static equilibria. No simulator/PPO.
@@ -123,7 +123,9 @@ class CadScreen:
 
 
 def build(output, *, samples=6, holdout=2, seed=261031):
-    plan = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
+    # Always derive from the preserved four-state bank. The current v4 plan
+    # already selects our generated output and must not be used as the input.
+    plan = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
     mechanism = json.loads((ROOT/plan["mechanism"]["file"]).read_text())
     bundle = ROOT/mechanism["asset_directory"]
     spec = json.loads((bundle/"model_spec.json").read_text())

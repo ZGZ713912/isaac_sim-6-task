@@ -39,7 +39,9 @@ def test_full_vehicle_is_the_default_v4_with_a_fresh_six_motor_policy(prepared):
     assert default["encoder_zero_inner_knee_deg"] == 110.
     manifest = json.loads((BUNDLE/"manifest.json").read_text())
     assert set(manifest["nominal_joint_pos"]) == set(manifest["tree_joint_names"])
-    assert bank == BUNDLE/"pose_bank.json"
+    assert bank == ROOT/PLAN["pose_bank"]["file"]
+    assert default["schema"] == "wheel-leg-prone-motion-v4"
+    assert default["multi_pose_recovery"] == PLAN["multi_pose_recovery"]
     assert settings["standing_odometry"] == PLAN["standing_odometry"]
     assert cfg["v5_control"]["leg_kp"] == 160. and cfg["v5_control"]["leg_kd"] == 2.5
     proof = authenticate(cfg, ROOT)
