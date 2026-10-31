@@ -1,0 +1,34 @@
+{
+  "schema": "recovery-continuation-validation-v1",
+  "scope": "isolated_validation_only",
+  "origin": {
+    "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion/2026-10-31_01-41-46_377382/model_02500.pt",
+    "sha256": "061a01f2c84ffe01accecff01bdeaa526d6e7a620e37ac71c743ce28915402c9",
+    "parent_completed_updates": 2500,
+    "source_continuation_forbidden": true,
+    "plant_migration": {
+      "kind": "recorded_prefriction_parent_to_identified_leg_friction",
+      "changed_contract_keys": [
+        "full_vehicle",
+        "mechanism",
+        "leg_motor_friction",
+        "wheel_model",
+        "gas_spring_model",
+        "gas_spring_feedforward",
+        "standing_odometry"
+      ],
+      "parent_plan": {
+        "file": "model/wheel_leg_v2.0.2/friction_v1/previous_plan.json",
+        "sha256": "26cf1ecee8df1077867ec6938e822a2bab5d1edff11222fb64b98cae83e0a05c"
+      },
+      "mastery_must_be_remeasured": true
+    },
+    "authorization_scope": "User allows continuation for isolated recovery validation only; final10000 remains scratch"
+  },
+  "requested_validation_updates": 0,
+  "completed_validation_updates": 0,
+  "final_training_eligible": false,
+  "final_training_checkpoint_reads_allowed": false,
+  "hardware_ready": false,
+  "status": "preflight_completed"
+}

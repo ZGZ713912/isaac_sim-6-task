@@ -1,0 +1,402 @@
+{
+  "schema": "multi-pose-v4-integration-verification-v1",
+  "implementation_commit": "04fcf6a7bcfca0f07cb058170182ecb8f6f1b4da",
+  "branch": "dev/leg-friction-v202-20261031",
+  "status": "engineering_checks_passed_not_behavior_qualified",
+  "formal_training": {
+    "task": "WheelLeg-ProneMotion-v4",
+    "started": false,
+    "new_PPO": 0,
+    "checkpoint_reads": 0,
+    "max_updates": 10000,
+    "initialization": "fresh_actor_critic_empty_adam",
+    "single_continuous_learn": true,
+    "original_role_pool_retained": true,
+    "global_standing_first_mastery_curriculum_implemented": false,
+    "moving_turning_spinning_height_curriculum_implemented": false
+  },
+  "recovery_curriculum": {
+    "mastery_gate": {
+      "schema": "wheel-leg-belly-mastery-v1",
+      "evaluation_interval_updates": 250,
+      "minimum_trials_per_leg_class": 4,
+      "minimum_success_rate": 1.0,
+      "required_consecutive_passes": 1,
+      "post_completion_hold_seconds": 3.0,
+      "max_active_recovery_seconds": 20.0,
+      "evaluation_headings_rad": [
+        0.0,
+        1.5707963267948966
+      ],
+      "scope": "curriculum_admission_only_not_long_term_or_hardware_qualification"
+    },
+    "locked_family_weights": {
+      "belly_down": 1.0,
+      "left_side": 0.0,
+      "right_side": 0.0,
+      "roof_down": 0.0,
+      "front_down": 0.0,
+      "rear_down": 0.0,
+      "diagonal": 0.0
+    },
+    "complex_admission": "all_four_belly_leg_classes_independently_pass",
+    "post_admission_mixtures": "60/40 belly/other for2500 further updates, then40/60",
+    "budget_extension": false
+  },
+  "native": {
+    "native_cpu003": {
+      "report": "reports/multi_pose_v4_integration_20261031/native_cpu003/report.json",
+      "sha256": "c4adb3737eafe89e6d8ade9cd32598689dfe7e84d2eff98ddaaba84b4f7edacc",
+      "profiles": [
+        {
+          "profile": "nominal",
+          "initial_state_count": 252,
+          "checks_pass": true,
+          "training_gate_checks": 40,
+          "milestones": [
+            {
+              "completed_updates": 0,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 2000,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 4500,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            }
+          ],
+          "gpu_dynamics_enabled": false
+        },
+        {
+          "profile": "requested",
+          "initial_state_count": 252,
+          "checks_pass": true,
+          "training_gate_checks": 40,
+          "milestones": [
+            {
+              "completed_updates": 0,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 2000,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 4500,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            }
+          ],
+          "gpu_dynamics_enabled": false
+        }
+      ],
+      "all_recorded_source_hashes_match_current": true,
+      "checkpoint_reads": [],
+      "new_PPO": 0
+    },
+    "native_gpu001": {
+      "report": "reports/multi_pose_v4_integration_20261031/native_gpu001/report.json",
+      "sha256": "c6998c131a3ad89b79bb20edac5f5211f7793a116604b5082cb3244515b5c3c5",
+      "profiles": [
+        {
+          "profile": "nominal",
+          "initial_state_count": 252,
+          "checks_pass": true,
+          "training_gate_checks": 40,
+          "milestones": [
+            {
+              "completed_updates": 0,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 2000,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 4500,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            }
+          ],
+          "gpu_dynamics_enabled": true
+        },
+        {
+          "profile": "requested",
+          "initial_state_count": 252,
+          "checks_pass": true,
+          "training_gate_checks": 40,
+          "milestones": [
+            {
+              "completed_updates": 0,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 2000,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            },
+            {
+              "completed_updates": 4500,
+              "checks_pass": true,
+              "checks": {
+                "original_role_pool_retained": true,
+                "original_motion_targets_use_same_update": true,
+                "explicit_recovery_train_bank": true,
+                "finite_role_transitions": true,
+                "complex_births_locked_without_four_class_evaluation": true
+              }
+            }
+          ],
+          "gpu_dynamics_enabled": true
+        }
+      ],
+      "all_recorded_source_hashes_match_current": true,
+      "checkpoint_reads": [],
+      "new_PPO": 0
+    }
+  },
+  "tests": {
+    "schema": "v4-recovery-test-receipts-v1",
+    "tests": {
+      "integration_suite": {
+        "log": "reports/multi_pose_v4_integration_20261031/integration_suite.txt",
+        "sha256": "5023b97994a4a00352c69c39d5e8d3335749a6916519688e547562a970b1d522",
+        "result": "175 passed in 13.29s"
+      },
+      "mastery_and_continuation": {
+        "log": "reports/multi_pose_v4_integration_20261031/mastery_and_continuation.txt",
+        "sha256": "cb70c9de166c24d1b0a49d8707f7104b86f8f7c58240fbb975882379985294b4",
+        "result": "9 passed in 1.34s"
+      }
+    },
+    "overlapping_suites": true
+  },
+  "isolated_validation": {
+    "receipt": "reports/multi_pose_v4_integration_20261031/continuation_assessment001/receipt.json",
+    "restored": {
+      "actor": true,
+      "critic": true,
+      "adam_state_entries": 17,
+      "learning_rate": 0.0003
+    },
+    "new_PPO": 0,
+    "plant_migration": {
+      "kind": "recorded_prefriction_parent_to_identified_leg_friction",
+      "changed_contract_keys": [
+        "full_vehicle",
+        "mechanism",
+        "leg_motor_friction",
+        "wheel_model",
+        "gas_spring_model",
+        "gas_spring_feedforward",
+        "standing_odometry"
+      ],
+      "parent_plan": {
+        "file": "model/wheel_leg_v2.0.2/friction_v1/previous_plan.json",
+        "sha256": "26cf1ecee8df1077867ec6938e822a2bab5d1edff11222fb64b98cae83e0a05c"
+      },
+      "mastery_must_be_remeasured": true
+    },
+    "prerequisite": {
+      "completed_updates": 2500,
+      "per_leg_class": {
+        "front_front": {
+          "trials": 4,
+          "successes": 0,
+          "success_rate": 0.0,
+          "passed": false
+        },
+        "rear_rear": {
+          "trials": 4,
+          "successes": 1,
+          "success_rate": 0.25,
+          "passed": false
+        },
+        "front_rear": {
+          "trials": 4,
+          "successes": 0,
+          "success_rate": 0.0,
+          "passed": false
+        },
+        "rear_front": {
+          "trials": 4,
+          "successes": 0,
+          "success_rate": 0.0,
+          "passed": false
+        }
+      },
+      "all_classes_passed": false,
+      "pass_streak": 0,
+      "complex_recovery_unlocked": false,
+      "unlocked_at": null
+    },
+    "final_training_eligible": false,
+    "source_count": 528,
+    "all_source_bytes_match_commit": true
+  },
+  "curriculum_explanation": "reports/multi_pose_v4_integration_20261031/curriculum_status.md",
+  "capabilities": [
+    {
+      "id": "initial_recovery",
+      "requirement": "Recover from initial front/back/left/right/upside-down and asymmetric leg poses; stabilize and continue the requested task",
+      "status": "partial_belly_prerequisite_measurement_not_qualified",
+      "qualified": false
+    },
+    {
+      "id": "moving_fall_recovery",
+      "requirement": "Detect and recover quickly after a real fall during forward/reverse/turning/spinning motion; resume the request without scripted assistance",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "standing",
+      "requirement": "Stable quiet low/mid/high standing after actual recovery completion, with continuous effective dual-wheel support allowing<=2ms pulses, small true XY drift and no sustained outward drift",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "low_speed_straight",
+      "requirement": "Track low positive and negative speeds and the straight path smoothly",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "high_speed_straight",
+      "requirement": "Track high forward and reverse speeds while retaining straight-path accuracy and balance",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "stationary_spin",
+      "requirement": "Target100rpm, at least80rpm, both directions, near the same ground location without falling or vibration",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "four_direction_arcs",
+      "requirement": "Forward-left, forward-right, reverse-left and reverse-right simultaneous translation and turning, including transitions",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "standing_height_change",
+      "requirement": "Smooth standing height changes without meaningful wheel lift, excessive drift or loss of balance; apply the post-completion<=2ms contact tolerance",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "moving_height_change",
+      "requirement": "Change height during forward/reverse/turning motion while maintaining tracking and balance",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "spinning_height_change",
+      "requirement": "Change height during both spin directions while maintaining yaw, location and balance",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "high_speed_braking",
+      "requirement": "Abruptly command zero from high forward and reverse speeds; stop promptly, smoothly and upright with small overshoot and little rebound",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "smoothness",
+      "requirement": "All tasks must avoid high-frequency leg/wheel excitation, contact chatter and dangerous measured joint speed",
+      "status": "not_measured",
+      "qualified": false
+    },
+    {
+      "id": "robustness",
+      "requirement": "Confirm nominal and randomized held-out dynamics, actuator/sensor/timing/friction domains, seeds and disturbances; preserve all failures",
+      "status": "not_measured",
+      "qualified": false
+    }
+  ],
+  "hardware_qualified": false,
+  "protected_learner": {
+    "pid": 3732465,
+    "start_time": "Sat Oct31 01:41:44 2026",
+    "signals_sent": 0,
+    "source_tree_modified": false,
+    "live_check": "3732465 Sat Oct 31 01:41:44 2026 Sl+"
+  }
+}

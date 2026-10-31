@@ -1,0 +1,718 @@
+{
+  "checks": {
+    "fixed_PD_and_spring": true,
+    "rates": true,
+    "policy_sensor_clock": true,
+    "same_identified_axial_model_both_sides": true,
+    "encoder_only_feedforward_physical_spring_retained": true,
+    "declared_full_soft_range_finite_nonzero_compensation": true,
+    "measured_wheel_native_properties": true,
+    "independent_wheels_P05_delay_once": true,
+    "actual_per_role_episode_limits": true,
+    "actual_reward_payment": true,
+    "finite": true,
+    "all_six_1ms_velocities_and_efforts": true,
+    "gimbal_actual_1khz_torque_servo": true,
+    "gimbal_disabled_effort_zero": true,
+    "gimbal_pitch_targets_within_user_limits": true,
+    "gimbal_yaw_actually_moves": true,
+    "gimbal_pitch_actually_moves": true,
+    "gimbal_native_twenty_joint_topology": true,
+    "zero_friction_guide_hulls_native_readback": true,
+    "actual_1khz_wheel_delay_envelope_and_separate_loss": true,
+    "actual_1khz_encoder_compensation_replay": true,
+    "unclipped_PD_plus_holding_then_total_limit": true,
+    "actual_leg_effort_with_compensation_at_most40nm": true,
+    "all_six_disabled_efforts_zero_after_compensation": true,
+    "invalid_encoder_branch_has_zero_compensation": true,
+    "wheel_loss_dissipative": true,
+    "wheel_current_at_most_4p5nm": true,
+    "queued_wheel_torque_cleared_while_disabled": true,
+    "actual_1khz_measured_spring_force": true,
+    "actor35_critic87": true,
+    "standing_odometry_invalid_or_motion_features_zero": true,
+    "standing_odometry_TensorBoard_metrics": true,
+    "standing_odometry_repeated_read_idempotent": true,
+    "zero_disabled_torque": true,
+    "disabled_samples_masked": true,
+    "disabled_birth_observed": true,
+    "active_prone_observed": true,
+    "body_contact_permitted_during_rise": true,
+    "active_nonzero_encoder_compensation_observed": true,
+    "standing_odometry_initialized_standing_capture_observed": true
+  },
+  "all_checks_pass": true,
+  "new_PPO": 0,
+  "learned_behavior": false,
+  "active_prone_samples": 1164,
+  "standing_odometry_valid_initialized_samples": 1795,
+  "gimbal": {
+    "speed_abs_peak_rad_s": [
+      6.724557876586914,
+      22.09342384338379
+    ],
+    "position_min_rad": [
+      -3.1791632175445557,
+      -0.5236006379127502
+    ],
+    "position_max_rad": [
+      2.419421911239624,
+      0.3647124767303467
+    ],
+    "effort_abs_peak_nm": [
+      2.0,
+      10.0
+    ]
+  },
+  "spring_feedforward": {
+    "startup": {
+      "enabled": true,
+      "model_file": "model/wheel_leg_v2.0.2/friction_v1/training/gas_spring_model.json",
+      "model_sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9",
+      "gain": 1.0,
+      "force_extrapolation": "positive_c1_endpoint_trend_v1",
+      "physical_curve_outside_geometry": "hold_geometry_endpoint",
+      "relative_soft_limits": {
+        "minimum": -0.14084732125908495,
+        "maximum": 1.4282761689185115,
+        "margin": 0.03,
+        "projection": "outward_relative_torque_v1"
+      },
+      "model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
+      "measured_beta_domain_deg": [
+        56.0,
+        101.0
+      ],
+      "geometry_beta_domain_deg": [
+        40.0,
+        110.0
+      ],
+      "right_leg_symmetry_assumed": true,
+      "full_soft_limit_coverage": true,
+      "direction_friction_compensated": false,
+      "physical_spring_retained": true,
+      "privileged_force_or_slider_input": false,
+      "controller_hz": 1000,
+      "total_leg_limit_nm": 40.0,
+      "formula": "PD + dev fitted-load holding -> +/-40Nm -> outward relative-torque projection",
+      "input_source": "same sampled/delayed low-level encoders as PD, before target winding",
+      "input": [
+        "L_joint1",
+        "LL_joint1",
+        "R_joint1",
+        "RR_joint1"
+      ],
+      "disabled_motor_zero_after_compensation": true
+    },
+    "replay_max_error_nm": 0.0,
+    "replay_max_error_by_quantity": {
+      "limited_effort_nm": 0.0,
+      "holding_effort_nm": 0.0,
+      "length_m": 0.0,
+      "compression_m": 0.0,
+      "axial_force_n": 0.0,
+      "length_jacobian_m_rad": 0.0,
+      "projected_effort_nm": 0.0
+    },
+    "holding_effort_peak_nm": 18.956321716308594,
+    "valid_side_samples": 93755,
+    "invalid_side_samples": 2245,
+    "valid_encoder_compression_error_peak_m": 0.00037848204374313354,
+    "valid_encoder_compression_error_mean_m": 6.714083306389258e-05,
+    "geometry_error_scope": "sampled/delayed encoders against native slider before the same1ms interval; diagnostic, not force calibration or learned behavior"
+  },
+  "wheels": {
+    "model_sha256": "01d52214771bb9dea2cb592eff4dc6fbd27bb096faa90ff1e17b5d898a1e877c",
+    "replay_max_error_nm": 2.384185791015625e-07,
+    "physical_samples_per_side": 48000,
+    "native": {
+      "enabled": true,
+      "model_sha256": "01d52214771bb9dea2cb592eff4dc6fbd27bb096faa90ff1e17b5d898a1e877c",
+      "native_properties_verified": true,
+      "joint_names": [
+        "L_joint3",
+        "R_joint3"
+      ],
+      "physical_call_hz": 1000,
+      "controller_velocity_p": 0.5,
+      "baseline_low_level_delay_ms": [
+        5.5,
+        3.5
+      ],
+      "old_wheel_dynamics_removed": true,
+      "body_and_armature_share_one_existing_draw": true,
+      "extra_random_draws": 0,
+      "added_armature_kg_m2": [
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ],
+        [
+          0.00392322288826108,
+          0.003521356265991926
+        ],
+        [
+          0.003694311948493123,
+          0.0036653191782534122
+        ],
+        [
+          0.003417183179408312,
+          0.0037463742773979902
+        ],
+        [
+          0.00376872974447906,
+          0.003656427375972271
+        ],
+        [
+          0.003423668211326003,
+          0.003568040207028389
+        ],
+        [
+          0.0034628361463546753,
+          0.003963283263146877
+        ],
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ],
+        [
+          0.003518089884892106,
+          0.0035375093575567007
+        ],
+        [
+          0.0038111619651317596,
+          0.004231571685522795
+        ],
+        [
+          0.00386008876375854,
+          0.003497501602396369
+        ],
+        [
+          0.003479799022898078,
+          0.0033384673297405243
+        ],
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ],
+        [
+          0.003649422200396657,
+          0.0037310824263840914
+        ],
+        [
+          0.0033008165191859007,
+          0.003933171276003122
+        ],
+        [
+          0.003966763149946928,
+          0.0037182755768299103
+        ],
+        [
+          0.0037657630164176226,
+          0.003722097724676132
+        ],
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ],
+        [
+          0.0035979582462459803,
+          0.003862573765218258
+        ],
+        [
+          0.0038763617631047964,
+          0.003514086827635765
+        ],
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ],
+        [
+          0.0036424044519662857,
+          0.003981818910688162
+        ],
+        [
+          0.003923698794096708,
+          0.003638211404904723
+        ],
+        [
+          0.0036577407736331224,
+          0.003684816649183631
+        ],
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ],
+        [
+          0.0036200799513608217,
+          0.0037178662605583668
+        ],
+        [
+          0.003506179666146636,
+          0.004075147677212954
+        ],
+        [
+          0.0032305470667779446,
+          0.0037393919192254543
+        ],
+        [
+          0.003912124317139387,
+          0.0033522984012961388
+        ],
+        [
+          0.0035839728079736233,
+          0.003542629536241293
+        ],
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ],
+        [
+          0.0036863212008029222,
+          0.0037835242692381144
+        ]
+      ],
+      "effective_inertia_kg_m2": [
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ],
+        [
+          0.004543955437839031,
+          0.004064191598445177
+        ],
+        [
+          0.0042788260616362095,
+          0.004230346996337175
+        ],
+        [
+          0.003957849927246571,
+          0.004323896951973438
+        ],
+        [
+          0.004365018103271723,
+          0.0042200842872262
+        ],
+        [
+          0.003965361043810844,
+          0.004118072334676981
+        ],
+        [
+          0.004010726232081652,
+          0.004574243910610676
+        ],
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ],
+        [
+          0.004074722062796354,
+          0.00408283481374383
+        ],
+        [
+          0.004414163995534182,
+          0.00488389004021883
+        ],
+        [
+          0.00447083218023181,
+          0.004036659840494394
+        ],
+        [
+          0.0040303729474544525,
+          0.0038531094323843718
+        ],
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ],
+        [
+          0.004226834047585726,
+          0.004306247923523188
+        ],
+        [
+          0.003823071951046586,
+          0.004539490211755037
+        ],
+        [
+          0.00459438469260931,
+          0.004291466902941465
+        ],
+        [
+          0.004361581988632679,
+          0.004295878112316132
+        ],
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ],
+        [
+          0.004167227540165186,
+          0.004458009731024504
+        ],
+        [
+          0.00448967982083559,
+          0.004055801313370466
+        ],
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ],
+        [
+          0.004218705929815769,
+          0.004595636855810881
+        ],
+        [
+          0.004544506315141916,
+          0.00419906061142683
+        ],
+        [
+          0.004236468579620123,
+          0.004252850078046322
+        ],
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ],
+        [
+          0.004192849155515432,
+          0.004290994722396135
+        ],
+        [
+          0.00406092731282115,
+          0.004703352693468332
+        ],
+        [
+          0.0037416843697428703,
+          0.004315838683396578
+        ],
+        [
+          0.004531100392341614,
+          0.0038690725341439247
+        ],
+        [
+          0.004151029046624899,
+          0.004088744521141052
+        ],
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ],
+        [
+          0.004269571043550968,
+          0.00436677411198616
+        ]
+      ],
+      "native_cad_axial_inertia_kg_m2": [
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ],
+        [
+          0.0006207326659932733,
+          0.0005428354488685727
+        ],
+        [
+          0.0005845143459737301,
+          0.0005650280509144068
+        ],
+        [
+          0.0005406669806689024,
+          0.0005775231402367353
+        ],
+        [
+          0.0005962887080386281,
+          0.0005636573769152164
+        ],
+        [
+          0.000541693065315485,
+          0.0005500320112332702
+        ],
+        [
+          0.0005478902021422982,
+          0.0006109608220867813
+        ],
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ],
+        [
+          0.0005566324107348919,
+          0.0005453255143947899
+        ],
+        [
+          0.0006030023214407265,
+          0.0006523188203573227
+        ],
+        [
+          0.0006107435328885913,
+          0.0005391581216827035
+        ],
+        [
+          0.0005505740991793573,
+          0.0005146421608515084
+        ],
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ],
+        [
+          0.0005774118471890688,
+          0.0005751658463850617
+        ],
+        [
+          0.0005222554318606853,
+          0.000606318935751915
+        ],
+        [
+          0.000627621600870043,
+          0.0005731916171498597
+        ],
+        [
+          0.0005958193214610219,
+          0.0005737807950936258
+        ],
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ],
+        [
+          0.0005692692357115448,
+          0.0005954359075985849
+        ],
+        [
+          0.0006133182323537767,
+          0.0005417148349806666
+        ],
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ],
+        [
+          0.0005763015360571444,
+          0.0006138181779533625
+        ],
+        [
+          0.0006208078702911735,
+          0.000560849264729768
+        ],
+        [
+          0.0005787279806099832,
+          0.0005680337199009955
+        ],
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ],
+        [
+          0.0005727693205699325,
+          0.0005731285200454295
+        ],
+        [
+          0.0005547479959204793,
+          0.0006282052490860224
+        ],
+        [
+          0.0005111374193802476,
+          0.0005764468223787844
+        ],
+        [
+          0.000618976540863514,
+          0.0005167743074707687
+        ],
+        [
+          0.0005670564132742584,
+          0.0005461148684844375
+        ],
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ],
+        [
+          0.0005832500173710287,
+          0.0005832500173710287
+        ]
+      ],
+      "inertia_scale": [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0642651319503784,
+          0.9307079911231995
+        ],
+        [
+          1.0021677017211914,
+          0.9687579274177551
+        ],
+        [
+          0.9269900918006897,
+          0.9901810884475708
+        ],
+        [
+          1.0223551988601685,
+          0.9664077758789062
+        ],
+        [
+          0.9287493228912354,
+          0.9430467486381531
+        ],
+        [
+          0.9393745064735413,
+          1.0475109815597534
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          0.9543633460998535,
+          0.9349772930145264
+        ],
+        [
+          1.0338659286499023,
+          1.1184206008911133
+        ],
+        [
+          1.0471384525299072,
+          0.9244031310081482
+        ],
+        [
+          0.943976104259491,
+          0.8823697566986084
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          0.9899902939796448,
+          0.9861394166946411
+        ],
+        [
+          0.8954229354858398,
+          1.0395523309707642
+        ],
+        [
+          1.0760763883590698,
+          0.9827545285224915
+        ],
+        [
+          1.0215504169464111,
+          0.9837647080421448
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          0.9760295152664185,
+          1.0208930969238281
+        ],
+        [
+          1.0515528917312622,
+          0.9287866353988647
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          0.9880865812301636,
+          1.0524100065231323
+        ],
+        [
+          1.0643941164016724,
+          0.9615932703018188
+        ],
+        [
+          0.9922468662261963,
+          0.9739111661911011
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          0.9820305109024048,
+          0.9826463460922241
+        ],
+        [
+          0.9511324167251587,
+          1.0770771503448486
+        ],
+        [
+          0.8763607144355774,
+          0.9883356690406799
+        ],
+        [
+          1.0612542629241943,
+          0.8860253691673279
+        ],
+        [
+          0.9722356200218201,
+          0.9363306164741516
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      "independent_inertia_range_unchanged": true,
+      "policy_observation_age": {
+        "ticks": [
+          0,
+          1
+        ],
+        "tick_ms": 10.0,
+        "scope": "Additional policy-frame age; calibrated 5.5/3.5ms wheel I/O delay is unchanged"
+      },
+      "loaded_torque_speed_curve": "Explicit delivered prior; not identified under load"
+    }
+  },
+  "gas_spring": {
+    "model_sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9",
+    "side_order": [
+      "left",
+      "right"
+    ],
+    "physical_samples_per_side": 48000,
+    "compression_min_m": [
+      0.01544789969921112,
+      0.015446539968252182
+    ],
+    "compression_max_m": [
+      0.06667234003543854,
+      0.06645499169826508
+    ],
+    "force_min_n": [
+      1.0157036781311035,
+      1.0157036781311035
+    ],
+    "force_max_n": [
+      659.7109375,
+      656.5873413085938
+    ],
+    "outside_identified_samples": [
+      13754,
+      16578
+    ],
+    "extrapolated_low_compression_samples": [
+      3275,
+      5562
+    ],
+    "extrapolated_high_compression_samples": [
+      10479,
+      11016
+    ],
+    "outside_identified_fraction": [
+      0.2865416705608368,
+      0.3453750014305115
+    ],
+    "outside_identified_policy": "dev_compensation_v2"
+  }
+}

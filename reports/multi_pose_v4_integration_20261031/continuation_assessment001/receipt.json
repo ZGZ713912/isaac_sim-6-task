@@ -1,0 +1,81 @@
+{
+  "schema": "recovery-continuation-validation-v1",
+  "scope": "isolated_validation_only",
+  "origin": {
+    "checkpoint": "/home/noir/Documents/workspace/isaac_wheeled_rl_train/runs/prone_motion/2026-10-31_01-41-46_377382/model_02500.pt",
+    "sha256": "061a01f2c84ffe01accecff01bdeaa526d6e7a620e37ac71c743ce28915402c9",
+    "parent_completed_updates": 2500,
+    "source_continuation_forbidden": true,
+    "plant_migration": {
+      "kind": "recorded_prefriction_parent_to_identified_leg_friction",
+      "changed_contract_keys": [
+        "full_vehicle",
+        "mechanism",
+        "leg_motor_friction",
+        "wheel_model",
+        "gas_spring_model",
+        "gas_spring_feedforward",
+        "standing_odometry"
+      ],
+      "parent_plan": {
+        "file": "model/wheel_leg_v2.0.2/friction_v1/previous_plan.json",
+        "sha256": "26cf1ecee8df1077867ec6938e822a2bab5d1edff11222fb64b98cae83e0a05c"
+      },
+      "mastery_must_be_remeasured": true
+    },
+    "authorization_scope": "User allows continuation for isolated recovery validation only; final10000 remains scratch"
+  },
+  "requested_validation_updates": 0,
+  "completed_validation_updates": 0,
+  "final_training_eligible": false,
+  "final_training_checkpoint_reads_allowed": false,
+  "hardware_ready": false,
+  "status": "assessment_completed",
+  "source_revision": {
+    "schema": "scratch-committed-source-v1",
+    "commit": "04fcf6a7bcfca0f07cb058170182ecb8f6f1b4da",
+    "source_count": 528,
+    "all_source_bytes_match_commit": true,
+    "archive": "reports/multi_pose_v4_integration_20261031/continuation_assessment001/committed_source.tar",
+    "archive_sha256": "93f5e12a3c1d4052b1ba21f9e3a9fa7820e00f585ee3b846bbcbc0f33e64ecb7"
+  },
+  "restored": {
+    "actor": true,
+    "critic": true,
+    "adam_state_entries": 17,
+    "learning_rate": 0.0003
+  },
+  "baseline_mastery": {
+    "completed_updates": 2500,
+    "per_leg_class": {
+      "front_front": {
+        "trials": 4,
+        "successes": 0,
+        "success_rate": 0.0,
+        "passed": false
+      },
+      "rear_rear": {
+        "trials": 4,
+        "successes": 1,
+        "success_rate": 0.25,
+        "passed": false
+      },
+      "front_rear": {
+        "trials": 4,
+        "successes": 0,
+        "success_rate": 0.0,
+        "passed": false
+      },
+      "rear_front": {
+        "trials": 4,
+        "successes": 0,
+        "success_rate": 0.0,
+        "passed": false
+      }
+    },
+    "all_classes_passed": false,
+    "pass_streak": 0,
+    "complex_recovery_unlocked": false,
+    "unlocked_at": null
+  }
+}
