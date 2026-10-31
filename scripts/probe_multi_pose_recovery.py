@@ -25,6 +25,8 @@ def main():
     parser.add_argument("--task",choices=("WheelLeg-ProneMotion-v4","WheelLeg-ProneMotion-v5"),default="WheelLeg-ProneMotion-v4")
     parser.add_argument("--performance-backend",choices=("eager","cuda_graph"),default="eager")
     parser.add_argument("--wiring-suite",action="store_true",help="Also verify the standard training native gate without constructing a learner")
+    parser.add_argument("--position-iterations",type=int)
+    parser.add_argument("--velocity-iterations",type=int)
     parser.add_argument("--profiles",nargs="+",choices=("nominal","requested"),default=["nominal","requested"])
     args = parser.parse_args()
     if not 20 <= args.num_envs <= 80 or args.steps < 16:
@@ -32,18 +34,22 @@ def main():
     args.output.mkdir(parents=True,exist_ok=False)
     from train_prone_motion import configuration
     from train_scratch_standing import write_json,digest
-    from wheeled_tasks.chassis.prone_motion_cli import TASKS
+    from wheeled_tasks.chassis.prone_motion_cli import TASKS,resolve_plan
     plan_path = ROOT/TASKS[args.task]
     plan = json.loads(plan_path.read_text())
+    if args.position_iterations is not None or args.velocity_iterations is not None:
+        plan = resolve_plan(plan,position_iterations=args.position_iterations,velocity_iterations=args.velocity_iterations)
     if plan.get("multi_pose_recovery") is None:
         parser.error("The native recovery probe requires an explicitly integrated multi-pose plan")
     bank_data = json.loads((ROOT/plan["pose_bank"]["file"]).read_text())
     report = dict(schema="multi-pose-recovery-native-probe-v1",status="starting",device=args.device,task=args.task,
         performance_backend=args.performance_backend,
+        solver_iterations=plan.get("solver_iterations",dict(position_iterations=64,velocity_iterations=32)),
         new_PPO=0,optimizer_attempts=0,checkpoint_reads=[],behavior_qualified=False,hardware_motion=False,
         bank_sha256=digest(ROOT/plan["pose_bank"]["file"]),profiles=[],
         source_sha256={str(p.relative_to(ROOT)):digest(p) for p in [Path(__file__),
             ROOT/"scripts/train_prone_motion.py",ROOT/"scripts/evaluate_prone_motion.py",
+            ROOT/"src/wheeled_tasks/chassis/prone_motion_cli.py",
             plan_path,
             ROOT/"src/wheeled_tasks/chassis/prone_motion_env.py",ROOT/"src/wheeled_tasks/chassis/robust_getup_env.py",
             ROOT/"src/wheeled_tasks/chassis/recovery_mastery.py",
@@ -75,6 +81,15 @@ def main():
                 stage_name="speed",num_envs=args.num_envs,device=args.device,seed=plan["seed"],level=1.,
                 run_role="train",bank=bank,settings=settings)
             write_json(directory/"startup.json",env.startup_report)
+            from pxr import PhysxSchema
+            solver_readback = []
+            for prim in env.sim.stage.Traverse():
+                if str(prim.GetPath()).startswith('/World/envs/env_') and prim.HasAPI(PhysxSchema.PhysxArticulationAPI):
+                    api = PhysxSchema.PhysxArticulationAPI(prim)
+                    solver_readback.append([api.GetSolverPositionIterationCountAttr().Get(),
+                                            api.GetSolverVelocityIterationCountAttr().Get()])
+            solver_matches = len(solver_readback)==env.num_envs and all(
+                v==[cfg['position_iterations'],cfg['velocity_iterations']] for v in solver_readback)
             wiring = None
             milestones = []
             if args.wiring_suite:
@@ -197,7 +212,9 @@ def main():
                         row["impact_peak_n"] = max(row["impact_peak_n"],float(state["recovery_force_peak_n"][lane].max()))
                 rows.extend(rows_batch)
                 print(json.dumps(dict(profile=profile,checked_poses=len(rows),total=len(pose_ids))),flush=True)
+            checks['requested_solver_authored_on_all_articulations'] = solver_matches
             result = dict(profile=profile,checks=checks,all_checks_pass=all(checks.values()),poses=rows,
+                solver_usd_readback=dict(articulation_count=len(solver_readback),unique_iteration_counts=sorted({tuple(v) for v in solver_readback})),
                 initial_state_count=len(rows),policy_steps_per_pose=args.steps,physics_dt_s=env.dt,policy_dt_s=env.policy_dt,
                 recovery_root_readback_error_peak=root_error_peak)
             if wiring is not None:
