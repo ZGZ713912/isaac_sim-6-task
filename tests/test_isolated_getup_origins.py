@@ -15,8 +15,9 @@ def test_isolated_origins_require_both_explicit_ground_contracts():
         validate_isolated_origins(dict(full_rl_isolated_origins=True, full_rl_square_ground=True), 128)
     cfg = dict(full_rl_isolated_origins=True, full_rl_square_ground=True, flat_triangle_mesh=True)
     assert validate_isolated_origins(cfg, 128)
+    assert validate_isolated_origins(cfg, 512)
     with pytest.raises(ValueError, match="bounded"):
-        validate_isolated_origins(cfg, 257)
+        validate_isolated_origins(cfg, 513)
 
 
 def test_export_pairing_rejects_changed_isolation_even_when_origins_match():

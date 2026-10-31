@@ -36,6 +36,8 @@
 
 ## 接口与证据
 
+并行训练环境数通过`--num_envs`选择，支持20–512，合同默认仍为256。512环境、每环境64步时，每次PPO更新包含32768个rollout位置；正式总预算仍为10000次更新。512个独立世界继续使用完整车体和地面的原生碰撞隔离，不通过改变物理模型或课程门槛扩大环境数。
+
 `--curriculum-eval-every`、`--curriculum-success-rate`、`--curriculum-required-passes`配置全局评测；正向四类的独立门槛继续通过`--recovery-gate-*`配置。阶段参数、阈值和依赖在合同`global_curriculum`中显式保存。`--domain_randomization off`保持名义环境；`on`在名义技能全通过后直接请求指定随机化强度；默认`curriculum`逐档评测。
 
 评测不进行optimizer更新，不重建learner，逐值检查actor、critic、Adam未变且storage为空；结束不完整训练回合并刷新观测后继续原learn调用。每个global冷评测保存逐试验判定及原生轨迹NPZ，更新轮数、单位、判定和派生状态写入checkpoint/progress。训练曲线继续由既有TensorBoard logger记录`Curriculum/<skill>/cold_pass`、`mastered_levels`及域索引，不新增本机服务。

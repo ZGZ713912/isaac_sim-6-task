@@ -32,8 +32,9 @@ def test_explicit_v4_options_preserve_the_accepted_recipe(tmp_path):
     assert args.headless and args.device == "cuda:0"
 
 
-def test_isaac_style_flags_reach_contract_and_learner(tmp_path):
-    args = train_parser().parse_args(["--task","WheelLeg-ProneMotion-v4","--num_envs", "128", "--max_iterations", "5000", "--seed", "103",
+@pytest.mark.parametrize("num_envs", [128, 512])
+def test_isaac_style_flags_reach_contract_and_learner(tmp_path, num_envs):
+    args = train_parser().parse_args(["--task","WheelLeg-ProneMotion-v4","--num_envs", str(num_envs), "--max_iterations", "5000", "--seed", "103",
         "--run_name", "manual_5000", "--device", "cuda:1", "--headless", "--save_interval", "100",
         "--learning_rate", ".0001", "--domain_randomization", "off"])
     _, plan, output = training_options(args, ROOT)
@@ -43,7 +44,7 @@ def test_isaac_style_flags_reach_contract_and_learner(tmp_path):
     assert task.domain_stage(plan, 4999) == ("nominal", 0.)
     cfg, settings, _ = configuration(tmp_path, plan, device=args.device)
     agent = learner_config(plan, args.device)
-    assert cfg["target_num_envs"] == 128 and cfg["num_steps_per_env"] == 64
+    assert cfg["target_num_envs"] == num_envs and cfg["num_steps_per_env"] == 64
     assert agent["device"] == "cuda:1" and agent["seed"] == 103
     assert agent["max_iterations"] == 5000 and agent["save_interval"] == 100
     assert agent["algorithm"]["learning_rate"] == .0001 and not agent["resume"]
@@ -73,7 +74,7 @@ def test_explicit_domains_and_scaled_schedule(mode, strength, expected):
         assert task.domain_stage(legacy, 3000) == ("sensors_only", .125)
 
 
-@pytest.mark.parametrize("override", [dict(num_envs=19), dict(num_envs=512), dict(max_iterations=0), dict(seed=-1),
+@pytest.mark.parametrize("override", [dict(num_envs=19), dict(num_envs=513), dict(max_iterations=0), dict(seed=-1),
     dict(seed=2**32), dict(save_interval=0), dict(learning_rate=float("nan")), dict(dr_strength=1.1),
     dict(domain_randomization="unknown"), dict(num_steps_per_env=0)])
 def test_invalid_run_options_fail_before_output_or_kit(override):

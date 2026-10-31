@@ -10,8 +10,8 @@ def validate_isolated_origins(config, count):
     enabled = config.get("full_rl_isolated_origins", False)
     if enabled and (not config.get("full_rl_square_ground") or not config.get("flat_triangle_mesh")):
         raise ValueError("Isolated getup origins require the explicit square triangle-mesh task")
-    if enabled and not 1 <= count <= 256:
-        raise ValueError("Isolated native getup batches are initially bounded to 1..256 environments")
+    if enabled and not 1 <= count <= 512:
+        raise ValueError("Isolated native getup batches are bounded to 1..512 environments")
     return enabled
 
 
