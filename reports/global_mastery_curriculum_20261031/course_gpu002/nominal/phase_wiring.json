@@ -1,0 +1,126 @@
+{
+  "profile": "nominal",
+  "checks": {
+    "training_native_gate": true,
+    "literal_urdf_nominal_birth": true,
+    "cold_hook_refreshes_observations": true,
+    "cold_hook_clears_partial_episode_totals": true,
+    "cold_hook_no_optimizer_updates": true,
+    "cold_hook_restores_actor_training_mode": true,
+    "all_synthetic_phase_wiring": true
+  },
+  "all_checks_pass": true,
+  "phases": [
+    {
+      "phase": "nominal",
+      "checks": {
+        "finite_commands": true,
+        "no_time_based_randomization": true,
+        "combined_height_delayed": true,
+        "combined_height_at_motion_plateau": true,
+        "all_standing": true,
+        "finite_native_step": true
+      },
+      "all_checks_pass": true,
+      "course_skills": [
+        "standing"
+      ],
+      "combined_height_lanes": 0,
+      "synthetic_state_only": true
+    },
+    {
+      "phase": "foundation",
+      "checks": {
+        "finite_commands": true,
+        "no_time_based_randomization": true,
+        "combined_height_delayed": true,
+        "combined_height_at_motion_plateau": true,
+        "belly_only": true,
+        "finite_native_step": true
+      },
+      "all_checks_pass": true,
+      "course_skills": [
+        "recovery",
+        "standing",
+        "static_height",
+        "straight"
+      ],
+      "combined_height_lanes": 0,
+      "synthetic_state_only": true
+    },
+    {
+      "phase": "low_motion",
+      "checks": {
+        "finite_commands": true,
+        "no_time_based_randomization": true,
+        "combined_height_delayed": true,
+        "combined_height_at_motion_plateau": true,
+        "finite_native_step": true
+      },
+      "all_checks_pass": true,
+      "course_skills": [
+        "moving_height",
+        "recovery",
+        "spin",
+        "standing",
+        "static_height",
+        "straight",
+        "turn"
+      ],
+      "combined_height_lanes": 1,
+      "synthetic_state_only": true
+    },
+    {
+      "phase": "high_motion",
+      "checks": {
+        "finite_commands": true,
+        "no_time_based_randomization": true,
+        "combined_height_delayed": true,
+        "combined_height_at_motion_plateau": true,
+        "finite_native_step": true
+      },
+      "all_checks_pass": true,
+      "course_skills": [
+        "braking",
+        "moving_height",
+        "recovery",
+        "spin",
+        "spinning_height",
+        "standing",
+        "static_height",
+        "straight",
+        "turn",
+        "turning_height"
+      ],
+      "combined_height_lanes": 3,
+      "synthetic_state_only": true
+    },
+    {
+      "phase": "all_nominal",
+      "checks": {
+        "finite_commands": true,
+        "no_time_based_randomization": true,
+        "combined_height_delayed": true,
+        "combined_height_at_motion_plateau": true,
+        "finite_native_step": true
+      },
+      "all_checks_pass": true,
+      "course_skills": [
+        "braking",
+        "moving_height",
+        "recovery",
+        "spin",
+        "spinning_height",
+        "standing",
+        "static_height",
+        "straight",
+        "turn",
+        "turning_height"
+      ],
+      "combined_height_lanes": 3,
+      "synthetic_state_only": true
+    }
+  ],
+  "gpu_dynamics_enabled": true,
+  "optimizer_updates": 0
+}

@@ -1,0 +1,201 @@
+{
+  "schema": "global-mastery-curriculum-verification-v1",
+  "recorded_utc": "2026-10-31T11:34:51.328487+00:00",
+  "source_commit": "dfaa927094136599db2976642c13104be6a4c0ab",
+  "branch": "dev/leg-friction-v202-20261031",
+  "engineering_checks_passed": true,
+  "source_freeze": {
+    "path": "reports/global_mastery_curriculum_20261031/source_freeze001/source_revision.json",
+    "source_count": 535,
+    "all_source_bytes_match_commit": true,
+    "all_current_hashes_match": true,
+    "archive_sha256": "51fbdca3508e3c4d4082b7e8fe4dc07b9f0779ee538b0f1aae9f678d703d2fdf",
+    "archive_kept_locally": true
+  },
+  "curriculum": {
+    "initial": "all environments use authenticated manifest nominal standing, zero motion",
+    "global_skill_groups": 9,
+    "global_grade_milestones": 29,
+    "evaluation_interval_updates": 250,
+    "minimum_success_rate": 1.0,
+    "required_consecutive_passes": 1,
+    "per_direction_and_height_denominators": true,
+    "four_belly_leg_classes": "both_forward, both_backward, left_forward_right_backward, left_backward_right_forward; all individually required before complex recovery",
+    "complex_holdouts": 48,
+    "global_final_cases": 96,
+    "old_78_case_prefix_preserved": true,
+    "learned_skills_rehearsed": true,
+    "domain_randomization": "all nominal skills and recovery mastered, then retained-skill evaluations and minimum 250 updates per domain"
+  },
+  "formal_training": {
+    "max_updates": 10000,
+    "origin": "fresh actor, critic and empty Adam",
+    "resume_allowed": false,
+    "budget_extension_allowed": false,
+    "new_run_started": false,
+    "new_PPO": 0,
+    "optimizer_step_calls": 0,
+    "checkpoint_reads": [],
+    "research_continuation_started_this_change": false,
+    "planned_learn_calls": 1
+  },
+  "preserved": {
+    "pose_bank_sha256": "785b0b16b5fadbed887e61598f3ab4caba9108fd63ed5291f67bb362202199a4",
+    "pose_bank_unchanged_from": "62d4ca37",
+    "pose_count": 252,
+    "actor_dim": 35,
+    "critic_dim": 87,
+    "action_dim": 6,
+    "physics_and_low_level_source_not_changed_this_change": true,
+    "closed_chains": true,
+    "leg_real2sim_friction": true,
+    "gas_springs_and_compensation": true
+  },
+  "tests": {
+    "full_suite": {
+      "passed": 189,
+      "log": "tests/full_suite189.txt",
+      "sha256": "6c4d7a87c3b0ca953d42cdd58865f2ca00b2db862a00bb6c150202044a99750d",
+      "scope": "production-identical source before one extra test-only height assertion"
+    },
+    "final_global_subset": {
+      "passed": 13,
+      "log": "tests/final_global_subset13.txt",
+      "sha256": "9568cc8a56b1da7a8319357941d4d483425f5793ea4394e88a09fb0a202a1434",
+      "scope": "committed final source including extra height assertion"
+    },
+    "test_sets_overlap": true,
+    "counts_must_not_be_summed": true
+  },
+  "preflight": {
+    "path": "reports/global_mastery_curriculum_20261031/preflight002/preflight.json",
+    "sha256": "bc5398ab917b1d390df4bac778818c47e5dbe40a43b36a311eb14377d23a22ca",
+    "passed": true,
+    "source_count": 535
+  },
+  "native": {
+    "native_cpu002": {
+      "path": "reports/global_mastery_curriculum_20261031/native_cpu002/report.json",
+      "sha256": "84e342cb39311cb63d9b0010323733f670d2c6193a46f678ca9da0b78d3f2f7d",
+      "status": "completed",
+      "passed": true,
+      "source_hashes_match_current": true,
+      "profiles": [
+        {
+          "profile": "nominal",
+          "passed": true,
+          "poses": 252,
+          "policy_steps_per_pose": 16,
+          "training_checks": 44
+        },
+        {
+          "profile": "requested",
+          "passed": true,
+          "poses": 252,
+          "policy_steps_per_pose": 16,
+          "training_checks": 44
+        }
+      ]
+    },
+    "course_gpu002": {
+      "path": "reports/global_mastery_curriculum_20261031/course_gpu002/report.json",
+      "sha256": "29b549db431e6baeaebaa9357f90ced1b26490a02162cbba2b044f3fcbd3c14f",
+      "status": "completed",
+      "passed": true,
+      "source_hashes_match_current": true,
+      "profiles": [
+        {
+          "profile": "nominal",
+          "passed": true,
+          "gpu_dynamics_enabled": true,
+          "optimizer_updates": 0
+        },
+        {
+          "profile": "requested",
+          "passed": true,
+          "gpu_dynamics_enabled": true,
+          "optimizer_updates": 0
+        }
+      ]
+    }
+  },
+  "native_scope": "Fixed-action and synthetic admission fixtures validate wiring, genuine GPU dynamics, cold-evaluation state preservation and observation refresh; they do not measure learned RL recovery or locomotion.",
+  "capability_status": [
+    {
+      "id": "initial_recovery",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "moving_fall_recovery",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "standing",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "low_speed_straight",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "high_speed_straight",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "stationary_spin",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "four_direction_arcs",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "standing_height_change",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "moving_height_change",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "spinning_height_change",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "high_speed_braking",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "smoothness",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    },
+    {
+      "id": "robustness",
+      "status": "not_measured_for_new_policy",
+      "qualified": false
+    }
+  ],
+  "full_capability_qualified": false,
+  "hardware_ready": false,
+  "protected_learner": {
+    "pid": 3732465,
+    "start": "Sat Oct 31 01:41:44 2026",
+    "cwd": "/home/noir/Documents/workspace/isaac_wheeled_rl_train",
+    "alive_at_receipt": true,
+    "signals_sent_by_this_change": 0,
+    "source_modified_by_this_change": false,
+    "run_modified_by_this_change": false
+  }
+}
