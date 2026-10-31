@@ -39,6 +39,15 @@ def evaluation_cases(env, plan):
                             birth_height=pose["root_position_m"][2],pitch_deg=0.,
                             recovery_family=family,recovery_leg_class=cls,recovery_split="holdout",
                             target=task.target("prone",plan["max_updates"],plan,final=True),command=[0.,0.,.305]))
+    if plan.get("global_curriculum") is not None:
+        for role in ("forward","reverse","arc_fl","arc_fr","arc_rl","arc_rr","spin_left","spin_right"):
+            for h in (.23,.42):
+                rows.append(dict(role=role,recovery=False,pose_index=env.height_pose[.305],birth_height=.305,
+                    pitch_deg=0.,moving_height=True,target=task.target(role,plan["max_updates"],plan,final=True,height=h),
+                    command=[0.,0.,.305]))
+        for role in ("forward","reverse"):
+            rows.append(dict(role=role,recovery=False,pose_index=env.height_pose[.305],birth_height=.305,
+                pitch_deg=0.,abrupt_brake=True,target=task.target(role,plan["max_updates"],plan,final=True),command=[0.,0.,.305]))
     return rows
 
 
@@ -151,6 +160,20 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
                 passed = passed and row["actual_spin_min_rpm"] >= plan["spin_minimum_rpm"]
             if case["role"] == "height":
                 passed = passed and bool(height_active.any()) and row["active_height_mae_m"] <= .01
+        row.update(moving_height=case.get("moving_height",False),abrupt_brake=case.get("abrupt_brake",False))
+        if row["moving_height"]:
+            passed = passed and bool(height_active.any()) and row["active_height_mae_m"] is not None and row["active_height_mae_m"] <= .01
+        if row["abrupt_brake"] and n:
+            after = np.flatnonzero(a["time"][:n,lane] >= 12.)
+            speed = np.linalg.norm(v[:,:2],axis=-1)
+            bad = after[speed[after] > plan["global_curriculum"]["limits"]["brake_final_speed_m_s"]]
+            stopped = int(bad[-1])+1 if len(bad) else int(after[0]) if len(after) else n
+            delay = float(a["time"][stopped,lane]-12.) if stopped < n else None
+            overshoot = float(np.linalg.norm(xy[after]-xy[after[0]],axis=-1).max()) if len(after) else None
+            row.update(brake_stop_time_s=delay,brake_overshoot_m=overshoot)
+            limits_g = plan["global_curriculum"]["limits"]
+            passed = (passed and delay is not None and delay <= limits_g["brake_stop_seconds"]
+                      and overshoot is not None and overshoot <= limits_g["brake_overshoot_m"])
         row["engineering_screen_pass"] = bool(passed)
         if "spring_compression" in a:
             row.update(spring_compression_min_m=float(a["spring_compression"][:n, :, lane].min()) if n else None,
@@ -282,6 +305,40 @@ def compensation_coverage(spring_reference, *, dev_gas, device):
 
 @torch.inference_mode()
 def probe(env, plan, *, stop_requested=lambda: False):
+    if plan.get("global_curriculum") is None:
+        return _probe(env,plan,stop_requested=stop_requested)
+    old_cases,old_fixed,old_roles = env.evaluation_cases,env.fixed_cases,list(env.course_roles)
+    q = env.robot.data.joint_pos.torch[:,env.ids]
+    nominal = env.bank_joints[env.nominal_pose_index,env.ids]
+    initial = dict(global_initial_roles_all_standing=all(r == "stand" for r in old_roles),
+        global_initial_urdf_nominal_joints=bool(torch.allclose(q,nominal[None].expand_as(q),atol=1e-6,rtol=0.)),
+        global_initial_zero_motion=bool((env.course_targets[:,:2] == 0.).all()),
+        global_update_count_cannot_unlock=env.global_curriculum.domain_context() == ("nominal",0.))
+    fixtures = []
+    for i in range(env.num_envs):
+        role = plan["roles_per20"][i%20];prone = role == "prone"
+        pose = env.recovery_sampler.sample(0) if prone else env.nominal_pose_index
+        h = .305 if prone else env.global_curriculum.config["nominal_height_m"]
+        fixtures.append(dict(role=role,recovery=prone,pose_index=pose,pitch_deg=0.,heading_rad=0.,
+            birth_height=env.poses[pose]["root_position_m"][2],target=[0.,0.,h],command=[0.,0.,h],
+            evaluation_seconds=70. if prone else 30. if role == "stand" else 20.))
+    try:
+        # Explicit zero-PPO fixture: exercise disabled/active recovery wiring
+        # without granting any curriculum skill or modifying its gate state.
+        env.evaluation_cases = fixtures
+        env.reset(torch.arange(env.num_envs,device=env.device))
+        result = _probe(env,plan,stop_requested=stop_requested)
+        result["checks"].update(initial)
+        result["all_checks_pass"] = all(result["checks"].values())
+        result["recovery_fixture_scope"] = "explicit_native_wiring_only_no_curriculum_admission"
+        return result
+    finally:
+        env.evaluation_cases,env.fixed_cases,env.course_roles = old_cases,old_fixed,old_roles
+        env.reset(torch.arange(env.num_envs,device=env.device))
+
+
+@torch.inference_mode()
+def _probe(env, plan, *, stop_requested=lambda: False):
     """No optimizer, no policy checkpoint; constants verify wiring only."""
     action = nominal_action(env).expand(env.num_envs, -1).clone()
     from wheeled_tasks.chassis.prone_motion import timing

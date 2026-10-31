@@ -36,6 +36,7 @@ def parser():
     result.add_argument("--birth_height", "--birth-height", type=float, default=.305, choices=(.23, .305, .42))
     result.add_argument("--vx", type=float, help="Signed forward target m/s; default follows --scene")
     result.add_argument("--yaw_rate", "--yaw-rate", type=float, help="Signed body yaw target rad/s; default follows --scene")
+    result.add_argument("--abrupt-brake",action="store_true",help="Zero the straight request at12s in the new v4 course")
     result.add_argument("--seconds", type=float, help="Simulated preview duration; default: original 70s horizon")
     result.add_argument("--loop", action="store_true", help="Repeat the selected scene; resets are counted in the receipt")
     result.add_argument("--real_time", "--real-time", action=argparse.BooleanOptionalAction, default=True,
@@ -88,8 +89,10 @@ def load_bundle(args):
     seed = plan["evaluation"]["seed"] if args.seed is None else args.seed
     if type(seed) is not int or not 0 <= seed <= 2**32-1:
         raise ValueError("--seed must fit uint32")
+    saved_domain = (tuple(info["global_curriculum"]["domain_context"]) if plan.get("global_curriculum") is not None
+                    and info.get("global_curriculum") else task.domain_stage(plan,completed))
     profile, strength = (("nominal", 0.) if args.domain_randomization == "off" or args.dr_strength == 0 else
-        ("requested", args.dr_strength) if args.domain_randomization == "on" else task.domain_stage(plan, completed))
+        ("requested", args.dr_strength) if args.domain_randomization == "on" else saved_domain)
     if args.domain_randomization == "curriculum":
         strength *= args.dr_strength
     return dict(checkpoint=checkpoint, run=run, state=state, info=info, plan=plan,
@@ -158,8 +161,13 @@ def case_for(args, env, plan):
             raise ValueError("No admitted pose for the requested body-family / leg-class")
         pose_index = matches[0]
         birth_height = env.poses[pose_index]["root_position_m"][2]
+    abrupt = getattr(args,"abrupt_brake",False)
+    if abrupt and (not plan.get("global_curriculum") or args.scene not in ("forward","reverse")):
+        raise ValueError("Abrupt braking requires a new v4 straight-motion case")
     return dict(role=args.scene, recovery=prone, birth_height=birth_height,
         pose_index=pose_index, pitch_deg=0.,
+        moving_height=bool(plan.get("global_curriculum") and args.scene not in ("stand","height","prone") and args.height != .305),
+        abrupt_brake=abrupt,
         target=target, command=[0., 0., .305 if prone else args.birth_height])
 
 

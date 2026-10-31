@@ -226,7 +226,7 @@ def test_new_task_preserves_old_recipe_and_rejects_silent_observation_changes():
     for k in old:
         if k not in ("schema", "reference", "gas_spring_model", "gas_spring_feedforward", "wheel_model"):
             assert old[k] == legacy[k]
-            if k != "evaluation":
+            if k not in ("evaluation","training_progression"):
                 assert legacy[k] == PLAN[k]
     assert PLAN["wheel_model"]["source_model"] == old["wheel_model"]["model"]
     assert task.validate(PLAN) == PLAN

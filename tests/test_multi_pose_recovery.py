@@ -103,7 +103,9 @@ def test_cold_matrix_keeps_all_independent_holdouts_and_failure_denominators():
     from evaluate_prone_motion import evaluation_cases,recovery_summary
     env = SimpleNamespace(poses=BANK["poses"],prone_index=3,height_pose={.23:0,.305:1,.42:2})
     cases = evaluation_cases(env,PLAN)
-    assert len(cases) == 78
+    assert len(cases) == 96
+    assert sum(r.get("moving_height",False) for r in cases) == 16
+    assert sum(r.get("abrupt_brake",False) for r in cases) == 2
     heldout = [r for r in cases if "recovery_family" in r]
     assert len(heldout) == 56 and len({r["pose_index"] for r in heldout}) == 56
     assert {(r["recovery_family"],r["recovery_leg_class"]) for r in heldout} == {(f,l) for f in FAMILIES for l in LEG_CLASSES}
@@ -142,8 +144,8 @@ def test_recovery_is_inside_the_original_single_v4_budget_and_role_pool(tmp_path
     assert resolved["max_updates"] == 10000
     assert resolved["execution"] == "single_learn_call_manual_review" and resolved["review_updates"] == []
     changed = {k for k in legacy if legacy[k] != PLAN[k]}
-    assert changed == {"pose_bank","full_vehicle_scope","evaluation"}
-    assert set(PLAN)-set(legacy) == {"multi_pose_recovery","recovery_impact"}
+    assert changed == {"pose_bank","full_vehicle_scope","evaluation","training_progression"}
+    assert set(PLAN)-set(legacy) == {"multi_pose_recovery","recovery_impact","global_curriculum"}
     assert resolved["roles_per20"] == legacy["roles_per20"]
     for completed in (0,999,1000,1999,2000,4499,4500,6000,7000,9000,10000):
         for role in set(legacy["roles_per20"]):

@@ -95,6 +95,12 @@ def main():
                         original_motion_targets_use_same_update=bool(torch.allclose(env.course_targets,expected)),
                         explicit_recovery_train_bank=bool(selected) and all(p["split"] == "train" for p in selected),
                         finite_role_transitions=True)
+                    if env.global_curriculum is not None:
+                        nominal = env.bank_joints[env.nominal_pose_index]
+                        checks_at_update = dict(only_nominal_standing_before_mastery=all(r == "stand" for r in env.course_roles),
+                            nominal_urdf_joint_reset=bool(torch.allclose(env.robot.data.joint_pos.torch,nominal[None].expand(env.num_envs,-1),atol=1e-6,rtol=0.)),
+                            zero_motion_before_mastery=bool((env.course_targets[:,:2] == 0.).all()),
+                            no_recovery_before_standing=not bool(env.recovery_lane.any()),finite_role_transitions=True)
                     if env.recovery_sampler.mastery is not None:
                         checks_at_update["complex_births_locked_without_four_class_evaluation"] = all(
                             p["family"] == "belly_down" for p in selected)

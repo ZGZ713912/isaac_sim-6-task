@@ -168,7 +168,7 @@
   "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
   "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
   "prone_geometry_contract": "contracts/wheel_leg_standard_prone_v1.json",
-  "training_progression": "One native learn(10000) call; continuous global iteration and ETA. Save every250 completed updates without cold tests. Only declared domain changes rebuild the physical environment before the next rollout's first observation/action, preserving the live actor/critic/Adam/storage/logger. After training, the operator selects any250-update snapshot or the10000-update final model for separate read-only review. Stop on explicit signal, nonfinite state or implementation failure. No automatic restart or resume.",
+  "training_progression": "One fresh10000-update run: grounded URDF nominal standing first; independently assessed recovery, motion and combined-height levels; persistent skill replay; staged randomization only after complete nominal mastery. No automatic update-count admission or budget extension.",
   "evaluation": {
     "seconds": 70.0,
     "seed": 261128,
@@ -179,7 +179,7 @@
     "motion_vx_mae_m_s": 0.15,
     "motion_yaw_mae_rad_s": 0.2,
     "ignored_contiguous_support_loss_ms": 2,
-    "scope": "Fixed final-target cases, including both signs2m/s, both actual body spins80..100rpm, four arc directions, three standing heights, and actual standard-prone completion followed by a full30s quiet window. Failure remains failure; no later suffix can replace the first window. This matrix does not qualify untested jumping/terrain/other fallen families or real hardware. The v4 prone-role pool additionally covers held-out body-family x leg-class initial states, continuous flip-to-rise timing and per-part impacts within the same10000-update run."
+    "scope": "Preserve22 original fixed cases and56 held-out recovery poses; add16 moving/turning/spinning height combinations and2 abrupt high-speed braking cases, total96. These engineering screens and intermediate skill admission do not qualify unmeasured long-term capabilities or real hardware."
   },
   "hardware_ready": false,
   "timing": {
@@ -254,7 +254,7 @@
     "file": "model/recovery_v202_20261031/pose_bank.json",
     "sha256": "785b0b16b5fadbed887e61598f3ab4caba9108fd63ed5291f67bb362202199a4"
   },
-  "full_vehicle_scope": "Full21-body21.44174kg vehicle;20 tree joints and6 external loops. Independent torque-limited yaw/pitch motion, zero friction on merged base guide-roller collision hulls. Fresh training only; historical chassis tasks remain available for read-only comparison. Multi-pose recovery replaces the original prone-role reset distribution inside this same v4 run; the single10000-update budget, other roles, measured physics and fresh initialization remain unchanged.",
+  "full_vehicle_scope": "Full21-body21.44174kg vehicle,20 tree joints and6 loops. The authenticated leg friction, wheels, gas springs, closed chains, limits and low-level control remain unchanged. One fresh10000-update v4 run begins with the literal URDF nominal standing pose and admits recovery/motion/combined-height levels by cold evaluation; persistent replay and gated domain progression, no resume.",
   "mechanical_inner_knee_range_deg": [
     40.0,
     110.0
@@ -348,6 +348,15 @@
         1.5707963267948966
       ],
       "scope": "curriculum_admission_only_not_long_term_or_hardware_qualification"
+    },
+    "mastery_family_weights": {
+      "belly_down": 0.4,
+      "left_side": 0.1,
+      "right_side": 0.1,
+      "roof_down": 0.1,
+      "front_down": 0.1,
+      "rear_down": 0.1,
+      "diagonal": 0.1
     }
   },
   "recovery_impact": {
@@ -374,5 +383,394 @@
     "scope": "flat_ground_body_resultants_not_self_collision_or_structural_stress",
     "structural_limits_identified": false,
     "legacy_engineering_guard": "Inherited20N.s peak-body window still active; not an identified structural damage threshold"
+  },
+  "global_curriculum": {
+    "schema": "wheel-leg-global-mastery-v1",
+    "evaluation_interval_updates": 250,
+    "minimum_success_rate": 1.0,
+    "required_consecutive_passes": 1,
+    "nominal_height_m": 0.32,
+    "evaluation_headings_rad": [
+      0.0,
+      1.5707963267948966
+    ],
+    "standing_seconds": 10.0,
+    "motion_seconds": 20.0,
+    "minimum_domain_updates": 250,
+    "retention": "persistent_learned_skill_replay",
+    "budget_policy": "one_fresh_run_no_extension",
+    "limits": {
+      "standing_xy_max_m": 0.05,
+      "standing_speed_rms_m_s": 0.03,
+      "height_mae_m": 0.01,
+      "tilt_peak_deg": 10.0,
+      "velocity_mae_m_s": 0.15,
+      "velocity_relative_mae": 0.25,
+      "yaw_mae_rad_s": 0.2,
+      "yaw_relative_mae": 0.25,
+      "lateral_velocity_mae_m_s": 0.1,
+      "straight_lateral_path_m": 0.1,
+      "spin_center_max_m": 0.05,
+      "closure_peak_m": 0.003,
+      "geometric_air_run_ms": 2.0,
+      "brake_stop_seconds": 3.0,
+      "brake_final_speed_m_s": 0.1,
+      "brake_overshoot_m": 1.0
+    },
+    "training_weights": {
+      "standing": 25.0,
+      "recovery": 30.0,
+      "straight": 10.0,
+      "turn": 10.0,
+      "spin": 10.0,
+      "static_height": 3.0,
+      "moving_height": 4.0,
+      "turning_height": 4.0,
+      "spinning_height": 3.0,
+      "braking": 1.0
+    },
+    "current_level_fraction": 0.7,
+    "skills": {
+      "standing": {
+        "requires": [],
+        "levels": [
+          {
+            "height_m": 0.32
+          }
+        ]
+      },
+      "straight": {
+        "requires": [
+          {
+            "skill": "standing",
+            "levels": 1
+          }
+        ],
+        "levels": [
+          {
+            "vx_m_s": 0.2
+          },
+          {
+            "vx_m_s": 0.5
+          },
+          {
+            "vx_m_s": 1.0,
+            "requires": [
+              {
+                "skill": "turn",
+                "levels": 2
+              },
+              {
+                "skill": "spin",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "vx_m_s": 2.0,
+            "requires": [
+              {
+                "skill": "braking",
+                "levels": 1
+              }
+            ]
+          }
+        ]
+      },
+      "static_height": {
+        "requires": [
+          {
+            "skill": "standing",
+            "levels": 1
+          }
+        ],
+        "levels": [
+          {
+            "height_fraction": 0.5
+          },
+          {
+            "height_fraction": 1.0
+          }
+        ]
+      },
+      "turn": {
+        "requires": [
+          {
+            "skill": "straight",
+            "levels": 2
+          }
+        ],
+        "levels": [
+          {
+            "vx_m_s": 0.2,
+            "yaw_rad_s": 0.12,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "vx_m_s": 0.5,
+            "yaw_rad_s": 0.3,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "vx_m_s": 1.0,
+            "yaw_rad_s": 0.45,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 3
+              }
+            ]
+          },
+          {
+            "vx_m_s": 2.0,
+            "yaw_rad_s": 0.6,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 4
+              }
+            ]
+          }
+        ]
+      },
+      "spin": {
+        "requires": [
+          {
+            "skill": "straight",
+            "levels": 2
+          }
+        ],
+        "levels": [
+          {
+            "rpm": 10.0
+          },
+          {
+            "rpm": 30.0
+          },
+          {
+            "rpm": 60.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 3
+              }
+            ]
+          },
+          {
+            "rpm": 100.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 4
+              }
+            ]
+          }
+        ]
+      },
+      "braking": {
+        "requires": [
+          {
+            "skill": "straight",
+            "levels": 3
+          }
+        ],
+        "levels": [
+          {
+            "vx_m_s": 1.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 3
+              }
+            ]
+          },
+          {
+            "vx_m_s": 2.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 4
+              }
+            ]
+          }
+        ]
+      },
+      "moving_height": {
+        "requires": [
+          {
+            "skill": "straight",
+            "levels": 2
+          },
+          {
+            "skill": "static_height",
+            "levels": 2
+          }
+        ],
+        "levels": [
+          {
+            "vx_m_s": 0.2,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "vx_m_s": 0.5,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "vx_m_s": 1.0,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 3
+              }
+            ]
+          },
+          {
+            "vx_m_s": 2.0,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "straight",
+                "levels": 4
+              }
+            ]
+          }
+        ]
+      },
+      "turning_height": {
+        "requires": [
+          {
+            "skill": "turn",
+            "levels": 2
+          },
+          {
+            "skill": "static_height",
+            "levels": 2
+          }
+        ],
+        "levels": [
+          {
+            "vx_m_s": 0.2,
+            "yaw_rad_s": 0.12,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "turn",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "vx_m_s": 0.5,
+            "yaw_rad_s": 0.3,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "turn",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "vx_m_s": 1.0,
+            "yaw_rad_s": 0.45,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "turn",
+                "levels": 3
+              }
+            ]
+          },
+          {
+            "vx_m_s": 2.0,
+            "yaw_rad_s": 0.6,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "turn",
+                "levels": 4
+              }
+            ]
+          }
+        ]
+      },
+      "spinning_height": {
+        "requires": [
+          {
+            "skill": "spin",
+            "levels": 2
+          },
+          {
+            "skill": "static_height",
+            "levels": 2
+          }
+        ],
+        "levels": [
+          {
+            "rpm": 10.0,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "spin",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "rpm": 30.0,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "spin",
+                "levels": 2
+              }
+            ]
+          },
+          {
+            "rpm": 60.0,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "spin",
+                "levels": 3
+              }
+            ]
+          },
+          {
+            "rpm": 100.0,
+            "height_fraction": 1.0,
+            "requires": [
+              {
+                "skill": "spin",
+                "levels": 4
+              }
+            ]
+          }
+        ]
+      }
+    }
   }
 }

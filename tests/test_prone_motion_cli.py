@@ -60,12 +60,17 @@ def test_isaac_style_flags_reach_contract_and_learner(tmp_path):
 def test_explicit_domains_and_scaled_schedule(mode, strength, expected):
     plan = resolve_plan(BASE, max_iterations=5000, domain_randomization=mode, dr_strength=strength)
     task.validate(plan)
-    assert task.domain_stage(plan, 4500) == expected
+    assert task.domain_stage(plan,4500) == ("nominal",0.)
+    assert (plan["domain_sequence"][-1]["profile"],plan["domain_sequence"][-1]["strength"]) == expected
+    # The preserved pre-global contract still reproduces its original clock.
+    legacy = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_recovery_20261031.json").read_text())
+    legacy = resolve_plan(legacy,max_iterations=5000,domain_randomization=mode,dr_strength=strength)
+    assert task.domain_stage(legacy,4500) == expected
     if mode == "on":
-        assert task.domain_stage(plan, 0) == expected
+        assert task.domain_stage(legacy, 0) == expected
     if mode == "curriculum":
-        assert task.domain_stage(plan, 2999) == ("nominal",0.)
-        assert task.domain_stage(plan, 3000) == ("sensors_only", .125)
+        assert task.domain_stage(legacy, 2999) == ("nominal",0.)
+        assert task.domain_stage(legacy, 3000) == ("sensors_only", .125)
 
 
 @pytest.mark.parametrize("override", [dict(num_envs=19), dict(num_envs=512), dict(max_iterations=0), dict(seed=-1),
@@ -100,7 +105,8 @@ def test_both_flag_spellings_and_no_gui():
         "--domain-randomization", "on", "--dr-strength", ".25", "--save-interval", "50", "--no-headless"])
     _, plan, _ = training_options(args, ROOT)
     assert not args.headless and plan["num_envs"] == 128
-    assert task.domain_stage(plan, 0) == ("requested", .25)
+    assert task.domain_stage(plan, 0) == ("nominal", 0.)
+    assert plan["domain_sequence"] == [dict(start_update=0,profile="requested",strength=.25)]
 
 
 def test_python_override_is_accepted_by_train_and_play_without_changing_the_plan():

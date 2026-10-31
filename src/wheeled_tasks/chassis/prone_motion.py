@@ -60,6 +60,11 @@ def validate(plan):
             raise ValueError("Multi-pose recovery requires the full friction-calibrated vehicle")
     elif plan["schema"] == "wheel-leg-prone-motion-v5":
         raise ValueError("The historical v5 prototype requires its multi-pose contracts")
+    if "global_curriculum" in plan:
+        from .global_curriculum import validate as validate_global
+        validate_global(plan["global_curriculum"])
+        if plan["schema"] != "wheel-leg-prone-motion-v4" or not plan.get("multi_pose_recovery",{}).get("mastery_gate"):
+            raise ValueError("Global admission requires the explicit v4 four-class recovery gate")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):
@@ -93,7 +98,9 @@ def snapshot_name(completed, plan):
     return None
 
 
-def domain_stage(plan, completed):
+def domain_stage(plan, completed, curriculum=None):
+    if plan.get("global_curriculum") is not None:
+        return curriculum.domain_context() if curriculum is not None else ("nominal",0.)
     return next((x["profile"], x["strength"]) for x in reversed(plan["domain_sequence"])
                 if completed >= x["start_update"])
 
@@ -119,7 +126,7 @@ def envelope(seconds):
     return torch.minimum(((seconds-2.)/3.).clamp(0., 1.), ((16.-seconds)/3.).clamp(0., 1.))
 
 
-def commands(targets, elapsed, recovered_at, prone, plan):
+def commands(targets, elapsed, recovered_at, prone, plan, *, moving_height=None, abrupt_brake=None):
     age = elapsed.clone()
     # An actual completion event, never spawn time, starts the30s quiet clock.
     age[prone] = elapsed[prone]-recovered_at[prone]-plan["post_completion_quiet_seconds"]
@@ -127,6 +134,12 @@ def commands(targets, elapsed, recovered_at, prone, plan):
     value = targets.clone()
     value[:, :2] *= factor[:, None]
     value[:, 2] = .305+(targets[:, 2]-.305)*factor
+    if moving_height is not None:
+        # Change height after translation/yaw has reached its plateau.
+        height_factor = torch.minimum(((age-7.)/2.).clamp(0.,1.),((17.-age)/2.).clamp(0.,1.))
+        value[:,2] = torch.where(moving_height,.305+(targets[:,2]-.305)*height_factor,value[:,2])
+    if abrupt_brake is not None:
+        value[:, :2] = torch.where((abrupt_brake & (age >= 12.))[:,None],0.,value[:,:2])
     value[prone & ~torch.isfinite(recovered_at), :] = value.new_tensor([0., 0., .305])
     return value
 
