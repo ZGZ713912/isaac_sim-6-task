@@ -44,8 +44,8 @@ def _configured(base, options):
             raise ValueError(f"{key} must be an integer >= {minimum}")
     if result["seed"] > 2**32-1:
         raise ValueError("seed must fit NumPy's uint32 seed range")
-    if result["num_envs"] > 256:
-        raise ValueError("This isolated-world task currently supports --num_envs 20..256")
+    if result["num_envs"] > 512:
+        raise ValueError("This isolated-world task currently supports --num_envs 20..512")
     if not math.isfinite(result["learning_rate"]) or result["learning_rate"] <= 0:
         raise ValueError("learning_rate must be finite and positive")
     mode, strength = options["domain_randomization"], options["dr_strength"]
