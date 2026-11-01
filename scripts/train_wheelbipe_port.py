@@ -65,6 +65,7 @@ def main():
     save(path,receipt)
     app = None
     wrapped = None
+    runner = None
     started = time.monotonic()
     try:
         from wheeled_tasks.wheelbipe_port.model import expose_source, BUNDLE, TABLE, ACTIVE, BODY_ALIASES, JOINT_ALIASES
@@ -182,6 +183,7 @@ def main():
             initial = {k:v.detach().cpu().clone() for k,v in runner.alg.policy.state_dict().items()}
             if runner.alg.optimizer.state:
                 raise ValueError("A fresh experiment must start with empty Adam")
+            runner._prepare_logging_writer()
             runner.save(str(args.output/"model_initial.pt"))
             receipt["initial_checkpoint_sha256"] = sha(args.output/"model_initial.pt")
             original_log = runner.log
@@ -226,9 +228,6 @@ def main():
                 changed_policy_tensors=changed,policy_tensors_finite=bool(finite),
                 max_constraint_gap_m=float(env.port_constraint_gap_peak),
                 physical_steps=env.port_physics_calls)
-            if runner.writer is not None:
-                runner.writer.flush()
-                runner.writer.close()
         else:
             runner = OnPolicyRunner(wrapped,agent.to_dict(),log_dir=None,device=args.device)
             runner.load(str(args.checkpoint),load_optimizer=False)
@@ -267,6 +266,9 @@ def main():
         save(path,receipt)
         raise
     finally:
+        if runner is not None and runner.writer is not None:
+            runner.writer.flush()
+            runner.writer.close()
         if wrapped is not None:
             wrapped.close()
         if app is not None:
