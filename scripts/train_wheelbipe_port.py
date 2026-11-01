@@ -48,13 +48,18 @@ def main():
     parser.add_argument("--external-forces-every-iteration",action=argparse.BooleanOptionalAction,default=False)
     parser.add_argument("--physics-hz",type=int,choices=(200,500,1000,2000),default=200,
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
-    parser.add_argument("--max-constraint-gap-mm",type=float,default=5.,
-        help="Explicit closed-chain peak limit in mm; user revised this port to 5mm on 2026-11-02")
+    parser.add_argument("--leg-armature",type=float,default=.015795,
+        help="Additional inertia on each of the four driven leg axes, kg*m^2")
+    parser.add_argument("--max-constraint-gap-mm",type=float,default=None,
+        help="Optional historical policy-sampled gap limit; omitted means diagnostics only")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
     args = parser.parse_args()
-    from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap
+    from wheeled_tasks.wheelbipe_port.training_contract import (
+        constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,CONSTRAINT_DIAGNOSTIC_SCOPE,
+    )
     try:
         gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
+        args.leg_armature = leg_armature_kg_m2(args.leg_armature)
     except ValueError as error:
         parser.error(str(error))
     if args.num_envs<1 or args.iterations<1 or args.steps<1 or not 0.<=args.randomization_strength<=1.:
@@ -67,7 +72,9 @@ def main():
     args.output.mkdir(parents=True,exist_ok=False)
     receipt = dict(status="preparing",started_at=datetime.now(timezone.utc).isoformat(),
         arguments={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
-        hardware_io=False,behavior_qualified=False,completed_updates=0,constraint_gap_limit_m=gap_limit)
+        hardware_io=False,behavior_qualified=False,completed_updates=0,constraint_gap_limit_m=gap_limit,
+        constraint_gap_hard_limit_enabled=gap_limit is not None,
+        diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE)
     path = args.output/"receipt.json"
     save(path,receipt)
     app = None
@@ -110,6 +117,7 @@ def main():
         cfg.sim.render_interval = cfg.decimation
         cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver_position_iterations
         cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver_velocity_iterations
+        cfg.robot_cfg.actuators["legs_act"].armature = args.leg_armature
         cfg.sim.physx.enable_external_forces_every_iteration = args.external_forces_every_iteration
         cfg.seed = args.seed
         cfg.port_randomization_profile = args.randomization_profile
@@ -126,6 +134,10 @@ def main():
         dimensions = {name:list(value.shape) for name,value in observations.items()}
         if dimensions["policy"][-1]!=35 or dimensions["critic"][-1]!=78:
             raise ValueError(f"Reference observation dimensions differ: {dimensions}")
+        leg_ids = [env.motor_ids[i] for i in (0,1,3,4)]
+        leg_armatures = torch.as_tensor(env.robot.root_physx_view.get_dof_armatures())[:,leg_ids]
+        if not torch.allclose(leg_armatures,torch.full_like(leg_armatures,args.leg_armature),atol=1.e-8,rtol=0.):
+            raise ValueError("Native leg armature differs from the requested per-axis inertia")
         native = dict(actor_dim=35,critic_dim=78,action_dim=6,observation_shapes=dimensions,
             cad_joint_names=env.robot.cad_joint_names,policy_joint_names=env.robot.joint_names,
             cad_body_names=env.robot.cad_body_names,policy_body_names=env.robot.body_names,
@@ -134,6 +146,10 @@ def main():
             default_joint_pos=env.robot.data.default_joint_pos[0].cpu().tolist(),
             leg_action_scale=env.leg_action_scale,wheel_action_scale=env.wheel_action_scale,
             policy_dt_s=env.step_dt,physics_dt_s=env.physics_dt,domain=env.domain_receipt,
+            leg_armature_kg_m2=args.leg_armature,leg_armature_joint_names=[ACTIVE[i] for i in (0,1,3,4)],
+            leg_armature_native_readback_kg_m2=leg_armatures[0].cpu().tolist(),
+            leg_armature_readback_verified_envs=args.num_envs,
+            diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE,
             paired_target_signed_delta_bounds_rad=env.paired_targets.bounds.cpu().tolist(),
             joint_velocity_guard_scope="asset solver guard; not an identified motor-speed limit",
             spring_model_sha256=env.control.gas_compensation.cfg["model_sha256"],
@@ -206,7 +222,9 @@ def main():
                 iteration_time = values["collection_time"]+values["learn_time"]
                 runner.writer.add_scalar("Perf/iteration_time_s",iteration_time,values["it"])
                 runner.writer.add_scalar("Perf/physics_steps_per_update",24*cfg.decimation,values["it"])
-                runner.writer.add_scalar("Port/constraint_gap_limit_m",gap_limit,values["it"])
+                runner.writer.add_scalar("Port/constraint_gap_hard_limit_enabled",int(gap_limit is not None),values["it"])
+                if gap_limit is not None:
+                    runner.writer.add_scalar("Port/constraint_gap_limit_m",gap_limit,values["it"])
                 completed = int(values["it"])+1
                 peak = float(env.port_constraint_gap_peak)
                 receipt.update(status="training",completed_updates=completed,

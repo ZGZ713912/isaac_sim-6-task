@@ -78,6 +78,8 @@ def main():
         native=receipt["native"],actor="deterministic Gaussian mean; no teacher or previous policy",
         obs_dim=35,action_dim=6,opset=17,parity_samples=len(sample),max_absolute_error=error,
         constraint_gap_limit_m=gap_limit,training_constraint_gap_peak_m=receipt["max_constraint_gap_m"],
+        constraint_gap_hard_limit_enabled=gap_limit is not None,
+        diagnostic_sampling_scope=receipt.get("diagnostic_sampling_scope","all physics steps; historical receipt"),
         behavior_qualified=False,hardware_mapping_verified=False,
         observation_order="source V14 command(3), height(1), gyro(3), gravity(3), leg-relative-position(4), muted-wheel-position(2), joint-velocity(6), previous-action(6), control-mode(7)",
         preprocessing="original V14 clip/scale and v2 sensor model; see params/env.yaml", 

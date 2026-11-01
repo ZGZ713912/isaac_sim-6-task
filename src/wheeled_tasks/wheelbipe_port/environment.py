@@ -232,7 +232,6 @@ class WheelbipePortEnv(WheelbipeV14Env):
 
     def _apply_action(self):
         self.port_physics_calls += 1
-        self._measure_constraint_peak()
         q = self.robot.data.joint_pos[:,self.motor_ids]
         dq = self.robot.data.joint_vel[:,self.motor_ids]
         feedback = q.clone()
@@ -291,6 +290,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
         if getattr(self.cfg,"port_record_peaks",False) and peak>self.port_constraint_gap_peak:
             lane,pin = divmod(int(gaps.argmax()),6)
             self.port_peak_diagnostic = dict(lane=lane,pin=pin,physical_call=self.port_physics_calls,
+                sample_scope="policy_observation_boundary",
                 episode_time_s=float(self.episode_length_buf[lane])*self.step_dt,
                 initialized=bool(self.finish_init[lane]),gaps_m=gaps[lane].cpu().tolist(),
                 root_state=self.robot.data.root_state_w[lane].cpu().tolist(),
@@ -305,10 +305,10 @@ class WheelbipePortEnv(WheelbipeV14Env):
             self._measure_constraint_peak()
             logs = self.extras.setdefault("log",{})
             logs.update({
-                "Port/constraint_gap_max_m":self.constraint_gaps().max(),
-                "Port/constraint_gap_running_peak_m":self.port_constraint_gap_peak.clone(),
-                "Port/joint_speed_running_peak_rad_s":self.port_joint_speed_peak.clone(),
-                "Port/body_angular_speed_running_peak_rad_s":self.port_body_angular_speed_peak.clone(),
+                "Port/constraint_gap_policy_sample_max_m":self.constraint_gaps().max(),
+                "Port/constraint_gap_policy_sample_running_max_m":self.port_constraint_gap_peak.clone(),
+                "Port/joint_speed_policy_sample_running_max_rad_s":self.port_joint_speed_peak.clone(),
+                "Port/body_angular_speed_policy_sample_running_max_rad_s":self.port_body_angular_speed_peak.clone(),
                 "Port/motor_leg_abs_mean_Nm":self.motor_effort[:,(0,1,3,4)].abs().mean(),
                 "Port/motor_wheel_abs_mean_Nm":self.motor_effort[:,(2,5)].abs().mean(),
                 "Port/spring_force_mean_N":self.spring_force.mean(),

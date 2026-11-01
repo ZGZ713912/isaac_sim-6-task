@@ -5,6 +5,7 @@ from copy import deepcopy
 import json
 
 from .model import ACTIVE, BUNDLE, JOINT_ALIASES, ROOT
+from .training_contract import DEFAULT_LEG_ARMATURE_KG_M2
 from isaaclab.assets import ArticulationCfg
 from isaaclab.actuators import IdealPDActuatorCfg
 import isaaclab.sim as sim
@@ -43,7 +44,7 @@ def configure(cfg):
             joint_pos={JOINT_ALIASES[n]:v for n,v in asset.manifest["nominal_joint_pos"].items()},
             joint_vel={".*":0.}),
         actuators={
-            "legs_act":actuator(legs,friction.native_effort_limit,armature=0.),
+            "legs_act":actuator(legs,friction.native_effort_limit,armature=DEFAULT_LEG_ARMATURE_KG_M2),
             "wheel":actuator(wheels,response.native_effort_limit,
                 armature={JOINT_ALIASES[n]:native["armature"][n] for n in wheels},
                 friction={JOINT_ALIASES[n]:native["frictionloss"][n] for n in wheels},
