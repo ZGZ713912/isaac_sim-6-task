@@ -124,6 +124,11 @@ def main():
         "--solver-position-iterations","64","--solver-velocity-iterations","32",
         "--no-external-forces-every-iteration","--randomization-profile","requested"]
     try:
+        rough = args.output/"rough_preflight"
+        rough_command = common.copy()
+        rough_command[rough_command.index("flat")] = "rough"
+        run("rough_preflight",rough_command+["--mode","preflight","--num-envs","8",
+            "--steps","200","--seed","111","--output",str(rough)],rough/"receipt.json")
         # Exercise the full clone population and memory footprint before PPO.
         preflight = args.output/"population_preflight"
         run("population_preflight",common+["--mode","preflight","--num-envs",str(args.num_envs),
