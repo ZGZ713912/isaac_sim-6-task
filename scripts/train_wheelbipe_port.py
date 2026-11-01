@@ -74,7 +74,8 @@ def main():
         if versions["rsl-rl-lib"]!="3.0.1" or not versions["isaacsim"].startswith("5.1."):
             raise ValueError(f"This source-faithful experiment requires Sim5.1/RSL-RL3.0.1: {versions}")
         receipt.update(versions=versions,source_snapshot_sha256=sha(ROOT/"third_party/wheelbipe/provenance.json"),
-            asset_manifest_sha256=sha(BUNDLE/"manifest.json"),reset_lookup_sha256=sha(TABLE))
+            asset_manifest_sha256=sha(BUNDLE/"manifest.json"),reset_lookup_sha256=sha(TABLE),
+            collision_support_sha256=sha(TABLE.parent/"collision_support.json"))
         implementation = [*sorted((ROOT/"src/wheeled_tasks/wheelbipe_port").glob("*.py")),
             ROOT/"scripts/train_wheelbipe_port.py",ROOT/"scripts/export_wheelbipe_port_onnx.py"]
         receipt["implementation_files_sha256"] = {str(p.relative_to(ROOT)):sha(p) for p in implementation}
@@ -105,7 +106,7 @@ def main():
         cfg.seed = args.seed
         cfg.port_randomization_profile = args.randomization_profile
         cfg.port_randomization_strength = args.randomization_strength
-        cfg.port_record_peaks = args.mode=="preflight"
+        cfg.port_record_peaks = args.mode in ("preflight","train")
         if args.mode=="evaluate":
             cfg.use_leg_random_start = False
             cfg.events.reset_base.params["pose_range"] = {}
@@ -262,10 +263,15 @@ def main():
             receipt.update(status="evaluation_complete",checkpoint_sha256=sha(args.checkpoint),cases=rows,
                 acceptance="diagnostic cold command cases; complete acceptance suite remains separate")
         receipt["elapsed_s"] = time.monotonic()-started
+        receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
+        receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
         save(path,receipt)
         print(json.dumps({k:v for k,v in receipt.items() if k not in ("native","arguments")},indent=2))
     except BaseException as exc:
         receipt.update(status="failed",error=repr(exc),traceback=traceback.format_exc(),elapsed_s=time.monotonic()-started)
+        if wrapped is not None:
+            receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
+            receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
         save(path,receipt)
         raise
     finally:

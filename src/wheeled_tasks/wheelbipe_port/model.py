@@ -98,3 +98,61 @@ class ResetLookup:
             columns = side["joint_columns"]
             result[:, columns] = q[:, columns]
         return result[:, self.native_order]
+
+
+class CollisionSupport:
+    """Reset-only native FK and conservative collision clearance above a plane."""
+    def __init__(self,joint_names,device):
+        import torch
+        self.torch = torch
+        spec = json.loads((BUNDLE/"model_spec.json").read_text())
+        bounds = json.loads((TABLE.parent/"collision_support.json").read_text())
+        if bounds["model_spec_sha256"]!=digest(BUNDLE/"model_spec.json"):
+            raise ValueError("Collision support belongs to a different CAD model")
+        tensor = lambda value:torch.tensor(value,device=device,dtype=torch.float32)
+        self.bounds = {b["name"]:(tensor(b["lower_m"]),tensor(b["upper_m"])) for b in bounds["bodies"]}
+        self.eye = torch.eye(3,device=device)
+        self.joints = []
+        seen = {"base_link"}
+        pending = spec["joints"].copy()
+        while pending:
+            progressed = False
+            for joint in pending[:]:
+                if joint["parent"] not in seen:
+                    continue
+                origin = tensor(joint["origin"])
+                axis = tensor(joint.get("axis",[0.,0.,1.]))
+                skew = tensor([[0.,-axis[2],axis[1]],[axis[2],0.,-axis[0]],[-axis[1],axis[0],0.]])
+                index = None if joint["type"]=="fixed" else joint_names.index(joint["name"])
+                self.joints.append((joint["parent"],joint["child"],joint["type"],index,
+                    origin[:3,:3],origin[:3,3],axis,axis[:,None]*axis[None,:],skew))
+                seen.add(joint["child"])
+                pending.remove(joint)
+                progressed = True
+            if not progressed:
+                raise ValueError("CAD joint graph is not a rooted tree")
+
+    def minimum_z(self,positions,root_quaternion_wxyz):
+        torch = self.torch
+        count = len(positions)
+        rotations = {"base_link":self.eye.expand(count,3,3)}
+        translations = {"base_link":torch.zeros(count,3,device=positions.device)}
+        for parent,child,kind,index,origin_r,origin_p,axis,outer,skew in self.joints:
+            rotation = rotations[parent]@origin_r
+            translation = translations[parent]+(rotations[parent]@origin_p[:,None]).squeeze(-1)
+            if kind=="prismatic":
+                translation = translation+(rotation@axis[:,None]).squeeze(-1)*positions[:,index,None]
+            elif kind!="fixed":
+                angle = positions[:,index,None,None]
+                motion = angle.cos()*self.eye+(1.-angle.cos())*outer+angle.sin()*skew
+                rotation = rotation@motion
+            rotations[child],translations[child] = rotation,translation
+        w,x,y,z = root_quaternion_wxyz.unbind(-1)
+        vertical = torch.stack((2.*(x*z-w*y),2.*(y*z+w*x),1.-2.*(x*x+y*y)),-1)
+        minima = []
+        for name,(lower,upper) in self.bounds.items():
+            direction = (rotations[name].transpose(-2,-1)@vertical[:,:,None]).squeeze(-1)
+            center,half = (upper+lower)/2.,(upper-lower)/2.
+            minima.append((translations[name]*vertical).sum(-1)+(direction*center).sum(-1)
+                -(direction.abs()*half).sum(-1))
+        return torch.stack(minima,-1).min(-1).values

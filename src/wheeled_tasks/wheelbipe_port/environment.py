@@ -11,7 +11,7 @@ from isaaclab.sensors import ContactSensor, RayCaster
 from isaaclab.utils.math import quat_apply, quat_apply_inverse, quat_from_euler_xyz
 from agent_tasks.direct.wheelbipe.wheelbipe_V14.env import WheelbipeV14Env
 
-from .model import ACTIVE, BODY_ALIASES, BUNDLE, JOINT_ALIASES, ROOT, ResetLookup, digest
+from .model import ACTIVE, BODY_ALIASES, BUNDLE, JOINT_ALIASES, ROOT, CollisionSupport, ResetLookup, digest
 
 
 class MappedArticulation(Articulation):
@@ -41,6 +41,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
         from wheeled_tasks.chassis.full_robot_v202 import FullRobotV202
         self.asset = FullRobotV202()
         self.reset_lookup = ResetLookup(self.robot.cad_joint_names,self.device)
+        self.collision_support = CollisionSupport(self.robot.cad_joint_names,self.device)
+        self.reset_penetration_peak = torch.zeros((),device=self.device)
         self.control, self.wheel_response = self.asset.components(self.num_envs,self.device)
         # The response integrates fractional 5.5/3.5 ms delays on the actual
         # physics clock. The immutable asset's historical 1ms receipt is not
@@ -122,6 +124,16 @@ class WheelbipePortEnv(WheelbipeV14Env):
             value = self._port_reset_q[:,extras]
             self.robot.write_joint_state_to_sim(value,torch.zeros_like(value),extras,env_ids)
         if self._port_ready:
+            # The source's fixed reset height assumed its shorter, differently
+            # located collision geometry. Raise only penetrating reset states;
+            # preserve orientations, velocities, leg poses and positive drops.
+            root = self.robot.data.root_state_w[env_ids].clone()
+            relative = self.collision_support.minimum_z(self.robot.data.joint_pos[env_ids],root[:,3:7])
+            floor = self.terrain.env_origins[env_ids,2]
+            penetration = floor-(root[:,2]+relative)
+            self.reset_penetration_peak = torch.maximum(self.reset_penetration_peak,penetration.max())
+            root[:,2] += (penetration+.002).clamp_min(0.)
+            self.robot.write_root_state_to_sim(root,env_ids)
             self.wheel_response.reset(env_ids)
             self.motor_effort[env_ids] = 0.
             if self._policy_previous is not None:
@@ -280,6 +292,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
                 "Port/motor_wheel_abs_mean_Nm":self.motor_effort[:,(2,5)].abs().mean(),
                 "Port/spring_force_mean_N":self.spring_force.mean(),
                 "Port/base_height_mean_m":self.robot.data.root_pos_w[:,2].mean(),
+                "Port/reset_initial_penetration_running_peak_m":self.reset_penetration_peak.clone(),
                 "Port/forward_error_abs_mean_m_s":(self.robot.data.root_lin_vel_b[:,0]-self.command[:,0]).abs().mean(),
                 "Port/yaw_error_abs_mean_rad_s":(self.robot.data.root_ang_vel_b[:,2]-self.command[:,2]).abs().mean(),
             })

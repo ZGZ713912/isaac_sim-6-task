@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import itertools
 import math
 from pathlib import Path
 import sys
@@ -61,6 +62,26 @@ def main():
         max_audited_constraint_gap_m=max_gap,audit_cases=3*(len(rows)-1),
         state_writes="episode_reset_only",hardware_calibrated=False)
     TABLE.write_text(json.dumps(result,separators=(",",":"))+"\n")
+    support = []
+    for body in spec["bodies"]:
+        vertices = []
+        for shape in body["collisions"]:
+            origin = np.array(shape["origin"])
+            if shape["type"]=="mesh":
+                points = np.array([[float(v) for v in line.split()[1:4]]
+                    for line in (BUNDLE/shape["file"]).read_text().splitlines() if line.startswith("v ")])
+            elif shape["type"]=="cylinder":
+                radius,half = shape["radius"],shape["length"]/2.
+                points = np.array(list(itertools.product((-radius,radius),(-radius,radius),(-half,half))))
+            else:
+                raise ValueError("Unrecognized CAD collision shape: "+shape["type"])
+            vertices.append(points@origin[:3,:3].T+origin[:3,3])
+        points = np.concatenate(vertices)
+        support.append(dict(name=body["name"],lower_m=points.min(0).tolist(),upper_m=points.max(0).tolist()))
+    (TABLE.parent/"collision_support.json").write_text(json.dumps(dict(
+        schema="wheelbipe-v202-collision-support-v1",model_spec_sha256=digest(BUNDLE/"model_spec.json"),
+        representation="conservative per-body CAD collision AABBs; cylinder is enclosed by its box",
+        use="reset-only upward clearance, never dynamic state projection",bodies=support),indent=2)+"\n")
     print(json.dumps(dict(path=str(TABLE),sha256=digest(TABLE),max_gap_m=max_gap,
         length_ranges_m=[[r["lengths_m"][0],r["lengths_m"][-1]] for r in side_rows]),indent=2))
 

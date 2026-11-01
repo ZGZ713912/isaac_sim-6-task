@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "src"),str(ROOT / "tools")]
 import full_robot_v202 as geometry
 from wheeled_tasks.wheelbipe_port.model import (
-    BODY_ALIASES, BUNDLE, JOINT_ALIASES, ResetLookup, authenticate_source,
+    BODY_ALIASES, BUNDLE, JOINT_ALIASES, CollisionSupport, ResetLookup, authenticate_source,
 )
 
 
@@ -43,3 +43,35 @@ def test_independent_left_right_reset_closes_all_six_constraints():
         for name,sign in (("L_joint2",1.),("R_jonit2",-1.)):
             beta = sign*q[name]+spec["passive_knee_zero_inner_rad"][name]
             assert np.radians(40.)-1.e-6 <= beta <= np.radians(110.)+1.e-6
+
+
+def test_collision_clearance_matches_native_fk_for_asymmetric_poses():
+    from scipy.spatial.transform import Rotation
+    from itertools import product
+    spec = json.loads((BUNDLE/"model_spec.json").read_text())
+    names = [j["name"] for j in spec["joints"] if j["type"]!="fixed"]
+    generator = torch.Generator().manual_seed(108)
+    q = ResetLookup(names,"cpu").sample(.16+.20*torch.rand(40,2,generator=generator),
+        -np.pi/2.+1.25*np.pi*torch.rand(40,2,generator=generator))
+    euler = torch.rand(40,3,generator=generator).numpy()*[.3,.3,6.28]-[.15,.15,3.14]
+    rotations = Rotation.from_euler("xyz",euler)
+    xyzw = rotations.as_quat()
+    quaternion = torch.tensor(xyzw[:,[3,0,1,2]],dtype=torch.float32)
+    support = CollisionSupport(names,"cpu")
+    actual = support.minimum_z(q,quaternion).numpy()
+    reference = []
+    for row,rotation in zip(q.numpy(),rotations.as_matrix()):
+        root = np.eye(4); root[:3,:3] = rotation
+        frames = geometry.fk(spec,dict(zip(names,row)),root)
+        minimum = np.inf
+        for name,(lo,hi) in support.bounds.items():
+            corners = np.array(list(product(*zip(lo.numpy(),hi.numpy()))))
+            points = corners@frames[name][:3,:3].T+frames[name][:3,3]
+            minimum = min(minimum,points[:,2].min())
+        reference.append(minimum)
+    np.testing.assert_allclose(actual,reference,atol=2.e-7,rtol=1.e-6)
+    # The inherited .32m base reset does penetrate some valid long-leg poses.
+    penetration = -(actual+.32)
+    assert penetration.max()>.02
+    lifted = .32+np.maximum(penetration+.002,0.)
+    assert np.min(lifted+actual)>=.002-1.e-7
