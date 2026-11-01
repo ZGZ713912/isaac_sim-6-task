@@ -11,14 +11,15 @@ import torch
 
 def cases_for(env, config):
     cases = []
+    split="standard" if config.get("reset_scope") == "standard_prone_only" else "holdout"
     for i,pose in enumerate(env.poses):
         r = pose.get("recovery",{})
-        if (r.get("family"),r.get("split")) != ("belly_down","holdout"):
+        if (r.get("family"),r.get("split")) != ("belly_down",split):
             continue
         for heading in config["evaluation_headings_rad"]:
             cases.append(dict(role="prone",recovery=True,pose_index=i,heading_rad=heading,
                 birth_height=pose["root_position_m"][2],pitch_deg=0.,target=[0.,0.,.305],command=[0.,0.,.305],
-                family="belly_down",leg_class=r["leg_class"],split="holdout"))
+                family="belly_down",leg_class=r["leg_class"],split=split))
     if not cases or len(cases) > env.num_envs:
         raise ValueError("Mastery evaluation needs enough environments for all independent four-class trials")
     return cases
@@ -42,7 +43,7 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
     rng = (torch.get_rng_state(),torch.cuda.get_rng_state_all() if torch.cuda.is_available() else [],
         env.generator.get_state(),env.domain.rng.get_state(),np.random.get_state(),random.getstate(),
         env.recovery_sampler.rng.getstate(),deepcopy(env.recovery_sampler.class_cursor))
-    rows = [dict(family=c["family"],leg_class=c["leg_class"],split="holdout",pose_index=c["pose_index"],
+    rows = [dict(family=c["family"],leg_class=c["leg_class"],split=c.get("split","holdout"),pose_index=c["pose_index"],
         heading_rad=c["heading_rad"],completed=False,terminated=False,active_time_s=None,
         post_completion_hold_s=0.,closure_peak_m=0.,passed=False) for c in cases]
     active = torch.ones(n,dtype=torch.bool,device=env.device)
@@ -72,7 +73,7 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
                 row["post_completion_hold_s"] = max(row["post_completion_hold_s"],float(hold[lane]))
                 row["passed"] = (row["completed"] and not row["terminated"]
                     and row["active_time_s"] <= config["max_active_recovery_seconds"]
-                    and row["closure_peak_m"] <= .003
+                    and row["closure_peak_m"] <= env.getup_cfg.get("closure_gap_m",.003)
                     and row["post_completion_hold_s"]+1e-6 >= config["post_completion_hold_seconds"])
                 if row["passed"] or bool(done[lane]):
                     active[lane] = False

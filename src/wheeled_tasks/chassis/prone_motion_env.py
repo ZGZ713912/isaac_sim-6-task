@@ -139,6 +139,8 @@ class ProneMotionEnv(RobustGetupEnv):
                 reset_admission=self.bank["multi_pose_recovery"], impact=self.plan["recovery_impact"])
             self.startup_report["prone_motion"]["reset"] = "CAD-screened full-vehicle body-family x four independent fore/aft leg classes"
             self.startup_report["prone_motion"]["route_bias"] = "No fixed fold angle; shared upright-recoverable suffix; bounded progress potential"
+            if self.multi_pose_cfg.get("reset_scope") == "standard_prone_only":
+                self.startup_report["prone_motion"]["reset"] = "Single standard normally-up belly-grounded103deg posture only; no side, inverted or independent-leg-class births"
         if self.global_curriculum is not None:
             self.startup_report["global_curriculum"] = dict(config=self.global_curriculum.config,
                 nominal_pose_index=self.nominal_pose_index,initial_state=self.global_curriculum.state_dict(),

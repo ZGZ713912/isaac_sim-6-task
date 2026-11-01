@@ -22,7 +22,8 @@ def evaluation_cases(env, plan):
     rows += [dict(role=r, birth_height=.305, pitch_deg=0.) for r in
              ("forward", "reverse", "spin_left", "spin_right", "arc_fl", "arc_fr", "arc_rl", "arc_rr")]
     rows += [dict(role="height", birth_height=.305, target_height=h, pitch_deg=0.) for h in (.23, .42)]
-    rows += [dict(role="prone", birth_height=.173, pitch_deg=p) for p in (0., -.5, .5)]
+    standard=plan.get("multi_pose_recovery",{}).get("reset_scope") == "standard_prone_only"
+    rows += [dict(role="prone", birth_height=.173, pitch_deg=p) for p in ((0.,) if standard else (0., -.5, .5))]
     for row in rows:
         prone = row["role"] == "prone"
         height = row.get("target_height", row["birth_height"] if not prone else .305)
@@ -78,6 +79,7 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
         raise ValueError("Cold trace timing/physical samples differ from the selected policy contract")
     substeps = rates["decimation"]
     limits = plan["evaluation"]
+    closure_limit=plan.get("closure_guard",{}).get("peak_m",.003)
     horizon = round(limits["seconds"]/dt)
     hold_steps = round(30./dt)
     rows = []
@@ -136,13 +138,13 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
             closure_gap_peak_m=float(a["gap"][:n, lane].max()) if n else None,
             full_acceptance_qualified=False)
         common = (row["full_horizon"] and not row["terminated"] and support["support_pass"]
-                  and row["closure_gap_peak_m"] <= .003 and row["height_mae_m"] <= limits["height_mae_m"])
+                  and row["closure_gap_peak_m"] <= closure_limit and row["height_mae_m"] <= limits["height_mae_m"])
         # Prone height during the rise is deliberately far from305mm; only its
         # original post-completion30s window contributes to standing height MAE.
         if prone and full_quiet:
             row["post_completion_height_mae_m"] = float(np.abs(a["height"][q, lane]-.305).mean())
             common = (row["full_horizon"] and not row["terminated"] and support["support_pass"]
-                      and row["closure_gap_peak_m"] <= .003 and row["post_completion_height_mae_m"] <= .01)
+                      and row["closure_gap_peak_m"] <= closure_limit and row["post_completion_height_mae_m"] <= .01)
         if quiet_case:
             passed = (common and full_quiet and row["quiet_xy_max_m"] <= limits["standing_xy_max_m"]
                       and row["quiet_speed_rms_m_s"] <= limits["standing_speed_rms_m_s"]
@@ -347,6 +349,13 @@ def _probe(env, plan, *, stop_requested=lambda: False):
     checks = dict(fixed_PD_and_spring=bool((env.domain.kp == 1.).all() and (env.domain.kd == 1.).all()
         and (env.domain.spring == 1.).all()), rates=(env.dt == rates["physics_dt"]
         and env.policy_dt == rates["policy_dt"] and env.decimation == rates["decimation"]))
+    guard=plan.get("closure_guard",{}).get("peak_m",.003)
+    checks["closure_guard_config_and_physical_step_termination_match"]=(
+        env.cfg["closure_gap_termination_m"]==env.getup_cfg["closure_gap_m"]==guard)
+    if plan.get("multi_pose_recovery",{}).get("reset_scope") == "standard_prone_only":
+        checks["only_declared_standard_recovery_posture"] = all(
+            env.poses[int(i)]["name"]==plan["multi_pose_recovery"]["standard_reset_pose_name"]
+            for i in env.pose_index[env.recovery_lane])
     checks["policy_sensor_clock"] = env.domain.sensor_policy_dt == env.policy_dt
     checks["same_identified_axial_model_both_sides"] = bool(
         env.identified_spring.curve.force_knots_n == env.identified_spring.right_curve.force_knots_n
@@ -373,8 +382,10 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         spring_reference.last["geometry_valid"].all() and torch.isfinite(coverage).all()
         and (coverage.abs() > .01).all() and (coverage.abs() < 40.).all())
     checks["measured_wheel_native_properties"] = env.startup_report["training_identified_wheels"]["native_properties_verified"]
+    wheel_delays_s=[(whole+part)*env.dt for whole,part in zip(reference.whole_delay,reference.fractional_delay)]
     checks["independent_wheels_P05_delay_once"] = bool(env.v5.wheel_prior["kd"] == .5
-        and reference.whole_delay == [5, 3] and reference.fractional_delay == [.5, .5])
+        and reference.cfg["apply_aggregate_delay"] and all(math.isclose(actual,expected,abs_tol=1e-10)
+            for actual,expected in zip(wheel_delays_s,[.0055,.0035])))
     wheel_replay_max_error = 0.
     spring_replay_error = {key:0. for key in ("limited_effort_nm", "holding_effort_nm", "length_m",
         "compression_m", "axial_force_n", "length_jacobian_m_rad")}
@@ -545,6 +556,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                 physical_dt_s=env.dt, policy_dt_s=env.policy_dt,
                 control_timing=deepcopy(env.startup_report["control_timing"]),
                 standing_odometry_valid_initialized_samples=odometry_seen,
+                identified_wheel_effective_delay_s=wheel_delays_s,
                 gimbal=(gimbal_observed if getattr(env, "gimbal", None) is not None else None),
                 spring_feedforward=dict(startup=env.startup_report["encoder_spring_feedforward"],
                     replay_max_error_nm=max(spring_replay_error["limited_effort_nm"], spring_replay_error["holding_effort_nm"]),

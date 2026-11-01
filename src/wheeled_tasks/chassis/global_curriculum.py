@@ -33,6 +33,12 @@ def validate(config):
         raise ValueError("Keep final25% standing and30% recovery shares")
     if not math.isclose(sum(c["training_weights"].values()),100.):
         raise ValueError("Final curriculum shares must sum to100")
+    if c.get("retention_policy") not in (None,"current_pass_required_for_prerequisites"):
+        raise ValueError("Unknown curriculum retention policy")
+    if c.get("available_pool_allocation") not in (None,"retain_final_shares_assign_unavailable_to_standing"):
+        raise ValueError("Unknown active-pool allocation")
+    if c.get("recovery_scope") not in (None,"standard_prone_only"):
+        raise ValueError("Unknown global recovery scope")
     for k in ("standing_seconds", "motion_seconds"):
         if not math.isfinite(c[k]) or c[k] <= 2: raise ValueError("Invalid cold horizon")
     if c["motion_seconds"] < 20 or any(not math.isfinite(v) or v <= 0 for v in c["limits"].values()):
@@ -96,7 +102,9 @@ class GlobalCurriculum:
     def __init__(self, plan, recovery_mastery):
         self.config = validate(plan["global_curriculum"])
         self.recovery = recovery_mastery
+        self.standard_recovery = plan.get("multi_pose_recovery",{}).get("reset_scope") == "standard_prone_only"
         self.levels = dict.fromkeys(SKILLS,0)
+        self.retained_levels = dict.fromkeys(SKILLS,0)
         self.streak = {}
         self.skill_last_review = {}
         self.last_review = None
@@ -108,14 +116,24 @@ class GlobalCurriculum:
         self.domain_started_at = 0
         self.max_updates = plan["max_updates"]
 
-    def requirements_met(self, requirements):
-        return all(self.levels[r["skill"]] >= r["levels"] for r in requirements)
+    @property
+    def retention_required(self):
+        return self.config.get("retention_policy") is not None
 
-    def learning_level(self, skill):
+    def requirements_met(self, requirements, *, historical=False):
+        levels = self.retained_levels if self.retention_required and not historical else self.levels
+        return all(levels[r["skill"]] >= r["levels"] for r in requirements)
+
+    def learning_level(self, skill, *, historical=False):
         spec = self.config["skills"][skill]
-        if not self.requirements_met(spec["requires"]):return None
+        if not self.requirements_met(spec["requires"],historical=historical):return None
         i = min(self.levels[skill],len(spec["levels"])-1)
-        if self.requirements_met(spec["levels"][i].get("requires",[])):return i
+        if self.retention_required and not historical and self.retained_levels[skill] < self.levels[skill]:
+            i = self.retained_levels[skill]
+        if self.retention_required:
+            return next((j for j in range(i,-1,-1) if self.requirements_met(
+                spec["levels"][j].get("requires",[]),historical=historical)),None)
+        if self.requirements_met(spec["levels"][i].get("requires",[]),historical=historical):return i
         return self.levels[skill]-1 if self.levels[skill] else None
 
     def due(self, completed):
@@ -129,15 +147,18 @@ class GlobalCurriculum:
     def jobs(self, completed, force=False):
         regular = force or (completed > 0 and completed % self.config["evaluation_interval_updates"] == 0 and self.last_review != completed)
         result = [(s,self.learning_level(s)) for s in SKILLS if regular and self.learning_level(s) is not None]
-        if self.levels["standing"] and (force or self.recovery.due(completed) or regular and self.recovery.unlocked):
+        standing = self.retained_levels["standing"] if self.retention_required else self.levels["standing"]
+        if standing and (force or self.recovery.due(completed) or regular and self.recovery.unlocked):
             result.append(("belly",0))
-        if regular and self.recovery.unlocked:result.append(("complex",0))
+        if regular and standing and self.recovery.unlocked and not self.standard_recovery:result.append(("complex",0))
         return result
 
     def review_skill(self, skill, level, rows, completed):
         key = (skill,level)
         if completed <= self.skill_last_review.get(key,-1):raise ValueError("Repeated/older skill review")
-        available = self.learning_level(skill)
+        # Jobs are fixed at the empty-rollout boundary. A parent may fail
+        # earlier in this same batch; still record its dependent cold trial.
+        available = self.learning_level(skill,historical=True)
         if available is None or level > available:raise ValueError("Skill prerequisites have not passed")
         expected = {r["case_id"] for r in assessment_descriptors(self.config,skill,level)}
         ids = [r["case_id"] for r in rows]
@@ -157,11 +178,16 @@ class GlobalCurriculum:
         if (level == self.levels[skill] and self.learning_level(skill) == level
                 and self.streak[key] >= self.config["required_consecutive_passes"]):
             self.levels[skill] += 1
+        if self.retention_required:
+            if passed:self.retained_levels[skill] = max(self.retained_levels[skill],min(level+1,self.levels[skill]))
+            elif level < self.retained_levels[skill]:self.retained_levels[skill] = level
         return dict(skill=skill,level=level,trials=len(rows),passed=passed,completed_updates=completed,
-                    mastered_levels=self.levels[skill],per_direction_height_group=per_group)
+                    mastered_levels=self.levels[skill],retained_levels=self.retained_levels[skill],
+                    per_direction_height_group=per_group)
 
     def review_complex(self, rows, completed):
-        if not self.levels["standing"] or not self.recovery.unlocked:
+        if not self.levels["standing"] or (not self.recovery.unlocked and not (
+                self.retention_required and self.recovery.unlocked_at is not None)):
             raise ValueError("Complex recovery requires standing and all four belly classes")
         if completed <= self.skill_last_review.get(("complex",0),-1):raise ValueError("Repeated complex review")
         from .multi_pose_recovery import FAMILIES,LEG_CLASSES
@@ -176,18 +202,23 @@ class GlobalCurriculum:
             sum(r.get("passed") is True for r in values)/len(values) >= self.config["minimum_success_rate"])
             for (f,c),values in groups.items()}
         passed = all(r["passed"] for r in summary.values())
+        if self.retention_required and (not self.retained_levels["standing"] or not self.recovery.unlocked):
+            passed = False
         self.skill_last_review["complex",0] = completed
         self.streak["complex",0] = self.streak.get(("complex",0),0)+1 if passed else 0
         if self.streak["complex",0] >= self.config["required_consecutive_passes"]:self.complex_passed = True
+        if self.retention_required and not passed:self.complex_passed = False
         return dict(skill="complex",passed=passed,groups=summary,completed_updates=completed)
 
     @property
     def all_mastered(self):
-        return self.recovery.unlocked and self.complex_passed and all(
-            self.levels[s] == len(self.config["skills"][s]["levels"]) for s in SKILLS)
+        levels = self.retained_levels if self.retention_required else self.levels
+        return self.recovery.unlocked and (self.standard_recovery or self.complex_passed) and all(
+            levels[s] == len(self.config["skills"][s]["levels"]) for s in SKILLS)
 
     def domain_context(self):
         if not self.domains_admitted:return "nominal",0.
+        if self.retention_required and not self.all_mastered:return "nominal",0.
         stage = self.domain_sequence[self.domain_index]
         return stage["profile"],stage["strength"]
 
@@ -197,7 +228,7 @@ class GlobalCurriculum:
         if regular:
             if self.last_review is not None and completed <= self.last_review:raise ValueError("Repeated global review")
             self.last_review = completed
-        required = set(SKILLS) | {"belly","complex"}
+        required = set(SKILLS) | ({"belly"} if self.standard_recovery else {"belly","complex"})
         passed_all = required.issubset(summaries) and all(summaries[s]["passed"] for s in required)
         before = self.domain_context()
         if (self.all_mastered and passed_all and completed < self.max_updates
@@ -214,13 +245,17 @@ class GlobalCurriculum:
 
     def training_descriptors(self, count, generation):
         active = [s for s in SKILLS if self.learning_level(s) is not None]
-        if self.levels["standing"]:active.append("recovery")
+        standing = self.retained_levels["standing"] if self.retention_required else self.levels["standing"]
+        if standing:active.append("recovery")
         weights = self.config["training_weights"]
         total = sum(weights[s] for s in active)
         # At least one lane per available skill; distribute the remaining lanes
         # by largest remainders, then rotate cases across episodes.
         if count < len(active):raise ValueError("Not enough environments for persistent skill replay")
         quotas = {s:count*weights[s]/total for s in active}
+        if self.config.get("available_pool_allocation") is not None:
+            quotas = {s:count*weights[s]/100. for s in active}
+            quotas["standing"] += count-sum(quotas.values())
         slots = {s:max(1,math.floor(quotas[s])) for s in active}
         while sum(slots.values()) > count:
             s = max((s for s in active if slots[s]>1),key=lambda s:slots[s]-quotas[s])
@@ -239,23 +274,28 @@ class GlobalCurriculum:
                 continue
             level = self.learning_level(s)
             if self.levels[s] and token%10 >= round(10*self.config["current_level_fraction"]):
-                level = (token//10)%self.levels[s]
+                replay_count = (min(self.levels[s],level+1)
+                    if self.retention_required else self.levels[s])
+                level = (token//10)%replay_count
             role = ROLES[s][(token//2)%len(ROLES[s])]
             row = descriptor(self.config,s,level,role,token%2)
             # Once static height transitions are mastered, retain low/high
             # standing births as well as the literal URDF nominal birth.
-            if s == "standing" and self.levels["static_height"] == len(self.config["skills"]["static_height"]["levels"]):
+            heights = self.retained_levels if self.retention_required else self.levels
+            if s == "standing" and heights["static_height"] == len(self.config["skills"]["static_height"]["levels"]):
                 h = (.32,.305,.23,.42)[token%4]
                 row.update(nominal_birth=h == .32,birth_height=h,target=[0.,0.,h])
             rows.append(row)
         return rows
 
     def state_dict(self):
-        return dict(schema="wheel-leg-global-mastery-state-v1",mastered_levels=dict(self.levels),
+        result = dict(schema="wheel-leg-global-mastery-state-v1",mastered_levels=dict(self.levels),
             pass_streaks=[dict(skill=s,level=i,count=n,last_update=self.skill_last_review.get((s,i))) for (s,i),n in self.streak.items()],
             complex_passed=self.complex_passed,belly=self.recovery.state_dict(),all_skills_mastered=self.all_mastered,
             last_review=self.last_review,domains_admitted=self.domains_admitted,domain_index=self.domain_index,
             domain_started_at=self.domain_started_at,domain_context=self.domain_context(),reviews=deepcopy(self.reviews))
+        if self.retention_required:result["retained_levels"] = dict(self.retained_levels)
+        return result
 
     def load_state_dict(self, state):
         if (not isinstance(state, dict) or set(state) != set(self.state_dict())
@@ -271,6 +311,12 @@ class GlobalCurriculum:
             if type(level) is not int or not 0 <= level <= len(self.config["skills"][skill]["levels"]):
                 raise ValueError("Invalid saved mastery level: "+skill)
         candidate.levels = dict(state["mastered_levels"])
+        if self.retention_required:
+            retained = state.get("retained_levels")
+            if not isinstance(retained,dict) or set(retained) != set(SKILLS) or any(
+                    type(v) is not int or not 0 <= v <= candidate.levels[s] for s,v in retained.items()):
+                raise ValueError("Invalid current retention levels")
+            candidate.retained_levels = dict(retained)
         candidate.streak, candidate.skill_last_review = {}, {}
         for row in state["pass_streaks"]:
             if not isinstance(row, dict) or set(row) != {"skill", "level", "count", "last_update"}:
@@ -304,7 +350,7 @@ class GlobalCurriculum:
             raise ValueError("Invalid saved global review history")
         if (candidate.all_mastered != state["all_skills_mastered"]
                 or tuple(candidate.domain_context()) != tuple(state["domain_context"])
-                or candidate.domains_admitted and not candidate.all_mastered):
+                or candidate.domains_admitted and not candidate.all_mastered and not self.retention_required):
             raise ValueError("Saved domain and mastered skills disagree")
         self.recovery.load_state_dict(state["belly"])
         self.__dict__.update({k:v for k,v in candidate.__dict__.items() if k != "recovery"})

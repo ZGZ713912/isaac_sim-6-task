@@ -57,9 +57,15 @@ def validate(plan):
         for key, minimum in (("position_iterations", 1), ("velocity_iterations", 0)):
             if type(solver[key]) is not int or not minimum <= solver[key] <= 255:
                 raise ValueError(f"{key} must be an integer in [{minimum},255]")
+    if "closure_guard" in plan and (plan["closure_guard"].get("schema") != "wheel-leg-closure-guard-v1"
+            or plan["closure_guard"].get("peak_m") != .005):
+        raise ValueError("Repaired closure guard must retain the user-authorized5mm peak")
     if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))
+        if plan["standing_odometry"].get("schema") == "wheel-leg-local-standing-odometry-v2" and (
+                not plan.get("multi_pose_recovery") or not plan.get("global_curriculum")):
+            raise ValueError("Repaired v4 odometry requires the separated recovery objective and retention course")
         if plan.get("quiet_position_tail") != dict(start_m=.09, scale_m=.04, weight=2.):
             raise ValueError("v4 requires its zero-command-only continuous position cost tail")
         if bool(plan.get("full_vehicle")) != ("geometry_file" in plan["standing_odometry"]):
@@ -85,6 +91,8 @@ def validate(plan):
         validate_global(plan["global_curriculum"])
         if plan["schema"] != "wheel-leg-prone-motion-v4" or not plan.get("multi_pose_recovery",{}).get("mastery_gate"):
             raise ValueError("Global admission requires the explicit v4 four-class recovery gate")
+        if plan["global_curriculum"].get("recovery_scope") != plan["multi_pose_recovery"].get("reset_scope"):
+            raise ValueError("Global and recovery reset scope disagree")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):

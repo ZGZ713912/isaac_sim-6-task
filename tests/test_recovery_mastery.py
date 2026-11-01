@@ -12,7 +12,7 @@ from wheeled_tasks.chassis.multi_pose_recovery import ResetSampler
 from wheeled_tasks.chassis.prone_motion_cli import resolve_plan,train_parser
 
 ROOT=Path(__file__).resolve().parents[1]
-PLAN=json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
+PLAN=json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_multi_pose_repair_20261102.json").read_text())
 BANK=json.loads((ROOT/PLAN["pose_bank"]["file"]).read_text())
 CONFIG=PLAN["multi_pose_recovery"]["mastery_gate"]
 

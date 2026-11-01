@@ -15,6 +15,10 @@ FAMILIES = ("belly_down", "left_side", "right_side", "roof_down", "front_down", 
 LEG_CLASSES = ("front_front", "rear_rear", "front_rear", "rear_front")
 
 
+def standard_only(config):
+    return config.get("reset_scope") == "standard_prone_only"
+
+
 def validate(config):
     c = deepcopy(config)
     if c.get("schema") != "wheel-leg-multi-pose-recovery-v1":
@@ -43,7 +47,15 @@ def validate(config):
         if (set(weights) != set(FAMILIES) or any(not math.isfinite(v) or v < 0 for v in weights.values())
                 or not math.isclose(sum(weights.values()), 1., abs_tol=1e-8)):
             raise ValueError("Recovery family weights must be nonnegative and sum to one")
-    if any(v <= 0 for v in stages[-1]["family_weights"].values()):
+    if c.get("reset_scope") not in (None,"standard_prone_only"):
+        raise ValueError("Unknown recovery reset scope")
+    if standard_only(c):
+        if not c.get("standard_reset_pose_name") or any(s["family_weights"] != {
+                f:float(f == "belly_down") for f in FAMILIES} for s in stages):
+            raise ValueError("Standard recovery cannot sample other fallen postures")
+        if c.get("mastery_gate",{}).get("reset_scope") != "standard_prone_only":
+            raise ValueError("Standard recovery requires matching cold-review scope")
+    elif any(v <= 0 for v in stages[-1]["family_weights"].values()):
         raise ValueError("The final recovery stage must retain every fallen family")
     if c.get("mastery_gate") is not None:
         from .recovery_mastery import validate as validate_mastery
@@ -56,8 +68,10 @@ def validate(config):
             raise ValueError("A mastery gate cannot be bypassed with all-family sampling")
     if c.get("mastery_family_weights") is not None:
         w = c["mastery_family_weights"]
-        if set(w) != set(FAMILIES) or any(not math.isfinite(v) or v <= 0 for v in w.values()) or not math.isclose(sum(w.values()),1.):
+        if set(w) != set(FAMILIES) or any(not math.isfinite(v) or v < (0 if standard_only(c) else 1e-30) for v in w.values()) or not math.isclose(sum(w.values()),1.):
             raise ValueError("Post-mastery replay must retain every family")
+        if standard_only(c) and w != {f:float(f == "belly_down") for f in FAMILIES}:
+            raise ValueError("Standard replay cannot re-enable complex births")
     return c
 
 
@@ -97,11 +111,21 @@ def validate_bank(bank, config, manifest_sha256, spec_sha256):
                 or pose["gap_m"] > 1e-7 or pose["min_collision_clearance_m"] < 0
                 or not all(40. <= v <= 110. for v in pose["knee_deg"])):
             raise ValueError("Recovery reset lacks complete feasible, CAD-screened state")
+        if config.get("require_native_reset_admission") and info.get("native_passive_admitted") is not True:
+            raise ValueError("Recovery reset lacks native passive admission")
         root = pose["root_position_m"]+pose["root_quaternion_xyzw"]
         if (len(root) != 7 or not all(math.isfinite(v) for v in root)
                 or not math.isclose(sum(v*v for v in root[3:]), 1., abs_tol=1e-6)):
             raise ValueError("Invalid reset root transform")
         pools[key].append(i)
+    if standard_only(config):
+        selected=[i for i,p in enumerate(bank["poses"]) if p["name"] == config["standard_reset_pose_name"]]
+        if len(selected) != 1 or len([p for p in bank["poses"] if p.get("recovery")]) != 1:
+            raise ValueError("Standard bank must contain exactly one declared recovery posture")
+        r=bank["poses"][selected[0]]["recovery"]
+        if r["family"] != "belly_down" or r["split"] != "standard" or r["leg_class"] not in config["mastery_gate"]["required_leg_classes"]:
+            raise ValueError("Standard recovery posture and evaluation disagree")
+        return pools
     if any(not pool for pool in pools.values()):
         raise ValueError("Missing body-family x independent-leg reset cell")
     gate = config.get("mastery_gate")
@@ -113,12 +137,40 @@ def validate_bank(bank, config, manifest_sha256, spec_sha256):
     return pools
 
 
+def validate_native_admission(bank, root, rates):
+    """Bind every sampled pose to policy-independent, original-rate evidence."""
+    import hashlib
+    import json
+    binding = bank["multi_pose_recovery"].get("native_reset_admission",{})
+    path = (root/binding.get("file","")).resolve()
+    if not path.is_relative_to(root.resolve()) or not path.is_file() or (
+            hashlib.sha256(path.read_bytes()).hexdigest() != binding.get("sha256")):
+        raise ValueError("Native reset admission evidence changed or is missing")
+    evidence = json.loads(path.read_text())
+    if (evidence.get("schema") != "native-passive-reset-admission-v1" or evidence.get("new_PPO") != 0
+            or evidence.get("checkpoint_reads") != [] or evidence.get("all_pass") is not True
+            or evidence.get("seconds",0) < .15 or evidence.get("guard_m") != .003
+            or evidence.get("physics_hz") != round(1/rates["physics_dt"])
+            or evidence.get("policy_hz") != round(1/rates["policy_dt"])):
+        raise ValueError("Native reset evidence differs from the training physical contract")
+    for i,pose in enumerate(bank["poses"]):
+        if not pose.get("recovery"):continue
+        rows = [r for r in evidence["cases"] if r["pose_index"] == i]
+        if {r["heading_rad"] for r in rows} != {0.,math.pi/2} or len(rows) != 2 or any(
+                r["passed"] is not True or r["terminated"] or r["mechanical"]
+                or r["closure_peak_m"] > .0028 or r["passive_motor_peak_nm"] != 0. for r in rows):
+            raise ValueError("Missing complete native admission for reset: "+pose["name"])
+    return evidence
+
+
 class ResetSampler:
     """Seeded weighted family sampling; cycle all four leg classes per family."""
     def __init__(self, bank, config, seed, mastery=None):
         self.config = validate(config)
         self.bank = bank
         self.rng = random.Random(seed)
+        self.standard_index = (next(i for i,p in enumerate(bank["poses"])
+            if p["name"] == config["standard_reset_pose_name"]) if standard_only(config) else None)
         if config.get("mastery_gate") is not None:
             from .recovery_mastery import RecoveryMastery
             self.mastery = mastery or RecoveryMastery(config["mastery_gate"])
@@ -130,7 +182,7 @@ class ResetSampler:
             if "recovery" in p and p["recovery"]["split"] == "train":
                 r = p["recovery"]
                 self.pools[(r["family"], r["leg_class"])].append(i)
-        if any(not p for p in self.pools.values()):
+        if self.standard_index is None and any(not p for p in self.pools.values()):
             raise ValueError("Cannot silently replace a missing recovery cell with standard prone")
 
     def state_dict(self):
@@ -156,6 +208,7 @@ class ResetSampler:
         self.class_cursor = dict(state["class_cursor"])
 
     def sample(self, completed):
+        if self.standard_index is not None:return self.standard_index
         stages = self.config["curriculum"]
         if self.mastery is not None:
             # Update numbers alone cannot unlock side/inverted births. After

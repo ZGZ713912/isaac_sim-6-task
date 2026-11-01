@@ -229,7 +229,9 @@ def test_new_task_preserves_old_recipe_and_rejects_silent_observation_changes():
             assert old[k] == legacy[k]
             if k not in ("evaluation","training_progression"):
                 assert legacy[k] == historical[k]
-    assert PLAN["standing_odometry"] == historical["standing_odometry"]
+    before = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_before_repair_20261102.json").read_text())
+    assert before["standing_odometry"] == historical["standing_odometry"]
+    assert PLAN["standing_odometry"]["schema"] == "wheel-leg-local-standing-odometry-v2"
     assert PLAN["quiet_position_tail"] == historical["quiet_position_tail"]
     assert PLAN["wheel_model"]["source_model"] == old["wheel_model"]["model"]
     assert task.validate(PLAN) == PLAN

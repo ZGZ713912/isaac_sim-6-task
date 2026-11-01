@@ -19,8 +19,8 @@ from .standing_geometry107 import EXTENDED_SHA256, table_path
 from .standing_sensor_uncertainty import BoundedSensorCoordinate
 
 
-def observation_contract():
-    return dict(schema="wheel-leg-local-standing-odometry-v1", actor_dim=35,
+def observation_contract(version=1):
+    result = dict(schema="wheel-leg-local-standing-odometry-v1", actor_dim=35,
         displacement_slots=[14, 15], validity_slot=31, scale_per_m=20., limit_m=1.,
         filter_seconds=.05, capture_seconds=.2, command_threshold=[.001, .001, .001],
         capture_gyro_max_rad_s=.5, capture_leg_speed_max_rad_s=3.,
@@ -34,10 +34,19 @@ def observation_contract():
         reset="episode_or_disabled_or_motion_request_or_severe_tilt",
         invalid="zero_features_and_validity; retain_reference; wheel_jump_fault_until_next_request",
         control_outputs=False, privileged_position_or_contact=False)
+    if version == 2:
+        result.update(schema="wheel-leg-local-standing-odometry-v2", scale_per_m=5., limit_m=.2,
+            capture_seconds=.05, capture_velocity_gate=False,
+            reference="capture_once_after_sensor_standing_geometry; preserve_during_height_change_and_drift",
+            normalization="fixed_physical_scale_for_displacement_and_binary_validity")
+    elif version != 1:
+        raise ValueError("Unknown standing odometry version")
+    return result
 
 
 def validate_contract(contract):
-    expected = observation_contract()
+    expected = observation_contract(2 if isinstance(contract, dict) and
+        contract.get("schema") == "wheel-leg-local-standing-odometry-v2" else 1)
     if isinstance(contract, dict) and "geometry_file" in contract:
         from pathlib import PurePosixPath
         path = PurePosixPath(contract["geometry_file"])
@@ -153,6 +162,10 @@ class LocalStandingOdometry:
         eligible = (requested & valid & (gyro.norm(dim=-1) < self.cfg["capture_gyro_max_rad_s"])
                     & (velocities[:, :4].abs().amax(-1) < self.cfg["capture_leg_speed_max_rad_s"])
                     & (velocities[:, 4:].abs().amax(-1) < self.cfg["capture_wheel_speed_max_rad_s"]))
+        if self.cfg.get("capture_velocity_gate") is False:
+            # A zero motion request defines a reference even while the wheels
+            # correct balance. Encoder geometry already compensates leg motion.
+            eligible = requested & valid
         fresh = self.last_tick != tick
         reset = ~requested | (imu_valid & (gz > self.cfg["severe_gravity_z"]))
         self.reference_active[reset] = False
@@ -183,4 +196,5 @@ class LocalStandingOdometry:
                 "StandingOdometry/reference_fraction": self.reference_active.float().mean(),
                 "StandingOdometry/wheel_fault_fraction": self.source_fault.float().mean(),
                 "StandingOdometry/displacement_abs_m": self.displacement.abs().mean(),
-                "StandingOdometry/displacement_peak_m": self.displacement.abs().max()}
+                "StandingOdometry/displacement_peak_m": self.displacement.abs().max(),
+                "StandingOdometry/encoded_displacement_abs_peak": (self.displacement*self.cfg["scale_per_m"]).abs().max()}

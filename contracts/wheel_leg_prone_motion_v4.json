@@ -202,17 +202,17 @@
     "scope": "Same dev measured 16-knot mean-load fit, linear high-compression and positive exponential low-compression tails, both legs symmetric; same encoder geometry, saturation and outward relative-torque projection. One compensation owner; no policy-weight transfer."
   },
   "standing_odometry": {
-    "schema": "wheel-leg-local-standing-odometry-v1",
+    "schema": "wheel-leg-local-standing-odometry-v2",
     "actor_dim": 35,
     "displacement_slots": [
       14,
       15
     ],
     "validity_slot": 31,
-    "scale_per_m": 20.0,
-    "limit_m": 1.0,
+    "scale_per_m": 5.0,
+    "limit_m": 0.2,
     "filter_seconds": 0.05,
-    "capture_seconds": 0.2,
+    "capture_seconds": 0.05,
     "command_threshold": [
       0.001,
       0.001,
@@ -229,11 +229,13 @@
     "geometry_table_sha256": "c30136fdae9b504b0033629c4b95e187cbcb841b7307f05be3d0d6f9ce6850b9",
     "source": "same_policy_encoder_IMU_stream_after_sensor_delay_and_noise",
     "wheel_input": "driver_continuous_output_shaft_angles; subtract_float64_request_origin_before_float32",
-    "reference": "capture_once_after_contiguous_sensor_standing; preserve_during_height_change_and_drift",
+    "reference": "capture_once_after_sensor_standing_geometry; preserve_during_height_change_and_drift",
     "reset": "episode_or_disabled_or_motion_request_or_severe_tilt",
     "invalid": "zero_features_and_validity; retain_reference; wheel_jump_fault_until_next_request",
     "control_outputs": false,
     "privileged_position_or_contact": false,
+    "capture_velocity_gate": false,
+    "normalization": "fixed_physical_scale_for_displacement_and_binary_validity",
     "geometry_model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
     "geometry_file": "model/wheel_leg_v2.0.2/friction_v1/training/encoder_geometry.json"
   },
@@ -251,10 +253,10 @@
     "sha256": "25a1e69b650f99416f40b2a3d1312c037b348c2d06d134bd9e5e5f19be28f6d8"
   },
   "pose_bank": {
-    "file": "model/recovery_v202_20261031/pose_bank.json",
-    "sha256": "785b0b16b5fadbed887e61598f3ab4caba9108fd63ed5291f67bb362202199a4"
+    "file": "model/recovery_standard_v202_20261102/pose_bank.json",
+    "sha256": "45ff371db5fb787d327b3dcaa5233b72de6e1f208fb985c3a9f1012c2fed1af9"
   },
-  "full_vehicle_scope": "Full21-body21.44174kg vehicle,20 tree joints and6 loops. The authenticated leg friction, wheels, gas springs, closed chains, limits remain unchanged; low-level feedback is explicitly approximated at200Hz. A fresh10000-update v4 run begins with the literal URDF nominal standing pose and admits recovery/motion/combined-height levels by cold evaluation; persistent replay and gated domain progression. Explicit interrupted-run resume preserves all admission state and the original total budget.",
+  "full_vehicle_scope": "Full v2.0.2 vehicle, physical40..110deg passive-knee hard stops, standard belly self-righting only for this fresh run. Other locomotion skills retained.",
   "mechanical_inner_knee_range_deg": [
     40.0,
     110.0
@@ -302,25 +304,25 @@
       {
         "start_update": 2000,
         "family_weights": {
-          "belly_down": 0.6,
-          "left_side": 0.1,
-          "right_side": 0.1,
-          "roof_down": 0.1,
-          "front_down": 0.025,
-          "rear_down": 0.025,
-          "diagonal": 0.05
+          "belly_down": 1.0,
+          "left_side": 0.0,
+          "right_side": 0.0,
+          "roof_down": 0.0,
+          "front_down": 0.0,
+          "rear_down": 0.0,
+          "diagonal": 0.0
         }
       },
       {
         "start_update": 4500,
         "family_weights": {
-          "belly_down": 0.4,
-          "left_side": 0.1,
-          "right_side": 0.1,
-          "roof_down": 0.1,
-          "front_down": 0.1,
-          "rear_down": 0.1,
-          "diagonal": 0.1
+          "belly_down": 1.0,
+          "left_side": 0.0,
+          "right_side": 0.0,
+          "roof_down": 0.0,
+          "front_down": 0.0,
+          "rear_down": 0.0,
+          "diagonal": 0.0
         }
       }
     ],
@@ -333,7 +335,7 @@
     "upright_max_leg_speed_rad_s": 12.0,
     "upright_max_encoder_error_m": 0.01,
     "upright_hold_seconds": 0.05,
-    "suffix_semantics": "same actor continues without state/velocity/history reset; four fore/aft leg classes and dynamic belly starts; entire recovery time and impact remain primary diagnostics",
+    "suffix_semantics": "One standard normally-up belly posture only. Same six-axis actor rises, holds standing and continues motion; no side/inverted/independent-leg-class births.",
     "speed_parameter_scope": "suffix entry envelope and diagnostics only; not a uniform motor speed limit",
     "mastery_gate": {
       "schema": "wheel-leg-belly-mastery-v1",
@@ -345,19 +347,29 @@
       "max_active_recovery_seconds": 20.0,
       "evaluation_headings_rad": [
         0.0,
-        1.5707963267948966
+        1.5707963267948966,
+        3.141592653589793,
+        4.71238898038469
       ],
-      "scope": "curriculum_admission_only_not_long_term_or_hardware_qualification"
+      "scope": "single_standard_posture_cold_trials; not_unseen_pose_or_hardware_qualification",
+      "require_current_pass": true,
+      "reset_scope": "standard_prone_only",
+      "required_leg_classes": [
+        "rear_rear"
+      ]
     },
     "mastery_family_weights": {
-      "belly_down": 0.4,
-      "left_side": 0.1,
-      "right_side": 0.1,
-      "roof_down": 0.1,
-      "front_down": 0.1,
-      "rear_down": 0.1,
-      "diagonal": 0.1
-    }
+      "belly_down": 1.0,
+      "left_side": 0.0,
+      "right_side": 0.0,
+      "roof_down": 0.0,
+      "front_down": 0.0,
+      "rear_down": 0.0,
+      "diagonal": 0.0
+    },
+    "require_native_reset_admission": true,
+    "reset_scope": "standard_prone_only",
+    "standard_reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0"
   },
   "recovery_impact": {
     "schema": "wheel-leg-recovery-impact-v1",
@@ -411,7 +423,7 @@
       "lateral_velocity_mae_m_s": 0.1,
       "straight_lateral_path_m": 0.1,
       "spin_center_max_m": 0.05,
-      "closure_peak_m": 0.003,
+      "closure_peak_m": 0.005,
       "geometric_air_run_ms": 2.0,
       "brake_stop_seconds": 3.0,
       "brake_final_speed_m_s": 0.1,
@@ -771,7 +783,10 @@
           }
         ]
       }
-    }
+    },
+    "retention_policy": "current_pass_required_for_prerequisites",
+    "available_pool_allocation": "retain_final_shares_assign_unavailable_to_standing",
+    "recovery_scope": "standard_prone_only"
   },
   "simulation_timing_approximation": {
     "model": "200hz_physics_and_feedback_pd_policy100hz_v1",
@@ -784,5 +799,10 @@
   "solver_iterations": {
     "position_iterations": 64,
     "velocity_iterations": 32
+  },
+  "closure_guard": {
+    "schema": "wheel-leg-closure-guard-v1",
+    "peak_m": 0.005,
+    "authority": "User2026-11-02: physical passive knee stops40..110deg; allow5mm closure peak after checking native hard stops. Keep raw peaks and impact diagnostics."
   }
 }

@@ -2,6 +2,7 @@
 from copy import deepcopy
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import torch
@@ -53,10 +54,13 @@ def saved(tmp_path):
     course = GlobalCurriculum(plan, mastery)
     course.review_skill("standing", 0, [dict(r, passed=True) for r in
         assessment_descriptors(course.config, "standing", 0)], 250)
-    mastery.review([dict(family="belly_down", leg_class=leg, split="holdout", pose_index=4*i+j,
-        heading_rad=0., passed=True) for i,leg in enumerate(CLASSES) for j in range(4)], 250)
+    from evaluate_recovery_mastery import cases_for
+    bank=json.loads((ROOT/plan['pose_bank']['file']).read_text())
+    mastery.review([dict(row,passed=True) for row in cases_for(
+        SimpleNamespace(poses=bank['poses'],num_envs=20),mastery.config)],250)
     # Synthetic mastered state tests restoration, never robot capability.
     course.levels = {skill:len(course.config["skills"][skill]["levels"]) for skill in SKILLS}
+    course.retained_levels = dict(course.levels)
     course.complex_passed = True
     course.finish_review({skill:dict(passed=True) for skill in (*SKILLS,"belly","complex")}, 3500)
     bank = json.loads((ROOT/plan["pose_bank"]["file"]).read_text())

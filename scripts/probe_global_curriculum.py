@@ -102,6 +102,7 @@ def main():
             for name,levels in states:
                 recovery=RecoveryMastery(plan['multi_pose_recovery']['mastery_gate'])
                 c=GlobalCurriculum(plan,recovery);c.levels.update(levels)
+                c.retained_levels.update(levels)
                 if name in ('low_motion','high_motion','all_nominal'):recovery.unlocked_at=250
                 env.global_curriculum=c;env.recovery_sampler.mastery=recovery
                 env.actor_updates=9999

@@ -13,7 +13,7 @@ from wheeled_tasks.chassis.multi_pose_recovery import (FAMILIES,LEG_CLASSES,Rese
 from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, train_parser, training_options
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
+PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_multi_pose_repair_20261102.json").read_text())
 BANK = json.loads((ROOT/PLAN["pose_bank"]["file"]).read_text())
 
 
@@ -22,7 +22,8 @@ def test_complete_body_by_independent_leg_cells_are_admitted_with_separate_holdo
     assert len(cells) == 28
     for pool in cells.values():
         assert {BANK["poses"][i]["recovery"]["split"] for i in pool} == {"train","holdout"}
-    assert sum(p.get("recovery",{}).get("dynamic",False) for p in BANK["poses"]) == 24
+    dynamic=[p for p in BANK["poses"] if p.get("recovery",{}).get("dynamic",False)]
+    assert len(dynamic)==19 and all(p['recovery']['native_passive_admitted'] for p in dynamic)
 
 
 def test_missing_cell_or_unreviewed_candidate_cannot_silently_use_standard_pose():
@@ -139,7 +140,7 @@ def test_recovery_is_inside_the_original_single_v4_budget_and_role_pool(tmp_path
     from train_prone_motion import configuration,learner_config
     from wheeled_tasks.chassis.prone_motion import target,validate
     legacy = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
-    args = train_parser().parse_args([])
+    args = train_parser().parse_args(['--plan',str(ROOT/'contracts/wheel_leg_prone_motion_v4_multi_pose_repair_20261102.json')])
     _,resolved,_ = training_options(args,ROOT)
     assert args.task == "WheelLeg-ProneMotion-v4" and resolved["schema"] == legacy["schema"]
     assert resolved["max_updates"] == 10000

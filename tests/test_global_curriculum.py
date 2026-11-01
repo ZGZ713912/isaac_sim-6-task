@@ -16,7 +16,7 @@ from wheeled_tasks.chassis.prone_motion_cli import resolve_plan,train_parser,val
 from evaluate_global_curriculum import assess_trace
 
 ROOT=Path(__file__).resolve().parents[1]
-PLAN=json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4.json').read_text())
+PLAN=json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4_multi_pose_repair_20261102.json').read_text())
 CONFIG=PLAN['global_curriculum']
 
 
@@ -56,7 +56,7 @@ def test_standing_then_independent_belly_straight_and_height_branches():
 
 def test_complex_recovery_keeps_every_family_leg_denominator_and_streak():
     from wheeled_tasks.chassis.multi_pose_recovery import FAMILIES,LEG_CLASSES
-    c=course();c.levels['standing']=1;c.recovery.unlocked_at=250
+    c=course();c.levels['standing']=c.retained_levels['standing']=1;c.recovery.unlocked_at=250
     c.config['required_consecutive_passes']=2
     values=[dict(family=f,leg_class=leg,split='holdout',pose_index=i*2+j,heading_rad=0.,passed=True)
         for i,(f,leg) in enumerate((f,l) for f in FAMILIES if f!='belly_down' for l in LEG_CLASSES) for j in range(2)]
@@ -99,6 +99,7 @@ def test_missing_direction_repetition_and_one_bad_height_group_do_not_unlock():
 def test_higher_skill_replay_retains_all_groups_levels_and_four_arc_directions():
     c=course()
     c.levels={s:len(CONFIG['skills'][s]['levels']) for s in SKILLS}
+    c.retained_levels=dict(c.levels)
     counts={s:0 for s in CONFIG['training_weights']};seen=set();levels=set()
     for generation in range(20):
         cases=c.training_descriptors(256,generation)
@@ -161,6 +162,7 @@ def test_randomization_needs_all_skills_retention_and_minimum_training_per_domai
     assert c.domain_context()==('nominal',0.)
     # Synthetic admission is solely a unit fixture, never learner evidence.
     c.levels={s:len(CONFIG['skills'][s]['levels']) for s in SKILLS}
+    c.retained_levels=dict(c.levels)
     c.recovery.unlocked_at=250;c.complex_passed=True
     c.finish_review(all_pass,9250)
     assert c.domain_context()==('sensors_only',.25)

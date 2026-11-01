@@ -153,7 +153,13 @@ def case_for(args, env, plan):
         target[1] = args.yaw_rate
     pose_index = env.prone_index if prone else env.height_pose[args.birth_height]
     birth_height = .173 if prone else args.birth_height
-    if prone and plan.get("multi_pose_recovery") is not None:
+    recovery=plan.get("multi_pose_recovery",{})
+    if prone and recovery.get("reset_scope") == "standard_prone_only":
+        matches=[i for i,p in enumerate(env.poses) if p["name"] == recovery["standard_reset_pose_name"]]
+        if len(matches)!=1 or args.fallen_family!="belly_down" or args.leg_class not in recovery["mastery_gate"]["required_leg_classes"]:
+            raise ValueError("This checkpoint supports only its standard normally-up belly posture")
+        pose_index=matches[0];birth_height=env.poses[pose_index]["root_position_m"][2]
+    elif prone and recovery:
         matches = [i for i,p in enumerate(env.poses) if
             (p.get("recovery",{}).get("family"),p.get("recovery",{}).get("leg_class"),p.get("recovery",{}).get("split"))
             == (args.fallen_family,args.leg_class,"holdout")]

@@ -23,6 +23,12 @@ def validate(config):
         raise ValueError("Mastery needs finite evaluation headings")
     if len(set(c["evaluation_headings_rad"])) != len(c["evaluation_headings_rad"]):
         raise ValueError("Repeated headings cannot provide independent mastery trials")
+    if type(c.get("require_current_pass",False)) is not bool:
+        raise ValueError("Recovery retention flag must be boolean")
+    if c.get("reset_scope") == "standard_prone_only":
+        if (len(c.get("required_leg_classes",[])) != 1 or c["required_leg_classes"][0] not in CLASSES
+                or len(c["evaluation_headings_rad"]) < c["minimum_trials_per_leg_class"]):
+            raise ValueError("Standard cold review requires its single posture and declared heading trials")
     return c
 
 
@@ -36,7 +42,8 @@ class RecoveryMastery:
 
     @property
     def unlocked(self):
-        return self.unlocked_at is not None
+        return self.unlocked_at is not None and (not self.config.get("require_current_pass")
+            or not self.reviews or self.reviews[-1]["all_classes_passed"])
 
     def due(self, completed):
         return (not self.unlocked and completed > 0
@@ -46,10 +53,11 @@ class RecoveryMastery:
     def review(self, rows, completed):
         if self.last_evaluated_update is not None and completed <= self.last_evaluated_update:
             raise ValueError("A repeated/older evaluation cannot advance mastery")
-        groups = {c:[] for c in CLASSES}
+        standard = self.config.get("reset_scope") == "standard_prone_only"
+        groups = {c:[] for c in self.config.get("required_leg_classes",CLASSES)}
         seen = set()
         for row in rows:
-            if row.get("family") != "belly_down" or row.get("split") != "holdout" or row.get("leg_class") not in groups:
+            if row.get("family") != "belly_down" or row.get("split") != ("standard" if standard else "holdout") or row.get("leg_class") not in groups:
                 raise ValueError("Only independent held-out belly trials can admit complex recovery")
             identity = (row["pose_index"],row["heading_rad"])
             if identity in seen:
@@ -69,7 +77,8 @@ class RecoveryMastery:
         if not self.unlocked and self.pass_streak >= self.config["required_consecutive_passes"]:
             self.unlocked_at = completed
         result = dict(completed_updates=completed,per_leg_class=summary,all_classes_passed=passed,
-            pass_streak=self.pass_streak,complex_recovery_unlocked=self.unlocked,unlocked_at=self.unlocked_at)
+            pass_streak=self.pass_streak,complex_recovery_unlocked=self.unlocked_at is not None and
+                (not self.config.get("require_current_pass") or passed),unlocked_at=self.unlocked_at)
         self.reviews.append(result)
         return result
 

@@ -162,9 +162,16 @@ def test_play_has_the_same_role_plan_and_restores_actor_only(tmp_path, version, 
     args.scene = "prone"
     if "multi_pose_recovery" in plan:
         args.fallen_family,args.leg_class = "roof_down","front_rear"
+    standard=plan.get('multi_pose_recovery',{}).get('reset_scope')=='standard_prone_only'
+    if standard:
+        with pytest.raises(ValueError,match='standard'):play.case_for(args,env,plan)
+        args.fallen_family,args.leg_class='belly_down','rear_rear'
     case = play.case_for(args, env, plan)
     assert case["recovery"]
-    if "multi_pose_recovery" in plan:
+    if standard:
+        selected=env.poses[case['pose_index']]['recovery']
+        assert (selected['family'],selected['leg_class'],selected['split'])==('belly_down','rear_rear','standard')
+    elif "multi_pose_recovery" in plan:
         selected = env.poses[case["pose_index"]]["recovery"]
         assert (selected["family"],selected["leg_class"],selected["split"]) == ("roof_down","front_rear","holdout")
     else:

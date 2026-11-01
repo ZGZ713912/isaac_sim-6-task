@@ -76,6 +76,8 @@ class GlobalCurriculumHook:
                 writer.add_scalar(f"Curriculum/{skill}/cold_pass",float(summary["passed"]),completed)
             for skill,level in self.course.levels.items():
                 writer.add_scalar(f"Curriculum/{skill}/mastered_levels",level,completed)
+                if self.course.retention_required:
+                    writer.add_scalar(f"Curriculum/{skill}/retained_levels",self.course.retained_levels[skill],completed)
             writer.add_scalar("Curriculum/domain_index",self.course.domain_index,completed)
             writer.add_scalar("Curriculum/all_nominal_skills_mastered",float(self.course.all_mastered),completed)
             if "belly" in summaries:

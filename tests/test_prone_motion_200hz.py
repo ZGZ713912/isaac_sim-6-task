@@ -24,6 +24,10 @@ OLD = json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4_1000hz_20261101.json
 def test_whole_configuration_authenticates_clock_and_keeps_policy_horizon(tmp_path, hz, profile, strength):
     args = train_parser().parse_args(['--physics-hz', str(hz), '--output', str(tmp_path)])
     _, plan, _ = training_options(args, ROOT)
+    if hz == 1000:
+        # The successor bank is admitted at200Hz. Fine-step comparison retains
+        # the separately preserved original contract, not a silent bank migration.
+        plan = resolve_plan(OLD,physics_hz=hz)
     task.validate(plan)
     cfg, low, _ = configuration(tmp_path, plan, profile=profile, strength=strength)
     control = load_chassis_control(ROOT/cfg['control_math_source'])
@@ -32,7 +36,11 @@ def test_whole_configuration_authenticates_clock_and_keeps_policy_horizon(tmp_pa
     assert rates['policy_dt'] == .01 and rates['physics_dt'] == rates['pc_control_dt'] == 1./hz
     assert rates['decimation'] == hz//100
     assert cfg['num_steps_per_env'] == 64 and 64*rates['policy_dt'] == .64
-    assert learner_config(plan) == learner_config(OLD)
+    expected = learner_config(OLD)
+    if hz == 200:
+        for key in ('actor','critic'):
+            expected[key]['class_name']='wheeled_algo.prone_observation:ProneMotionModel'
+    assert learner_config(plan) == expected
     assert control['actuators'] == load_chassis_control(ROOT/OLD['wheel_model']['control']['file'])['actuators']
     saved = json.loads((tmp_path/'task_contract.json').read_text())
     assert saved['physics_hz'] == hz and saved['fine_contact_tolerance_resolved'] == (hz == 1000)

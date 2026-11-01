@@ -11,11 +11,12 @@ from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, train_parser, t
 from wheeled_tasks.chassis.control_contract import load_chassis_control
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4.json').read_text())
+BASE = json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4_before_repair_20261102.json').read_text())
 
 
 def test_wheelbipe_cli_reaches_control_contract_and_actual_learner(tmp_path):
-    args = train_parser().parse_args(['--physics-hz','200','--policy-hz','50',
+    args = train_parser().parse_args(['--plan',str(ROOT/'contracts/wheel_leg_prone_motion_v4_before_repair_20261102.json'),
+        '--physics-hz','200','--policy-hz','50',
         '--num-steps-per-env','24','--position-iterations','12','--velocity-iterations','6',
         '--hidden-dims','512','256','128','--ppo-epochs','5','--ppo-mini-batches','4'])
     _,plan,_ = training_options(args,ROOT)

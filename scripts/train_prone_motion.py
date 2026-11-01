@@ -57,6 +57,10 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
                 raise ValueError("Full-vehicle mechanism or reset bank changed")
         args.mechanism = ROOT/plan["mechanism"]["file"]
     cfg, settings = base.prepare(args)
+    if "closure_guard" in plan:
+        guard=plan["closure_guard"]["peak_m"]
+        cfg["closure_gap_termination_m"]=guard
+        settings["closure_gap_m"]=guard
     if "solver_iterations" in plan:
         cfg.update(plan["solver_iterations"])
     settings.update(version=plan["schema"], prone_motion_task=deepcopy(plan),
@@ -105,9 +109,12 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
             plan["gas_spring_feedforward"], cfg["v5_control"]["identified_gas_spring"],
             ROOT/cfg["asset_directory"]/"model_spec.json")
     if plan.get("multi_pose_recovery") is not None:
-        from wheeled_tasks.chassis.multi_pose_recovery import validate_bank
-        validate_bank(json.loads(args.bank.read_text()),plan["multi_pose_recovery"],
+        from wheeled_tasks.chassis.multi_pose_recovery import validate_bank,validate_native_admission
+        bank_data = json.loads(args.bank.read_text())
+        validate_bank(bank_data,plan["multi_pose_recovery"],
                       cfg["asset_manifest_sha256"],base.digest(ROOT/cfg["asset_directory"]/"model_spec.json"))
+        if plan["multi_pose_recovery"].get("require_native_reset_admission"):
+            validate_native_admission(bank_data,ROOT,rates)
         settings["multi_pose_failure_cost"] = plan["multi_pose_recovery"]["failure_cost"]
         # Near-ground feasible placements, not an assumption of static equilibria.
         settings.update(passive_min_seconds=.05,passive_max_seconds=.15,passive_hold_seconds=.05)
@@ -188,6 +195,9 @@ def learner_config(plan, device="cuda:0"):
     ppo = plan.get('ppo',dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4))
     result["actor"]["hidden_dims"] = list(ppo['hidden_dims'])
     result["critic"]["hidden_dims"] = list(ppo['hidden_dims'])
+    if plan.get("standing_odometry",{}).get("schema") == "wheel-leg-local-standing-odometry-v2":
+        for key in ("actor", "critic"):
+            result[key]["class_name"] = "wheeled_algo.prone_observation:ProneMotionModel"
     result['algorithm'].update(num_learning_epochs=ppo['epochs'],num_mini_batches=ppo['mini_batches'])
     result["algorithm"]["entropy_coef"] = .001
     result["algorithm"].update(discounts(plan))
@@ -221,6 +231,8 @@ def source_hashes(plan_path, plan):
              "contracts/wheel_leg_prone_motion_v1.json", "contracts/wheel_leg_prone_motion_v2.json",
              "contracts/wheel_leg_prone_motion_v3.json",
              "contracts/wheel_leg_prone_motion_v4.json", "tests/test_standing_local_odometry.py",
+             "contracts/wheel_leg_prone_motion_v4_before_repair_20261102.json",
+             "contracts/wheel_leg_prone_motion_v4_multi_pose_repair_20261102.json",
              "docs/STANDING_ODOMETRY_20261030.md",
              plan["randomization_contract"],
              plan["acceptance_contract"], plan["prone_geometry_contract"], "contracts/standing_geometry107_v1.json",
@@ -266,6 +278,12 @@ def source_hashes(plan_path, plan):
         receipt = json.loads((ROOT/binding["file"]).read_text())
         names.extend(run["path"] for run in receipt["native_runs"])
     if plan.get("multi_pose_recovery") is not None:
+        if plan["multi_pose_recovery"].get("require_native_reset_admission"):
+            names.extend(["scripts/build_native_admitted_recovery_bank.py", "scripts/probe_recovery_reset_admission.py",
+                "scripts/build_standard_prone_repair_bank.py", "tests/test_standard_prone_repair.py",
+                "tests/test_training_stability_repair.py", "docs/TRAINING_STABILITY_REPAIR_20261102.md"])
+            names.extend(str(p.relative_to(ROOT)) for p in (ROOT/plan["pose_bank"]["file"]).parent.glob("*.json"))
+            names.extend(str(p.relative_to(ROOT)) for p in (ROOT/"model/recovery_v202_20261102").glob("*.json"))
         names.extend([plan["pose_bank"]["file"], "model/recovery_v202_20261031/pose_bank.build.json",
             "scripts/build_multi_pose_recovery_bank.py", "scripts/probe_multi_pose_recovery.py",
             "contracts/wheel_leg_prone_motion_v4_standard_20261031.json", "scripts/evaluate_recovery_mastery.py",
