@@ -76,6 +76,7 @@ def main():
         receipt.update(versions=versions,source_snapshot_sha256=sha(ROOT/"third_party/wheelbipe/provenance.json"),
             asset_manifest_sha256=sha(BUNDLE/"manifest.json"),reset_lookup_sha256=sha(TABLE),
             collision_support_sha256=sha(TABLE.parent/"collision_support.json"))
+        receipt["ground_plane_sha256"] = sha(TABLE.parent/"ground_plane.usda")
         implementation = [*sorted((ROOT/"src/wheeled_tasks/wheelbipe_port").glob("*.py")),
             ROOT/"scripts/train_wheelbipe_port.py",ROOT/"scripts/export_wheelbipe_port_onnx.py"]
         receipt["implementation_files_sha256"] = {str(p.relative_to(ROOT)):sha(p) for p in implementation}

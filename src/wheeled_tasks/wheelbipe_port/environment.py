@@ -8,10 +8,23 @@ import torch
 import isaaclab.sim as sim
 from isaaclab.assets import Articulation
 from isaaclab.sensors import ContactSensor, RayCaster
+from isaaclab.terrains import TerrainImporter
 from isaaclab.utils.math import quat_apply, quat_apply_inverse, quat_from_euler_xyz
 from agent_tasks.direct.wheelbipe.wheelbipe_V14.env import WheelbipeV14Env
 
 from .model import ACTIVE, BODY_ALIASES, BUNDLE, JOINT_ALIASES, ROOT, CollisionSupport, ResetLookup, digest
+
+
+class OfflineTerrainImporter(TerrainImporter):
+    """Same static PhysX plane/material, with no network grid-decoration asset."""
+    def import_ground_plane(self,name,size=(2.e6,2.e6)):
+        path = self.cfg.prim_path+"/"+name
+        if path in self.terrain_prim_paths:
+            raise ValueError("Ground plane already exists: "+path)
+        self.terrain_prim_paths.append(path)
+        cfg = sim.GroundPlaneCfg(usd_path=str(ROOT/"model/wheelbipe_port_v202/ground_plane.usda"),
+            physics_material=self.cfg.physics_material,size=size,color=None)
+        cfg.func(path,cfg)
 
 
 class MappedArticulation(Articulation):
@@ -94,7 +107,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self._set_play_height_scanner_debug_vis()
         self.cfg.terrain.num_envs = self.scene.cfg.num_envs
         self.cfg.terrain.env_spacing = self.scene.cfg.env_spacing
-        self.terrain = self.cfg.terrain.class_type(self.cfg.terrain)
+        self.terrain = OfflineTerrainImporter(self.cfg.terrain)
         self.scene.clone_environments(copy_from_source=True)
         self.scene.filter_collisions(global_prim_paths=[self.cfg.terrain.prim_path])
         light = sim.DomeLightCfg(intensity=2000.,color=(.75,.75,.75))
