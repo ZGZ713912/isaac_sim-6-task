@@ -17,6 +17,8 @@ import time
 import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"src"))
+from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap
 
 
 def digest(path):
@@ -36,7 +38,13 @@ def main():
     parser.add_argument("--num-envs",type=int,default=512)
     parser.add_argument("--seed",type=int,default=109)
     parser.add_argument("--evaluation-steps",type=int,default=500)
+    parser.add_argument("--physics-hz",type=int,choices=(200,500,1000,2000),default=200)
+    parser.add_argument("--max-constraint-gap-mm",type=float,default=5.)
     args = parser.parse_args()
+    try:
+        gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
+    except ValueError as error:
+        parser.error(str(error))
     if args.num_envs<1 or args.evaluation_steps<1:
         parser.error("Environment and evaluation budgets must be positive")
     # One experiment owner only; this never signals another task's process.
@@ -53,9 +61,13 @@ def main():
             or settings["external_forces_every_iteration"]):
         raise ValueError("The admitted physical/randomization settings differ from the full run")
     frequency = pilot["arguments"]["physics_hz"]
-    if frequency not in (200,500,1000,2000) or pilot["native"]["policy_dt_s"]!=.02:
+    if frequency!=args.physics_hz or pilot["native"]["policy_dt_s"]!=.02:
         raise ValueError("Do not silently migrate pilot/checkpoint integration clocks")
-    if (pilot["max_constraint_gap_m"]>.003 or not pilot["policy_tensors_finite"]
+    if (pilot["arguments"]["num_envs"]!=args.num_envs
+            or pilot.get("constraint_gap_limit_m",.003)!=gap_limit):
+        raise ValueError("The pilot population or declared loop limit differs from this full run")
+    check_constraint_gap(pilot["max_constraint_gap_m"],gap_limit,"Pilot")
+    if (not pilot["policy_tensors_finite"]
             or pilot["fresh_initial_optimizer_state_count"]!=0
             or pilot["final_optimizer_state_count"]!=17):
         raise ValueError("Pilot physics, fresh state or genuine PPO checks failed")
@@ -79,7 +91,7 @@ def main():
         source=str(ROOT),started_at=datetime.now(timezone.utc).isoformat(),
         pilot_receipt=str(args.pilot_receipt.resolve()),pilot_receipt_sha256=digest(args.pilot_receipt),
         owner_pid=os.getpid(),full_updates=20000,num_envs=args.num_envs,seed=args.seed,
-        policy_hz=50,physics_hz=frequency,source_unchanged_from_pilot=True,
+        policy_hz=50,physics_hz=frequency,constraint_gap_limit_m=gap_limit,source_unchanged_from_pilot=True,
         fresh_full_policy=True,hardware_io=False,behavior_qualified=False)
     path = args.output/"campaign.json"
     write(path,status)
@@ -126,7 +138,8 @@ def main():
     common = [sys.executable,"-u",str(ROOT/"scripts/train_wheelbipe_port.py"),
         "--task","flat","--device","cuda:0","--physics-hz",str(frequency),
         "--solver-position-iterations","64","--solver-velocity-iterations","32",
-        "--no-external-forces-every-iteration","--randomization-profile","requested"]
+        "--no-external-forces-every-iteration","--randomization-profile","requested",
+        "--max-constraint-gap-mm",str(args.max_constraint_gap_mm)]
     try:
         rough = args.output/"rough_preflight"
         rough_command = common.copy()

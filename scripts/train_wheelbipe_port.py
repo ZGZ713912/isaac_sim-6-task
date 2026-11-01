@@ -48,8 +48,15 @@ def main():
     parser.add_argument("--external-forces-every-iteration",action=argparse.BooleanOptionalAction,default=False)
     parser.add_argument("--physics-hz",type=int,choices=(200,500,1000,2000),default=200,
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
+    parser.add_argument("--max-constraint-gap-mm",type=float,default=5.,
+        help="Explicit closed-chain peak limit in mm; user revised this port to 5mm on 2026-11-02")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
     args = parser.parse_args()
+    from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap
+    try:
+        gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
+    except ValueError as error:
+        parser.error(str(error))
     if args.num_envs<1 or args.iterations<1 or args.steps<1 or not 0.<=args.randomization_strength<=1.:
         parser.error("Invalid positive budget or randomization strength")
     if not 1<=args.solver_position_iterations<=255 or not 0<=args.solver_velocity_iterations<=255:
@@ -60,7 +67,7 @@ def main():
     args.output.mkdir(parents=True,exist_ok=False)
     receipt = dict(status="preparing",started_at=datetime.now(timezone.utc).isoformat(),
         arguments={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
-        hardware_io=False,behavior_qualified=False,completed_updates=0)
+        hardware_io=False,behavior_qualified=False,completed_updates=0,constraint_gap_limit_m=gap_limit)
     path = args.output/"receipt.json"
     save(path,receipt)
     app = None
@@ -182,8 +189,7 @@ def main():
             receipt["measured_controller_and_spring_calls"] = env.port_physics_calls-calls_before
             if receipt["measured_controller_and_spring_calls"]!=args.steps*cfg.decimation:
                 raise ValueError("Feedback PD and spring must run once per physics tick")
-            if peak_gap>.003:
-                raise ValueError(f"Native loop gap exceeds the existing 3mm bound: {peak_gap}")
+            check_constraint_gap(peak_gap,gap_limit,"Preflight")
         elif args.mode=="train":
             runner = OnPolicyRunner(wrapped,agent.to_dict(),log_dir=str(args.output),device=args.device)
             initial = {k:v.detach().cpu().clone() for k,v in runner.alg.policy.state_dict().items()}
@@ -195,6 +201,12 @@ def main():
             original_log = runner.log
             def log_progress(values,*log_args,**log_kwargs):
                 original_log(values,*log_args,**log_kwargs)
+                # Keep timing in the same event stream as the original RSL
+                # collection/learning metrics; setup/checkpoint IO is separate.
+                iteration_time = values["collection_time"]+values["learn_time"]
+                runner.writer.add_scalar("Perf/iteration_time_s",iteration_time,values["it"])
+                runner.writer.add_scalar("Perf/physics_steps_per_update",24*cfg.decimation,values["it"])
+                runner.writer.add_scalar("Port/constraint_gap_limit_m",gap_limit,values["it"])
                 completed = int(values["it"])+1
                 peak = float(env.port_constraint_gap_peak)
                 receipt.update(status="training",completed_updates=completed,
@@ -202,7 +214,8 @@ def main():
                     physical_steps=env.port_physics_calls,
                     joint_speed_running_peak_rad_s=float(env.port_joint_speed_peak),
                     body_angular_speed_running_peak_rad_s=float(env.port_body_angular_speed_peak),
-                    last_collection_time_s=values["collection_time"],last_learning_time_s=values["learn_time"])
+                    last_collection_time_s=values["collection_time"],last_learning_time_s=values["learn_time"],
+                    last_iteration_time_s=iteration_time)
                 if completed==1:
                     updated = runner.alg.policy.state_dict()
                     receipt["first_update_changed_policy_tensors"] = [k for k,v in initial.items()
@@ -212,8 +225,7 @@ def main():
                     save(path,receipt)
                 if not all(torch.isfinite(torch.as_tensor(v)).all() for v in values["loss_dict"].values()):
                     raise ValueError("Nonfinite PPO losses")
-                if peak>.003:
-                    raise ValueError(f"PPO native loop gap exceeds 3mm: {peak}")
+                check_constraint_gap(peak,gap_limit,"PPO")
             runner.log = log_progress
             original_save = runner.save
             def save_progress(filename,infos=None):
@@ -268,6 +280,8 @@ def main():
             receipt.update(status="evaluation_complete",checkpoint_sha256=sha(args.checkpoint),cases=rows,
                 acceptance="diagnostic cold command cases; complete acceptance suite remains separate")
         receipt["elapsed_s"] = time.monotonic()-started
+        receipt["max_constraint_gap_m"] = float(env.port_constraint_gap_peak)
+        check_constraint_gap(receipt["max_constraint_gap_m"],gap_limit,args.mode)
         receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
         receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
         receipt["joint_speed_running_peak_rad_s"] = float(env.port_joint_speed_peak)

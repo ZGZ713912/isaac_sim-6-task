@@ -6,6 +6,11 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"src"))
+from wheeled_tasks.wheelbipe_port.training_contract import check_constraint_gap
 
 
 def main():
@@ -22,6 +27,8 @@ def main():
     receipt = json.loads((source.parent/"receipt.json").read_text())
     if receipt["status"]!="training_complete":
         raise ValueError("Export requires a completed training receipt")
+    gap_limit = receipt.get("constraint_gap_limit_m",.003)
+    check_constraint_gap(receipt["max_constraint_gap_m"],gap_limit,"Completed training")
     if not args.allow_pilot and receipt["completed_updates"]!=20000:
         raise ValueError("Final export requires the complete original 20000-update budget")
     content = source.read_bytes()
@@ -70,6 +77,7 @@ def main():
         asset_manifest_sha256=receipt["asset_manifest_sha256"],
         native=receipt["native"],actor="deterministic Gaussian mean; no teacher or previous policy",
         obs_dim=35,action_dim=6,opset=17,parity_samples=len(sample),max_absolute_error=error,
+        constraint_gap_limit_m=gap_limit,training_constraint_gap_peak_m=receipt["max_constraint_gap_m"],
         behavior_qualified=False,hardware_mapping_verified=False,
         observation_order="source V14 command(3), height(1), gyro(3), gravity(3), leg-relative-position(4), muted-wheel-position(2), joint-velocity(6), previous-action(6), control-mode(7)",
         preprocessing="original V14 clip/scale and v2 sensor model; see params/env.yaml", 
