@@ -12,7 +12,9 @@ checkpoint is never a donor for full training.
 
 Preserve the reference's environment, reward formulas, command schedules,
 35-dimensional actor contract, 24-step PPO rollout, ELU 256/128/64 networks,
-adaptive 1e-4 learning rate, and 50/200 Hz policy/physics clocks.
+adaptive 1e-4 learning rate, and 50 Hz policy clock. The reference uses
+200 Hz physics; this port explicitly uses 1000 Hz after the numerical
+failures below. The main unified v4 defaults are unaffected.
 
 Replace geometry, mass/COM/inertia, six loop constraints, reset IK, the
 40°–110° included-angle domain, measured 15.62 wheel response, DM moving
@@ -46,8 +48,8 @@ uses the original ordinary `OnPolicyRunner` and PPO configuration, not our
 previous custom trainer. Eighteen joints and 21 bodies are exposed by a name
 correspondence without rotating a CAD axis. The original reset IK is replaced
 with a measured CAD lookup; 840 midpoint/rotation cases close all six loops
-within 1.33 micrometres. Two CPU tests additionally exercise independent left
-and right lengths, rotations and reversed native joint order.
+within 1.33 micrometres. Three CPU tests additionally exercise independent
+left/right lengths, reversed native joint order and CAD collision support.
 
 The mirrored passive-knee reward coordinates and limits use the actual
 40°–110° CAD branch. The wheel-axis alignment reference uses our 0.1833 m
@@ -56,7 +58,7 @@ still unchanged. All source actuator/spring/sensor randomizers are disabled
 and replaced once by the explicit v2 groups. The critic receives the actual
 160/2.5 feedback gains and calibrated delays, rather than zero-gain native
 effort actuators. Feedback PD, gas feedforward and physical spring force each
-execute once per 5 ms physics tick.
+execute once per physics tick (1 ms in the admitted GPU pilot).
 
 Initial local CPU native checks passed on flat (8 environments, 500 policy
 steps, 85 resets, policy-boundary loop peak 2.108 mm) and rough (4 environments,
@@ -84,8 +86,21 @@ a 1.881 mm peak. Real PPO at 128 environments then reached 3.733 mm in its
 first update, so the requested full run was withheld. This also demonstrated
 why finite state or a low-amplitude random-action probe alone is inadequate.
 At 50 Hz policy / 1000 Hz physics, the 32×300 native probe reached 0.422 mm.
-The separate 128-environment, 30-update fresh GPU pilot now tests that clock,
-with the 3 mm bound checked during actual PPO. Solver settings are 64/32;
+The first 128-environment GPU pilot at that clock failed at update 17 with
+a 6.094 mm loop peak. Its reset poses exposed a second migration difference:
+the reference root height placed our larger CAD collision geometry as much
+as 14.15 cm below the ground. Reset now raises the root only when necessary,
+using independently checked CAD collision support and 2 mm clearance. It
+preserves the sampled orientation, joint pose, velocities and positive drop
+height; there are no dynamic pose writes or relaxed loop limits. Even with
+this reset correction, the 200 Hz GPU probe failed at 16.546 mm.
+
+The corrected, frozen `47968e5d` GPU pilot completed all 30 fresh PPO updates
+at 128 environments, with the 3 mm bound checked at every physics tick.
+Its maximum loop gap was 1.601 mm over 14,400 physics ticks (24 policy steps
+per update, 20 physics ticks per policy step), with finite policy tensors.
+All 9 actor/std and 8 critic tensors changed; Adam started empty and finished
+with 17 states. The training call took 425.865 seconds. Solver settings are 64/32;
 external forces are integrated with the original Sim 5.1 default (`false`).
 Rendering stays at 50 Hz, independent of finer feedback/integration. No old
 checkpoint is migrated between clocks.
@@ -97,9 +112,43 @@ with maximum absolute error 2.98e-7. This tiny run verifies software wiring,
 not learned ability. Cold evaluation entry points also completed seven
 0.8-second cases; these are too short and too early for behavior acceptance.
 
-Status: native source/model binding, CPU PPO and diagnostic ONNX passed;
-Kaiser 1000 Hz small PPO is in progress. Full training and its final ONNX
-are not yet admitted or complete. Reference reward weights remain unchanged.
+The GPU pilot ONNX passes 1024 random-input comparisons with maximum
+absolute error 9.5367e-7. Its checkpoint SHA-256 is
+`387017a0836baee582daab529f118ef925d3b4e985c54369244628c5fe0632b2`.
+The raw pilot and parity receipts are committed under
+`reports/wheelbipe_port_20261101/`. These establish genuine PPO and export
+wiring, not learned task capabilities. Reference reward weights are unchanged.
+
+### Full-run ownership and progress
+
+`scripts/run_wheelbipe_campaign.py` authenticates the admitted pilot,
+implementation, collision geometry, ground plane, checkpoint and ONNX hashes.
+It runs rough-terrain and full-population preflights, then a separate fresh
+20,000-update flat run (512 environments, seed 109, save every 500 updates).
+Kaiser's WSL has approximately 16 GiB RAM, so environment count is explicit
+rather than inferred from the GPU's 24 GiB VRAM. The update budget and original
+PPO settings are preserved; this is not a claim of matching the sample count
+of an experiment with a different population.
+
+The campaign exports the completed final checkpoint to ONNX, checks parity,
+copies preprocessing parameters, runs seven cold nominal command diagnostics
+and writes all 13 permanent capability statuses. Any physical, optimizer,
+source-hash or export failure stops the campaign. It never silently resumes
+or extends a failed training run. A process lock prevents a duplicate owner.
+
+Current owner source is `b5337fb9`, identical to the admitted pilot's core.
+The first rough preflight stalled before stepping because of missing
+`libGLU.so.1`; it was stopped and its failure retained. A new independent
+output directory, `full_flat_512_20000_1000hz_seed109_002`, uses the existing
+Kaiser sysroot in this experiment's library path. No global runtime or other
+training service was modified. At this documentation checkpoint the rough
+environment has initialized; full PPO and its final ONNX are still pending.
+
+Remote TensorBoard uses a separate service on port 6008. Local
+`http://127.0.0.1:6008/` is only an SSH forward; existing 6006/6007 services
+are untouched. The training owner and TensorBoard have independent lifetimes.
+All 13 permanent capabilities remain unqualified until measured with their
+full acceptance protocols; see the committed capability-status report.
 
 CLI entry points are `scripts/train_wheelbipe_port.py` (preflight/train/evaluate)
 and `scripts/export_wheelbipe_port_onnx.py`. Output directories must be new;
