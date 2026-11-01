@@ -39,4 +39,40 @@ gimbal-only commands require a separately identified gimbal actuator.
 Training metrics use RSL-RL TensorBoard events on Kaiser. Local 6007 is
 reserved; no local TensorBoard is started. This experiment has no hardware IO.
 
-Status: source snapshot recorded; implementation and native pilot pending.
+## Implementation and current evidence
+
+The original 187 source files remain byte-for-byte authenticated. The adapter
+uses the original ordinary `OnPolicyRunner` and PPO configuration, not our
+previous custom trainer. Eighteen joints and 21 bodies are exposed by a name
+correspondence without rotating a CAD axis. The original reset IK is replaced
+with a measured CAD lookup; 840 midpoint/rotation cases close all six loops
+within 1.33 micrometres. Two CPU tests additionally exercise independent left
+and right lengths, rotations and reversed native joint order.
+
+The mirrored passive-knee reward coordinates and limits use the actual
+40°–110° CAD branch. The wheel-axis alignment reference uses our 0.1833 m
+hip offset. These are geometry substitutions; reference reward weights are
+still unchanged. All source actuator/spring/sensor randomizers are disabled
+and replaced once by the explicit v2 groups. The critic receives the actual
+160/2.5 feedback gains and calibrated delays, rather than zero-gain native
+effort actuators. Feedback PD, gas feedforward and physical spring force each
+execute once per 5 ms physics tick.
+
+Initial local CPU native checks passed on flat (8 environments, 500 policy
+steps, 85 resets, policy-boundary loop peak 2.108 mm) and rough (4 environments,
+200 policy steps, 16 resets, policy-boundary peak 2.022 mm). Both used finite
+raw states and observations and bounded delivered electrical torque. These
+checks predate the final mirrored-knee substitution and per-physics-step peak
+monitor; the frozen candidate is rechecked before remote PPO. They establish
+engineering wiring only, not learned balance, self-righting or deployment.
+
+Kaiser has a separate relocated Sim 5.1 / Lab 2.3.2 / RSL-RL 3.0.1 runtime at
+`/home/kaiser/wheelbipe-sim51/env`; its existing Sim 6 runtime and TensorBoard
+service remain independent. Remote GPU preflight, small PPO, full training
+and final ONNX parity are pending.
+
+CLI entry points are `scripts/train_wheelbipe_port.py` (preflight/train/evaluate)
+and `scripts/export_wheelbipe_port_onnx.py`. Output directories must be new;
+training rejects `--checkpoint`. A final export requires a completed
+20,000-update receipt and matching checkpoint hash. Diagnostic pilot exports
+must explicitly use `--allow-pilot`.
