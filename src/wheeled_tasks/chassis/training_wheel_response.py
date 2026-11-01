@@ -9,6 +9,9 @@ import torch
 
 from .identified_wheel_response import WHEEL_NAMES, configure_identified_wheels
 from .control_contract import (NEW_WHEEL_100_CONTROL_ID, FINE_POLICY_100_TIMING, POLICY_100_TIMING, POLICY_100_SCOPE,
+                               NEW_WHEEL_100_COARSE_CONTROL_ID, COARSE_POLICY_100_TIMING,
+                               COARSE_POLICY_100_SCOPE,
+                               NEW_WHEEL_50_COARSE_CONTROL_ID, COARSE_POLICY_50_TIMING, COARSE_POLICY_50_SCOPE,
                                validate_chassis_control)
 
 
@@ -21,14 +24,20 @@ def configure(root, config, declaration, settings):
             raise ValueError("Identified wheel input SHA differs: " + key)
     control = json.loads((root/declaration["control"]["file"]).read_text())
     recorded = control
-    if control.get("control_id") == NEW_WHEEL_100_CONTROL_ID:
+    if control.get("control_id") in (NEW_WHEEL_100_CONTROL_ID, NEW_WHEEL_100_COARSE_CONTROL_ID, NEW_WHEEL_50_COARSE_CONTROL_ID):
         recorded = json.loads((root/declaration["recorded_control"]["file"]).read_text())
         expected = deepcopy(recorded)
         expected.update(control_id=NEW_WHEEL_100_CONTROL_ID, timing=FINE_POLICY_100_TIMING)
-        if "simulation_timing_approximation" in control:
+        if control["control_id"] == NEW_WHEEL_100_COARSE_CONTROL_ID:
+            expected.update(control_id=NEW_WHEEL_100_COARSE_CONTROL_ID,
+                timing=COARSE_POLICY_100_TIMING, simulation_timing_approximation=COARSE_POLICY_100_SCOPE)
+        elif control['control_id'] == NEW_WHEEL_50_COARSE_CONTROL_ID:
+            expected.update(control_id=NEW_WHEEL_50_COARSE_CONTROL_ID,
+                timing=COARSE_POLICY_50_TIMING, simulation_timing_approximation=COARSE_POLICY_50_SCOPE)
+        elif "simulation_timing_approximation" in control:
             expected.update(timing=POLICY_100_TIMING, simulation_timing_approximation=POLICY_100_SCOPE)
         if control != expected:
-            raise ValueError("100Hz derivation may change only identity, declared timing and its approximation scope")
+            raise ValueError("Policy-rate derivation may change only control identity, timing and its explicit approximation scope")
     validate_chassis_control(control)
     result, matched = configure_identified_wheels(config, recorded, declaration["model"]["file"], root)
     if matched != recorded:

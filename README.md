@@ -7,6 +7,10 @@
 保留实测拟合气簧、编码器力矩补偿和腿摩擦；普通启动从零开始，显式`--resume`
 可恢复同一中断运行。合并来源、默认命令和验证边界见[本次整合说明](docs/UNIFIED_200HZ_MERGE_20261101.md)。
 
+2026-11-01 补入 `dev/kamino-closed-loop-benchmark`，经主开发分支整合后交付 `main`。
+新增显式50Hz策略和网络/PPO工作量选项，以及独立Kamino机械对比工具；默认仍为
+PhysX、100Hz策略、200Hz物理/反馈PD。见[补充合并说明](docs/KAMINO_UNIFIED_MAIN_MERGE_20261101.md)。
+
 历史本机 `isaacsim6` 的 V6 200 Hz 训练和短训行为对比，见
 [本机训练记录与命令](docs/V6_LOCAL_PILOT_20261017.md)。最新实验保留所有失败短训消费。
 

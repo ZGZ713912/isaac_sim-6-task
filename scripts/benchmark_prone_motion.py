@@ -28,6 +28,11 @@ parser.add_argument('--strength', type=float, default=0.)
 parser.add_argument('--actor-updates', type=int, default=0)
 parser.add_argument('--num-envs', type=int, default=256)
 parser.add_argument('--physics-hz', type=int, choices=(200,1000))
+parser.add_argument('--policy-hz', type=int, choices=(50,100))
+parser.add_argument('--rollout-steps', type=int)
+parser.add_argument('--hidden-dims', type=int,nargs='+')
+parser.add_argument('--ppo-epochs', type=int)
+parser.add_argument('--ppo-mini-batches', type=int)
 parser.add_argument('--seed', type=int)
 parser.add_argument('--position-iterations', type=int)
 parser.add_argument('--velocity-iterations', type=int)
@@ -51,13 +56,15 @@ plan_path = (args.plan or root/'contracts/wheel_leg_prone_motion_v4.json').resol
 plan = validate(json.loads(plan_path.read_text()))
 from wheeled_tasks.chassis.prone_motion_cli import resolve_plan
 plan = resolve_plan(plan, num_envs=args.num_envs, position_iterations=args.position_iterations,
-                    velocity_iterations=args.velocity_iterations, physics_hz=args.physics_hz, seed=args.seed)
+                    velocity_iterations=args.velocity_iterations, physics_hz=args.physics_hz, seed=args.seed,
+                    policy_hz=args.policy_hz,num_steps_per_env=args.rollout_steps,hidden_dims=args.hidden_dims,
+                    ppo_epochs=args.ppo_epochs,ppo_mini_batches=args.ppo_mini_batches)
 hashes = entry.source_hashes(plan_path, plan)
 result = dict(schema='local-prone-motion-performance-v1', status='starting', pid=os.getpid(),
     start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19]),
     started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(), root=str(root),
     new_PPO=0, optimizer_attempts=0, actor_or_critic_created=False, checkpoint_reads=[],
-    source_hashes=hashes, backend=args.backend,
+    source_hashes=hashes, backend=args.backend,agent_configuration=entry.learner_config(plan),
     args=vars(args)|{'root':str(root),'output':str(out),'plan':str(plan_path)},
     behavior_qualification=False, hardware_ready=False)
 entry.base.write_json(out/'result.json',result)
@@ -213,6 +220,10 @@ try:
             pstats.Stats(prof,stream=stream).strip_dirs().sort_stats('cumtime').print_stats(65)
         finite = all(bool(torch.isfinite(v).all()) for v in obs.values()) and bool(torch.isfinite(reward).all())
     result.update(status='completed' if finite else 'failed_nonfinite', finite=finite,
+        collection_per_rollout_s=float(np.mean(times)*plan['rollout_steps']),
+        samples_per_rollout=env.num_envs*plan['rollout_steps'],
+        simulated_seconds_per_env_per_rollout=plan['rollout_steps']*env.policy_dt,
+        physics_calls_per_rollout=plan['rollout_steps']*env.decimation,
         step_mean_s=float(np.mean(times)),step_median_s=float(np.median(times)),step_p90_s=float(np.quantile(times,.9)),
         measured_policy_steps=len(times), measured_physics_steps=len(times)*env.decimation,
         post_step_closure_peak_m=closure_peak_m, termination_events=termination_events,

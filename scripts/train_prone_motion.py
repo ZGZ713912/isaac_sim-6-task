@@ -185,11 +185,26 @@ def learner_config(plan, device="cuda:0"):
     from wheeled_tasks.chassis.prone_motion import discounts
     result = agent_config(plan["seed"], device, plan["rollout_steps"], plan["learning_rate"],
                           normalize_observations=True)
-    result["actor"]["hidden_dims"] = result["critic"]["hidden_dims"] = [256, 128, 64]
+    ppo = plan.get('ppo',dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4))
+    result["actor"]["hidden_dims"] = list(ppo['hidden_dims'])
+    result["critic"]["hidden_dims"] = list(ppo['hidden_dims'])
+    result['algorithm'].update(num_learning_epochs=ppo['epochs'],num_mini_batches=ppo['mini_batches'])
     result["algorithm"]["entropy_coef"] = .001
     result["algorithm"].update(discounts(plan))
     result.update(max_iterations=plan["max_updates"], save_interval=plan["snapshot_interval"], experiment_name="prone_motion_long")
     return result
+
+
+def check_first_update(result, runner_cfg):
+    """Validate native PPO work against this run's actual epoch/batch budget."""
+    algorithm = runner_cfg['algorithm']
+    expected = algorithm['num_learning_epochs']*algorithm['num_mini_batches']
+    checks = dict(finite_recorded_values=result['all_recorded_values_finite'],
+        configured_optimizer_calls=result['committed_optimizer_calls'] == expected,
+        actor_changed=result['actor_changed_parameter_tensors'] > 0,
+        critic_changed=result['critic_changed_parameter_tensors'] > 0)
+    result.update(expected_optimizer_calls=expected, checks=checks)
+    return all(checks.values())
 
 
 def source_hashes(plan_path, plan):
@@ -198,6 +213,7 @@ def source_hashes(plan_path, plan):
              "scripts/play_prone_motion.py", "scripts/play_prone_motion.sh", "tests/test_prone_motion_cli.py",
              "scripts/benchmark_prone_motion.py", "src/wheeled_tasks/chassis/prone_motion_sampling.py",
              "tests/test_prone_motion_sampling.py",
+             "tests/test_prone_motion_wheelbipe.py",
              "scripts/server_isaac_python.sh", "scripts/resolve_isaac_python.sh",
              "tests/test_prone_motion_python.py", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
@@ -626,13 +642,12 @@ def main():
                 result = audit.report()
                 result.update(actor_changed_parameter_tensors=sum(not torch.equal(original_actor[k], v.detach().cpu()) for k,v in runner.alg.actor.named_parameters()),
                     critic_changed_parameter_tensors=sum(not torch.equal(original_critic[k], v.detach().cpu()) for k,v in runner.alg.critic.named_parameters()))
-                base.write_json(output/"first_update_audit.json", result)
-                if not (result["all_recorded_values_finite"] and result["committed_optimizer_calls"] == 12
-                        and result["actor_changed_parameter_tensors"] and result["critic_changed_parameter_tensors"]):
-                    raise RuntimeError("First PPO audit failed")
+                passed = check_first_update(result, runner_cfg)
                 result.update(completed_updates=report["completed_updates"], start_updates=start_updates,
                               resumed=resume_state is not None)
                 base.write_json(output/"first_update_audit.json", result)
+                if not passed:
+                    raise RuntimeError("First PPO audit failed")
                 audit = None
             env.actor_updates = report["completed_updates"]
             report.update(status="training", elapsed_s=time.monotonic()-start, valid_rollout=mask.metrics,

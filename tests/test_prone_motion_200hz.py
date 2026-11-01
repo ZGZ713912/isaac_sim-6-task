@@ -48,7 +48,8 @@ def test_default_is_200hz_and_historical_embedded_run_options_still_replay():
     assert task.timing(PLAN)['physics_dt'] == .005
     assert task.timing(task.validate(OLD))['physics_dt'] == .001
     old_resolved = resolve_plan(OLD)
-    del old_resolved['runtime_cli']['options']['physics_hz']
+    for key in ('physics_hz', 'policy_hz', 'hidden_dims', 'ppo_epochs', 'ppo_mini_batches'):
+        del old_resolved['runtime_cli']['options'][key]
     assert task.validate(old_resolved) == old_resolved
     for bad in [0, 100, 500, True]:
         with pytest.raises(ValueError, match='physics-hz'):

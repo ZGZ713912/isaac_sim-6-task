@@ -116,12 +116,23 @@ def test_resume_inherits_course_without_scaling_to_remaining_budget(saved, tmp_p
 
 @pytest.mark.parametrize("flag,value", [("--max_iterations","6000"),("--num_envs","128"),
     ("--seed","123"),("--learning_rate",".001"),("--domain_randomization","off"),
-    ("--num_steps_per_env","64"),("--dr_strength",".5"),("--physics-hz","1000")])
+    ("--num_steps_per_env","64"),("--dr_strength",".5"),("--physics-hz","1000"),
+    ("--policy-hz","50"),("--hidden-dims","512"),("--ppo-epochs","5"),("--ppo-mini-batches","8")])
 def test_course_changes_rejected_before_starting_native(saved, tmp_path, flag, value):
     _, bundle = saved
     args = train_parser().parse_args(["--resume",str(bundle["path"]),"--output",str(tmp_path/"continued"),flag,value])
     with pytest.raises(ValueError, match="changed course"):
         training_options(args, ROOT)
+
+
+def test_resume_accepts_explicit_original_policy_and_ppo_without_changing_saved_plan(saved, tmp_path):
+    _, bundle = saved
+    args = train_parser().parse_args(["--resume", str(bundle["path"]), "--output", str(tmp_path/"continued"),
+        "--physics-hz", "200", "--policy-hz", "100", "--hidden-dims", "256", "128", "64",
+        "--ppo-epochs", "3", "--ppo-mini-batches", "4"])
+    _, plan, _ = training_options(args, ROOT)
+    assert plan == bundle["plan"]
+    assert plan["max_updates"] == 10000 and timing(plan)["policy_dt"] == .01
 
 
 @pytest.mark.parametrize("broken", ["iter","plan","adam","normalizer","nonfinite","rng",

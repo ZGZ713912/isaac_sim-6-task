@@ -17,12 +17,14 @@ OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_
                "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns",
                "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials",
                "curriculum_eval_every", "curriculum_success_rate", "curriculum_required_passes",
-               "position_iterations", "velocity_iterations", "physics_hz")
+               "position_iterations", "velocity_iterations", "physics_hz",
+               "policy_hz", "hidden_dims", "ppo_epochs", "ppo_mini_batches")
 LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
 LEGACY_RECOVERY_OPTION_KEYS = OPTION_KEYS[:12]
 LEGACY_MASTERY_OPTION_KEYS = OPTION_KEYS[:15]
 LEGACY_GLOBAL_OPTION_KEYS = OPTION_KEYS[:18]
-LEGACY_SOLVER_OPTION_KEYS = OPTION_KEYS[:-1]
+LEGACY_SOLVER_OPTION_KEYS = OPTION_KEYS[:20]
+LEGACY_PHYSICS_OPTION_KEYS = OPTION_KEYS[:21]
 
 
 def _hash(value):
@@ -32,7 +34,7 @@ def _hash(value):
 def _configured(base, options):
     if ((set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base)
             or set(options) in (set(LEGACY_RECOVERY_OPTION_KEYS),set(LEGACY_MASTERY_OPTION_KEYS),
-                                set(LEGACY_GLOBAL_OPTION_KEYS), set(LEGACY_SOLVER_OPTION_KEYS))):
+                                set(LEGACY_GLOBAL_OPTION_KEYS), set(LEGACY_SOLVER_OPTION_KEYS), set(LEGACY_PHYSICS_OPTION_KEYS))):
         options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
@@ -67,6 +69,28 @@ def _configured(base, options):
         raise ValueError("seed must fit NumPy's uint32 seed range")
     if result["num_envs"] > 512:
         raise ValueError("This isolated-world task currently supports --num_envs 20..512")
+    hz = options["physics_hz"]
+    policy_hz = options['policy_hz']
+    if policy_hz is not None and (type(policy_hz) is not int or policy_hz not in (50,100)):
+        raise ValueError('policy_hz must be 50 or 100')
+    if policy_hz is not None and base['schema'] == 'wheel-leg-prone-motion-v1':
+        raise ValueError('Policy-rate overrides require the v2+ task')
+    if policy_hz == 50 and hz != 200:
+        raise ValueError('50Hz comparison requires explicit --physics-hz 200')
+    if policy_hz == 50:
+        from .control_contract import (COARSE_POLICY_50_TIMING, COARSE_POLICY_50_SCOPE,
+                                       COARSE_POLICY_50_CONTROL_FILE)
+        result['timing'] = dict(COARSE_POLICY_50_TIMING)
+        result['simulation_timing_approximation'] = deepcopy(COARSE_POLICY_50_SCOPE)
+        control = Path(__file__).resolve().parents[3]/COARSE_POLICY_50_CONTROL_FILE
+        result['wheel_model']['control'] = dict(file=COARSE_POLICY_50_CONTROL_FILE,
+            sha256=hashlib.sha256(control.read_bytes()).hexdigest())
+        from .prone_motion import discounts
+        result['discounts'] = discounts(result)
+        result['timing_scope'] = (f"Policy50Hz; physics and feedback PD200Hz; "
+            f"{result['rollout_steps']} actor steps cover{result['rollout_steps']*.02:g}s "
+            f"and{result['rollout_steps']*4} physical steps per lane. "
+            "All delay values retain physical units; no hardware or fine contact qualification.")
     if any(options[key] is not None for key in ("position_iterations", "velocity_iterations")):
         solver = dict(result.get("solver_iterations", dict(position_iterations=64, velocity_iterations=32)))
         for key, minimum in (("position_iterations", 1), ("velocity_iterations", 0)):
@@ -75,6 +99,22 @@ def _configured(base, options):
             if type(solver[key]) is not int or not minimum <= solver[key] <= 255:
                 raise ValueError(f"{key} must be an integer in [{minimum},255]")
         result["solver_iterations"] = solver
+    solver = result.get('solver_iterations', dict(position_iterations=64, velocity_iterations=32))
+    if hz == 200 and policy_hz != 50 and (solver["position_iterations"] < 64
+                      or solver["velocity_iterations"] < 32):
+        raise ValueError("200Hz closed-chain physics requires at least 64 position / 32 velocity iterations")
+    if any(options[k] is not None for k in ('hidden_dims','ppo_epochs','ppo_mini_batches')):
+        ppo = dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4)
+        for option,key in (('hidden_dims','hidden_dims'),('ppo_epochs','epochs'),('ppo_mini_batches','mini_batches')):
+            if options[option] is not None: ppo[key] = deepcopy(options[option])
+        dims = ppo['hidden_dims']
+        if type(dims) is not list or not 1 <= len(dims) <= 8 or any(type(x) is not int or not 1 <= x <= 4096 for x in dims):
+            raise ValueError('hidden_dims requires 1..8 positive integer widths up to4096')
+        if any(type(ppo[k]) is not int or not 1 <= ppo[k] <= 64 for k in ('epochs','mini_batches')):
+            raise ValueError('PPO epochs and mini-batches must be integers in1..64')
+        if result['num_envs']*result['rollout_steps'] % ppo['mini_batches']:
+            raise ValueError('Rollout samples must divide evenly into PPO mini-batches')
+        result['ppo'] = ppo
     if not math.isfinite(result["learning_rate"]) or result["learning_rate"] <= 0:
         raise ValueError("learning_rate must be finite and positive")
     mode, strength = options["domain_randomization"], options["dr_strength"]
@@ -215,7 +255,11 @@ def train_parser():
     parser.add_argument("--velocity-iterations", "--velocity_iterations", type=int,
                         help="PhysX velocity solver iterations per physics step; inherited default32")
     parser.add_argument("--physics-hz", "--physics_hz", type=int, choices=(200,1000),
-                        help="v4 physics and fresh feedback PD rate; current v4 defaults to200Hz, policy stays100Hz")
+                        help="v4 physics and fresh feedback PD rate; current v4 defaults to200Hz with100Hz policy")
+    parser.add_argument('--policy-hz',type=int,choices=(50,100),help='50Hz comparison requires explicit200Hz physics; acceptance limits are unchanged')
+    parser.add_argument('--hidden-dims',type=int,nargs='+',help='Actor and critic MLP widths')
+    parser.add_argument('--ppo-epochs',type=int)
+    parser.add_argument('--ppo-mini-batches',type=int)
     parser.add_argument("--recovery-curriculum", choices=("staged","all"), default=None)
     parser.add_argument("--recovery-gate-success-rate",type=float,default=None)
     parser.add_argument("--recovery-gate-every",type=int,default=None,help="PPO updates between four-class cold checks")
@@ -272,6 +316,12 @@ def training_options(args, root):
             if key == "physics_hz":
                 from .prone_motion import timing
                 expected = round(1./timing(plan)["physics_dt"])
+            elif key == "policy_hz":
+                from .prone_motion import timing
+                expected = round(1./timing(plan)["policy_dt"])
+            elif key in ("hidden_dims", "ppo_epochs", "ppo_mini_batches"):
+                ppo = plan.get('ppo', dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4))
+                expected = ppo[dict(hidden_dims='hidden_dims', ppo_epochs='epochs', ppo_mini_batches='mini_batches')[key]]
             elif key in ("position_iterations", "velocity_iterations"):
                 expected = plan.get("solver_iterations", {}).get(key, 64 if key == "position_iterations" else 32)
             if value is not None and value != expected:

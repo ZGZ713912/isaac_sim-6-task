@@ -15,11 +15,19 @@ REFERENCE_LAMBDA = .9872585449014338
 def timing(plan):
     """Preserve historical clocks; coarse v4 explicitly declares its approximation."""
     from .control_contract import (FINE_POLICY_100_TIMING, FINE_POLICY_200_TIMING,
-                                   POLICY_100_TIMING, POLICY_100_SCOPE)
+                                   POLICY_100_TIMING, POLICY_100_SCOPE,
+                                   COARSE_POLICY_100_TIMING, COARSE_POLICY_100_SCOPE,
+                                   COARSE_POLICY_50_TIMING, COARSE_POLICY_50_SCOPE)
     if "simulation_timing_approximation" in plan:
-        if plan["schema"] != "wheel-leg-prone-motion-v4" or plan["simulation_timing_approximation"] != POLICY_100_SCOPE:
-            raise ValueError("Unknown prone-motion physics timing approximation")
-        return dict(POLICY_100_TIMING)
+        scope = plan["simulation_timing_approximation"]
+        if plan["schema"] == "wheel-leg-prone-motion-v4" and scope == POLICY_100_SCOPE:
+            return dict(POLICY_100_TIMING)
+        if plan["schema"] != "wheel-leg-prone-motion-v1":
+            if scope == COARSE_POLICY_100_SCOPE:
+                return dict(COARSE_POLICY_100_TIMING)
+            if scope == COARSE_POLICY_50_SCOPE:
+                return dict(COARSE_POLICY_50_TIMING)
+        raise ValueError("Unknown prone-motion physics timing approximation")
     return dict(FINE_POLICY_200_TIMING if plan["schema"] == "wheel-leg-prone-motion-v1"
                 else FINE_POLICY_100_TIMING)
 
