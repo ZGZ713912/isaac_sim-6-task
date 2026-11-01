@@ -81,6 +81,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self._constraint_body0 = [self.robot.cad_body_names.index(c["body0"]) for c in self.asset.spec["constraints"]]
         self._constraint_body1 = [self.robot.cad_body_names.index(c["body1"]) for c in self.asset.spec["constraints"]]
         self.port_constraint_gap_peak = torch.zeros((),device=self.device)
+        self.port_joint_speed_peak = torch.zeros((),device=self.device)
+        self.port_body_angular_speed_peak = torch.zeros((),device=self.device)
         knee_names = ("L_joint2","R_jonit2")
         self._port_knee_ids = [self.robot.cad_joint_names.index(n) for n in knee_names]
         self._port_knee_signs = self.motor_effort.new_tensor([1.,-1.])
@@ -282,6 +284,10 @@ class WheelbipePortEnv(WheelbipeV14Env):
     def _measure_constraint_peak(self):
         gaps = self.constraint_gaps()
         peak = gaps.max()
+        self.port_joint_speed_peak = torch.maximum(self.port_joint_speed_peak,
+            self.robot.data.joint_vel.abs().max())
+        self.port_body_angular_speed_peak = torch.maximum(self.port_body_angular_speed_peak,
+            self.robot.data.root_ang_vel_w.norm(dim=-1).max())
         if getattr(self.cfg,"port_record_peaks",False) and peak>self.port_constraint_gap_peak:
             lane,pin = divmod(int(gaps.argmax()),6)
             self.port_peak_diagnostic = dict(lane=lane,pin=pin,physical_call=self.port_physics_calls,
@@ -301,6 +307,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
             logs.update({
                 "Port/constraint_gap_max_m":self.constraint_gaps().max(),
                 "Port/constraint_gap_running_peak_m":self.port_constraint_gap_peak.clone(),
+                "Port/joint_speed_running_peak_rad_s":self.port_joint_speed_peak.clone(),
+                "Port/body_angular_speed_running_peak_rad_s":self.port_body_angular_speed_peak.clone(),
                 "Port/motor_leg_abs_mean_Nm":self.motor_effort[:,(0,1,3,4)].abs().mean(),
                 "Port/motor_wheel_abs_mean_Nm":self.motor_effort[:,(2,5)].abs().mean(),
                 "Port/spring_force_mean_N":self.spring_force.mean(),

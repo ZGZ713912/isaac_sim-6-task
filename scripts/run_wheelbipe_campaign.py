@@ -53,7 +53,7 @@ def main():
             or settings["external_forces_every_iteration"]):
         raise ValueError("The admitted physical/randomization settings differ from the full run")
     frequency = pilot["arguments"]["physics_hz"]
-    if frequency not in (200,500,1000) or pilot["native"]["policy_dt_s"]!=.02:
+    if frequency not in (200,500,1000,2000) or pilot["native"]["policy_dt_s"]!=.02:
         raise ValueError("Do not silently migrate pilot/checkpoint integration clocks")
     if (pilot["max_constraint_gap_m"]>.003 or not pilot["policy_tensors_finite"]
             or pilot["fresh_initial_optimizer_state_count"]!=0

@@ -46,7 +46,7 @@ def main():
     parser.add_argument("--solver-position-iterations",type=int,default=12)
     parser.add_argument("--solver-velocity-iterations",type=int,default=6)
     parser.add_argument("--external-forces-every-iteration",action=argparse.BooleanOptionalAction,default=False)
-    parser.add_argument("--physics-hz",type=int,choices=(200,500,1000),default=200,
+    parser.add_argument("--physics-hz",type=int,choices=(200,500,1000,2000),default=200,
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
     args = parser.parse_args()
@@ -198,6 +198,8 @@ def main():
                 receipt.update(status="training",completed_updates=completed,
                     elapsed_s=time.monotonic()-started,max_constraint_gap_m=peak,
                     physical_steps=env.port_physics_calls,
+                    joint_speed_running_peak_rad_s=float(env.port_joint_speed_peak),
+                    body_angular_speed_running_peak_rad_s=float(env.port_body_angular_speed_peak),
                     last_collection_time_s=values["collection_time"],last_learning_time_s=values["learn_time"])
                 if completed==1:
                     updated = runner.alg.policy.state_dict()
@@ -266,6 +268,8 @@ def main():
         receipt["elapsed_s"] = time.monotonic()-started
         receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
         receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
+        receipt["joint_speed_running_peak_rad_s"] = float(env.port_joint_speed_peak)
+        receipt["body_angular_speed_running_peak_rad_s"] = float(env.port_body_angular_speed_peak)
         save(path,receipt)
         print(json.dumps({k:v for k,v in receipt.items() if k not in ("native","arguments")},indent=2))
     except BaseException as exc:
@@ -273,6 +277,8 @@ def main():
         if wrapped is not None:
             receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
             receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
+            receipt["joint_speed_running_peak_rad_s"] = float(env.port_joint_speed_peak)
+            receipt["body_angular_speed_running_peak_rad_s"] = float(env.port_body_angular_speed_peak)
         save(path,receipt)
         raise
     finally:

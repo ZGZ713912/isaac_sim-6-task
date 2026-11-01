@@ -156,6 +156,19 @@ the exact command/source, and TensorBoard scalar evidence. PIDs are historical
 locators, not permission to signal a future process with the same number.
 The independent training owner is in tmux `wheelbipe-full-002`.
 
+Subsequent result: this full-scale run stopped at update 13 with a 3.903 mm
+loop peak. Its complete failure receipt is retained in
+`reports/wheelbipe_port_20261101/kaiser_full_scale_negative001.json`.
+The peak lane was 1.18 seconds into an episode, with root angular velocity
+approximately 113 rad/s and one active leg velocity approximately 198 rad/s.
+This is not an initial ground-penetration event or evidence of learned
+behavior. The owner and worker both exited, and no full ONNX was exported.
+The previous 30-update/128-environment pilot therefore does not establish
+full-population numerical admission. An explicit 2000 Hz integration study
+now tests the same 512-environment PPO exposure, without adding armature,
+changing reward weights, reducing physical torque/PD or relaxing the 3 mm
+bound. Running joint and body angular-speed diagnostics join TensorBoard.
+
 Remote TensorBoard uses a separate service on port 6008. Local
 `http://127.0.0.1:6008/` is only an SSH forward; existing 6006/6007 services
 are untouched. The training owner and TensorBoard have independent lifetimes.
