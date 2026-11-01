@@ -15,17 +15,25 @@ campaign 使用同一门槛，并对实际时钟和环境数作一致性检查�
 旧 1 kHz 完整运行后来在第 100 次更新以 7.269 mm 失败并已退出，
 不能再描述为仍在训练。其失败摘要为
 `reports/wheelbipe_port_20261101/kaiser_corrected_full_failure100_001.json`。
-即使按新 5 mm 门槛，该峰值也超限。当前从零做 512 环境、seed 110、
-50/200 Hz 的 30 更新小训，先比较单次 PPO 参数更新时间，再决定完整准入。
-奖励、模型、随机化和 solver 64/32 保持相同，以分离时钟变化的影响。
+即使按新 5 mm 门槛，该峰值也超限。新的 50/200 Hz 小训均从全新
+actor、critic、空 Adam 开始，512 环境、seed 110，计划各 30 次更新。
+保持奖励、模型和随机化，solver 64/32 的时钟对照在首更新以
+**17.421 mm** 失败；补测原 Wheelbipe solver 12/6 也在首更新以
+**32.897 mm** 失败。两者均已退出，当前没有活动训练，未进入新完整训练。
 
 计时统一从 TensorBoard event 提取，匹配第 6–30 更新窗口，排除前 5 次
 初始化/预热更新。旧 1 kHz 窗口平均采样 14.070 秒、学习 0.083 秒，
 两者合计 **14.153 秒/更新**，不是 episode 时长。
 `scripts/compare_wheelbipe_timing.py` 生成同窗口统计及事件时间戳间隔，
-不另建曲线数据源。200 Hz 实测结果尚待完成。
+不另建曲线数据源。200 Hz 没有形成第 6–30 更新窗口。相同 solver
+64/32 下，首个更新（每侧仅 1 个样本，含迭代预热）的计时为
+1 kHz **13.905 秒**、200 Hz **4.468 秒**，耗时下降 **67.9%**。
+这只支持首更新诊断，不能称为稳定训练提速；也不能据此推算完整训练时长。
+solver 12/6 的首更新为 3.628 秒，其求解器已改变，单独列报。
+完整计时、窗口和失败证据见
+`reports/wheelbipe_port_20261101/TIMING_200HZ_5MM_20261102.md`。
 
-修正后的 Kaiser GPU 小训完成 **512 环境 × 30 次 PPO 参数更新**，
+历史 1 kHz 修正版本的 Kaiser GPU 小训完成 **512 环境 × 30 次 PPO 参数更新**，
 从全新 actor、critic、空 Adam 开始。逐物理步闭链误差峰值 **2.236 mm**，
 全部 17 个 actor/std/critic 张量变化，Adam 获得 17 个状态；
 14,400 个物理步中的控制和气簧调用次数与时钟一致。
@@ -95,8 +103,10 @@ value coefficient 4、gamma 0.99、lambda 0.95、5 epochs、4 minibatches。
 | 复位修正后 1000 Hz、128 环境 30 更新 | 1.601 mm，通过 ONNX parity | 仍继续检查完整人口 |
 | 同旧实现 512 环境完整 PPO | 第 13 更新 3.903 mm | 自动停止，完整失败回执保留 |
 | 2000 Hz、512 环境 PPO | 第 15 更新 8.605 mm | 更细步长单独不能准入 |
-| 修正 110° 目标与资产护栏后，1000 Hz、512 环境 30 更新 | 2.236 mm；ONNX 7.153e-7 | 当前小训准入版本 |
-| 同修正版、新 seed 完整 PPO | 前 50 更新峰值 1.260 mm | 持续逐物理步/更新检查 |
+| 修正 110° 目标与资产护栏后，1000 Hz、512 环境 30 更新 | 2.236 mm；ONNX 7.153e-7 | 历史 1 kHz 小训通过，不能迁移到 200 Hz |
+| 同修正版、新 seed 完整 PPO | 第 100 更新 7.269 mm | 已失败退出，按新 5 mm 门槛也不通过 |
+| 50/200 Hz、5 mm、512 环境，solver 64/32 | 首更新 17.421 mm；4.468 秒 | 已失败退出；没有稳定计时窗口 |
+| 同 50/200 Hz、5 mm，原参考 solver 12/6 | 首更新 32.897 mm；3.628 秒 | 已失败退出；不准入完整训练 |
 
 具体迁移修复包括：
 
@@ -112,33 +122,34 @@ value coefficient 4、gamma 0.99、lambda 0.95、5 epochs、4 minibatches。
 5. 小训与完整训练比较全部 `src/` Python 依赖的 SHA-256，覆盖控制器、
    气簧、轮响应和摩擦实现；源码、资产、重置、碰撞和地面哈希均受检查。
 
-四个 CPU 几何/目标测试通过：
-`python -m pytest -q tests/test_wheelbipe_port_geometry.py`。
+12 项 CPU 几何/目标及 5 mm 边界/非有限数检查通过：
+`python -m pytest -q tests/test_wheelbipe_port_geometry.py tests/test_wheelbipe_port_training_contract.py`。
 原生检查还验证 35/78/6 维度、全部闭链、原始有限状态/观测/奖励、
 交付电气限矩及每物理步控制/气簧调用数。最新运行采用用户指定 5 mm 闭链上限，
 失败自动停止，不自动延长、恢复或把失败训练算作完成。
 
 ## 远端所有权与交付
 
-冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/228b5a7b`。
-当前 tmux：`wheelbipe-geometry-guard-001`。
-当前完整目录：
+最新冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/f36551c8`。
+200 Hz 小训目录分别为 `runs/pilot_512_200hz_5mm_001` 和
+`runs/pilot_512_200hz_5mm_solver12_6_001`（相对于上述远端父目录）。
+两次小训均已退出，没有活动 campaign。历史 1 kHz 完整目录：
 `/home/kaiser/workspace/wheelbipe-v202-port/runs/full_flat_512_20000_1000hz_seed110_004`。
 启动观察的 owner PID 862183、worker PID 865730 仅供历史定位；任何后续
 操作先重新核对身份。旧 `_002` 完整运行和 2 kHz 试验均已失败退出。
 
 `run_wheelbipe_campaign.py` 顺序完成：粗糙预检 → 512 环境预检 →
 新 20,000 更新训练 → 严格完整预算 ONNX 导出/parity → 参数复制 →
-7 个冷启动指令诊断 → 逐项能力状态。当前粗糙检查 200 策略/4,000
+7 个冷启动指令诊断 → 逐项能力状态。历史 1 kHz 粗糙检查 200 策略/4,000
 物理步峰值 0.455 mm，512 环境检查 100/2,000 步峰值 0.462 mm，均正常退出。
 
 远端 TensorBoard 独立运行在 Kaiser 6008；
 [本机查看入口](http://127.0.0.1:6008/) 仅为 SSH 转发。
 既有 6006/6007 服务不动，本机不运行 TensorBoard。
-聊天后续检查 `wheelbipe-onnx` 每 30 分钟读取状态，每跨越 500 更新的新
-checkpoint 提交一份有限进度证据。训练结束后核对 checkpoint/ONNX SHA、
-20,000 更新及 parity，取回最终模型、合同、params 和结果，再停止该检查。
-普通进度保持安静，仅在关键完成、失败或需用户行动时通知。
+检查 `wheelbipe-onnx` 的提示已更新为此次失败事实，并因当前没有活动训练
+设为 `PAUSED`。旧 1 kHz 运行不会被误当作仍在推进，其他旧检查未改。
+200 Hz 必须先完成同合同小训，才能进入已授权的新 20,000 更新完整训练。
+完整成功后再核对 checkpoint/ONNX SHA、20,000 更新及 parity 并取回交付。
 
 ONNX 输入顺序、缩放、6 动作顺序与控制后处理见导出的 `contract.json`
 及 `params/env.yaml`。虽然 actor 同为 35D，其布局与现有 ProneMotion-v4
