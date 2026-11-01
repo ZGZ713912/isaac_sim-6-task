@@ -112,7 +112,7 @@ def prepare(args, bundle, output):
     # design; a one-robot preview has no training-population coverage obligation.
     cfg, settings, _ = configuration(output, bundle["plan"], profile=bundle["profile"], strength=bundle["strength"],
         evaluation=True, num_envs=max(80, args.num_envs), seed=bundle["seed"],
-        device=args.device, performance_backend=args.performance_backend)
+        device=args.device, performance_backend=args.performance_backend, sampling_backend=args.sampling_backend)
     design_file = output/"config/design.json"
     design = json.loads(design_file.read_text())
     design.update(run_scope="interactive_unscored", scope="prone_motion_checkpoint_preview")
