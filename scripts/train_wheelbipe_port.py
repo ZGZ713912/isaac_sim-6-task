@@ -183,6 +183,28 @@ def main():
             if runner.alg.optimizer.state:
                 raise ValueError("A fresh experiment must start with empty Adam")
             runner.save(str(args.output/"model_initial.pt"))
+            receipt["initial_checkpoint_sha256"] = sha(args.output/"model_initial.pt")
+            original_log = runner.log
+            def log_progress(values,*log_args,**log_kwargs):
+                original_log(values,*log_args,**log_kwargs)
+                completed = int(values["it"])+1
+                peak = float(env.port_constraint_gap_peak)
+                receipt.update(status="training",completed_updates=completed,
+                    elapsed_s=time.monotonic()-started,max_constraint_gap_m=peak,
+                    physical_steps=env.port_physics_calls,
+                    last_collection_time_s=values["collection_time"],last_learning_time_s=values["learn_time"])
+                if completed==1:
+                    updated = runner.alg.policy.state_dict()
+                    receipt["first_update_changed_policy_tensors"] = [k for k,v in initial.items()
+                        if not torch.equal(v,updated[k].detach().cpu())]
+                    receipt["first_update_optimizer_state_count"] = len(runner.alg.optimizer.state)
+                if completed==1 or completed%10==0:
+                    save(path,receipt)
+                if not all(torch.isfinite(torch.as_tensor(v)).all() for v in values["loss_dict"].values()):
+                    raise ValueError("Nonfinite PPO losses")
+                if peak>.003:
+                    raise ValueError(f"PPO native loop gap exceeds 3mm: {peak}")
+            runner.log = log_progress
             original_save = runner.save
             def save_progress(filename,infos=None):
                 original_save(filename,infos)
