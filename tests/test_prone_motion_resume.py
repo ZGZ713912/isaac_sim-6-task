@@ -10,10 +10,13 @@ from rsl_rl.runners import OnPolicyRunner
 
 from train_prone_motion import learner_config
 from wheeled_algo.prone_motion_resume import (
-    authenticate_sources, digest, equal_state, metadata, restore, restore_rng, validate_checkpoint,
+    authenticate_sources, digest, equal_state, metadata, restore, restore_rng, restore_curriculum, validate_checkpoint,
 )
-from wheeled_tasks.chassis.prone_motion import domain_stage, target
-from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, train_parser, training_options
+from wheeled_tasks.chassis.prone_motion import domain_stage, timing
+from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, train_parser, training_options, validate_resolved
+from wheeled_tasks.chassis.global_curriculum import GlobalCurriculum, SKILLS, assessment_descriptors
+from wheeled_tasks.chassis.recovery_mastery import RecoveryMastery, CLASSES
+from wheeled_tasks.chassis.multi_pose_recovery import ResetSampler
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
@@ -46,15 +49,31 @@ def saved(tmp_path):
     old.mkdir()
     (old/"pose_bank.json").write_text("{}")
     sources = {"plant.py": "test-source-hash"}
+    mastery = RecoveryMastery(plan["multi_pose_recovery"]["mastery_gate"])
+    course = GlobalCurriculum(plan, mastery)
+    course.review_skill("standing", 0, [dict(r, passed=True) for r in
+        assessment_descriptors(course.config, "standing", 0)], 250)
+    mastery.review([dict(family="belly_down", leg_class=leg, split="holdout", pose_index=4*i+j,
+        heading_rad=0., passed=True) for i,leg in enumerate(CLASSES) for j in range(4)], 250)
+    # Synthetic mastered state tests restoration, never robot capability.
+    course.levels = {skill:len(course.config["skills"][skill]["levels"]) for skill in SKILLS}
+    course.complex_passed = True
+    course.finish_review({skill:dict(passed=True) for skill in (*SKILLS,"belly","complex")}, 3500)
+    bank = json.loads((ROOT/plan["pose_bank"]["file"]).read_text())
+    sampler = ResetSampler(bank, plan["multi_pose_recovery"], 42, mastery=mastery)
+    for _ in range(41): sampler.sample(4000)
     state.update(iter=4000, infos=dict(schema="prone-motion-checkpoint-v1", training_origin="scratch",
         continuation_forbidden=True, completed_updates=4000, resolved_plan=plan,
         source_hashes=sources, bank_sha256=digest(old/"pose_bank.json"), initialization={"checkpoint_loaded":False},
+        recovery_mastery=mastery.state_dict(), global_curriculum=course.state_dict(),
+        recovery_sampler=sampler.state_dict(), prone_reset_generation=17,
         torch_rng=torch.get_rng_state(), cuda_rng=[], env_rng=torch.get_rng_state(), domain_rng=torch.get_rng_state()))
     checkpoint = old/"model_04000.pt"
     torch.save(state, checkpoint)
     (old/"curriculum_plan.resolved.json").write_text(json.dumps(plan))
     (old/"source_hashes.json").write_text(json.dumps(sources))
-    (old/"run_options.json").write_text(json.dumps(dict(task="WheelLeg-ProneMotion-v4", performance_backend="cuda_graph")))
+    (old/"run_options.json").write_text(json.dumps(dict(task="WheelLeg-ProneMotion-v4",
+        performance_backend="cuda_graph", sampling_backend="packed")))
     (old/"progress.json").write_text(json.dumps(dict(completed_updates=4015,
         last_checkpoint=dict(path=str(checkpoint), sha256=digest(checkpoint), updates=4000))))
     return state, metadata(checkpoint)
@@ -87,14 +106,17 @@ def test_resume_inherits_course_without_scaling_to_remaining_budget(saved, tmp_p
     _, plan, _ = training_options(args, ROOT)
     assert plan == bundle["plan"]
     assert plan["foundation_until_update"] == 1000 and plan["max_updates"] == 10000
-    assert target("forward",4000,plan) == [1.2,0.,.305]
-    assert target("forward",0,plan) == [0.,0.,.305]
-    assert domain_stage(plan,6000) == ("sensors_only",.25)
+    mastery, course = restore_curriculum(saved[0], plan)
+    assert mastery.unlocked and course.recovery is mastery
+    assert domain_stage(plan,4000,course) == ("sensors_only",.25)
+    assert domain_stage(plan,6000) == ("nominal",0.)  # Update count cannot replace saved gates.
+    assert timing(plan)["physics_dt"] == .005
+    assert args.performance_backend == "cuda_graph" and args.sampling_backend == "packed"
 
 
 @pytest.mark.parametrize("flag,value", [("--max_iterations","6000"),("--num_envs","128"),
     ("--seed","123"),("--learning_rate",".001"),("--domain_randomization","off"),
-    ("--num_steps_per_env","64"),("--dr_strength",".5")])
+    ("--num_steps_per_env","64"),("--dr_strength",".5"),("--physics-hz","1000")])
 def test_course_changes_rejected_before_starting_native(saved, tmp_path, flag, value):
     _, bundle = saved
     args = train_parser().parse_args(["--resume",str(bundle["path"]),"--output",str(tmp_path/"continued"),flag,value])
@@ -102,7 +124,8 @@ def test_course_changes_rejected_before_starting_native(saved, tmp_path, flag, v
         training_options(args, ROOT)
 
 
-@pytest.mark.parametrize("broken", ["iter","plan","adam","normalizer","nonfinite","rng"])
+@pytest.mark.parametrize("broken", ["iter","plan","adam","normalizer","nonfinite","rng",
+    "mastery","course","sampler","reset_clock","future_course","divergent_mastery"])
 def test_incomplete_or_incompatible_state_cannot_resume(saved, broken):
     original, bundle = saved
     state = deepcopy(original)
@@ -112,6 +135,12 @@ def test_incomplete_or_incompatible_state_cannot_resume(saved, broken):
     if broken == "normalizer": del state["actor_state_dict"]["obs_normalizer._mean"]
     if broken == "nonfinite": next(iter(state["critic_state_dict"].values())).fill_(float("nan"))
     if broken == "rng": del state["infos"]["env_rng"]
+    if broken == "mastery": del state["infos"]["recovery_mastery"]
+    if broken == "course": del state["infos"]["global_curriculum"]
+    if broken == "sampler": del state["infos"]["recovery_sampler"]
+    if broken == "reset_clock": state["infos"]["prone_reset_generation"] = -1
+    if broken == "future_course": state["infos"]["global_curriculum"]["domain_started_at"] = 4001
+    if broken == "divergent_mastery": state["infos"]["recovery_mastery"]["pass_streak"] += 1
     with pytest.raises(ValueError): validate_checkpoint(state,bundle)
 
 
@@ -151,3 +180,53 @@ def test_saved_rng_streams_are_restored_without_claiming_physics_replay(saved, m
     assert torch.equal(env.generator.get_state(),state["infos"]["env_rng"])
     assert torch.equal(env.domain.rng.get_state(),state["infos"]["domain_rng"])
     assert cuda == [[]] and not proof["exact_physics_trajectory_replay"]
+
+
+def test_resume_preserves_admitted_skills_replay_domain_and_next_pose_draws(saved, monkeypatch):
+    from types import SimpleNamespace
+    state, bundle = saved
+    mastery, course = restore_curriculum(state, bundle["plan"])
+    assert course.state_dict() == state["infos"]["global_curriculum"]
+    before = course.training_descriptors(20, 17)
+    assert len({row["curriculum_skill"] for row in before}) > 1
+    bank = json.loads((ROOT/bundle["plan"]["pose_bank"]["file"]).read_text())
+    expected = ResetSampler(bank, bundle["plan"]["multi_pose_recovery"], 1, mastery=mastery)
+    expected.load_state_dict(state["infos"]["recovery_sampler"])
+    actual = ResetSampler(bank, bundle["plan"]["multi_pose_recovery"], 999, mastery=mastery)
+    env = SimpleNamespace(generator=torch.Generator(), domain=SimpleNamespace(rng=torch.Generator()),
+        recovery_sampler=actual, prone_reset_generation=0)
+    monkeypatch.setattr(torch.cuda,"set_rng_state_all",lambda _:None)
+    proof = restore_rng(state, env)
+    assert proof["recovery_sampler"] and env.prone_reset_generation == 17
+    assert course.training_descriptors(20,env.prone_reset_generation) == before
+    assert [actual.sample(4000) for _ in range(200)] == [expected.sample(4000) for _ in range(200)]
+    assert not course.recovery.due(4000)  # An admitted belly gate stays admitted.
+
+
+def test_resume_inherits_original_backends_and_refuses_explicit_changes(saved, tmp_path):
+    _, bundle = saved
+    options = bundle["path"].parent/"run_options.json"
+    values = json.loads(options.read_text())
+    values.update(performance_backend="eager", sampling_backend="reference")
+    options.write_text(json.dumps(values))
+    argv = ["--resume",str(bundle["path"]),"--output",str(tmp_path/"continued")]
+    args = train_parser().parse_args(argv)
+    training_options(args,ROOT)
+    assert (args.performance_backend,args.sampling_backend) == ("eager","reference")
+    for flag,value in (("--performance-backend","cuda_graph"),("--sampling-backend","packed")):
+        with pytest.raises(ValueError,match="original"):
+            training_options(train_parser().parse_args(argv+[flag,value]),ROOT)
+
+
+@pytest.mark.parametrize("global_course", [True,False])
+def test_historical_resolved_plan_wording_stays_readable_without_accepting_course_changes(global_course):
+    base = BASE if global_course else json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
+    plan = resolve_plan(base)
+    plan["training_progression"] = (
+        "One fresh learn(10000); URDF nominal standing first; cold per-skill/per-level admission, "
+        "persistent replay and measured domain admission; no elapsed-update unlock or resume." if global_course else
+        "One continuous learn(10000) call; snapshots every 250 complete updates. Manual checkpoint selection; no resume. "
+        "Curriculum update thresholds scale with this run's budget; acceptance limits do not change.")
+    assert validate_resolved(plan) == plan
+    plan["num_envs"] = 128
+    with pytest.raises(ValueError): validate_resolved(plan)

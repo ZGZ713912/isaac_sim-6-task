@@ -81,13 +81,15 @@ def test_mastery_requires_independent_headings_and_a_complex_stage():
 def test_continuation_rejects_different_mechanics_and_checks_each_adam_moment(tmp_path):
     from validate_recovery_continuation import load_candidate,assert_restored
     legacy=json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
+    fine=json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_1000hz_20261101.json").read_text())
     state=dict(iter=250,infos=dict(schema="prone-motion-checkpoint-v1",training_origin="scratch",resolved_plan=legacy),
         actor_state_dict={"x":torch.ones(1)},critic_state_dict={"x":torch.ones(1)},
         optimizer_state_dict=dict(state={0:dict(step=torch.tensor(3.),exp_avg=torch.ones(1))},param_groups=[]))
     path=tmp_path/"old.pt";torch.save(state,path)
-    _,loaded,receipt=load_candidate(path,PLAN)
+    _,loaded,receipt=load_candidate(path,fine)
     assert receipt["parent_completed_updates"]==250
-    bad=deepcopy(PLAN);bad["leg_motor_friction"]={}
+    with pytest.raises(ValueError):load_candidate(path,PLAN)  # 1kHz is not a 200Hz continuation.
+    bad=deepcopy(fine);bad["leg_motor_friction"]={}
     with pytest.raises(ValueError):load_candidate(path,bad)
     changed=deepcopy(loaded["optimizer_state_dict"]);changed["state"][0]["exp_avg"]+=.01
     with pytest.raises(AssertionError):assert_restored(changed,loaded["optimizer_state_dict"])
@@ -101,10 +103,12 @@ def test_friction_migration_only_allows_the_authenticated_parent(tmp_path):
         actor_state_dict={"x":torch.ones(1)},critic_state_dict={"x":torch.ones(1)},
         optimizer_state_dict=dict(state={0:dict(step=torch.tensor(3.),exp_avg=torch.ones(1))},param_groups=[]))
     path=tmp_path/"parent.pt";torch.save(state,path)
+    friction_plan=json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
     with pytest.raises(ValueError):load_candidate(path,PLAN)
-    _,_,origin=load_candidate(path,PLAN,allow_friction_migration=True)
+    with pytest.raises(ValueError):load_candidate(path,PLAN,allow_friction_migration=True)
+    _,_,origin=load_candidate(path,friction_plan,allow_friction_migration=True)
     assert origin["plant_migration"]["mastery_must_be_remeasured"]
-    changed=deepcopy(PLAN);changed["wheel_model"]["sha256"]="0"*64
+    changed=deepcopy(friction_plan);changed["wheel_model"]["sha256"]="0"*64
     with pytest.raises(ValueError):load_candidate(path,changed,allow_friction_migration=True)
 
 

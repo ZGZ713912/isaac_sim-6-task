@@ -1,6 +1,6 @@
 # v4全局评测解锁课程
 
-用户已确认采用“URDF姿态静站→自起和低速运动→转弯/自旋→高速及组合变高”的依赖顺序。实现分支为`dev/leg-friction-v202-20261031`，正式任务仍为`WheelLeg-ProneMotion-v4`。一次全新actor、critic、空Adam的`learn(10000)`，无正式续训、teacher或donor入口，也不自动延长预算。此前只设自起门槛的v4合同保留为`contracts/wheel_leg_prone_motion_v4_recovery_20261031.json`；旧checkpoint继续使用其内嵌合同。
+用户已确认采用“URDF姿态静站→自起和低速运动→转弯/自旋→高速及组合变高”的依赖顺序。最初实现分支为`dev/leg-friction-v202-20261031`，2026-11-01整合至`dev/wheel-leg-unified`，正式任务仍为`WheelLeg-ProneMotion-v4`，默认策略100Hz、物理和反馈PD200Hz。普通启动使用全新actor、critic、空Adam的`learn(10000)`；用户授权的显式`--resume`仅恢复同一中断运行，并保留准入状态和原总预算，详见`docs/PRONE_MOTION_RESUME.md`。无teacher或donor，也不自动延长预算。此前只设自起门槛的v4合同保留为`contracts/wheel_leg_prone_motion_v4_recovery_20261031.json`；旧checkpoint继续使用其内嵌合同。
 
 ## 第一阶段和依赖
 

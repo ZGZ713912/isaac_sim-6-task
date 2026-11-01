@@ -129,11 +129,12 @@ def _configured(base, options):
             raise ValueError("Budget too short for distinct randomization stages")
     result["training_progression"] = (
         f"One continuous learn({result['max_updates']}) call; snapshots every "
-        f"{result['snapshot_interval']} complete updates. Manual checkpoint selection; no resume. "
+        f"{result['snapshot_interval']} complete updates. Fresh by default; explicit same-course --resume only. "
         "Curriculum update thresholds scale with this run's budget; acceptance limits do not change.")
     if result.get("global_curriculum") is not None:
         result["training_progression"] = (f"One fresh learn({result['max_updates']}); URDF nominal standing first; "
-            "cold per-skill/per-level admission, persistent replay and measured domain admission; no elapsed-update unlock or resume.")
+            "cold per-skill/per-level admission, persistent replay and measured domain admission; "
+            "no elapsed-update unlock; explicit same-course --resume preserves mastery and budget.")
     return result
 
 
@@ -163,7 +164,18 @@ def validate_resolved(plan):
     expected = _configured(base, record["options"])
     expected["runtime_cli"] = deepcopy(record)
     if plan != expected:
-        raise ValueError("Resolved run changed outside its declared CLI overrides")
+        # Historical runs describe the then-forbidden resume path in prose.
+        # Accept that exact wording without permitting any course migration.
+        legacy = deepcopy(expected)
+        legacy["training_progression"] = (
+            f"One continuous learn({expected['max_updates']}) call; snapshots every "
+            f"{expected['snapshot_interval']} complete updates. Manual checkpoint selection; no resume. "
+            "Curriculum update thresholds scale with this run's budget; acceptance limits do not change.")
+        if expected.get("global_curriculum") is not None:
+            legacy["training_progression"] = (f"One fresh learn({expected['max_updates']}); URDF nominal standing first; "
+                "cold per-skill/per-level admission, persistent replay and measured domain admission; no elapsed-update unlock or resume.")
+        if plan != legacy:
+            raise ValueError("Resolved run changed outside its declared CLI overrides")
     return deepcopy(plan)
 
 
@@ -182,8 +194,10 @@ def add_common(parser, *, training):
     parser.add_argument("--domain_randomization", "--domain-randomization", choices=("curriculum", "on", "off"),
                         default=None if training else "off")
     parser.add_argument("--dr_strength", "--dr-strength", type=float, default=None if training else 1.)
-    parser.add_argument("--performance_backend", "--performance-backend", choices=("cuda_graph", "eager"), default="cuda_graph")
-    parser.add_argument("--sampling-backend", "--sampling_backend", choices=("packed", "reference"), default="packed")
+    parser.add_argument("--performance_backend", "--performance-backend", choices=("cuda_graph", "eager"),
+                        default=None if training else "cuda_graph")
+    parser.add_argument("--sampling-backend", "--sampling_backend", choices=("packed", "reference"),
+                        default=None if training else "packed")
     parser.add_argument("--preflight-only", "--preflight_only", action="store_true", help="Validate configuration without Isaac or PPO")
     parser.add_argument("--print-output", action="store_true", help=argparse.SUPPRESS)
 
@@ -254,11 +268,19 @@ def training_options(args, root):
                       save_interval="snapshot_interval", learning_rate="learning_rate", num_steps_per_env="rollout_steps")
         for key in OPTION_KEYS:
             value = getattr(args, key)
-            expected = plan[fields[key]] if key in fields else plan["runtime_cli"]["options"][key]
+            expected = plan[fields[key]] if key in fields else plan["runtime_cli"]["options"].get(key)
+            if key == "physics_hz":
+                from .prone_motion import timing
+                expected = round(1./timing(plan)["physics_dt"])
+            elif key in ("position_iterations", "velocity_iterations"):
+                expected = plan.get("solver_iterations", {}).get(key, 64 if key == "position_iterations" else 32)
             if value is not None and value != expected:
                 raise ValueError(f"Resume preserves --{key}={expected}; refusing a changed course")
-        if args.performance_backend != bundle["options"]["performance_backend"]:
-            raise ValueError("Resume requires the original performance backend")
+        for key, default in (("performance_backend", "cuda_graph"), ("sampling_backend", "reference")):
+            expected = bundle["options"].get(key, default)
+            if getattr(args, key) is not None and getattr(args, key) != expected:
+                raise ValueError("Resume requires the original "+key)
+            setattr(args, key, expected)
         if output == bundle["path"].parent or output.is_relative_to(bundle["path"].parent):
             raise ValueError("Resume output must be separate from the original run")
     else:
@@ -268,4 +290,6 @@ def training_options(args, root):
         if options["dr_strength"] is None:
             options["dr_strength"] = 1.
         plan = resolve_plan(base, **options)
+        args.performance_backend = args.performance_backend or "cuda_graph"
+        args.sampling_backend = args.sampling_backend or "packed"
     return path, plan, output

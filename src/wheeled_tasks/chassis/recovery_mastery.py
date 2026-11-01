@@ -76,3 +76,20 @@ class RecoveryMastery:
     def state_dict(self):
         return dict(config=deepcopy(self.config),unlocked_at=self.unlocked_at,
             last_evaluated_update=self.last_evaluated_update,pass_streak=self.pass_streak,reviews=deepcopy(self.reviews))
+
+    def load_state_dict(self, state):
+        if not isinstance(state, dict) or set(state) != set(self.state_dict()) or state["config"] != self.config:
+            raise ValueError("Recovery mastery checkpoint and course disagree")
+        for name in ("unlocked_at", "last_evaluated_update"):
+            value = state[name]
+            if value is not None and (type(value) is not int or value < 0):
+                raise ValueError("Invalid recovery mastery clock: "+name)
+        if type(state["pass_streak"]) is not int or state["pass_streak"] < 0 or not isinstance(state["reviews"], list):
+            raise ValueError("Invalid recovery mastery history")
+        if state["unlocked_at"] is not None and (
+                state["last_evaluated_update"] is None or state["unlocked_at"] > state["last_evaluated_update"]):
+            raise ValueError("Recovery unlock is newer than its evaluation")
+        self.unlocked_at = state["unlocked_at"]
+        self.last_evaluated_update = state["last_evaluated_update"]
+        self.pass_streak = state["pass_streak"]
+        self.reviews = deepcopy(state["reviews"])

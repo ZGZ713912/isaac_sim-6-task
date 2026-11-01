@@ -100,7 +100,40 @@ def validate_checkpoint(state, bundle):
             raise ValueError("Checkpoint has nonfinite Adam values")
     if not all(key in info for key in ("torch_rng", "cuda_rng", "env_rng", "domain_rng")):
         raise ValueError("Checkpoint is missing saved RNG state")
+    restore_curriculum(state, bundle["plan"])
+    if bundle["plan"].get("multi_pose_recovery") is not None:
+        from wheeled_tasks.chassis.multi_pose_recovery import ResetSampler
+        ResetSampler.validate_state(info.get("recovery_sampler"))
+        if type(info.get("prone_reset_generation")) is not int or info["prone_reset_generation"] < 0:
+            raise ValueError("Checkpoint is missing the curriculum reset clock")
     return completed
+
+
+def restore_curriculum(state, plan):
+    """Restore admission before constructing any reset distribution or domain."""
+    info = state["infos"]
+    mastery = course = None
+    gate = plan.get("multi_pose_recovery", {}).get("mastery_gate")
+    if gate is not None:
+        from wheeled_tasks.chassis.recovery_mastery import RecoveryMastery
+        mastery = RecoveryMastery(gate)
+        mastery.load_state_dict(info.get("recovery_mastery"))
+        if any(clock is not None and clock > state["iter"]
+               for clock in (mastery.unlocked_at, mastery.last_evaluated_update)):
+            raise ValueError("Saved recovery mastery is newer than the checkpoint")
+    if plan.get("global_curriculum") is not None:
+        from wheeled_tasks.chassis.global_curriculum import GlobalCurriculum
+        course = GlobalCurriculum(plan, mastery)
+        course.load_state_dict(info.get("global_curriculum"))
+        if course.recovery.state_dict() != info["recovery_mastery"]:
+            raise ValueError("Saved global and recovery mastery disagree")
+        completed = state["iter"]
+        clocks = [course.domain_started_at, course.last_review, mastery.last_evaluated_update,
+                  mastery.unlocked_at, *course.skill_last_review.values()]
+        clocks.extend(row["completed_updates"] for row in course.reviews)
+        if any(clock is not None and clock > completed for clock in clocks):
+            raise ValueError("Saved curriculum is newer than the checkpoint")
+    return mastery, course
 
 
 def equal_state(left, right):
@@ -155,6 +188,11 @@ def restore_rng(state, env):
         random.setstate(info["python_rng"])
     if "numpy_rng" in info:
         np.random.set_state(info["numpy_rng"])
+    sampler = getattr(env, "recovery_sampler", None)
+    if sampler is not None:
+        sampler.load_state_dict(info["recovery_sampler"])
+        env.prone_reset_generation = info["prone_reset_generation"]
     return dict(torch=True, cuda=True, environment=True, domain=True,
                 python="python_rng" in info, numpy="numpy_rng" in info,
+                recovery_sampler=sampler is not None,
                 exact_physics_trajectory_replay=False)

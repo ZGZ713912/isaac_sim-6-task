@@ -133,6 +133,28 @@ class ResetSampler:
         if any(not p for p in self.pools.values()):
             raise ValueError("Cannot silently replace a missing recovery cell with standard prone")
 
+    def state_dict(self):
+        return dict(schema="wheel-leg-recovery-sampler-v1", rng=self.rng.getstate(),
+                    class_cursor=dict(self.class_cursor))
+
+    @staticmethod
+    def validate_state(state):
+        if (not isinstance(state, dict) or set(state) != {"schema", "rng", "class_cursor"}
+                or state["schema"] != "wheel-leg-recovery-sampler-v1"
+                or not isinstance(state["class_cursor"], dict)
+                or set(state["class_cursor"]) != set(FAMILIES)
+                or any(type(v) is not int or v < 0 for v in state["class_cursor"].values())):
+            raise ValueError("Invalid recovery sampler checkpoint")
+        try:
+            random.Random().setstate(state["rng"])
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid recovery sampler RNG") from exc
+
+    def load_state_dict(self, state):
+        self.validate_state(state)
+        self.rng.setstate(state["rng"])
+        self.class_cursor = dict(state["class_cursor"])
+
     def sample(self, completed):
         stages = self.config["curriculum"]
         if self.mastery is not None:

@@ -353,8 +353,10 @@ def main():
     if args.print_output:
         print(output)
         return
-    from wheeled_tasks.chassis.prone_motion import domain_stage, snapshot_name, target
-    from wheeled_algo.prone_motion_resume import metadata, authenticate_sources, validate_checkpoint, restore, restore_rng
+    from wheeled_tasks.chassis.prone_motion import domain_stage, snapshot_name
+    from wheeled_algo.prone_motion_resume import (
+        metadata, authenticate_sources, validate_checkpoint, restore, restore_rng, restore_curriculum,
+    )
     resume_bundle = metadata(args.resume) if args.resume is not None else None
     if args.stop_existing_009:
         if args.preflight_only:
@@ -441,6 +443,7 @@ def main():
                 raise ValueError("Resume checkpoint changed after provenance validation")
             resume_state = original_load(resume_bundle["path"], map_location="cpu", weights_only=False)
             start_updates = validate_checkpoint(resume_state, resume_bundle)
+            mastery, global_course = restore_curriculum(resume_state, plan)
             report.update(completed_updates=start_updates, optimizer_attempts=start_updates,
                 checkpoint_reads=[dict(path=str(resume_bundle["path"]), sha256=resume_bundle["sha256"],
                                        updates=start_updates, purpose="explicit_interrupted_run_resume")],
@@ -506,7 +509,7 @@ def main():
             print(f"[prone-motion] Native context ready: {profile}, strength={strength:g}, "
                   f"completed={report['completed_updates']}/{plan['max_updates']}", flush=True)
 
-        build(*(("nominal", 0.) if args.native_probe else domain_stage(plan, start_updates)))
+        build(*(("nominal", 0.) if args.native_probe else domain_stage(plan, start_updates, global_course)))
         if args.native_probe:
             reports = []
             report["native_probes"] = reports
@@ -550,12 +553,16 @@ def main():
         else:
             report["initialization"] = restore(runner, resume_state, resume_bundle)
             report["initialization"]["rng_restored"] = restore_rng(resume_state, env)
+            # Bootstrap resets happen while constructing the native scene.
+            # Begin the resumed episodes from the saved sampler/case rotation.
+            env.reset(torch.arange(env.num_envs, device=env.device))
+            report["initialization"]["reset_generation_after_reinitialization"] = env.prone_reset_generation
             report["resume"] = dict(checkpoint=str(resume_bundle["path"]), sha256=resume_bundle["sha256"],
                 start_updates=start_updates, remaining_updates=plan["max_updates"]-start_updates,
                 original_run_last_recorded_updates=resume_bundle["progress"].get("completed_updates"),
-                initial_domain=domain_stage(plan, start_updates), curriculum_restarted=False,
-                initial_targets={role: target(role, start_updates, plan)
-                                 for role in ("forward", "reverse", "spin_left", "height")})
+                initial_domain=domain_stage(plan, start_updates, global_course), curriculum_restarted=False,
+                recovery_mastery=mastery.state_dict() if mastery is not None else None,
+                global_curriculum=global_course.state_dict() if global_course is not None else None)
             base.write_json(output/"resume_verification.json", dict(initialization=report["initialization"],
                 resume=report["resume"], source_validation=resume_sources))
         base.write_json(output/"initialization.json", report["initialization"])
@@ -591,6 +598,8 @@ def main():
                 completed_updates=report["completed_updates"], bank_sha256=base.digest(output/"pose_bank.json"),
                 torch_rng=torch.get_rng_state(), cuda_rng=torch.cuda.get_rng_state_all(),
                 env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state(),
+                recovery_sampler=env.recovery_sampler.state_dict() if hasattr(env, "recovery_sampler") else None,
+                prone_reset_generation=env.prone_reset_generation,
                 python_rng=random.getstate(), numpy_rng=np.random.get_state()))
             temporary = path.with_suffix(path.suffix+".tmp")
             torch.save(state, temporary)

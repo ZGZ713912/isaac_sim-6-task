@@ -128,7 +128,7 @@ def test_actual_robust_physics_loop_clears_queued_torque_and_keeps_passive_losse
         .split('            if gap_quality is not None:',1)[0])
     control = 'tau = self.v5.motor_efforts(q, dq, legs, wheels)\n'+control
     effort_block = textwrap.dedent(source.split('            effort = torch.zeros_like(self.nominal)',1)[1]
-        .split('            effort[:, self.spring_ids]',1)[0])
+        .split('            effort[:, spring_ids]',1)[0])
     effort_block = 'effort = torch.zeros_like(self.nominal)\n'+effort_block
     request = torch.ones(2,6)
     env = SimpleNamespace(identified_wheels=plant, v5=SimpleNamespace(current_motor_bounds=torch.full((2,6),4.5),
@@ -137,7 +137,9 @@ def test_actual_robust_physics_loop_clears_queued_torque_and_keeps_passive_losse
         nominal=torch.zeros(2,6), ids=list(range(6)))
     dq = torch.zeros(2,6)
     dq[:,[2,5]] = torch.tensor([[20.,-20.],[20.,-20.]])
-    scope = dict(torch=torch,self=env,q=torch.zeros_like(dq),dq=dq,legs=None,wheels=None)
+    scope = dict(torch=torch,self=env,q=torch.zeros_like(dq),dq=dq,legs=None,wheels=None,
+        sample=torch.clone,motor_ids=env.ids,wheel_ids=[2,5],native_wheel_ids=[2,5],
+        leg_ids=[0,1,3,4],native_leg_ids=[0,1,3,4])
     observed = []
     for tick in range(10):
         env.v5.current_motor_bounds.fill_(4.5)

@@ -256,3 +256,55 @@ class GlobalCurriculum:
             complex_passed=self.complex_passed,belly=self.recovery.state_dict(),all_skills_mastered=self.all_mastered,
             last_review=self.last_review,domains_admitted=self.domains_admitted,domain_index=self.domain_index,
             domain_started_at=self.domain_started_at,domain_context=self.domain_context(),reviews=deepcopy(self.reviews))
+
+    def load_state_dict(self, state):
+        if (not isinstance(state, dict) or set(state) != set(self.state_dict())
+                or state["schema"] != "wheel-leg-global-mastery-state-v1"
+                or not isinstance(state["mastered_levels"], dict)
+                or not isinstance(state["pass_streaks"], list)
+                or not isinstance(state["reviews"], list)
+                or set(state["mastered_levels"]) != set(SKILLS)):
+            raise ValueError("Invalid global curriculum checkpoint")
+        candidate = deepcopy(self)
+        candidate.recovery.load_state_dict(state["belly"])
+        for skill, level in state["mastered_levels"].items():
+            if type(level) is not int or not 0 <= level <= len(self.config["skills"][skill]["levels"]):
+                raise ValueError("Invalid saved mastery level: "+skill)
+        candidate.levels = dict(state["mastered_levels"])
+        candidate.streak, candidate.skill_last_review = {}, {}
+        for row in state["pass_streaks"]:
+            if not isinstance(row, dict) or set(row) != {"skill", "level", "count", "last_update"}:
+                raise ValueError("Invalid saved curriculum review")
+            skill, level, count, last = (row[k] for k in ("skill", "level", "count", "last_update"))
+            limit = 1 if skill == "complex" else len(self.config["skills"].get(skill, {}).get("levels", []))
+            if (type(level) is not int or not 0 <= level < limit or type(count) is not int or count < 0
+                    or type(last) is not int or last < 0 or (skill, level) in candidate.streak):
+                raise ValueError("Invalid saved curriculum review")
+            candidate.streak[skill, level] = count
+            candidate.skill_last_review[skill, level] = last
+        for name in ("complex_passed", "domains_admitted", "all_skills_mastered"):
+            if type(state[name]) is not bool:
+                raise ValueError("Invalid saved curriculum flag: "+name)
+        for name in ("domain_index", "domain_started_at"):
+            if type(state[name]) is not int or state[name] < 0:
+                raise ValueError("Invalid saved domain clock: "+name)
+        if state["domain_index"] >= len(self.domain_sequence):
+            raise ValueError("Saved domain is outside the course")
+        last = state["last_review"]
+        if last is not None and (type(last) is not int or last < 0):
+            raise ValueError("Invalid saved global review clock")
+        candidate.complex_passed = state["complex_passed"]
+        candidate.domains_admitted = state["domains_admitted"]
+        candidate.domain_index = state["domain_index"]
+        candidate.domain_started_at = state["domain_started_at"]
+        candidate.last_review = last
+        candidate.reviews = deepcopy(state["reviews"])
+        if any(not isinstance(row, dict) or type(row.get("completed_updates")) is not int
+               or row["completed_updates"] < 0 for row in candidate.reviews):
+            raise ValueError("Invalid saved global review history")
+        if (candidate.all_mastered != state["all_skills_mastered"]
+                or tuple(candidate.domain_context()) != tuple(state["domain_context"])
+                or candidate.domains_admitted and not candidate.all_mastered):
+            raise ValueError("Saved domain and mastered skills disagree")
+        self.recovery.load_state_dict(state["belly"])
+        self.__dict__.update({k:v for k,v in candidate.__dict__.items() if k != "recovery"})

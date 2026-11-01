@@ -223,11 +223,14 @@ def test_only_zero_command_standing_gets_a_non_saturating_far_position_cost():
 def test_new_task_preserves_old_recipe_and_rejects_silent_observation_changes():
     old = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v3.json").read_text())
     legacy = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_standard_20261031.json").read_text())
+    historical = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_1000hz_20261101.json").read_text())
     for k in old:
         if k not in ("schema", "reference", "gas_spring_model", "gas_spring_feedforward", "wheel_model"):
             assert old[k] == legacy[k]
             if k not in ("evaluation","training_progression"):
-                assert legacy[k] == PLAN[k]
+                assert legacy[k] == historical[k]
+    assert PLAN["standing_odometry"] == historical["standing_odometry"]
+    assert PLAN["quiet_position_tail"] == historical["quiet_position_tail"]
     assert PLAN["wheel_model"]["source_model"] == old["wheel_model"]["model"]
     assert task.validate(PLAN) == PLAN
     for field in ("limit_m","validity_slot","geometry_table_sha256"):

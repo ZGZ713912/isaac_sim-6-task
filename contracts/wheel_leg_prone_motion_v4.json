@@ -13,7 +13,7 @@
     "task": "src/agent_tasks/direct/wheelbipe/wheelbipe_V14",
     "adopted": "Long training, additive objectives, persistent old-skill exposure; moving-gimbal yaw velocity and pitch position servos adapted for the full v2.0.2 vehicle. No teacher or copied gimbal policy ABI."
   },
-  "initialization": "Fresh fully trainable six-output actor, critic and empty Adam. No checkpoint, teacher, donor, resume or scripted motor targets.",
+  "initialization": "Fresh fully trainable six-output actor, critic and empty Adam by default. Explicit same-course interrupted-run --resume restores full learning and curriculum state within the original total budget. No teacher, donor or scripted motor targets.",
   "foundation_until_update": 1000,
   "speed_full_update": 6000,
   "spin_full_update": 7000,
@@ -254,7 +254,7 @@
     "file": "model/recovery_v202_20261031/pose_bank.json",
     "sha256": "785b0b16b5fadbed887e61598f3ab4caba9108fd63ed5291f67bb362202199a4"
   },
-  "full_vehicle_scope": "Full21-body21.44174kg vehicle,20 tree joints and6 loops. The authenticated leg friction, wheels, gas springs, closed chains, limits remain unchanged; low-level feedback is explicitly approximated at200Hz. One fresh10000-update v4 run begins with the literal URDF nominal standing pose and admits recovery/motion/combined-height levels by cold evaluation; persistent replay and gated domain progression, no resume.",
+  "full_vehicle_scope": "Full21-body21.44174kg vehicle,20 tree joints and6 loops. The authenticated leg friction, wheels, gas springs, closed chains, limits remain unchanged; low-level feedback is explicitly approximated at200Hz. A fresh10000-update v4 run begins with the literal URDF nominal standing pose and admits recovery/motion/combined-height levels by cold evaluation; persistent replay and gated domain progression. Explicit interrupted-run resume preserves all admission state and the original total budget.",
   "mechanical_inner_knee_range_deg": [
     40.0,
     110.0

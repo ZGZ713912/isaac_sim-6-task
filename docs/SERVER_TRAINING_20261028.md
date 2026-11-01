@@ -69,7 +69,7 @@ bash scripts/train_prone_motion.sh \
 ```
 
 训练仍在独立双域原生探针通过后才启动，解释器检测不代替原生或行为验证。
-如已有同名运行，保留旧目录并改 `--run_name`；不覆盖或续训。
+如已有同名运行，保留旧目录并改 `--run_name`；原输出不覆盖。显式恢复同一中断运行时使用 `--resume` 和新目录，限制见[中断恢复说明](PRONE_MOTION_RESUME.md)。
 
 ### 预装 `/isaac-sim` 的容器镜像
 
