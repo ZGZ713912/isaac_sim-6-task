@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import subprocess
 import shutil
+import signal
 import sys
 import time
 import traceback
@@ -32,7 +33,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pilot-receipt",type=Path,required=True)
     parser.add_argument("--output",type=Path,required=True)
-    parser.add_argument("--num-envs",type=int,default=1024)
+    parser.add_argument("--num-envs",type=int,default=512)
     parser.add_argument("--seed",type=int,default=109)
     parser.add_argument("--evaluation-steps",type=int,default=500)
     args = parser.parse_args()
@@ -83,6 +84,9 @@ def main():
     path = args.output/"campaign.json"
     write(path,status)
     process = None
+    def terminate(signum,frame):
+        raise KeyboardInterrupt("Campaign stop requested")
+    signal.signal(signal.SIGTERM,terminate)
 
     def run(stage,command,receipt=None):
         nonlocal process
@@ -173,6 +177,11 @@ def main():
     except BaseException as error:
         if process is not None and process.poll() is None:
             process.terminate()
+            try:
+                process.wait(timeout=5.)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
         status.update(status="failed",error=repr(error),traceback=traceback.format_exc())
         write(path,status)
         raise
