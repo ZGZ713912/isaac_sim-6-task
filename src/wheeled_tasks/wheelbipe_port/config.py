@@ -36,7 +36,7 @@ def configure(cfg):
             rigid_props=sim.RigidBodyPropertiesCfg(disable_gravity=False,linear_damping=0.,
                 angular_damping=0.,max_depenetration_velocity=1.),
             articulation_props=sim.ArticulationRootPropertiesCfg(enabled_self_collisions=False,
-                solver_position_iteration_count=64,solver_velocity_iteration_count=32)),
+                solver_position_iteration_count=12,solver_velocity_iteration_count=6)),
         init_state=ArticulationCfg.InitialStateCfg(pos=(0.,0.,.32),
             joint_pos={JOINT_ALIASES[n]:v for n,v in asset.manifest["nominal_joint_pos"].items()},
             joint_vel={".*":0.}),
@@ -73,7 +73,7 @@ def configure(cfg):
     cfg.scene.replicate_physics = False  # retain the six external constraints per clone
     cfg.sim.dt, cfg.decimation = .005, 4
     cfg.sim.physx.solver_type = 1
-    cfg.sim.physx.enable_external_forces_every_iteration = True
+    cfg.sim.physx.enable_external_forces_every_iteration = False
     cfg.play_wheel_material_debug = False
     cfg.play_wheel_motor_z_axis_align_debug = False
     cfg.debug_obs_alert_print_interval = 1000000

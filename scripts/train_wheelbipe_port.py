@@ -43,8 +43,9 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
-    parser.add_argument("--solver-position-iterations",type=int,default=64)
-    parser.add_argument("--solver-velocity-iterations",type=int,default=32)
+    parser.add_argument("--solver-position-iterations",type=int,default=12)
+    parser.add_argument("--solver-velocity-iterations",type=int,default=6)
+    parser.add_argument("--external-forces-every-iteration",action=argparse.BooleanOptionalAction,default=False)
     parser.add_argument("--physics-hz",type=int,choices=(200,500,1000),default=200,
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
@@ -98,6 +99,7 @@ def main():
         cfg.sim.dt,cfg.decimation = 1./args.physics_hz,args.physics_hz//50
         cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver_position_iterations
         cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver_velocity_iterations
+        cfg.sim.physx.enable_external_forces_every_iteration = args.external_forces_every_iteration
         cfg.seed = args.seed
         cfg.port_randomization_profile = args.randomization_profile
         cfg.port_randomization_strength = args.randomization_strength
