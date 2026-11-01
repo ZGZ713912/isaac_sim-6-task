@@ -110,6 +110,7 @@ def main():
             cfg.use_leg_random_start = False
             cfg.events.reset_base.params["pose_range"] = {}
             cfg.events.reset_base.params["velocity_range"] = {}
+            cfg.commands.special_modes = {}
         env = WheelbipePortEnv(cfg)
         wrapped = RslRlVecEnvWrapper(env)
         observations = wrapped.get_observations()
@@ -241,8 +242,9 @@ def main():
             rows = []
             for name,vx,wz,height in cases:
                 env.eval_command = (vx,wz,height)
-                wrapped.reset()
-                observations = wrapped.get_observations()
+                with torch.inference_mode():
+                    wrapped.reset()
+                    observations = wrapped.get_observations()
                 velocities,angular,heights,gaps = [],[],[],[]
                 reset_count = 0
                 for step in range(args.steps):
