@@ -68,8 +68,38 @@ engineering wiring only, not learned balance, self-righting or deployment.
 
 Kaiser has a separate relocated Sim 5.1 / Lab 2.3.2 / RSL-RL 3.0.1 runtime at
 `/home/kaiser/wheelbipe-sim51/env`; its existing Sim 6 runtime and TensorBoard
-service remain independent. Remote GPU preflight, small PPO, full training
-and final ONNX parity are pending.
+service remain independent.
+
+### Numerical integration study and PPO admission
+
+`reports/wheelbipe_port_20261101/numerical_study001.json` retains failed cases
+and hashes of the full Kaiser receipts. The imported 200 Hz integration
+cannot be admitted for this explicit, stiffer PD and CAD loop model: the
+32-environment GPU 64/32 case reached 23.899 mm; a same-budget CPU case
+reached 3.115 mm. Increasing solver iterations or restoring the original
+12/6 solver did not solve this. None of these failures started full PPO.
+
+At 50 Hz policy / 500 Hz physics, GPU native 32×300 policy steps passed with
+a 1.881 mm peak. Real PPO at 128 environments then reached 3.733 mm in its
+first update, so the requested full run was withheld. This also demonstrated
+why finite state or a low-amplitude random-action probe alone is inadequate.
+At 50 Hz policy / 1000 Hz physics, the 32×300 native probe reached 0.422 mm.
+The separate 128-environment, 30-update fresh GPU pilot now tests that clock,
+with the 3 mm bound checked during actual PPO. Solver settings are 64/32;
+external forces are integrated with the original Sim 5.1 default (`false`).
+Rendering stays at 50 Hz, independent of finer feedback/integration. No old
+checkpoint is migrated between clocks.
+
+The local two-environment/two-update CPU runner check started with empty
+Adam and changed all 9 actor/std and 8 critic tensors; Adam acquired 17
+states. Its diagnostic ONNX export passed 1024 random-input parity samples
+with maximum absolute error 2.98e-7. This tiny run verifies software wiring,
+not learned ability. Cold evaluation entry points also completed seven
+0.8-second cases; these are too short and too early for behavior acceptance.
+
+Status: native source/model binding, CPU PPO and diagnostic ONNX passed;
+Kaiser 1000 Hz small PPO is in progress. Full training and its final ONNX
+are not yet admitted or complete. Reference reward weights remain unchanged.
 
 CLI entry points are `scripts/train_wheelbipe_port.py` (preflight/train/evaluate)
 and `scripts/export_wheelbipe_port_onnx.py`. Output directories must be new;
