@@ -1,5 +1,6 @@
 """Bounded local performance/trajectory probe. Never creates or reads a policy."""
 import argparse
+from collections.abc import Mapping
 import cProfile
 import datetime
 import hashlib
@@ -144,7 +145,7 @@ try:
         def capture(prefix, value):
             if isinstance(value,torch.Tensor):
                 trace.setdefault(prefix,[]).append(value.detach().cpu().numpy().copy())
-            elif isinstance(value,dict):
+            elif isinstance(value,Mapping):
                 for k,v in value.items(): capture(prefix+'/'+str(k),v)
             elif isinstance(value,(float,int,bool)):
                 trace.setdefault(prefix,[]).append(np.asarray(value))
@@ -157,6 +158,9 @@ try:
             capture('root',env.robot.data.root_link_pose_w.torch)
             capture('joint',env.robot.data.joint_pos.torch)
             capture('command',env.commands)
+        if args.trace_steps and not {'obs/policy', 'obs/critic'}.issubset(trace):
+            raise RuntimeError('Native probe did not capture both policy and critic observations')
+        result['observation_trace_keys'] = sorted(k for k in trace if k.startswith('obs/'))
         result['rng_after_trace'] = rng_snapshot()
         result['trace_termination_events'] = int(np.stack(trace['done']).sum()) if args.trace_steps else 0
         np.savez_compressed(out/'trace.npz',**{'initial/'+k:v for k,v in initial.items()},
