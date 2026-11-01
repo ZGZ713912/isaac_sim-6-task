@@ -43,10 +43,14 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
+    parser.add_argument("--solver-position-iterations",type=int,default=64)
+    parser.add_argument("--solver-velocity-iterations",type=int,default=32)
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
     args = parser.parse_args()
     if args.num_envs<1 or args.iterations<1 or args.steps<1 or not 0.<=args.randomization_strength<=1.:
         parser.error("Invalid positive budget or randomization strength")
+    if not 1<=args.solver_position_iterations<=255 or not 0<=args.solver_velocity_iterations<=255:
+        parser.error("PhysX solver iterations must be within 1..255 positions / 0..255 velocities")
     if (args.mode=="evaluate") != (args.checkpoint is not None):
         parser.error("--checkpoint is required only for read-only evaluate mode")
     args.output = args.output.resolve()
@@ -88,6 +92,8 @@ def main():
         cfg = (WheelbipePortFlatCfg if args.task=="flat" else WheelbipePortRoughCfg)()
         cfg.scene.num_envs = args.num_envs
         cfg.sim.device = args.device
+        cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver_position_iterations
+        cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver_velocity_iterations
         cfg.seed = args.seed
         cfg.port_randomization_profile = args.randomization_profile
         cfg.port_randomization_strength = args.randomization_strength
