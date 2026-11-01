@@ -24,7 +24,7 @@ if [[ "$task_probe_only" == false || "$task_native_only" == true ]]; then
     task_output="$("$task_python" "$task_root/scripts/train_prone_motion.py" "$@" --print-output)"
     if [[ -e "$task_output" || ( "$task_native_only" == false && -e "${task_output}.native_probe" ) ]]; then
         echo "Output or native-probe directory already exists: $task_output" >&2
-        echo "Choose a new --run_name or --output. Existing runs are never overwritten or resumed." >&2
+        echo "Choose a new --run_name or --output. To continue a run, use --resume CHECKPOINT with a new output." >&2
         exit 2
     fi
 fi

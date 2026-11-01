@@ -180,8 +180,8 @@ def add_common(parser, *, training):
     parser.add_argument("--headless", action=argparse.BooleanOptionalAction, default=training,
                         help="Disable the viewer; --no-headless opens the viewer")
     parser.add_argument("--domain_randomization", "--domain-randomization", choices=("curriculum", "on", "off"),
-                        default="curriculum" if training else "off")
-    parser.add_argument("--dr_strength", "--dr-strength", type=float, default=1.)
+                        default=None if training else "off")
+    parser.add_argument("--dr_strength", "--dr-strength", type=float, default=None if training else 1.)
     parser.add_argument("--performance_backend", "--performance-backend", choices=("cuda_graph", "eager"), default="cuda_graph")
     parser.add_argument("--sampling-backend", "--sampling_backend", choices=("packed", "reference"), default="packed")
     parser.add_argument("--preflight-only", "--preflight_only", action="store_true", help="Validate configuration without Isaac or PPO")
@@ -189,8 +189,9 @@ def add_common(parser, *, training):
 
 
 def train_parser():
-    parser = argparse.ArgumentParser(description="Fresh wheel-leg RL: prone rise, quiet stand, +/-2m/s, spin and turning.")
+    parser = argparse.ArgumentParser(description="Wheel-leg RL; fresh by default, explicit same-course --resume after interruption.")
     add_common(parser, training=True)
+    parser.add_argument("--resume", type=Path, help="Resume a complete training .pt into a NEW output directory; preserve its original course and total budget")
     parser.add_argument("--max_iterations", "--max-iterations", "--updates", type=int)
     parser.add_argument("--save_interval", "--save-interval", type=int)
     parser.add_argument("--num_steps_per_env", "--num-steps-per-env", "--rollout-steps", type=int)
@@ -242,5 +243,29 @@ def training_options(args, root):
     base = json.loads(path.read_text())
     if base["schema"] != "wheel-leg-prone-motion-v"+args.task.rsplit("v", 1)[1]:
         raise ValueError("--task and --plan select different task versions")
-    plan = resolve_plan(base, **{key: getattr(args, key) for key in OPTION_KEYS})
-    return path, plan, output_path(args, root, training=True)
+    output = output_path(args, root, training=True)
+    if args.resume is not None:
+        from wheeled_algo.prone_motion_resume import metadata
+        bundle = metadata(args.resume)
+        plan = bundle["plan"]
+        if base != plan["runtime_cli"]["base_plan"] or args.task != bundle["options"]["task"]:
+            raise ValueError("Resume requires the original --task and unchanged base plan")
+        fields = dict(num_envs="num_envs", max_iterations="max_updates", seed="seed",
+                      save_interval="snapshot_interval", learning_rate="learning_rate", num_steps_per_env="rollout_steps")
+        for key in OPTION_KEYS:
+            value = getattr(args, key)
+            expected = plan[fields[key]] if key in fields else plan["runtime_cli"]["options"][key]
+            if value is not None and value != expected:
+                raise ValueError(f"Resume preserves --{key}={expected}; refusing a changed course")
+        if args.performance_backend != bundle["options"]["performance_backend"]:
+            raise ValueError("Resume requires the original performance backend")
+        if output == bundle["path"].parent or output.is_relative_to(bundle["path"].parent):
+            raise ValueError("Resume output must be separate from the original run")
+    else:
+        options = {key: getattr(args, key) for key in OPTION_KEYS}
+        if options["domain_randomization"] is None:
+            options["domain_randomization"] = "curriculum"
+        if options["dr_strength"] is None:
+            options["dr_strength"] = 1.
+        plan = resolve_plan(base, **options)
+    return path, plan, output

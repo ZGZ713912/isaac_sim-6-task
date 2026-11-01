@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fresh six-motor RL with explicit command-line run configuration."""
+"""Six-motor RL, fresh by default with explicit interrupted-course recovery."""
 from __future__ import annotations
 
 import argparse
@@ -218,6 +218,7 @@ def source_hashes(plan_path, plan):
              "tests/data/unified_dev_gas_reference.npz", "docs/WHEEL_LEG_UNIFIED_20261029.md",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
              "scripts/review_gas_spring_soft_range.py",
+             "tests/test_prone_motion_resume.py", "docs/PRONE_MOTION_RESUME.md",
              str(plan_path.relative_to(ROOT))]
     if "trend_extension" in plan["gas_spring_model"]:
         names.append(plan["gas_spring_model"]["trend_extension"]["file"])
@@ -352,7 +353,9 @@ def main():
     if args.print_output:
         print(output)
         return
-    from wheeled_tasks.chassis.prone_motion import domain_stage, snapshot_name
+    from wheeled_tasks.chassis.prone_motion import domain_stage, snapshot_name, target
+    from wheeled_algo.prone_motion_resume import metadata, authenticate_sources, validate_checkpoint, restore, restore_rng
+    resume_bundle = metadata(args.resume) if args.resume is not None else None
     if args.stop_existing_009:
         if args.preflight_only:
             parser.error("A CPU preflight must not signal an existing learner")
@@ -373,8 +376,10 @@ def main():
     cfg, settings, bank = configuration(output, plan, profile=initial_profile, strength=initial_strength,
         performance_backend=args.performance_backend, device=args.device, sampling_backend=args.sampling_backend)
     hashes = source_hashes(plan_path, plan)
+    resume_sources = authenticate_sources(resume_bundle, hashes, ROOT) if resume_bundle else None
     if args.preflight_only:
         base.write_json(output/"preflight.json", dict(source_hashes=hashes, checkpoint_reads=[], new_PPO=0,
+            resume_source_validation=resume_sources,
             run_options=run_options,
             max_updates=plan["max_updates"], rollout_slots=plan["max_updates"]*plan["num_envs"]*plan["rollout_steps"],
             training_origin=plan["initialization"], initialized_behavior_qualified=False))
@@ -389,6 +394,8 @@ def main():
         started_utc=datetime.now(timezone.utc).isoformat(), requested_updates=plan["max_updates"],
         completed_updates=0, optimizer_attempts=0, checkpoint_reads=[], contexts=[], cold_reviews=[],
         committed_source=committed, run_options=run_options, hardware_ready=False, full_capability_qualified=False)
+    resume_state = None
+    start_updates = 0
     stop_requested = False
     def request_stop(signum, frame):
         nonlocal stop_requested
@@ -429,6 +436,16 @@ def main():
         np.random.seed(plan["seed"])
         base.torch = torch
         original_load = torch.load
+        if resume_bundle is not None and not args.native_probe:
+            if base.digest(resume_bundle["path"]) != resume_bundle["sha256"]:
+                raise ValueError("Resume checkpoint changed after provenance validation")
+            resume_state = original_load(resume_bundle["path"], map_location="cpu", weights_only=False)
+            start_updates = validate_checkpoint(resume_state, resume_bundle)
+            report.update(completed_updates=start_updates, optimizer_attempts=start_updates,
+                checkpoint_reads=[dict(path=str(resume_bundle["path"]), sha256=resume_bundle["sha256"],
+                                       updates=start_updates, purpose="explicit_interrupted_run_resume")],
+                resume_source_validation=resume_sources)
+            base.write_json(output/"progress.json", report)
         def forbidden_load(*a, **kw):
             report["checkpoint_reads"].append(str(a[0] if a else kw.get("f")))
             raise RuntimeError("Checkpoint/teacher/donor loads are forbidden")
@@ -489,7 +506,7 @@ def main():
             print(f"[prone-motion] Native context ready: {profile}, strength={strength:g}, "
                   f"completed={report['completed_updates']}/{plan['max_updates']}", flush=True)
 
-        build(*(("nominal", 0.) if args.native_probe else domain_stage(plan, 0)))
+        build(*(("nominal", 0.) if args.native_probe else domain_stage(plan, start_updates)))
         if args.native_probe:
             reports = []
             report["native_probes"] = reports
@@ -528,7 +545,19 @@ def main():
         runner_cfg = learner_config(plan, args.device)
         base.write_json(output/"agent_config.json", runner_cfg)
         runner = OnPolicyRunner(env, runner_cfg, log_dir=str(output), device=args.device)
-        report["initialization"] = initialize_fresh(runner.alg, base.nominal_action(env), initial_std=plan["initial_std"])
+        if resume_state is None:
+            report["initialization"] = initialize_fresh(runner.alg, base.nominal_action(env), initial_std=plan["initial_std"])
+        else:
+            report["initialization"] = restore(runner, resume_state, resume_bundle)
+            report["initialization"]["rng_restored"] = restore_rng(resume_state, env)
+            report["resume"] = dict(checkpoint=str(resume_bundle["path"]), sha256=resume_bundle["sha256"],
+                start_updates=start_updates, remaining_updates=plan["max_updates"]-start_updates,
+                original_run_last_recorded_updates=resume_bundle["progress"].get("completed_updates"),
+                initial_domain=domain_stage(plan, start_updates), curriculum_restarted=False,
+                initial_targets={role: target(role, start_updates, plan)
+                                 for role in ("forward", "reverse", "spin_left", "height")})
+            base.write_json(output/"resume_verification.json", dict(initialization=report["initialization"],
+                resume=report["resume"], source_validation=resume_sources))
         base.write_json(output/"initialization.json", report["initialization"])
         original_actor = {k:v.detach().cpu().clone() for k,v in runner.alg.actor.named_parameters()}
         original_critic = {k:v.detach().cpu().clone() for k,v in runner.alg.critic.named_parameters()}
@@ -553,14 +582,16 @@ def main():
                     return
             state = runner.alg.save()
             state.update(iter=report["completed_updates"], infos=dict(schema="prone-motion-checkpoint-v1",
-                training_origin="scratch", continuation_forbidden=True, initialization=report["initialization"],
+                training_origin="scratch", continuation_forbidden=False, resume_requires_explicit_cli=True,
+                initialization=report["initialization"], resume=report.get("resume"),
                 source_revision=committed, source_hashes=hashes, configuration=str(active_directory),
                 resolved_plan=deepcopy(plan), run_options=run_options,
                 recovery_mastery=mastery.state_dict() if mastery is not None else None,
                 global_curriculum=global_course.state_dict() if global_course is not None else None,
                 completed_updates=report["completed_updates"], bank_sha256=base.digest(output/"pose_bank.json"),
                 torch_rng=torch.get_rng_state(), cuda_rng=torch.cuda.get_rng_state_all(),
-                env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state()))
+                env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state(),
+                python_rng=random.getstate(), numpy_rng=np.random.get_state()))
             temporary = path.with_suffix(path.suffix+".tmp")
             torch.save(state, temporary)
             temporary.replace(path)
@@ -581,7 +612,7 @@ def main():
                 base.write_json(active_directory/"native_startup.json", env.startup_report)
             if identity() != identities or not all(torch.isfinite(p).all() for m in (runner.alg.actor, runner.alg.critic) for p in m.parameters()):
                 raise RuntimeError("Learner identity or finite parameter guard failed")
-            if report["completed_updates"] == 1:
+            if report["completed_updates"] == start_updates+1:
                 audit.close()
                 result = audit.report()
                 result.update(actor_changed_parameter_tensors=sum(not torch.equal(original_actor[k], v.detach().cpu()) for k,v in runner.alg.actor.named_parameters()),
@@ -589,7 +620,10 @@ def main():
                 base.write_json(output/"first_update_audit.json", result)
                 if not (result["all_recorded_values_finite"] and result["committed_optimizer_calls"] == 12
                         and result["actor_changed_parameter_tensors"] and result["critic_changed_parameter_tensors"]):
-                    raise RuntimeError("First fresh PPO audit failed")
+                    raise RuntimeError("First PPO audit failed")
+                result.update(completed_updates=report["completed_updates"], start_updates=start_updates,
+                              resumed=resume_state is not None)
+                base.write_json(output/"first_update_audit.json", result)
                 audit = None
             env.actor_updates = report["completed_updates"]
             report.update(status="training", elapsed_s=time.monotonic()-start, valid_rollout=mask.metrics,
@@ -609,7 +643,7 @@ def main():
             return losses
 
         runner.save, runner.alg.update = save, update
-        save(output/"model_initial.pt")
+        save(output/(f"model_resumed_{start_updates:05d}.pt" if resume_state is not None else "model_initial.pt"))
         audit = NativePPOAudit(runner.alg)
 
         domain_switch = RolloutDomainSwitch(runner, completed=lambda: report["completed_updates"],
@@ -629,12 +663,14 @@ def main():
             raise base.TrainingStopped()
         report["execution"] = dict(mode=plan["execution"], learn_calls=1,
             requested_updates=plan["max_updates"], snapshot_interval=plan["snapshot_interval"],
+            start_updates=start_updates, remaining_updates=plan["max_updates"]-start_updates,
             intermediate_cold_reviews=mastery is not None, checkpoint_selection="manual after training")
         base.write_json(output/"progress.json", report)
-        print(f"[prone-motion] Starting one continuous learn({plan['max_updates']}); "
+        remaining_updates = plan["max_updates"]-start_updates
+        print(f"[prone-motion] Starting at {start_updates}/{plan['max_updates']}, learn({remaining_updates}); "
               f"snapshots every{plan['snapshot_interval']} COMPLETE updates; "
               f"automatic recovery admission={mastery is not None}; final review is manual.", flush=True)
-        runner.learn(plan["max_updates"], init_at_random_ep_len=False)
+        runner.learn(remaining_updates, init_at_random_ep_len=False)
         if report["completed_updates"] != plan["max_updates"] or identity() != identities:
             raise RuntimeError("Continuous training ended before its declared full-update budget")
         if global_course is not None:
