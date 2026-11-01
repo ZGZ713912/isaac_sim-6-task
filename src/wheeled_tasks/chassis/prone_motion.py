@@ -15,8 +15,11 @@ REFERENCE_LAMBDA = .9872585449014338
 def timing(plan):
     """Historical v1 stays 200Hz/128; v2 explicitly selects 100Hz/64."""
     from .control_contract import (FINE_POLICY_100_TIMING, FINE_POLICY_200_TIMING,
-                                   COARSE_POLICY_100_TIMING, COARSE_POLICY_100_SCOPE)
+                                   COARSE_POLICY_100_TIMING, COARSE_POLICY_100_SCOPE,
+                                   COARSE_POLICY_50_TIMING, COARSE_POLICY_50_SCOPE)
     if "simulation_timing_approximation" in plan:
+        if plan['schema'] != 'wheel-leg-prone-motion-v1' and plan['simulation_timing_approximation'] == COARSE_POLICY_50_SCOPE:
+            return dict(COARSE_POLICY_50_TIMING)
         if (plan["schema"] == "wheel-leg-prone-motion-v1"
                 or plan["simulation_timing_approximation"] != COARSE_POLICY_100_SCOPE):
             raise ValueError("Unknown prone-motion simulation timing approximation")

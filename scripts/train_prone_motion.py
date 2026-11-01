@@ -183,7 +183,10 @@ def learner_config(plan, device="cuda:0"):
     from wheeled_tasks.chassis.prone_motion import discounts
     result = agent_config(plan["seed"], device, plan["rollout_steps"], plan["learning_rate"],
                           normalize_observations=True)
-    result["actor"]["hidden_dims"] = result["critic"]["hidden_dims"] = [256, 128, 64]
+    ppo = plan.get('ppo',dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4))
+    result["actor"]["hidden_dims"] = list(ppo['hidden_dims'])
+    result["critic"]["hidden_dims"] = list(ppo['hidden_dims'])
+    result['algorithm'].update(num_learning_epochs=ppo['epochs'],num_mini_batches=ppo['mini_batches'])
     result["algorithm"]["entropy_coef"] = .001
     result["algorithm"].update(discounts(plan))
     result.update(max_iterations=plan["max_updates"], save_interval=plan["snapshot_interval"], experiment_name="prone_motion_long")
@@ -196,6 +199,7 @@ def source_hashes(plan_path, plan):
              "scripts/play_prone_motion.py", "scripts/play_prone_motion.sh", "tests/test_prone_motion_cli.py",
              "scripts/benchmark_prone_motion.py", "src/wheeled_tasks/chassis/prone_motion_sampling.py",
              "tests/test_prone_motion_sampling.py",
+             "tests/test_prone_motion_wheelbipe.py",
              "scripts/server_isaac_python.sh", "scripts/resolve_isaac_python.sh",
              "tests/test_prone_motion_python.py", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",

@@ -37,8 +37,14 @@ COARSE_POLICY_100_SCOPE = {
     "contact_resolution_ms": 5., "sub_5ms_contact_acceptance_verified": False}
 NEW_WHEEL_100_COARSE_CONTROL_ID = "new-wheel-1562-P05-policy100hz-pd200hz-20261101-v1"
 COARSE_POLICY_100_CONTROL_FILE = "contracts/wheel_leg_prone_motion_control_pd200hz_v1.json"
+COARSE_POLICY_50_TIMING = dict(COARSE_TIMING)
+COARSE_POLICY_50_SCOPE = {**COARSE_POLICY_100_SCOPE,
+    "model": "policy50hz_physics200hz_feedback_pd_fractional_delay_v1",
+    "fresh_feedback_per_policy_step": 4}
+NEW_WHEEL_50_COARSE_CONTROL_ID = "new-wheel-1562-P05-policy50hz-pd200hz-20261101-v1"
+COARSE_POLICY_50_CONTROL_FILE = "contracts/wheel_leg_prone_motion_control_policy50_pd200hz_v1.json"
 NEW_WHEEL_CONTROL_IDS = frozenset((NEW_WHEEL_CONTROL_ID, NEW_WHEEL_100_CONTROL_ID,
-                                  NEW_WHEEL_100_COARSE_CONTROL_ID))
+                                  NEW_WHEEL_100_COARSE_CONTROL_ID, NEW_WHEEL_50_COARSE_CONTROL_ID))
 
 
 def declared_wheel_velocity_p(control):
@@ -60,6 +66,8 @@ def declared_control_timing(control):
         return dict(POLICY_200_TIMING)
     if scope == COARSE_POLICY_100_SCOPE:
         return dict(COARSE_POLICY_100_TIMING)
+    if scope == COARSE_POLICY_50_SCOPE:
+        return dict(COARSE_POLICY_50_TIMING)
     raise ValueError("Unknown simulation motor-control timing approximation")
 
 
