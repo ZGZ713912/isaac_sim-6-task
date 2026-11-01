@@ -98,6 +98,7 @@ def main():
         cfg.scene.num_envs = args.num_envs
         cfg.sim.device = args.device
         cfg.sim.dt,cfg.decimation = 1./args.physics_hz,args.physics_hz//50
+        cfg.sim.render_interval = cfg.decimation
         cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver_position_iterations
         cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver_velocity_iterations
         cfg.sim.physx.enable_external_forces_every_iteration = args.external_forces_every_iteration
