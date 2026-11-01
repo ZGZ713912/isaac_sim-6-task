@@ -45,6 +45,8 @@ def main():
     parser.add_argument("--randomization-strength",type=float,default=1.)
     parser.add_argument("--solver-position-iterations",type=int,default=64)
     parser.add_argument("--solver-velocity-iterations",type=int,default=32)
+    parser.add_argument("--physics-hz",type=int,choices=(200,500,1000),default=200,
+        help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
     args = parser.parse_args()
     if args.num_envs<1 or args.iterations<1 or args.steps<1 or not 0.<=args.randomization_strength<=1.:
@@ -61,6 +63,7 @@ def main():
     path = args.output/"receipt.json"
     save(path,receipt)
     app = None
+    wrapped = None
     started = time.monotonic()
     try:
         from wheeled_tasks.wheelbipe_port.model import expose_source, BUNDLE, TABLE, ACTIVE, BODY_ALIASES, JOINT_ALIASES
@@ -92,6 +95,7 @@ def main():
         cfg = (WheelbipePortFlatCfg if args.task=="flat" else WheelbipePortRoughCfg)()
         cfg.scene.num_envs = args.num_envs
         cfg.sim.device = args.device
+        cfg.sim.dt,cfg.decimation = 1./args.physics_hz,args.physics_hz//50
         cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver_position_iterations
         cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver_velocity_iterations
         cfg.seed = args.seed
@@ -233,15 +237,19 @@ def main():
                 acceptance="diagnostic cold command cases; complete acceptance suite remains separate")
         receipt["elapsed_s"] = time.monotonic()-started
         save(path,receipt)
-        wrapped.close()
         print(json.dumps({k:v for k,v in receipt.items() if k not in ("native","arguments")},indent=2))
     except BaseException as exc:
         receipt.update(status="failed",error=repr(exc),traceback=traceback.format_exc(),elapsed_s=time.monotonic()-started)
         save(path,receipt)
         raise
     finally:
+        if wrapped is not None:
+            wrapped.close()
         if app is not None:
-            app.close()
+            # The documented immediate headless shutdown avoids importing the
+            # graphics-only Replicator path on WSL after all checkpoints,
+            # receipts and event writers have already been flushed.
+            app.close(skip_cleanup=args.headless)
 
 
 if __name__=="__main__":
