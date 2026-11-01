@@ -27,12 +27,14 @@ import train_scratch_standing as base
 
 
 def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None, seed=None,
-                  performance_backend="cuda_graph", device="cuda:0"):
+                  performance_backend="cuda_graph", device="cuda:0", sampling_backend="packed"):
     from wheeled_tasks.chassis.prone_motion import validate, timing, discounts
     plan = validate(plan)
     rates, discount = timing(plan), discounts(plan)
     if performance_backend not in ("eager","cuda_graph"):
         raise ValueError("Unknown prone-motion performance backend")
+    if sampling_backend not in ('reference', 'packed'):
+        raise ValueError('Unknown prone-motion sampling backend')
     output.mkdir(parents=True, exist_ok=True)
     full_vehicle = plan.get("full_vehicle")
     args = SimpleNamespace(output=output,
@@ -82,7 +84,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         cfg["dynamics_randomization"]["enabled_fraction"] = 1.
     cfg.update(episode_seconds=plan["training_prone_seconds"], record_diagnostics=True,
                curriculum="prone_motion_long_v1", learning_rate=plan["learning_rate"], entropy_coef=.001,
-               prone_motion_performance=performance_backend)
+               prone_motion_performance=performance_backend,
+               prone_motion_sampling_backend=sampling_backend)
     cfg["stages"][0].update(vx_max=plan["forward_speed_m_s"], yaw_max=plan["spin_target_rpm"]*math.tau/60.)
     cfg["policy_architecture"]["scope"] = f"Fresh actor35, critic{cfg['critic_dim']}, six fully trainable motor outputs"
     cfg["v5_control"]["action_clip"] = 16.
@@ -193,7 +196,8 @@ def source_hashes(plan_path, plan):
     result = base.sources()
     names = ["scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
              "scripts/play_prone_motion.py", "scripts/play_prone_motion.sh", "tests/test_prone_motion_cli.py",
-             "scripts/benchmark_prone_motion.py",
+             "scripts/benchmark_prone_motion.py", "src/wheeled_tasks/chassis/prone_motion_sampling.py",
+             "tests/test_prone_motion_sampling.py",
              "scripts/server_isaac_python.sh", "scripts/resolve_isaac_python.sh",
              "tests/test_prone_motion_python.py", "docs/SERVER_TRAINING_20261028.md",
              "tests/test_prone_motion.py", "docs/PRONE_MOTION_TRAINING_20261028.md",
@@ -360,13 +364,14 @@ def main():
     base.write_json(output/"curriculum_plan.resolved.json", plan)
     run_options = dict(argv=sys.argv[1:], task=args.task, output=str(output), run_name=args.run_name,
         device=args.device, headless=args.headless, performance_backend=args.performance_backend,
+        sampling_backend=args.sampling_backend,
         python_executable=sys.executable, python_prefix=sys.prefix,
         options=plan["runtime_cli"]["options"], base_plan=str(plan_path),
         resolved_plan_sha256=base.digest(output/"curriculum_plan.resolved.json"))
     base.write_json(output/"run_options.json", run_options)
     initial_profile, initial_strength = ("nominal", 0.) if args.native_probe else domain_stage(plan, 0)
     cfg, settings, bank = configuration(output, plan, profile=initial_profile, strength=initial_strength,
-        performance_backend=args.performance_backend, device=args.device)
+        performance_backend=args.performance_backend, device=args.device, sampling_backend=args.sampling_backend)
     hashes = source_hashes(plan_path, plan)
     if args.preflight_only:
         base.write_json(output/"preflight.json", dict(source_hashes=hashes, checkpoint_reads=[], new_PPO=0,
@@ -448,7 +453,7 @@ def main():
             active_directory.mkdir(parents=True, exist_ok=False)
             cfg, settings, _ = configuration(active_directory, plan, profile=profile, strength=strength,
                 evaluation=evaluation, num_envs=80 if args.native_probe else plan["num_envs"], seed=runtime_seed,
-                performance_backend=args.performance_backend, device=args.device)
+                performance_backend=args.performance_backend, device=args.device, sampling_backend=args.sampling_backend)
             manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
             env = ProneMotionEnv(cfg, manifest, load_chassis_control(ROOT/cfg["control_math_source"]), ROOT,
                 stage_name="speed", num_envs=cfg["target_num_envs"], device=args.device,recovery_mastery=mastery,
@@ -569,6 +574,11 @@ def main():
             losses = native_update()
             report["completed_updates"] += 1
             report["optimizer_update_in_flight"] = False
+            context = report["contexts"][-1]
+            if "runtime_substep_verification" not in context:
+                context["runtime_substep_verification"] = deepcopy(
+                    env.startup_report["control_timing"]["runtime_substep_verification"])
+                base.write_json(active_directory/"native_startup.json", env.startup_report)
             if identity() != identities or not all(torch.isfinite(p).all() for m in (runner.alg.actor, runner.alg.critic) for p in m.parameters()):
                 raise RuntimeError("Learner identity or finite parameter guard failed")
             if report["completed_updates"] == 1:

@@ -1,11 +1,13 @@
 """Bounded local performance/trajectory probe. Never creates or reads a policy."""
 import argparse
+from collections.abc import Mapping
 import cProfile
 import datetime
 import hashlib
 import inspect
 import json
 import os
+import pickle
 from pathlib import Path
 import pstats
 import random
@@ -16,7 +18,6 @@ import traceback
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
 parser.add_argument('--plan', type=Path, help='Explicit versioned plan; default is current v4')
-parser.add_argument('--physics-hz',type=int,choices=(200,1000))
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--steps', type=int, default=96)
 parser.add_argument('--warmup', type=int, default=16)
@@ -26,10 +27,13 @@ parser.add_argument('--profile', default='nominal')
 parser.add_argument('--strength', type=float, default=0.)
 parser.add_argument('--actor-updates', type=int, default=0)
 parser.add_argument('--num-envs', type=int, default=256)
+parser.add_argument('--physics-hz', type=int, choices=(200,1000))
+parser.add_argument('--seed', type=int)
 parser.add_argument('--position-iterations', type=int)
 parser.add_argument('--velocity-iterations', type=int)
 parser.add_argument('--global-initial',action='store_true',help='Use the actual mastery course initial all-standing reset')
 parser.add_argument('--backend',choices=('eager','cuda_graph'),default='cuda_graph')
+parser.add_argument('--sampling-backend',choices=('packed','reference'),default='packed')
 parser.add_argument('--instrument', action='store_true')
 parser.add_argument('--kit-threads', type=int, default=0)
 args = parser.parse_args()
@@ -47,7 +51,7 @@ plan_path = (args.plan or root/'contracts/wheel_leg_prone_motion_v4.json').resol
 plan = validate(json.loads(plan_path.read_text()))
 from wheeled_tasks.chassis.prone_motion_cli import resolve_plan
 plan = resolve_plan(plan, num_envs=args.num_envs, position_iterations=args.position_iterations,
-                    velocity_iterations=args.velocity_iterations, physics_hz=args.physics_hz)
+                    velocity_iterations=args.velocity_iterations, physics_hz=args.physics_hz, seed=args.seed)
 hashes = entry.source_hashes(plan_path, plan)
 result = dict(schema='local-prone-motion-performance-v1', status='starting', pid=os.getpid(),
     start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19]),
@@ -79,7 +83,7 @@ try:
         result['checkpoint_reads'].append(str(a[0] if a else kw.get('f')))
         raise RuntimeError('No checkpoint reads allowed in the performance probe')
     torch.load = forbidden
-    backend_kw = ({'performance_backend':args.backend}
+    backend_kw = ({'performance_backend':args.backend, 'sampling_backend':args.sampling_backend}
         if 'performance_backend' in inspect.signature(entry.configuration).parameters else {})
     cfg, settings, bank = entry.configuration(out/'config_context',plan,profile=args.profile,
         strength=args.strength,num_envs=args.num_envs,seed=seed,**backend_kw)
@@ -127,19 +131,38 @@ try:
                    'root':env.robot.data.root_link_pose_w.torch.cpu().numpy().copy(),
                    'joint':env.robot.data.joint_pos.torch.cpu().numpy().copy()}
         trace = {}
+        def rng_snapshot():
+            states = dict(python=random.getstate(), numpy=np.random.get_state(),
+                torch=torch.get_rng_state().numpy().tobytes(),
+                cuda=[state.cpu().numpy().tobytes() for state in torch.cuda.get_rng_state_all()],
+                environment=env.generator.get_state().cpu().numpy().tobytes(),
+                domain=env.domain.rng.get_state().cpu().numpy().tobytes())
+            if hasattr(env, 'recovery_sampler'):
+                states['recovery_sampler'] = env.recovery_sampler.rng.getstate()
+            return {name:hashlib.sha256(pickle.dumps(value, protocol=4)).hexdigest()
+                    for name,value in states.items()}
+        result['rng_before_trace'] = rng_snapshot()
         def capture(prefix, value):
             if isinstance(value,torch.Tensor):
                 trace.setdefault(prefix,[]).append(value.detach().cpu().numpy().copy())
-            elif isinstance(value,dict):
+            elif isinstance(value,Mapping):
                 for k,v in value.items(): capture(prefix+'/'+str(k),v)
+            elif isinstance(value,(float,int,bool)):
+                trace.setdefault(prefix,[]).append(np.asarray(value))
         for i in range(args.trace_steps):
             obs,reward,done,info = env.step(action)
             capture('obs',obs);capture('reward',reward);capture('done',done)
             capture('diag',info.get('diagnostics',{}))
+            capture('log',info.get('log',{}))
             capture('physical',getattr(env,'prone_motion_physical',{}))
             capture('root',env.robot.data.root_link_pose_w.torch)
             capture('joint',env.robot.data.joint_pos.torch)
             capture('command',env.commands)
+        if args.trace_steps and not {'obs/policy', 'obs/critic'}.issubset(trace):
+            raise RuntimeError('Native probe did not capture both policy and critic observations')
+        result['observation_trace_keys'] = sorted(k for k in trace if k.startswith('obs/'))
+        result['rng_after_trace'] = rng_snapshot()
+        result['trace_termination_events'] = int(np.stack(trace['done']).sum()) if args.trace_steps else 0
         np.savez_compressed(out/'trace.npz',**{'initial/'+k:v for k,v in initial.items()},
                             **{k:np.stack(v) for k,v in trace.items()})
         for _ in range(args.warmup): env.step(action)
@@ -183,6 +206,7 @@ try:
         prof = cProfile.Profile()
         prof.enable()
         for _ in range(args.profile_steps): env.step(action)
+        result['rng_at_end'] = rng_snapshot()
         torch.cuda.synchronize(); prof.disable()
         prof.dump_stats(str(out/'profile.pstats'))
         with (out/'profile.txt').open('w') as stream:

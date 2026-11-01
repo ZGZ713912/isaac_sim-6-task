@@ -183,6 +183,7 @@ def add_common(parser, *, training):
                         default="curriculum" if training else "off")
     parser.add_argument("--dr_strength", "--dr-strength", type=float, default=1.)
     parser.add_argument("--performance_backend", "--performance-backend", choices=("cuda_graph", "eager"), default="cuda_graph")
+    parser.add_argument("--sampling-backend", "--sampling_backend", choices=("packed", "reference"), default="packed")
     parser.add_argument("--preflight-only", "--preflight_only", action="store_true", help="Validate configuration without Isaac or PPO")
     parser.add_argument("--print-output", action="store_true", help=argparse.SUPPRESS)
 

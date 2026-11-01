@@ -181,7 +181,7 @@ class RobustGetupEnv(ChassisEnv):
             source="separate tiled flat patches for arbitrary reset heading")
 
     @torch.inference_mode()
-    def reset(self, ids):
+    def reset(self, ids, *, fixed_case_rows=None):
         super().reset(ids)
         if not self.unified_ready:
             return
@@ -189,7 +189,11 @@ class RobustGetupEnv(ChassisEnv):
         self.sequence_time[ids] = float("inf")
         self.push_selected[ids] = False
         chosen = torch.zeros(count, dtype=torch.long, device=self.device)
-        if self.fixed_cases is not None:
+        if self.fixed_cases is not None and getattr(self, 'sampling', None) is not None:
+            from .prone_motion_sampling import apply_fixed_cases
+            rows = fixed_case_rows if fixed_case_rows is not None else [self.fixed_cases[i] for i in ids.tolist()]
+            chosen = apply_fixed_cases(self, ids, rows)
+        elif self.fixed_cases is not None:
             for j, lane in enumerate(ids.cpu().tolist()):
                 case = self.fixed_cases[lane]
                 chosen[j] = case["pose_index"]
@@ -410,7 +414,17 @@ class RobustGetupEnv(ChassisEnv):
         prone_task = self.getup_cfg.get("standard_prone")
         tracking009 = self.getup_cfg.get("standing009_curriculum") is not None
         prone_motion = self.getup_cfg.get("prone_motion_task") is not None
-        physical_samples = [] if prone_motion else None
+        sampling = getattr(self, 'sampling', None)
+        physical_samples = (sampling.samples.begin() if sampling is not None else []) if prone_motion else None
+        sample = (lambda value: value) if sampling is not None else torch.clone
+        motor_ids = sampling.indices['motors'] if sampling is not None else self.ids
+        leg_ids = sampling.indices['legs'] if sampling is not None else list(self.v5.LEGS)
+        wheel_ids = sampling.indices['wheels'] if sampling is not None else [2, 5]
+        native_leg_ids = sampling.indices['native_legs'] if sampling is not None else [self.ids[i] for i in self.v5.LEGS]
+        native_wheel_ids = sampling.indices['native_wheels'] if sampling is not None else [self.ids[2], self.ids[5]]
+        spring_ids = sampling.indices['springs'] if sampling is not None else self.spring_ids
+        gimbal_ids = sampling.indices['gimbal'] if sampling is not None else getattr(self, 'gimbal_ids', [])
+        wheel_bodies = sampling.indices['wheel_bodies'] if sampling is not None else self.wheel_ids
         interval_request = self.goal_command.clone() if prone_motion else None
         active_interval = ~self.passive.clone()
         recovery_impact = getattr(self, "recovery_impact", None)
@@ -418,7 +432,7 @@ class RobustGetupEnv(ChassisEnv):
             recovery_impact.begin_interval()
         previous = self.actions.clone()
         self.previous_actions.copy_(self.actions)
-        q = self.robot.data.joint_pos.torch[:, self.ids]
+        q = self.robot.data.joint_pos.torch[:, motor_ids]
         legs, wheels, clipped = self.v5.decode(actions[:, CONTROL_FROM_POLICY], q)
         self.control_audit.targets_decoded()
         self.actions.copy_(clipped)
@@ -449,9 +463,10 @@ class RobustGetupEnv(ChassisEnv):
         self.push_force[:, 0, 1] = pushing * self.push_sign * self.getup_cfg["push_force_n"]
         self.push_torque[:, 0, 0] = (pushing * self.push_sign * self.getup_cfg["push_torque_nm"]
                                    * self.getup_cfg["push_torque_direction"])
+        has_push = bool(pushing.any())
         for _ in range(self.decimation):
-            q = self.robot.data.joint_pos.torch[:, self.ids]
-            dq = self.robot.data.joint_vel.torch[:, self.ids]
+            q = self.robot.data.joint_pos.torch[:, motor_ids]
+            dq = self.robot.data.joint_vel.torch[:, motor_ids]
             self.control_audit.feedback_control()
             tau = self.v5.motor_efforts(q, dq, legs, wheels)
             tau = self.actuator_response.apply_torque(tau)
@@ -460,13 +475,13 @@ class RobustGetupEnv(ChassisEnv):
             if self.identified_wheels.enabled:
                 # Disabled lanes cannot replay commands queued before disable.
                 self.identified_wheels.reset(self.passive | self.finished)
-                wheel_input = tau[:, [2, 5]].clone()
-                wheel_input_velocity = dq[:, [2, 5]].clone()
+                wheel_input = sample(tau[:, wheel_ids])
+                wheel_input_velocity = sample(dq[:, wheel_ids])
                 tau = self.identified_wheels.apply_torque(tau, dq)
                 tau[self.passive | self.finished] = 0.
-                self.v5.current_motor_bounds[:, [2, 5]] = self.identified_wheels.drive_bound
+                self.v5.current_motor_bounds[:, wheel_ids] = self.identified_wheels.drive_bound
             if gap_quality is not None:
-                leg_effort = tau[:, list(self.v5.LEGS)]
+                leg_effort = tau[:, leg_ids]
                 saturated = leg_effort.abs() >= 40.*gap_quality["saturation_fraction"]
                 self.gap_saturation_run = torch.where(saturated, self.gap_saturation_run+self.dt, 0.)
                 leg_saturation_run = torch.maximum(leg_saturation_run, self.gap_saturation_run.amax(-1))
@@ -474,28 +489,28 @@ class RobustGetupEnv(ChassisEnv):
                 leg_slew_square += (leg_effort-self.gap_last_effort).square().mean(-1)/self.decimation
                 self.gap_last_effort.copy_(leg_effort)
                 leg_effort_peak = torch.maximum(leg_effort_peak, leg_effort.abs().amax(-1))
-                leg_speed_peak = torch.maximum(leg_speed_peak, dq[:, list(self.v5.LEGS)].abs().amax(-1))
+                leg_speed_peak = torch.maximum(leg_speed_peak, dq[:, leg_ids].abs().amax(-1))
             motor_peak_passive = torch.maximum(motor_peak_passive, tau.abs().amax(-1) * self.passive)
             effort = torch.zeros_like(self.nominal)
-            effort[:, self.ids] = tau
+            effort[:, motor_ids] = tau
             if self.leg_friction.enabled:
                 # Friction remains passive while motor torque is disabled.
-                effort[:, [self.ids[i] for i in self.v5.LEGS]] += self.leg_friction.effort(
-                    dq[:, list(self.v5.LEGS)])
+                effort[:, native_leg_ids] += self.leg_friction.effort(
+                    dq[:, leg_ids])
             if self.identified_wheels.enabled:
                 # Dissipation remains physical while the motor is disabled.
-                effort[:, [self.ids[2], self.ids[5]]] += self.identified_wheels.passive_effort
-            effort[:, self.spring_ids] = self.v5.spring_efforts(self.robot.data.joint_pos.torch[:, self.spring_ids])
+                effort[:, native_wheel_ids] += self.identified_wheels.passive_effort
+            effort[:, spring_ids] = self.v5.spring_efforts(self.robot.data.joint_pos.torch[:, spring_ids])
             if prone_motion:
-                spring_compression = self.identified_spring.last_compression.clone()
-                spring_outside_identified = self.identified_spring.last_outside.clone()
-            if bool(pushing.any()):
+                spring_compression = sample(self.identified_spring.last_compression)
+                spring_outside_identified = sample(self.identified_spring.last_outside)
+            if has_push:
                 self.robot.instantaneous_wrench_composer.add_forces_and_torques_index(
                     forces=self.push_force, torques=self.push_torque, body_ids=self.push_body_ids, is_global=False)
             if self.gimbal is not None:
-                gimbal_feedback_q = self.robot.data.joint_pos.torch[:, self.gimbal_ids].clone()
-                gimbal_feedback_dq = self.robot.data.joint_vel.torch[:, self.gimbal_ids].clone()
-                effort[:, self.gimbal_ids] = self.gimbal.step(
+                gimbal_feedback_q = sample(self.robot.data.joint_pos.torch[:, gimbal_ids])
+                gimbal_feedback_dq = sample(self.robot.data.joint_vel.torch[:, gimbal_ids])
+                effort[:, gimbal_ids] = self.gimbal.step(
                     gimbal_feedback_q, gimbal_feedback_dq, ~(self.passive | self.finished))
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
@@ -510,17 +525,17 @@ class RobustGetupEnv(ChassisEnv):
             if upright_task is not None or prone_task is not None or tracking009 or prone_motion:
                 nonwheel_force_peak = torch.maximum(nonwheel_force_peak,
                     self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1))
-                upright_leg_speed_square += self.robot.data.joint_vel.torch[:, self.ids][
+                upright_leg_speed_square += self.robot.data.joint_vel.torch[:, motor_ids][
                     :, list(self.v5.LEGS)].square().mean(-1) / self.decimation
             if prone_task is not None or prone_motion:
                 belly_force_peak = torch.maximum(belly_force_peak,
                     self.contact_force[:, self.push_body_ids].norm(dim=-1).amax(-1))
             from .standing_support import wheel_bottom_clearance
-            wheel_pose = self.robot.data.body_link_pose_w.torch[:, self.wheel_ids]
+            wheel_pose = self.robot.data.body_link_pose_w.torch[:, wheel_bodies]
             wheel_clearance = wheel_bottom_clearance(self.wheel_centers(), wheel_pose[:, :, 3:], self.origins[:, 2:3])
             wheel_clearance_peak = torch.maximum(wheel_clearance_peak, wheel_clearance)
-            wheel_contact_fraction += (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).float() / self.decimation
-            dual_support_fraction += (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).all(-1).float() / self.decimation
+            wheel_contact_fraction += (self.contact_force[:, wheel_bodies].norm(dim=-1) > 2.).float() / self.decimation
+            dual_support_fraction += (self.contact_force[:, wheel_bodies].norm(dim=-1) > 2.).all(-1).float() / self.decimation
             geometric_air = wheel_clearance > .003
             self.wheel_air_run = torch.where(geometric_air, self.wheel_air_run + self.dt, 0.)
             self.dual_wheel_air_run = torch.where(geometric_air.all(-1), self.dual_wheel_air_run + self.dt, 0.)
@@ -529,32 +544,32 @@ class RobustGetupEnv(ChassisEnv):
             wheel_air_seconds += geometric_air * self.dt
             if prone_motion:
                 physical_samples.append(dict(
-                    motor_position=self.robot.data.joint_pos.torch[:, self.ids].clone(),
-                    motor_velocity=self.robot.data.joint_vel.torch[:, self.ids].clone(),
-                    motor_effort=tau.clone(),
-                    wheel_force=self.contact_force[:, self.wheel_ids].clone(),
-                    wheel_clearance=wheel_clearance.clone(),
+                    motor_position=sample(self.robot.data.joint_pos.torch[:, motor_ids]),
+                    motor_velocity=sample(self.robot.data.joint_vel.torch[:, motor_ids]),
+                    motor_effort=sample(tau),
+                    wheel_force=sample(self.contact_force[:, wheel_bodies]),
+                    wheel_clearance=sample(wheel_clearance),
                     spring_compression=spring_compression,
                     spring_outside_identified=spring_outside_identified,
-                    spring_force=effort[:, self.spring_ids].clone(),
+                    spring_force=sample(effort[:, spring_ids]),
                     wheel_input_effort=wheel_input,
                     wheel_input_velocity=wheel_input_velocity,
-                    wheel_drive_bound=self.identified_wheels.drive_bound.clone(),
-                    wheel_passive_effort=self.identified_wheels.passive_effort.clone(),
-                    wheel_net_effort=effort[:, [self.ids[2], self.ids[5]]].clone(),
-                    wheel_disabled=(self.passive | self.finished).clone(),
-                    **(dict(leg_friction_velocity=self.leg_friction.velocity.clone(),
-                        leg_friction_passive_effort=self.leg_friction.passive_effort.clone(),
-                        leg_net_effort=effort[:, [self.ids[i] for i in self.v5.LEGS]].clone(),
-                        leg_applied_effort=self.robot.data.applied_torque.torch[:,
-                            [self.ids[i] for i in self.v5.LEGS]].clone()) if self.leg_friction.enabled else {}),
+                    wheel_drive_bound=sample(self.identified_wheels.drive_bound),
+                    wheel_passive_effort=sample(self.identified_wheels.passive_effort),
+                    wheel_net_effort=sample(effort[:, native_wheel_ids]),
+                    wheel_disabled=sample(self.passive | self.finished),
+                    **(dict(leg_friction_velocity=sample(self.leg_friction.velocity),
+                        leg_friction_passive_effort=sample(self.leg_friction.passive_effort),
+                        leg_net_effort=sample(effort[:, native_leg_ids]),
+                        leg_applied_effort=sample(self.robot.data.applied_torque.torch[:,
+                            [self.ids[i] for i in self.v5.LEGS]])) if self.leg_friction.enabled else {}),
                     **(dict(gimbal_feedback_q=gimbal_feedback_q, gimbal_feedback_dq=gimbal_feedback_dq,
-                        gimbal_position=self.robot.data.joint_pos.torch[:, self.gimbal_ids].clone(),
-                        gimbal_velocity=self.robot.data.joint_vel.torch[:, self.gimbal_ids].clone(),
-                        gimbal_target=self.gimbal.target.clone(), gimbal_effort=effort[:, self.gimbal_ids].clone(),
-                        gimbal_applied_effort=self.robot.data.applied_torque.torch[:, self.gimbal_ids].clone())
+                        gimbal_position=sample(self.robot.data.joint_pos.torch[:, gimbal_ids]),
+                        gimbal_velocity=sample(self.robot.data.joint_vel.torch[:, gimbal_ids]),
+                        gimbal_target=sample(self.gimbal.target), gimbal_effort=sample(effort[:, gimbal_ids]),
+                        gimbal_applied_effort=sample(self.robot.data.applied_torque.torch[:, gimbal_ids]))
                         if self.gimbal is not None else {}),
-                    **{"spring_ff_"+key: value.clone() for key, value in self.spring_feedforward.last.items()}))
+                    **{"spring_ff_"+key: sample(value) for key, value in self.spring_feedforward.last.items()}))
             gap_peak = torch.maximum(gap_peak, self.closure_gap())
             body_force = self.contact_force.norm(dim=-1).amax(-1)
             impact_peak = torch.maximum(impact_peak, body_force)
@@ -564,8 +579,8 @@ class RobustGetupEnv(ChassisEnv):
             self.contact_impulse_history[self.impulse_cursor].copy_(body_force * self.dt)
             self.impulse_cursor = (self.impulse_cursor + 1) % len(self.contact_impulse_history)
             impulse_peak = torch.maximum(impulse_peak, self.contact_impulse_history.sum(0))
-            compression, _ = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids],
-                                                  self.robot.data.joint_vel.torch[:, self.spring_ids])
+            compression, _ = self.v5.spring_state(self.robot.data.joint_pos.torch[:, spring_ids],
+                                                  self.robot.data.joint_vel.torch[:, spring_ids])
             mechanical |= ((compression < -.001) | (compression > self.v5.stroke + .001)).any(-1)
             for name, index in zip(("L_joint2", "R_jonit2"), self.knee_ids):
                 lo, hi = self.knee_bounds[name]
@@ -579,7 +594,7 @@ class RobustGetupEnv(ChassisEnv):
         if not bool(torch.isfinite(torch.cat((velocity, omega, gravity, q, dq), -1)).all()):
             raise RuntimeError("Nonfinite unified recovery transition")
         elapsed = self.episode_length_buf * self.policy_dt
-        contact = self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.
+        contact = self.contact_force[:, wheel_bodies].norm(dim=-1) > 2.
         settled = (omega.norm(dim=-1) < .7) & (dq.abs().amax(-1) < 3.)
         self.passive_hold = torch.where(self.passive & settled, self.passive_hold + self.policy_dt, 0.)
         enable = self.passive & (elapsed >= self.getup_cfg["passive_min_seconds"]) & (
@@ -600,7 +615,7 @@ class RobustGetupEnv(ChassisEnv):
         if prone_task is not None:
             from .standard_prone import stable as prone_stable
             stable = prone_stable(gravity, height, omega, velocity, contact,
-                                  dq[:, list(self.v5.LEGS)], prone_task) & ~self.passive & (nonwheel_force_peak <= 2.)
+                                  dq[:, leg_ids], prone_task) & ~self.passive & (nonwheel_force_peak <= 2.)
         self.stable_hold = torch.where(stable, self.stable_hold + self.policy_dt, 0.)
         recovered = self.recovery_active & (self.stable_hold >= self.getup_cfg["stable_seconds"])
         if upright_task is not None:
@@ -673,9 +688,9 @@ class RobustGetupEnv(ChassisEnv):
         difference = self.actions - previous
         if self.getup_cfg.get("cyclic_leg_targets", False):
             from wheeled_algo.paired_recovery import wrap
-            difference[:, list(self.v5.LEGS)] = wrap(difference[:, list(self.v5.LEGS)] * .25) / .25
+            difference[:, leg_ids] = wrap(difference[:, leg_ids] * .25) / .25
         action_delta = difference.square().mean(-1)
-        leg_speed = dq[:, list(self.v5.LEGS)].square().mean(-1)
+        leg_speed = dq[:, leg_ids].square().mean(-1)
         quiet_cost = quiet * (self.getup_cfg["quiet_action_rate_cost"] * action_delta
             + self.getup_cfg["quiet_motor_speed_cost"] * leg_speed
             + self.getup_cfg["quiet_effort_delta_cost"] * effort_delta)
@@ -864,8 +879,8 @@ class RobustGetupEnv(ChassisEnv):
         if self.local_standing_odometry is not None:
             info["log"].update(self.local_standing_odometry.metrics())
         if self.gimbal is not None:
-            gq = self.robot.data.joint_pos.torch[:, self.gimbal_ids]
-            gdq = self.robot.data.joint_vel.torch[:, self.gimbal_ids]
+            gq = self.robot.data.joint_pos.torch[:, gimbal_ids]
+            gdq = self.robot.data.joint_vel.torch[:, gimbal_ids]
             info["log"].update({"Gimbal/yaw_speed_abs_mean_rad_s": gdq[:, 0].abs().mean(),
                 "Gimbal/pitch_mean_deg": torch.rad2deg(gq[:, 1]).mean(),
                 "Gimbal/pitch_min_deg": torch.rad2deg(gq[:, 1]).min(),
@@ -903,8 +918,8 @@ class RobustGetupEnv(ChassisEnv):
                 info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
                     belly_force_peak_n=belly_force_peak.clone(), action_delta=action_delta.clone(),
                     interval_requested_command=interval_request)
-                self.prone_motion_physical = {key: torch.stack([s[key] for s in physical_samples])
-                    for key in physical_samples[0]}
+                self.prone_motion_physical = (physical_samples.finish() if sampling is not None else
+                    {key: torch.stack([s[key] for s in physical_samples]) for key in physical_samples[0]})
                 info["log"].update(self.task_metrics(task_state, task_extra, reward, done, terminated))
             if prone_task is not None:
                 info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},

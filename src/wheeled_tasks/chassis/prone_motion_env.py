@@ -32,6 +32,22 @@ class ProneMotionEnv(RobustGetupEnv):
                 command=[0., 0., .305]) for _ in range(kwargs["num_envs"])]
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
+        from pxr import PhysxSchema
+        solver_rows = []
+        for prim in self.sim.stage.Traverse():
+            if (str(prim.GetPath()).startswith("/World/envs/env_")
+                    and prim.HasAPI(PhysxSchema.PhysxArticulationAPI)):
+                api = PhysxSchema.PhysxArticulationAPI(prim)
+                solver_rows.append([api.GetSolverPositionIterationCountAttr().Get(),
+                                    api.GetSolverVelocityIterationCountAttr().Get()])
+        solver_matches = len(solver_rows) == self.num_envs and all(
+            row == [self.cfg["position_iterations"], self.cfg["velocity_iterations"]] for row in solver_rows)
+        self.startup_report["solver_iterations"] = dict(
+            source="live_stage_PhysxArticulationAPI_attributes", articulation_count=len(solver_rows),
+            unique_iteration_counts=sorted({tuple(row) for row in solver_rows}),
+            all_match_requested=solver_matches)
+        if not solver_matches:
+            raise RuntimeError("Native articulation solver attributes differ from the selected iteration counts")
         self.prone_task = self.getup_cfg["prone_geometry"]
         self.multi_pose_cfg = self.plan.get("multi_pose_recovery")
         self.recovery_stages = self.recovery_impact = None
@@ -89,6 +105,14 @@ class ProneMotionEnv(RobustGetupEnv):
             from .global_curriculum import GlobalCurriculum
             self.global_curriculum = global_curriculum or GlobalCurriculum(self.plan,self.recovery_sampler.mastery)
             self._append_urdf_nominal_pose()
+        sampling_backend = self.cfg.get('prone_motion_sampling_backend', 'packed')
+        if sampling_backend not in ('reference', 'packed'):
+            raise ValueError('Unknown prone-motion sampling backend')
+        from .prone_motion_sampling import ProneMotionSampling
+        self.sampling = ProneMotionSampling(self) if sampling_backend == 'packed' else None
+        self.startup_report['sampling_backend'] = dict(name=sampling_backend,
+            physical_samples='complete, independent contiguous fields',
+            control_reward_termination_rng_changed=False)
         self.course_ready = True
         self.reset(torch.arange(self.num_envs, device=self.device))
         from .grounded_standing_reset import install
@@ -145,7 +169,8 @@ class ProneMotionEnv(RobustGetupEnv):
         if not self.course_ready:
             return super().reset(ids)
         cases = []
-        reset_ids = set(ids.tolist())
+        ids_cpu = ids.tolist()
+        reset_ids = set(ids_cpu)
         for i, role in enumerate(self.course_roles):
             # Standing births eventually cover all heights. Learning motion and
             # height transitions still start at305mm, so height error cannot
@@ -175,12 +200,17 @@ class ProneMotionEnv(RobustGetupEnv):
         self.course_cases = cases
         self.fixed_cases = cases
         try:
-            super().reset(ids)
+            if self.sampling is not None:
+                super().reset(ids, fixed_case_rows=[cases[i] for i in ids_cpu])
+            else:
+                super().reset(ids)
         finally:
             self.fixed_cases = cases if self.evaluation_cases is not None else None
-        for i in ids.tolist():
+        for i in ids_cpu:
             case = cases[i]
             self.course_roles[i] = case["role"]
+            if self.sampling is not None:
+                continue
             self.course_targets[i] = self.course_targets.new_tensor(case["target"])
             self.course_moving_height[i] = case.get("moving_height",False)
             self.course_abrupt_brake[i] = case.get("abrupt_brake",False)
@@ -188,18 +218,21 @@ class ProneMotionEnv(RobustGetupEnv):
                 self.plan["training_prone_seconds"] if case["recovery"] else
                 self.plan["standing_seconds"] if case["role"] == "stand" else self.plan["motion_seconds"])
             self.episode_limits[i] = round(duration/self.policy_dt)
+        if self.sampling is not None:
+            from .prone_motion_sampling import apply_course_cases
+            apply_course_cases(self, ids, [cases[i] for i in ids_cpu])
         root = self.robot.data.root_link_pose_w.torch[ids].clone()
         prone = self.recovery_lane[ids]
         if self.multi_pose_cfg is None:
             root[prone, 2] -= (self.poses[self.prone_index]["min_collision_clearance_m"]
                               - self.prone_task["reset_collision_clearance_m"])
-        angle = root.new_tensor([cases[i].get("pitch_deg", 0.) for i in ids.tolist()])*math.pi/180.
+        angle = root.new_tensor([cases[i].get("pitch_deg", 0.) for i in ids_cpu])*math.pi/180.
         x, y, z, w = root[:, 3:].unbind(-1)
         s, c = (angle/2.).sin(), (angle/2.).cos()
         root[:, 3:] = torch.stack((x*c-z*s, y*c+w*s, z*c+x*s, w*c-y*s), -1)
         if self.multi_pose_cfg is not None:
             heading = (self.random(len(ids))*2.-1.)*math.pi if self.evaluation_cases is None else root.new_tensor(
-                [cases[i].get("heading_rad", 0.) for i in ids.tolist()])
+                [cases[i].get("heading_rad", 0.) for i in ids_cpu])
             x,y,z,w = root[:, 3:].unbind(-1)
             s,c = (heading/2.).sin(), (heading/2.).cos()
             root[:, 3:] = torch.stack((c*x-s*y,s*x+c*y,c*z+s*w,c*w-s*z), -1)
@@ -207,13 +240,13 @@ class ProneMotionEnv(RobustGetupEnv):
         if self.multi_pose_cfg is not None:
             velocity = root.new_tensor([[*self.poses[cases[i]["pose_index"]].get("root_linear_velocity_body_m_s", [0.,0.,0.]),
                                          *self.poses[cases[i]["pose_index"]].get("root_angular_velocity_body_rad_s", [0.,0.,0.])]
-                                         for i in ids.tolist()]).reshape(len(ids),2,3)
+                                         for i in ids_cpu]).reshape(len(ids),2,3)
             xyz, w = root[:,None,3:6].expand_as(velocity), root[:,None,6:7]
             cross = torch.linalg.cross(xyz,velocity)
             velocity = velocity+2.*(w*cross+torch.linalg.cross(xyz,cross))
             self.robot.write_root_com_velocity_to_sim_index(root_velocity=velocity.reshape(len(ids),6), env_ids=ids)
             from .multi_pose_recovery import FAMILIES, LEG_CLASSES
-            info = [self.poses[cases[i]["pose_index"]].get("recovery", {}) for i in ids.tolist()]
+            info = [self.poses[cases[i]["pose_index"]].get("recovery", {}) for i in ids_cpu]
             family = torch.tensor([FAMILIES.index(r.get("family", "belly_down")) for r in info], device=self.device)
             leg = torch.tensor([LEG_CLASSES.index(r.get("leg_class", "rear_rear")) for r in info], device=self.device)
             self.recovery_stages.reset(ids, family, leg)
@@ -378,11 +411,19 @@ class ProneMotionEnv(RobustGetupEnv):
             for g,group in enumerate(GROUPS):
                 result[f"Recovery/impact/{group}/force_peak_n"] = extra["recovery_force_peak_n"][:,g].max()
                 result[f"Recovery/impact/{group}/window_impulse_peak_ns"] = extra["recovery_impulse_peak_ns"][:,g].max()
+            recovery_metrics = (self.sampling.recovery_metrics(self.recovery_lane,
+                extra['recovery_initial_family'], extra['recovery_initial_leg_class'], state['first'],
+                state['enable'], terminated, extra['recovery_active_seconds']) if self.sampling is not None else None)
             for f,family in enumerate(FAMILIES):
                 for l,cls in enumerate(LEG_CLASSES):
+                    prefix = f"Recovery/{family}/{cls}/"
+                    if recovery_metrics is not None:
+                        result.update({prefix+name: recovery_metrics[f*len(LEG_CLASSES)+l, j]
+                            for j,name in enumerate(('enabled_events_per_step', 'completed_events_per_step',
+                                'failure_events_per_step', 'active_completion_time_sum_s'))})
+                        continue
                     mask = (self.recovery_lane & (extra["recovery_initial_family"] == f)
                             & (extra["recovery_initial_leg_class"] == l))
-                    prefix = f"Recovery/{family}/{cls}/"
                     first = state["first"] & mask
                     result[prefix+"enabled_events_per_step"] = (mask & state["enable"]).float().sum()
                     result[prefix+"completed_events_per_step"] = first.float().sum()
@@ -418,6 +459,20 @@ class ProneMotionEnv(RobustGetupEnv):
             result[prefix+"motoring_derated_fraction"] = (physical["wheel_drive_bound"][:, :, index] < 4.5-1e-6).float().mean()
         for name, value in extra["task_reward_terms"].items():
             result["ProneMotion/reward_density_"+name] = value.mean()
+        if self.sampling is not None:
+            fields = dict(height_m=state['height'], vx_m_s=state['velocity'][:, 0],
+                yaw_rad_s=state['omega'][:, 2], commanded_vx_m_s=self.commands[:, 0],
+                commanded_yaw_rad_s=self.commands[:, 1], commanded_height_m=self.commands[:, 2],
+                tilt_deg=torch.rad2deg(torch.acos((-state['gravity'][:, 2]).clamp(-1., 1.))),
+                anchor_error_m=extra['course_anchor_error_m'], reward=reward)
+            means, outside, present = self.sampling.role_metrics(torch.stack(list(fields.values()), -1),
+                extra['role_index'], ~self.passive, physical['spring_outside_identified'])
+            for index, (role, has_samples) in enumerate(zip(task.ROLES, present.tolist())):
+                if has_samples:
+                    result.update({f'ProneMotion/{role}/{name}': means[index, j]
+                                   for j, name in enumerate(fields)})
+                    result[f'ProneMotion/{role}/spring_outside_identified_fraction'] = outside[index]
+            return result
         masks = [(extra["role_index"] == index) & ~self.passive for index in range(len(task.ROLES))]
         # Preserve which tags exist and the exact selected-value reductions.
         # One transfer replaces eleven data-dependent CUDA synchronizations.
