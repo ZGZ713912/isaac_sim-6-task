@@ -1,207 +1,147 @@
-# Wheelbipe V14.2 → wheel-leg v2.0.2
+# Wheelbipe V14 → 本车 v2.0.2 移植实验
 
-Branch: `dev/wheelbipe-v202-port`. Base: unified branch `6ba08234`.
-Reference: `third_party/wheelbipe/provenance.json`.
+当前分支：`dev/wheelbipe-v202-port`。独立工作树：
+`/home/noir/.codex/worktrees/wheelbipe-port/isaac_wheeled_rl_train`。
+主线工作树及已有训练没有被本实验替换。
 
-The requested experiment reuses Wheelbipe's latest ordinary V14.2 PPO
-training, with a new actor, critic and empty Adam. The small pilot and the
-20,000-update full run have separate output directories and seeds. A pilot
-checkpoint is never a donor for full training.
+## 当前结果（2026-11-02）
 
-## Port boundary
+修正后的 Kaiser GPU 小训完成 **512 环境 × 30 次 PPO 参数更新**，
+从全新 actor、critic、空 Adam 开始。逐物理步闭链误差峰值 **2.236 mm**，
+全部 17 个 actor/std/critic 张量变化，Adam 获得 17 个状态；
+14,400 个物理步中的控制和气簧调用次数与时钟一致。
+ONNX 对照 1,024 个输入，最大绝对误差 **7.153e-7**。
+证据：`reports/wheelbipe_port_20261101/kaiser_512_pilot_pass001.json`。
 
-Preserve the reference's environment, reward formulas, command schedules,
-35-dimensional actor contract, 24-step PPO rollout, ELU 256/128/64 networks,
-adaptive 1e-4 learning rate, and 50 Hz policy clock. The reference uses
-200 Hz physics; this port explicitly uses 1000 Hz after the numerical
-failures below. The main unified v4 defaults are unaffected.
+随后启动了独立的完整训练：**512 环境、seed 110、20,000 次更新**，
+保存间隔 500；没有从 seed 109 的小训恢复。在已封存的启动观察中，
+完整训练完成前 **50 次更新**，闭链误差累计峰值 **1.260 mm**。
+actor/critic/Adam 首更新检查及空优化器初始化通过，初始化 SHA 与小训不同。
+完整训练仍在进行，最终 ONNX 尚未生成。这些结果证明训练/导出工程链路，
+不能作为学会平衡、自起或实车合格的证据。
 
-Replace geometry, mass/COM/inertia, six loop constraints, reset IK, the
-40°–110° included-angle domain, measured 15.62 wheel response, DM moving
-friction and the measured gas-force/encoder-feedforward model. P/D stays
-160/2.5 and the spring scale stays one. Wheel software torque is 4.5 Nm;
-leg electrical torque is clipped to 40 Nm before adding physical loss.
-The two gimbal bodies retain their CAD mass with their joints fixed at zero;
-gimbal-only commands require a separately identified gimbal actuator.
+完整启动证据：
+`reports/wheelbipe_port_20261101/kaiser_corrected_full_launch001.json`。
+所有长期能力的逐项状态：
+`reports/wheelbipe_port_20261101/capability_status001.json`。
 
-## Execution and evidence
+## 源码与替换边界
 
-1. Authenticate the copied source and original v2.0.2 assets; check reset
-   kinematics and joint/body correspondence.
-2. Run native closed-chain, action, observation, finite-value, actuator and
-   checkpoint checks on Kaiser. Exercise both flat and rough entry points.
-3. Train a small fresh policy and verify actor/critic/Adam changes and
-   deterministic replay. A running script alone is insufficient.
-4. Only after these checks, run the reference's full 20,000 updates from
-   scratch, then export and numerically compare ONNX against the actor.
-5. Report all capabilities from `docs/WHEEL_LEG_ACCEPTANCE.md`, including
-   untested or failing ones. Software migration, learned behavior and hardware
-   acceptance are separate results.
+参考仓库为用户指定的 `example/wheeled-legged_RL`，开始移植时本地提交与
+远端 HEAD 同为 `0b62556b34977cc629fb5767e1cda9daa0d4bf36`。
+`third_party/wheelbipe/provenance.json` 对原始 187 个文件逐一认证；
+原文件保持不变。复用 V14 普通 PPO 的环境、奖励公式、命令/重置调度、
+课程和终止逻辑；平地入口继承 `WheelbipeV14FlatEnvCfg`，
+粗糙入口继承 `WheelbipeV14RoughEnvCfg`。本轮保持原奖励权重。
 
-Training metrics use RSL-RL TensorBoard events on Kaiser. Local 6007 is
-reserved; no local TensorBoard is started. This experiment has no hardware IO.
+算法沿用 RSL-RL 3.0.1 `OnPolicyRunner`：35D actor、78D critic、6D action，
+ELU 256/128/64，24 步 rollout，adaptive LR 初值 1e-4，entropy 0.005，
+value coefficient 4、gamma 0.99、lambda 0.95、5 epochs、4 minibatches。
+完整训练保留 20,000 个参数更新；环境数显式选择 512，适配 Kaiser 约
+16 GiB WSL 内存。这不等于声称与另一环境人口的实验具有相同样本数。
 
-## Implementation and current evidence
+本车适配代码位于 `src/wheeled_tasks/wheelbipe_port/`，替换：
 
-The original 187 source files remain byte-for-byte authenticated. The adapter
-uses the original ordinary `OnPolicyRunner` and PPO configuration, not our
-previous custom trainer. Eighteen joints and 21 bodies are exposed by a name
-correspondence without rotating a CAD axis. The original reset IK is replaced
-with a measured CAD lookup; 840 midpoint/rotation cases close all six loops
-within 1.33 micrometres. Three CPU tests additionally exercise independent
-left/right lengths, reversed native joint order and CAD collision support.
+- 完整 CAD 质量/COM/惯量、18 关节/21 刚体和每环境 6 个外部闭链约束。
+  关节/刚体仅作语义映射，不旋转或改写 CAD 轴。
+- 40°–110° 内角及实际复位 IK。840 个中点/转角审计的最大闭链误差
+  1.33 微米；左右腿可独立取长度与公共摆角。
+- 本车 PD 160/2.5、电气限矩腿 40 Nm/轮 4.5 Nm、15.62 轮端模型、
+  5.5/3.5 ms 轮响应、已识别腿库仑摩擦、气簧实际力及其编码器前馈。
+  物理摩擦/气簧与电机控制各执行一次，不重复加载原参考执行器。
+- v2 分组随机化：腿 P/D、气簧系数固定 1，独立惯量最终 ±6%，
+  固定 IMU 偏角及策略率白噪声；删除 IMU 晃动。延迟与力矩使用实际时钟。
+  PD 和策略编码器偏置独立，沿用该合同已声明的假设。
+- 两个云台刚体保留 CAD 质量，关节固定零位；移动云台专用命令关闭。
 
-The mirrored passive-knee reward coordinates and limits use the actual
-40°–110° CAD branch. The wheel-axis alignment reference uses our 0.1833 m
-hip offset. These are geometry substitutions; reference reward weights are
-still unchanged. All source actuator/spring/sensor randomizers are disabled
-and replaced once by the explicit v2 groups. The critic receives the actual
-160/2.5 feedback gains and calibrated delays, rather than zero-gain native
-effort actuators. Feedback PD, gas feedforward and physical spring force each
-execute once per physics tick (1 ms in the admitted GPU pilot).
+原参考策略/物理为 50/200 Hz。本实验策略保持 **50 Hz**，通过显式参数
+选择 **1000 Hz 物理及逐物理步反馈 PD**，solver 64/32，
+`enable_external_forces_every_iteration=false`。200/500/2000 Hz 的失败
+记录保留在下表，没有静默迁移旧 checkpoint；主线 v4 默认时钟未改。
 
-Initial local CPU native checks passed on flat (8 environments, 500 policy
-steps, 85 resets, policy-boundary loop peak 2.108 mm) and rough (4 environments,
-200 policy steps, 16 resets, policy-boundary peak 2.022 mm). Both used finite
-raw states and observations and bounded delivered electrical torque. These
-checks predate the final mirrored-knee substitution and per-physics-step peak
-monitor; the frozen candidate is rechecked before remote PPO. They establish
-engineering wiring only, not learned balance, self-righting or deployment.
+腿驱动仍没有已识别的完整扭矩–转速包络或附加转子惯量中心值；当前保持
+本车模型的零附加 armature、CAD 刚体惯量、40 Nm 帽与已识别库仑摩擦。
+气簧右侧对称、量测域外延伸仍是已声明假设。100 单位原生关节速度值是
+资产继承的数值护栏，不能解释为实测电机极限或实车速度包络。
 
-Kaiser has a separate relocated Sim 5.1 / Lab 2.3.2 / RSL-RL 3.0.1 runtime at
-`/home/kaiser/wheelbipe-sim51/env`; its existing Sim 6 runtime and TensorBoard
-service remain independent.
+## 排错与准入证据
 
-### Numerical integration study and PPO admission
+| 版本/检查 | 结果 | 处理 |
+|---|---|---|
+| 初期 200 Hz GPU 32 环境原生检查 | 闭链峰值 23.899 mm | 不准入完整 PPO |
+| 500 Hz GPU 32 环境原生检查 | 1.881 mm 通过，但 128 环境 PPO 首更新 3.733 mm | 保留失败，不用原生小检查替代 PPO |
+| 初期 1000 Hz、128 环境 PPO | 第 17 更新 6.094 mm | 修正复位碰撞穿透 |
+| 复位修正后 1000 Hz、128 环境 30 更新 | 1.601 mm，通过 ONNX parity | 仍继续检查完整人口 |
+| 同旧实现 512 环境完整 PPO | 第 13 更新 3.903 mm | 自动停止，完整失败回执保留 |
+| 2000 Hz、512 环境 PPO | 第 15 更新 8.605 mm | 更细步长单独不能准入 |
+| 修正 110° 目标与资产护栏后，1000 Hz、512 环境 30 更新 | 2.236 mm；ONNX 7.153e-7 | 当前小训准入版本 |
+| 同修正版、新 seed 完整 PPO | 前 50 更新峰值 1.260 mm | 持续逐物理步/更新检查 |
 
-`reports/wheelbipe_port_20261101/numerical_study001.json` retains failed cases
-and hashes of the full Kaiser receipts. The imported 200 Hz integration
-cannot be admitted for this explicit, stiffer PD and CAD loop model: the
-32-environment GPU 64/32 case reached 23.899 mm; a same-budget CPU case
-reached 3.115 mm. Increasing solver iterations or restoring the original
-12/6 solver did not solve this. None of these failures started full PPO.
+具体迁移修复包括：
 
-At 50 Hz policy / 500 Hz physics, GPU native 32×300 policy steps passed with
-a 1.881 mm peak. Real PPO at 128 environments then reached 3.733 mm in its
-first update, so the requested full run was withheld. This also demonstrated
-why finite state or a low-amplitude random-action probe alone is inadequate.
-At 50 Hz policy / 1000 Hz physics, the 32×300 native probe reached 0.422 mm.
-The first 128-environment GPU pilot at that clock failed at update 17 with
-a 6.094 mm loop peak. Its reset poses exposed a second migration difference:
-the reference root height placed our larger CAD collision geometry as much
-as 14.15 cm below the ground. Reset now raises the root only when necessary,
-using independently checked CAD collision support and 2 mm clearance. It
-preserves the sampled orientation, joint pose, velocities and positive drop
-height; there are no dynamic pose writes or relaxed loop limits. Even with
-this reset correction, the 200 Hz GPU probe failed at 16.546 mm.
+1. 原参考固定根高度会让本车某些合法长腿姿态的碰撞体穿地约 14 cm。
+   复位时依据 CAD FK 与保守碰撞支撑，仅对穿透姿态抬高根位置至至少
+   2 mm 余量；保留采样姿态、关节和速度，不在动态过程中写入姿态。
+2. 旧 `paired_branch107_v1` 常量仍将目标夹到 107° 分支。现在两侧目标
+   差角边界读取本车已认证气簧/CAD 几何，并保留成对公共最近绕数。
+3. 适配器任意指定的 300 单位原生关节速度护栏改为资产实际的 100；
+   没有把它宣称为新识别的电机参数。
+4. 本地静态地面代替需要联网获取的装饰 USD。Kaiser 图形依赖仅通过
+   本实验的库路径接入既有 sysroot，避免修改全局运行环境。
+5. 小训与完整训练比较全部 `src/` Python 依赖的 SHA-256，覆盖控制器、
+   气簧、轮响应和摩擦实现；源码、资产、重置、碰撞和地面哈希均受检查。
 
-The corrected, frozen `47968e5d` GPU pilot completed all 30 fresh PPO updates
-at 128 environments, with the 3 mm bound checked at every physics tick.
-Its maximum loop gap was 1.601 mm over 14,400 physics ticks (24 policy steps
-per update, 20 physics ticks per policy step), with finite policy tensors.
-All 9 actor/std and 8 critic tensors changed; Adam started empty and finished
-with 17 states. The training call took 425.865 seconds. Solver settings are 64/32;
-external forces are integrated with the original Sim 5.1 default (`false`).
-Rendering stays at 50 Hz, independent of finer feedback/integration. No old
-checkpoint is migrated between clocks.
+四个 CPU 几何/目标测试通过：
+`python -m pytest -q tests/test_wheelbipe_port_geometry.py`。
+原生检查还验证 35/78/6 维度、全部闭链、原始有限状态/观测/奖励、
+交付电气限矩及每物理步控制/气簧调用数。完整训练持续保留 3 mm 闭链上限，
+失败自动停止，不自动延长、恢复或把失败训练算作完成。
 
-The local two-environment/two-update CPU runner check started with empty
-Adam and changed all 9 actor/std and 8 critic tensors; Adam acquired 17
-states. Its diagnostic ONNX export passed 1024 random-input parity samples
-with maximum absolute error 2.98e-7. This tiny run verifies software wiring,
-not learned ability. Cold evaluation entry points also completed seven
-0.8-second cases; these are too short and too early for behavior acceptance.
+## 远端所有权与交付
 
-The GPU pilot ONNX passes 1024 random-input comparisons with maximum
-absolute error 9.5367e-7. Its checkpoint SHA-256 is
-`387017a0836baee582daab529f118ef925d3b4e985c54369244628c5fe0632b2`.
-The raw pilot and parity receipts are committed under
-`reports/wheelbipe_port_20261101/`. These establish genuine PPO and export
-wiring, not learned task capabilities. Reference reward weights are unchanged.
+冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/228b5a7b`。
+当前 tmux：`wheelbipe-geometry-guard-001`。
+当前完整目录：
+`/home/kaiser/workspace/wheelbipe-v202-port/runs/full_flat_512_20000_1000hz_seed110_004`。
+启动观察的 owner PID 862183、worker PID 865730 仅供历史定位；任何后续
+操作先重新核对身份。旧 `_002` 完整运行和 2 kHz 试验均已失败退出。
 
-### Full-run ownership and progress
+`run_wheelbipe_campaign.py` 顺序完成：粗糙预检 → 512 环境预检 →
+新 20,000 更新训练 → 严格完整预算 ONNX 导出/parity → 参数复制 →
+7 个冷启动指令诊断 → 逐项能力状态。当前粗糙检查 200 策略/4,000
+物理步峰值 0.455 mm，512 环境检查 100/2,000 步峰值 0.462 mm，均正常退出。
 
-`scripts/run_wheelbipe_campaign.py` authenticates the admitted pilot,
-implementation, collision geometry, ground plane, checkpoint and ONNX hashes.
-It runs rough-terrain and full-population preflights, then a separate fresh
-20,000-update flat run (512 environments, seed 109, save every 500 updates).
-Kaiser's WSL has approximately 16 GiB RAM, so environment count is explicit
-rather than inferred from the GPU's 24 GiB VRAM. The update budget and original
-PPO settings are preserved; this is not a claim of matching the sample count
-of an experiment with a different population.
+远端 TensorBoard 独立运行在 Kaiser 6008；
+[本机查看入口](http://127.0.0.1:6008/) 仅为 SSH 转发。
+既有 6006/6007 服务不动，本机不运行 TensorBoard。
+聊天后续检查 `wheelbipe-onnx` 每 30 分钟读取状态，每跨越 500 更新的新
+checkpoint 提交一份有限进度证据。训练结束后核对 checkpoint/ONNX SHA、
+20,000 更新及 parity，取回最终模型、合同、params 和结果，再停止该检查。
+普通进度保持安静，仅在关键完成、失败或需用户行动时通知。
 
-The campaign exports the completed final checkpoint to ONNX, checks parity,
-copies preprocessing parameters, runs seven cold nominal command diagnostics
-and writes all 13 permanent capability statuses. Any physical, optimizer,
-source-hash or export failure stops the campaign. It never silently resumes
-or extends a failed training run. A process lock prevents a duplicate owner.
+ONNX 输入顺序、缩放、6 动作顺序与控制后处理见导出的 `contract.json`
+及 `params/env.yaml`。虽然 actor 同为 35D，其布局与现有 ProneMotion-v4
+不同；本轮没有替换 RMCS 策略或实际驱动硬件。当前可取回的小训 ONNX
+只是工程诊断产物，不能标为完整训练模型。
 
-Current owner source is `b5337fb9`, identical to the admitted pilot's core.
-The first rough preflight stalled before stepping because of missing
-`libGLU.so.1`; it was stopped and its failure retained. A new independent
-output directory, `full_flat_512_20000_1000hz_seed109_002`, uses the existing
-Kaiser sysroot in this experiment's library path. No global runtime or other
-training service was modified. The rough GPU preflight completed 200 policy /
-4,000 physics steps with a 0.455 mm peak. The 512-environment preflight
-completed 100 policy / 2,000 physics steps with a 0.490 mm peak. Both exited
-normally. The subsequent fresh full run has completed its first 10 updates
-(4,800 physics ticks), with a 1.271 mm cumulative loop peak. All 17
-actor/std/critic tensors changed in the first update and Adam gained 17
-states. Its initialization SHA differs from the pilot. The full ONNX is
-pending completion of all 20,000 updates.
+## 全部长期能力状态
 
-`reports/wheelbipe_port_20261101/kaiser_full_launch001.json` freezes the
-observed receipts and their SHA-256, owner PID 854206, worker PID 855685,
-the exact command/source, and TensorBoard scalar evidence. PIDs are historical
-locators, not permission to signal a future process with the same number.
-The independent training owner is in tmux `wheelbipe-full-002`.
+| 能力 | 当前结论 |
+|---|---|
+| 多初态自起并接续任务 | 未验收 |
+| 运动中翻倒自起并恢复请求 | 未验收 |
+| 低/中/高静站、接地与真实 XY 漂移 | 未验收 |
+| 前后低速直线 | 未验收 |
+| 前后高速直线 | 未验收 |
+| 双向原地自旋目标 100 rpm、最低 80 rpm | 未验收 |
+| 前后左右四方向圆弧及切换 | 未验收 |
+| 静止变高 | 未验收 |
+| 行进/转弯变高 | 未验收 |
+| 双向自旋变高 | 未验收 |
+| 高速前后急停 | 未验收 |
+| 全任务平顺、接触与实测关节速度 | 未验收 |
+| 留出参数/噪声/时序/摩擦/种子/扰动鲁棒性 | 未验收 |
 
-Subsequent result: this full-scale run stopped at update 13 with a 3.903 mm
-loop peak. Its complete failure receipt is retained in
-`reports/wheelbipe_port_20261101/kaiser_full_scale_negative001.json`.
-The peak lane was 1.18 seconds into an episode, with root angular velocity
-approximately 113 rad/s and one active leg velocity approximately 198 rad/s.
-This is not an initial ground-penetration event or evidence of learned
-behavior. The owner and worker both exited, and no full ONNX was exported.
-The previous 30-update/128-environment pilot therefore does not establish
-full-population numerical admission. An explicit 2000 Hz integration study
-now tests the same 512-environment PPO exposure, without adding armature,
-changing reward weights, reducing physical torque/PD or relaxing the 3 mm
-bound. Running joint and body angular-speed diagnostics join TensorBoard.
-
-The 2000 Hz/512-environment pilot also failed, at update 15 (8.605 mm),
-so finer integration alone is not an admission. Its peak lane had approximately
-282 rad/s in a passive joint; the running joint peak reached 305 rad/s.
-`kaiser_2000hz_negative001.json` retains the source, failed geometry/state
-and original receipt hash. This run did not proceed to the full campaign.
-
-Further source inspection found two adapter omissions. The inherited
-`paired_branch107_v1` helper still clipped targets to an old 107-degree
-branch although the reset/physical/force model used 110 degrees. The port now
-constructs both signed target bounds from the authenticated per-side gas/CAD
-geometry, and a regression case verifies that the real 110-degree edge is
-preserved. Also, the adapter's arbitrary 300-unit native velocity guard now
-uses each joint's authored asset value (100). This is an inherited solver
-guard, not a newly identified motor speed or a behavior qualification.
-All Python dependencies under `src/` now join the pilot/full implementation
-hash comparison, including the controller, gas, wheel and friction code.
-Four CPU geometry/target tests pass. A new fresh 512-environment/1000 Hz
-pilot checks the corrected candidate before another full campaign; old pilot
-hashes cannot admit the changed implementation.
-
-Remote TensorBoard uses a separate service on port 6008. Local
-`http://127.0.0.1:6008/` is only an SSH forward; existing 6006/6007 services
-are untouched. The training owner and TensorBoard have independent lifetimes.
-All 13 permanent capabilities remain unqualified until measured with their
-full acceptance protocols; see the committed capability-status report.
-
-The chat follow-up `wheelbipe-onnx` checks every 30 minutes, commits progress
-at new 500-update checkpoint milestones, retrieves and verifies final outputs,
-and stops after final delivery. It stays quiet during ordinary progress.
-The remote training/export owner continues independently of that follow-up.
-
-CLI entry points are `scripts/train_wheelbipe_port.py` (preflight/train/evaluate)
-and `scripts/export_wheelbipe_port_onnx.py`. Output directories must be new;
-training rejects `--checkpoint`. A final export requires a completed
-20,000-update receipt and matching checkpoint hash. Diagnostic pilot exports
-must explicitly use `--allow-pilot`.
+验收仍以 `contracts/wheel_leg_acceptance_requirements_v2.json` 为准。
+接地统计从实际自起完成后的站立段开始，单次连续 ≤2 ms 失载保留原始
+诊断但不单独判失败；不能由接触力 ≤2 N 直接推断明显离地。
