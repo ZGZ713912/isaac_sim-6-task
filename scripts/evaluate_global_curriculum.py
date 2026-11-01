@@ -133,6 +133,7 @@ def evaluate_skill(env, actor, course, skill, level, *, stop_requested=lambda:Fa
         arrays = {k:np.stack(v) for k,v in trace.items()}
         rows = assess_trace(arrays,cases,initial,course.config["limits"],env.policy_dt,horizon)
         return dict(cases=rows,definitions=cases,initial_xy=initial.tolist(),scope="curriculum_admission_only",
+            physics_dt_s=env.dt, contact_tolerance_resolved=env.dt*1000. <= course.config["limits"]["geometric_air_run_ms"],
                     new_PPO=0,policy_steps=len(arrays["time"])),arrays
     finally:
         env.evaluation_cases,env.fixed_cases,env.course_roles = old_cases,old_fixed,old_roles

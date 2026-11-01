@@ -99,7 +99,7 @@ class RobustGetupEnv(ChassisEnv):
             self.startup_report["standing_odometry"] = dict(settings["standing_odometry"])
         if self.dynamics_randomization is not None:
             self.domain.enabled.copy_(self.dynamics_randomization.enabled)
-        self.getup_feedback = GetupFeedback(n, device, self.domain.enabled, settings, self.domain.rng)
+        self.getup_feedback = GetupFeedback(n, device, self.domain.enabled, settings, self.domain.rng, dt=self.dt)
         self.paired_feedback_enabled = torch.full((n, 1), settings.get("paired_feedback_winding", False),
                                                   device=device, dtype=torch.bool)
         native_efforts = self.v5.motor_efforts
@@ -405,6 +405,7 @@ class RobustGetupEnv(ChassisEnv):
 
     @torch.inference_mode()
     def step(self, actions):
+        self.control_audit.begin_policy()
         upright_task = self.getup_cfg.get("upright_locomotion")
         prone_task = self.getup_cfg.get("standard_prone")
         tracking009 = self.getup_cfg.get("standing009_curriculum") is not None
@@ -419,6 +420,7 @@ class RobustGetupEnv(ChassisEnv):
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, self.ids]
         legs, wheels, clipped = self.v5.decode(actions[:, CONTROL_FROM_POLICY], q)
+        self.control_audit.targets_decoded()
         self.actions.copy_(clipped)
         gap_peak = torch.zeros(self.num_envs, device=self.device)
         impact_peak = torch.zeros_like(gap_peak)
@@ -450,6 +452,7 @@ class RobustGetupEnv(ChassisEnv):
         for _ in range(self.decimation):
             q = self.robot.data.joint_pos.torch[:, self.ids]
             dq = self.robot.data.joint_vel.torch[:, self.ids]
+            self.control_audit.feedback_control()
             tau = self.v5.motor_efforts(q, dq, legs, wheels)
             tau = self.actuator_response.apply_torque(tau)
             tau.clamp_(min=-self.v5.current_motor_bounds, max=self.v5.current_motor_bounds)
@@ -498,6 +501,7 @@ class RobustGetupEnv(ChassisEnv):
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
             update_robot_data(self, self.dt)
+            self.control_audit.physics_updated(self.dt)
             for ids, view in self.contact_views:
                 matrix = wp.to_torch(view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
@@ -567,6 +571,7 @@ class RobustGetupEnv(ChassisEnv):
                 lo, hi = self.knee_bounds[name]
                 joint = self.robot.data.joint_pos.torch[:, index]
                 mechanical |= (joint < lo - .03) | (joint > hi + .03)
+        self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
         self.tick += 1
         self.episode_length_buf += 1
         velocity, omega, gravity, height, q, dq, local = self.state()

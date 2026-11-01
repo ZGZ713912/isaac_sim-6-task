@@ -73,14 +73,14 @@
       "sha256": "01d52214771bb9dea2cb592eff4dc6fbd27bb096faa90ff1e17b5d898a1e877c"
     },
     "control": {
-      "file": "contracts/wheel_leg_prone_motion_control_100hz_v1.json",
-      "sha256": "679f972b201ed639e28fa9b8babbd3fecd3fc2fc3206bfc3ca973558a6033ed7"
+      "file": "contracts/wheel_leg_prone_motion_control_policy100_pd200_v1.json",
+      "sha256": "b27f37e039d50eebc906737b8da617f643db094f608e6badbf94fa3d3c1fe7f8"
     },
     "evidence": {
       "file": "model/wheel_identified_1562_20261028/evidence.json",
       "sha256": "a19357979636190be8f923e680c769714b31c3b7732109a00017c787e9d23abd"
     },
-    "scope": "Independent measured 15.62/24V left/right output axes, P0.5. Aggregate I/O delay once; existing v2 policy-observation age remains additional uncertainty. Shared body/armature inertia draw; no added randomization range. Loaded high-speed torque remains a prior. The100Hz control derives only identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten.",
+    "scope": "Independent measured 15.62/24V left/right output axes, P0.5. Aggregate I/O delay once; existing v2 policy-observation age remains additional uncertainty. Shared body/armature inertia draw; no added randomization range. Loaded high-speed torque remains a prior. The100Hz control derives only identity and timing from the hash-bound recorded200Hz control; no dynamics or actuator evidence is rewritten. Physics and feedback PD200Hz is an explicit task approximation; original measured actuator evidence remains frozen.",
     "recorded_control": {
       "file": "model/wheel_identified_1562_20261028/control.json",
       "sha256": "38c94b9040bf8acfa1bc97fb2f5420dd2259e2cba8a62561bd12c59397362b2d"
@@ -183,17 +183,17 @@
   },
   "hardware_ready": false,
   "timing": {
-    "physics_dt": 0.001,
+    "physics_dt": 0.005,
     "policy_dt": 0.01,
-    "pc_control_dt": 0.001,
-    "decimation": 10
+    "pc_control_dt": 0.005,
+    "decimation": 2
   },
   "discounts": {
     "gamma": 0.99498743710662,
     "lam": 0.9746794344808964
   },
   "action_rate_reference_dt": 0.005,
-  "timing_scope": "Policy100Hz; physics and feedback PD1000Hz.64 actor steps cover0.64s and640 physical steps per lane. Discount/GAE horizons retain seconds; action-rate density uses the5ms reference. Extra sensor age remains0..1 policy ticks, now0..10ms when timing DR is enabled; measured wheel I/O5.5/3.5ms remains unchanged. No hardware deployment qualification.",
+  "timing_scope": "Policy100Hz; physics and feedback PD200Hz.64 actor steps cover0.64s and128 physical steps per lane. Explicit coarse simulation approximation: leg gains160/2.5 unchanged; delays retain milliseconds with causal fractional history interpolation. Policy sensor age remains0..1 policy ticks(0..10ms); measured wheel I/O5.5/3.5ms remains unchanged.5ms samples cannot qualify2ms support gaps or1kHz hardware equivalence; fine-step validation remains required.",
   "gas_spring_backend": "dev_compensation_v2",
   "integration_provenance": {
     "policy": "codex/prone-motion-100hz@a4d2e1fd",
@@ -254,7 +254,7 @@
     "file": "model/recovery_v202_20261031/pose_bank.json",
     "sha256": "785b0b16b5fadbed887e61598f3ab4caba9108fd63ed5291f67bb362202199a4"
   },
-  "full_vehicle_scope": "Full21-body21.44174kg vehicle,20 tree joints and6 loops. The authenticated leg friction, wheels, gas springs, closed chains, limits and low-level control remain unchanged. One fresh10000-update v4 run begins with the literal URDF nominal standing pose and admits recovery/motion/combined-height levels by cold evaluation; persistent replay and gated domain progression, no resume.",
+  "full_vehicle_scope": "Full21-body21.44174kg vehicle,20 tree joints and6 loops. The authenticated leg friction, wheels, gas springs, closed chains, limits remain unchanged; low-level feedback is explicitly approximated at200Hz. One fresh10000-update v4 run begins with the literal URDF nominal standing pose and admits recovery/motion/combined-height levels by cold evaluation; persistent replay and gated domain progression, no resume.",
   "mechanical_inner_knee_range_deg": [
     40.0,
     110.0
@@ -772,5 +772,17 @@
         ]
       }
     }
+  },
+  "simulation_timing_approximation": {
+    "model": "200hz_physics_and_feedback_pd_policy100hz_v1",
+    "hardware_pd_dt": 0.001,
+    "raw_bag_dt": 0.001,
+    "fresh_feedback_per_policy_step": 2,
+    "hardware_equivalence_verified": false,
+    "subtick_delay": "causal_linear_history_interpolation"
+  },
+  "solver_iterations": {
+    "position_iterations": 64,
+    "velocity_iterations": 32
   }
 }

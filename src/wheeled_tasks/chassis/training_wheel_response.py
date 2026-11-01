@@ -8,7 +8,7 @@ import json
 import torch
 
 from .identified_wheel_response import WHEEL_NAMES, configure_identified_wheels
-from .control_contract import (NEW_WHEEL_100_CONTROL_ID, FINE_POLICY_100_TIMING,
+from .control_contract import (NEW_WHEEL_100_CONTROL_ID, FINE_POLICY_100_TIMING, POLICY_100_TIMING, POLICY_100_SCOPE,
                                validate_chassis_control)
 
 
@@ -25,8 +25,10 @@ def configure(root, config, declaration, settings):
         recorded = json.loads((root/declaration["recorded_control"]["file"]).read_text())
         expected = deepcopy(recorded)
         expected.update(control_id=NEW_WHEEL_100_CONTROL_ID, timing=FINE_POLICY_100_TIMING)
+        if "simulation_timing_approximation" in control:
+            expected.update(timing=POLICY_100_TIMING, simulation_timing_approximation=POLICY_100_SCOPE)
         if control != expected:
-            raise ValueError("100Hz derivation may change only the recorded control identity and policy timing")
+            raise ValueError("100Hz derivation may change only identity, declared timing and its approximation scope")
     validate_chassis_control(control)
     result, matched = configure_identified_wheels(config, recorded, declaration["model"]["file"], root)
     if matched != recorded:

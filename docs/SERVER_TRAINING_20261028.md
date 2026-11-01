@@ -2,7 +2,7 @@
 
 此文用于`train_prone_motion.sh`，替代历史`server_setup.md`对本入口的安装建议。
 统一v3默认采用dev实测拟合气簧及一次编码器力矩补偿，来源见[统一说明](WHEEL_LEG_UNIFIED_20261029.md)。
-新版默认策略100Hz、rollout64步；物理与腿PD保持1kHz。从零初始化、连续10000次更新、每250次保存一次PT；详见PRONE_MOTION_TRAINING_20261028.md中的时间尺度与域随机化单位说明。
+2026-11-01起当前v4默认策略100Hz、rollout64步，物理与反馈PD200Hz（5ms），求解器64/32；`--physics-hz 1000`可显式选择历史1kHz。降频适配及接触分辨率边界见[200Hz说明](PRONE_MOTION_200HZ_20261101.md)。从零初始化、连续10000次更新、每250次保存一次PT；详见PRONE_MOTION_TRAINING_20261028.md中的时间尺度与域随机化单位说明。
 环境修复与CPU预检不授予策略行为或GPU仿真资格，也不自动开始训练。
 
 ## Kaiser WSL 启动路径（2026-10-29）

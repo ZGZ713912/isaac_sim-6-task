@@ -1,5 +1,6 @@
 """Explicit sim-to-real domains; no privileged domain value enters the actor."""
 from copy import deepcopy
+import math
 
 import torch
 
@@ -96,11 +97,13 @@ class RobustDomain:
         self.kd = self.kp.clone()
         self.spring = self.kp.clone()
         self.torque_delay = torch.zeros(count, dtype=torch.long, device=device)
+        self.torque_delay_fraction = torch.zeros(count, device=device)
+        self.interpolate_torque_delay = dt != .001 and cfg["torque_delay_ms"][1] > 0
         self.sensor_delay = self.torque_delay.clone()
         self.motor_alpha = torch.ones(count, 1, device=device)
         self.bias = torch.zeros(count, 18, device=device)
         self.sigma = self.bias.clone()
-        self.torque_history = torch.zeros(5, count, 6, device=device)
+        self.torque_history = torch.zeros(max(5, math.ceil(cfg["torque_delay_ms"][1]/(dt*1000.))+2), count, 6, device=device)
         self.torque_state = torch.zeros(count, 6, device=device)
         self.sensor_history = torch.zeros(3, count, 18, device=device)
         self.observed = torch.zeros(count, 18, device=device)
@@ -127,6 +130,10 @@ class RobustDomain:
         for name, key in (("torque_delay", "torque_delay_ms"), ("sensor_delay", "sensor_delay_policy_ticks")):
             low, high = cfg[key]
             draw = torch.randint(low, high + 1, (len(ids),), device=self.device, generator=self.rng)
+            if name == "torque_delay":
+                from .physical_history import split_delay_ms
+                draw, fraction = split_delay_ms(draw, self.dt)
+                self.torque_delay_fraction[ids] = torch.where(enabled[:, 0], fraction, 0.)
             getattr(self, name)[ids] = torch.where(enabled[:, 0], draw, 0)
         self.bias[ids] = 0.
         self.bias[ids, :3] = self.uniform(ids, [-cfg["gyro_bias_rad_s"] / 2, cfg["gyro_bias_rad_s"] / 2], 3)
@@ -175,8 +182,12 @@ class RobustDomain:
         requested = torque * self.strength
         requested = torch.where(passive[:, None], 0., requested)
         self.torque_history[self.torque_cursor].copy_(requested)
-        read = (self.torque_cursor - self.torque_delay) % len(self.torque_history)
-        delayed = self.torque_history[read, self.rows]
+        from .physical_history import delayed_sample
+        if self.interpolate_torque_delay:
+            delayed = delayed_sample(self.torque_history, self.torque_cursor,
+                self.torque_delay, self.torque_delay_fraction, self.rows)
+        else:
+            delayed = self.torque_history[(self.torque_cursor-self.torque_delay) % len(self.torque_history), self.rows]
         self.torque_state.add_(self.motor_alpha * (delayed - self.torque_state))
         self.torque_state[passive] = 0.
         self.torque_cursor = (self.torque_cursor + 1) % len(self.torque_history)
@@ -185,5 +196,7 @@ class RobustDomain:
     def summary(self):
         return dict(enabled_environments=int(self.enabled.sum()), nominal_environments=int((~self.enabled).sum()),
             strength_min=float(self.strength.min()), strength_max=float(self.strength.max()),
-            torque_delay_ms_max=int(self.torque_delay.max()), sensor_delay_ms_max=int(self.sensor_delay.max()) * 5,
+            torque_delay_ms_max=float((self.torque_delay+self.torque_delay_fraction).max())*self.dt*1000.,
+            sensor_delay_ms_max=int(self.sensor_delay.max())*self.sensor_policy_dt*1000.,
+            physical_tick_ms=self.dt*1000., sub_tick_delay="causal_linear_history_interpolation",
             domains=deepcopy(self.cfg), parameter_status="robustness assumptions, not real-to-sim identification")

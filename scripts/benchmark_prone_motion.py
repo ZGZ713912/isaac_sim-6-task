@@ -15,7 +15,8 @@ import traceback
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
-parser.add_argument('--plan', type=Path, help='Explicit versioned plan; default is unified100Hz/64-step v3')
+parser.add_argument('--plan', type=Path, help='Explicit versioned plan; default is current v4')
+parser.add_argument('--physics-hz',type=int,choices=(200,1000))
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--steps', type=int, default=96)
 parser.add_argument('--warmup', type=int, default=16)
@@ -42,11 +43,11 @@ sys.path[:0] = [str(root/'scripts'), str(root/'src')]
 import train_prone_motion as entry
 entry.check_other_learners()
 from wheeled_tasks.chassis.prone_motion import validate
-plan_path = (args.plan or root/'contracts/wheel_leg_prone_motion_v3.json').resolve()
+plan_path = (args.plan or root/'contracts/wheel_leg_prone_motion_v4.json').resolve()
 plan = validate(json.loads(plan_path.read_text()))
 from wheeled_tasks.chassis.prone_motion_cli import resolve_plan
 plan = resolve_plan(plan, num_envs=args.num_envs, position_iterations=args.position_iterations,
-                    velocity_iterations=args.velocity_iterations)
+                    velocity_iterations=args.velocity_iterations, physics_hz=args.physics_hz)
 hashes = entry.source_hashes(plan_path, plan)
 result = dict(schema='local-prone-motion-performance-v1', status='starting', pid=os.getpid(),
     start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19]),
@@ -192,7 +193,8 @@ try:
         measured_policy_steps=len(times), measured_physics_steps=len(times)*env.decimation,
         post_step_closure_peak_m=closure_peak_m, termination_events=termination_events,
         physics_closure_peak_m=physics_closure_peak_m,termination_reason_events=termination_reasons,
-        step_times_s=times, trace_sha256=entry.base.digest(out/'trace.npz'))
+        step_times_s=times, trace_sha256=entry.base.digest(out/'trace.npz'),
+        final_control_timing=env.startup_report['control_timing'])
     writer = SummaryWriter(str(out/'events'))
     for i,v in enumerate(times): writer.add_scalar('PerformanceProbe/policy_step_s',v,i)
     writer.add_scalar('PerformanceProbe/policy_step_mean_s',result['step_mean_s'],len(times))

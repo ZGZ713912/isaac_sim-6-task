@@ -1,6 +1,7 @@
 """Fixed final-command cold matrix; raw truth, actual completion and no suffix selection."""
 from __future__ import annotations
 
+from copy import deepcopy
 import math
 from pathlib import Path
 import numpy as np
@@ -93,7 +94,7 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
         force = a["wheel_force"][:n, :, lane]
         supported = (np.linalg.norm(force, axis=-1) > 2.).all(-1).reshape(-1)
         support = support_review(supported, standing_start_sample=start*substeps if start is not None and start*substeps < len(supported) else None,
-            ignored_max_ms=limits["ignored_contiguous_support_loss_ms"]) if n else dict(evaluated=False, support_pass=False)
+            ignored_max_ms=limits["ignored_contiguous_support_loss_ms"], sample_dt_s=rates["physics_dt"]) if n else dict(evaluated=False, support_pass=False)
         v, omega, command = a["velocity"][:n, lane], a["omega"][:n, lane], a["commands"][:n, lane]
         xy = a["position"][:n, lane, :2]
         quiet_anchor = xy[start-1] if full_quiet and prone and start > 0 else initial_xy[lane]
@@ -235,8 +236,8 @@ def evaluate(env, actor, output, writer, completed, plan, *, stop_requested=lamb
             expected_loss = -speed.clamp(-.05, .05)/.05*speed.new_tensor(
                 env.leg_friction.model["coulomb_nm"])
             net = physical["motor_effort"][..., [0, 1, 3, 4]]+loss
-            checks["leg_moving_friction_exactly_once_at_1khz"] = checks.get(
-                "leg_moving_friction_exactly_once_at_1khz", True) and bool(
+            checks["leg_moving_friction_exactly_once_at_physical_rate"] = checks.get(
+                "leg_moving_friction_exactly_once_at_physical_rate", True) and bool(
                     torch.allclose(loss, expected_loss, atol=1e-6, rtol=1e-6)
                     and torch.allclose(physical["leg_net_effort"], net, atol=2e-6, rtol=1e-6)
                     and torch.allclose(physical["leg_applied_effort"], net, atol=2e-6, rtol=1e-6))
@@ -407,7 +408,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                     +3.*state["recovery_completed_event"])*extra["policy_learning_mask"]-failure_cost*state["terminated"])
         checks["actual_reward_payment"] = checks.get("actual_reward_payment", True) and bool(torch.allclose(reward, expected, atol=1e-5))
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
-        checks["all_six_1ms_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
+        checks["all_six_physical_step_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
         physical = env.prone_motion_physical
         if getattr(env, "gimbal", None) is not None:
             q, dq, target = (physical[k] for k in ("gimbal_feedback_q", "gimbal_feedback_dq", "gimbal_target"))
@@ -416,7 +417,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
             caps = expected_gimbal.new_tensor([2., 10.])
             expected_gimbal = expected_gimbal.clamp(-caps, caps)
             expected_gimbal[physical["wheel_disabled"]] = 0.
-            checks["gimbal_actual_1khz_torque_servo"] = checks.get("gimbal_actual_1khz_torque_servo", True) and bool(
+            checks["gimbal_actual_physical_rate_torque_servo"] = checks.get("gimbal_actual_physical_rate_torque_servo", True) and bool(
                 torch.allclose(physical["gimbal_effort"], expected_gimbal, atol=1e-6, rtol=1e-6)
                 and torch.allclose(physical["gimbal_applied_effort"], expected_gimbal, atol=1e-6, rtol=1e-6))
             checks["gimbal_disabled_effort_zero"] = checks.get("gimbal_disabled_effort_zero", True) and bool(
@@ -459,9 +460,9 @@ def _probe(env, plan, *, stop_requested=lambda: False):
             wheel_replay_max_error = max(wheel_replay_max_error, float(torch.stack(errors).max()))
         if env.fixed_cases is None:
             reference.reset(done.nonzero().flatten())
-        checks["actual_1khz_wheel_delay_envelope_and_separate_loss"] = wheel_replay_max_error <= 1e-6
+        checks["actual_physical_rate_wheel_delay_envelope_and_separate_loss"] = wheel_replay_max_error <= 1e-6
         # Keep force, length, Jacobian and torque errors in their own units.
-        checks["actual_1khz_encoder_compensation_replay"] = all(
+        checks["actual_physical_rate_encoder_compensation_replay"] = all(
             value <= (1e-7 if key in ("length_m", "compression_m", "length_jacobian_m_rad") else 1e-5)
             for key, value in spring_replay_error.items())
         checks["unclipped_PD_plus_holding_then_total_limit"] = checks.get("unclipped_PD_plus_holding_then_total_limit", True) and bool(
@@ -504,7 +505,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                 compression.clamp_min(curve.compression_knots_m[-1])-curve.compression_knots_m[-1]))
             expected_spring = torch.where(compression < curve.compression_knots_m[0], low,
                 torch.where(compression > curve.compression_knots_m[-1], high, expected_spring))
-        checks["actual_1khz_measured_spring_force"] = checks.get("actual_1khz_measured_spring_force", True) and bool(
+        checks["actual_physical_rate_measured_spring_force"] = checks.get("actual_physical_rate_measured_spring_force", True) and bool(
             torch.allclose(physical["spring_force"], expected_spring * env.domain.spring, atol=1e-4, rtol=1e-6))
         measured = torch.stack((physical["spring_compression"], physical["spring_force"]))
         spring_min = torch.minimum(spring_min, measured.amin(dim=(1, 2)))
@@ -541,6 +542,8 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         checks["standing_odometry_initialized_standing_capture_observed"] = odometry_seen > 0
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                physical_dt_s=env.dt, policy_dt_s=env.policy_dt,
+                control_timing=deepcopy(env.startup_report["control_timing"]),
                 standing_odometry_valid_initialized_samples=odometry_seen,
                 gimbal=(gimbal_observed if getattr(env, "gimbal", None) is not None else None),
                 spring_feedforward=dict(startup=env.startup_report["encoder_spring_feedforward"],
@@ -549,7 +552,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                     valid_side_samples=spring_valid_count, invalid_side_samples=spring_invalid_count,
                     valid_encoder_compression_error_peak_m=spring_encoder_error_peak,
                     valid_encoder_compression_error_mean_m=spring_encoder_error_sum/max(1, spring_valid_count),
-                    geometry_error_scope="sampled/delayed encoders against native slider before the same1ms interval; diagnostic, not force calibration or learned behavior"),
+                    geometry_error_scope="sampled/delayed encoders against native slider before the same physical interval; diagnostic, not force calibration or learned behavior"),
                 wheels=dict(model_sha256=env.identified_wheels.cfg["model_sha256"],
                     replay_max_error_nm=wheel_replay_max_error, physical_samples_per_side=spring_count,
                     native=env.startup_report["training_identified_wheels"]),

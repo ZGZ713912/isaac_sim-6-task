@@ -129,7 +129,8 @@ def test_integrated_v4_deadline_excludes_disabled_birth_but_quiet_starts_after_c
         arrays[key][:,:,0] = 0.
         arrays[key][6000:6300,0,0] = 2.
     arrays["position"][:,0,0] = np.cumsum(arrays["velocity"][:,0,0])*.01
-    row = review_arrays(arrays,[case],np.zeros((1,2)),PLAN)[0]
+    historical = json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4_1000hz_20261101.json').read_text())
+    row = review_arrays(arrays,[case],np.zeros((1,2)),historical)[0]
     assert row["active_rise_time_s"] == pytest.approx(19.95)
     assert row["post_event_start_sample"] == 2010 and row["engineering_screen_pass"]
 
@@ -143,9 +144,11 @@ def test_recovery_is_inside_the_original_single_v4_budget_and_role_pool(tmp_path
     assert args.task == "WheelLeg-ProneMotion-v4" and resolved["schema"] == legacy["schema"]
     assert resolved["max_updates"] == 10000
     assert resolved["execution"] == "single_learn_call_manual_review" and resolved["review_updates"] == []
-    changed = {k for k in legacy if legacy[k] != PLAN[k]}
+    historical = json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4_1000hz_20261101.json').read_text())
+    changed = {k for k in legacy if legacy[k] != historical[k]}
     assert changed == {"pose_bank","full_vehicle_scope","evaluation","training_progression"}
-    assert set(PLAN)-set(legacy) == {"multi_pose_recovery","recovery_impact","global_curriculum"}
+    assert set(historical)-set(legacy) == {"multi_pose_recovery","recovery_impact","global_curriculum"}
+    assert set(PLAN)-set(historical) == {"solver_iterations","simulation_timing_approximation"}
     assert resolved["roles_per20"] == legacy["roles_per20"]
     for completed in (0,999,1000,1999,2000,4499,4500,6000,7000,9000,10000):
         for role in set(legacy["roles_per20"]):

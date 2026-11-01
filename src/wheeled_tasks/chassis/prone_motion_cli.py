@@ -17,11 +17,12 @@ OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_
                "recovery_impact_window_ms", "recovery_force_limits_n", "recovery_impulse_limits_ns",
                "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials",
                "curriculum_eval_every", "curriculum_success_rate", "curriculum_required_passes",
-               "position_iterations", "velocity_iterations")
+               "position_iterations", "velocity_iterations", "physics_hz")
 LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
 LEGACY_RECOVERY_OPTION_KEYS = OPTION_KEYS[:12]
 LEGACY_MASTERY_OPTION_KEYS = OPTION_KEYS[:15]
 LEGACY_GLOBAL_OPTION_KEYS = OPTION_KEYS[:18]
+LEGACY_SOLVER_OPTION_KEYS = OPTION_KEYS[:-1]
 
 
 def _hash(value):
@@ -31,11 +32,28 @@ def _hash(value):
 def _configured(base, options):
     if ((set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base)
             or set(options) in (set(LEGACY_RECOVERY_OPTION_KEYS),set(LEGACY_MASTERY_OPTION_KEYS),
-                                set(LEGACY_GLOBAL_OPTION_KEYS))):
+                                set(LEGACY_GLOBAL_OPTION_KEYS), set(LEGACY_SOLVER_OPTION_KEYS))):
         options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
     result = deepcopy(base)
+    if options["physics_hz"] is not None:
+        from .control_contract import FINE_POLICY_100_TIMING, POLICY_100_TIMING, POLICY_100_SCOPE
+        hz = options["physics_hz"]
+        if type(hz) is not int or hz not in (200, 1000) or base["schema"] != "wheel-leg-prone-motion-v4":
+            raise ValueError("--physics-hz supports 200 or 1000 on the v4 task")
+        result["timing"] = deepcopy(POLICY_100_TIMING if hz == 200 else FINE_POLICY_100_TIMING)
+        if hz == 200:
+            result["simulation_timing_approximation"] = deepcopy(POLICY_100_SCOPE)
+        else:
+            result.pop("simulation_timing_approximation", None)
+        name = ("contracts/wheel_leg_prone_motion_control_policy100_pd200_v1.json" if hz == 200
+                else "contracts/wheel_leg_prone_motion_control_100hz_v1.json")
+        result["wheel_model"]["control"] = dict(file=name,
+            sha256=hashlib.sha256((Path(__file__).resolve().parents[3]/name).read_bytes()).hexdigest())
+        result["timing_scope"] = (f"Policy100Hz; physics and feedback PD{hz}Hz; "
+            f"64 actor steps cover0.64s and{64*result['timing']['decimation']} physical steps per lane. "
+            "All delay values retain physical units; no hardware or fine contact qualification.")
     for option, field in (("num_envs", "num_envs"), ("max_iterations", "max_updates"),
                           ("seed", "seed"), ("save_interval", "snapshot_interval"),
                           ("learning_rate", "learning_rate"), ("num_steps_per_env", "rollout_steps")):
@@ -180,6 +198,8 @@ def train_parser():
                         help="PhysX position solver iterations per physics step; inherited default64")
     parser.add_argument("--velocity-iterations", "--velocity_iterations", type=int,
                         help="PhysX velocity solver iterations per physics step; inherited default32")
+    parser.add_argument("--physics-hz", "--physics_hz", type=int, choices=(200,1000),
+                        help="v4 physics and fresh feedback PD rate; current v4 defaults to200Hz, policy stays100Hz")
     parser.add_argument("--recovery-curriculum", choices=("staged","all"), default=None)
     parser.add_argument("--recovery-gate-success-rate",type=float,default=None)
     parser.add_argument("--recovery-gate-every",type=int,default=None,help="PPO updates between four-class cold checks")

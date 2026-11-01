@@ -147,6 +147,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         full_vehicle=deepcopy(full_vehicle), gimbal_motion=deepcopy(cfg.get("gimbal_motion")),
         policy_hz=round(1./rates["policy_dt"]), physics_hz=round(1./rates["physics_dt"]),
         timing=rates, rollout_steps=plan["rollout_steps"], discounts=discount,
+        simulation_timing_approximation=deepcopy(plan.get("simulation_timing_approximation")),
+        contact_sampling_ms=rates["physics_dt"]*1000.,
+        fine_contact_tolerance_resolved=rates["physics_dt"]*1000. <= plan["evaluation"]["ignored_contiguous_support_loss_ms"],
         solver_iterations={key:cfg[key] for key in ("position_iterations", "velocity_iterations")},
         standing_odometry=deepcopy(plan.get("standing_odometry")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
@@ -204,6 +207,9 @@ def source_hashes(plan_path, plan):
              plan["gas_spring_model"]["file"], "tests/test_training_gas_spring.py",
              "tests/test_encoder_spring_feedforward.py",
              "tests/test_prone_motion_performance.py", "tests/test_prone_motion_timing.py",
+             "contracts/wheel_leg_prone_motion_control_policy100_pd200_v1.json",
+             "contracts/wheel_leg_prone_motion_v4_1000hz_20261101.json",
+             "docs/PRONE_MOTION_200HZ_20261101.md", "tests/test_prone_motion_200hz.py",
              "tests/test_unified_training.py", "tests/data/unified_dev_gas_reference.json",
              "tests/data/unified_dev_gas_reference.npz", "docs/WHEEL_LEG_UNIFIED_20261029.md",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
@@ -502,6 +508,7 @@ def main():
                     expected = env.get_observations()
                 fresh = all(torch.equal(observation[k], expected[k]) for k in expected.keys())
                 reports.append(probe(env, plan, stop_requested=lambda: stop_requested))
+                base.write_json(active_directory/"native_final.json", env.startup_report)
                 reports[-1]["checks"]["continuous_domain_switch_uses_new_observation"] = fresh
                 reports[-1]["all_checks_pass"] = all(reports[-1]["checks"].values())
                 print(f"[prone-motion] Zero-PPO probe {profile}: "

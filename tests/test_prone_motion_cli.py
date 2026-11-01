@@ -52,7 +52,7 @@ def test_isaac_style_flags_reach_contract_and_learner(tmp_path, num_envs):
     assert settings["prone_motion_task"] == plan
     saved = json.loads((tmp_path/"task_contract.json").read_text())
     assert saved["plan"] == plan and saved["policy_hz"] == 100
-    assert saved["physics_hz"] == 1000 and saved["rollout_steps"] == 64
+    assert saved["physics_hz"] == 200 and saved["rollout_steps"] == 64
     assert plan["evaluation"] == BASE["evaluation"] and plan["roles_per20"] == BASE["roles_per20"]
 
 
@@ -213,7 +213,7 @@ def test_solver_override_reaches_authenticated_design_and_preserves_other_physic
 
 def test_old_eighteen_option_global_checkpoint_keeps_original_solver(tmp_path):
     from wheeled_tasks.chassis.prone_motion_cli import LEGACY_GLOBAL_OPTION_KEYS
-    old = resolve_plan(BASE)
+    old = resolve_plan(json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_1000hz_20261101.json").read_text()))
     old["runtime_cli"]["options"] = {k:v for k,v in old["runtime_cli"]["options"].items() if k in LEGACY_GLOBAL_OPTION_KEYS}
     assert task.validate(old) == old and "solver_iterations" not in old
     cfg, _, _ = configuration(tmp_path, old)

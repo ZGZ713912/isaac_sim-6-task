@@ -13,8 +13,13 @@ REFERENCE_LAMBDA = .9872585449014338
 
 
 def timing(plan):
-    """Historical v1 stays 200Hz/128; v2 explicitly selects 100Hz/64."""
-    from .control_contract import FINE_POLICY_100_TIMING, FINE_POLICY_200_TIMING
+    """Preserve historical clocks; coarse v4 explicitly declares its approximation."""
+    from .control_contract import (FINE_POLICY_100_TIMING, FINE_POLICY_200_TIMING,
+                                   POLICY_100_TIMING, POLICY_100_SCOPE)
+    if "simulation_timing_approximation" in plan:
+        if plan["schema"] != "wheel-leg-prone-motion-v4" or plan["simulation_timing_approximation"] != POLICY_100_SCOPE:
+            raise ValueError("Unknown prone-motion physics timing approximation")
+        return dict(POLICY_100_TIMING)
     return dict(FINE_POLICY_200_TIMING if plan["schema"] == "wheel-leg-prone-motion-v1"
                 else FINE_POLICY_100_TIMING)
 
@@ -75,7 +80,7 @@ def validate(plan):
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):
-        raise ValueError("100Hz requires explicit 1ms physics/PD, discount horizons and action-rate reference")
+        raise ValueError("100Hz requires matching declared physics/PD, discount horizons and action-rate reference")
     if (plan["num_envs"] < 20 or plan["rollout_steps"] != (64 if v2 else 128)
             or plan["max_updates"] != 10000 or len(plan["roles_per20"]) != 20
             or set(plan["roles_per20"]) != set(ROLES)):
