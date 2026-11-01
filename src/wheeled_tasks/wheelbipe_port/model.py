@@ -100,6 +100,29 @@ class ResetLookup:
         return result[:, self.native_order]
 
 
+class PairedTargets:
+    """Nearest shared winding with this asset's authenticated 40..110 branch."""
+    def __init__(self, gas_model, device):
+        import torch
+        self.torch = torch
+        self.bounds = torch.tensor([[gas_model["sides"][side]["delta_rad"][i] for i in (0,-1)]
+            for side in ("left","right")],device=device,dtype=torch.float64)
+        self.sign = torch.tensor([1.,-1.],device=device,dtype=torch.float64)
+
+    def __call__(self, desired, current):
+        torch = self.torch
+        if desired.shape!=current.shape or desired.shape[-1]!=4:
+            raise ValueError("Paired targets require matching four-joint tensors")
+        wanted = desired.double().unflatten(-1,(2,2))
+        measured = current.double().unflatten(-1,(2,2))
+        mean = wanted.mean(-1)
+        delta = (self.sign*(wanted[...,1]-wanted[...,0])).clamp(self.bounds[:,0],self.bounds[:,1])
+        turns = torch.floor((measured.mean(-1)-mean)/(2.*torch.pi)+.5)
+        hip = mean-self.sign*delta*.5+turns*(2.*torch.pi)
+        auxiliary = mean+self.sign*delta*.5+turns*(2.*torch.pi)
+        return torch.stack((hip,auxiliary),-1).flatten(-2).to(desired.dtype)
+
+
 class CollisionSupport:
     """Reset-only native FK and conservative collision clearance above a plane."""
     def __init__(self,joint_names,device):

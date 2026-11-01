@@ -27,9 +27,11 @@ def configure(cfg):
     wheels = [ACTIVE[i] for i in (2,5)]
     springs = asset.manifest["spring_joint_names"]
     passive = [n for n in asset.manifest["tree_joint_names"] if n not in (*ACTIVE,*springs)]
+    by_name = {joint["name"]:joint for joint in asset.spec["joints"]}
     def actuator(names, cap, damping=0., **kwargs):
         return IdealPDActuatorCfg(joint_names_expr=aliases(names), stiffness=0.,damping=damping,
-            effort_limit=cap,effort_limit_sim=cap,velocity_limit_sim=300.,**kwargs)
+            effort_limit=cap,effort_limit_sim=cap,
+            velocity_limit_sim={JOINT_ALIASES[n]:float(by_name[n]["limit"]["velocity"]) for n in names},**kwargs)
     cfg.robot_cfg = ArticulationCfg(prim_path="/World/envs/env_.*/Robot",
         spawn=sim.UsdFileCfg(usd_path=str(BUNDLE/"robot.usda"),activate_contact_sensors=True,
             copy_from_source=True,

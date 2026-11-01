@@ -77,7 +77,7 @@ def main():
             asset_manifest_sha256=sha(BUNDLE/"manifest.json"),reset_lookup_sha256=sha(TABLE),
             collision_support_sha256=sha(TABLE.parent/"collision_support.json"))
         receipt["ground_plane_sha256"] = sha(TABLE.parent/"ground_plane.usda")
-        implementation = [*sorted((ROOT/"src/wheeled_tasks/wheelbipe_port").glob("*.py")),
+        implementation = [*sorted((ROOT/"src").rglob("*.py")),
             ROOT/"scripts/train_wheelbipe_port.py",ROOT/"scripts/export_wheelbipe_port_onnx.py"]
         receipt["implementation_files_sha256"] = {str(p.relative_to(ROOT)):sha(p) for p in implementation}
         deployment = ROOT/"deployment.json"
@@ -127,6 +127,8 @@ def main():
             default_joint_pos=env.robot.data.default_joint_pos[0].cpu().tolist(),
             leg_action_scale=env.leg_action_scale,wheel_action_scale=env.wheel_action_scale,
             policy_dt_s=env.step_dt,physics_dt_s=env.physics_dt,domain=env.domain_receipt,
+            paired_target_signed_delta_bounds_rad=env.paired_targets.bounds.cpu().tolist(),
+            joint_velocity_guard_scope="asset solver guard; not an identified motor-speed limit",
             spring_model_sha256=env.control.gas_compensation.cfg["model_sha256"],
             wheel_model_sha256=env.wheel_response.cfg["model_sha256"],
             friction_model_sha256=env.leg_friction.cfg["model_sha256"],

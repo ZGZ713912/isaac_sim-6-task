@@ -169,6 +169,26 @@ now tests the same 512-environment PPO exposure, without adding armature,
 changing reward weights, reducing physical torque/PD or relaxing the 3 mm
 bound. Running joint and body angular-speed diagnostics join TensorBoard.
 
+The 2000 Hz/512-environment pilot also failed, at update 15 (8.605 mm),
+so finer integration alone is not an admission. Its peak lane had approximately
+282 rad/s in a passive joint; the running joint peak reached 305 rad/s.
+`kaiser_2000hz_negative001.json` retains the source, failed geometry/state
+and original receipt hash. This run did not proceed to the full campaign.
+
+Further source inspection found two adapter omissions. The inherited
+`paired_branch107_v1` helper still clipped targets to an old 107-degree
+branch although the reset/physical/force model used 110 degrees. The port now
+constructs both signed target bounds from the authenticated per-side gas/CAD
+geometry, and a regression case verifies that the real 110-degree edge is
+preserved. Also, the adapter's arbitrary 300-unit native velocity guard now
+uses each joint's authored asset value (100). This is an inherited solver
+guard, not a newly identified motor speed or a behavior qualification.
+All Python dependencies under `src/` now join the pilot/full implementation
+hash comparison, including the controller, gas, wheel and friction code.
+Four CPU geometry/target tests pass. A new fresh 512-environment/1000 Hz
+pilot checks the corrected candidate before another full campaign; old pilot
+hashes cannot admit the changed implementation.
+
 Remote TensorBoard uses a separate service on port 6008. Local
 `http://127.0.0.1:6008/` is only an SSH forward; existing 6006/6007 services
 are untouched. The training owner and TensorBoard have independent lifetimes.

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "src"),str(ROOT / "tools")]
 import full_robot_v202 as geometry
 from wheeled_tasks.wheelbipe_port.model import (
-    BODY_ALIASES, BUNDLE, JOINT_ALIASES, CollisionSupport, ResetLookup, authenticate_source,
+    BODY_ALIASES, BUNDLE, JOINT_ALIASES, CollisionSupport, PairedTargets, ResetLookup, authenticate_source,
 )
 
 
@@ -75,3 +75,21 @@ def test_collision_clearance_matches_native_fk_for_asymmetric_poses():
     assert penetration.max()>.02
     lifted = .32+np.maximum(penetration+.002,0.)
     assert np.min(lifted+actual)>=.002-1.e-7
+
+
+def test_targets_use_actual_110_degree_geometry_and_shared_winding():
+    model = json.loads((BUNDLE/"gas_spring_model.json").read_text())
+    projector = PairedTargets(model,"cpu")
+    generator = torch.Generator().manual_seed(109)
+    desired = 40.*torch.randn(100,4,generator=generator)
+    current = 40.*torch.randn(100,4,generator=generator)
+    result = projector(desired,current).double().unflatten(-1,(2,2))
+    actual_delta = projector.sign*(result[...,1]-result[...,0])
+    assert torch.all(actual_delta>=projector.bounds[:,0]-1.e-5)
+    assert torch.all(actual_delta<=projector.bounds[:,1]+1.e-5)
+    assert torch.all((result.mean(-1)-current.double().unflatten(-1,(2,2)).mean(-1)).abs()<=np.pi+1.e-5)
+    # A target on the real 110-degree edge must not be silently clipped to
+    # the old paired_branch107_v1 constant (approximately 1.369 rad).
+    edge = torch.tensor([[0.,projector.bounds[0,1],projector.bounds[1,1],0.]],dtype=torch.float64)
+    torch.testing.assert_close(projector(edge,edge),edge,rtol=0.,atol=1.e-12)
+    assert projector.bounds[:,1].min()>1.42

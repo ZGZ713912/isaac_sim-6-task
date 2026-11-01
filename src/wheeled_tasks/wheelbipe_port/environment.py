@@ -12,7 +12,7 @@ from isaaclab.terrains import TerrainImporter
 from isaaclab.utils.math import quat_apply, quat_apply_inverse, quat_from_euler_xyz
 from agent_tasks.direct.wheelbipe.wheelbipe_V14.env import WheelbipeV14Env
 
-from .model import ACTIVE, BODY_ALIASES, BUNDLE, JOINT_ALIASES, ROOT, CollisionSupport, ResetLookup, digest
+from .model import ACTIVE, BODY_ALIASES, BUNDLE, JOINT_ALIASES, ROOT, CollisionSupport, PairedTargets, ResetLookup, digest
 
 
 class OfflineTerrainImporter(TerrainImporter):
@@ -57,6 +57,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.collision_support = CollisionSupport(self.robot.cad_joint_names,self.device)
         self.reset_penetration_peak = torch.zeros((),device=self.device)
         self.control, self.wheel_response = self.asset.components(self.num_envs,self.device)
+        self.paired_targets = PairedTargets(self.control.gas_compensation.model,self.device)
         # The response integrates fractional 5.5/3.5 ms delays on the actual
         # physics clock. The immutable asset's historical 1ms receipt is not
         # altered or mistaken for this experiment's 5ms sample period.
@@ -234,10 +235,9 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self._measure_constraint_peak()
         q = self.robot.data.joint_pos[:,self.motor_ids]
         dq = self.robot.data.joint_vel[:,self.motor_ids]
-        from wheeled_tasks.chassis.paired_leg_targets import paired_leg_targets
         feedback = q.clone()
         feedback[:,(0,1,3,4)] += self.pd_encoder_bias
-        legs = paired_leg_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)])
+        legs = self.paired_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)])
         wheels = self.wheel_actions[:,self.wheel_target_order].clamp(-90.,90.)
         motor = self.control.motor_efforts(feedback,dq,legs,wheels)*self.motor_strength
         motor[:,:2].clamp_(-40.,40.)
