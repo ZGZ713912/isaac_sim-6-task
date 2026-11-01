@@ -40,13 +40,13 @@
     "gas_spring_compensation": {
       "enabled": true,
       "model_file": "model/wheel_leg_v2.0.2/isaac/gas_spring_model.json",
-      "model_sha256": "7e738376aaa31594c6cfba41fea17b4826acccc6f3e26f30ebc5323b8e5e2412",
+      "model_sha256": "5682982f82c35c3864771d4822e6d6d3932cea2800464b255a1de6d4bd7fec41",
       "gain": 1.0,
       "force_extrapolation": "positive_c1_endpoint_trend_v1",
       "physical_curve_outside_geometry": "hold_geometry_endpoint",
       "relative_soft_limits": {
-        "minimum": -0.14084732125908733,
-        "maximum": 1.428276168918513,
+        "minimum": -0.14084732125908495,
+        "maximum": 1.4282761689185115,
         "margin": 0.03,
         "projection": "outward_relative_torque_v1"
       }
@@ -72,5 +72,10 @@
   "physical_gas_pressure_identified": false,
   "right_gas_spring_symmetry_assumed": true,
   "behavior_qualified": false,
-  "right_gas_spring_symmetry_basis": "user accepted 2026-10-30"
+  "right_gas_spring_symmetry_basis": "user accepted 2026-10-30",
+  "leg_motor_friction": {
+    "enabled": true,
+    "model_path": "model/dm_leg_friction_20261031/model.json",
+    "model_sha256": "90d299995f24ba38e6c1ed67e32dd40b9b2fa26e041f2f814db1e177ac040b52"
+  }
 }

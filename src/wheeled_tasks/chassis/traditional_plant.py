@@ -44,6 +44,9 @@ class FullRobotTraditionalPlant:
         self.asset = TraditionalAsset(self.bundle)
         manifest, self.spec = self.asset.manifest, self.asset.spec
         self.springs = self.asset.spring_component(self.root, device)
+        self.leg_friction = self.asset.leg_friction(self.root, device)
+        if not self.leg_friction.enabled:
+            raise ValueError("Traditional real2sim plant requires the identified leg friction binding")
         wheel_path = str(self.bundle / "wheel_model.json")
         self.wheels = IdentifiedWheelResponse(1, device, self.physics_dt, dict(enabled=True,
             model_path=wheel_path, model_sha256=digest(self.root / wheel_path), apply_aggregate_delay=True), root=self.root)
@@ -90,7 +93,8 @@ class FullRobotTraditionalPlant:
                     solver_velocity_iteration_count=32)),
             init_state=ArticulationCfg.InitialStateCfg(pos=(0., 0., .4),
                 joint_pos=manifest["nominal_joint_pos"], joint_vel={".*": 0.}),
-            actuators=dict(legs=actuator([ACTIVE[i] for i in (0, 1, 3, 4)], 40.),
+            actuators=dict(legs=actuator([ACTIVE[i] for i in (0, 1, 3, 4)],
+                    self.leg_friction.native_effort_limit, friction=0., dynamic_friction=0., viscous_friction=0.),
                 wheels=actuator([ACTIVE[i] for i in (2, 5)], self.wheels.native_effort_limit,
                     **native_wheel),
                 passive=actuator(passive, 100.), springs=actuator(SPRINGS, 1500.)),
@@ -151,6 +155,7 @@ class FullRobotTraditionalPlant:
             raise ValueError("Articulation material shape order differs from its link views")
         self.ids = [self.robot.joint_names.index(n) for n in ACTIVE]
         self.canonical_ids = [self.ids[i] for i in self.canonical_to_asset]
+        self.leg_ids = self.canonical_ids[:4]
         self.gas_ids = [self.robot.joint_names.index(n) for n in SPRINGS]
         self.passive_ids = [self.robot.joint_names.index(n) for n in passive]
         if set(self.robot.joint_names) != set(manifest["tree_joint_names"]):
@@ -190,6 +195,13 @@ class FullRobotTraditionalPlant:
         expected_added = [r["additional_armature_kg_m2"] for r in self.wheels.rows]
         if not np.allclose(added, expected_added, atol=1e-8):
             raise ValueError("Native wheel armature mismatch")
+        native_leg_friction = wp.to_torch(self.robot.root_view.get_dof_friction_properties())[:,self.leg_ids]
+        native_leg_limit = wp.to_torch(self.robot.root_view.get_dof_max_forces())[:,self.leg_ids]
+        if not torch.allclose(native_leg_friction, torch.zeros_like(native_leg_friction), atol=1e-8, rtol=0.):
+            raise ValueError("Native leg friction would duplicate the explicit passive real2sim model")
+        if not torch.allclose(native_leg_limit, torch.full_like(native_leg_limit,
+                self.leg_friction.native_effort_limit), atol=1e-5, rtol=0.):
+            raise ValueError("Native leg effort cap would clip motor plus passive friction")
         self.receipt = dict(plant=manifest["model_kind"], body_count=21,
             asset_manifest_sha256=digest(self.bundle/"manifest.json"),
             control_frame=manifest["control_frame"], additional_root_rotation=False,
@@ -198,6 +210,9 @@ class FullRobotTraditionalPlant:
             contact_materials=contact_materials, contact_domain=self.contact_domain.summary(),
             physics_dt_s=self.physics_dt, control_dt_s=self.dt, action_hold_ticks=self.substeps,
             wheel_response=self.wheels.summary(), wheel_armature_readback=added.tolist(),
+            leg_motor_friction=self.leg_friction.summary(),
+            native_leg_friction_readback=native_leg_friction.cpu().tolist(),
+            native_leg_effort_limit_nm=native_leg_limit.cpu().tolist(),
             gimbal_control="supplied v2.0.2 fixed-zero joints; full CAD masses retained",
             gas_spring="v2.0.2 bound force curve and declared C1 endpoint trend; right symmetry accepted by user",
             knee_inner_limits_deg=self.asset.limits["knee_inner_limits_deg"],
@@ -210,6 +225,7 @@ class FullRobotTraditionalPlant:
         self.specific_force = 9.81
         self.tick = 0
         self.effort = torch.zeros_like(self.robot.data.joint_pos.torch)
+        self.motor_effort = torch.zeros(1, 6, device=device)
 
     def reset(self, length=.334, pitch=0., lift=0., friction_case=None):
         torch = self.torch
@@ -248,6 +264,8 @@ class FullRobotTraditionalPlant:
         self.robot.write_joint_position_to_sim_index(position=joints)
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros_like(joints))
         self.effort.zero_()
+        self.motor_effort.zero_()
+        self.leg_friction.effort(torch.zeros_like(self.leg_friction.velocity))
         self.robot.set_joint_effort_target_index(target=self.effort)
         self.robot.write_data_to_sim()
         self.sim.forward()
@@ -301,6 +319,11 @@ class FullRobotTraditionalPlant:
             self.sim.stage.GetPrimAtPath("/World/Ground")).ComputeAlignedRange()
         force = self.wp.to_torch(self.contact_view.get_net_contact_forces(dt=self.physics_dt)).cpu().numpy()
         return dict(max_fk_position_error_m=error, joint_positions=q,
+            motor_effort_asset_nm=self.motor_effort.cpu().tolist(),
+            leg_actual_velocity_rad_s=self.leg_friction.velocity.cpu().tolist(),
+            leg_passive_friction_nm=self.leg_friction.passive_effort.cpu().tolist(),
+            leg_net_effort_nm=self.effort[:,self.leg_ids].cpu().tolist(),
+            gas_spring_force_n=self.effort[:,self.gas_ids].cpu().tolist(),
             wheel_contact_force_n=force.tolist(), ground_bounds=[list(bounds.GetMin()), list(bounds.GetMax())],
             wheel_quaternions={n: actual[self.robot.body_names.index(n), 3:].tolist() for n in ("L_link3", "R_link3")},
             wheel_world_positions={n: actual[self.robot.body_names.index(n), :3].tolist() for n in ("L_link3", "R_link3")})
@@ -317,13 +340,17 @@ class FullRobotTraditionalPlant:
         if values.shape != (6,) or not np.isfinite(values).all():
             raise ValueError("Expected six finite output-axis torques")
         asset_effort = torch.tensor(values[[0, 1, 4, 2, 3, 5]][None], dtype=torch.float32, device=self.device)
+        # This is an electrical motor cap, before independent passive losses.
+        asset_effort[:,[0,1,3,4]] = asset_effort[:,[0,1,3,4]].clamp(-40.,40.)
         for _ in range(self.substeps):
             # Active host PD and LQR torque stay held for exactly 1 ms. Only
             # physical forces and the measured motor response advance here.
             dq = self.robot.data.joint_vel.torch
             motor = self.wheels.apply_torque(asset_effort, dq[:, self.ids])
+            self.motor_effort.copy_(motor)
             self.effort.zero_()
             self.effort[:, self.ids] = motor
+            self.effort[:, self.leg_ids] += self.leg_friction.effort(dq[:,self.leg_ids])
             self.effort[:, [self.ids[2], self.ids[5]]] += self.wheels.passive_effort
             q = self.robot.data.joint_pos.torch
             compression = q.new_tensor([self.spec["spring_binding"][n]["compression_at_q_zero_m"]

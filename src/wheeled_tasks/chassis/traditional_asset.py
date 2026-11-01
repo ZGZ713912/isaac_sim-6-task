@@ -23,6 +23,10 @@ class TraditionalAsset:
         self.runtime = json.loads((self.bundle/"runtime.json").read_text())
         self.curve = json.loads((self.bundle/"gas_spring_model.json").read_text())
         self.wheel = json.loads((self.bundle/"wheel_model.json").read_text())
+        from .leg_motor_friction import load
+        self.leg_friction_settings, _ = load(self.runtime.get("leg_motor_friction"), self.bundle.parents[2])
+        if bool(self.manifest.get("runtime_leg_motor_friction_required")) != self.leg_friction_settings["enabled"]:
+            raise ValueError("Traditional plant leg moving friction is missing from its runtime")
         spec_hash = digest(self.bundle/"model_spec.json")
         if (self.manifest["model_kind"] != MODEL_KIND
             or self.manifest["control_frame"] != "Xforward_Yleft_Zup"
@@ -56,3 +60,7 @@ class TraditionalAsset:
         settings = dict(self.runtime["v5_control"]["gas_spring_compensation"])
         settings["model_file"] = str(self.bundle/"gas_spring_model.json")
         return GasSpringCompensation(settings, root=root, device=device)
+
+    def leg_friction(self, root, device="cpu"):
+        from .leg_motor_friction import LegMotorFriction
+        return LegMotorFriction(1, device, self.leg_friction_settings, root=root)
