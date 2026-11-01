@@ -245,6 +245,7 @@ def source_hashes(plan_path, plan):
              "tests/test_unified_training.py", "tests/data/unified_dev_gas_reference.json",
              "tests/data/unified_dev_gas_reference.npz", "docs/WHEEL_LEG_UNIFIED_20261029.md",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
+             "src/wheeled_algo/training_control.py", "tests/test_training_control.py", "docs/TRAINCTL.md",
              "scripts/review_gas_spring_soft_range.py",
              "tests/test_prone_motion_resume.py", "docs/PRONE_MOTION_RESUME.md",
              str(plan_path.relative_to(ROOT))]
@@ -712,7 +713,8 @@ def main():
         print(f"[prone-motion] Starting at {start_updates}/{plan['max_updates']}, learn({remaining_updates}); "
               f"snapshots every{plan['snapshot_interval']} COMPLETE updates; "
               f"automatic recovery admission={mastery is not None}; final review is manual.", flush=True)
-        runner.learn(remaining_updates, init_at_random_ep_len=False)
+        from wheeled_algo.training_control import learn as controlled_learn
+        controlled_learn(runner, remaining_updates, init_at_random_ep_len=False, name=output.name)
         if report["completed_updates"] != plan["max_updates"] or identity() != identities:
             raise RuntimeError("Continuous training ended before its declared full-update budget")
         if global_course is not None:

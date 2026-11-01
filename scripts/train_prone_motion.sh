@@ -48,6 +48,8 @@ if [[ "$task_native_only" == true ]]; then
     exit 0
 fi
 if [[ "$task_probe_only" == false ]]; then
-    exec "$task_python" "$task_root/scripts/train_prone_motion.py" "$@" --output "$task_output"
+    exec "$task_python" "$task_root/src/wheeled_algo/training_control.py" _run \
+        --name "$(basename -- "$task_output")" -- \
+        "$task_root/scripts/train_prone_motion.py" "$@" --output "$task_output"
 fi
 exec "$task_python" "$task_root/scripts/train_prone_motion.py" "$@"
