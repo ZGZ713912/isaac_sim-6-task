@@ -141,14 +141,31 @@ The first rough preflight stalled before stepping because of missing
 `libGLU.so.1`; it was stopped and its failure retained. A new independent
 output directory, `full_flat_512_20000_1000hz_seed109_002`, uses the existing
 Kaiser sysroot in this experiment's library path. No global runtime or other
-training service was modified. At this documentation checkpoint the rough
-environment has initialized; full PPO and its final ONNX are still pending.
+training service was modified. The rough GPU preflight completed 200 policy /
+4,000 physics steps with a 0.455 mm peak. The 512-environment preflight
+completed 100 policy / 2,000 physics steps with a 0.490 mm peak. Both exited
+normally. The subsequent fresh full run has completed its first 10 updates
+(4,800 physics ticks), with a 1.271 mm cumulative loop peak. All 17
+actor/std/critic tensors changed in the first update and Adam gained 17
+states. Its initialization SHA differs from the pilot. The full ONNX is
+pending completion of all 20,000 updates.
+
+`reports/wheelbipe_port_20261101/kaiser_full_launch001.json` freezes the
+observed receipts and their SHA-256, owner PID 854206, worker PID 855685,
+the exact command/source, and TensorBoard scalar evidence. PIDs are historical
+locators, not permission to signal a future process with the same number.
+The independent training owner is in tmux `wheelbipe-full-002`.
 
 Remote TensorBoard uses a separate service on port 6008. Local
 `http://127.0.0.1:6008/` is only an SSH forward; existing 6006/6007 services
 are untouched. The training owner and TensorBoard have independent lifetimes.
 All 13 permanent capabilities remain unqualified until measured with their
 full acceptance protocols; see the committed capability-status report.
+
+The chat follow-up `wheelbipe-onnx` checks every 30 minutes, commits progress
+at new 500-update checkpoint milestones, retrieves and verifies final outputs,
+and stops after final delivery. It stays quiet during ordinary progress.
+The remote training/export owner continues independently of that follow-up.
 
 CLI entry points are `scripts/train_wheelbipe_port.py` (preflight/train/evaluate)
 and `scripts/export_wheelbipe_port_onnx.py`. Output directories must be new;
