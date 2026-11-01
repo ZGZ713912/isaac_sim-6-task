@@ -193,6 +193,18 @@ def learner_config(plan, device="cuda:0"):
     return result
 
 
+def check_first_update(result, runner_cfg):
+    """Validate native PPO work against this run's actual epoch/batch budget."""
+    algorithm = runner_cfg['algorithm']
+    expected = algorithm['num_learning_epochs']*algorithm['num_mini_batches']
+    checks = dict(finite_recorded_values=result['all_recorded_values_finite'],
+        configured_optimizer_calls=result['committed_optimizer_calls'] == expected,
+        actor_changed=result['actor_changed_parameter_tensors'] > 0,
+        critic_changed=result['critic_changed_parameter_tensors'] > 0)
+    result.update(expected_optimizer_calls=expected, checks=checks)
+    return all(checks.values())
+
+
 def source_hashes(plan_path, plan):
     result = base.sources()
     names = ["scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
@@ -586,9 +598,9 @@ def main():
                 result = audit.report()
                 result.update(actor_changed_parameter_tensors=sum(not torch.equal(original_actor[k], v.detach().cpu()) for k,v in runner.alg.actor.named_parameters()),
                     critic_changed_parameter_tensors=sum(not torch.equal(original_critic[k], v.detach().cpu()) for k,v in runner.alg.critic.named_parameters()))
+                passed = check_first_update(result, runner_cfg)
                 base.write_json(output/"first_update_audit.json", result)
-                if not (result["all_recorded_values_finite"] and result["committed_optimizer_calls"] == 12
-                        and result["actor_changed_parameter_tensors"] and result["critic_changed_parameter_tensors"]):
+                if not passed:
                     raise RuntimeError("First fresh PPO audit failed")
                 audit = None
             env.actor_updates = report["completed_updates"]

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from train_prone_motion import configuration, learner_config
+from train_prone_motion import configuration, learner_config, check_first_update
 from wheeled_tasks.chassis.prone_motion import validate, timing
 from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, train_parser, training_options
 from wheeled_tasks.chassis.control_contract import load_chassis_control
@@ -58,3 +58,18 @@ def test_legacy_physics_options_revalidate_and_default_workload_stays_the_same()
     changed=deepcopy(resolve_plan(BASE,physics_hz=200,policy_hz=50,hidden_dims=[512,256,128]))
     changed['ppo']['hidden_dims'][0]=1024
     with pytest.raises(ValueError): validate(changed)
+
+
+@pytest.mark.parametrize('epochs,mini_batches',[(3,4),(5,4),(2,8)])
+def test_first_native_update_audit_uses_configured_optimizer_budget(epochs,mini_batches):
+    cfg=learner_config(resolve_plan(BASE,ppo_epochs=epochs,ppo_mini_batches=mini_batches))
+    recorded=dict(all_recorded_values_finite=True,committed_optimizer_calls=epochs*mini_batches,
+        actor_changed_parameter_tensors=9,critic_changed_parameter_tensors=8)
+    assert check_first_update(recorded,cfg)
+    assert recorded['expected_optimizer_calls']==epochs*mini_batches
+    assert all(recorded['checks'].values())
+    for field,value in (('committed_optimizer_calls',epochs*mini_batches-1),
+                        ('all_recorded_values_finite',False),
+                        ('actor_changed_parameter_tensors',0),('critic_changed_parameter_tensors',0)):
+        bad=deepcopy(recorded);bad[field]=value
+        assert not check_first_update(bad,cfg)
