@@ -91,6 +91,7 @@ def main():
         cfg.seed = args.seed
         cfg.port_randomization_profile = args.randomization_profile
         cfg.port_randomization_strength = args.randomization_strength
+        cfg.port_record_peaks = args.mode=="preflight"
         if args.mode=="evaluate":
             cfg.use_leg_random_start = False
             cfg.events.reset_base.params["pose_range"] = {}
@@ -158,6 +159,7 @@ def main():
                 physical_steps=args.steps*cfg.decimation,max_constraint_gap_m=peak_gap,
                 spring_force_range_N=[minimum_spring,maximum_spring],resets=terminated,
                 all_state_reward_observation_finite=True)
+            receipt["peak_diagnostic"] = env.port_peak_diagnostic
             receipt["measured_controller_and_spring_calls"] = env.port_physics_calls-calls_before
             if receipt["measured_controller_and_spring_calls"]!=args.steps*cfg.decimation:
                 raise ValueError("Feedback PD and spring must run once per physics tick")

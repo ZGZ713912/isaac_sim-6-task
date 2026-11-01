@@ -204,7 +204,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
 
     def _apply_action(self):
         self.port_physics_calls += 1
-        self.port_constraint_gap_peak = torch.maximum(self.port_constraint_gap_peak,self.constraint_gaps().max())
+        self._measure_constraint_peak()
         q = self.robot.data.joint_pos[:,self.motor_ids]
         dq = self.robot.data.joint_vel[:,self.motor_ids]
         from wheeled_tasks.chassis.paired_leg_targets import paired_leg_targets
@@ -254,10 +254,24 @@ class WheelbipePortEnv(WheelbipeV14Env):
         b = p[:,self._constraint_body1]+quat_apply(q[:,self._constraint_body1],self._constraint_points1[None].expand(self.num_envs,-1,-1))
         return (a-b).norm(dim=-1)
 
+    def _measure_constraint_peak(self):
+        gaps = self.constraint_gaps()
+        peak = gaps.max()
+        if getattr(self.cfg,"port_record_peaks",False) and peak>self.port_constraint_gap_peak:
+            lane,pin = divmod(int(gaps.argmax()),6)
+            self.port_peak_diagnostic = dict(lane=lane,pin=pin,physical_call=self.port_physics_calls,
+                episode_time_s=float(self.episode_length_buf[lane])*self.step_dt,
+                initialized=bool(self.finish_init[lane]),gaps_m=gaps[lane].cpu().tolist(),
+                root_state=self.robot.data.root_state_w[lane].cpu().tolist(),
+                joint_pos=self.robot.data.joint_pos[lane].cpu().tolist(),
+                joint_vel=self.robot.data.joint_vel[lane].cpu().tolist(),
+                previous_motor_effort_Nm=self.motor_effort[lane].cpu().tolist())
+        self.port_constraint_gap_peak = torch.maximum(self.port_constraint_gap_peak,peak)
+
     def _get_observations(self):
         observations = super()._get_observations()
         if self._port_ready:
-            self.port_constraint_gap_peak = torch.maximum(self.port_constraint_gap_peak,self.constraint_gaps().max())
+            self._measure_constraint_peak()
             logs = self.extras.setdefault("log",{})
             logs.update({
                 "Port/constraint_gap_max_m":self.constraint_gaps().max(),
