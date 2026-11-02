@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import signal
 import subprocess
 import sys
@@ -128,7 +129,9 @@ class WheelbipeSession(ManagedSession):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(path, target)
             pins.append(file_pin(target))
-        (root / "controller/src/wheeled_algo/__init__.py").write_text("")
+        controller_init = root / "controller/src/wheeled_algo/__init__.py"
+        controller_init.write_text("")
+        pins.append(file_pin(controller_init))
         spec = dict(protocol=PROTOCOL, kind=KIND, name=name or root.name,
                     architecture="Wheelbipe35->6 / RSL-PPO", source=str(source), script=str(script),
                     python=executable, supervisor_python=sys.executable,
@@ -324,6 +327,62 @@ class ManagedWorker:
             signal.signal(number, previous)
 
 
+def shared_console():
+    """Adapt project routing and receipt checks without editing the shared UI."""
+    from wheeled_algo.trainctl_shared import training_cli
+    from wheeled_algo.durable_checkpoint import FORMAT
+
+    if getattr(training_cli, "wheelbipe_adapter", False):
+        return training_cli
+    original_files = training_cli._checkpoint_files
+    original_release = training_cli.Release
+
+    def checkpoint_files(state):
+        payload, metadata = original_files(state)
+        record = read_json(metadata)
+        if (record.get("format") != FORMAT or record.get("checkpoint_pins") != [file_pin(payload)]
+                or record.get("completed_updates") != state.get("checkpoint_update")
+                or record.get("total_updates") != state.get("target_update")):
+            raise ValueError("Wheelbipe保存点的格式、载荷pin或预算不一致；未请求退出")
+        return payload, metadata
+
+    def gpu_memory():
+        executable = shutil.which("nvidia-smi") or "/usr/lib/wsl/lib/nvidia-smi"
+        try:
+            result = subprocess.run([executable, "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits"],
+                                    capture_output=True, text=True, timeout=2.)
+            used, total = (int(value) for value in result.stdout.splitlines()[0].split(",")[:2])
+            return {"used_mib": used, "total_mib": total} if result.returncode == 0 else None
+        except (OSError, subprocess.SubprocessError, ValueError, IndexError):
+            return None
+
+    class Release(original_release):
+        def __init__(self, session, *, probe=gpu_memory, clock=time.monotonic):
+            super().__init__(session, probe=probe, clock=clock)
+
+        def step(self, state):
+            if self.stage == "stopping" and not state.get("active"):
+                if (state.get("phase") not in ("stopped", "completed")
+                        or state.get("phase") == "stopped" and not state.get("checkpoint_resume")):
+                    self.stage = "aborted"
+                    return False, "进程已退出但完整恢复回执未通过；请检查错误，不能报告保存成功。", "error"
+            return super().step(state)
+
+        def report(self, state):
+            message = super().report(state)
+            old = f"trainctl resume {state.get('name')} --wait 60"
+            command = f"trainctl wheelbipe resume {shlex.quote(str(self.session.root))} --wait 60"
+            return message.replace(old, command)
+
+    training_cli.open_session = WheelbipeSession
+    training_cli.active_alias = lambda: None
+    training_cli._checkpoint_files = checkpoint_files
+    training_cli._gpu_memory = gpu_memory
+    training_cli.Release = Release
+    training_cli.wheelbipe_adapter = True
+    return training_cli
+
+
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv[:1] == ["_supervise"]:
@@ -347,11 +406,7 @@ def main(argv=None):
         except (OSError, ValueError, KeyError) as error:
             print(f"trainctl wheelbipe: {error}", file=sys.stderr)
             return 1
-    from wheeled_algo.trainctl_shared import training_cli
-
-    training_cli.open_session = WheelbipeSession
-    training_cli.active_alias = lambda: None
-    return training_cli.main(argv)
+    return shared_console().main(argv)
 
 
 if __name__ == "__main__":

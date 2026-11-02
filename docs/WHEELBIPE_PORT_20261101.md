@@ -4,7 +4,16 @@
 `/home/noir/.codex/worktrees/wheelbipe-port/isaac_wheeled_rl_train`。
 主线工作树及已有训练没有被本实验替换。
 
-## 当前结果（2026-11-02）
+## 当前状态（2026-11-03）
+
+用户已明确停止009，worker和supervisor均退出；旧007/008/009均不恢复或重启。
+最后控制计数4837，最新完整模型4500保留，自动检查PAUSED。
+现已接入磁盘保存退出与冷恢复控制台；独立16环境小任务验证进程退出、释放显存、
+完整学习状态恢复，并在原12次总预算内完成。用 `trainctl wheelbipe release` 腾卡，
+用 `trainctl wheelbipe resume` 冷恢复，详见
+[新的控制台说明](WHEELBIPE_DISK_TRAINCTL_20261103.md)。
+
+## 停止前的历史结果（2026-11-02）
 
 历史完整运行是已接入 `trainctl` 的
 `full_flat_512_20000_200hz_armature_seed111_007`。已在 **10,976/20,000**
@@ -13,7 +22,7 @@
 和supervisor893525均已确认退出，保留checkpoint与诊断文件，不再保留暂停进程。
 旧campaign/train receipt的 `training` 是陈旧值；停止证据为
 `reports/wheelbipe_port_20261101/armature007_user_stop001.json`，远端运行目录
-另有 `user_stop001.json` 标记。当前 `_009` 持续运行。
+另有 `user_stop001.json` 标记。随后运行的 `_009` 也已按用户要求停止。
 最近完整 100 更新 10,877–10,976 的前向误差均值 0.820 m/s、偏航误差
 0.417 rad/s，更新时间均值 3.330 秒；策略采样闭链历史最大距离 197.273 m，
 不能把它解释为目前持续存在的距离，也不能用奖励上升证明物理正确。
@@ -27,7 +36,7 @@ checkpoint `model_10500.pt` 的独立名义冷启动诊断已完成：三档高�
 通过（9.537e-7）；新完整 `_008` 则再次暴露数值失稳，在第 14 更新暂停、
 封存后已停止，supervisor/worker 均确认退出。不能声称奖励修复已解决物理或行为问题。
 
-当前候选冻结 `dcaef5a1`，将腿 PD 参数显式暴露；默认160/2.5保持，
+009历史候选冻结 `dcaef5a1`，将腿 PD 参数显式暴露；默认160/2.5保持，
 以命令行60/2单独对照。512环境、seed113、requested DR、200策略步
 随机动作下，重置2031→776、采样闭链峰24.957→9.373 mm；增加外力迭代
 反而86.387 mm，改solver12/6为31.818 mm，均未采纳。
@@ -35,7 +44,7 @@ checkpoint `model_10500.pt` 的独立名义冷启动诊断已完成：三档高�
 闭链累计峰值 12.673 mm、关节速度峰 71.526 rad/s，ONNX 1,024 输入
 最大误差 3.576e-7。它通过工程链路检查，不代表行为或机械验收。
 
-当前完整训练为 `full_flat_512_20000_200hz_pd60_projection_seed114_009`，
+已停止的完整训练为 `full_flat_512_20000_200hz_pd60_projection_seed114_009`，
 全新 actor/critic/空 Adam、seed114、512 环境、20,000 更新、每 500 保存；
 使用 50/200 Hz、四腿轴 armature0.015795、显式 PD60/2、目标投影代价1、
 solver64/32 和 requested v2 DR。627 个部署文件和 308 个训练实现依赖的
@@ -271,14 +280,14 @@ Kaiser 移植 learner 仍使用其冻结的 RSL-RL 3.0.1 运行时。
 
 ## 远端所有权与交付
 
-最新训练冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/dcaef5a1`。
-当前 tmux：`wheelbipe-pd60-full-009`，入口
+009历史冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/dcaef5a1`。
+已退出 tmux：`wheelbipe-pd60-full-009`，历史入口
 `/home/kaiser/workspace/wheelbipe-v202-port/run-pd60-projection-full-009.sh`。
 当前小训为 `runs/pilot_512_pd60_projection_seed113_001`，30 更新及
 ONNX parity 已完成；完整运行目录为
 `runs/full_flat_512_20000_200hz_pd60_projection_seed114_009`。
-trainctl job `7bc6e6ca1e24`，启动观察 PID1120958/start_ticks19822132，
-每次操作仍须重新认证身份。旧 `_007` 源 `dd0e7be8` 的两个进程均已终止；
+历史trainctl job `7bc6e6ca1e24`，启动观察 PID1120958/start_ticks19822132；
+worker1120958及supervisor1120078已退出，禁止恢复。旧 `_007` 源 `dd0e7be8` 的两个进程均已终止；
 `_006` 在 570 更新退出，`_008` 在 14 更新数值失稳后已停止，均不重启。
 上述相对路径以 `/home/kaiser/workspace/wheelbipe-v202-port` 为父目录。
 此前两个 `5mm` 命名的 200 Hz 小训已失败退出，不能混作本次新运行。
@@ -295,25 +304,19 @@ trainctl job `7bc6e6ca1e24`，启动观察 PID1120958/start_ticks19822132，
 远端 TensorBoard 独立运行在 Kaiser 6008；
 [本机查看入口](http://127.0.0.1:6008/) 仅为 SSH 转发。
 既有 6006/6007 服务不动，本机不运行 TensorBoard。
-旧 `wheelbipe-onnx` 检查经应用确认已不存在；本轮通过应用工具重新创建
-同名 ACTIVE heartbeat，现行设置每60分钟检查当前 `_009`。正常推进保持安静，
-仅完成、失败或需要用户操作时通知。每跨 500 更新且有新 checkpoint，
-记录有限指标/窗口/哈希并 commit；保持训练源码冻结，结果提交不触发重启。
-小训已通过同源码/人口/惯量/诊断采样及 ONNX parity 检查后才进入完整训练。
-完整成功后再核对 checkpoint/ONNX SHA、20,000 更新及 parity 并取回交付。
+`wheelbipe-onnx` heartbeat已按停止009的请求设为PAUSED；旧每500轮封存、
+5000/10000评测、20k推进和ONNX自动等待均不再执行。其他检查和TensorBoard不动。
 
 ### 手动暂停与证据
 
 `trainctl` 从统一分支提交 `0b5f71c9` 同步，完整 campaign 的训练阶段
 通过 `wheel-leg-trainctl run` 启动。原生预检和只读评测不注册为 learner。
-当前 `_009` 已注册；旧 `_007` 已按用户明确要求彻底终止，不恢复或重启。
+此段记录旧驻留暂停接口。007/008/009均已停止，不能用旧ID恢复。
+新实验的保存退出和释放显存使用上文 `trainctl wheelbipe` 接口。
 
 ```bash
-ssh -t kaiser '~/.local/bin/trainctl wheel-leg'
-ssh kaiser '~/.local/bin/trainctl wheel-leg status 7bc6e6ca1e24'
-ssh kaiser '~/.local/bin/trainctl wheel-leg pause 7bc6e6ca1e24 --wait 30'
-# 人工决定继续原实验时：
-ssh kaiser '~/.local/bin/trainctl wheel-leg resume 7bc6e6ca1e24'
+# 只列出旧接口中仍存活的受管任务；不会启动或恢复009
+ssh kaiser '~/.local/bin/trainctl wheel-leg list'
 ```
 
 暂停确认保留 PID/rollout/Adam/RNG/显存；退出 TUI 不改变暂停请求。

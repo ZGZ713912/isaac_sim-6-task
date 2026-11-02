@@ -233,6 +233,42 @@ def test_shared_release_verifies_checkpoint_before_requesting_stop(tmp_path):
     assert not running and level == "error" and requests == ["pause"]
 
 
+def test_wheelbipe_release_requires_a_payload_pin_before_exit(tmp_path):
+    from wheeled_algo.managed_training import shared_console
+
+    console = shared_console()
+    requests = []
+    release = console.Release(SimpleNamespace(command=requests.append, root=tmp_path), probe=lambda: None)
+    point = tmp_path / "point.pt"
+    point.write_bytes(b"a payload whose pin has been removed")
+    write_json(Path(str(point) + ".json"), dict(format=checkpoint.FORMAT, checkpoint_pins=[],
+        completed_updates=1, total_updates=6))
+    state = dict(active=True, phase="paused", checkpoint=str(point), checkpoint_update=1, target_update=6)
+    release.step(state)
+    running, message, level = release.step(state)
+    assert not running and level == "error" and requests == []
+
+
+def test_wheelbipe_release_does_not_report_success_for_a_failed_exit(tmp_path):
+    from wheeled_algo.managed_training import shared_console
+
+    release = shared_console().Release(SimpleNamespace(root=tmp_path), probe=lambda: None)
+    release.stage = "stopping"
+    running, message, level = release.step(dict(active=False, phase="failed"))
+    assert not running and level == "error" and release.stage == "aborted"
+
+
+def test_wheelbipe_release_displays_the_real_route_and_quoted_session_path(tmp_path):
+    from wheeled_algo.managed_training import shared_console
+    import shlex
+
+    root = tmp_path / "session with spaces"
+    release = shared_console().Release(SimpleNamespace(root=root), probe=lambda: None)
+    message = release.report(dict(checkpoint_update=3, name="human display name"))
+    assert f"trainctl wheelbipe resume {shlex.quote(str(root))} --wait 60" in message
+    assert "trainctl resume human" not in message
+
+
 def _wait(predicate, timeout=25.):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
