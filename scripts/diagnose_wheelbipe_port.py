@@ -22,6 +22,9 @@ def main():
     parser.add_argument("--leg-kd",type=float,default=2.5)
     parser.add_argument("--spring-damping",type=float,default=.002)
     parser.add_argument("--passive-armature",type=float,default=0.)
+    parser.add_argument("--randomization-profile",choices=("nominal","requested"),default="nominal")
+    parser.add_argument("--external-forces-every-iteration",action="store_true")
+    parser.add_argument("--solver",nargs=2,type=int,default=(64,32))
     parser.add_argument("--actions",choices=("zero","random"),default="random")
     parser.add_argument("--checkpoint",type=Path,help="Read-only deterministic actor diagnostic, no PPO")
     parser.add_argument("--command",type=float,nargs=3,metavar=("VX","YAW","HEIGHT"))
@@ -54,11 +57,12 @@ def main():
         cfg.seed = args.seed
         cfg.sim.dt,cfg.decimation = .005,4
         cfg.sim.render_interval = 4
-        cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = 64
-        cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = 32
+        cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver[0]
+        cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver[1]
+        cfg.sim.physx.enable_external_forces_every_iteration = args.external_forces_every_iteration
         cfg.robot_cfg.actuators["spring"].damping = args.spring_damping
         cfg.robot_cfg.actuators["legs_inact"].armature = args.passive_armature
-        cfg.port_randomization_profile = "nominal"
+        cfg.port_randomization_profile = args.randomization_profile
         cfg.port_record_peaks = True
         if args.command is not None:
             cfg.use_leg_random_start = False
@@ -161,6 +165,11 @@ def main():
             max_root_speed = max(max_root_speed,float(env.robot.data.root_lin_vel_w.norm(dim=-1).max()))
             max_joint_speed = max(max_joint_speed,float(env.robot.data.joint_vel.abs().max()))
             resets += int(done.sum())
+            if (step+1)%50==0:
+                result.update(policy_samples=step+1,max_gap_m=max_gap,
+                    max_joint_speed_rad_s=max_joint_speed,resets=resets,
+                    elapsed_s=time.monotonic()-started)
+                save()
             if step in (0,args.steps//2,args.steps-1):
                 result.setdefault("state_samples",[]).append(dict(policy_sample=step+1,
                     command=env.command[0].cpu().tolist(),height_cmd_m=float(env.height_cmd[0]),

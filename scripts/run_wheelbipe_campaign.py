@@ -18,7 +18,7 @@ import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"src"))
-from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,projection_penalty
+from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,projection_penalty,leg_pd_gains
 
 
 def digest(path):
@@ -40,6 +40,8 @@ def main():
     parser.add_argument("--evaluation-steps",type=int,default=500)
     parser.add_argument("--physics-hz",type=int,choices=(200,500,1000,2000),default=200)
     parser.add_argument("--leg-armature",type=float,default=.015795)
+    parser.add_argument("--leg-kp",type=float,default=160.)
+    parser.add_argument("--leg-kd",type=float,default=2.5)
     parser.add_argument("--leg-target-projection-penalty",type=float,default=1.)
     parser.add_argument("--max-constraint-gap-mm",type=float,default=None)
     parser.add_argument("--trainctl",type=Path,default=Path.home()/".local/bin/wheel-leg-trainctl",
@@ -49,6 +51,7 @@ def main():
         gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
         args.leg_armature = leg_armature_kg_m2(args.leg_armature)
         args.leg_target_projection_penalty = projection_penalty(args.leg_target_projection_penalty)
+        args.leg_kp,args.leg_kd = leg_pd_gains(args.leg_kp,args.leg_kd)
     except ValueError as error:
         parser.error(str(error))
     if args.num_envs<1 or args.evaluation_steps<1:
@@ -69,6 +72,10 @@ def main():
     frequency = pilot["arguments"]["physics_hz"]
     if settings.get("leg_target_projection_penalty",0.)!=args.leg_target_projection_penalty:
         raise ValueError("Pilot/full target projection objectives differ")
+    if ((settings.get("leg_kp",160.),settings.get("leg_kd",2.5))!=(args.leg_kp,args.leg_kd)
+            or (pilot["native"].get("leg_kp_Nm_per_rad",160.),
+                pilot["native"].get("leg_kd_Nm_per_rad_s",2.5))!=(args.leg_kp,args.leg_kd)):
+        raise ValueError("Pilot/full feedback PD differs")
     if frequency!=args.physics_hz or pilot["native"]["policy_dt_s"]!=.02:
         raise ValueError("Do not silently migrate pilot/checkpoint integration clocks")
     if (pilot["arguments"]["num_envs"]!=args.num_envs
@@ -105,6 +112,7 @@ def main():
         owner_pid=os.getpid(),full_updates=20000,num_envs=args.num_envs,seed=args.seed,
         policy_hz=50,physics_hz=frequency,leg_armature_kg_m2=args.leg_armature,
         leg_target_projection_penalty=args.leg_target_projection_penalty,
+        leg_kp_Nm_per_rad=args.leg_kp,leg_kd_Nm_per_rad_s=args.leg_kd,
         constraint_gap_limit_m=gap_limit,constraint_gap_hard_limit_enabled=gap_limit is not None,
         diagnostic_sampling_scope=pilot["diagnostic_sampling_scope"],source_unchanged_from_pilot=True,
         fresh_full_policy=True,hardware_io=False,behavior_qualified=False)
@@ -155,6 +163,7 @@ def main():
         "--solver-position-iterations","64","--solver-velocity-iterations","32",
         "--no-external-forces-every-iteration","--randomization-profile","requested",
         "--leg-armature",str(args.leg_armature),
+        "--leg-kp",str(args.leg_kp),"--leg-kd",str(args.leg_kd),
         "--leg-target-projection-penalty",str(args.leg_target_projection_penalty)]
     if args.max_constraint_gap_mm is not None:
         common += ["--max-constraint-gap-mm",str(args.max_constraint_gap_mm)]

@@ -6,7 +6,15 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
-from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,projection_penalty
+from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,projection_penalty,leg_pd_gains
+
+
+def test_feedback_gain_comparisons_are_explicit_finite_parameters():
+    assert leg_pd_gains(60.,2.)==(60.,2.)
+    assert leg_pd_gains(160.,2.5)==(160.,2.5)
+    for kp,kd in ((0.,2.),(-1.,2.),(60.,-1.),(math.nan,2.),(60.,math.inf)):
+        with pytest.raises(ValueError):
+            leg_pd_gains(kp,kd)
 
 
 def test_projection_objective_has_explicit_historical_zero_control():

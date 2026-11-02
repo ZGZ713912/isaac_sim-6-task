@@ -67,6 +67,7 @@ def configure(cfg):
     cfg.use_obs_delay = False  # explicit v2 policy-frame age is applied in the adapter
     cfg.spring_settings = dict(mode="measured",constant_force=0.,random_force=None,damping=False)
     cfg.leg_action_scale = .5  # preserve the Wheelbipe action parameterization
+    cfg.port_leg_kp,cfg.port_leg_kd = 160.,2.5
     # Our CAD branch requires a projection absent from the source actuator.
     # Charge discarded targets so a policy cannot hide large outward requests
     # behind zero applied torque at the shortest-leg stop.

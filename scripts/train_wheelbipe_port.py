@@ -50,6 +50,8 @@ def main():
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
     parser.add_argument("--leg-armature",type=float,default=.015795,
         help="Additional inertia on each of the four driven leg axes, kg*m^2")
+    parser.add_argument("--leg-kp",type=float,default=160.)
+    parser.add_argument("--leg-kd",type=float,default=2.5)
     parser.add_argument("--leg-target-projection-penalty",type=float,default=1.,
         help="Cost weight for unreachable leg targets in rad^2; 0 reproduces the historical objective")
     parser.add_argument("--max-constraint-gap-mm",type=float,default=None,
@@ -59,11 +61,13 @@ def main():
     from wheeled_tasks.wheelbipe_port.training_contract import (
         constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,CONSTRAINT_DIAGNOSTIC_SCOPE,
         projection_penalty,
+        leg_pd_gains,
     )
     try:
         gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
         args.leg_armature = leg_armature_kg_m2(args.leg_armature)
         args.leg_target_projection_penalty = projection_penalty(args.leg_target_projection_penalty)
+        args.leg_kp,args.leg_kd = leg_pd_gains(args.leg_kp,args.leg_kd)
     except ValueError as error:
         parser.error(str(error))
     if args.num_envs<1 or args.iterations<1 or args.steps<1 or not 0.<=args.randomization_strength<=1.:
@@ -122,6 +126,7 @@ def main():
         cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver_position_iterations
         cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver_velocity_iterations
         cfg.robot_cfg.actuators["legs_act"].armature = args.leg_armature
+        cfg.port_leg_kp,cfg.port_leg_kd = args.leg_kp,args.leg_kd
         cfg.sim.physx.enable_external_forces_every_iteration = args.external_forces_every_iteration
         cfg.seed = args.seed
         cfg.port_randomization_profile = args.randomization_profile
@@ -153,6 +158,8 @@ def main():
             leg_action_scale=env.leg_action_scale,wheel_action_scale=env.wheel_action_scale,
             policy_dt_s=env.step_dt,physics_dt_s=env.physics_dt,domain=env.domain_receipt,
             leg_armature_kg_m2=args.leg_armature,leg_armature_joint_names=[ACTIVE[i] for i in (0,1,3,4)],
+            leg_kp_Nm_per_rad=env.control.settings["leg_kp"],
+            leg_kd_Nm_per_rad_s=env.control.settings["leg_kd"],
             leg_armature_native_readback_kg_m2=leg_armatures[0].cpu().tolist(),
             leg_armature_readback_verified_envs=args.num_envs,
             diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE,

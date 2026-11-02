@@ -57,6 +57,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.collision_support = CollisionSupport(self.robot.cad_joint_names,self.device)
         self.reset_penetration_peak = torch.zeros((),device=self.device)
         self.control, self.wheel_response = self.asset.components(self.num_envs,self.device)
+        self.control.settings["leg_kp"] = self.cfg.port_leg_kp
+        self.control.settings["leg_kd"] = self.cfg.port_leg_kd
         self.paired_targets = PairedTargets(self.control.gas_compensation.model,self.device)
         # The response integrates fractional 5.5/3.5 ms delays on the actual
         # physics clock. The immutable asset's historical 1ms receipt is not
@@ -355,8 +357,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
             count = self._privileged_extra_joint_count
             stiffness = torch.zeros(self.num_envs,self.robot.num_joints,device=self.device)
             damping = torch.zeros_like(stiffness)
-            stiffness[:,[self.motor_ids[i] for i in (0,1,3,4)]] = 160.
-            damping[:,[self.motor_ids[i] for i in (0,1,3,4)]] = 2.5
+            stiffness[:,[self.motor_ids[i] for i in (0,1,3,4)]] = self.cfg.port_leg_kp
+            damping[:,[self.motor_ids[i] for i in (0,1,3,4)]] = self.cfg.port_leg_kd
             damping[:,[self.motor_ids[i] for i in (2,5)]] = .5
             ids = self._privileged_extra_actuate_idx
             value[:,:count] = self._clip_scale_critic_component("joint_stiffness",stiffness[:,ids])

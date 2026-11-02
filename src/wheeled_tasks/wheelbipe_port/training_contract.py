@@ -12,6 +12,13 @@ def projection_penalty(value):
     return value
 
 
+def leg_pd_gains(kp,kd):
+    kp,kd = float(kp),float(kd)
+    if not math.isfinite(kp) or kp<=0. or not math.isfinite(kd) or kd<0.:
+        raise ValueError("Leg PD requires finite Kp>0 and Kd>=0")
+    return kp,kd
+
+
 def leg_armature_kg_m2(value):
     value = float(value)
     if not math.isfinite(value) or value<0.:
