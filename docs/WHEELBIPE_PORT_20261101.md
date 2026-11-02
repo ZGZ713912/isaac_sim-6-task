@@ -57,6 +57,21 @@ yaw误差.3810rad/s。策略采样累计闭链峰仍9.899mm，没有新峰；
 证据 `reports/wheelbipe_port_20261101/kaiser_pd60_projection009_progress00500_001.json`；
 本次只读核查与结果提交均未修改或重启训练。
 
+指标口径补充：`reset_initial_penetration_running_peak_m`为reset抬升前的
+保守AABB缺口，随后root上移并按同模型留至少2mm间隙；不是修正后实际
+接触穿透。全关节速度峰当前混合16个旋转轴和2个滑动轴的数值，且没有
+峰值joint/lane来源，不能归到主动腿。`no_fork`阈值项与`no_fork_square`
+平方项也不能混算超线比例。源码/事件/独立几何验证见
+`reports/wheelbipe_port_20261101/METRIC_INTERPRETATION_20261102.md`；
+仅补充解释和证据，未改变当前冻结训练。
+
+随后1000更新里程碑也已封存：`model_1000.pt`（零基1000，保存于第1001次
+更新后），SHA256 `ceeb7877250c405139df5bdd718d39a3df50ad84476ba91c29b2e6556666a8fc`。
+901–1000完整窗口平均5.355秒/更新、车高.22504m、前向误差.98497m/s、
+yaw误差.31216rad/s，策略采样闭链累计峰仍9.899mm。该时窗计时不能与旧
+不同窗口构成因果比较；行为仍未验收。详见
+`reports/wheelbipe_port_20261101/kaiser_pd60_projection009_progress01000_001.json`。
+
 **最新用户修订：四个腿驱动轴各添加 0.015795 kg·m² armature，策略 50 Hz、
 物理及逐物理步反馈 PD 200 Hz，取消新增的逐物理步 5 mm 检查。**
 训练、预检、完整准入和导出默认均无闭链距离阈值；保留数值有限性、
