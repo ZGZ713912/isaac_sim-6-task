@@ -284,12 +284,13 @@ class WheelbipePortEnv(WheelbipeV14Env):
             self.height_cmd.fill_(height)
 
     def _update_training_profile(self):
+        profile = getattr(self.cfg,"port_training_profile","legacy")
         if (not getattr(self,"_port_ready",False) or hasattr(self,"eval_command")
-                or getattr(self.cfg,"port_training_profile","legacy")!="foundation-v1"):
+                or profile not in ("foundation-v1","foundation-v2")):
             return
-        from .training_profile import phase_for_update,apply_phase
+        from .training_profile import phase_for_update,apply_phase,specification
         update = max(getattr(self.cfg,"port_start_completed_updates",0),self._get_training_iteration())
-        phase = phase_for_update(update)
+        phase = phase_for_update(update,specification(profile))
         if phase["start_update"]==self.port_training_phase:
             return
         apply_phase(self.cfg,update)
@@ -360,6 +361,12 @@ class WheelbipePortEnv(WheelbipeV14Env):
             self._measure_constraint_peak()
             logs = self.extras.setdefault("log",{})
             projection = self._leg_target_projection_cost()
+            observed_height = self._get_observed_height()
+            relative_height = (observed_height if self._use_absolute_height() or self._use_leg_length_height()
+                               else observed_height-self.ground_z_est)
+            height_reference = self._get_height_reward_reference_height(relative_height,
+                self.robot.data.body_pos_w[:,self._wheel_link_idx,2])
+            height_target = self._get_height_reward_target_height()
             logs.update({
                 "Port/leg_target_projection_cost_mean_rad2":projection.mean(),
                 "Port/leg_target_projected_fraction":(projection>1.e-10).float().mean(),
@@ -377,6 +384,9 @@ class WheelbipePortEnv(WheelbipeV14Env):
                 "Port/motor_wheel_abs_mean_Nm":self.motor_effort[:,(2,5)].abs().mean(),
                 "Port/spring_force_mean_N":self.spring_force.mean(),
                 "Port/base_height_mean_m":self.robot.data.root_pos_w[:,2].mean(),
+                "Port/height_command_mean_m":height_target.mean(),
+                "Port/height_error_abs_mean_m":(height_reference-height_target).abs().mean(),
+                "Port/automatic_behavior_stop_enabled":0.,
                 "Port/reset_initial_penetration_running_peak_m":self.reset_penetration_peak.clone(),
                 "Port/forward_error_abs_mean_m_s":(self.robot.data.root_lin_vel_b[:,0]-self.command[:,0]).abs().mean(),
                 "Port/yaw_error_abs_mean_rad_s":(self.robot.data.root_ang_vel_b[:,2]-self.command[:,2]).abs().mean(),

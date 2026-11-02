@@ -25,7 +25,7 @@ def main():
     p.add_argument("--num-envs", type=int, default=32)
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--seed", type=int, default=111)
-    p.add_argument("--training-profile",choices=("legacy","foundation-v1"),default="legacy")
+    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2"),default="legacy")
     p.add_argument("--control", choices=("actor", "wheel-pulse"), default="actor")
     p.add_argument("--gas-feedforward", choices=("source", "disabled"), default="source",
         help="Isolated port-only control intervention; keeps physical gas springs unchanged")

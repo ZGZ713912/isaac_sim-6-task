@@ -8,14 +8,16 @@ import math
 from pathlib import Path
 
 PROFILE_PATH = Path(__file__).resolve().parents[3]/"contracts/wheelbipe_foundation_repair_v1.json"
+PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
+                 "foundation-v2": PROFILE_PATH.with_name("wheelbipe_foundation_repair_v2.json")}
 
 
-def specification():
-    return json.loads(PROFILE_PATH.read_text())
+def specification(name="foundation-v1"):
+    return json.loads(PROFILE_PATHS[name].read_text())
 
 
-def profile_sha256():
-    return hashlib.sha256(PROFILE_PATH.read_bytes()).hexdigest()
+def profile_sha256(name="foundation-v1"):
+    return hashlib.sha256(PROFILE_PATHS[name].read_bytes()).hexdigest()
 
 
 def phase_for_update(completed_updates, spec=None):
@@ -27,6 +29,8 @@ def phase_for_update(completed_updates, spec=None):
 
 
 def apply_phase(cfg, completed_updates, spec=None):
+    if spec is None:
+        spec = specification(getattr(cfg,"port_training_profile","foundation-v1"))
     phase = phase_for_update(completed_updates, spec)
     cfg.commands.ranges.lin_vel_x = (-phase["vx_max_m_s"], phase["vx_max_m_s"])
     cfg.commands.ranges.ang_vel_z = (-phase["yaw_max_rad_s"], phase["yaw_max_rad_s"])
@@ -39,19 +43,21 @@ def apply_phase(cfg, completed_updates, spec=None):
 
 
 def configure_profile(cfg, name):
-    if name not in ("legacy", "foundation-v1"):
+    if name not in ("legacy", *PROFILE_PATHS):
         raise ValueError("Unknown Wheelbipe training profile: "+name)
     cfg.port_training_profile = name
     cfg.port_gas_feedforward = True
     cfg.port_reward_motor_only = False
     cfg.port_review_updates = ()
+    cfg.port_behavior_auto_exit_enabled = False
     if name == "legacy":
         return
-    spec = specification()
-    cfg.port_profile_sha256 = profile_sha256()
+    spec = specification(name)
+    cfg.port_profile_sha256 = profile_sha256(name)
     cfg.port_gas_feedforward = spec["gas_cancellation_feedforward"]
     cfg.port_reward_motor_only = True
-    cfg.port_review_updates = tuple(spec["review_updates"])
+    # User 2026-11-03: behavior diagnostics must never interrupt PPO. Historical
+    # v1 review metadata remains immutable but no longer schedules learner exits.
     cfg.rewards = deepcopy(cfg.rewards)
     cfg.rewards.update(spec["reward_overrides"])
     for key, value in spec["parameter_overrides"].items():
@@ -83,7 +89,7 @@ def electrical_reward_terms(motor, velocity, previous, before_previous):
 
 
 def behavior_gate(receipt, spec=None):
-    """Assess complete native window data, without inferring untested abilities."""
+    """Offline historical-v1 score only; never a learner continuation control."""
     gate = (spec or specification())["review_gate"]
     errors = []
     if receipt.get("status") != "complete" or receipt.get("ppo_updates") != 0:

@@ -96,3 +96,32 @@ def test_user_accepted_drift_is_reported_without_new_rejection_cutoff():
     receipt["cases"][0]["windows"]["tail_half"]["vx_m_s"] = dict(mean=.192,abs_mean=.192)
     assert behavior_gate(receipt)["passed"]
     assert specification()["reward_overrides"]["stand_still_lin_vel"]==-1.
+
+
+def test_v2_restores_saved_wheelbipe_reward_balance_and_exposes_all_heights():
+    cfg=fake_cfg()
+    configure_profile(cfg,"foundation-v2")
+    assert cfg.rewards["track_lin_vel_xy"]==1.
+    assert cfg.lin_vel_xy_sigma==.5 and cfg.lin_vel_xy_square_sigma==.25
+    assert cfg.rewards["track_height_exp_tight"]==1.
+    assert cfg.rewards["track_height_square"]==-1.
+    assert cfg.height_tight_sigma==.001 and cfg.height_square_sigma==10.
+    assert cfg.height_range==[.23,.42] and cfg.leg_length_range==[.20,.33]
+    assert not cfg.port_gas_feedforward and cfg.port_reward_motor_only
+    # Advancing/restoring the course must select this version, not v1's narrow range.
+    for update in (0,1000,1999,2000,6000,12000):
+        apply_phase(cfg,update)
+        assert cfg.height_range==[.23,.42]
+
+
+@pytest.mark.parametrize("name",["legacy","foundation-v1","foundation-v2"])
+def test_user_removed_behavior_exits_apply_to_every_future_profile(name):
+    cfg=fake_cfg()
+    configure_profile(cfg,name)
+    assert cfg.port_review_updates==()
+    assert cfg.port_behavior_auto_exit_enabled is False
+    if name=="foundation-v2":
+        spec=specification(name)
+        assert spec["review_updates"]==spec["required_behavior_reviews"]==[]
+        assert spec["automatic_behavior_stop_enabled"] is False
+        assert spec["total_updates"]==20000

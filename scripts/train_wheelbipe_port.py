@@ -43,7 +43,7 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
-    parser.add_argument("--training-profile",choices=("legacy","foundation-v1"),default="legacy")
+    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2"),default="legacy")
     parser.add_argument("--gas-feedforward",action=argparse.BooleanOptionalAction,default=None,
         help="Explicitly override cancellation of the physical spring torque; the spring itself is retained")
     parser.add_argument("--solver-position-iterations",type=int,default=12)
@@ -97,6 +97,7 @@ def main():
     receipt = dict(status="preparing",started_at=datetime.now(timezone.utc).isoformat(),
         arguments={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
         hardware_io=False,behavior_qualified=False,completed_updates=0,constraint_gap_limit_m=gap_limit,
+        automatic_behavior_stop_enabled=False,behavior_review_exit_updates=[],
         constraint_gap_hard_limit_enabled=gap_limit is not None,
         diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE)
     path = args.output/"receipt.json"
@@ -153,7 +154,7 @@ def main():
         from wheeled_tasks.wheelbipe_port.training_profile import configure_profile,apply_phase
         configure_profile(cfg,args.training_profile)
         cfg.port_start_completed_updates = managed.completed if managed is not None else 0
-        if args.training_profile=="foundation-v1":
+        if args.training_profile in ("foundation-v1","foundation-v2"):
             apply_phase(cfg,cfg.port_start_completed_updates)
         if args.gas_feedforward is not None:
             cfg.port_gas_feedforward = args.gas_feedforward
@@ -296,11 +297,6 @@ def main():
                 if not all(torch.isfinite(torch.as_tensor(v)).all() for v in values["loss_dict"].values()):
                     raise ValueError("Nonfinite PPO losses")
                 check_constraint_gap(peak,gap_limit,"PPO")
-                if completed in cfg.port_review_updates and completed<args.iterations:
-                    if managed is None:
-                        raise ValueError("This profile requires managed save/exit behavior reviews")
-                    if managed.stop.reason is None:
-                        managed.stop.reason = f"behavior_review:{completed}"
                 if managed is not None:
                     managed.after_update(completed)
                     active,paused = managed.control.elapsed()
