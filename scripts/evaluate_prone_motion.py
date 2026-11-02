@@ -419,6 +419,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
     spring_outside_low = torch.zeros_like(spring_outside)
     spring_outside_high = torch.zeros_like(spring_outside)
     spring_count = 0
+    ordered_coverage = dict(rising_samples=0, height_disabled_samples=0, height_full_samples=0)
     for _ in range(round(1.5/env.policy_dt)):
         if stop_requested():
             from train_scratch_standing import TrainingStopped
@@ -430,6 +431,37 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         expected = ((sum(state["task_reward_terms"].values())*env.policy_dt+state["reward_potential_progress"]
                     +3.*state["recovery_completed_event"])*extra["policy_learning_mask"]-failure_cost*state["terminated"])
         checks["actual_reward_payment"] = checks.get("actual_reward_payment", True) and bool(torch.allclose(reward, expected, atol=1e-5))
+        if state.get("standard_getup_guidance") is not None:
+            g = state["standard_getup_guidance"]
+            rising = state["task_recovery_rising"]
+            c = plan["multi_pose_recovery"]["dense_reward"]
+            paid = state["task_reward_terms"]
+            up = (-state["gravity"][:, 2]).clamp(0., 1.)
+            height = state["height"]-c["target_height_m"]
+            reference = (c["belly_height_m"]-c["target_height_m"])/c["height_error_scale_m"]
+            expected_height = c["height_weight"]*up*torch.exp(-(height/c["height_width_m"]).square())*g["height_gate"]*rising
+            expected_error = c["height_error_weight"]*(math.log1p(reference**2)
+                -torch.log1p((height/c["height_error_scale_m"]).square()))*g["height_gate"]*rising
+            expected_tilt = -c["upright_error_weight"]*(state["gravity"]
+                -state["gravity"].new_tensor([0., 0., -1.])).square().sum(-1)*rising
+            checks["ordered_state_terms_reach_actual_reward"] = checks.get(
+                "ordered_state_terms_reach_actual_reward", True) and bool(
+                    torch.allclose(paid["recovery_height"], expected_height, atol=1e-6)
+                    and torch.allclose(paid["recovery_height_error"], expected_error, atol=1e-6)
+                    and torch.allclose(paid["recovery_upright"], expected_tilt, atol=1e-6))
+            deferred = rising & (g["height_gate"] == 0.)
+            checks["ordered_height_deferred_without_support"] = checks.get(
+                "ordered_height_deferred_without_support", True) and bool(
+                    (paid["recovery_height"][deferred] == 0.).all()
+                    and (paid["recovery_height_error"][deferred] == 0.).all())
+            names = ("fold_score", "support_capture", "height_gate", "support_error_m",
+                "physical_knee_max_deg", "wheel_fore_aft_error_m", "geometry_valid")
+            checks["ordered_TensorBoard_metrics_present"] = all(
+                "StandardGetup/"+name in extra["log"] for name in names)
+            active = rising & extra["policy_learning_mask"]
+            ordered_coverage["rising_samples"] += int(active.sum())
+            ordered_coverage["height_disabled_samples"] += int((active & deferred).sum())
+            ordered_coverage["height_full_samples"] += int((active & (g["height_gate"] == 1.)).sum())
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
         checks["all_six_physical_step_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
         physical = env.prone_motion_physical
@@ -565,6 +597,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         checks["standing_odometry_initialized_standing_capture_observed"] = odometry_seen > 0
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                ordered_reward_coverage=ordered_coverage,
                 physical_dt_s=env.dt, policy_dt_s=env.policy_dt,
                 control_timing=deepcopy(env.startup_report["control_timing"]),
                 standing_odometry_valid_initialized_samples=odometry_seen,

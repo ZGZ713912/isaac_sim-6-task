@@ -245,6 +245,8 @@ def source_hashes(plan_path, plan):
              "contracts/wheel_leg_prone_motion_v4.json", "tests/test_standing_local_odometry.py",
              "src/wheeled_tasks/chassis/native_wheel_encoder.py", "src/wheeled_tasks/chassis/standard_getup_reward.py",
              "tests/test_standard_getup_learning.py", "scripts/diagnose_standard_getup.py",
+             "tests/test_standard_getup_sequence.py", "docs/STANDARD_GETUP_SEQUENCE_20261103.md",
+             "contracts/wheel_leg_prone_motion_v4_before_sequence_20261103.json",
              "contracts/wheel_leg_prone_motion_v4_before_getup_fix_20261102.json",
              "contracts/wheel_leg_prone_motion_v4_before_repair_20261102.json",
              "contracts/wheel_leg_prone_motion_v4_multi_pose_repair_20261102.json",

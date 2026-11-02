@@ -282,6 +282,12 @@ class ProneMotionEnv(RobustGetupEnv):
         _, _, gravity, height, _, _, _ = self.state()
         route = self.route_state()
         if self.multi_pose_cfg is not None:
+            from .standard_getup_reward import ordered, ordered_potential
+            dense = self.multi_pose_cfg.get("dense_reward", {})
+            if ordered(dense):
+                state = self._recovery_reward_state(dict(gravity=gravity, height=height), route)
+                value = ordered_potential(state, dense)
+                return torch.where(self.recovery_lane & ~self.ever_recovered, value, 6.*torch.ones_like(value))
             from .multi_pose_recovery import potential
             value = potential(gravity,height,route["support_error_m"])
             return torch.where(self.recovery_lane & ~self.ever_recovered, value, 8.*torch.ones_like(value))
@@ -289,6 +295,13 @@ class ProneMotionEnv(RobustGetupEnv):
         value, _ = route_potential(gravity, route["knee_deg"], route["support_error_m"], height,
             self.prone_task, geometry_valid=route["encoder_valid"].all(-1))
         return torch.where(self.recovery_lane & ~self.ever_recovered, value, 15.*torch.ones_like(value))
+
+    def _recovery_reward_state(self, state, route):
+        from .standard_getup_reward import geometry_inputs, ordered
+        result = dict(state, recovery_support_error_m=route["support_error_m"])
+        if ordered(self.multi_pose_cfg.get("dense_reward", {})):
+            result.update(geometry_inputs(route, self.robot.data.root_link_pose_w.torch))
+        return result
 
     def task_stable(self, *args):
         return task.stable(*args)
@@ -325,10 +338,16 @@ class ProneMotionEnv(RobustGetupEnv):
             position_tail=self.plan.get("quiet_position_tail"))
         terms["leg_speed"] = -.002*state["leg_speed_square"]
         stage_extra = {}
+        sequence_scores = None
         if self.multi_pose_cfg is not None:
             from .multi_pose_recovery import recovery_terms
-            new_terms = recovery_terms(dict(state,recovery_support_error_m=route["support_error_m"]),
-                self.multi_pose_cfg,self.recovery_impact.cost_integral/self.policy_dt)
+            from .standard_getup_reward import guidance, ordered
+            reward_state = self._recovery_reward_state(state, route)
+            dense = self.multi_pose_cfg.get("dense_reward", {})
+            if ordered(dense):
+                sequence_scores = guidance(reward_state, dense)
+            new_terms = recovery_terms(reward_state, self.multi_pose_cfg,
+                self.recovery_impact.cost_integral/self.policy_dt, scores=sequence_scores)
             terms = {key:torch.where(rising, new_terms.get(key,torch.zeros_like(value)),value)
                      for key,value in terms.items()}
             for key,value in new_terms.items():
@@ -369,6 +388,10 @@ class ProneMotionEnv(RobustGetupEnv):
                 recovery_episode_force_peak_n=self.recovery_impact.episode_force_peak.clone(),
                 recovery_episode_impulse_peak_ns=self.recovery_impact.episode_impulse_peak.clone(),
                 recovery_part_impact_bad=bad["part_impact"].clone())
+            if sequence_scores is not None:
+                stage_extra["standard_getup_guidance"] = dict(sequence_scores,
+                    physical_knee_max_deg=route["knee_deg"].amax(-1),
+                    wheel_fore_aft_error_m=reward_state["recovery_fore_aft_error_m"])
         for value in bad.values():
             terminated |= value
         if self.multi_pose_cfg is not None:
@@ -462,6 +485,14 @@ class ProneMotionEnv(RobustGetupEnv):
             result[prefix+"motoring_derated_fraction"] = (physical["wheel_drive_bound"][:, :, index] < 4.5-1e-6).float().mean()
         for name, value in extra["task_reward_terms"].items():
             result["ProneMotion/reward_density_"+name] = value.mean()
+        if extra.get("standard_getup_guidance") is not None:
+            scores = extra["standard_getup_guidance"]
+            mask = extra["task_recovery_rising"] & ~self.passive
+            names = ("fold_score", "support_capture", "height_gate", "support_error_m",
+                     "physical_knee_max_deg", "wheel_fore_aft_error_m", "geometry_valid")
+            fields = torch.stack([scores[name].float() for name in names], -1)
+            means = torch.where(mask[:, None], fields, 0.).sum(0)/mask.sum().clamp_min(1)
+            result.update({"StandardGetup/"+name: means[i] for i, name in enumerate(names)})
         if self.sampling is not None:
             fields = dict(height_m=state['height'], vx_m_s=state['velocity'][:, 0],
                 yaw_rad_s=state['omega'][:, 2], commanded_vx_m_s=self.commands[:, 0],

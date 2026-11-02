@@ -88,7 +88,8 @@ class StandardProneEnv(RobustGetupEnv):
                     encoder_knee_rate_deg_s=encoder["knee_rate_deg_s"],
                     encoder_leg_length_m=encoder["leg_length_m"],
                     encoder_leg_length_rate_m_s=encoder["leg_length_rate_m_s"],
-                    encoder_wheel_body_m=encoder["wheel_body_m"], encoder_valid=encoder["valid"],
+                    encoder_wheel_body_m=encoder["wheel_body_m"], encoder_wheel_world_m=wheel_world,
+                    encoder_valid=encoder["valid"],
                     encoder_vs_native_wheel_error_m=(wheel_world-self.wheel_centers()).norm(dim=-1),
                     encoder_vs_passive_knee_error_deg=(encoder["knee_deg"]-true_knees).abs())
 

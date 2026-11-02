@@ -294,12 +294,12 @@ def potential(gravity, height, support_error):
     return 2.*up + 2.*up*aligned + 4.*up*lift
 
 
-def recovery_terms(state, config, impact_cost_density):
+def recovery_terms(state, config, impact_cost_density, *, scores=None):
     """Time/effort costs, plus explicit continuous standard-getup guidance."""
     terms = dict(rise_time=-config["time_cost_per_second"]*torch.ones_like(state["height"]),
         effort=-.000025*state["torque"].square().mean(-1),
         action_rate=-.001*state["action_delta"], impact=-impact_cost_density)
     if config.get("dense_reward") is not None:
         from .standard_getup_reward import dense_terms
-        terms.update(dense_terms(state, config["dense_reward"]))
+        terms.update(dense_terms(state, config["dense_reward"], scores=scores))
     return terms
