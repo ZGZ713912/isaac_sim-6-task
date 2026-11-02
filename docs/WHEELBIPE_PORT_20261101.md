@@ -8,7 +8,12 @@
 
 历史完整运行是已接入 `trainctl` 的
 `full_flat_512_20000_200hz_armature_seed111_007`。已在 **10,976/20,000**
-更新通过原进程控制器确认暂停（PID 894340、job `d9fc40ee41b8`），保留现场。
+更新通过原进程控制器确认暂停（PID 894340、job `d9fc40ee41b8`）。
+2026-11-02 19:47（UTC+8）用户明确要求彻底终止该旧实验；worker894340
+和supervisor893525均已确认退出，保留checkpoint与诊断文件，不再保留暂停进程。
+旧campaign/train receipt的 `training` 是陈旧值；停止证据为
+`reports/wheelbipe_port_20261101/armature007_user_stop001.json`，远端运行目录
+另有 `user_stop001.json` 标记。当前 `_009` 持续运行。
 最近完整 100 更新 10,877–10,976 的前向误差均值 0.820 m/s、偏航误差
 0.417 rad/s，更新时间均值 3.330 秒；策略采样闭链历史最大距离 197.273 m，
 不能把它解释为目前持续存在的距离，也不能用奖励上升证明物理正确。
@@ -38,7 +43,7 @@ SHA-256 已重新核对；完整初始化 SHA 与小训不同，没有接用旧�
 启动观察完成 114 更新；回执至第 110 更新策略采样累计距离峰 9.899 mm，
 关节速度峰 62.552 rad/s。第 65–114 更新平均 3.344 秒/更新，其中采样
 3.263 秒、学习 0.082 秒。训练中平均车高仍约 .226 m、前向误差 1.085 m/s，
-尚未证明解决高度/速度跟踪；旧 `_007` 保持暂停，失败 `_008` 不重启。
+尚未证明解决高度/速度跟踪；旧 `_007` 已按用户要求停止，失败 `_008` 不重启。
 TensorBoard 距离 tag 是策略边界样本的 rollout 归约，不能当逐物理步峰值。
 机器可读启动观察见 `kaiser_pd60_projection009_launch001.json`。
 详情 `reports/wheelbipe_port_20261101/PROJECTION_REPAIR_20261102.md`。
@@ -199,7 +204,7 @@ Kaiser 移植 learner 仍使用其冻结的 RSL-RL 3.0.1 运行时。
 ONNX parity 已完成；完整运行目录为
 `runs/full_flat_512_20000_200hz_pd60_projection_seed114_009`。
 trainctl job `7bc6e6ca1e24`，启动观察 PID1120958/start_ticks19822132，
-每次操作仍须重新认证身份。旧 `_007` 源 `dd0e7be8` 原进程暂停保留；
+每次操作仍须重新认证身份。旧 `_007` 源 `dd0e7be8` 的两个进程均已终止；
 `_006` 在 570 更新退出，`_008` 在 14 更新数值失稳后已停止，均不重启。
 上述相对路径以 `/home/kaiser/workspace/wheelbipe-v202-port` 为父目录。
 此前两个 `5mm` 命名的 200 Hz 小训已失败退出，不能混作本次新运行。
@@ -217,7 +222,7 @@ trainctl job `7bc6e6ca1e24`，启动观察 PID1120958/start_ticks19822132，
 [本机查看入口](http://127.0.0.1:6008/) 仅为 SSH 转发。
 既有 6006/6007 服务不动，本机不运行 TensorBoard。
 旧 `wheelbipe-onnx` 检查经应用确认已不存在；本轮通过应用工具重新创建
-同名 ACTIVE heartbeat，每 30 分钟检查当前 `_009`。正常推进保持安静，
+同名 ACTIVE heartbeat，现行设置每60分钟检查当前 `_009`。正常推进保持安静，
 仅完成、失败或需要用户操作时通知。每跨 500 更新且有新 checkpoint，
 记录有限指标/窗口/哈希并 commit；保持训练源码冻结，结果提交不触发重启。
 小训已通过同源码/人口/惯量/诊断采样及 ONNX parity 检查后才进入完整训练。
@@ -227,7 +232,7 @@ trainctl job `7bc6e6ca1e24`，启动观察 PID1120958/start_ticks19822132，
 
 `trainctl` 从统一分支提交 `0b5f71c9` 同步，完整 campaign 的训练阶段
 通过 `wheel-leg-trainctl run` 启动。原生预检和只读评测不注册为 learner。
-当前 `_009` 已注册；旧 `_007` 保持其已有暂停请求，不恢复。
+当前 `_009` 已注册；旧 `_007` 已按用户明确要求彻底终止，不恢复或重启。
 
 ```bash
 ssh -t kaiser '~/.local/bin/trainctl wheel-leg'
