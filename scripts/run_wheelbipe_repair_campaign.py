@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -25,6 +26,16 @@ from wheeled_tasks.wheelbipe_port.training_profile import specification,behavior
 
 def timestamp():
     return datetime.now(timezone.utc).isoformat()
+
+
+def data_json(path):
+    """Training/ONNX receipts contain per-lane masses; control files stay small."""
+    descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    with os.fdopen(descriptor,'rb') as stream:
+        info=os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size>8*1024**2:
+            raise ValueError('Training data receipt exceeds the bounded 8MiB reader')
+        return json.load(stream)
 
 
 def validate_admission(receipt,parity,num_envs):
@@ -42,6 +53,10 @@ def validate_admission(receipt,parity,num_envs):
     for name,expected in receipt["implementation_files_sha256"].items():
         if file_pin(ROOT/name)["sha256"]!=expected:
             raise ValueError("Campaign learner source changed after native admission: "+name)
+    for name,expected in receipt["deployment"]["files_sha256"].items():
+        if name.startswith(("src/","configs/","contracts/","model/","third_party/")):
+            if file_pin(ROOT/name)["sha256"]!=expected:
+                raise ValueError("Campaign simulation/config data changed after native admission: "+name)
     if (parity["checkpoint_sha256"]!=receipt["checkpoint_sha256"]
             or parity["max_absolute_error"]>1.e-5 or parity["gas_cancellation_feedforward"]):
         raise ValueError("Pilot export/parity/control contract failed")
@@ -69,12 +84,12 @@ def main():
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     if args.session.exists():
         p.error('Refusing to adopt or restart an existing campaign')
-    admitted=read_json(args.admission)
+    admitted=data_json(args.admission)
     parity_path=Path(admitted['latest_checkpoint']).parent/'onnx/contract.json'
-    validate_admission(admitted,read_json(parity_path),args.num_envs)
+    validate_admission(admitted,data_json(parity_path),args.num_envs)
     if file_pin(admitted['latest_checkpoint'])['sha256']!=admitted['checkpoint_sha256']:
         raise ValueError('Admission checkpoint changed')
-    parity=read_json(parity_path)
+    parity=data_json(parity_path)
     if file_pin(parity_path.parent/'policy.onnx')['sha256']!=parity['onnx_sha256']:
         raise ValueError('Admission ONNX changed')
     common=['--mode','train','--task','flat','--num-envs',str(args.num_envs),'--iterations','20000',
@@ -110,7 +125,7 @@ def main():
             state['inference_pid']=process.pid
             write_json(path,state,replace=True)
             code=process.wait()
-        receipt=read_json(output/'receipt.json')
+        receipt=data_json(output/'receipt.json')
         if code or not receipt or receipt.get('status')!='complete':
             raise RuntimeError(f'Inference failed with exit {code}; see {output}.log')
         process=None
@@ -167,7 +182,7 @@ def main():
         if current['update']!=20000:
             raise ValueError('The fixed original total budget was not completed')
         last=session.attempt()/'train'
-        trained=read_json(last/'receipt.json')
+        trained=data_json(last/'receipt.json')
         checkpoint=Path(trained['latest_checkpoint'])
         if trained['status']!='training_complete' or trained['completed_updates']!=20000:
             raise ValueError('Final learner receipt is incomplete')
