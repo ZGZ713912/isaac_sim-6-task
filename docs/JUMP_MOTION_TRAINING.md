@@ -46,7 +46,9 @@ trainctl --host kaiser
 
 入口默认接入 trainctl。TensorBoard 使用既有 RSL-RL event，新增 `Airborne/*`、
 `Jump/*` 与 `JumpReward/*`。事件 tag 单位是每策略步事件数，速度 m/s、净空/高度 m、
-力 N、时间 s；TensorBoard step 是已完成 PPO 更新（一次参数更新，不是一次 episode）。
+力 N、时间 s。原生 RSL-RL reward/loss 的 step 是从0开始的更新索引（step 0对应
+第1次已完成参数更新）；`Curriculum/*` 和 `TrainControl/*` 使用已完成更新数，
+对比时按这个映射对齐。一次 PPO 更新不是一次 episode。
 `progress.json` 的 `jump_training` 保存从本次训练开始累计的空中出生、请求、主动起跳、
 落地与两种成功计数。混合 episode 长度不能作为站立生存时间。
 `ProneMotion/<原角色>/*` 的行为均值仅统计保留的原课程样本，空中/跳跃样本分别记录，
