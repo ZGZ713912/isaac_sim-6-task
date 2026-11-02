@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 
 TASKS = {f"WheelLeg-ProneMotion-v{v}": f"contracts/wheel_leg_prone_motion_v{v}.json" for v in (1, 2, 3, 4, 5)}
+TASKS["WheelLeg-JumpMotion-v1"] = "contracts/wheel_leg_jump_motion_v1.json"
 DEFAULT_TASK = "WheelLeg-ProneMotion-v4"
 OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_rate",
                "domain_randomization", "dr_strength", "num_steps_per_env", "recovery_curriculum",
@@ -297,7 +298,8 @@ def output_path(args, root, *, training):
     if args.output is not None:
         return args.output.expanduser().resolve()
     name = args.run_name or datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")
-    return (root/"runs"/("prone_motion" if training else "prone_motion_play")/name).resolve()
+    folder = "jump_motion" if args.task == "WheelLeg-JumpMotion-v1" else "prone_motion"
+    return (root/"runs"/(folder if training else folder+"_play")/name).resolve()
 
 
 def validate_device(device):
@@ -313,7 +315,8 @@ def training_options(args, root):
     if not path.is_relative_to(root):
         raise ValueError("--plan must be inside the source repository for source freezing")
     base = json.loads(path.read_text())
-    if base["schema"] != "wheel-leg-prone-motion-v"+args.task.rsplit("v", 1)[1]:
+    expected_schema = "wheel-leg-prone-motion-v4" if args.task == "WheelLeg-JumpMotion-v1" else "wheel-leg-prone-motion-v"+args.task.rsplit("v", 1)[1]
+    if base["schema"] != expected_schema or (args.task == "WheelLeg-JumpMotion-v1" and not base.get("jump_training")):
         raise ValueError("--task and --plan select different task versions")
     output = output_path(args, root, training=True)
     if args.resume is not None:

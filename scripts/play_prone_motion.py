@@ -28,7 +28,7 @@ def parser():
     add_common(result, training=False)
     result.add_argument("--checkpoint", type=Path, required=True, help="Read-only .pt; never used to resume training")
     result.add_argument("--run", type=Path, help="Run containing agent_config.json and pose_bank.json; default: checkpoint parent")
-    result.add_argument("--scene", choices=task.ROLES, default="prone")
+    result.add_argument("--scene", choices=task.ROLES+("airborne", "jump"), default="prone")
     from wheeled_tasks.chassis.multi_pose_recovery import FAMILIES, LEG_CLASSES
     result.add_argument("--fallen-family",choices=FAMILIES,default="belly_down")
     result.add_argument("--leg-class",choices=LEG_CLASSES,default="rear_rear")
@@ -71,8 +71,13 @@ def load_bundle(args):
     plan = task.validate(info.get("resolved_plan", json.loads(plan_file.read_text())))
     if task.validate(json.loads(plan_file.read_text())) != plan:
         raise ValueError("Run plan differs from the checkpoint's resolved plan")
-    if args.task is not None and plan["schema"] != "wheel-leg-prone-motion-v"+args.task.rsplit("v", 1)[1]:
+    expected_schema = ("wheel-leg-prone-motion-v4" if args.task == "WheelLeg-JumpMotion-v1" else
+        "wheel-leg-prone-motion-v"+args.task.rsplit("v", 1)[1] if args.task else plan["schema"])
+    if args.task is not None and (plan["schema"] != expected_schema or
+            (args.task == "WheelLeg-JumpMotion-v1" and not plan.get("jump_training"))):
         raise ValueError("--task differs from checkpoint version; select its original task")
+    if args.scene in ("airborne", "jump") and not plan.get("jump_training"):
+        raise ValueError("Jump/airborne preview requires a checkpoint trained on the explicit mixed-jump course")
     completed = state["iter"]
     if type(completed) is not int or not 0 <= completed <= plan["max_updates"] or info["completed_updates"] != completed:
         raise ValueError("Checkpoint iteration accounting is inconsistent")
@@ -145,6 +150,12 @@ def prepare(args, bundle, output):
 
 
 def case_for(args, env, plan):
+    if args.scene in ("airborne", "jump"):
+        return dict(role="stand", recovery=False, birth_height=args.birth_height,
+            pose_index=env.height_pose[args.birth_height], pitch_deg=0.,
+            target=[0., 0., plan["jump_training"]["standing_height_m"]], command=[0., 0., args.birth_height],
+            jump_mode=1 if args.scene == "airborne" else 2,
+            evaluation_seconds=plan["jump_training"]["episode_seconds"])
     prone = args.scene == "prone"
     target = task.target(args.scene, plan["max_updates"], plan, final=True, height=args.height)
     if args.vx is not None:
@@ -221,7 +232,10 @@ def main():
             kit_args="--/exts/omni.kit.telemetry/skipDeferredStartup=true"))
         signal.signal(signal.SIGINT, stop)
         signal.signal(signal.SIGTERM, stop)
-        from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
+        if bundle["plan"].get("jump_training") is not None:
+            from wheeled_tasks.chassis.jump_motion_env import JumpMotionEnv as ProneMotionEnv
+        else:
+            from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
         manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
         env = ProneMotionEnv(cfg, manifest, control, ROOT, stage_name="speed", num_envs=args.num_envs,
             device=args.device, seed=bundle["seed"], level=1., run_role="playback", bank=bundle["bank"], settings=settings)

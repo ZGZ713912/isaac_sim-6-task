@@ -8,6 +8,24 @@ VERSION = 'dual-wheel-grounded-reset-v2-final-observation'
 PRELOAD_M = .00005
 
 
+def refresh_reset_sensors(env, selected):
+    """Refresh only reset lanes after their final placement; preserve RNG and delays."""
+    from .env import ChassisEnv
+    env.history.reset(selected)
+    frame = ChassisEnv.get_observations(env)['policy']
+    sensors = frame[selected, 4:22].clone()
+    if env.standing_observer is not None:
+        sensors[:, 10:12] = env.robot.data.joint_pos.torch[selected][:, env.ids][:, [2, 5]]
+        env.standing_observer.reset(selected)
+        if env.standing_sensor_winding is not None:
+            env.standing_sensor_winding.reset(selected)
+    if env.domain.imu_mount is not None:
+        sensors = env.domain.imu_mount.apply(sensors, env.tick * env.policy_dt, selected) + env.domain.bias[selected]
+        env.domain.last_sensor_tick = -1
+    env.domain.sensor_history[:, selected] = sensors[None]
+    env.domain.observed[selected] = sensors
+
+
 def rotate_about_axis(value, axis, angle):
     axis = axis[:, None, :]
     c, s = angle[:, None, None].cos(), angle[:, None, None].sin()
@@ -78,19 +96,7 @@ def install(env, *, include_motion=False):
         # The parent reset already queried this policy tick, before final
         # pitch/grounding. Refresh only placed lanes; preserve other histories
         # and the domain RNG, gains, delays and sensor cursor.
-        env.history.reset(selected)
-        frame = ChassisEnv.get_observations(env)['policy']
-        sensors = frame[selected, 4:22].clone()
-        if env.standing_observer is not None:
-            sensors[:, 10:12] = env.robot.data.joint_pos.torch[selected][:, env.ids][:, [2, 5]]
-            env.standing_observer.reset(selected)
-            if env.standing_sensor_winding is not None:
-                env.standing_sensor_winding.reset(selected)
-        if env.domain.imu_mount is not None:
-            sensors = env.domain.imu_mount.apply(sensors, env.tick * env.policy_dt, selected) + env.domain.bias[selected]
-            env.domain.last_sensor_tick = -1
-        env.domain.sensor_history[:, selected] = sensors[None]
-        env.domain.observed[selected] = sensors
+        refresh_reset_sensors(env, selected)
         state['placement_calls'] += 1
         state['environments'] += len(selected)
         state['maximum_translation_m'] = max(state['maximum_translation_m'], float((pose[:, 2] - root[:, 2]).abs().max()))

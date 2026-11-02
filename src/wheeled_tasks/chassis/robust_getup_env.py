@@ -458,6 +458,9 @@ class RobustGetupEnv(ChassisEnv):
         recovery_impact = getattr(self, "recovery_impact", None)
         if recovery_impact is not None:
             recovery_impact.begin_interval()
+        jump_training = getattr(self, "jump_training", None)
+        if jump_training is not None:
+            jump_training.begin_interval()
         previous = self.actions.clone()
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, motor_ids]
@@ -564,6 +567,16 @@ class RobustGetupEnv(ChassisEnv):
             from .standing_support import wheel_bottom_clearance
             wheel_pose = self.robot.data.body_link_pose_w.torch[:, wheel_bodies]
             wheel_clearance = wheel_bottom_clearance(self.wheel_centers(), wheel_pose[:, :, 3:], self.origins[:, 2:3])
+            if jump_training is not None:
+                jump_training.observe(
+                    height=self.robot.data.root_link_pose_w.torch[:, 2]-self.origins[:, 2],
+                    velocity=root_link_linear_velocity(self, frame="world"),
+                    omega=self.robot.data.root_com_ang_vel_b.torch,
+                    gravity=self.robot.data.projected_gravity_b.torch,
+                    wheel_clearance=wheel_clearance,
+                    wheel_force_z=self.contact_force[:, wheel_bodies, 2],
+                    nonwheel_force=self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1),
+                    enabled=active_interval & ~self.finished)
             wheel_clearance_peak = torch.maximum(wheel_clearance_peak, wheel_clearance)
             if contact_guidance:
                 wheel_vertical_force_floor = torch.minimum(wheel_vertical_force_floor,
