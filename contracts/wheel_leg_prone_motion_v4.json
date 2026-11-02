@@ -372,7 +372,7 @@
     "reset_scope": "standard_prone_only",
     "standard_reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0",
     "dense_reward": {
-      "schema": "wheel-leg-standard-getup-ordered-v2",
+      "schema": "wheel-leg-standard-getup-contact-v3",
       "target_height_m": 0.305,
       "height_weight": 2.0,
       "height_width_m": 0.06,
@@ -398,7 +398,15 @@
       "potential_lift_weight": 3.0,
       "belly_height_m": 0.173,
       "units": "reward_per_second",
-      "activation": "original_standard_prone_before_completion"
+      "activation": "original_standard_prone_before_completion",
+      "wheel_load_full_fraction": 0.15,
+      "wheel_clearance_full_m": 0.001,
+      "wheel_clearance_zero_m": 0.003,
+      "height_gate_full_rate_rad_s": 0.3,
+      "height_gate_zero_rate_rad_s": 1.5,
+      "capture_rate_scale_rad_s": 0.6,
+      "capture_stability_weight": 2.0,
+      "potential_capture_stability_weight": 1.0
     }
   },
   "recovery_impact": {

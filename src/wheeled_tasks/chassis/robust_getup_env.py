@@ -440,6 +440,8 @@ class RobustGetupEnv(ChassisEnv):
         prone_task = self.getup_cfg.get("standard_prone")
         tracking009 = self.getup_cfg.get("standing009_curriculum") is not None
         prone_motion = self.getup_cfg.get("prone_motion_task") is not None
+        contact_guidance = prone_motion and (getattr(self, "multi_pose_cfg", None) or {}).get(
+            "dense_reward", {}).get("schema") == "wheel-leg-standard-getup-contact-v3"
         sampling = getattr(self, 'sampling', None)
         physical_samples = (sampling.samples.begin() if sampling is not None else []) if prone_motion else None
         sample = (lambda value: value) if sampling is not None else torch.clone
@@ -478,6 +480,7 @@ class RobustGetupEnv(ChassisEnv):
         leg_saturation_run = torch.zeros_like(gap_peak)
         wheel_clearance_peak = torch.full((self.num_envs, 2), -torch.inf, device=self.device)
         wheel_contact_fraction = torch.zeros_like(wheel_clearance_peak)
+        wheel_vertical_force_floor = torch.full_like(wheel_clearance_peak, torch.inf) if contact_guidance else None
         dual_support_fraction = torch.zeros_like(gap_peak)
         wheel_air_run_peak = self.wheel_air_run.clone()
         dual_wheel_air_run_peak = self.dual_wheel_air_run.clone()
@@ -562,6 +565,9 @@ class RobustGetupEnv(ChassisEnv):
             wheel_pose = self.robot.data.body_link_pose_w.torch[:, wheel_bodies]
             wheel_clearance = wheel_bottom_clearance(self.wheel_centers(), wheel_pose[:, :, 3:], self.origins[:, 2:3])
             wheel_clearance_peak = torch.maximum(wheel_clearance_peak, wheel_clearance)
+            if contact_guidance:
+                wheel_vertical_force_floor = torch.minimum(wheel_vertical_force_floor,
+                    self.contact_force[:, wheel_bodies, 2].clamp_min(0.))
             wheel_contact_fraction += (self.contact_force[:, wheel_bodies].norm(dim=-1) > 2.).float() / self.decimation
             dual_support_fraction += (self.contact_force[:, wheel_bodies].norm(dim=-1) > 2.).all(-1).float() / self.decimation
             geometric_air = wheel_clearance > .003
@@ -780,6 +786,9 @@ class RobustGetupEnv(ChassisEnv):
                 local=local, nonwheel_force=nonwheel_force_peak, belly_force=belly_force_peak,
                 dual_support=dual_support_fraction, leg_speed_square=upright_leg_speed_square,
                 enable=enable, first=first)
+            if contact_guidance:
+                task_state.update(recovery_wheel_load_fraction=wheel_vertical_force_floor/(
+                    9.81*self.body_mass.sum(-1, keepdim=True)), recovery_wheel_clearance_m=wheel_clearance_peak)
             density, progress, terminated, task_extra = self.task_transition(task_state, terminated)
         reward = (density * self.policy_dt + progress + 3. * first) * active_interval
         timeout = self.episode_length_buf >= self.episode_limits

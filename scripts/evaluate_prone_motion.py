@@ -456,12 +456,43 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                     and (paid["recovery_height_error"][deferred] == 0.).all())
             names = ("fold_score", "support_capture", "height_gate", "support_error_m",
                 "physical_knee_max_deg", "wheel_fore_aft_error_m", "geometry_valid")
+            if c["schema"] == "wheel-leg-standard-getup-contact-v3":
+                physical = env.prone_motion_physical
+                loads = physical["wheel_force"][..., 2].clamp_min(0.).amin(0)/(
+                    9.81*env.body_mass.sum(-1, keepdim=True))
+                clearance = physical["wheel_clearance"].amax(0)
+                def smooth(v):
+                    v = v.clamp(0., 1.)
+                    return v.square()*(3.-2.*v)
+                bearing = smooth(loads/c["wheel_load_full_fraction"]).amin(-1)*smooth((
+                    c["wheel_clearance_zero_m"]-clearance)/(c["wheel_clearance_zero_m"]
+                    -c["wheel_clearance_full_m"])).amin(-1)
+                rate = state["omega"][:, :2].norm(dim=-1)
+                readiness = smooth((c["height_gate_zero_rate_rad_s"]-rate)/(
+                    c["height_gate_zero_rate_rad_s"]-c["height_gate_full_rate_rad_s"]))
+                capture = g["geometric_capture"]*bearing
+                stability = capture/(1.+(rate/c["capture_rate_scale_rad_s"]).square())
+                expected_gate = (capture*readiness).pow(c["capture_exponent"])
+                for name, ok in dict(
+                    contact_reward_uses_both_physical_wheel_loads=torch.allclose(g["dual_wheel_bearing"], bearing, atol=1e-6),
+                    contact_reward_defers_lift_until_rotation_arrest=torch.allclose(g["height_gate"], expected_gate, atol=1e-6),
+                    contact_capture_quality_reaches_actual_reward=torch.allclose(paid["recovery_capture_stability"],
+                        c["capture_stability_weight"]*up*stability*rising, atol=1e-6)).items():
+                    checks[name] = checks.get(name, True) and bool(ok)
+                names += ("dual_wheel_bearing", "body_horizontal_rate_rad_s", "rate_readiness", "capture_stability")
             checks["ordered_TensorBoard_metrics_present"] = all(
                 "StandardGetup/"+name in extra["log"] for name in names)
             active = rising & extra["policy_learning_mask"]
             ordered_coverage["rising_samples"] += int(active.sum())
             ordered_coverage["height_disabled_samples"] += int((active & deferred).sum())
             ordered_coverage["height_full_samples"] += int((active & (g["height_gate"] == 1.)).sum())
+            if "dual_wheel_bearing" in g:
+                for name, mask in dict(dual_wheel_bearing_samples=g["dual_wheel_bearing"] == 1.,
+                        rate_not_ready_samples=g["rate_readiness"] == 0.).items():
+                    ordered_coverage[name] = ordered_coverage.get(name, 0)+int((active & mask).sum())
+                for name, mask in dict(all_state_height_full_samples=g["height_gate"] == 1.,
+                        all_state_bearing_full_samples=g["dual_wheel_bearing"] == 1.).items():
+                    ordered_coverage[name] = ordered_coverage.get(name, 0)+int(mask.sum())
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
         checks["all_six_physical_step_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
         physical = env.prone_motion_physical

@@ -259,6 +259,11 @@ class ProneMotionEnv(RobustGetupEnv):
         self.course_anchor[ids] = root[:, :2]
         self.quiet_hold[ids] = 0.
         self.quiet_completed[ids] = False
+        from .standard_getup_reward import contact_guided
+        if contact_guided((self.multi_pose_cfg or {}).get("dense_reward", {})):
+            # Native contact forces belong to the previous physical pose until
+            # the next simulation step. Never use them to shape a reset birth.
+            self.contact_force[ids] = 0.
         self.previous_potential[ids] = self.potential()[ids]
         self.pending_command[ids] = self.task_commands(self.episode_length_buf*self.policy_dt)[ids]
         self.goal_command[ids] = self.pending_command[ids]
@@ -279,15 +284,17 @@ class ProneMotionEnv(RobustGetupEnv):
     def potential(self):
         if not self.course_ready:
             return super().potential()
-        _, _, gravity, height, _, _, _ = self.state()
+        _, omega, gravity, height, _, _, _ = self.state()
         route = self.route_state()
         if self.multi_pose_cfg is not None:
             from .standard_getup_reward import ordered, ordered_potential
             dense = self.multi_pose_cfg.get("dense_reward", {})
             if ordered(dense):
-                state = self._recovery_reward_state(dict(gravity=gravity, height=height), route)
+                state = self._recovery_reward_state(dict(gravity=gravity, height=height, omega=omega), route)
                 value = ordered_potential(state, dense)
-                return torch.where(self.recovery_lane & ~self.ever_recovered, value, 6.*torch.ones_like(value))
+                maximum = dense["potential_capture_weight"]+dense["potential_lift_weight"]
+                maximum += dense.get("potential_capture_stability_weight", 0.)
+                return torch.where(self.recovery_lane & ~self.ever_recovered, value, maximum*torch.ones_like(value))
             from .multi_pose_recovery import potential
             value = potential(gravity,height,route["support_error_m"])
             return torch.where(self.recovery_lane & ~self.ever_recovered, value, 8.*torch.ones_like(value))
@@ -297,10 +304,18 @@ class ProneMotionEnv(RobustGetupEnv):
         return torch.where(self.recovery_lane & ~self.ever_recovered, value, 15.*torch.ones_like(value))
 
     def _recovery_reward_state(self, state, route):
-        from .standard_getup_reward import geometry_inputs, ordered
+        from .standard_getup_reward import geometry_inputs, ordered, contact_guided
         result = dict(state, recovery_support_error_m=route["support_error_m"])
-        if ordered(self.multi_pose_cfg.get("dense_reward", {})):
+        dense = self.multi_pose_cfg.get("dense_reward", {})
+        if ordered(dense):
             result.update(geometry_inputs(route, self.robot.data.root_link_pose_w.torch))
+        if contact_guided(dense) and "recovery_wheel_load_fraction" not in result:
+            from .standing_support import wheel_bottom_clearance
+            poses = self.robot.data.body_link_pose_w.torch[:, self.wheel_ids]
+            result["recovery_wheel_clearance_m"] = wheel_bottom_clearance(
+                self.wheel_centers(), poses[:, :, 3:], self.origins[:, 2:3])
+            result["recovery_wheel_load_fraction"] = self.contact_force[:, self.wheel_ids, 2].clamp_min(0.)/(
+                9.81*self.body_mass.sum(-1, keepdim=True))
         return result
 
     def task_stable(self, *args):
@@ -490,6 +505,8 @@ class ProneMotionEnv(RobustGetupEnv):
             mask = extra["task_recovery_rising"] & ~self.passive
             names = ("fold_score", "support_capture", "height_gate", "support_error_m",
                      "physical_knee_max_deg", "wheel_fore_aft_error_m", "geometry_valid")
+            if "dual_wheel_bearing" in scores:
+                names += ("dual_wheel_bearing", "body_horizontal_rate_rad_s", "rate_readiness", "capture_stability")
             fields = torch.stack([scores[name].float() for name in names], -1)
             means = torch.where(mask[:, None], fields, 0.).sum(0)/mask.sum().clamp_min(1)
             result.update({"StandardGetup/"+name: means[i] for i, name in enumerate(names)})

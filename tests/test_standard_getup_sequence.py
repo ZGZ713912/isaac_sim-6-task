@@ -14,23 +14,25 @@ from wheeled_tasks.chassis.multi_pose_recovery import recovery_terms
 from wheeled_tasks.chassis.prone_motion import validate as validate_plan
 from wheeled_tasks.chassis.standard_getup_reward import (
     dense_terms, geometry_inputs, guidance, ordered_potential,
-    ordered_reward_contract, reward_contract, validate,
+    ordered_reward_contract, contact_reward_contract, reward_contract, validate,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
 OLD = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_before_sequence_20261103.json").read_text())
-SPEC = ordered_reward_contract()
+SPEC = contact_reward_contract()
 
 
-def state(height=.19, knees=103., error=.35, tilt=0., rate=0., fore_aft=None):
+def state(height=.19, knees=103., error=.35, tilt=0., rate=0., fore_aft=None, load=.5, clearance=0.):
     angle = math.radians(tilt)
     return dict(height=torch.tensor([height]),
         gravity=torch.tensor([[math.sin(angle), 0., -math.cos(angle)]]),
         omega=torch.tensor([[0., rate, 0.]]), torque=torch.zeros(1, 6), action_delta=torch.zeros(1),
         recovery_support_error_m=torch.tensor([error]),
         recovery_fore_aft_error_m=torch.tensor([error if fore_aft is None else fore_aft]),
-        recovery_knee_deg=torch.tensor([[knees, knees]]), recovery_geometry_valid=torch.tensor([True]))
+        recovery_knee_deg=torch.tensor([[knees, knees]]), recovery_geometry_valid=torch.tensor([True]),
+        recovery_wheel_load_fraction=torch.tensor([[load, load]]),
+        recovery_wheel_clearance_m=torch.tensor([[clearance, clearance]]))
 
 
 def score(s):
@@ -84,7 +86,7 @@ def test_support_capture_releases_fold_cost_so_the_legs_can_extend():
         s = state(height=.305, knees=knees, error=.02)
         assert guidance(s, SPEC)["height_gate"].item() == 1.
         assert dense_terms(s, SPEC)["recovery_fold_error"].item() == 0.
-        assert ordered_potential(s, SPEC).item() == pytest.approx(6.)
+        assert ordered_potential(s, SPEC).item() == pytest.approx(7.)
     # Before capture, a single extended side still prevents a full tuck score.
     s = state(knees=45., error=.18)
     s["recovery_knee_deg"][0, 1] = 103.
@@ -147,3 +149,50 @@ def test_guidance_does_not_mutate_state_or_depend_on_elapsed_time():
     after = dense_terms(s, SPEC)
     assert all(torch.equal(before[k], after[k]) for k in before)
     assert all(torch.equal(original[k], s[k]) for k in original)
+
+
+def test_geometry_alone_cannot_pay_for_airborne_or_single_wheel_lift():
+    for load, clearance in [(0., .01), (.5, .01), (0., 0.)]:
+        s = state(height=.25, knees=45., error=.02, load=load, clearance=clearance)
+        assert guidance(s, SPEC)["height_gate"].item() == 0.
+        assert dense_terms(s, SPEC)["recovery_height"].item() == 0.
+        assert dense_terms(s, SPEC)["recovery_capture_stability"].item() == 0.
+    s = state(height=.25, knees=45., error=.02)
+    s["recovery_wheel_load_fraction"][0, 1] = 0.
+    assert guidance(s, SPEC)["height_gate"].item() == 0.
+    s["recovery_wheel_load_fraction"][0, 1] = float("nan")
+    assert all(torch.isfinite(v).all() for v in dense_terms(s, SPEC).values())
+    assert guidance(s, SPEC)["height_gate"].item() == 0.
+
+
+def test_body_rotation_must_be_arrested_before_lift_without_requiring_refolding():
+    moving = state(height=.20, knees=65., error=.02, rate=2.9)
+    g = guidance(moving, SPEC)
+    assert g["dual_wheel_bearing"].item() == g["support_capture"].item() == 1.
+    assert g["height_gate"].item() == 0.
+    assert dense_terms(moving, SPEC)["recovery_fold_error"].item() == 0.
+    scores = [score(state(height=.20, knees=65., error=.02, rate=r)) for r in [2.9, 1.4, .8, .3, 0.]]
+    assert all(b > a for a, b in zip(scores, scores[1:]))
+    # A bounded quality bonus guides arrest even above the lift-rate cutoff.
+    assert dense_terms(moving, SPEC)["recovery_capture_stability"].item() > 0.
+    moving["omega"][0] = torch.tensor([2.9, 0., 0.])
+    assert guidance(moving, SPEC)["height_gate"].item() == 0.
+
+
+def test_load_and_rate_gates_are_smooth_and_wheel_spin_is_not_a_reward():
+    gates = [guidance(state(error=.02, load=v), SPEC)["height_gate"].item() for v in [0., .03, .075, .12, .15, .5]]
+    assert gates[0] == 0. and gates[-2:] == [1., 1.]
+    assert all(b > a for a, b in zip(gates[:4], gates[1:5]))
+    s = state(height=.20, knees=45., error=.02)
+    before = dense_terms(s, SPEC)
+    s["dq"] = torch.tensor([[0., 0., 200., 0., 0., -200.]])
+    assert all(torch.equal(before[k], dense_terms(s, SPEC)[k]) for k in before)
+
+
+def test_untrained_v2_candidate_still_has_exact_geometry_only_semantics():
+    c = ordered_reward_contract()
+    assert validate(c) == c
+    s = state(height=.305, knees=65., error=.02, load=0.)
+    assert guidance(s, c)["height_gate"].item() == 1.
+    assert ordered_potential(s, c).item() == pytest.approx(6.)
+    assert "recovery_capture_stability" not in dense_terms(s, c)

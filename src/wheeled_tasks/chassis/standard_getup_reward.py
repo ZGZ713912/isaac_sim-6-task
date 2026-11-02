@@ -26,12 +26,25 @@ def ordered_reward_contract():
         activation="original_standard_prone_before_completion")
 
 
+def contact_reward_contract():
+    """Require wheel load and arrested body rotation before rewarding lift."""
+    return dict(ordered_reward_contract(), schema="wheel-leg-standard-getup-contact-v3",
+        wheel_load_full_fraction=.15, wheel_clearance_full_m=.001,
+        wheel_clearance_zero_m=.003, height_gate_full_rate_rad_s=.3,
+        height_gate_zero_rate_rad_s=1.5, capture_rate_scale_rad_s=.6,
+        capture_stability_weight=2., potential_capture_stability_weight=1.)
+
+
+def contact_guided(config):
+    return config.get("schema") == "wheel-leg-standard-getup-contact-v3"
+
+
 def ordered(config):
-    return config.get("schema") == "wheel-leg-standard-getup-ordered-v2"
+    return config.get("schema") == "wheel-leg-standard-getup-ordered-v2" or contact_guided(config)
 
 
 def validate(config):
-    if config not in (reward_contract(), ordered_reward_contract()):
+    if config not in (reward_contract(), ordered_reward_contract(), contact_reward_contract()):
         raise ValueError("Standard getup needs its complete versioned dense reward contract")
     return deepcopy(config)
 
@@ -71,9 +84,33 @@ def guidance(state, config):
     zero = math.cos(math.radians(c["height_gate_zero_tilt_deg"]))
     attitude = _smoothstep((-state["gravity"][:, 2]-zero)/(full-zero))
     capture = support*attitude*valid
-    return dict(fold_score=folded, fold_error_square=fold_error.square().mean(-1)*valid,
+    result = dict(fold_score=folded, fold_error_square=fold_error.square().mean(-1)*valid,
         support_capture=capture, height_gate=capture.pow(c["capture_exponent"]),
         support_error_m=error, geometry_valid=valid)
+    if contact_guided(c):
+        load = state["recovery_wheel_load_fraction"]
+        clearance = state["recovery_wheel_clearance_m"]
+        bearing_valid = torch.isfinite(load).all(-1) & torch.isfinite(clearance).all(-1)
+        bearing_valid &= torch.isfinite(state["omega"]).all(-1)
+        load = torch.where(bearing_valid[:, None], load, 0.)
+        clearance = torch.where(bearing_valid[:, None], clearance, c["wheel_clearance_zero_m"])
+        rate = torch.where(bearing_valid, state["omega"][:, :2].norm(dim=-1), 0.)
+        # Vertical load on BOTH wheels, together with collider clearance.
+        # This is reward guidance, not a change to contact acceptance rules.
+        bearing = _smoothstep(load/c["wheel_load_full_fraction"]).amin(-1)
+        bearing *= _smoothstep((c["wheel_clearance_zero_m"]-clearance)/(
+            c["wheel_clearance_zero_m"]-c["wheel_clearance_full_m"])).amin(-1)
+        bearing *= bearing_valid
+        rate_ready = _smoothstep((c["height_gate_zero_rate_rad_s"]-rate)/(
+            c["height_gate_zero_rate_rad_s"]-c["height_gate_full_rate_rad_s"]))
+        rate_score = 1./(1.+(rate/c["capture_rate_scale_rad_s"]).square())
+        loaded_capture = capture*bearing
+        result.update(geometric_capture=capture, support_capture=loaded_capture,
+            dual_wheel_bearing=bearing, body_horizontal_rate_rad_s=rate,
+            rate_readiness=rate_ready, capture_stability=loaded_capture*rate_score,
+            height_gate=(loaded_capture*rate_ready).pow(c["capture_exponent"]),
+            fold_release=loaded_capture, bearing_valid=bearing_valid)
+    return result
 
 
 def ordered_potential(state, config, *, scores=None):
@@ -82,9 +119,12 @@ def ordered_potential(state, config, *, scores=None):
     g = guidance(state, c) if scores is None else scores
     up = (-state["gravity"][:, 2]).clamp(0., 1.)
     lift = ((state["height"]-c["belly_height_m"])/(c["target_height_m"]-c["belly_height_m"])).clamp(0., 1.)
-    return up*(c["potential_fold_weight"]*g["fold_score"]*(1.-g["support_capture"])
-        + c["potential_capture_weight"]*g["support_capture"]
-        + c["potential_lift_weight"]*g["height_gate"]*lift)
+    capture = g.get("geometric_capture", g["support_capture"])
+    value = up*(c["potential_fold_weight"]*g["fold_score"]*(1.-capture)
+        + c["potential_capture_weight"]*capture + c["potential_lift_weight"]*g["height_gate"]*lift)
+    if contact_guided(c):
+        value += up*c["potential_capture_stability_weight"]*g["capture_stability"]
+    return value
 
 
 def dense_terms(state, config, *, scores=None):
@@ -119,8 +159,10 @@ def dense_terms(state, config, *, scores=None):
         terms["recovery_support"] = c["support_weight"]*up*safe_aligned*torch.maximum(
             g["fold_score"], g["support_capture"])
         terms.update(
-            recovery_fold_error=-c["fold_error_weight"]*(1.-g["height_gate"])*g["fold_error_square"],
+            recovery_fold_error=-c["fold_error_weight"]*(1.-g.get("fold_release", g["height_gate"]))*g["fold_error_square"],
             recovery_premature_height=-c["premature_height_weight"]*(1.-g["height_gate"])
                 *((state["height"]-c["preparation_height_ceiling_m"]).clamp_min(0.)
                     /c["premature_height_scale_m"]).square())
+        if contact_guided(c):
+            terms["recovery_capture_stability"] = c["capture_stability_weight"]*up*g["capture_stability"]
     return terms
