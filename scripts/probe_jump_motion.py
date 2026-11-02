@@ -28,7 +28,11 @@ def probe(env, plan, *, stop_requested=lambda: False):
     clearance = wheel_bottom_clearance(env.wheel_centers(), wheel[:, :, 3:], env.origins[:, 2:3])
     checks["airborne_birth_geometrically_above_ground"] = bool((clearance[aerial] >= .039).all())
     checks["airborne_birth_not_counted_as_self_propelled_liftoff"] = not bool(jump.liftoff_event.any())
-    checks["jump_original_episode_limits_retained_for_base"] = bool((env.episode_limits[jump.active] == round(jump.cfg["episode_seconds"]/env.policy_dt)).all())
+    checks["jump_declared_six_second_episode_limits"] = bool((env.episode_limits[jump.active] == round(jump.cfg["episode_seconds"]/env.policy_dt)).all())
+    expected_base = torch.tensor([round((plan["training_prone_seconds"] if row["recovery"] else
+        plan["standing_seconds"] if row["role"] == "stand" else plan["motion_seconds"])/env.policy_dt)
+        for row in env.course_cases], device=env.device)
+    checks["jump_original_episode_limits_retained_for_base"] = bool((env.episode_limits[~jump.active] == expected_base[~jump.active]).all())
     action = nominal_action(env).expand(env.num_envs, -1).clone()
     counts_before = jump.total.clone()
     for _ in range(round(2./env.policy_dt)):

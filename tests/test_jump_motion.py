@@ -98,6 +98,15 @@ def test_liftoff_duration_uses_contiguous_physical_samples():
     assert jump.phase.item() == FLIGHT
 
 
+def test_landing_contact_time_does_not_inflate_measured_air_time():
+    jump = machine(AIRBORNE)
+    hold(jump, .02, clear=.02, force=0.)
+    hold(jump, .05)
+    assert jump.phase.item() == FLIGHT
+    assert jump.flight_time.item() == pytest.approx(.02)
+    assert jump.summary()["landings"] == 0
+
+
 def test_landing_success_requires_full_stable_hold_and_requested_apex():
     jump = machine()
     flight(jump)

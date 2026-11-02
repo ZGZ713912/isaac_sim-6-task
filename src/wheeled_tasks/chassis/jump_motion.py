@@ -85,6 +85,7 @@ class JumpMotion:
         for name in ("saw_flight", "landed", "succeeded", "liftoff_event", "landing_event", "success_event", "request_event"):
             setattr(self, name, torch.zeros_like(self.mode, dtype=torch.bool))
         self.total = torch.zeros(len(COUNTERS), dtype=torch.long, device=device)
+        self.has_active = False
         self.last_reference = self.reference()
         self.interval_phase = self.phase.clone()
 
@@ -102,6 +103,7 @@ class JumpMotion:
             getattr(self, name)[ids] = False
         self.request_delay[ids] = delay.to(self.request_delay.dtype)
         self.target_apex[ids] = apex.to(self.target_apex.dtype)
+        self.has_active = bool(self.active.any())
 
     def reference(self):
         cfg = self.cfg
@@ -176,7 +178,7 @@ class JumpMotion:
         self.release_vz[liftoff] = velocity[liftoff, 2]
         self._enter(liftoff, FLIGHT)
         flying = active & (old == FLIGHT)
-        self.flight_time += dt*flying
+        self.flight_time += dt*(flying & air)
         self.landing_hold = torch.where(flying & touching, self.landing_hold+dt, 0.)
         landing = flying & self.saw_flight & (self.flight_time >= cfg["minimum_flight_seconds"]-1e-7) & (self.landing_hold >= .01-1e-7)
         self.landing_event |= landing

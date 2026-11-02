@@ -459,6 +459,8 @@ class RobustGetupEnv(ChassisEnv):
         if recovery_impact is not None:
             recovery_impact.begin_interval()
         jump_training = getattr(self, "jump_training", None)
+        if jump_training is not None and not jump_training.has_active:
+            jump_training = None
         if jump_training is not None:
             jump_training.begin_interval()
         previous = self.actions.clone()

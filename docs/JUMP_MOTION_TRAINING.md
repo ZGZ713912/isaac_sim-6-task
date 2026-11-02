@@ -52,3 +52,16 @@ trainctl --host kaiser
 
 原生测试与首 PPO 审计只确认接线和优化器工作。腾空、起跳高度、缓冲、连续落地成功率及
 全部既有能力仍须分场景实测，未测不算通过。实车跳跃没有执行或获资格。
+
+只读播放使用本任务自己的检查点：
+
+```bash
+bash scripts/play_prone_motion.sh --checkpoint runs/jump_motion/RUN/model_00250.pt \
+  --scene jump --num-envs 8 --seconds 6 --headless
+bash scripts/play_prone_motion.sh --checkpoint runs/jump_motion/RUN/model_00250.pt \
+  --scene airborne --num-envs 8 --seconds 6 --headless
+```
+
+本次分支开发不授予旧能力的新验收：R01标准自起、R02多姿态自起、S01静站、
+M01前后直行、M02自旋、M03弧线、M04驻停、H01静态变高、H02移动变高、
+H03转向/自旋变高、B01扰动恢复、Q01噪声下腿稳定、D01全域随机化均待独立测定。

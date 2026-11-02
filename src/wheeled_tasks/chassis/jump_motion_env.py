@@ -96,7 +96,7 @@ class JumpMotionEnv(ProneMotionEnv):
 
     def get_observations(self):
         result = super().get_observations()
-        if self.jump_training is not None:
+        if self.jump_training is not None and self.jump_training.has_active:
             selected = self.jump_training.active
             # Preserve every base-lane input, including the independent slot31
             # validity bit. Flight must not turn wheel spin into standing XY.
@@ -115,7 +115,7 @@ class JumpMotionEnv(ProneMotionEnv):
 
     def task_commands(self, elapsed):
         value = super().task_commands(elapsed)
-        if self.jump_training is not None:
+        if self.jump_training is not None and self.jump_training.has_active:
             selected = self.jump_training.active
             value[selected, :2] = 0.
             value[:, 2] = torch.where(selected, self.jump_training.reference()[0], value[:, 2])
@@ -123,7 +123,7 @@ class JumpMotionEnv(ProneMotionEnv):
 
     def task_reward_terms(self, state, route, error, rising):
         terms = super().task_reward_terms(state, route, error, rising)
-        if self.jump_training is None:
+        if self.jump_training is None or not self.jump_training.has_active:
             return terms
         active = self.jump_training.active
         own = self.jump_training.rewards(state, route["encoder_wheel_body_m"],
@@ -135,7 +135,7 @@ class JumpMotionEnv(ProneMotionEnv):
 
     def task_failures(self, state, route, rising):
         bad = super().task_failures(state, route, rising)
-        if self.jump_training is not None:
+        if self.jump_training is not None and self.jump_training.has_active:
             active = self.jump_training.active
             bad = {k: v & ~active for k, v in bad.items()}
             bad["jump_failure"] = self.jump_training.failures(state["height"], state["gravity"], state["nonwheel_force"])
@@ -143,7 +143,7 @@ class JumpMotionEnv(ProneMotionEnv):
 
     def task_transition(self, state, terminated):
         density, bonus, terminated, extra = super().task_transition(state, terminated)
-        if self.jump_training is not None:
+        if self.jump_training is not None and self.jump_training.has_active:
             jump = self.jump_training
             jump.reject_failed_successes(terminated)
             bonus = bonus+jump.event_bonus()*(~terminated)
