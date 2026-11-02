@@ -304,7 +304,7 @@ class ProneMotionEnv(RobustGetupEnv):
         return torch.where(self.recovery_lane & ~self.ever_recovered, value, 15.*torch.ones_like(value))
 
     def _recovery_reward_state(self, state, route):
-        from .standard_getup_reward import geometry_inputs, ordered, contact_guided
+        from .standard_getup_reward import geometry_inputs, ordered, contact_guided, standing_guided
         result = dict(state, recovery_support_error_m=route["support_error_m"])
         dense = self.multi_pose_cfg.get("dense_reward", {})
         if ordered(dense):
@@ -316,6 +316,23 @@ class ProneMotionEnv(RobustGetupEnv):
                 self.wheel_centers(), poses[:, :, 3:], self.origins[:, 2:3])
             result["recovery_wheel_load_fraction"] = self.contact_force[:, self.wheel_ids, 2].clamp_min(0.)/(
                 9.81*self.body_mass.sum(-1, keepdim=True))
+        if standing_guided(dense):
+            weight = 9.81*self.body_mass.sum(-1)
+            if "nonwheel_force" in state:
+                # Existing 200 Hz impact reduction; include both physical
+                # samples rather than only the last contact snapshot.
+                chassis = self.recovery_impact.force_peak[:, 0]
+                nonwheel = state["nonwheel_force"]
+                wheel_peak = self.recovery_impact.force_peak[:, 3]
+            else:
+                # Potential endpoints/reset use current contacts, never a
+                # previous interval's peak. These loads do not gate lifting.
+                chassis = self.contact_force[:, self.push_body_ids[0], 2].clamp_min(0.)
+                nonwheel = self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1)
+                wheel_peak = self.contact_force[:, self.wheel_ids, 2].clamp_min(0.).amax(-1)
+            result.update(recovery_chassis_load_fraction=chassis/weight,
+                recovery_nonwheel_load_fraction=nonwheel/weight,
+                recovery_peak_wheel_load_fraction=wheel_peak/weight)
         return result
 
     def task_stable(self, *args):
@@ -507,6 +524,10 @@ class ProneMotionEnv(RobustGetupEnv):
                      "physical_knee_max_deg", "wheel_fore_aft_error_m", "geometry_valid")
             if "dual_wheel_bearing" in scores:
                 names += ("dual_wheel_bearing", "body_horizontal_rate_rad_s", "rate_readiness", "capture_stability")
+            if "preparation_score" in scores:
+                names += ("preparation_score", "chassis_load_fraction", "nonwheel_load_fraction",
+                          "quiet_body_free_score", "fold_phase", "peak_wheel_load_fraction",
+                          "fold_wheel_clearance_error", "fold_wheel_load_error")
             fields = torch.stack([scores[name].float() for name in names], -1)
             means = torch.where(mask[:, None], fields, 0.).sum(0)/mask.sum().clamp_min(1)
             result.update({"StandardGetup/"+name: means[i] for i, name in enumerate(names)})

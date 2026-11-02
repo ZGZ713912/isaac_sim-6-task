@@ -186,6 +186,14 @@ def stable(gravity, height, velocity, omega, dq, wheel_contact, nonwheel_force):
             & (nonwheel_force <= 2.))
 
 
+def quiet_standing_quality(gravity, height, velocity, omega, target_height):
+    """The same zero-motion goal before and after actual getup completion."""
+    level = (gravity-gravity.new_tensor([0., 0., -1.])).square().sum(-1)
+    return torch.exp(-((height-target_height)/.02).square()
+        -level/math.sin(math.radians(5.))**2-(velocity[:, :2]/.08).square().sum(-1)
+        -(omega/.5).square().sum(-1))
+
+
 def reward_terms(gravity, height, velocity, omega, command, torque, dq, action_delta,
                  excursion, anchor_error, rising, supported, *, position_tail=None):
     """Independent dense terms; wrong height never zeroes speed/yaw credit."""
@@ -209,8 +217,7 @@ def reward_terms(gravity, height, velocity, omega, command, torque, dq, action_d
         yaw=1.5*torch.exp(-(ew/.5).square()), yaw_error=-torch.log1p((ew/.8).square()),
         level=-2.*level/math.sin(math.radians(15.))**2, lateral=-.5*torch.log1p((velocity[:, 1]/.2).square()),
         body_rate=-.05*omega[:, :2].square().sum(-1), vertical=-.1*velocity[:, 2].square(),
-        quiet=4.*quiet*supported*torch.exp(-(eh/.02).square()-level/math.sin(math.radians(5.))**2-(velocity[:, :2]/.08).square().sum(-1)
-            -(omega/.5).square().sum(-1)),
+        quiet=4.*quiet*supported*quiet_standing_quality(gravity, height, velocity, omega, command[:, 2]),
         quiet_position=position_cost, rise_position=-rising.float()*((excursion-.1).clamp_min(0.)/.1).square(),
         rise_time=-rising.float(), effort=-.0001*torque.square().mean(-1),
         leg_speed=-.002*dq[:, [0, 1, 3, 4]].square().mean(-1), action_rate=-.01*action_delta)

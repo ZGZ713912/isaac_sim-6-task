@@ -440,8 +440,9 @@ class RobustGetupEnv(ChassisEnv):
         prone_task = self.getup_cfg.get("standard_prone")
         tracking009 = self.getup_cfg.get("standing009_curriculum") is not None
         prone_motion = self.getup_cfg.get("prone_motion_task") is not None
-        contact_guidance = prone_motion and (getattr(self, "multi_pose_cfg", None) or {}).get(
-            "dense_reward", {}).get("schema") == "wheel-leg-standard-getup-contact-v3"
+        from .standard_getup_reward import contact_guided
+        contact_guidance = prone_motion and contact_guided(
+            (getattr(self, "multi_pose_cfg", None) or {}).get("dense_reward", {}))
         sampling = getattr(self, 'sampling', None)
         physical_samples = (sampling.samples.begin() if sampling is not None else []) if prone_motion else None
         sample = (lambda value: value) if sampling is not None else torch.clone

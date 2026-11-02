@@ -18,7 +18,7 @@ from wheeled_tasks.chassis.standard_getup_reward import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4.json").read_text())
+PLAN = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_before_standing_bridge_20261103.json").read_text())
 OLD = json.loads((ROOT/"contracts/wheel_leg_prone_motion_v4_before_sequence_20261103.json").read_text())
 SPEC = contact_reward_contract()
 

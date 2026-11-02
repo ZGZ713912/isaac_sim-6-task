@@ -328,6 +328,18 @@ def probe(env, plan, *, stop_requested=lambda: False):
     if plan.get("global_curriculum") is None:
         return _probe(env,plan,stop_requested=stop_requested)
     old_cases,old_fixed,old_roles = env.evaluation_cases,env.fixed_cases,list(env.course_roles)
+    from wheeled_tasks.chassis.standard_getup_reward import standing_guided
+    standing_bridge = standing_guided(plan.get("multi_pose_recovery", {}).get("dense_reward", {}))
+    original_observe = env.recovery_impact.observe if standing_bridge else None
+    if standing_bridge:
+        # Probe-only independent physical samples. Production reuses the
+        # existing impact accumulator and adds no contact read or host sync.
+        env._standing_bridge_chassis_samples = []
+        def observe_chassis(contact_force, active):
+            env._standing_bridge_chassis_samples.append(
+                (contact_force[:, env.push_body_ids[0], 2].clamp_min(0.)*active).clone())
+            return original_observe(contact_force, active)
+        env.recovery_impact.observe = observe_chassis
     initial = _global_initial_checks(env)
     fixtures = []
     for i in range(env.num_envs):
@@ -348,6 +360,9 @@ def probe(env, plan, *, stop_requested=lambda: False):
         result["recovery_fixture_scope"] = "explicit_native_wiring_only_no_curriculum_admission"
         return result
     finally:
+        if standing_bridge:
+            env.recovery_impact.observe = original_observe
+            del env._standing_bridge_chassis_samples
         env.evaluation_cases,env.fixed_cases,env.course_roles = old_cases,old_fixed,old_roles
         env.reset(torch.arange(env.num_envs,device=env.device))
 
@@ -424,6 +439,9 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         if stop_requested():
             from train_scratch_standing import TrainingStopped
             raise TrainingStopped()
+        chassis_samples = getattr(env, "_standing_bridge_chassis_samples", None)
+        if chassis_samples is not None:
+            chassis_samples.clear()
         observation, reward, done, extra = env.step(action)
         state = extra["diagnostics"]
         failure_cost = torch.where(env.recovery_lane,env.getup_cfg["multi_pose_failure_cost"],3.) if (
@@ -456,7 +474,8 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                     and (paid["recovery_height_error"][deferred] == 0.).all())
             names = ("fold_score", "support_capture", "height_gate", "support_error_m",
                 "physical_knee_max_deg", "wheel_fore_aft_error_m", "geometry_valid")
-            if c["schema"] == "wheel-leg-standard-getup-contact-v3":
+            from wheeled_tasks.chassis.standard_getup_reward import contact_guided, standing_guided
+            if contact_guided(c):
                 physical = env.prone_motion_physical
                 loads = physical["wheel_force"][..., 2].clamp_min(0.).amin(0)/(
                     9.81*env.body_mass.sum(-1, keepdim=True))
@@ -480,6 +499,57 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                         c["capture_stability_weight"]*up*stability*rising, atol=1e-6)).items():
                     checks[name] = checks.get(name, True) and bool(ok)
                 names += ("dual_wheel_bearing", "body_horizontal_rate_rad_s", "rate_readiness", "capture_stability")
+            if standing_guided(c):
+                from wheeled_tasks.chassis.prone_motion import quiet_standing_quality
+                knees = state["prone_route"]["knee_deg"].amax(-1)
+                preparation = torch.maximum(smooth((c["preparation_zero_knee_deg"]-knees)/(
+                    c["preparation_zero_knee_deg"]-c["preparation_full_knee_deg"]))
+                    *g["geometry_valid"], capture)
+                weight = 9.81*env.body_mass.sum(-1)
+                chassis = torch.stack(chassis_samples).amax(0)/weight
+                wheel_peak = torch.where(physical["wheel_disabled"][..., None], 0.,
+                    physical["wheel_force"][..., 2].clamp_min(0.)).amax(dim=(0, 2))/weight
+                body_free = torch.exp(-(state["nonwheel_force_peak_n"]/weight/c["quiet_nonwheel_load_scale"]).square())
+                fold_phase = 1.-capture
+                level = (state["gravity"]-state["gravity"].new_tensor([0., 0., -1.])).square().sum(-1)
+                skim_error = torch.log1p(((clearance-c["wheel_clearance_zero_m"]).clamp_min(0.)
+                    /c["fold_wheel_clearance_scale_m"]).square()).mean(-1)
+                load_error = torch.log1p(((wheel_peak-c["fold_wheel_light_load_fraction"]).clamp_min(0.)
+                    /c["fold_wheel_load_scale_fraction"]).square())
+                quiet = (c["quiet_standing_weight"]*preparation*bearing*body_free
+                    *quiet_standing_quality(state["gravity"], state["height"], state["velocity"],
+                        state["omega"], c["target_height_m"])*rising)
+                for name, ok in dict(
+                    standing_bridge_both_physical_chassis_samples=len(chassis_samples) == env.decimation,
+                    standing_bridge_physical_peak_reaches_reward=torch.allclose(g["chassis_load_fraction"], chassis, atol=1e-6),
+                    standing_bridge_preparation_geometry=torch.allclose(g["preparation_score"], preparation, atol=1e-6),
+                    standing_bridge_contact_cost_paid=torch.allclose(paid["recovery_chassis_contact"],
+                        -c["chassis_contact_weight"]*preparation*chassis*rising, atol=1e-6),
+                    standing_bridge_no_preparation_density=bool((paid["recovery_support"] == 0.).all()
+                        and (paid["recovery_capture_stability"] == 0.).all()),
+                    standing_bridge_shared_quiet_goal_paid=torch.allclose(paid["recovery_quiet_standing"], quiet, atol=1e-6),
+                    standing_bridge_lift_not_blocked_by_chassis=torch.allclose(g["height_gate"], expected_gate, atol=1e-6),
+                    standing_bridge_physical_wheel_peak_not_floor=torch.allclose(g["peak_wheel_load_fraction"], wheel_peak, atol=1e-6),
+                    standing_bridge_fold_tilt_and_rate_paid=bool(
+                        torch.allclose(paid["recovery_fold_upright"], -c["fold_upright_weight"]*fold_phase*level*rising, atol=1e-6)
+                        and torch.allclose(paid["recovery_fold_body_rate"], -c["fold_body_rate_weight"]*fold_phase
+                            *state["omega"][:, :2].square().sum(-1)*rising, atol=1e-6)),
+                    standing_bridge_world_ground_skim_paid=torch.allclose(paid["recovery_ground_skim"],
+                        -c["fold_wheel_clearance_weight"]*fold_phase*skim_error*rising, atol=1e-6),
+                    standing_bridge_light_load_releases_at_capture=torch.allclose(paid["recovery_fold_wheel_load"],
+                        -c["fold_wheel_load_weight"]*fold_phase*load_error*rising, atol=1e-6)
+                ).items():
+                    checks[name] = checks.get(name, True) and bool(ok)
+                names += ("preparation_score", "chassis_load_fraction", "nonwheel_load_fraction", "quiet_body_free_score",
+                    "fold_phase", "peak_wheel_load_fraction", "fold_wheel_clearance_error", "fold_wheel_load_error")
+                active = rising & extra["policy_learning_mask"]
+                for name, mask in dict(prepared_samples=preparation > .1,
+                        charged_chassis_samples=paid["recovery_chassis_contact"] < -.01,
+                        unprepared_chassis_samples=(preparation == 0.) & (chassis > .1),
+                        charged_ground_skim_samples=paid["recovery_ground_skim"] < -.01,
+                        charged_early_wheel_load_samples=paid["recovery_fold_wheel_load"] < -.01,
+                        charged_fold_tilt_samples=paid["recovery_fold_upright"] < -.01).items():
+                    ordered_coverage[name] = ordered_coverage.get(name, 0)+int((active & mask).sum())
             checks["ordered_TensorBoard_metrics_present"] = all(
                 "StandardGetup/"+name in extra["log"] for name in names)
             active = rising & extra["policy_learning_mask"]

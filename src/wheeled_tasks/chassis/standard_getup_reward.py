@@ -36,7 +36,25 @@ def contact_reward_contract():
 
 
 def contact_guided(config):
-    return config.get("schema") == "wheel-leg-standard-getup-contact-v3"
+    return config.get("schema") in ("wheel-leg-standard-getup-contact-v3",
+                                    "wheel-leg-standard-getup-standing-v4")
+
+
+def standing_reward_contract():
+    """Finish the rise as quiet standing, without paying to hold preparation."""
+    return dict(contact_reward_contract(), schema="wheel-leg-standard-getup-standing-v4",
+        support_weight=0., capture_stability_weight=0.,
+        preparation_full_knee_deg=50., preparation_zero_knee_deg=65.,
+        chassis_contact_weight=12., quiet_standing_weight=4.,
+        quiet_nonwheel_load_scale=.02,
+        fold_upright_weight=12., fold_body_rate_weight=.1,
+        fold_wheel_clearance_weight=2., fold_wheel_clearance_scale_m=.02,
+        fold_wheel_light_load_fraction=.1, fold_wheel_load_weight=2.,
+        fold_wheel_load_scale_fraction=.15)
+
+
+def standing_guided(config):
+    return config.get("schema") == "wheel-leg-standard-getup-standing-v4"
 
 
 def ordered(config):
@@ -44,7 +62,8 @@ def ordered(config):
 
 
 def validate(config):
-    if config not in (reward_contract(), ordered_reward_contract(), contact_reward_contract()):
+    if config not in (reward_contract(), ordered_reward_contract(), contact_reward_contract(),
+                      standing_reward_contract()):
         raise ValueError("Standard getup needs its complete versioned dense reward contract")
     return deepcopy(config)
 
@@ -110,6 +129,27 @@ def guidance(state, config):
             rate_readiness=rate_ready, capture_stability=loaded_capture*rate_score,
             height_gate=(loaded_capture*rate_ready).pow(c["capture_exponent"]),
             fold_release=loaded_capture, bearing_valid=bearing_valid)
+        if standing_guided(c):
+            tucked = _smoothstep((c["preparation_zero_knee_deg"]-knees.amax(-1))/(
+                c["preparation_zero_knee_deg"]-c["preparation_full_knee_deg"]))
+            # Loaded capture keeps the cost active while the legs extend. No
+            # timer/latch, new actor feature or motor trajectory is introduced.
+            preparation = torch.maximum(tucked*valid, loaded_capture)
+            chassis = state["recovery_chassis_load_fraction"]
+            nonwheel = state["recovery_nonwheel_load_fraction"]
+            wheel_peak = state["recovery_peak_wheel_load_fraction"]
+            force_valid = torch.isfinite(chassis) & torch.isfinite(nonwheel) & torch.isfinite(wheel_peak)
+            chassis = torch.where(force_valid, chassis.clamp_min(0.), 1.)
+            nonwheel = torch.where(force_valid, nonwheel.clamp_min(0.), 1.)
+            wheel_peak = torch.where(force_valid, wheel_peak.clamp_min(0.), 1.)
+            body_free = torch.exp(-(nonwheel/c["quiet_nonwheel_load_scale"]).square())*force_valid
+            result.update(preparation_score=preparation, chassis_load_fraction=chassis,
+                nonwheel_load_fraction=nonwheel, quiet_body_free_score=body_free,
+                fold_phase=1.-loaded_capture, peak_wheel_load_fraction=wheel_peak,
+                fold_wheel_clearance_error=torch.log1p(((clearance-c["wheel_clearance_zero_m"])
+                    .clamp_min(0.)/c["fold_wheel_clearance_scale_m"]).square()).mean(-1),
+                fold_wheel_load_error=torch.log1p(((wheel_peak-c["fold_wheel_light_load_fraction"])
+                    .clamp_min(0.)/c["fold_wheel_load_scale_fraction"]).square()))
     return result
 
 
@@ -165,4 +205,25 @@ def dense_terms(state, config, *, scores=None):
                     /c["premature_height_scale_m"]).square())
         if contact_guided(c):
             terms["recovery_capture_stability"] = c["capture_stability_weight"]*up*g["capture_stability"]
+        if standing_guided(c):
+            from .prone_motion import quiet_standing_quality
+            velocity = state["velocity"]
+            quality = quiet_standing_quality(state["gravity"], state["height"],
+                velocity, state["omega"], c["target_height_m"])
+            terms.update(
+                recovery_chassis_contact=-c["chassis_contact_weight"]*g["preparation_score"]
+                    *g["chassis_load_fraction"],
+                recovery_quiet_standing=c["quiet_standing_weight"]*g["preparation_score"]
+                    *g["dual_wheel_bearing"]*g["quiet_body_free_score"]*quality,
+                recovery_motion_error=-g["preparation_score"]*(
+                    torch.log1p((velocity[:, 0]/.5).square())
+                    +torch.log1p((state["omega"][:, 2]/.8).square())
+                    +.5*torch.log1p((velocity[:, 1]/.2).square())+.1*velocity[:, 2].square()),
+                recovery_fold_upright=-c["fold_upright_weight"]*g["fold_phase"]*level,
+                recovery_fold_body_rate=-c["fold_body_rate_weight"]*g["fold_phase"]
+                    *state["omega"][:, :2].square().sum(-1),
+                recovery_ground_skim=-c["fold_wheel_clearance_weight"]*g["fold_phase"]
+                    *g["fold_wheel_clearance_error"],
+                recovery_fold_wheel_load=-c["fold_wheel_load_weight"]*g["fold_phase"]
+                    *g["fold_wheel_load_error"])
     return terms
