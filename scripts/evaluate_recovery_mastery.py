@@ -43,9 +43,13 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
     rng = (torch.get_rng_state(),torch.cuda.get_rng_state_all() if torch.cuda.is_available() else [],
         env.generator.get_state(),env.domain.rng.get_state(),np.random.get_state(),random.getstate(),
         env.recovery_sampler.rng.getstate(),deepcopy(env.recovery_sampler.class_cursor))
+    closure_settings = getattr(env, "getup_cfg", {})
     rows = [dict(family=c["family"],leg_class=c["leg_class"],split=c.get("split","holdout"),pose_index=c["pose_index"],
         heading_rad=c["heading_rad"],completed=False,terminated=False,active_time_s=None,
-        post_completion_hold_s=0.,closure_peak_m=0.,passed=False) for c in cases]
+        post_completion_hold_s=0.,closure_peak_m=0.,passed=False,
+        closure_record_only=closure_settings.get("closure_gap_record_only",False),
+        closure_reference_m=closure_settings.get("closure_gap_m",.003),
+        closure_reference_exceeded=False) for c in cases]
     active = torch.ones(n,dtype=torch.bool,device=env.device)
     hold = torch.zeros(n,device=env.device)
     try:
@@ -66,6 +70,7 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
                 if not bool(active[lane]):
                     continue
                 row["closure_peak_m"] = max(row["closure_peak_m"],float(d["gap"][lane]))
+                row["closure_reference_exceeded"] = row["closure_peak_m"] > row["closure_reference_m"]
                 row["terminated"] |= bool(d["terminated"][lane])
                 if bool(d["recovery_completed_event"][lane]):
                     row["completed"] = True
@@ -73,7 +78,7 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
                 row["post_completion_hold_s"] = max(row["post_completion_hold_s"],float(hold[lane]))
                 row["passed"] = (row["completed"] and not row["terminated"]
                     and row["active_time_s"] <= config["max_active_recovery_seconds"]
-                    and row["closure_peak_m"] <= env.getup_cfg.get("closure_gap_m",.003)
+                    and (row["closure_record_only"] or not row["closure_reference_exceeded"])
                     and row["post_completion_hold_s"]+1e-6 >= config["post_completion_hold_seconds"])
                 if row["passed"] or bool(done[lane]):
                     active[lane] = False

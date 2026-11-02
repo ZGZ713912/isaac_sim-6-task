@@ -80,6 +80,8 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
     substeps = rates["decimation"]
     limits = plan["evaluation"]
     closure_limit=plan.get("closure_guard",{}).get("peak_m",.003)
+    from wheeled_tasks.chassis.prone_motion import closure_record_only
+    record_only = closure_record_only(plan)
     horizon = round(limits["seconds"]/dt)
     hold_steps = round(30./dt)
     rows = []
@@ -136,15 +138,18 @@ def review_arrays(a, cases, initial_xy, plan, dt=None):
             leg_speed_peak_rad_s=float(np.abs(a["motor_velocity"][:n, :, lane, [0, 1, 3, 4]]).max()) if n else None,
             torque_peak_nm=float(np.abs(a["motor_effort"][:n, :, lane]).max()) if n else None,
             closure_gap_peak_m=float(a["gap"][:n, lane].max()) if n else None,
+            closure_record_only=record_only, closure_reference_m=closure_limit,
+            closure_reference_exceeded=bool((a["gap"][:n, lane] > closure_limit).any()),
             full_acceptance_qualified=False)
+        closure_ok = record_only or (n > 0 and row["closure_gap_peak_m"] <= closure_limit)
         common = (row["full_horizon"] and not row["terminated"] and support["support_pass"]
-                  and row["closure_gap_peak_m"] <= closure_limit and row["height_mae_m"] <= limits["height_mae_m"])
+                  and closure_ok and row["height_mae_m"] <= limits["height_mae_m"])
         # Prone height during the rise is deliberately far from305mm; only its
         # original post-completion30s window contributes to standing height MAE.
         if prone and full_quiet:
             row["post_completion_height_mae_m"] = float(np.abs(a["height"][q, lane]-.305).mean())
             common = (row["full_horizon"] and not row["terminated"] and support["support_pass"]
-                      and row["closure_gap_peak_m"] <= closure_limit and row["post_completion_height_mae_m"] <= .01)
+                      and closure_ok and row["post_completion_height_mae_m"] <= .01)
         if quiet_case:
             passed = (common and full_quiet and row["quiet_xy_max_m"] <= limits["standing_xy_max_m"]
                       and row["quiet_speed_rms_m_s"] <= limits["standing_speed_rms_m_s"]
@@ -377,8 +382,13 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         and (env.domain.spring == 1.).all()), rates=(env.dt == rates["physics_dt"]
         and env.policy_dt == rates["policy_dt"] and env.decimation == rates["decimation"]))
     guard=plan.get("closure_guard",{}).get("peak_m",.003)
-    checks["closure_guard_config_and_physical_step_termination_match"]=(
+    checks["closure_reference_config_matches_physical_step_measurement"]=(
         env.cfg["closure_gap_termination_m"]==env.getup_cfg["closure_gap_m"]==guard)
+    from wheeled_tasks.chassis.prone_motion import closure_record_only
+    record_only = closure_record_only(plan)
+    checks["closure_record_only_matches_explicit_contract"] = (
+        env.cfg.get("closure_gap_record_only", False) ==
+        env.getup_cfg.get("closure_gap_record_only", False) == record_only)
     if plan.get("multi_pose_recovery",{}).get("reset_scope") == "standard_prone_only":
         checks["only_declared_standard_recovery_posture"] = all(
             env.poses[int(i)]["name"]==plan["multi_pose_recovery"]["standard_reset_pose_name"]
@@ -425,6 +435,8 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                        for r in env.course_roles]
     checks["actual_per_role_episode_limits"] = env.episode_limits.tolist() == expected_limits
     passive_seen = active_prone_seen = body_allowed = 0
+    natural_closure_peak = 0.
+    natural_closure_exceeded_samples = natural_closure_terminal_samples = 0
     odometry_seen = 0
     gimbal_observed = dict(speed_abs_peak_rad_s=[0., 0.], position_min_rad=[0., 0.],
         position_max_rad=[0., 0.], effort_abs_peak_nm=[0., 0.])
@@ -444,6 +456,9 @@ def _probe(env, plan, *, stop_requested=lambda: False):
             chassis_samples.clear()
         observation, reward, done, extra = env.step(action)
         state = extra["diagnostics"]
+        natural_closure_peak = max(natural_closure_peak, float(state["gap"].max()))
+        natural_closure_exceeded_samples += int(state["closure_gap_exceeded"].sum())
+        natural_closure_terminal_samples += int(state["closure_gap"].sum())
         failure_cost = torch.where(env.recovery_lane,env.getup_cfg["multi_pose_failure_cost"],3.) if (
             plan.get("multi_pose_recovery") is not None) else 3.
         expected = ((sum(state["task_reward_terms"].values())*env.policy_dt+state["reward_potential_progress"]
@@ -696,8 +711,38 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                   active_nonzero_encoder_compensation_observed=spring_ff_peak > 1. and spring_valid_count > 0)
     if getattr(env, "local_standing_odometry", None) is not None:
         checks["standing_odometry_initialized_standing_capture_observed"] = odometry_seen > 0
+    monitor_probe = None
+    if record_only:
+        # Inject only the measured gap, never body/joint state. This verifies
+        # the real terminal/reward path with an explicit10mm diagnostic input.
+        original_gap = env.closure_gap
+        env.closure_gap = lambda: original_gap().clamp_min(.01)
+        try:
+            _, paid, _, extra = env.step(action)
+        finally:
+            env.closure_gap = original_gap
+        d = extra["diagnostics"]
+        checks["closure_10mm_injection_recorded"] = bool((d["gap"] >= .01).all()
+            and d["closure_gap_exceeded"].all())
+        checks["closure_10mm_injection_does_not_terminate"] = not bool(d["closure_gap"].any())
+        checks["closure_10mm_injection_not_all_lanes_reset"] = bool((~d["done"]).any())
+        expected = ((sum(d["task_reward_terms"].values())*env.policy_dt+d["reward_potential_progress"]
+                    +3.*d["recovery_completed_event"])*extra["policy_learning_mask"]-failure_cost*d["terminated"])
+        checks["closure_10mm_injection_has_no_terminal_fee"] = bool(torch.allclose(paid, expected, atol=1e-5))
+        checks["closure_monitor_TensorBoard_fields"] = bool(
+            extra["log"]["UnifiedGetup/closure_gap_record_only"] == 1.
+            and extra["log"]["UnifiedGetup/closure_gap_termination_events"] == 0.
+            and extra["log"]["UnifiedGetup/closure_gap_exceeded_fraction"] == 1.)
+        monitor_probe = dict(scope="synthetic_measurement_wiring_only_not_physical_deformation",
+            injected_minimum_m=.01, diagnostic_peak_m=float(d["gap"].max()),
+            closure_terminal_lanes=int(d["closure_gap"].sum()),
+            nonterminal_lanes=int((~d["done"]).sum()))
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                closure_monitor_probe=monitor_probe,
+                natural_closure=dict(peak_m=natural_closure_peak,
+                    exceeded_reference_samples=natural_closure_exceeded_samples,
+                    terminal_samples=natural_closure_terminal_samples, record_only=record_only),
                 ordered_reward_coverage=ordered_coverage,
                 physical_dt_s=env.dt, policy_dt_s=env.policy_dt,
                 control_timing=deepcopy(env.startup_report["control_timing"]),

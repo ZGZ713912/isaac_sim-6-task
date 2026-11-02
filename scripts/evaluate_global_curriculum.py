@@ -18,7 +18,7 @@ def bind_case(env, row, seconds):
     return row
 
 
-def assess_trace(arrays, cases, initial_xy, limits, dt, horizon):
+def assess_trace(arrays, cases, initial_xy, limits, dt, horizon, *, closure_record_only=False):
     """Keep failed/missing trials in the denominator; report actual body spin."""
     rows = []
     for lane,case in enumerate(cases):
@@ -37,11 +37,14 @@ def assess_trace(arrays, cases, initial_xy, limits, dt, horizon):
         r.update(full_horizon=n == horizon,terminated=bool(a["terminated"].any()),
             closure_peak_m=float(a["gap"].max()),height_mae_m=float(np.abs(a["height"]-c[:,2]).mean()),
             tilt_peak_deg=float(tilt.max()),geometric_air_run_ms=float(a["air_run"].max()*1000.),
-            xy_peak_m=float(distance.max()))
+            xy_peak_m=float(distance.max()), closure_record_only=closure_record_only,
+            closure_reference_m=limits["closure_peak_m"],
+            closure_reference_exceeded=bool(a["gap"].max() > limits["closure_peak_m"]))
         checks = dict(full_horizon=r["full_horizon"],not_terminated=not r["terminated"],
-            closure=r["closure_peak_m"] <= limits["closure_peak_m"],
             height=r["height_mae_m"] <= limits["height_mae_m"],tilt=r["tilt_peak_deg"] <= limits["tilt_peak_deg"],
             visible_air=r["geometric_air_run_ms"] <= limits["geometric_air_run_ms"]+1e-5)
+        if not closure_record_only:
+            checks["closure"] = not r["closure_reference_exceeded"]
         skill = case["curriculum_skill"]
         quiet = skill in ("standing","static_height")
         chosen = t >= 2. if quiet else (t >= 5.05) & (t < (12. if skill == "braking" else 13.))
@@ -131,7 +134,8 @@ def evaluate_skill(env, actor, course, skill, level, *, stop_requested=lambda:Fa
             valid &= ~done[:n]
             if not bool(valid.any()):break
         arrays = {k:np.stack(v) for k,v in trace.items()}
-        rows = assess_trace(arrays,cases,initial,course.config["limits"],env.policy_dt,horizon)
+        rows = assess_trace(arrays,cases,initial,course.config["limits"],env.policy_dt,horizon,
+                            closure_record_only=env.getup_cfg.get("closure_gap_record_only", False))
         return dict(cases=rows,definitions=cases,initial_xy=initial.tolist(),scope="curriculum_admission_only",
             physics_dt_s=env.dt, contact_tolerance_resolved=env.dt*1000. <= course.config["limits"]["geometric_air_run_ms"],
                     new_PPO=0,policy_steps=len(arrays["time"])),arrays

@@ -62,8 +62,12 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         settings["native_origin_mode"] = plan["native_environment_layout"]
     if "closure_guard" in plan:
         guard=plan["closure_guard"]["peak_m"]
+        # RobustGetupEnv owns this task's terminal mask. Keep the original
+        # threshold for diagnostics even when its closure terminal is disabled.
         cfg["closure_gap_termination_m"]=guard
         settings["closure_gap_m"]=guard
+        from wheeled_tasks.chassis.prone_motion import closure_record_only
+        cfg["closure_gap_record_only"] = settings["closure_gap_record_only"] = closure_record_only(plan)
     if "solver_iterations" in plan:
         cfg.update(plan["solver_iterations"])
     settings.update(version=plan["schema"], prone_motion_task=deepcopy(plan),
@@ -247,6 +251,8 @@ def source_hashes(plan_path, plan):
              "tests/test_standard_getup_learning.py", "scripts/diagnose_standard_getup.py",
              "tests/test_standard_getup_sequence.py", "docs/STANDARD_GETUP_SEQUENCE_20261103.md",
              "tests/test_standard_getup_standing_bridge.py", "docs/STANDARD_GETUP_STANDING_BRIDGE_20261103.md",
+             "tests/test_closure_record_only.py", "docs/CLOSURE_RECORD_ONLY_20261103.md",
+             "contracts/wheel_leg_prone_motion_v4_before_closure_record_only_20261103.json",
              "contracts/wheel_leg_prone_motion_v4_before_standing_bridge_20261103.json",
              "contracts/wheel_leg_prone_motion_v4_before_sequence_20261103.json",
              "contracts/wheel_leg_prone_motion_v4_before_getup_fix_20261102.json",

@@ -15,7 +15,7 @@ from wheeled_tasks.chassis.recovery_mastery import RecoveryMastery
 from wheeled_tasks.chassis.prone_motion import validate as validate_plan
 
 ROOT=Path(__file__).resolve().parents[1]
-PLAN=json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4.json').read_text())
+PLAN=json.loads((ROOT/'contracts/wheel_leg_prone_motion_v4_before_closure_record_only_20261103.json').read_text())
 BANK=json.loads((ROOT/PLAN['pose_bank']['file']).read_text())
 
 

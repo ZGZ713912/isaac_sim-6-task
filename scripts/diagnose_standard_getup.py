@@ -119,7 +119,7 @@ def main():
                 values = {key: d[key][:count] for key in (
                     "time", "height", "gravity", "velocity", "omega", "motor_position", "motor_velocity",
                     "actions", "gap", "impact", "impulse", "passive", "stable", "terminated",
-                    "mechanical", "closure_gap", "impact_bad", "boundary_bad", "local_position",
+                    "mechanical", "closure_gap", "closure_gap_exceeded", "impact_bad", "boundary_bad", "local_position",
                     "recovery_completed_event", "nonwheel_force_peak_n", "wheel_contact")}
                 values.update(valid=alive.clone(), reward=reward[:count],
                     odometry_fault=observer.source_fault[:count].clone(),
@@ -142,6 +142,8 @@ def main():
             row = dict(case, samples=int(mask.sum()), completed=bool(a["recovery_completed_event"].any()),
                 height_start_m=float(a["height"][0]), height_peak_m=float(a["height"].max()),
                 final_height_m=float(a["height"][-1]), closure_peak_m=float(a["gap"].max()),
+                closure_record_only=env.getup_cfg.get("closure_gap_record_only",False),
+                closure_reference_exceeded_fraction=float(a["closure_gap_exceeded"].mean()),
                 terminated=bool(a["terminated"].any()),
                 failure_reasons=[key for key in a if key.startswith("failure_") and a[key].any()],
                 native_failure_reasons=[key for key in ("mechanical", "closure_gap", "impact_bad", "boundary_bad") if a[key].any()],

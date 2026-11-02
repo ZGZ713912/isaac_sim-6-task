@@ -16,7 +16,7 @@ from wheeled_tasks.chassis.standing_local_odometry import LocalStandingOdometry,
 from wheeled_tasks.chassis.standard_getup_reward import dense_terms, reward_contract
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = json.loads((ROOT / "contracts/wheel_leg_prone_motion_v4.json").read_text())
+PLAN = json.loads((ROOT / "contracts/wheel_leg_prone_motion_v4_before_closure_record_only_20261103.json").read_text())
 LEGACY_PLAN = json.loads((ROOT / "contracts/wheel_leg_prone_motion_v4_before_sequence_20261103.json").read_text())
 
 

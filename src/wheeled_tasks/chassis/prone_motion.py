@@ -43,6 +43,11 @@ def normalized_action_delta(delta_square, plan):
     return delta_square * (reference/timing(plan)["policy_dt"])**2
 
 
+def closure_record_only(plan):
+    """Explicit training-only opt-out; historical contracts retain termination."""
+    return plan.get("closure_guard", {}).get("mode") == "record_only"
+
+
 def validate(plan):
     if "runtime_cli" in plan:
         from .prone_motion_cli import validate_resolved
@@ -64,9 +69,13 @@ def validate(plan):
         for key, minimum in (("position_iterations", 1), ("velocity_iterations", 0)):
             if type(solver[key]) is not int or not minimum <= solver[key] <= 255:
                 raise ValueError(f"{key} must be an integer in [{minimum},255]")
-    if "closure_guard" in plan and (plan["closure_guard"].get("schema") != "wheel-leg-closure-guard-v1"
-            or plan["closure_guard"].get("peak_m") != .005):
-        raise ValueError("Repaired closure guard must retain the user-authorized5mm peak")
+    if "closure_guard" in plan:
+        closure = plan["closure_guard"]
+        legacy = closure.get("schema") == "wheel-leg-closure-guard-v1" and "mode" not in closure
+        monitor = (closure.get("schema") == "wheel-leg-closure-monitor-v2"
+                   and closure.get("mode") == "record_only")
+        if not (legacy or monitor) or closure.get("peak_m") != .005:
+            raise ValueError("Use the versioned closure guard or record-only monitor with its5mm reference")
     if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))

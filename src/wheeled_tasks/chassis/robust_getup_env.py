@@ -688,7 +688,9 @@ class RobustGetupEnv(ChassisEnv):
         self.followup_hold = torch.where(followup, self.followup_hold + self.policy_dt, 0.)
         self.followup_success |= self.followup_hold >= self.getup_cfg["followup_seconds"]
         potential = self.potential()
-        gap_bad = gap_peak > self.getup_cfg["closure_gap_m"]
+        gap_exceeded = gap_peak > self.getup_cfg["closure_gap_m"]
+        gap_record_only = self.getup_cfg.get("closure_gap_record_only", False)
+        gap_bad = gap_exceeded & (not gap_record_only)
         impact_bad = (impulse_peak > self.getup_cfg["impact_impulse_limit_ns"]) & active_interval
         boundary_bad = (local[:, :2].abs() > local.new_tensor(self.getup_cfg["boundary_xy_m"])).any(-1)
         terminated = mechanical | gap_bad | impact_bad | boundary_bad
@@ -811,6 +813,11 @@ class RobustGetupEnv(ChassisEnv):
                          "UnifiedGetup/episode_events": done.float().sum(),
                          "UnifiedGetup/passive_motor_peak_nm": motor_peak_passive.max(),
                          "UnifiedGetup/closure_gap_max_m": gap_peak.max(),
+                         "UnifiedGetup/closure_gap_mean_m": gap_peak.mean(),
+                         "UnifiedGetup/closure_gap_exceeded_fraction": gap_exceeded.float().mean(),
+                         "UnifiedGetup/closure_gap_exceeded_active_events": (gap_exceeded & active_interval).float().sum(),
+                         "UnifiedGetup/closure_gap_termination_events": (gap_bad & ~self.finished).float().sum(),
+                         "UnifiedGetup/closure_gap_record_only": gap_peak.new_tensor(float(gap_record_only)),
                          "UnifiedGetup/impact_peak_n": impact_peak.max(),
                          "UnifiedGetup/contact_impulse_peak_ns": impulse_peak.max(),
                          "UnifiedGetup/external_push_fraction": pushing.float().mean(),
@@ -947,7 +954,8 @@ class RobustGetupEnv(ChassisEnv):
                 recovery_completed_event=first.clone(),
                 followup_success=self.followup_success.clone(), stable=stable.clone(),
                 done=done.clone(), terminated=terminated.clone(), mechanical=mechanical.clone(),
-                closure_gap=gap_bad.clone(), impact_bad=impact_bad.clone(), boundary_bad=boundary_bad.clone(), time=elapsed.clone(),
+                closure_gap=gap_bad.clone(), closure_gap_exceeded=gap_exceeded.clone(),
+                impact_bad=impact_bad.clone(), boundary_bad=boundary_bad.clone(), time=elapsed.clone(),
                 local_position=local.clone(), motor_position=q.clone(), wheel_contact=contact.clone())
             if upright_task is not None:
                 info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
