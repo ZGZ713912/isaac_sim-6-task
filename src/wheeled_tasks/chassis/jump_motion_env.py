@@ -155,6 +155,10 @@ class JumpMotionEnv(ProneMotionEnv):
                 stable_hold_s=jump.stable_hold.clone(), wheel_force_peak_n=jump.wheel_force_peak.clone())
         return density, bonus, terminated, extra
 
+    def course_metric_mask(self):
+        mask = super().course_metric_mask()
+        return mask if self.jump_training is None else mask & ~self.jump_training.active
+
     def task_metrics(self, state, extra, reward, done, terminated):
         result = super().task_metrics(state, extra, reward, done, terminated)
         if "jump_training" not in extra:

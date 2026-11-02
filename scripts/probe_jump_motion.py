@@ -53,6 +53,11 @@ def probe(env, plan, *, stop_requested=lambda: False):
             "Jump/request_events_per_step", "Jump/liftoff_events_per_step", "Airborne/landing_events_per_step",
             "JumpReward/jump_push_velocity_per_second"))
         d = extra["diagnostics"]
+        standing = (d["role_index"] == 1) & (d["jump_training"]["mode"] == BASE) & ~d["passive"]
+        if bool(standing.any()):
+            checks["jump_samples_excluded_from_retained_standing_metrics"] = checks.get(
+                "jump_samples_excluded_from_retained_standing_metrics", True) and bool(torch.allclose(
+                    extra["log"]["ProneMotion/stand/height_m"], d["height"][standing].mean(), atol=1e-6))
         expected = ((sum(d["task_reward_terms"].values())*env.policy_dt+d["reward_potential_progress"]
             +3.*d["recovery_completed_event"])*extra["policy_learning_mask"]
             -torch.where(env.recovery_lane, env.getup_cfg["multi_pose_failure_cost"], 3.)*d["terminated"])

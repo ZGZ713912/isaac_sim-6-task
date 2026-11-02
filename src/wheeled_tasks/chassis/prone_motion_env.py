@@ -337,6 +337,9 @@ class ProneMotionEnv(RobustGetupEnv):
         return task.failures(state["gravity"], state["height"], state["nonwheel_force"],
             route["xy_excursion_m"], state["elapsed"], rising, ~self.recovery_lane, self.plan)
 
+    def course_metric_mask(self):
+        return ~self.passive
+
     def task_commands(self, elapsed):
         value = task.commands(self.course_targets, elapsed, self.recovered_at, self.recovery_lane, self.plan,
             moving_height=self.course_moving_height,abrupt_brake=self.course_abrupt_brake)
@@ -528,14 +531,14 @@ class ProneMotionEnv(RobustGetupEnv):
                 tilt_deg=torch.rad2deg(torch.acos((-state['gravity'][:, 2]).clamp(-1., 1.))),
                 anchor_error_m=extra['course_anchor_error_m'], reward=reward)
             means, outside, present = self.sampling.role_metrics(torch.stack(list(fields.values()), -1),
-                extra['role_index'], ~self.passive, physical['spring_outside_identified'])
+                extra['role_index'], self.course_metric_mask(), physical['spring_outside_identified'])
             for index, (role, has_samples) in enumerate(zip(task.ROLES, present.tolist())):
                 if has_samples:
                     result.update({f'ProneMotion/{role}/{name}': means[index, j]
                                    for j, name in enumerate(fields)})
                     result[f'ProneMotion/{role}/spring_outside_identified_fraction'] = outside[index]
             return result
-        masks = [(extra["role_index"] == index) & ~self.passive for index in range(len(task.ROLES))]
+        masks = [(extra["role_index"] == index) & self.course_metric_mask() for index in range(len(task.ROLES))]
         # Preserve which tags exist and the exact selected-value reductions.
         # One transfer replaces eleven data-dependent CUDA synchronizations.
         present = torch.stack([mask.any() for mask in masks]).tolist()
