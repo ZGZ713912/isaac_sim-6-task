@@ -6,6 +6,18 @@
 
 ## 当前结果（2026-11-02）
 
+截至本次核查，真实活动运行是已接入 `trainctl` 的
+`full_flat_512_20000_200hz_armature_seed111_007`。已在 **10,976/20,000**
+更新通过原进程控制器确认暂停（PID 894340、job `d9fc40ee41b8`），保留现场。
+最近完整 100 更新 10,877–10,976 的前向误差均值 0.820 m/s、偏航误差
+0.417 rad/s，更新时间均值 3.330 秒；策略采样闭链历史最大距离 197.273 m，
+不能把它解释为目前持续存在的距离，也不能用奖励上升证明物理正确。
+checkpoint `model_10500.pt` 的独立名义冷启动诊断已完成：三档高度目标
+0.23/0.305/0.42 m 下实际均约 0.225 m，前后 0.5 m/s 实速仅
++0.118/−0.284 m/s；双向 100 rpm 指令均值约 +97.76/−98.58 rpm。
+32 环境、各 10 秒、每案 0 reset；这不是完整接地/漂移/自起验收。
+正在核查机械/测量与策略问题；不恢复旧进程或开始新正式训练，直到完成定位。
+
 **最新用户修订：四个腿驱动轴各添加 0.015795 kg·m² armature，策略 50 Hz、
 物理及逐物理步反馈 PD 200 Hz，取消新增的逐物理步 5 mm 检查。**
 训练、预检、完整准入和导出默认均无闭链距离阈值；只保留数值有限性、
@@ -30,7 +42,7 @@
 actor、critic、空 Adam 开始，512 环境、seed 110，计划各 30 次更新。
 保持奖励、模型和随机化，solver 64/32 的时钟对照在首更新以
 **17.421 mm** 失败；补测原 Wheelbipe solver 12/6 也在首更新以
-**32.897 mm** 失败。两者均已退出，当前没有活动训练，未进入新完整训练。
+**32.897 mm** 失败。两者均已退出；这是附加惯量修订之前的失败，不能作为当前运行状态。
 
 计时统一从 TensorBoard event 提取，匹配第 6–30 更新窗口，排除前 5 次
 初始化/预热更新。旧 1 kHz 窗口平均采样 14.070 秒、学习 0.083 秒，
@@ -142,10 +154,18 @@ CAD 刚体惯量、40 Nm 帽与已识别库仑摩擦保持。
 
 ## 远端所有权与交付
 
-最新冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/f36551c8`。
-200 Hz 小训目录分别为 `runs/pilot_512_200hz_5mm_001` 和
-`runs/pilot_512_200hz_5mm_solver12_6_001`（相对于上述远端父目录）。
-两次小训均已退出，没有活动 campaign。历史 1 kHz 完整目录：
+最新冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/dd0e7be8`。
+当前 tmux：`wheelbipe-200hz-armature-007`，入口
+`/home/kaiser/workspace/wheelbipe-v202-port/run_campaign_trainctl.py`。
+旧 `run-200hz-armature-001.sh` 仅是小训及 `_006` 的历史入口。
+最新小训为 `runs/pilot_512_200hz_armature_001`，seed 110；30 更新及
+ONNX parity 已完成（最大误差 5.960e-7），不能当作行为通过。
+`runs/full_flat_512_20000_200hz_armature_seed111_006` 在 570 更新退出；
+现存完整运行是 `runs/full_flat_512_20000_200hz_armature_seed111_007`，
+tmux `wheelbipe-200hz-armature-007`，使用原进程 trainctl 支持手动暂停。
+上述相对路径以 `/home/kaiser/workspace/wheelbipe-v202-port` 为父目录。
+此前两个 `5mm` 命名的 200 Hz 小训已失败退出，不能混作本次新运行。
+历史 1 kHz 完整目录：
 `/home/kaiser/workspace/wheelbipe-v202-port/runs/full_flat_512_20000_1000hz_seed110_004`。
 启动观察的 owner PID 862183、worker PID 865730 仅供历史定位；任何后续
 操作先重新核对身份。旧 `_002` 完整运行和 2 kHz 试验均已失败退出。
@@ -158,10 +178,34 @@ CAD 刚体惯量、40 Nm 帽与已识别库仑摩擦保持。
 远端 TensorBoard 独立运行在 Kaiser 6008；
 [本机查看入口](http://127.0.0.1:6008/) 仅为 SSH 转发。
 既有 6006/6007 服务不动，本机不运行 TensorBoard。
-检查 `wheelbipe-onnx` 的提示已更新为此次失败事实，并因当前没有活动训练
-设为 `PAUSED`。旧 1 kHz 运行不会被误当作仍在推进，其他旧检查未改。
-200 Hz 必须先完成同合同小训，才能进入已授权的新 20,000 更新完整训练。
+本次核查时，本机 `wheelbipe-onnx/automation.toml` 已不存在，不能声称
+该定时检查仍为 ACTIVE；当前 `_007` 按原进程暂停保留，排错不触发恢复。
+200 Hz 必须先完成同源码、同人口、同惯量及同诊断采样方式的小训和 ONNX
+parity，才能进入已授权的新 20,000 更新完整训练。
 完整成功后再核对 checkpoint/ONNX SHA、20,000 更新及 parity 并取回交付。
+
+### 手动暂停与证据
+
+`trainctl` 从统一分支提交 `0b5f71c9` 同步，完整 campaign 的训练阶段
+通过 `wheel-leg-trainctl run` 启动。原生预检和只读评测不注册为 learner。
+现有 `_007` 已由相同控制器注册，无需改动冻结源码或重启即可暂停。
+
+```bash
+ssh -t kaiser '~/.local/bin/trainctl wheel-leg'
+ssh kaiser '~/.local/bin/trainctl wheel-leg status d9fc40ee41b8'
+ssh kaiser '~/.local/bin/trainctl wheel-leg pause d9fc40ee41b8 --wait 30'
+# 人工决定继续原实验时：
+ssh kaiser '~/.local/bin/trainctl wheel-leg resume d9fc40ee41b8'
+```
+
+暂停确认保留 PID/rollout/Adam/RNG/显存；退出 TUI 不改变暂停请求。
+本次 33 项 CPU 测试通过，含真实 CPU PPO 暂停前后的 Adam/RNG 等价检查；
+这不是本车行为验收。详情 [TRAINCTL.md](TRAINCTL.md)。
+现场、checkpoint SHA 和 100 更新窗口见
+`reports/wheelbipe_port_20261101/kaiser_armature007_paused10976_snapshot001.json`。
+冷启动诊断和无 PPO 动力学对照见同目录
+`kaiser_armature007_checkpoint10500_cold001.json`、`clone_and_baseline002.json`、
+`spring_damping50_001.json`、`pd60_2_001.json`；对照均不修改现有 learner。
 
 ONNX 输入顺序、缩放、6 动作顺序与控制后处理见导出的 `contract.json`
 及 `params/env.yaml`。虽然 actor 同为 35D，其布局与现有 ProneMotion-v4

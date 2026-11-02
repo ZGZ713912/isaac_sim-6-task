@@ -17,6 +17,7 @@ RESUME_SOURCE_CHANGES = frozenset({
     "src/wheeled_tasks/chassis/prone_motion_cli.py",
     "src/wheeled_algo/prone_motion_resume.py", "tests/test_prone_motion_resume.py",
     "docs/PRONE_MOTION_RESUME.md",
+    "src/wheeled_algo/training_control.py", "tests/test_training_control.py", "docs/TRAINCTL.md",
 })
 
 

@@ -41,6 +41,8 @@ def main():
     parser.add_argument("--physics-hz",type=int,choices=(200,500,1000,2000),default=200)
     parser.add_argument("--leg-armature",type=float,default=.015795)
     parser.add_argument("--max-constraint-gap-mm",type=float,default=None)
+    parser.add_argument("--trainctl",type=Path,default=Path.home()/".local/bin/wheel-leg-trainctl",
+        help="Installed in-process RSL-RL pause controller; trainctl from dev/wheel-leg-unified")
     args = parser.parse_args()
     try:
         gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
@@ -161,7 +163,7 @@ def main():
         run("population_preflight",common+["--mode","preflight","--num-envs",str(args.num_envs),
             "--steps","100","--seed",str(args.seed),"--output",str(preflight)],preflight/"receipt.json")
         full = args.output/"train"
-        run("training",common+["--mode","train","--num-envs",str(args.num_envs),
+        run("training",[str(args.trainctl),"run","--name",args.output.name,"--"]+common+["--mode","train","--num-envs",str(args.num_envs),
             "--iterations","20000","--save-interval","500","--seed",str(args.seed),
             "--output",str(full)],full/"receipt.json")
         trained = json.loads((full/"receipt.json").read_text())
