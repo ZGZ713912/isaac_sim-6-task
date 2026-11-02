@@ -43,6 +43,9 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
+    parser.add_argument("--training-profile",choices=("legacy","foundation-v1"),default="legacy")
+    parser.add_argument("--gas-feedforward",action=argparse.BooleanOptionalAction,default=None,
+        help="Explicitly override cancellation of the physical spring torque; the spring itself is retained")
     parser.add_argument("--solver-position-iterations",type=int,default=12)
     parser.add_argument("--solver-velocity-iterations",type=int,default=6)
     parser.add_argument("--external-forces-every-iteration",action=argparse.BooleanOptionalAction,default=False)
@@ -147,6 +150,13 @@ def main():
         cfg.port_record_peaks = args.mode in ("preflight","train")
         cfg.port_leg_target_projection_penalty = args.leg_target_projection_penalty
         cfg.rewards["port_leg_target_projection"] = -args.leg_target_projection_penalty
+        from wheeled_tasks.wheelbipe_port.training_profile import configure_profile,apply_phase
+        configure_profile(cfg,args.training_profile)
+        cfg.port_start_completed_updates = managed.completed if managed is not None else 0
+        if args.training_profile=="foundation-v1":
+            apply_phase(cfg,cfg.port_start_completed_updates)
+        if args.gas_feedforward is not None:
+            cfg.port_gas_feedforward = args.gas_feedforward
         if args.mode=="evaluate":
             cfg.use_leg_random_start = False
             cfg.events.reset_base.params["pose_range"] = {}
@@ -184,6 +194,11 @@ def main():
             wheel_model_sha256=env.wheel_response.cfg["model_sha256"],
             friction_model_sha256=env.leg_friction.cfg["model_sha256"],
             gimbal="CAD mass retained; both joints fixed at zero",
+            training_profile=args.training_profile,
+            training_profile_sha256=getattr(cfg,"port_profile_sha256",None),
+            gas_cancellation_feedforward=cfg.port_gas_feedforward,
+            physical_measured_gas_spring=True,
+            reward_effort_source="electrical motor" if cfg.port_reward_motor_only else "native physical effort including passive residual friction",
             body_masses_kg=env.robot.root_physx_view.get_masses().cpu().tolist())
         from pxr import UsdPhysics
         loops = [p for p in env.sim.stage.Traverse() if p.IsA(UsdPhysics.SphericalJoint)]
@@ -264,7 +279,9 @@ def main():
                 receipt.update(status="training",completed_updates=completed,
                     elapsed_s=time.monotonic()-started,max_constraint_gap_m=peak,
                     physical_steps=env.port_physics_calls,
-                    joint_speed_running_peak_rad_s=float(env.port_joint_speed_peak),
+                    joint_speed_running_peak_mixed_units=float(env.port_joint_speed_peak),
+                    rotary_joint_speed_running_peak_rad_s=float(env.port_rotary_speed_peak),
+                    spring_slider_speed_running_peak_m_s=float(env.port_slider_speed_peak),
                     body_angular_speed_running_peak_rad_s=float(env.port_body_angular_speed_peak),
                     peak_diagnostic=getattr(env,"port_peak_diagnostic",None),
                     last_collection_time_s=values["collection_time"],last_learning_time_s=values["learn_time"],
@@ -279,6 +296,11 @@ def main():
                 if not all(torch.isfinite(torch.as_tensor(v)).all() for v in values["loss_dict"].values()):
                     raise ValueError("Nonfinite PPO losses")
                 check_constraint_gap(peak,gap_limit,"PPO")
+                if completed in cfg.port_review_updates and completed<args.iterations:
+                    if managed is None:
+                        raise ValueError("This profile requires managed save/exit behavior reviews")
+                    if managed.stop.reason is None:
+                        managed.stop.reason = f"behavior_review:{completed}"
                 if managed is not None:
                     managed.after_update(completed)
                     active,paused = managed.control.elapsed()
@@ -347,7 +369,9 @@ def main():
         check_constraint_gap(receipt["max_constraint_gap_m"],gap_limit,args.mode)
         receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
         receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
-        receipt["joint_speed_running_peak_rad_s"] = float(env.port_joint_speed_peak)
+        receipt["joint_speed_running_peak_mixed_units"] = float(env.port_joint_speed_peak)
+        receipt["rotary_joint_speed_running_peak_rad_s"] = float(env.port_rotary_speed_peak)
+        receipt["spring_slider_speed_running_peak_m_s"] = float(env.port_slider_speed_peak)
         receipt["body_angular_speed_running_peak_rad_s"] = float(env.port_body_angular_speed_peak)
         save(path,receipt)
         print(json.dumps({k:v for k,v in receipt.items() if k not in ("native","arguments")},indent=2))
@@ -365,7 +389,7 @@ def main():
             if wrapped is not None:
                 receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
                 receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
-                receipt["joint_speed_running_peak_rad_s"] = float(env.port_joint_speed_peak)
+                receipt["joint_speed_running_peak_mixed_units"] = float(env.port_joint_speed_peak)
                 receipt["body_angular_speed_running_peak_rad_s"] = float(env.port_body_angular_speed_peak)
             save(path,receipt)
             raise

@@ -83,7 +83,9 @@ def main():
         behavior_qualified=False,hardware_mapping_verified=False,
         observation_order="source V14 command(3), height(1), gyro(3), gravity(3), leg-relative-position(4), muted-wheel-position(2), joint-velocity(6), previous-action(6), control-mode(7)",
         preprocessing="original V14 clip/scale and v2 sensor model; see params/env.yaml", 
-        postprocessing="leg defaults + 0.5*action; wheels 10*action rad/s; v202 PD, spring compensation, limits and measured wheel response required")
+        postprocessing="leg defaults + 0.5*action; wheels 10*action rad/s; v202 PD, physical spring, limits and measured wheel response required; cancellation FF is selected by native.gas_cancellation_feedforward",
+        gas_cancellation_feedforward=receipt["native"].get("gas_cancellation_feedforward",True),
+        deployment_requires_matching_low_level_control=True)
     # The textual order above is checked against dimensions rather than being
     # used as executable preprocessing; exact per-field scales remain in YAML.
     (args.output/"contract.json").write_text(json.dumps(contract,indent=2)+"\n")

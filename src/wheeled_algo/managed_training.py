@@ -157,8 +157,29 @@ class WheelbipeSession(ManagedSession):
                     raise ValueError("Training source pin escapes its source root")
                 verify_pin(pin)
 
-    def start(self, *, paused=False, accept_new_boot=False):
+    def command(self, operation, *, wait_seconds=0.):
+        # A person may press stop while the campaign has released the GPU for
+        # inference. Keep that request durable so a review cannot undo it.
+        if operation in ("pause","stop"):
+            with command_lock(self.root):
+                state = self.status()
+                if not state["active"] and state["phase"]=="stopped":
+                    path = self.attempt()/"control/request.json"
+                    request = read_json(path)
+                    if request["operation"]!=operation:
+                        request.update(operation=operation,sequence=request["sequence"]+1,at=timestamp())
+                        write_json(path,request,replace=True)
+                    return self.status()
+        return super().command(operation,wait_seconds=wait_seconds)
+
+    def start(self, *, paused=False, accept_new_boot=False, expected_attempt=None, expected_request_sequence=None):
         with command_lock(self.root), ExitStack() as leases:
+            if expected_attempt is not None:
+                previous = self.attempt()
+                request = read_json(previous/"control/request.json") if previous else None
+                if (previous!=Path(expected_attempt) or not request or request["operation"]!="resume"
+                        or request["sequence"]!=expected_request_sequence):
+                    raise ValueError("Manual control changed during review; automatic continuation refused")
             state = self.status()
             if state["active"] or state["phase"] == "completed":
                 return state

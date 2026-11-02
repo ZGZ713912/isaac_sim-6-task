@@ -72,7 +72,11 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.leg_target_order = [self._legs_act_idx.index(self.motor_ids[i]) for i in (0,1,3,4)]
         self.wheel_target_order = [self._wheel_idx.index(self.motor_ids[i]) for i in (2,5)]
         self.motor_effort = torch.zeros(self.num_envs,6,device=self.device)
+        self.control.gas_compensation_effort = torch.zeros(self.num_envs,4,device=self.device)
         self.applied_physical_effort = self.motor_effort.clone()
+        self._reward_previous_electrical = self.motor_effort.clone()
+        self._reward_before_previous_electrical = self.motor_effort.clone()
+        self.port_training_phase = None
         self._initialize_domains()
         self._port_ready = True
         self.port_physics_calls = 0
@@ -85,12 +89,16 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self._constraint_body1 = [self.robot.cad_body_names.index(c["body1"]) for c in self.asset.spec["constraints"]]
         self.port_constraint_gap_peak = torch.zeros((),device=self.device)
         self.port_joint_speed_peak = torch.zeros((),device=self.device)
+        self.port_rotary_speed_peak = torch.zeros((),device=self.device)
+        self.port_slider_speed_peak = torch.zeros((),device=self.device)
+        self._port_rotary_ids = [i for i in range(self.robot.num_joints) if i not in self.spring_ids]
         self.port_body_angular_speed_peak = torch.zeros((),device=self.device)
         knee_names = ("L_joint2","R_jonit2")
         self._port_knee_ids = [self.robot.cad_joint_names.index(n) for n in knee_names]
         self._port_knee_signs = self.motor_effort.new_tensor([1.,-1.])
         endpoints = self.reset_lookup.rows[[0,-1]][:,[self.reset_lookup.names.index(n) for n in knee_names]]*self._port_knee_signs
         self._port_knee_limits = (endpoints.min(0).values,endpoints.max(0).values)
+        self._update_training_profile()
 
     def _setup_scene(self):
         # Same scene construction as Wheelbipe25V3Env._setup_scene; use a real
@@ -154,6 +162,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
             self.robot.write_root_state_to_sim(root,env_ids)
             self.wheel_response.reset(env_ids)
             self.motor_effort[env_ids] = 0.
+            self._reward_previous_electrical[env_ids] = 0.
+            self._reward_before_previous_electrical[env_ids] = 0.
             if self._policy_previous is not None:
                 self._policy_previous[env_ids] = 0.
             self._last_policy_tick = None
@@ -240,7 +250,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
         feedback[:,(0,1,3,4)] += self.pd_encoder_bias
         legs = self.paired_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)])
         wheels = self.wheel_actions[:,self.wheel_target_order].clamp(-90.,90.)
-        motor = self.control.motor_efforts(feedback,dq,legs,wheels)*self.motor_strength
+        motor = self.control.motor_efforts(feedback,dq,legs,wheels,
+            apply_gas_compensation=getattr(self.cfg,"port_gas_feedforward",True))*self.motor_strength
         motor[:,:2].clamp_(-40.,40.)
         motor[:,3:5].clamp_(-40.,40.)
         motor[:,(2,5)] = motor[:,(2,5)].clamp(-4.5,4.5)
@@ -265,11 +276,29 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self._update_obs()
 
     def _on_command_updated(self):
+        self._update_training_profile()
         super()._on_command_updated()
         if hasattr(self,"eval_command"):
             vx,wz,height = self.eval_command
             self.command[:,0],self.command[:,1],self.command[:,2] = vx,0.,wz
             self.height_cmd.fill_(height)
+
+    def _update_training_profile(self):
+        if (not getattr(self,"_port_ready",False) or hasattr(self,"eval_command")
+                or getattr(self.cfg,"port_training_profile","legacy")!="foundation-v1"):
+            return
+        from .training_profile import phase_for_update,apply_phase
+        update = max(getattr(self.cfg,"port_start_completed_updates",0),self._get_training_iteration())
+        phase = phase_for_update(update)
+        if phase["start_update"]==self.port_training_phase:
+            return
+        apply_phase(self.cfg,update)
+        # Isaac's command object currently retains this same config instance;
+        # update the actual runtime object explicitly rather than assuming it.
+        self.command_generator.cfg.ranges.lin_vel_x = self.cfg.commands.ranges.lin_vel_x
+        self.command_generator.cfg.ranges.ang_vel_z = self.cfg.commands.ranges.ang_vel_z
+        self.command_generator.cfg.rel_standing_envs = self.cfg.commands.rel_standing_envs
+        self.port_training_phase = phase["start_update"]
 
     def _apply_spring(self):
         compression = self.control.s0-self.robot.data.joint_pos[:,self.spring_ids]
@@ -285,6 +314,15 @@ class WheelbipePortEnv(WheelbipeV14Env):
         reward_terms = super()._postprocess_reward_terms(reward_terms)
         # The inherited logger applies cfg.rewards and policy_dt exactly once.
         reward_terms["port_leg_target_projection"] = self._leg_target_projection_cost()
+        if self._port_ready and getattr(self.cfg,"port_reward_motor_only",False):
+            # The explicit native target also contains dissipative model forces.
+            # Reward electrical effort, as the source native PD actuator does.
+            from .training_profile import electrical_reward_terms
+            reward_terms.update(electrical_reward_terms(self.motor_effort,
+                self.robot.data.joint_vel[:,self.motor_ids],
+                self._reward_previous_electrical,self._reward_before_previous_electrical))
+            self._reward_before_previous_electrical.copy_(self._reward_previous_electrical)
+            self._reward_previous_electrical.copy_(self.motor_effort)
         return reward_terms
 
     def constraint_gaps(self):
@@ -298,6 +336,10 @@ class WheelbipePortEnv(WheelbipeV14Env):
         peak = gaps.max()
         self.port_joint_speed_peak = torch.maximum(self.port_joint_speed_peak,
             self.robot.data.joint_vel.abs().max())
+        self.port_rotary_speed_peak = torch.maximum(self.port_rotary_speed_peak,
+            self.robot.data.joint_vel[:,self._port_rotary_ids].abs().max())
+        self.port_slider_speed_peak = torch.maximum(self.port_slider_speed_peak,
+            self.robot.data.joint_vel[:,self.spring_ids].abs().max())
         self.port_body_angular_speed_peak = torch.maximum(self.port_body_angular_speed_peak,
             self.robot.data.root_ang_vel_w.norm(dim=-1).max())
         if getattr(self.cfg,"port_record_peaks",False) and peak>self.port_constraint_gap_peak:
@@ -325,7 +367,11 @@ class WheelbipePortEnv(WheelbipeV14Env):
                     -self.cfg.port_leg_target_projection_penalty*self.step_dt*projection.mean(),
                 "Port/constraint_gap_policy_sample_max_m":self.constraint_gaps().max(),
                 "Port/constraint_gap_policy_sample_running_max_m":self.port_constraint_gap_peak.clone(),
-                "Port/joint_speed_policy_sample_running_max_rad_s":self.port_joint_speed_peak.clone(),
+                "Port/joint_speed_policy_sample_running_max_mixed_units":self.port_joint_speed_peak.clone(),
+                "Port/rotary_speed_policy_sample_running_max_rad_s":self.port_rotary_speed_peak.clone(),
+                "Port/spring_slider_speed_policy_sample_running_max_m_s":self.port_slider_speed_peak.clone(),
+                "Port/driven_leg_speed_policy_sample_max_rad_s":self.robot.data.joint_vel[:,[self.motor_ids[i] for i in (0,1,3,4)]].abs().max(),
+                "Port/wheel_speed_policy_sample_max_rad_s":self.robot.data.joint_vel[:,[self.motor_ids[i] for i in (2,5)]].abs().max(),
                 "Port/body_angular_speed_policy_sample_running_max_rad_s":self.port_body_angular_speed_peak.clone(),
                 "Port/motor_leg_abs_mean_Nm":self.motor_effort[:,(0,1,3,4)].abs().mean(),
                 "Port/motor_wheel_abs_mean_Nm":self.motor_effort[:,(2,5)].abs().mean(),
@@ -334,6 +380,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
                 "Port/reset_initial_penetration_running_peak_m":self.reset_penetration_peak.clone(),
                 "Port/forward_error_abs_mean_m_s":(self.robot.data.root_lin_vel_b[:,0]-self.command[:,0]).abs().mean(),
                 "Port/yaw_error_abs_mean_rad_s":(self.robot.data.root_ang_vel_b[:,2]-self.command[:,2]).abs().mean(),
+                "Port/training_phase_start_update":float(self.port_training_phase or 0),
+                "Port/gas_cancellation_feedforward_enabled":float(getattr(self.cfg,"port_gas_feedforward",True)),
             })
         return observations
 

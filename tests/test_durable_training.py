@@ -220,6 +220,22 @@ def test_unclean_attempt_cannot_replay_from_periodic_checkpoint(tmp_path):
         session.start()
 
 
+def test_manual_stop_during_released_review_prevents_automatic_restart(tmp_path,monkeypatch):
+    session=WheelbipeSession.create(tmp_path/"session",_fake_source(tmp_path),sys.executable,
+        ["--iterations","12","--num-envs","4","--seed","115"])
+    attempt=session.root/"attempts/0001-review"
+    (attempt/"control").mkdir(parents=True)
+    path=attempt/"control/request.json"
+    write_json(path,dict(token="owned",sequence=0,operation="resume"))
+    monkeypatch.setattr(session,"attempt",lambda:attempt)
+    monkeypatch.setattr(session,"status",lambda:dict(active=False,phase="stopped"))
+    session.command("stop")
+    assert read_json(path)["operation"]=="stop" and read_json(path)["sequence"]==1
+    with pytest.raises(ValueError,match="Manual control changed"):
+        session.start(expected_attempt=attempt,expected_request_sequence=0)
+    assert len(list((session.root/"attempts").iterdir()))==1
+
+
 def test_shared_release_verifies_checkpoint_before_requesting_stop(tmp_path):
     from wheeled_algo.trainctl_shared.training_cli import Release
 
