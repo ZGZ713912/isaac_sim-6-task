@@ -93,3 +93,26 @@ def test_targets_use_actual_110_degree_geometry_and_shared_winding():
     edge = torch.tensor([[0.,projector.bounds[0,1],projector.bounds[1,1],0.]],dtype=torch.float64)
     torch.testing.assert_close(projector(edge,edge),edge,rtol=0.,atol=1.e-12)
     assert projector.bounds[:,1].min()>1.42
+
+
+def test_unreachable_target_cost_removes_collapsed_leg_reward_loophole():
+    model = json.loads((BUNDLE/"gas_spring_model.json").read_text())
+    projector = PairedTargets(model,"cpu")
+    feasible = torch.tensor([[-.42,.1372233087,.42,-.1372160582]],dtype=torch.float64)
+    torch.testing.assert_close(projector.projection_cost(feasible),torch.zeros(1,dtype=torch.float64))
+    # Captured from checkpoint10500, height command .305 m: the actor sends
+    # large requests which the CAD branch projects to the fully short leg.
+    captured = torch.tensor([[1.01177335,-1.25849819,-1.42845762,1.77020109]],dtype=torch.float64)
+    # This fixture is already in ACTIVE pair order (L hip/aux, R hip/aux).
+    actual = projector(captured,feasible)
+    expected = (captured-actual).square().sum(-1)
+    torch.testing.assert_close(projector.projection_cost(captured),expected)
+    assert projector.projection_cost(captured).item()>5.
+    shifted = captured+torch.tensor([[4.,4.,-6.,-6.]],dtype=torch.float64)*torch.pi
+    torch.testing.assert_close(projector.projection_cost(shifted),expected)
+    # Moving farther outside either mechanical edge must increase the cost,
+    # even though the projected target stays at exactly the same stop.
+    beyond = feasible.clone()
+    beyond[:,1] = beyond[:,0]+projector.bounds[0,1]+.1
+    far = beyond.clone(); far[:,1] += .1
+    assert projector.projection_cost(far)>projector.projection_cost(beyond)>0.

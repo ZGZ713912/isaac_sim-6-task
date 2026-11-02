@@ -109,6 +109,19 @@ class PairedTargets:
             for side in ("left","right")],device=device,dtype=torch.float64)
         self.sign = torch.tensor([1.,-1.],device=device,dtype=torch.float64)
 
+    def projection_cost(self, desired):
+        """Squared discarded target distance in rad², per environment.
+
+        Both axes share half of the relative-angle correction. Common rotation
+        (including a shared 2*pi winding) is feasible and has zero cost. Keeping
+        this independent of measured state prevents physical tracking lag from
+        being mistaken for an unreachable policy request.
+        """
+        wanted = desired.double().unflatten(-1,(2,2))
+        delta = self.sign*(wanted[...,1]-wanted[...,0])
+        discarded = delta-delta.clamp(self.bounds[:,0],self.bounds[:,1])
+        return (.5*discarded.square().sum(-1)).to(desired.dtype)
+
     def __call__(self, desired, current):
         torch = self.torch
         if desired.shape!=current.shape or desired.shape[-1]!=4:

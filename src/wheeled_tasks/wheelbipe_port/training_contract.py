@@ -5,6 +5,13 @@ CONSTRAINT_DIAGNOSTIC_SCOPE = "policy observation boundaries only; not a per-phy
 DEFAULT_LEG_ARMATURE_KG_M2 = .015795
 
 
+def projection_penalty(value):
+    value = float(value)
+    if not math.isfinite(value) or value<0.:
+        raise ValueError("Target-projection penalty must be finite and nonnegative")
+    return value
+
+
 def leg_armature_kg_m2(value):
     value = float(value)
     if not math.isfinite(value) or value<0.:

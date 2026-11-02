@@ -50,16 +50,20 @@ def main():
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
     parser.add_argument("--leg-armature",type=float,default=.015795,
         help="Additional inertia on each of the four driven leg axes, kg*m^2")
+    parser.add_argument("--leg-target-projection-penalty",type=float,default=1.,
+        help="Cost weight for unreachable leg targets in rad^2; 0 reproduces the historical objective")
     parser.add_argument("--max-constraint-gap-mm",type=float,default=None,
         help="Optional historical policy-sampled gap limit; omitted means diagnostics only")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
     args = parser.parse_args()
     from wheeled_tasks.wheelbipe_port.training_contract import (
         constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,CONSTRAINT_DIAGNOSTIC_SCOPE,
+        projection_penalty,
     )
     try:
         gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
         args.leg_armature = leg_armature_kg_m2(args.leg_armature)
+        args.leg_target_projection_penalty = projection_penalty(args.leg_target_projection_penalty)
     except ValueError as error:
         parser.error(str(error))
     if args.num_envs<1 or args.iterations<1 or args.steps<1 or not 0.<=args.randomization_strength<=1.:
@@ -123,6 +127,8 @@ def main():
         cfg.port_randomization_profile = args.randomization_profile
         cfg.port_randomization_strength = args.randomization_strength
         cfg.port_record_peaks = args.mode in ("preflight","train")
+        cfg.port_leg_target_projection_penalty = args.leg_target_projection_penalty
+        cfg.rewards["port_leg_target_projection"] = -args.leg_target_projection_penalty
         if args.mode=="evaluate":
             cfg.use_leg_random_start = False
             cfg.events.reset_base.params["pose_range"] = {}
@@ -151,6 +157,8 @@ def main():
             leg_armature_readback_verified_envs=args.num_envs,
             diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE,
             paired_target_signed_delta_bounds_rad=env.paired_targets.bounds.cpu().tolist(),
+            leg_target_projection_penalty=args.leg_target_projection_penalty,
+            leg_target_projection_cost="sum of squared discarded pair targets, rad^2; shared winding unpenalized",
             joint_velocity_guard_scope="asset solver guard; not an identified motor-speed limit",
             spring_model_sha256=env.control.gas_compensation.cfg["model_sha256"],
             wheel_model_sha256=env.wheel_response.cfg["model_sha256"],
@@ -232,6 +240,7 @@ def main():
                     physical_steps=env.port_physics_calls,
                     joint_speed_running_peak_rad_s=float(env.port_joint_speed_peak),
                     body_angular_speed_running_peak_rad_s=float(env.port_body_angular_speed_peak),
+                    peak_diagnostic=getattr(env,"port_peak_diagnostic",None),
                     last_collection_time_s=values["collection_time"],last_learning_time_s=values["learn_time"],
                     last_iteration_time_s=iteration_time)
                 if completed==1:

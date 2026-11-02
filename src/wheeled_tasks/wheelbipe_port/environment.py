@@ -274,6 +274,17 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.spring_force = self.control.gas_compensation.physical_force(compression)
         self.robot.set_joint_effort_target(self.spring_force,joint_ids=self.spring_ids)
 
+    def _leg_target_projection_cost(self):
+        if not self._port_ready or self.leg_actions is None:
+            return torch.zeros(self.num_envs,device=self.device)
+        return self.paired_targets.projection_cost(self.leg_actions[:,self.leg_target_order])
+
+    def _postprocess_reward_terms(self,reward_terms):
+        reward_terms = super()._postprocess_reward_terms(reward_terms)
+        # The inherited logger applies cfg.rewards and policy_dt exactly once.
+        reward_terms["port_leg_target_projection"] = self._leg_target_projection_cost()
+        return reward_terms
+
     def constraint_gaps(self):
         p,q = self.robot.data.body_pos_w,self.robot.data.body_quat_w
         a = p[:,self._constraint_body0]+quat_apply(q[:,self._constraint_body0],self._constraint_points0[None].expand(self.num_envs,-1,-1))
@@ -304,7 +315,12 @@ class WheelbipePortEnv(WheelbipeV14Env):
         if self._port_ready:
             self._measure_constraint_peak()
             logs = self.extras.setdefault("log",{})
+            projection = self._leg_target_projection_cost()
             logs.update({
+                "Port/leg_target_projection_cost_mean_rad2":projection.mean(),
+                "Port/leg_target_projected_fraction":(projection>1.e-10).float().mean(),
+                "Port/leg_target_projection_reward_per_policy_step":
+                    -self.cfg.port_leg_target_projection_penalty*self.step_dt*projection.mean(),
                 "Port/constraint_gap_policy_sample_max_m":self.constraint_gaps().max(),
                 "Port/constraint_gap_policy_sample_running_max_m":self.port_constraint_gap_peak.clone(),
                 "Port/joint_speed_policy_sample_running_max_rad_s":self.port_joint_speed_peak.clone(),

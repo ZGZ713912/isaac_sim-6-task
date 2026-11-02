@@ -67,6 +67,12 @@ def configure(cfg):
     cfg.use_obs_delay = False  # explicit v2 policy-frame age is applied in the adapter
     cfg.spring_settings = dict(mode="measured",constant_force=0.,random_force=None,damping=False)
     cfg.leg_action_scale = .5  # preserve the Wheelbipe action parameterization
+    # Our CAD branch requires a projection absent from the source actuator.
+    # Charge discarded targets so a policy cannot hide large outward requests
+    # behind zero applied torque at the shortest-leg stop.
+    cfg.port_leg_target_projection_penalty = 1.
+    cfg.rewards = deepcopy(cfg.rewards)
+    cfg.rewards["port_leg_target_projection"] = -cfg.port_leg_target_projection_penalty
     cfg.max_wheel_torque = 4.5
     cfg.max_wheel_vel = 60.
     cfg.default_height_cmd = .305

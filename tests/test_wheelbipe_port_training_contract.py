@@ -6,7 +6,15 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
-from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap,leg_armature_kg_m2
+from wheeled_tasks.wheelbipe_port.training_contract import constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,projection_penalty
+
+
+def test_projection_objective_has_explicit_historical_zero_control():
+    assert projection_penalty(1.)==1.
+    assert projection_penalty(0.)==0.
+    for value in (-1.,math.inf,math.nan):
+        with pytest.raises(ValueError):
+            projection_penalty(value)
 
 
 def test_user_removed_gap_gate_but_keeps_finite_diagnostics():

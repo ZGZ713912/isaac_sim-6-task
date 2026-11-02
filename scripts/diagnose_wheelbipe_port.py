@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -22,6 +23,10 @@ def main():
     parser.add_argument("--spring-damping",type=float,default=.002)
     parser.add_argument("--passive-armature",type=float,default=0.)
     parser.add_argument("--actions",choices=("zero","random"),default="random")
+    parser.add_argument("--checkpoint",type=Path,help="Read-only deterministic actor diagnostic, no PPO")
+    parser.add_argument("--command",type=float,nargs=3,metavar=("VX","YAW","HEIGHT"))
+    parser.add_argument("--hold-leg-length",type=float,help="Fixed CAD IK target, replaces policy actions")
+    parser.add_argument("--audit-reset-cache",action="store_true",help="Isolated 200m teleport/reset consistency audit, no physics step")
     args = parser.parse_args()
     if args.output.exists():
         parser.error("Refusing to overwrite an existing diagnostic")
@@ -55,8 +60,32 @@ def main():
         cfg.robot_cfg.actuators["legs_inact"].armature = args.passive_armature
         cfg.port_randomization_profile = "nominal"
         cfg.port_record_peaks = True
+        if args.command is not None:
+            cfg.use_leg_random_start = False
+            cfg.events.reset_base.params["pose_range"] = {}
+            cfg.events.reset_base.params["velocity_range"] = {}
+            cfg.commands.special_modes = {}
         env = WheelbipePortEnv(cfg)
         env.control.settings["leg_kp"],env.control.settings["leg_kd"] = args.leg_kp,args.leg_kd
+        actor = None
+        if args.checkpoint is not None:
+            checkpoint = torch.load(args.checkpoint,map_location=env.device,weights_only=False)
+            state = checkpoint["model_state_dict"]
+            if any("obs_normalizer" in k for k in state):
+                raise ValueError("This diagnostic expects the source actor without normalization")
+            layers = []
+            for i,(inputs,outputs) in enumerate(((35,256),(256,128),(128,64),(64,6))):
+                layer = torch.nn.Linear(inputs,outputs,device=env.device)
+                layer.weight.data.copy_(state[f"actor.{i*2}.weight"])
+                layer.bias.data.copy_(state[f"actor.{i*2}.bias"])
+                layers.append(layer)
+                if i<3:
+                    layers.append(torch.nn.ELU())
+            actor = torch.nn.Sequential(*layers).eval()
+            result["checkpoint_sha256"] = hashlib.sha256(args.checkpoint.read_bytes()).hexdigest()
+        if args.command is not None:
+            env.eval_command = tuple(args.command)
+        obs,_ = env.reset()
         loops = [p for p in env.sim.stage.Traverse() if p.IsA(UsdPhysics.SphericalJoint)]
         bad,examples = [],[]
         for prim in loops:
@@ -72,6 +101,32 @@ def main():
         result.update(status="sampling",external_loop_count=len(loops),bad_clone_ownership=bad,
             joint_examples=examples,body_names=env.robot.cad_body_names,
             body_masses_kg=env.robot.root_physx_view.get_masses()[0].cpu().tolist())
+        if args.audit_reset_cache:
+            from isaaclab.utils.math import quat_apply
+            def anchor_readback():
+                transforms = env.robot.root_physx_view.get_link_transforms().clone()
+                positions = transforms[:,:,:3]
+                quaternions = transforms[:,:,(6,3,4,5)]
+                a = positions[:,env._constraint_body0]+quat_apply(quaternions[:,env._constraint_body0],
+                    env._constraint_points0[None].expand(args.num_envs,-1,-1))
+                b = positions[:,env._constraint_body1]+quat_apply(quaternions[:,env._constraint_body1],
+                    env._constraint_points1[None].expand(args.num_envs,-1,-1))
+                return dict(cached_gap_m=env.constraint_gaps()[0].cpu().tolist(),
+                    physx_gap_m=(a-b).norm(dim=-1)[0].cpu().tolist())
+            ids = torch.tensor([0],device=env.device)
+            result["reset_cache_audit"] = dict(initial=anchor_readback())
+            root_state = env.robot.data.root_state_w[:1].clone()
+            root_state[:,0] += 200.
+            env.robot.write_root_state_to_sim(root_state,ids)
+            env.sim.forward()
+            result["reset_cache_audit"]["teleported"] = anchor_readback()
+            env._reset_idx(ids)
+            result["reset_cache_audit"]["immediate_reset"] = anchor_readback()
+            env.scene.write_data_to_sim()
+            env.sim.forward()
+            env.scene.update(0.)
+            result["reset_cache_audit"]["after_forward"] = anchor_readback()
+            result["reset_cache_audit"]["physics_steps_during_audit"] = 0
         save()
         max_gap = 0.
         max_root_speed = 0.
@@ -79,10 +134,17 @@ def main():
         resets = 0
         for step in range(args.steps):
             actions = torch.zeros(args.num_envs,6,device=env.device)
-            if args.actions=="random":
+            if actor is not None:
+                with torch.inference_mode():
+                    actions = actor(obs["policy"])
+            elif args.hold_leg_length is not None:
+                length = torch.full((args.num_envs,2),args.hold_leg_length,device=env.device)
+                target = env.reset_lookup.sample(length,torch.zeros_like(length))[:,env._legs_act_idx]
+                actions[:,:4] = (target-env.robot.data.default_joint_pos[:,env._legs_act_idx])/env.leg_action_scale
+            elif args.actions=="random":
                 actions.normal_().clamp_(-100.,100.)
             with torch.inference_mode():
-                _,reward,terminated,truncated,_ = env.step(actions)
+                obs,reward,terminated,truncated,_ = env.step(actions)
                 done = terminated|truncated
             state = torch.cat((env.robot.data.root_state_w,env.robot.data.joint_pos,env.robot.data.joint_vel),-1)
             if not torch.isfinite(state).all() or not torch.isfinite(reward).all():
@@ -99,6 +161,22 @@ def main():
             max_root_speed = max(max_root_speed,float(env.robot.data.root_lin_vel_w.norm(dim=-1).max()))
             max_joint_speed = max(max_joint_speed,float(env.robot.data.joint_vel.abs().max()))
             resets += int(done.sum())
+            if step in (0,args.steps//2,args.steps-1):
+                result.setdefault("state_samples",[]).append(dict(policy_sample=step+1,
+                    command=env.command[0].cpu().tolist(),height_cmd_m=float(env.height_cmd[0]),
+                    effective_height_cmd_m=float(env._get_effective_height_cmd()[0]),
+                    reward_height_target_m=float(env._get_height_reward_target_height()[0]),
+                    actor_observation=obs["policy"][0].cpu().tolist(),
+                    action=actions[0].cpu().tolist(),
+                    decoded_leg_target=env.leg_actions[0].cpu().tolist(),
+                    paired_target=env.paired_targets(env.leg_actions[:,env.leg_target_order],
+                        env.robot.data.joint_pos[:,[env.motor_ids[i] for i in (0,1,3,4)]])[0].cpu().tolist(),
+                    motor_joint_order=list(env.asset.manifest["control_joint_names"]),
+                    motor_positions=env.robot.data.joint_pos[0,env.motor_ids].cpu().tolist(),
+                    motor_effort_Nm=env.motor_effort[0].cpu().tolist(),
+                    spring_feedforward_Nm=env.control.gas_compensation_effort[0].cpu().tolist(),
+                    base_height_m=float(env.robot.data.root_pos_w[0,2]),
+                    root_gravity=env.robot.data.projected_gravity_b[0].cpu().tolist()))
         result.update(status="complete",policy_samples=args.steps,max_gap_m=max_gap,
             max_root_speed_m_s=max_root_speed,max_joint_speed_rad_s=max_joint_speed,resets=resets,
             elapsed_s=time.monotonic()-started,final_base_height_mean_m=float(env.robot.data.root_pos_w[:,2].mean()))
