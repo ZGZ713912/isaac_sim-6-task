@@ -75,6 +75,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         boundary_xy_m=[45., 45.])
     if "standing_odometry" in plan:
         settings["standing_odometry"] = deepcopy(plan["standing_odometry"])
+    if "native_wheel_encoder" in plan:
+        settings["native_wheel_encoder"] = deepcopy(plan["native_wheel_encoder"])
     if full_vehicle:
         from wheeled_tasks.chassis.full_vehicle_training import authenticate
         authenticate(cfg, ROOT)
@@ -241,6 +243,9 @@ def source_hashes(plan_path, plan):
              "contracts/wheel_leg_prone_motion_v1.json", "contracts/wheel_leg_prone_motion_v2.json",
              "contracts/wheel_leg_prone_motion_v3.json",
              "contracts/wheel_leg_prone_motion_v4.json", "tests/test_standing_local_odometry.py",
+             "src/wheeled_tasks/chassis/native_wheel_encoder.py", "src/wheeled_tasks/chassis/standard_getup_reward.py",
+             "tests/test_standard_getup_learning.py", "scripts/diagnose_standard_getup.py",
+             "contracts/wheel_leg_prone_motion_v4_before_getup_fix_20261102.json",
              "contracts/wheel_leg_prone_motion_v4_before_repair_20261102.json",
              "contracts/wheel_leg_prone_motion_v4_multi_pose_repair_20261102.json",
              "docs/STANDING_ODOMETRY_20261030.md",

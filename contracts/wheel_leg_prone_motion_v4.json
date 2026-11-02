@@ -169,7 +169,7 @@
   "randomization_contract": "contracts/wheel_leg_randomization_study_v2.json",
   "acceptance_contract": "contracts/wheel_leg_acceptance_requirements_v2.json",
   "prone_geometry_contract": "contracts/wheel_leg_standard_prone_v1.json",
-  "training_progression": "One fresh10000-update run: grounded URDF nominal standing first; independently assessed recovery, motion and combined-height levels; persistent skill replay; staged randomization only after complete nominal mastery. No automatic update-count admission or budget extension.",
+  "training_progression": "One fresh10000-update run:30% standard-prone recovery practice from the first update,70% grounded URDF nominal standing until other skills are admitted. Keep standard recovery practice and assessment after a lost standing pass; independently assess motion and combined-height levels; retain skill replay and staged randomization only after complete nominal mastery. No automatic update-count admission or budget extension.",
   "evaluation": {
     "seconds": 70.0,
     "seed": 261128,
@@ -370,7 +370,21 @@
     },
     "require_native_reset_admission": true,
     "reset_scope": "standard_prone_only",
-    "standard_reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0"
+    "standard_reset_pose_name": "floor_knee103_103_orbit1.6_r0_p0",
+    "dense_reward": {
+      "schema": "wheel-leg-standard-getup-dense-v1",
+      "target_height_m": 0.305,
+      "height_weight": 2.0,
+      "height_width_m": 0.06,
+      "height_error_weight": 2.0,
+      "height_error_scale_m": 0.08,
+      "upright_error_weight": 2.0,
+      "support_weight": 1.0,
+      "support_scale_m": 0.12,
+      "body_rate_weight": 0.02,
+      "units": "reward_per_second",
+      "activation": "original_standard_prone_before_completion"
+    }
   },
   "recovery_impact": {
     "schema": "wheel-leg-recovery-impact-v1",
@@ -787,7 +801,8 @@
     },
     "retention_policy": "current_pass_required_for_prerequisites",
     "available_pool_allocation": "retain_final_shares_assign_unavailable_to_standing",
-    "recovery_scope": "standard_prone_only"
+    "recovery_scope": "standard_prone_only",
+    "recovery_training": "persistent_standard_prone"
   },
   "simulation_timing_approximation": {
     "model": "200hz_physics_and_feedback_pd_policy100hz_v1",
@@ -805,5 +820,12 @@
     "schema": "wheel-leg-closure-guard-v1",
     "peak_m": 0.005,
     "authority": "User2026-11-02: physical passive knee stops40..110deg; allow5mm closure peak after checking native hard stops. Keep raw peaks and impact diagnostics."
+  },
+  "native_wheel_encoder": {
+    "schema": "wheel-leg-native-wheel-encoder-v1",
+    "period_rad": 12.566370614359172,
+    "sampling": "every_physics_step_before_sensor_transport",
+    "output": "continuous_output_shaft_radians_float64",
+    "reset": "selected_episode_lanes"
   }
 }

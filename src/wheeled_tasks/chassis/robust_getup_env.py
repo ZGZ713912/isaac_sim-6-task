@@ -90,6 +90,7 @@ class RobustGetupEnv(ChassisEnv):
             self.standing_sensor_winding = winding_from_settings(settings, n, device, self.standing_coordinate)
             self.standing_entry_tick = torch.full((n,), self.tick, dtype=torch.long, device=device)
         self.local_standing_odometry = None
+        self.native_wheel_encoder = None
         if settings.get("standing_odometry") is not None:
             from .standing_local_odometry import LocalStandingOdometry
             if self.standing_observer is not None or settings.get("version") not in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
@@ -98,6 +99,11 @@ class RobustGetupEnv(ChassisEnv):
                 settings["standing_odometry"],
                 geometry_directory=(root/config["asset_directory"] if config.get("full_vehicle") else None))
             self.startup_report["standing_odometry"] = dict(settings["standing_odometry"])
+            if settings.get("native_wheel_encoder") is not None:
+                from .native_wheel_encoder import NativeWheelEncoder
+                self.native_wheel_encoder = NativeWheelEncoder(
+                    self.robot.data.joint_pos.torch[:, self.ids][:, [2, 5]], settings["native_wheel_encoder"])
+                self.startup_report["native_wheel_encoder"] = dict(settings["native_wheel_encoder"])
         if self.dynamics_randomization is not None:
             self.domain.enabled.copy_(self.dynamics_randomization.enabled)
         self.getup_feedback = GetupFeedback(n, device, self.domain.enabled, settings, self.domain.rng, dt=self.dt)
@@ -262,6 +268,15 @@ class RobustGetupEnv(ChassisEnv):
         self.robot.write_joint_velocity_to_sim_index(velocity=self.bank_velocities[chosen], env_ids=ids)
         self.robot.reset(ids)
         update_robot_data(self, self.dt)
+        if self.native_wheel_encoder is not None:
+            self.native_wheel_encoder.reset(ids, self.robot.data.joint_pos.torch[ids][:, self.ids][:, [2, 5]])
+            # ChassisEnv.reset initialized transport history before the bank
+            # wrote this episode's actual joint pose. Seed the same continuous
+            # feedback source now, so reset cannot deliver the previous angle.
+            sensors = self._transport_sensors()
+            for transport in (self.signal_delay, self.usb_transport, self.feedback_transport):
+                if transport is not None:
+                    transport.reset(ids, sensors)
         self.passive[ids] = self.recovery_lane[ids]
         self.recovery_active[ids] = self.recovery_lane[ids]
         self.released[ids] = ~self.recovery_lane[ids]
@@ -347,6 +362,14 @@ class RobustGetupEnv(ChassisEnv):
                 observations["critic"][:, -2:] = (20. * self.quiet_standing.displacement(xy)).clamp(-5., 5.)
         return observations
 
+    def _transport_sensors(self):
+        sensors = super()._transport_sensors()
+        encoder = getattr(self, "native_wheel_encoder", None)
+        if encoder is not None:
+            sensors = sensors.clone()
+            sensors[:, [2, 5]] = encoder.angle.to(sensors.dtype)
+        return sensors
+
     def _standing_wheel_feedback(self):
         # Match ChassisEnv's encoder/IMU source before the shared RobustDomain
         # policy delay. Do not bypass a configured feedback transport.
@@ -355,6 +378,8 @@ class RobustGetupEnv(ChassisEnv):
         elif self.signal_delay is not None:
             q = self.signal_delay.feedback[:, :6]
         else:
+            if self.native_wheel_encoder is not None:
+                return self.native_wheel_encoder.angle
             q = self.robot.data.joint_pos.torch[:, self.ids]
         return q[:, [2, 5]]
 
@@ -517,6 +542,8 @@ class RobustGetupEnv(ChassisEnv):
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
             update_robot_data(self, self.dt)
+            if self.native_wheel_encoder is not None:
+                self.native_wheel_encoder.update(self.robot.data.joint_pos.torch[:, motor_ids][:, wheel_ids])
             self.control_audit.physics_updated(self.dt)
             for ids, view in self.contact_views:
                 matrix = wp.to_torch(view.get_contact_force_matrix(dt=self.dt))
@@ -879,6 +906,10 @@ class RobustGetupEnv(ChassisEnv):
                     "StandingReference/sensor_projection_abs_mean_rad": self.standing_coordinate.last_projection_abs_rad.mean()})
         if self.local_standing_odometry is not None:
             info["log"].update(self.local_standing_odometry.metrics())
+            if self.native_wheel_encoder is not None:
+                info["log"].update({
+                    "StandingOdometry/native_wheel_wraps_per_episode_mean": self.native_wheel_encoder.wraps.float().mean(),
+                    "StandingOdometry/native_continuous_angle_abs_max_rad": self.native_wheel_encoder.angle.abs().max()})
         if self.gimbal is not None:
             gq = self.robot.data.joint_pos.torch[:, gimbal_ids]
             gdq = self.robot.data.joint_vel.torch[:, gimbal_ids]

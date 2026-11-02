@@ -50,6 +50,11 @@ def validate(config):
             raise ValueError("Recovery family weights must be nonnegative and sum to one")
     if c.get("reset_scope") not in (None,"standard_prone_only"):
         raise ValueError("Unknown recovery reset scope")
+    if c.get("dense_reward") is not None:
+        from .standard_getup_reward import validate as validate_dense
+        validate_dense(c["dense_reward"])
+        if not standard_only(c):
+            raise ValueError("Standard dense reward requires the single-posture reset scope")
     if standard_only(c):
         if not c.get("standard_reset_pose_name") or any(s["family_weights"] != {
                 f:float(f == "belly_down") for f in FAMILIES} for s in stages):
@@ -290,7 +295,11 @@ def potential(gravity, height, support_error):
 
 
 def recovery_terms(state, config, impact_cost_density):
-    """Time is primary; weak effort and impact regularization are secondary."""
-    return dict(rise_time=-config["time_cost_per_second"]*torch.ones_like(state["height"]),
+    """Time/effort costs, plus explicit continuous standard-getup guidance."""
+    terms = dict(rise_time=-config["time_cost_per_second"]*torch.ones_like(state["height"]),
         effort=-.000025*state["torque"].square().mean(-1),
         action_rate=-.001*state["action_delta"], impact=-impact_cost_density)
+    if config.get("dense_reward") is not None:
+        from .standard_getup_reward import dense_terms
+        terms.update(dense_terms(state, config["dense_reward"]))
+    return terms

@@ -327,7 +327,8 @@ class ProneMotionEnv(RobustGetupEnv):
         stage_extra = {}
         if self.multi_pose_cfg is not None:
             from .multi_pose_recovery import recovery_terms
-            new_terms = recovery_terms(state,self.multi_pose_cfg,self.recovery_impact.cost_integral/self.policy_dt)
+            new_terms = recovery_terms(dict(state,recovery_support_error_m=route["support_error_m"]),
+                self.multi_pose_cfg,self.recovery_impact.cost_integral/self.policy_dt)
             terms = {key:torch.where(rising, new_terms.get(key,torch.zeros_like(value)),value)
                      for key,value in terms.items()}
             for key,value in new_terms.items():

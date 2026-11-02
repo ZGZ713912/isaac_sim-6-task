@@ -39,6 +39,10 @@ def validate(config):
         raise ValueError("Unknown active-pool allocation")
     if c.get("recovery_scope") not in (None,"standard_prone_only"):
         raise ValueError("Unknown global recovery scope")
+    if c.get("recovery_training") not in (None,"persistent_standard_prone"):
+        raise ValueError("Unknown recovery training allocation")
+    if c.get("recovery_training") and c.get("recovery_scope") != "standard_prone_only":
+        raise ValueError("Global and recovery scope disagree for persistent standard training")
     for k in ("standing_seconds", "motion_seconds"):
         if not math.isfinite(c[k]) or c[k] <= 2: raise ValueError("Invalid cold horizon")
     if c["motion_seconds"] < 20 or any(not math.isfinite(v) or v <= 0 for v in c["limits"].values()):
@@ -120,6 +124,14 @@ class GlobalCurriculum:
     def retention_required(self):
         return self.config.get("retention_policy") is not None
 
+    @property
+    def recovery_available(self):
+        # Availability of practice is independent of admission of harder skills.
+        # A lost standing pass must not remove the very getup samples needed to
+        # learn recovery. Keep all motion/randomization gates unchanged.
+        return (self.standard_recovery and self.config.get("recovery_training") == "persistent_standard_prone"
+                or bool(self.retained_levels["standing"] if self.retention_required else self.levels["standing"]))
+
     def requirements_met(self, requirements, *, historical=False):
         levels = self.retained_levels if self.retention_required and not historical else self.levels
         return all(levels[r["skill"]] >= r["levels"] for r in requirements)
@@ -141,14 +153,14 @@ class GlobalCurriculum:
         # receive training before another test, never re-enter mid-rollout.
         if self.reviews and self.reviews[-1]["completed_updates"] == completed:return False
         regular = completed > 0 and completed % self.config["evaluation_interval_updates"] == 0 and self.last_review != completed
-        belly = self.levels["standing"] > 0 and self.recovery.due(completed)
+        belly = self.recovery_available and self.recovery.due(completed)
         return regular or belly
 
     def jobs(self, completed, force=False):
         regular = force or (completed > 0 and completed % self.config["evaluation_interval_updates"] == 0 and self.last_review != completed)
         result = [(s,self.learning_level(s)) for s in SKILLS if regular and self.learning_level(s) is not None]
         standing = self.retained_levels["standing"] if self.retention_required else self.levels["standing"]
-        if standing and (force or self.recovery.due(completed) or regular and self.recovery.unlocked):
+        if self.recovery_available and (force or self.recovery.due(completed) or regular and self.recovery.unlocked):
             result.append(("belly",0))
         if regular and standing and self.recovery.unlocked and not self.standard_recovery:result.append(("complex",0))
         return result
@@ -245,8 +257,7 @@ class GlobalCurriculum:
 
     def training_descriptors(self, count, generation):
         active = [s for s in SKILLS if self.learning_level(s) is not None]
-        standing = self.retained_levels["standing"] if self.retention_required else self.levels["standing"]
-        if standing:active.append("recovery")
+        if self.recovery_available:active.append("recovery")
         weights = self.config["training_weights"]
         total = sum(weights[s] for s in active)
         # At least one lane per available skill; distribute the remaining lanes

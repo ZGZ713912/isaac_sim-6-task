@@ -53,6 +53,10 @@ def validate(plan):
     if "native_environment_layout" in plan:
         from .isolated_origins import layout_origins
         layout_origins(plan["num_envs"], plan["native_environment_layout"])
+    if "native_wheel_encoder" in plan:
+        from .native_wheel_encoder import encoder_contract
+        if plan["native_wheel_encoder"] != encoder_contract() or not plan.get("standing_odometry"):
+            raise ValueError("Native wheel lifting requires its explicit physical-rate encoder contract")
     if "solver_iterations" in plan:
         solver = plan["solver_iterations"]
         if type(solver) is not dict or set(solver) != {"position_iterations", "velocity_iterations"}:
