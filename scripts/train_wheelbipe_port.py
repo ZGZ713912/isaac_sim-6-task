@@ -57,6 +57,10 @@ def main():
     parser.add_argument("--max-constraint-gap-mm",type=float,default=None,
         help="Optional historical policy-sampled gap limit; omitted means diagnostics only")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
+    parser.add_argument("--managed-control-dir",type=Path,
+        help="Internal binding created by trainctl wheelbipe init/start")
+    parser.add_argument("--resume",type=Path,
+        help="Full learning state from a cleanly stopped managed attempt; requires --managed-control-dir")
     args = parser.parse_args()
     from wheeled_tasks.wheelbipe_port.training_contract import (
         constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,CONSTRAINT_DIAGNOSTIC_SCOPE,
@@ -76,7 +80,16 @@ def main():
         parser.error("PhysX solver iterations must be within 1..255 positions / 0..255 velocities")
     if (args.mode=="evaluate") != (args.checkpoint is not None):
         parser.error("--checkpoint is required only for read-only evaluate mode")
+    if args.resume is not None and args.managed_control_dir is None:
+        parser.error("--resume requires a pinned managed session; legacy model-only checkpoints cannot cold-resume")
+    if args.managed_control_dir is not None and args.mode!="train":
+        parser.error("Only PPO training can use a managed control binding")
     args.output = args.output.resolve()
+    managed = None
+    endpoint_phase = None
+    if args.managed_control_dir is not None:
+        from wheeled_algo.managed_training import ManagedWorker, ManagedStop
+        managed = ManagedWorker(args.managed_control_dir,args.output,args.resume)
     args.output.mkdir(parents=True,exist_ok=False)
     receipt = dict(status="preparing",started_at=datetime.now(timezone.utc).isoformat(),
         arguments={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
@@ -223,10 +236,16 @@ def main():
             check_constraint_gap(peak_gap,gap_limit,"Preflight")
         elif args.mode=="train":
             runner = OnPolicyRunner(wrapped,agent.to_dict(),log_dir=str(args.output),device=args.device)
-            initial = {k:v.detach().cpu().clone() for k,v in runner.alg.policy.state_dict().items()}
-            if runner.alg.optimizer.state:
+            if runner.alg.optimizer.state and args.resume is None:
                 raise ValueError("A fresh experiment must start with empty Adam")
             runner._prepare_logging_writer()
+            if managed is not None:
+                managed.attach(runner,env,args.resume)
+            start_completed = managed.completed if managed is not None else 0
+            receipt["started_from_completed_updates"] = start_completed
+            receipt["cold_resume"] = args.resume is not None
+            receipt["physical_episode_restored"] = False
+            initial = {k:v.detach().cpu().clone() for k,v in runner.alg.policy.state_dict().items()}
             runner.save(str(args.output/"model_initial.pt"))
             receipt["initial_checkpoint_sha256"] = sha(args.output/"model_initial.pt")
             original_log = runner.log
@@ -250,7 +269,7 @@ def main():
                     peak_diagnostic=getattr(env,"port_peak_diagnostic",None),
                     last_collection_time_s=values["collection_time"],last_learning_time_s=values["learn_time"],
                     last_iteration_time_s=iteration_time)
-                if completed==1:
+                if completed==start_completed+1:
                     updated = runner.alg.policy.state_dict()
                     receipt["first_update_changed_policy_tensors"] = [k for k,v in initial.items()
                         if not torch.equal(v,updated[k].detach().cpu())]
@@ -260,6 +279,11 @@ def main():
                 if not all(torch.isfinite(torch.as_tensor(v)).all() for v in values["loss_dict"].values()):
                     raise ValueError("Nonfinite PPO losses")
                 check_constraint_gap(peak,gap_limit,"PPO")
+                if managed is not None:
+                    managed.after_update(completed)
+                    active,paused = managed.control.elapsed()
+                    runner.writer.add_scalar("TrainControl/active_seconds",active,completed)
+                    runner.writer.add_scalar("TrainControl/paused_seconds",paused,completed)
             runner.log = log_progress
             original_save = runner.save
             def save_progress(filename,infos=None):
@@ -268,8 +292,10 @@ def main():
                     latest_checkpoint=str(filename),elapsed_s=time.monotonic()-started)
                 save(path,receipt)
             runner.save = save_progress
-            env.set_training_progress(iteration=0)
-            runner.learn(num_learning_iterations=args.iterations,init_at_random_ep_len=True)
+            if managed is None:
+                env.set_training_progress(iteration=0)
+            runner.learn(num_learning_iterations=args.iterations-start_completed,
+                init_at_random_ep_len=args.resume is None)
             final = runner.alg.policy.state_dict()
             changed = [k for k,v in initial.items() if not torch.equal(v,final[k].detach().cpu())]
             finite = all(torch.isfinite(v).all() for v in final.values())
@@ -278,10 +304,13 @@ def main():
             last = args.output/f"model_{runner.current_learning_iteration}.pt"
             receipt.update(status="training_complete",completed_updates=args.iterations,
                 latest_checkpoint=str(last),checkpoint_sha256=sha(last),
-                fresh_initial_optimizer_state_count=0,final_optimizer_state_count=len(runner.alg.optimizer.state),
+                fresh_initial_optimizer_state_count=0 if args.resume is None else None,
+                final_optimizer_state_count=len(runner.alg.optimizer.state),
                 changed_policy_tensors=changed,policy_tensors_finite=bool(finite),
                 max_constraint_gap_m=float(env.port_constraint_gap_peak),
                 physical_steps=env.port_physics_calls)
+            if managed is not None:
+                endpoint_phase = "completed"
         else:
             runner = OnPolicyRunner(wrapped,agent.to_dict(),log_dir=None,device=args.device)
             runner.load(str(args.checkpoint),load_optimizer=False)
@@ -323,18 +352,33 @@ def main():
         save(path,receipt)
         print(json.dumps({k:v for k,v in receipt.items() if k not in ("native","arguments")},indent=2))
     except BaseException as exc:
-        receipt.update(status="failed",error=repr(exc),traceback=traceback.format_exc(),elapsed_s=time.monotonic()-started)
-        if wrapped is not None:
-            receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
-            receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
-            receipt["joint_speed_running_peak_rad_s"] = float(env.port_joint_speed_peak)
-            receipt["body_angular_speed_running_peak_rad_s"] = float(env.port_body_angular_speed_peak)
-        save(path,receipt)
-        raise
+        if managed is not None and isinstance(exc,ManagedStop):
+            endpoint_phase = "stopped"
+            receipt.update(status="training_stopped",completed_updates=managed.completed,
+                elapsed_s=time.monotonic()-started,cold_resume_available_after_parent_exit=True,
+                physical_episode_restored=False)
+            save(path,receipt)
+        else:
+            if managed is not None:
+                managed.control.fail(exc)
+            receipt.update(status="failed",error=repr(exc),traceback=traceback.format_exc(),elapsed_s=time.monotonic()-started)
+            if wrapped is not None:
+                receipt["peak_diagnostic"] = getattr(env,"port_peak_diagnostic",None)
+                receipt["reset_initial_penetration_peak_m"] = float(env.reset_penetration_peak)
+                receipt["joint_speed_running_peak_rad_s"] = float(env.port_joint_speed_peak)
+                receipt["body_angular_speed_running_peak_rad_s"] = float(env.port_body_angular_speed_peak)
+            save(path,receipt)
+            raise
     finally:
         if runner is not None and runner.writer is not None:
             runner.writer.flush()
             runner.writer.close()
+        if managed is not None:
+            if endpoint_phase is not None:
+                checkpoint = managed.commit_endpoint(endpoint_phase)
+                receipt["durable_checkpoint"] = str(checkpoint)
+                save(path,receipt)
+            managed.close()
         if wrapped is not None:
             wrapped.close()
         if app is not None:
