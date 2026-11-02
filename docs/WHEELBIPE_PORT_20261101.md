@@ -19,14 +19,28 @@ checkpoint `model_10500.pt` 的独立名义冷启动诊断已完成：三档高�
 随后定位到策略向不可行腿目标饱和的学习漏洞：高度命令实际进入 actor，
 但输出被 40–110° 成对投影丢弃，最短腿边界附近未被原力矩惩罚感知。
 `36f7dd25` 追加丢弃目标的 rad² 代价，512×30 更新及 ONNX parity
-通过（9.537e-7）；新完整 `_008` 则再次暴露数值失稳，已原进程暂停在
-14 更新，不能声称奖励修复已解决物理或行为问题。
+通过（9.537e-7）；新完整 `_008` 则再次暴露数值失稳，在第 14 更新暂停、
+封存后已停止，supervisor/worker 均确认退出。不能声称奖励修复已解决物理或行为问题。
 
 当前候选冻结 `dcaef5a1`，将腿 PD 参数显式暴露；默认160/2.5保持，
 以命令行60/2单独对照。512环境、seed113、requested DR、200策略步
 随机动作下，重置2031→776、采样闭链峰24.957→9.373 mm；增加外力迭代
 反而86.387 mm，改solver12/6为31.818 mm，均未采纳。
-新全人口PPO小训正在进行，旧 `_007` / `_008` 均不恢复或热改。
+同一冻结源的 seed113、512 环境全新 PPO 小训已完成 30 更新；策略采样
+闭链累计峰值 12.673 mm、关节速度峰 71.526 rad/s，ONNX 1,024 输入
+最大误差 3.576e-7。它通过工程链路检查，不代表行为或机械验收。
+
+当前完整训练为 `full_flat_512_20000_200hz_pd60_projection_seed114_009`，
+全新 actor/critic/空 Adam、seed114、512 环境、20,000 更新、每 500 保存；
+使用 50/200 Hz、四腿轴 armature0.015795、显式 PD60/2、目标投影代价1、
+solver64/32 和 requested v2 DR。627 个部署文件和 308 个训练实现依赖的
+SHA-256 已重新核对；完整初始化 SHA 与小训不同，没有接用旧策略。
+启动观察完成 114 更新；回执至第 110 更新策略采样累计距离峰 9.899 mm，
+关节速度峰 62.552 rad/s。第 65–114 更新平均 3.344 秒/更新，其中采样
+3.263 秒、学习 0.082 秒。训练中平均车高仍约 .226 m、前向误差 1.085 m/s，
+尚未证明解决高度/速度跟踪；旧 `_007` 保持暂停，失败 `_008` 不重启。
+TensorBoard 距离 tag 是策略边界样本的 rollout 归约，不能当逐物理步峰值。
+机器可读启动观察见 `kaiser_pd60_projection009_launch001.json`。
 详情 `reports/wheelbipe_port_20261101/PROJECTION_REPAIR_20261102.md`。
 
 **最新用户修订：四个腿驱动轴各添加 0.015795 kg·m² armature，策略 50 Hz、
@@ -35,7 +49,7 @@ checkpoint `model_10500.pt` 的独立名义冷启动诊断已完成：三档高�
 全新 PPO/优化器、源码一致性和 ONNX parity 检查。历史腿 PD160/2.5，
 新60/2候选由显式参数认证，不修改冻结的历史进程。
 闭链距离仅在策略观测边界记录为诊断，使用 `policy_sample` TensorBoard tag，
-不再声称它是每物理步峰值。新运行将从零小训后再进入全新 20,000 更新训练，
+不再声称它是每物理步峰值。新运行已从零小训并进入全新 20,000 更新训练，
 原有失败回执不改写。CLI 用 `--leg-armature 0.015795` 明确选择，省略
 `--max-constraint-gap-mm` 即无闭链门槛；每环境四轴惯量以 PhysX 原生读回核对。
 
@@ -110,7 +124,7 @@ value coefficient 4、gamma 0.99、lambda 0.95、5 epochs、4 minibatches。
   关节/刚体仅作语义映射，不旋转或改写 CAD 轴。
 - 40°–110° 内角及实际复位 IK。840 个中点/转角审计的最大闭链误差
   1.33 微米；左右腿可独立取长度与公共摆角。
-- 本车 PD 160/2.5、电气限矩腿 40 Nm/轮 4.5 Nm、15.62 轮端模型、
+- 历史 PD160/2.5，当前显式 PD60/2；电气限矩腿 40 Nm/轮 4.5 Nm、15.62 轮端模型、
   5.5/3.5 ms 轮响应、已识别腿库仑摩擦、气簧实际力及其编码器前馈。
   物理摩擦/气簧与电机控制各执行一次，不重复加载原参考执行器。
 - v2 分组随机化：腿 P/D、气簧系数固定 1，独立惯量最终 ±6%，
@@ -159,23 +173,25 @@ CAD 刚体惯量、40 Nm 帽与已识别库仑摩擦保持。
 5. 小训与完整训练比较全部 `src/` Python 依赖的 SHA-256，覆盖控制器、
    气簧、轮响应和摩擦实现；源码、资产、重置、碰撞和地面哈希均受检查。
 
-12 项 CPU 几何/目标及 5 mm 边界/非有限数检查通过：
-`python -m pytest -q tests/test_wheelbipe_port_geometry.py tests/test_wheelbipe_port_training_contract.py`。
+当前 36 项 CPU 几何/目标/参数/训练控制检查通过：
+`python -m pytest -q tests/test_training_control.py tests/test_wheelbipe_port_geometry.py tests/test_wheelbipe_port_training_contract.py`。
+本机使用 `isaaclab6` Python 验证当前主线 trainctl 的真实 CPU PPO 路径；
+Kaiser 移植 learner 仍使用其冻结的 RSL-RL 3.0.1 运行时。
 原生检查还验证 35/78/6 维度、全部闭链、原始有限状态/观测/奖励、
 交付电气限矩及每物理步控制/气簧调用数。5 mm 是上述历史运行门槛，
 最新用户已取消；非有限状态或训练链路失败仍保留证据，不自动恢复或延长预算。
 
 ## 远端所有权与交付
 
-最新冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/dd0e7be8`。
-当前 tmux：`wheelbipe-200hz-armature-007`，入口
-`/home/kaiser/workspace/wheelbipe-v202-port/run_campaign_trainctl.py`。
-旧 `run-200hz-armature-001.sh` 仅是小训及 `_006` 的历史入口。
-最新小训为 `runs/pilot_512_200hz_armature_001`，seed 110；30 更新及
-ONNX parity 已完成（最大误差 5.960e-7），不能当作行为通过。
-`runs/full_flat_512_20000_200hz_armature_seed111_006` 在 570 更新退出；
-现存完整运行是 `runs/full_flat_512_20000_200hz_armature_seed111_007`，
-tmux `wheelbipe-200hz-armature-007`，使用原进程 trainctl 支持手动暂停。
+最新训练冻结源码：`/home/kaiser/workspace/wheelbipe-v202-port/dcaef5a1`。
+当前 tmux：`wheelbipe-pd60-full-009`，入口
+`/home/kaiser/workspace/wheelbipe-v202-port/run-pd60-projection-full-009.sh`。
+当前小训为 `runs/pilot_512_pd60_projection_seed113_001`，30 更新及
+ONNX parity 已完成；完整运行目录为
+`runs/full_flat_512_20000_200hz_pd60_projection_seed114_009`。
+trainctl job `7bc6e6ca1e24`，启动观察 PID1120958/start_ticks19822132，
+每次操作仍须重新认证身份。旧 `_007` 源 `dd0e7be8` 原进程暂停保留；
+`_006` 在 570 更新退出，`_008` 在 14 更新数值失稳后已停止，均不重启。
 上述相对路径以 `/home/kaiser/workspace/wheelbipe-v202-port` 为父目录。
 此前两个 `5mm` 命名的 200 Hz 小训已失败退出，不能混作本次新运行。
 历史 1 kHz 完整目录：
@@ -191,28 +207,29 @@ tmux `wheelbipe-200hz-armature-007`，使用原进程 trainctl 支持手动暂�
 远端 TensorBoard 独立运行在 Kaiser 6008；
 [本机查看入口](http://127.0.0.1:6008/) 仅为 SSH 转发。
 既有 6006/6007 服务不动，本机不运行 TensorBoard。
-本次核查时，本机 `wheelbipe-onnx/automation.toml` 已不存在，不能声称
-该定时检查仍为 ACTIVE；当前 `_007` 按原进程暂停保留，排错不触发恢复。
-200 Hz 必须先完成同源码、同人口、同惯量及同诊断采样方式的小训和 ONNX
-parity，才能进入已授权的新 20,000 更新完整训练。
+旧 `wheelbipe-onnx` 检查经应用确认已不存在；本轮通过应用工具重新创建
+同名 ACTIVE heartbeat，每 30 分钟检查当前 `_009`。正常推进保持安静，
+仅完成、失败或需要用户操作时通知。每跨 500 更新且有新 checkpoint，
+记录有限指标/窗口/哈希并 commit；保持训练源码冻结，结果提交不触发重启。
+小训已通过同源码/人口/惯量/诊断采样及 ONNX parity 检查后才进入完整训练。
 完整成功后再核对 checkpoint/ONNX SHA、20,000 更新及 parity 并取回交付。
 
 ### 手动暂停与证据
 
 `trainctl` 从统一分支提交 `0b5f71c9` 同步，完整 campaign 的训练阶段
 通过 `wheel-leg-trainctl run` 启动。原生预检和只读评测不注册为 learner。
-现有 `_007` 已由相同控制器注册，无需改动冻结源码或重启即可暂停。
+当前 `_009` 已注册；旧 `_007` 保持其已有暂停请求，不恢复。
 
 ```bash
 ssh -t kaiser '~/.local/bin/trainctl wheel-leg'
-ssh kaiser '~/.local/bin/trainctl wheel-leg status d9fc40ee41b8'
-ssh kaiser '~/.local/bin/trainctl wheel-leg pause d9fc40ee41b8 --wait 30'
+ssh kaiser '~/.local/bin/trainctl wheel-leg status 7bc6e6ca1e24'
+ssh kaiser '~/.local/bin/trainctl wheel-leg pause 7bc6e6ca1e24 --wait 30'
 # 人工决定继续原实验时：
-ssh kaiser '~/.local/bin/trainctl wheel-leg resume d9fc40ee41b8'
+ssh kaiser '~/.local/bin/trainctl wheel-leg resume 7bc6e6ca1e24'
 ```
 
 暂停确认保留 PID/rollout/Adam/RNG/显存；退出 TUI 不改变暂停请求。
-本次 33 项 CPU 测试通过，含真实 CPU PPO 暂停前后的 Adam/RNG 等价检查；
+本次 36 项 CPU 测试通过，含真实 CPU PPO 暂停前后的 Adam/RNG 等价检查；
 这不是本车行为验收。详情 [TRAINCTL.md](TRAINCTL.md)。
 现场、checkpoint SHA 和 100 更新窗口见
 `reports/wheelbipe_port_20261101/kaiser_armature007_paused10976_snapshot001.json`。
