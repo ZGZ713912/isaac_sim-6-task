@@ -307,16 +307,28 @@ def compensation_coverage(spring_reference, *, dev_gas, device):
 
 
 @torch.inference_mode()
+def _global_initial_checks(env):
+    """Check the declared initial allocation, including persistent getup lanes."""
+    expected = env.global_curriculum.training_descriptors(env.num_envs, env.prone_reset_generation)
+    q = env.robot.data.joint_pos.torch[:, env.ids]
+    nominal = env.bank_joints[env.nominal_pose_index, env.ids]
+    recovery = torch.tensor([r["recovery"] for r in expected], device=q.device)
+    bank = env.bank_joints[env.pose_index][:, env.ids]
+    return dict(
+        global_initial_roles_match_training_allocation=list(env.course_roles) == [r["role"] for r in expected],
+        global_initial_recovery_lanes_match_training_allocation=torch.equal(env.recovery_lane, recovery),
+        global_initial_urdf_nominal_standing_joints=bool(torch.allclose(
+            q[~recovery], nominal[None].expand_as(q)[~recovery], atol=1e-6, rtol=0.)),
+        global_initial_joints_match_declared_bank=bool(torch.allclose(q, bank, atol=1e-6, rtol=0.)),
+        global_initial_zero_motion=bool((env.course_targets[:, :2] == 0.).all()),
+        global_update_count_cannot_unlock=env.global_curriculum.domain_context() == ("nominal", 0.))
+
+
 def probe(env, plan, *, stop_requested=lambda: False):
     if plan.get("global_curriculum") is None:
         return _probe(env,plan,stop_requested=stop_requested)
     old_cases,old_fixed,old_roles = env.evaluation_cases,env.fixed_cases,list(env.course_roles)
-    q = env.robot.data.joint_pos.torch[:,env.ids]
-    nominal = env.bank_joints[env.nominal_pose_index,env.ids]
-    initial = dict(global_initial_roles_all_standing=all(r == "stand" for r in old_roles),
-        global_initial_urdf_nominal_joints=bool(torch.allclose(q,nominal[None].expand_as(q),atol=1e-6,rtol=0.)),
-        global_initial_zero_motion=bool((env.course_targets[:,:2] == 0.).all()),
-        global_update_count_cannot_unlock=env.global_curriculum.domain_context() == ("nominal",0.))
+    initial = _global_initial_checks(env)
     fixtures = []
     for i in range(env.num_envs):
         role = plan["roles_per20"][i%20];prone = role == "prone"

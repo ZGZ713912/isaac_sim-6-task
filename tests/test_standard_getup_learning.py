@@ -3,6 +3,7 @@ from collections import Counter
 import json
 import math
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import torch
@@ -41,6 +42,39 @@ def test_historical_course_still_reproduces_the_observed_starvation():
     c.levels["standing"] = 1
     assert {r["curriculum_skill"] for r in c.training_descriptors(256, 1)} == {"standing"}
     assert ("belly", 0) not in c.jobs(250)
+
+
+def probe_fixture(plan):
+    c = course(plan)
+    rows = c.training_descriptors(256, 0)
+    recovery = torch.tensor([r["recovery"] for r in rows])
+    bank = torch.tensor([[0., .1, 0., 0., -.1, 0.], [.4, .6, 0., -.4, -.6, 0.]])
+    poses = recovery.long()
+    return SimpleNamespace(global_curriculum=c, num_envs=256, prone_reset_generation=0,
+        ids=list(range(6)), bank_joints=bank, nominal_pose_index=0, pose_index=poses,
+        course_roles=[r["role"] for r in rows], recovery_lane=recovery,
+        course_targets=torch.tensor([r["target"] for r in rows]),
+        robot=SimpleNamespace(data=SimpleNamespace(joint_pos=SimpleNamespace(torch=bank[poses].clone()))))
+
+
+@pytest.mark.parametrize("historical", [False, True])
+def test_native_launch_gate_accepts_the_actual_declared_course_including_legacy(historical):
+    from evaluate_prone_motion import _global_initial_checks
+    plan = (json.loads((ROOT / "contracts/wheel_leg_prone_motion_v4_before_getup_fix_20261102.json").read_text())
+        if historical else PLAN)
+    env = probe_fixture(plan)
+    assert all(_global_initial_checks(env).values())
+    assert int(env.recovery_lane.sum()) == (0 if historical else 77)
+
+
+@pytest.mark.parametrize("fault", ["roles", "mask", "joint"])
+def test_native_launch_gate_still_rejects_wrong_population_or_reset_geometry(fault):
+    from evaluate_prone_motion import _global_initial_checks
+    env = probe_fixture(PLAN)
+    if fault == "roles": env.course_roles[-1] = "stand"
+    if fault == "mask": env.recovery_lane[-1] = False
+    if fault == "joint": env.robot.data.joint_pos.torch[0, 0] += .1
+    assert not all(_global_initial_checks(env).values())
 
 
 def test_two_physical_samples_lift_actual_four_pi_wrap_without_policy_fault():
