@@ -217,8 +217,10 @@ class ChassisEnv:
         grid = math.ceil(math.sqrt(layout_count))
         floor_width = config.get("flat_floor_width_m", 4.)
         square_getup_ground = config.get("full_rl_square_ground", False)
-        from .isolated_origins import validate_isolated_origins
+        from .isolated_origins import validate_isolated_origins, layout_origins, OVERLAP
         isolated_getup_origins = validate_isolated_origins(config, num_envs)
+        native_layout = config.get("native_environment_layout", OVERLAP)
+        isolated_positions = layout_origins(num_envs, native_layout) if isolated_getup_origins else None
         if not 4. <= floor_width <= (128. if square_getup_ground else 8.):
             raise ValueError("Flat collider width must stay within the validated 4-8m tile range")
         half_length = config.get("flat_half_length_m", 44.)
@@ -256,7 +258,7 @@ class ChassisEnv:
             origin = (((slot % corridor_columns) - (corridor_columns - 1) / 2) * corridor_spacing,
                       ((slot // corridor_columns) - (corridor_rows - 1) / 2) * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((slot % grid) * 10., (slot // grid) * 10., 0.)
             if isolated_getup_origins:
-                origin = (0., 0., 0.)
+                origin = isolated_positions[i]
             origins.append(origin)
             path = f"/World/envs/env_{i}"
             UsdGeom.Xform.Define(self.sim.stage, path).AddTranslateOp().Set(origin)
@@ -455,7 +457,8 @@ class ChassisEnv:
         native_isolation = None
         if isolated_getup_origins:
             from .isolated_origins import isolate_native_worlds
-            native_isolation = isolate_native_worlds(self.sim.stage, self.sim.cfg.physics_prim_path, num_envs)
+            native_isolation = isolate_native_worlds(self.sim.stage, self.sim.cfg.physics_prim_path, num_envs,
+                                                     mode=native_layout)
         self.sim.reset()
         if self.contact_domain is not None:
             properties = wp.to_torch(self.robot.root_view.get_material_properties())

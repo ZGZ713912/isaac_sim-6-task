@@ -10,6 +10,7 @@ import math
 import random
 
 import torch
+from .masked_tensor import copy_masked_rows_
 
 FAMILIES = ("belly_down", "left_side", "right_side", "roof_down", "front_down", "rear_down", "diagonal")
 LEG_CLASSES = ("front_front", "rear_rear", "front_rear", "rear_front")
@@ -257,10 +258,10 @@ class RecoveryStages:
                encoder_error, failed):
         c = self.config
         enable = state["enable"] & eligible
-        self.enabled_at[enable] = state["elapsed"][enable]
+        copy_masked_rows_(self.enabled_at, enable, state["elapsed"])
         # Initialized active dynamic states do not have a preceding passive interval.
         missing = eligible & ~state["passive"] & ~torch.isfinite(self.enabled_at)
-        self.enabled_at[missing] = (state["elapsed"]-self.dt)[missing]
+        copy_masked_rows_(self.enabled_at, missing, state["elapsed"]-self.dt)
         active = eligible & ~state["passive"] & ~failed
         valid = (active & (gravity[:, 2] <= -math.cos(math.radians(c["upright_tilt_deg"])))
                  & (omega.norm(dim=-1) <= c["upright_max_body_rate_rad_s"])
@@ -269,12 +270,13 @@ class RecoveryStages:
         self.upright_hold.copy_(torch.where(valid, self.upright_hold+self.dt, 0.))
         event = valid & ~self.entered & (self.upright_hold+1e-7 >= c["upright_hold_seconds"])
         self.entered |= event
-        self.upright_at[event] = state["elapsed"][event]
+        copy_masked_rows_(self.upright_at, event, state["elapsed"])
         front = orbits.sin() >= 0
         cls = torch.where(front[:, 0], torch.where(front[:, 1], 0, 2), torch.where(front[:, 1], 3, 1))
-        self.entry_leg_class[event] = cls[event]
-        self.entry_q[event], self.entry_dq[event] = q[event], dq[event]
-        self.entry_omega[event] = omega[event]
+        copy_masked_rows_(self.entry_leg_class, event, cls)
+        copy_masked_rows_(self.entry_q, event, q)
+        copy_masked_rows_(self.entry_dq, event, dq)
+        copy_masked_rows_(self.entry_omega, event, omega)
         active_time = (state["elapsed"]-self.enabled_at).clamp_min(0.)
         return event, torch.nan_to_num(active_time, nan=0.)
 

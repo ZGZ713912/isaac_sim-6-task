@@ -50,6 +50,9 @@ def validate(plan):
     if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2",
                                  "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         raise ValueError("Need the explicit prone-motion contract")
+    if "native_environment_layout" in plan:
+        from .isolated_origins import layout_origins
+        layout_origins(plan["num_envs"], plan["native_environment_layout"])
     if "solver_iterations" in plan:
         solver = plan["solver_iterations"]
         if type(solver) is not dict or set(solver) != {"position_iterations", "velocity_iterations"}:

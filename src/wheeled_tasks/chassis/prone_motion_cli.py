@@ -18,13 +18,14 @@ OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_
                "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials",
                "curriculum_eval_every", "curriculum_success_rate", "curriculum_required_passes",
                "position_iterations", "velocity_iterations", "physics_hz",
-               "policy_hz", "hidden_dims", "ppo_epochs", "ppo_mini_batches")
+               "policy_hz", "hidden_dims", "ppo_epochs", "ppo_mini_batches", "environment_layout")
 LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
 LEGACY_RECOVERY_OPTION_KEYS = OPTION_KEYS[:12]
 LEGACY_MASTERY_OPTION_KEYS = OPTION_KEYS[:15]
 LEGACY_GLOBAL_OPTION_KEYS = OPTION_KEYS[:18]
 LEGACY_SOLVER_OPTION_KEYS = OPTION_KEYS[:20]
 LEGACY_PHYSICS_OPTION_KEYS = OPTION_KEYS[:21]
+LEGACY_NETWORK_OPTION_KEYS = OPTION_KEYS[:-1]
 
 
 def _hash(value):
@@ -32,13 +33,24 @@ def _hash(value):
 
 
 def _configured(base, options):
+    # A legacy serialized option set may carry a newly added null CLI field.
+    # Normalize the null field before checking the exact historical key sets.
+    if (set(options) != set(OPTION_KEYS) and "environment_layout" in options
+            and options["environment_layout"] is None):
+        options = {k: v for k, v in options.items() if k != "environment_layout"}
     if ((set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base)
             or set(options) in (set(LEGACY_RECOVERY_OPTION_KEYS),set(LEGACY_MASTERY_OPTION_KEYS),
-                                set(LEGACY_GLOBAL_OPTION_KEYS), set(LEGACY_SOLVER_OPTION_KEYS), set(LEGACY_PHYSICS_OPTION_KEYS))):
+                                set(LEGACY_GLOBAL_OPTION_KEYS), set(LEGACY_SOLVER_OPTION_KEYS), set(LEGACY_PHYSICS_OPTION_KEYS),
+                                set(LEGACY_NETWORK_OPTION_KEYS))):
         options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
     result = deepcopy(base)
+    if options["environment_layout"] is not None:
+        from .isolated_origins import GRID, OVERLAP
+        if options["environment_layout"] not in ("grid", "overlap"):
+            raise ValueError("environment_layout must be grid or overlap")
+        result["native_environment_layout"] = GRID if options["environment_layout"] == "grid" else OVERLAP
     if options["physics_hz"] is not None:
         from .control_contract import FINE_POLICY_100_TIMING, POLICY_100_TIMING, POLICY_100_SCOPE
         hz = options["physics_hz"]
@@ -260,6 +272,8 @@ def train_parser():
     parser.add_argument('--hidden-dims',type=int,nargs='+',help='Actor and critic MLP widths')
     parser.add_argument('--ppo-epochs',type=int)
     parser.add_argument('--ppo-mini-batches',type=int)
+    parser.add_argument('--environment-layout', choices=('grid', 'overlap'),
+                        help='Bounded 4m grid or historical overlapping worlds; saved in the run contract')
     parser.add_argument("--recovery-curriculum", choices=("staged","all"), default=None)
     parser.add_argument("--recovery-gate-success-rate",type=float,default=None)
     parser.add_argument("--recovery-gate-every",type=int,default=None,help="PPO updates between four-class cold checks")
@@ -324,6 +338,9 @@ def training_options(args, root):
                 expected = ppo[dict(hidden_dims='hidden_dims', ppo_epochs='epochs', ppo_mini_batches='mini_batches')[key]]
             elif key in ("position_iterations", "velocity_iterations"):
                 expected = plan.get("solver_iterations", {}).get(key, 64 if key == "position_iterations" else 32)
+            elif key == "environment_layout":
+                from .isolated_origins import GRID, OVERLAP
+                expected = {GRID: "grid", OVERLAP: "overlap"}[plan.get("native_environment_layout", OVERLAP)]
             if value is not None and value != expected:
                 raise ValueError(f"Resume preserves --{key}={expected}; refusing a changed course")
         for key, default in (("performance_backend", "cuda_graph"), ("sampling_backend", "reference")):

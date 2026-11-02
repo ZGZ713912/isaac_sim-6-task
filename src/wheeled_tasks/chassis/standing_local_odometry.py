@@ -17,6 +17,7 @@ from wheeled_algo.rolling_velocity import RollingBaseVelocity
 from wheeled_algo.standing_displacement import WheelAngleCoordinate
 from .standing_geometry107 import EXTENDED_SHA256, table_path
 from .standing_sensor_uncertainty import BoundedSensorCoordinate
+from .masked_tensor import copy_masked_rows_
 
 
 def observation_contract(version=1):
@@ -122,7 +123,7 @@ class LocalStandingOdometry:
         speed = frame[:, 20:22] * 10.
         finite = torch.isfinite(wheel).all(-1) & torch.isfinite(speed).all(-1)
         start = requested & ~self.source_active & finite
-        self.source_origin[start] = wheel[start]
+        copy_masked_rows_(self.source_origin, start, wheel)
         self.source_fault[~requested] = False
         fresh = requested & self.source_active & (self.source_tick != tick)
         seconds = (tick-self.source_tick).clamp_min(1).to(speed.dtype)*self.dt
@@ -132,8 +133,8 @@ class LocalStandingOdometry:
         self.source_fault |= requested & (~finite | (fresh & jump))
         self.source_active = requested & (self.source_active | start)
         save = requested & finite & (self.source_tick != tick)
-        self.source_last[save] = wheel[save]
-        self.source_speed[save] = speed[save]
+        copy_masked_rows_(self.source_last, save, wheel)
+        copy_masked_rows_(self.source_speed, save, speed)
         self.source_tick[save] = tick
         usable = self.source_active & ~self.source_fault & finite
         local = torch.where(usable[:, None], wheel-self.source_origin, 0.)
@@ -172,17 +173,17 @@ class LocalStandingOdometry:
         self.capture_age[reset] = 0.
         self.filtered[reset] = 0.
         waiting = fresh & ~self.reference_active & ~reset
-        self.capture_age[waiting] = torch.where(eligible[waiting], self.capture_age[waiting]+self.dt, 0.)
+        copy_masked_rows_(self.capture_age, waiting, torch.where(eligible, self.capture_age+self.dt, 0.))
         capture = (waiting & eligible
                    & (self.capture_age+1e-7 >= self.cfg["capture_seconds"]))
-        self.anchor[capture] = coordinate[capture]
+        copy_masked_rows_(self.anchor, capture, coordinate)
         self.reference_active[capture] = True
         self.filtered[capture] = 0.
         use = requested & valid & self.reference_active & ~reset
         advance = use & fresh
         delta = (coordinate-self.anchor).clamp(-self.cfg["limit_m"], self.cfg["limit_m"])
         alpha = self.dt/(self.cfg["filter_seconds"]+self.dt)
-        self.filtered[advance] += alpha*(delta[advance]-self.filtered[advance])
+        copy_masked_rows_(self.filtered, advance, self.filtered + alpha*(delta-self.filtered))
         self.displacement = torch.where(use[:, None], self.filtered, 0.)
         self.valid = use
         self.last_tick[fresh] = tick

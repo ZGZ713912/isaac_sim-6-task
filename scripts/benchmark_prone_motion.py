@@ -22,6 +22,8 @@ parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--steps', type=int, default=96)
 parser.add_argument('--warmup', type=int, default=16)
 parser.add_argument('--profile-steps', type=int, default=24)
+parser.add_argument('--torch-profile-steps', type=int, default=0,
+    help='Optional CPU/CUDA operator trace after the unprofiled timing window')
 parser.add_argument('--trace-steps', type=int, default=32)
 parser.add_argument('--profile', default='nominal')
 parser.add_argument('--strength', type=float, default=0.)
@@ -34,6 +36,7 @@ parser.add_argument('--hidden-dims', type=int,nargs='+')
 parser.add_argument('--ppo-epochs', type=int)
 parser.add_argument('--ppo-mini-batches', type=int)
 parser.add_argument('--seed', type=int)
+parser.add_argument('--environment-layout', choices=('grid', 'overlap'))
 parser.add_argument('--position-iterations', type=int)
 parser.add_argument('--velocity-iterations', type=int)
 parser.add_argument('--global-initial',action='store_true',help='Use the actual mastery course initial all-standing reset')
@@ -42,7 +45,7 @@ parser.add_argument('--sampling-backend',choices=('packed','reference'),default=
 parser.add_argument('--instrument', action='store_true')
 parser.add_argument('--kit-threads', type=int, default=0)
 args = parser.parse_args()
-if args.steps < 1 or min(args.warmup,args.profile_steps,args.trace_steps,args.kit_threads) < 0:
+if args.steps < 1 or min(args.warmup,args.profile_steps,args.torch_profile_steps,args.trace_steps,args.kit_threads) < 0:
     parser.error('Timed steps must be positive; all other counts must be nonnegative')
 root, out = args.root.resolve(), args.output.resolve()
 out.mkdir(parents=True, exist_ok=False)
@@ -54,11 +57,17 @@ entry.check_other_learners()
 from wheeled_tasks.chassis.prone_motion import validate
 plan_path = (args.plan or root/'contracts/wheel_leg_prone_motion_v4.json').resolve()
 plan = validate(json.loads(plan_path.read_text()))
-from wheeled_tasks.chassis.prone_motion_cli import resolve_plan
+from wheeled_tasks.chassis.prone_motion_cli import resolve_plan, OPTION_KEYS
+layout_override = {}
+if 'environment_layout' in OPTION_KEYS:
+    layout_override['environment_layout'] = args.environment_layout
+elif args.environment_layout is not None:
+    parser.error('The selected source revision does not support layout overrides')
 plan = resolve_plan(plan, num_envs=args.num_envs, position_iterations=args.position_iterations,
                     velocity_iterations=args.velocity_iterations, physics_hz=args.physics_hz, seed=args.seed,
                     policy_hz=args.policy_hz,num_steps_per_env=args.rollout_steps,hidden_dims=args.hidden_dims,
-                    ppo_epochs=args.ppo_epochs,ppo_mini_batches=args.ppo_mini_batches)
+                    ppo_epochs=args.ppo_epochs,ppo_mini_batches=args.ppo_mini_batches,
+                    **layout_override)
 hashes = entry.source_hashes(plan_path, plan)
 result = dict(schema='local-prone-motion-performance-v1', status='starting', pid=os.getpid(),
     start_ticks=int(Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19]),
@@ -213,11 +222,26 @@ try:
         prof = cProfile.Profile()
         prof.enable()
         for _ in range(args.profile_steps): env.step(action)
-        result['rng_at_end'] = rng_snapshot()
         torch.cuda.synchronize(); prof.disable()
         prof.dump_stats(str(out/'profile.pstats'))
         with (out/'profile.txt').open('w') as stream:
             pstats.Stats(prof,stream=stream).strip_dirs().sort_stats('cumtime').print_stats(65)
+        if args.torch_profile_steps:
+            with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,
+                    torch.profiler.ProfilerActivity.CUDA]) as operator_profile:
+                for _ in range(args.torch_profile_steps):
+                    with torch.profiler.record_function('sampling/policy_step'):
+                        env.step(action)
+            operator_profile.export_chrome_trace(str(out/'operators.json'))
+            with (out/'operators.txt').open('w') as stream:
+                stream.write(operator_profile.key_averages().table(sort_by='self_cpu_time_total',row_limit=45))
+            result['operator_profile'] = {
+                item.key:dict(calls=item.count, self_cpu_us=item.self_cpu_time_total,
+                    cpu_us=item.cpu_time_total, cuda_us=item.device_time_total)
+                for item in operator_profile.key_averages()
+                if item.key in ('aten::nonzero','aten::item','aten::_local_scalar_dense',
+                    'cudaStreamSynchronize','cudaDeviceSynchronize','cudaMemcpyAsync')}
+        result['rng_at_end'] = rng_snapshot()
         finite = all(bool(torch.isfinite(v).all()) for v in obs.values()) and bool(torch.isfinite(reward).all())
     result.update(status='completed' if finite else 'failed_nonfinite', finite=finite,
         collection_per_rollout_s=float(np.mean(times)*plan['rollout_steps']),
@@ -233,6 +257,11 @@ try:
     writer = SummaryWriter(str(out/'events'))
     for i,v in enumerate(times): writer.add_scalar('PerformanceProbe/policy_step_s',v,i)
     writer.add_scalar('PerformanceProbe/policy_step_mean_s',result['step_mean_s'],len(times))
+    writer.add_scalar('PerformanceProbe/policy_samples_per_s',env.num_envs/result['step_mean_s'],len(times))
+    for name, row in result.get('operator_profile', {}).items():
+        tag = name.replace('::','_')
+        writer.add_scalar('PerformanceProbe/'+tag+'_calls_per_policy_step',
+            row['calls']/args.torch_profile_steps,len(times))
     writer.close()
     print('PERFORMANCE_RESULT',json.dumps({k:v for k,v in result.items() if k not in ('source_hashes','step_times_s')}),flush=True)
 except BaseException:

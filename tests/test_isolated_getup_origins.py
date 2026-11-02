@@ -1,7 +1,7 @@
 """Reject overlapping worlds unless complete native isolation is requested."""
 import pytest
 
-from wheeled_tasks.chassis.isolated_origins import validate_isolated_origins
+from wheeled_tasks.chassis.isolated_origins import validate_isolated_origins, layout_origins, GRID, OVERLAP
 
 
 def test_legacy_layout_keeps_existing_large_population_support():
@@ -18,6 +18,49 @@ def test_isolated_origins_require_both_explicit_ground_contracts():
     assert validate_isolated_origins(cfg, 512)
     with pytest.raises(ValueError, match="bounded"):
         validate_isolated_origins(cfg, 513)
+
+
+@pytest.mark.parametrize("count", [1, 20, 128, 256, 512])
+def test_grid_keeps_origins_unique_and_precision_bounded(count):
+    origins = layout_origins(count, GRID)
+    assert len(set(origins)) == count
+    assert max(abs(v) for origin in origins for v in origin[:2]) <= 44.
+    assert all(origin[2] == 0. for origin in origins)
+    assert layout_origins(count) == [(0., 0., 0.)] * count
+    if count > 1:
+        assert min(sum((x-y)**2 for x,y in zip(a,b))**.5
+                   for i,a in enumerate(origins) for b in origins[i+1:]) == 4.
+
+
+def test_grid_cannot_bypass_collision_isolation():
+    with pytest.raises(ValueError, match="collision isolation"):
+        validate_isolated_origins(dict(native_environment_layout=GRID), 256)
+    with pytest.raises(ValueError, match="Unknown"):
+        layout_origins(256, "grid_without_filters")
+
+
+def test_cli_layout_reaches_native_contract_and_preserves_historical_plans(tmp_path):
+    import json
+    from pathlib import Path
+    from train_prone_motion import configuration
+    from wheeled_tasks.chassis.prone_motion_cli import resolve_plan
+    from wheeled_tasks.chassis.prone_motion import validate
+    root = Path(__file__).resolve().parents[1]
+    base = json.loads((root/"contracts/wheel_leg_prone_motion_v4.json").read_text())
+    for flag, mode in (("grid", GRID), ("overlap", OVERLAP)):
+        plan = resolve_plan(base, environment_layout=flag)
+        cfg, settings, _ = configuration(tmp_path/flag, plan)
+        assert cfg["native_environment_layout"] == settings["native_origin_mode"] == mode
+        assert validate(plan) == plan
+        frozen = json.loads((tmp_path/flag/"config/design.json").read_text())
+        assert frozen["stages"]["speed"]["roles"]["train"]["contract"]["native_environment_layout"] == mode
+    base.pop("native_environment_layout")
+    legacy = resolve_plan(base)
+    legacy["runtime_cli"]["options"].pop("environment_layout")
+    assert validate(legacy) == legacy
+    cfg, settings, _ = configuration(tmp_path/"historical", legacy)
+    assert "native_environment_layout" not in cfg
+    assert settings["native_origin_mode"] == OVERLAP
 
 
 def test_export_pairing_rejects_changed_isolation_even_when_origins_match():

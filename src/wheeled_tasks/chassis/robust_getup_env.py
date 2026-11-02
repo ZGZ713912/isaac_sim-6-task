@@ -20,6 +20,7 @@ from .unified_getup import FAMILIES, classify_gravity, joint_tracking_score, pro
 from .robust_getup import RobustDomain, focused_side_pose_pool
 from .getup_feedback import GetupFeedback
 from .getup_reward import potential_reward
+from .masked_tensor import copy_masked_rows_, masked_mean, masked_max
 from .quiet_standing import (QuietStanding, standing_request_mask, standing_support_cost,
                             standing_position_cost, standing_drift_cost)
 
@@ -599,7 +600,7 @@ class RobustGetupEnv(ChassisEnv):
         self.passive_hold = torch.where(self.passive & settled, self.passive_hold + self.policy_dt, 0.)
         enable = self.passive & (elapsed >= self.getup_cfg["passive_min_seconds"]) & (
             (self.passive_hold >= self.getup_cfg["passive_hold_seconds"]) | (elapsed >= self.getup_cfg["passive_max_seconds"]))
-        self.settled_family[enable] = classify_gravity(gravity)[enable]
+        copy_masked_rows_(self.settled_family, enable, classify_gravity(gravity))
         self.passive[enable] = False
         if self.standing_observer is not None:
             enabled_ids = enable.nonzero().flatten()
@@ -624,7 +625,7 @@ class RobustGetupEnv(ChassisEnv):
         self.recovery_active[recovered] = False
         self.released[recovered] = True
         first = recovered & ~self.ever_recovered
-        self.recovered_at[first] = elapsed[first]
+        copy_masked_rows_(self.recovered_at, first, elapsed)
         self.ever_recovered |= recovered
         self.recovered_after_push |= recovered & self.in_motion_fall & self.push_selected
         # A fall while moving starts recovery in-place; never reset the body.
@@ -763,7 +764,7 @@ class RobustGetupEnv(ChassisEnv):
         reward -= failure_cost * terminated
         info = dict(time_outs=timeout & ~terminated, policy_learning_mask=active_interval,
                     policy_bootstrap_mask=~self.passive & ~terminated,
-                    log={"UnifiedGetup/recovery_support_cost_density": recovery_support_density[active_interval].mean() if active_interval.any() else density.new_zeros(()),
+                    log={"UnifiedGetup/recovery_support_cost_density": masked_mean(recovery_support_density, active_interval),
                          "UnifiedGetup/recovery_support_weight": density.new_tensor(self.getup_cfg.get("recovery_support_weight", 0.)),
                          "UnifiedGetup/recovery_active_fraction": self.recovery_active.float().mean(),
                          "UnifiedGetup/upright_fraction": stable.float().mean(),
@@ -798,9 +799,9 @@ class RobustGetupEnv(ChassisEnv):
                 (value*self.policy_dt*active_interval).mean() for key, value in prone_terms.items()})
             info["log"]["ProneRewardPaid/potential_per_policy_step"] = (progress*active_interval).mean()
             info["log"]["ProneRewardPaid/completion_per_policy_step"] = (3.*first*active_interval).mean()
-            info["log"]["ProneActive/body_height_mean_m"] = height[active_interval].mean() if active_interval.any() else height.new_zeros(())
-            info["log"]["ProneActive/body_tilt_mean_deg"] = torch.rad2deg(torch.acos(
-                (-gravity[active_interval, 2]).clamp(-1., 1.))).mean() if active_interval.any() else height.new_zeros(())
+            info["log"]["ProneActive/body_height_mean_m"] = masked_mean(height, active_interval)
+            info["log"]["ProneActive/body_tilt_mean_deg"] = masked_mean(torch.rad2deg(torch.acos(
+                (-gravity[:, 2]).clamp(-1., 1.))), active_interval)
             info["log"].update({
                 "Prone/knee_angle_mean_deg": prone_route["knee_deg"].mean(),
                 "Prone/knee_angle_min_deg": prone_route["knee_deg"].min(),
@@ -834,22 +835,22 @@ class RobustGetupEnv(ChassisEnv):
                 "ProneEncoder/wheel_fk_error_peak_m": prone_route["encoder_vs_native_wheel_error_m"].max(),
                 "ProneEncoder/knee_error_peak_deg": prone_route["encoder_vs_passive_knee_error_deg"].max()})
         info["log"].update({
-            "Standing/wheel_clearance_peak_m": wheel_clearance_peak[standing_request].max() if standing_request.any() else gap_peak.new_zeros(()),
-            "Standing/dual_support_fraction": (wheel_contact_fraction[standing_request] == 1.).all(-1).float().mean() if standing_request.any() else gap_peak.new_zeros(()),
-            "Standing/geometric_air_fraction": (wheel_clearance_peak[standing_request] > .003).any(-1).float().mean() if standing_request.any() else gap_peak.new_zeros(())})
+            "Standing/wheel_clearance_peak_m": masked_max(wheel_clearance_peak, standing_request),
+            "Standing/dual_support_fraction": masked_mean((wheel_contact_fraction == 1.).all(-1).float(), standing_request),
+            "Standing/geometric_air_fraction": masked_mean((wheel_clearance_peak > .003).any(-1).float(), standing_request)})
         info["log"].update({"Quiet/active_fraction": quiet.float().mean(),
-            "Quiet/action_delta_rms": action_delta[quiet].mean().sqrt() if quiet.any() else action_delta.new_zeros(()),
-            "Quiet/leg_speed_rms_rad_s": leg_speed[quiet].mean().sqrt() if quiet.any() else leg_speed.new_zeros(()),
-            "Quiet/effort_delta_rms_nm": (100. * effort_delta[quiet].mean()).sqrt() if quiet.any() else effort_delta.new_zeros(()),
-            "Quiet/fast_target_normalized_power": target_power[quiet].mean() if quiet.any() else target_power.new_zeros(()),
-            "Quiet/fast_velocity_normalized_power": velocity_power[quiet].mean() if quiet.any() else velocity_power.new_zeros(()),
-            "Quiet/position_radius_m": quiet_radius[quiet].mean() if quiet.any() else quiet_radius.new_zeros(()),
-            "Standing/request_position_radius_m": quiet_radius[quiet_request].mean() if quiet_request.any() else quiet_radius.new_zeros(()),
-            "Standing/support_cost_density": support_cost[quiet_request].mean() if quiet_request.any() else support_cost.new_zeros(()),
-            "Standing/position_deadband_cost_density": position_cost[quiet_request].mean() if quiet_request.any() else position_cost.new_zeros(()),
-            "Standing/drift_cost_density": drift_cost[quiet_request].mean() if quiet_request.any() else drift_cost.new_zeros(()),
+            "Quiet/action_delta_rms": masked_mean(action_delta, quiet).sqrt(),
+            "Quiet/leg_speed_rms_rad_s": masked_mean(leg_speed, quiet).sqrt(),
+            "Quiet/effort_delta_rms_nm": (100. * masked_mean(effort_delta, quiet)).sqrt(),
+            "Quiet/fast_target_normalized_power": masked_mean(target_power, quiet),
+            "Quiet/fast_velocity_normalized_power": masked_mean(velocity_power, quiet),
+            "Quiet/position_radius_m": masked_mean(quiet_radius, quiet),
+            "Standing/request_position_radius_m": masked_mean(quiet_radius, quiet_request),
+            "Standing/support_cost_density": masked_mean(support_cost, quiet_request),
+            "Standing/position_deadband_cost_density": masked_mean(position_cost, quiet_request),
+            "Standing/drift_cost_density": masked_mean(drift_cost, quiet_request),
             "Standing/drift_paid_density": drift_penalty.mean(),
-            "Standing/request_abs_vx_m_s": velocity[quiet_request, 0].abs().mean() if quiet_request.any() else velocity.new_zeros(()),
+            "Standing/request_abs_vx_m_s": masked_mean(velocity[:, 0].abs(), quiet_request),
             "Robust/domain_fraction": self.domain.enabled.float().mean(),
             "Robust/motor_strength_mean": self.domain.strength.mean(),
             "Robust/sensor_delay_mean_ms": self.domain.sensor_delay.float().mean() * self.domain.sensor_policy_dt * 1000.})

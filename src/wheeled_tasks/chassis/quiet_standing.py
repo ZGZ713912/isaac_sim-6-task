@@ -5,6 +5,8 @@ privileged reward/critic quantities, not an extra runtime standing controller.
 """
 import torch
 
+from .masked_tensor import copy_masked_rows_
+
 
 def standing_request_mask(commands, passive, recovery_lane, ever_recovered):
     """Keep the standing anchor through a disturbance, until the request ends.
@@ -56,9 +58,9 @@ class QuietStanding:
 
     def update(self, active, xy, target, velocity):
         start = active & ~self.active
-        self.anchor[start] = xy[start]
-        self.target_slow[start] = target[start]
-        self.velocity_slow[start] = velocity[start]
+        copy_masked_rows_(self.anchor, start, xy)
+        copy_masked_rows_(self.target_slow, start, target)
+        copy_masked_rows_(self.velocity_slow, start, velocity)
         self.active.copy_(active)
         delta = target - self.target_slow
         legs = [0, 1, 3, 4]

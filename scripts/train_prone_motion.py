@@ -57,6 +57,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
                 raise ValueError("Full-vehicle mechanism or reset bank changed")
         args.mechanism = ROOT/plan["mechanism"]["file"]
     cfg, settings = base.prepare(args)
+    if "native_environment_layout" in plan:
+        cfg["native_environment_layout"] = plan["native_environment_layout"]
+        settings["native_origin_mode"] = plan["native_environment_layout"]
     if "closure_guard" in plan:
         guard=plan["closure_guard"]["peak_m"]
         cfg["closure_gap_termination_m"]=guard
@@ -132,6 +135,13 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     design_path = output/"config/design.json"
     design = json.loads(design_path.read_text())
     row = design["stages"]["speed"]["roles"]["train"]
+    if not full_vehicle and plan.get("gas_spring_backend") == "dev_compensation_v2":
+        # Retain the original component evidence and its parent hash. Only the
+        # environment source binding changed with bounded placement support.
+        evidence = "model/gas_spring_compensation_unified_20261029/evidence_sampling_layout_20261102.json"
+        cfg["gas_spring_compensation_evidence"] = dict(file=evidence, sha256=base.digest(ROOT/evidence))
+    if "native_environment_layout" in plan:
+        row["contract"]["native_environment_layout"] = plan["native_environment_layout"]
     for key in row["contract"]:
         if key in cfg:
             row["contract"][key] = deepcopy(cfg[key])
@@ -246,6 +256,7 @@ def source_hashes(plan_path, plan):
              "tests/data/unified_dev_gas_reference.npz", "docs/WHEEL_LEG_UNIFIED_20261029.md",
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
              "src/wheeled_algo/training_control.py", "tests/test_training_control.py", "docs/TRAINCTL.md",
+             "model/gas_spring_compensation_unified_20261029/evidence_sampling_layout_20261102.json",
              "scripts/review_gas_spring_soft_range.py",
              "tests/test_prone_motion_resume.py", "docs/PRONE_MOTION_RESUME.md",
              str(plan_path.relative_to(ROOT))]
