@@ -438,9 +438,9 @@ def _probe(env, plan, *, stop_requested=lambda: False):
             paid = state["task_reward_terms"]
             up = (-state["gravity"][:, 2]).clamp(0., 1.)
             height = state["height"]-c["target_height_m"]
-            reference = (c["belly_height_m"]-c["target_height_m"])/c["height_error_scale_m"]
+            height_reference_error = (c["belly_height_m"]-c["target_height_m"])/c["height_error_scale_m"]
             expected_height = c["height_weight"]*up*torch.exp(-(height/c["height_width_m"]).square())*g["height_gate"]*rising
-            expected_error = c["height_error_weight"]*(math.log1p(reference**2)
+            expected_error = c["height_error_weight"]*(math.log1p(height_reference_error**2)
                 -torch.log1p((height/c["height_error_scale_m"]).square()))*g["height_gate"]*rising
             expected_tilt = -c["upright_error_weight"]*(state["gravity"]
                 -state["gravity"].new_tensor([0., 0., -1.])).square().sum(-1)*rising
