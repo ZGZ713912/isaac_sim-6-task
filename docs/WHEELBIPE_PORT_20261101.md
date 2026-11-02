@@ -15,6 +15,10 @@
 实际运行身份、小训/ONNX与首PPO证据见
 [011启动回执](../reports/wheelbipe_port_20261101/BALANCED011_LAUNCH_20261103.md)。
 
+用户最新要求的每小时站立/行走效果检查已启用为`kaiser011`：检查三档高度及前后
+0.5m/s，资源允许时独立只读回放，不停止训练、不改参数或预算。原检查ID经应用确认
+不存在后才新建，详见[每小时检查安排](../reports/wheelbipe_port_20261101/BALANCED011_HOURLY_MONITOR_20261103.md)。
+
 最新只读快照为753/20000更新，原进程继续；500周期模型已封存，payload iter500
 对应501次实际更新，SHA和401–500/601–700窗口见
 [500里程碑记录](../reports/wheelbipe_port_20261101/BALANCED011_PROGRESS00500_20261103.md)。
