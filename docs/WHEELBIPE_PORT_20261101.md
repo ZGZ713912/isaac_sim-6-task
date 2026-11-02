@@ -43,6 +43,15 @@ TensorBoard 距离 tag 是策略边界样本的 rollout 归约，不能当逐物
 机器可读启动观察见 `kaiser_pd60_projection009_launch001.json`。
 详情 `reports/wheelbipe_port_20261101/PROJECTION_REPAIR_20261102.md`。
 
+500 更新里程碑已封存 `model_500.pt`，SHA256
+`29da1f3107b18cae94a71e79fbea8bef2aa4410ecf069f38cd78a19461f057b3`。
+RSL 文件编号500为零基迭代，实际保存于第501次更新后；指标单独取完整
+401–500更新窗口：平均3.312秒/更新，车高.22472m、前向误差.9860m/s、
+yaw误差.3810rad/s。策略采样累计闭链峰仍9.899mm，没有新峰；
+尚未完成新策略冷启动或长期行为验收，不能以奖励上升替代跟踪达标。
+证据 `reports/wheelbipe_port_20261101/kaiser_pd60_projection009_progress00500_001.json`；
+本次只读核查与结果提交均未修改或重启训练。
+
 **最新用户修订：四个腿驱动轴各添加 0.015795 kg·m² armature，策略 50 Hz、
 物理及逐物理步反馈 PD 200 Hz，取消新增的逐物理步 5 mm 检查。**
 训练、预检、完整准入和导出默认均无闭链距离阈值；保留数值有限性、
