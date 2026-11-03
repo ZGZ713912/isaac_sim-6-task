@@ -494,11 +494,18 @@ class RobustGetupEnv(ChassisEnv):
         self.push_torque[:, 0, 0] = (pushing * self.push_sign * self.getup_cfg["push_torque_nm"]
                                    * self.getup_cfg["push_torque_direction"])
         has_push = bool(pushing.any())
-        for _ in range(self.decimation):
+        for substep in range(self.decimation):
             q = self.robot.data.joint_pos.torch[:, motor_ids]
             dq = self.robot.data.joint_vel.torch[:, motor_ids]
-            self.control_audit.feedback_control()
-            tau = self.v5.motor_efforts(q, dq, legs, wheels)
+            fresh_control = substep % self.control_audit.control_stride == 0
+            if fresh_control:
+                self.control_audit.feedback_control()
+                held_motor_effort = self.v5.motor_efforts(q, dq, legs, wheels)
+            else:
+                self.control_audit.feedback_held()
+            # Response, drive caps and passive physical forces still advance at
+            # every solver step. They must never mutate the held PD command.
+            tau = held_motor_effort.clone() if self.control_audit.control_stride != 1 else held_motor_effort
             tau = self.actuator_response.apply_torque(tau)
             tau.clamp_(min=-self.v5.current_motor_bounds, max=self.v5.current_motor_bounds)
             tau[self.passive | self.finished] = 0.
@@ -541,7 +548,8 @@ class RobustGetupEnv(ChassisEnv):
                 gimbal_feedback_q = sample(self.robot.data.joint_pos.torch[:, gimbal_ids])
                 gimbal_feedback_dq = sample(self.robot.data.joint_vel.torch[:, gimbal_ids])
                 effort[:, gimbal_ids] = self.gimbal.step(
-                    gimbal_feedback_q, gimbal_feedback_dq, ~(self.passive | self.finished))
+                    gimbal_feedback_q, gimbal_feedback_dq, ~(self.passive | self.finished),
+                    feedback=fresh_control)
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
             self.sim.step(render=False)

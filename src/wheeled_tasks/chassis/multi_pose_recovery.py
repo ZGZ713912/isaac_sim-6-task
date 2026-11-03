@@ -159,6 +159,18 @@ def validate_native_admission(bank, root, rates):
             or evidence.get("physics_hz") != round(1/rates["physics_dt"])
             or evidence.get("policy_hz") != round(1/rates["policy_dt"])):
         raise ValueError("Native reset evidence differs from the training physical contract")
+    if rates["pc_control_dt"] != rates["physics_dt"]:
+        actual = evidence.get("control_timing", {})
+        audit = actual.get("runtime_substep_verification", {})
+        if (evidence.get("feedback_pd_hz") != round(1/rates["pc_control_dt"])
+                or actual.get("pc_control_dt") != rates["pc_control_dt"]
+                or audit.get("pd_updates") != round(rates["policy_dt"]/rates["pc_control_dt"])
+                or audit.get("feedback_refreshes") != rates["decimation"]
+                or not evidence.get("runtime_source_hashes")):
+            raise ValueError("Native reset evidence lacks the separate feedback-PD clock")
+        for name, value in evidence["runtime_source_hashes"].items():
+            if hashlib.sha256((root/name).read_bytes()).hexdigest() != value:
+                raise ValueError("Measured passive runtime source changed: " + name)
     for i,pose in enumerate(bank["poses"]):
         if not pose.get("recovery"):continue
         rows = [r for r in evidence["cases"] if r["pose_index"] == i]

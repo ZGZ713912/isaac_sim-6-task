@@ -146,8 +146,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     row = design["stages"]["speed"]["roles"]["train"]
     if not full_vehicle and plan.get("gas_spring_backend") == "dev_compensation_v2":
         # Retain the original component evidence and its parent hash. Only the
-        # environment source binding changed with bounded placement support.
-        evidence = "model/gas_spring_compensation_unified_20261029/evidence_sampling_layout_20261102.json"
+        # environment declaration changed; the legacy step remains AST-identical.
+        evidence = "model/gas_spring_compensation_unified_20261029/evidence_multirate_declaration_20261104.json"
         cfg["gas_spring_compensation_evidence"] = dict(file=evidence, sha256=base.digest(ROOT/evidence))
     if "native_environment_layout" in plan:
         row["contract"]["native_environment_layout"] = plan["native_environment_layout"]
@@ -163,6 +163,8 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     row["control"]["actuators.wheel"] = deepcopy(wheel_control["actuators"]["wheel"])
     row["control"]["timing"] = deepcopy(wheel_control["timing"])
     row["runtime"].update(rates)
+    if "feedback_control_dt" in cfg:
+        row["contract"]["feedback_control_dt"] = cfg["feedback_control_dt"]
     row["runtime"]["gas_spring_compensation"] = deepcopy(cfg["v5_control"].get("gas_spring_compensation"))
     if "leg_motor_friction" in cfg:
         row["runtime"]["leg_motor_friction"] = deepcopy(cfg["leg_motor_friction"])
@@ -175,6 +177,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         settings=settings, actor_dim=35, critic_dim=cfg["critic_dim"], action_dim=6,
         full_vehicle=deepcopy(full_vehicle), gimbal_motion=deepcopy(cfg.get("gimbal_motion")),
         policy_hz=round(1./rates["policy_dt"]), physics_hz=round(1./rates["physics_dt"]),
+        feedback_pd_hz=round(1./rates["pc_control_dt"]),
         timing=rates, rollout_steps=plan["rollout_steps"], discounts=discount,
         simulation_timing_approximation=deepcopy(plan.get("simulation_timing_approximation")),
         contact_sampling_ms=rates["physics_dt"]*1000.,
@@ -287,9 +290,15 @@ def source_hashes(plan_path, plan):
              "src/wheeled_algo/continuous_rollout.py", "tests/test_continuous_rollout.py",
              "src/wheeled_algo/training_control.py", "tests/test_training_control.py", "docs/TRAINCTL.md",
              "model/gas_spring_compensation_unified_20261029/evidence_sampling_layout_20261102.json",
+             "model/gas_spring_compensation_unified_20261029/evidence_multirate_declaration_20261104.json",
              "scripts/review_gas_spring_soft_range.py",
              "tests/test_prone_motion_resume.py", "docs/PRONE_MOTION_RESUME.md",
              str(plan_path.relative_to(ROOT))]
+    if plan.get("simulation_timing_approximation", {}).get("model") == "physics1000hz_policy100hz_feedback_pd200hz_hold_v1":
+        names.extend(["tests/test_fine_pd200.py", "scripts/build_standard_prone_timing_bank.py",
+                      "docs/PRONE_MOTION_FINE_PD200_20261104.md",
+                      "reports/standard_getup_multirate_repair_20261104/passive_002/report.json",
+                      "reports/standard_getup_multirate_repair_20261104/passive_probe_plan.input.json"])
     if plan.get("paired_torque_saturation") is not None:
         names.extend(["tests/test_paired_torque_saturation.py", "docs/STANDARD_GETUP_SHAPE_PRIORITY_20261103.md"])
     if "terminal_transition" in plan:

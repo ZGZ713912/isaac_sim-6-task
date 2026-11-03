@@ -64,7 +64,8 @@ class ChassisEnv:
             self.design_preflight = validate_design_hook(config, root, self.design_preflight,
                 integrated_design_preflight, stage=stage_name, num_envs=num_envs,
                 seed=seed, block_index=block_index)
-        self.control_audit = SubstepControlAudit(config["physics_dt"], config["policy_dt"])
+        self.control_audit = SubstepControlAudit(config["physics_dt"], config["policy_dt"],
+                                               config.get("feedback_control_dt"))
         self.stage_cfg = next(s for s in config["stages"] if s["name"] == stage_name)
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
         self.control, self.manifest = control, manifest
@@ -1006,12 +1007,13 @@ class ChassisEnv:
         self.reset(torch.arange(num_envs, device=device))
         self.startup_report["control_timing"] = {
             "physics_dt": self.dt, "policy_dt": self.policy_dt, "decimation": self.decimation,
-            "pc_control_dt": self.dt, "target_update": "once_per_policy_step",
-            "feedback_control": "after_each_physical_state_refresh",
+            "pc_control_dt": self.control_audit.control_dt, "target_update": "once_per_policy_step",
+            "feedback_control": ("after_each_physical_state_refresh" if self.control_audit.control_stride == 1
+                                 else "declared_PD_tick_with_zero_order_effort_hold"),
             "runtime_substep_verification": "pending_first_step"}
         if self.design_preflight is not None:
             actual = {"physics_dt": self.sim.cfg.dt, "policy_dt": self.policy_dt,
-                "decimation": self.decimation, "pc_control_dt": self.dt,
+                "decimation": self.decimation, "pc_control_dt": self.control_audit.control_dt,
                 "seed": self.generator.initial_seed(),
                 "leg_kp": self.v5.settings["leg_kp"], "leg_kd": self.v5.settings["leg_kd"],
                 "wheel_velocity_p": self.v5.wheel_prior["kd"],

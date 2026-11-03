@@ -31,6 +31,11 @@ def main():
         seconds=a.seconds,height_shift_m=a.height_shift_m,plan_sha256=digest(a.plan),
         bank_sha256=digest(ROOT/plan["pose_bank"]["file"]),profiles="nominal",cases=[],
         policy_hz=100,physics_hz=200,closure_limit_m=.003,hardware_ready=False)
+    source_paths = ["scripts/probe_recovery_reset_admission.py",
+        "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/robust_getup_env.py",
+        "src/wheeled_tasks/chassis/gimbal_motion.py", "src/wheeled_tasks/chassis/preflight.py",
+        "src/wheeled_tasks/chassis/control_contract.py", "src/wheeled_tasks/chassis/training_wheel_response.py"]
+    report["runtime_source_hashes"] = {p:digest(ROOT/p) for p in source_paths}
     launcher=env=None
     try:
         from isaaclab.app import AppLauncher
@@ -105,10 +110,14 @@ def main():
                 report["cases"].extend(rows)
                 print(json.dumps(dict(measured=len(report["cases"]),passed=sum(r["passed"] for r in report["cases"]))),flush=True)
         report.update(status="completed",all_pass=all(r["passed"] for r in report["cases"]),
-            policy_hz=1/env.policy_dt,physics_hz=1/env.dt)
+            policy_hz=1/env.policy_dt,physics_hz=1/env.dt,
+            feedback_pd_hz=1/env.control_audit.control_dt,
+            control_timing=env.startup_report["control_timing"])
     except BaseException:
         report.update(status="failed",error=traceback.format_exc());raise
     finally:
+        report["source_mismatches_at_exit"] = [p for p,h in report["runtime_source_hashes"].items()
+            if digest(ROOT/p) != h]
         write_json(a.output/"report.json",report)
         if env is not None:env.close()
         if launcher is not None:launcher.app.close()

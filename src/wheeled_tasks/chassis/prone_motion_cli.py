@@ -18,14 +18,15 @@ OPTION_KEYS = ("num_envs", "max_iterations", "seed", "save_interval", "learning_
                "recovery_gate_success_rate", "recovery_gate_every", "recovery_gate_min_trials",
                "curriculum_eval_every", "curriculum_success_rate", "curriculum_required_passes",
                "position_iterations", "velocity_iterations", "physics_hz",
-               "policy_hz", "hidden_dims", "ppo_epochs", "ppo_mini_batches", "environment_layout")
+               "policy_hz", "hidden_dims", "ppo_epochs", "ppo_mini_batches", "environment_layout", "pd_hz")
 LEGACY_OPTION_KEYS = OPTION_KEYS[:8]
 LEGACY_RECOVERY_OPTION_KEYS = OPTION_KEYS[:12]
 LEGACY_MASTERY_OPTION_KEYS = OPTION_KEYS[:15]
 LEGACY_GLOBAL_OPTION_KEYS = OPTION_KEYS[:18]
 LEGACY_SOLVER_OPTION_KEYS = OPTION_KEYS[:20]
 LEGACY_PHYSICS_OPTION_KEYS = OPTION_KEYS[:21]
-LEGACY_NETWORK_OPTION_KEYS = OPTION_KEYS[:-1]
+LEGACY_NETWORK_OPTION_KEYS = OPTION_KEYS[:-2]
+LEGACY_LAYOUT_OPTION_KEYS = OPTION_KEYS[:-1]
 
 
 def _hash(value):
@@ -35,13 +36,15 @@ def _hash(value):
 def _configured(base, options):
     # A legacy serialized option set may carry a newly added null CLI field.
     # Normalize the null field before checking the exact historical key sets.
+    if (set(options) != set(OPTION_KEYS) and options.get("pd_hz") is None):
+        options = {k: v for k, v in options.items() if k != "pd_hz"}
     if (set(options) != set(OPTION_KEYS) and "environment_layout" in options
             and options["environment_layout"] is None):
         options = {k: v for k, v in options.items() if k != "environment_layout"}
     if ((set(options) == set(LEGACY_OPTION_KEYS) and "multi_pose_recovery" not in base)
             or set(options) in (set(LEGACY_RECOVERY_OPTION_KEYS),set(LEGACY_MASTERY_OPTION_KEYS),
                                 set(LEGACY_GLOBAL_OPTION_KEYS), set(LEGACY_SOLVER_OPTION_KEYS), set(LEGACY_PHYSICS_OPTION_KEYS),
-                                set(LEGACY_NETWORK_OPTION_KEYS))):
+                                set(LEGACY_NETWORK_OPTION_KEYS), set(LEGACY_LAYOUT_OPTION_KEYS))):
         options = {**dict.fromkeys(OPTION_KEYS),**options}
     if set(options) != set(OPTION_KEYS):
         raise ValueError("Unknown or incomplete runtime options")
@@ -103,6 +106,26 @@ def _configured(base, options):
             f"{result['rollout_steps']} actor steps cover{result['rollout_steps']*.02:g}s "
             f"and{result['rollout_steps']*4} physical steps per lane. "
             "All delay values retain physical units; no hardware or fine contact qualification.")
+    if options["pd_hz"] is not None:
+        from .prone_motion import timing
+        from .control_contract import FINE_PD200_SCOPE, FINE_PD200_TIMING, FINE_PD200_CONTROL_FILE
+        pd_hz = options["pd_hz"]
+        rates = timing(result)
+        if type(pd_hz) is not int or pd_hz not in (200, 1000):
+            raise ValueError("pd_hz must be 200 or 1000")
+        if pd_hz == 200 and rates["physics_dt"] == .001:
+            if result["schema"] != "wheel-leg-prone-motion-v4" or rates["policy_dt"] != .01:
+                raise ValueError("Held200Hz PD requires v4 policy100Hz / physics1000Hz")
+            result["timing"] = dict(FINE_PD200_TIMING)
+            result["simulation_timing_approximation"] = deepcopy(FINE_PD200_SCOPE)
+            control = Path(__file__).resolve().parents[3]/FINE_PD200_CONTROL_FILE
+            result["wheel_model"]["control"] = dict(file=FINE_PD200_CONTROL_FILE,
+                sha256=hashlib.sha256(control.read_bytes()).hexdigest())
+            result["timing_scope"] = ("Policy100Hz; physics1000Hz; fresh motor PD200Hz and gimbal effort200Hz. "
+                "Five physics steps hold each raw motor command; passive physical models advance each1ms. "
+                "This explicit simulation contract has no hardware qualification.")
+        elif pd_hz != round(1./rates["pc_control_dt"]):
+            raise ValueError("Requested PD rate is incompatible with the selected physical contract")
     if any(options[key] is not None for key in ("position_iterations", "velocity_iterations")):
         solver = dict(result.get("solver_iterations", dict(position_iterations=64, velocity_iterations=32)))
         for key, minimum in (("position_iterations", 1), ("velocity_iterations", 0)):
@@ -267,7 +290,9 @@ def train_parser():
     parser.add_argument("--velocity-iterations", "--velocity_iterations", type=int,
                         help="PhysX velocity solver iterations per physics step; inherited default32")
     parser.add_argument("--physics-hz", "--physics_hz", type=int, choices=(200,1000),
-                        help="v4 physics and fresh feedback PD rate; current v4 defaults to200Hz with100Hz policy")
+                        help="v4 physics rate; PD follows physics unless --pd-hz200 is explicit")
+    parser.add_argument("--pd-hz", "--pd_hz", type=int, choices=(200,1000),
+                        help="Explicit feedback PD rate; physics1000/policy100 supports held200Hz output")
     parser.add_argument('--policy-hz',type=int,choices=(50,100),help='50Hz comparison requires explicit200Hz physics; acceptance limits are unchanged')
     parser.add_argument('--hidden-dims',type=int,nargs='+',help='Actor and critic MLP widths')
     parser.add_argument('--ppo-epochs',type=int)
@@ -333,6 +358,9 @@ def training_options(args, root):
             elif key == "policy_hz":
                 from .prone_motion import timing
                 expected = round(1./timing(plan)["policy_dt"])
+            elif key == "pd_hz":
+                from .prone_motion import timing
+                expected = round(1./timing(plan)["pc_control_dt"])
             elif key in ("hidden_dims", "ppo_epochs", "ppo_mini_batches"):
                 ppo = plan.get('ppo', dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4))
                 expected = ppo[dict(hidden_dims='hidden_dims', ppo_epochs='epochs', ppo_mini_batches='mini_batches')[key]]

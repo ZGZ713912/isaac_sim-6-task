@@ -49,7 +49,7 @@ class GimbalMotion:
         self.phase[ids] = torch.where(draws[:, 2] < .5, initial, math.pi-initial)
         self.target[ids] = self.effort[ids] = 0.
 
-    def step(self, q, dq, enabled):
+    def step(self, q, dq, enabled, *, feedback=True):
         delta = self.yaw_goal-self.yaw_velocity
         limit = self.cfg["yaw_acceleration_rad_s2"]*self.dt
         self.yaw_velocity.add_(delta.clamp(-limit, limit)*enabled)
@@ -58,10 +58,11 @@ class GimbalMotion:
         pitch = (lower+upper)/2.+(upper-lower)/2.*torch.sin(math.tau*self.time/self.period+self.phase)
         self.target[:, 0] = self.yaw_velocity
         self.target[:, 1] = pitch.clamp(lower, upper)
-        self.effort[:, 0] = (self.cfg["yaw_kd"]*(self.yaw_velocity-dq[:, 0])).clamp(
-            -self.cfg["yaw_effort_limit_nm"], self.cfg["yaw_effort_limit_nm"])
-        self.effort[:, 1] = (self.cfg["pitch_kp"]*(self.target[:, 1]-q[:, 1])
-            -self.cfg["pitch_kd"]*dq[:, 1]).clamp(
-            -self.cfg["pitch_effort_limit_nm"], self.cfg["pitch_effort_limit_nm"])
+        if feedback:
+            self.effort[:, 0] = (self.cfg["yaw_kd"]*(self.yaw_velocity-dq[:, 0])).clamp(
+                -self.cfg["yaw_effort_limit_nm"], self.cfg["yaw_effort_limit_nm"])
+            self.effort[:, 1] = (self.cfg["pitch_kp"]*(self.target[:, 1]-q[:, 1])
+                -self.cfg["pitch_kd"]*dq[:, 1]).clamp(
+                -self.cfg["pitch_effort_limit_nm"], self.cfg["pitch_effort_limit_nm"])
         self.effort.mul_(enabled[:, None])
         return self.effort

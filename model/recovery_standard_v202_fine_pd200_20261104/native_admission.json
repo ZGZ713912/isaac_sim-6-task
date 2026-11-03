@@ -1,0 +1,92 @@
+{
+  "schema": "native-passive-reset-admission-v1",
+  "new_PPO": 0,
+  "checkpoint_reads": [],
+  "source_bank_sha256": "45ff371db5fb787d327b3dcaa5233b72de6e1f208fb985c3a9f1012c2fed1af9",
+  "source_evidence_sha256": "d9113a9eb23ba73f1b358236845abed616db5504e428536540118cf5b1c6f729",
+  "source_evidence_file": "reports/standard_getup_multirate_repair_20261104/passive_002/report.json",
+  "runtime_source_hashes": {
+    "scripts/probe_recovery_reset_admission.py": "7b6423c0bae40fcc147997f1f80dd7638e48025ba843b47df4e64a916108623c",
+    "src/wheeled_tasks/chassis/env.py": "b83829f8a9755a4ddbf50b8c37e3545f9808b82d888c65e7957f5eb800c2d7d2",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "a45e94c7912b7c8549691a80ba916af4fd999f3b11bb1b056fc10c0422e84b40",
+    "src/wheeled_tasks/chassis/gimbal_motion.py": "d844b6a57a3c2460391b99b31bd13e5056fe44db8ec065c815bfe109aeda29f5",
+    "src/wheeled_tasks/chassis/preflight.py": "1de056746c05d4e3c98ca3be7beffde488cf63b4348223100ade2d34d0f3d567",
+    "src/wheeled_tasks/chassis/control_contract.py": "6f2c855362278027d40aa5bfcdae8b2823582473104f891a22fb9944a716fdd7",
+    "src/wheeled_tasks/chassis/training_wheel_response.py": "746fa912eaa98d7af2a7b6a69a02666f359218920ec466b5960f75f85f3e7f0c"
+  },
+  "physics_hz": 1000,
+  "policy_hz": 100,
+  "feedback_pd_hz": 200,
+  "seconds": 0.15,
+  "guard_m": 0.003,
+  "admission_margin_m": 0.0002,
+  "cases": [
+    {
+      "pose_index": 3,
+      "heading_rad": 0.0,
+      "recovery": {
+        "family": "belly_down",
+        "leg_class": "rear_rear",
+        "orbital_pair_deg": [
+          -91.66657171251809,
+          -91.67944653849746
+        ],
+        "split": "standard",
+        "dynamic": false,
+        "cad_surface_screen_passed": true,
+        "native_passive_admitted": true,
+        "scope": "single_original_standard_prone_posture; no unseen-pose qualification"
+      },
+      "terminated": false,
+      "closure_peak_m": 8.65155834617326e-06,
+      "passive_motor_peak_nm": 0.0,
+      "mechanical": false,
+      "first_failure_s": null,
+      "passed": true
+    },
+    {
+      "pose_index": 3,
+      "heading_rad": 1.5707963267948966,
+      "recovery": {
+        "family": "belly_down",
+        "leg_class": "rear_rear",
+        "orbital_pair_deg": [
+          -91.66657171251809,
+          -91.67944653849746
+        ],
+        "split": "standard",
+        "dynamic": false,
+        "cad_surface_screen_passed": true,
+        "native_passive_admitted": true,
+        "scope": "single_original_standard_prone_posture; no unseen-pose qualification"
+      },
+      "terminated": false,
+      "closure_peak_m": 8.094883924059104e-06,
+      "passive_motor_peak_nm": 0.0,
+      "mechanical": false,
+      "first_failure_s": null,
+      "passed": true
+    }
+  ],
+  "all_pass": true,
+  "control_timing": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.01,
+    "decimation": 10,
+    "pc_control_dt": 0.005,
+    "target_update": "once_per_policy_step",
+    "feedback_control": "declared_PD_tick_with_zero_order_effort_hold",
+    "runtime_substep_verification": {
+      "policy_steps": 15,
+      "physics_steps": 150,
+      "target_decodes": 1,
+      "pd_updates": 2,
+      "feedback_refreshes": 10,
+      "physics_dt": 0.001,
+      "policy_dt": 0.01,
+      "pc_control_dt": 0.005,
+      "effort_hold_physics_steps": 5
+    }
+  },
+  "scope": "nominal_disabled_placement_only_not_recovery_standing_DR_or_hardware_qualification"
+}

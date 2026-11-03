@@ -831,10 +831,13 @@ def validate_runtime_state(expected, actual):
 class SubstepControlAudit:
     """Count calls around the actual PD/solver/feedback-update execution path."""
 
-    def __init__(self, physics_dt, policy_dt):
+    def __init__(self, physics_dt, policy_dt, control_dt=None):
         self.physics_dt = physics_dt
         self.policy_dt = policy_dt
         self.decimation = control_decimation(physics_dt, policy_dt)
+        self.control_dt = physics_dt if control_dt is None else control_dt
+        self.control_stride = control_decimation(physics_dt, self.control_dt)
+        self.controls_per_policy = control_decimation(self.control_dt, policy_dt)
         self.phase = "idle"
         self.policy_steps = self.physics_steps = 0
         self.last = None
@@ -852,9 +855,16 @@ class SubstepControlAudit:
         self.phase = "feedback"
 
     def feedback_control(self):
-        if self.phase != "feedback" or self.controls >= self.decimation:
+        if (self.phase != "feedback" or self.controls >= self.controls_per_policy
+                or self.refreshes % self.control_stride):
             raise RuntimeError("PD requires one refreshed physical state per substep")
         self.controls += 1
+        self.phase = "physics"
+
+    def feedback_held(self):
+        if (self.phase != "feedback" or not self.controls
+                or self.refreshes % self.control_stride == 0):
+            raise RuntimeError("Held effort requires an earlier PD update and its declared hold phase")
         self.phase = "physics"
 
     def physics_updated(self, dt):
@@ -865,7 +875,7 @@ class SubstepControlAudit:
         self.phase = "feedback"
 
     def end_policy(self):
-        if self.phase != "feedback" or (self.decodes, self.controls, self.refreshes) != (1, self.decimation, self.decimation):
+        if self.phase != "feedback" or (self.decodes, self.controls, self.refreshes) != (1, self.controls_per_policy, self.decimation):
             raise RuntimeError("Policy step did not execute the declared PD/physics decimation")
         self.policy_steps += 1
         self.phase = "idle"
@@ -873,4 +883,6 @@ class SubstepControlAudit:
                      "target_decodes": self.decodes, "pd_updates": self.controls,
                      "feedback_refreshes": self.refreshes, "physics_dt": self.physics_dt,
                      "policy_dt": self.policy_dt}
+        if self.control_stride != 1:
+            self.last.update(pc_control_dt=self.control_dt, effort_hold_physics_steps=self.control_stride)
         return self.last

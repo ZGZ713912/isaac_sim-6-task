@@ -26,6 +26,14 @@ POLICY_200_SCOPE = {**COARSE_SCOPE, "model": "200hz_policy_and_feedback_pd_with_
 FINE_POLICY_200_TIMING = {"physics_dt": .001, "policy_dt": .005, "pc_control_dt": .001, "decimation": 5}
 NEW_WHEEL_CONTROL_ID = "new-wheel-1562-recorded-P05-20261028-v1"
 FINE_POLICY_100_TIMING = {"physics_dt": .001, "policy_dt": .01, "pc_control_dt": .001, "decimation": 10}
+FINE_PD200_TIMING = {"physics_dt": .001, "policy_dt": .01, "pc_control_dt": .005, "decimation": 10}
+FINE_PD200_SCOPE = {"model": "physics1000hz_policy100hz_feedback_pd200hz_hold_v1",
+    "hardware_pd_dt": .001, "raw_bag_dt": .001,
+    "fresh_feedback_per_policy_step": 2, "hardware_equivalence_verified": False,
+    "motor_command_hold_physics_steps": 5, "gimbal_effort_hold_physics_steps": 5,
+    "physical_models": "spring_friction_and_actuator_response_each_1ms_physics_step"}
+NEW_WHEEL_FINE_PD200_CONTROL_ID = "new-wheel-1562-P05-policy100hz-physics1000hz-pd200hz-20261104-v1"
+FINE_PD200_CONTROL_FILE = "contracts/wheel_leg_prone_motion_control_physics1000_pd200_v1.json"
 POLICY_100_TIMING = {"physics_dt": .005, "policy_dt": .01, "pc_control_dt": .005, "decimation": 2}
 POLICY_100_SCOPE = {"model": "200hz_physics_and_feedback_pd_policy100hz_v1",
                     "hardware_pd_dt": .001, "raw_bag_dt": .001,
@@ -49,7 +57,8 @@ COARSE_POLICY_50_SCOPE = {**COARSE_POLICY_100_SCOPE,
 NEW_WHEEL_50_COARSE_CONTROL_ID = "new-wheel-1562-P05-policy50hz-pd200hz-20261101-v1"
 COARSE_POLICY_50_CONTROL_FILE = "contracts/wheel_leg_prone_motion_control_policy50_pd200hz_v1.json"
 NEW_WHEEL_CONTROL_IDS = frozenset((NEW_WHEEL_CONTROL_ID, NEW_WHEEL_100_CONTROL_ID,
-                                  NEW_WHEEL_100_COARSE_CONTROL_ID, NEW_WHEEL_50_COARSE_CONTROL_ID))
+                                  NEW_WHEEL_100_COARSE_CONTROL_ID, NEW_WHEEL_50_COARSE_CONTROL_ID,
+                                  NEW_WHEEL_FINE_PD200_CONTROL_ID))
 
 
 def declared_wheel_velocity_p(control):
@@ -65,6 +74,8 @@ def declared_control_timing(control):
             return dict(FINE_POLICY_200_TIMING)
         return {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
     scope = control["simulation_timing_approximation"]
+    if scope == FINE_PD200_SCOPE and control.get("control_id") == NEW_WHEEL_FINE_PD200_CONTROL_ID:
+        return dict(FINE_PD200_TIMING)
     if scope == COARSE_SCOPE:
         return dict(COARSE_TIMING)
     if scope == POLICY_200_SCOPE:

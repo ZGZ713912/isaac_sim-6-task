@@ -378,6 +378,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
     action = nominal_action(env).expand(env.num_envs, -1).clone()
     from wheeled_tasks.chassis.prone_motion import timing
     rates = timing(plan)
+    feedback_stride = round(rates["pc_control_dt"]/rates["physics_dt"])
     checks = dict(fixed_PD_and_spring=bool((env.domain.kp == 1.).all() and (env.domain.kd == 1.).all()
         and (env.domain.spring == 1.).all()), rates=(env.dt == rates["physics_dt"]
         and env.policy_dt == rates["policy_dt"] and env.decimation == rates["decimation"]))
@@ -610,14 +611,25 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         checks["finite"] = checks.get("finite", True) and bool(torch.isfinite(reward).all()) and all(torch.isfinite(v).all() for v in observation.values())
         checks["all_six_physical_step_velocities_and_efforts"] = env.prone_motion_physical["motor_velocity"].shape == (env.decimation, env.num_envs, 6)
         physical = env.prone_motion_physical
+        if feedback_stride != 1:
+            audit = env.control_audit.last
+            checks["declared_separate_PD_and_physics_counts"] = (
+                audit["pd_updates"] == round(env.policy_dt/rates["pc_control_dt"])
+                and audit["feedback_refreshes"] == env.decimation
+                and audit["effort_hold_physics_steps"] == feedback_stride)
         if getattr(env, "gimbal", None) is not None:
             q, dq, target = (physical[k] for k in ("gimbal_feedback_q", "gimbal_feedback_dq", "gimbal_target"))
             expected_gimbal = torch.stack((.5*(target[..., 0]-dq[..., 0]),
                 20.*(target[..., 1]-q[..., 1])-.5*dq[..., 1]), -1)
             caps = expected_gimbal.new_tensor([2., 10.])
             expected_gimbal = expected_gimbal.clamp(-caps, caps)
+            if feedback_stride != 1:
+                held_at = torch.arange(env.decimation, device=env.device)//feedback_stride*feedback_stride
+                expected_gimbal = expected_gimbal[held_at]
             expected_gimbal[physical["wheel_disabled"]] = 0.
-            checks["gimbal_actual_physical_rate_torque_servo"] = checks.get("gimbal_actual_physical_rate_torque_servo", True) and bool(
+            servo_check = ("gimbal_actual_physical_rate_torque_servo" if feedback_stride == 1
+                           else "gimbal_actual_declared_PD_rate_torque_servo")
+            checks[servo_check] = checks.get(servo_check, True) and bool(
                 torch.allclose(physical["gimbal_effort"], expected_gimbal, atol=1e-6, rtol=1e-6)
                 and torch.allclose(physical["gimbal_applied_effort"], expected_gimbal, atol=1e-6, rtol=1e-6))
             checks["gimbal_disabled_effort_zero"] = checks.get("gimbal_disabled_effort_zero", True) and bool(

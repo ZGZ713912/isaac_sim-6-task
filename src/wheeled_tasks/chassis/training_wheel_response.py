@@ -9,6 +9,7 @@ import torch
 
 from .identified_wheel_response import WHEEL_NAMES, configure_identified_wheels
 from .control_contract import (NEW_WHEEL_100_CONTROL_ID, FINE_POLICY_100_TIMING, POLICY_100_TIMING, POLICY_100_SCOPE,
+                               NEW_WHEEL_FINE_PD200_CONTROL_ID, FINE_PD200_TIMING, FINE_PD200_SCOPE,
                                NEW_WHEEL_100_COARSE_CONTROL_ID, COARSE_POLICY_100_TIMING,
                                COARSE_POLICY_100_SCOPE,
                                NEW_WHEEL_50_COARSE_CONTROL_ID, COARSE_POLICY_50_TIMING, COARSE_POLICY_50_SCOPE,
@@ -24,11 +25,15 @@ def configure(root, config, declaration, settings):
             raise ValueError("Identified wheel input SHA differs: " + key)
     control = json.loads((root/declaration["control"]["file"]).read_text())
     recorded = control
-    if control.get("control_id") in (NEW_WHEEL_100_CONTROL_ID, NEW_WHEEL_100_COARSE_CONTROL_ID, NEW_WHEEL_50_COARSE_CONTROL_ID):
+    if control.get("control_id") in (NEW_WHEEL_100_CONTROL_ID, NEW_WHEEL_100_COARSE_CONTROL_ID,
+                                    NEW_WHEEL_50_COARSE_CONTROL_ID, NEW_WHEEL_FINE_PD200_CONTROL_ID):
         recorded = json.loads((root/declaration["recorded_control"]["file"]).read_text())
         expected = deepcopy(recorded)
         expected.update(control_id=NEW_WHEEL_100_CONTROL_ID, timing=FINE_POLICY_100_TIMING)
-        if control["control_id"] == NEW_WHEEL_100_COARSE_CONTROL_ID:
+        if control["control_id"] == NEW_WHEEL_FINE_PD200_CONTROL_ID:
+            expected.update(control_id=NEW_WHEEL_FINE_PD200_CONTROL_ID,
+                timing=FINE_PD200_TIMING, simulation_timing_approximation=FINE_PD200_SCOPE)
+        elif control["control_id"] == NEW_WHEEL_100_COARSE_CONTROL_ID:
             expected.update(control_id=NEW_WHEEL_100_COARSE_CONTROL_ID,
                 timing=COARSE_POLICY_100_TIMING, simulation_timing_approximation=COARSE_POLICY_100_SCOPE)
         elif control['control_id'] == NEW_WHEEL_50_COARSE_CONTROL_ID:
@@ -43,6 +48,8 @@ def configure(root, config, declaration, settings):
     if matched != recorded:
         raise ValueError("Delivered wheel control does not match the recorded controller")
     result.update(physics_dt=control["timing"]["physics_dt"], policy_dt=control["timing"]["policy_dt"])
+    if control.get("control_id") == NEW_WHEEL_FINE_PD200_CONTROL_ID:
+        result["feedback_control_dt"] = control["timing"]["pc_control_dt"]
     result["control_math_source"] = declaration["control"]["file"]
     result["control_math_sha256"] = declaration["control"]["sha256"]
     result["actuator_response_evidence"] = deepcopy(declaration["evidence"])
