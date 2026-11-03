@@ -161,7 +161,8 @@ class ChassisEnv:
             dt=self.dt, device=device, render_interval=self.decimation,
             enable_scene_query_support=config.get("enable_scene_queries", False), **render_options))
         import carb.settings
-        carb.settings.get_settings().set_bool("/physics/disableContactProcessing", False)
+        carb.settings.get_settings().set_bool("/physics/disableContactProcessing",
+            __import__("os").environ.get("WHEELED_PROBE_NO_CONTACT_PROCESSING") == "1")
         if config.get("dense_tracking", {}).get("enabled"):
             from .rewards import validate_dense_tracking
             validate_dense_tracking(config["dense_tracking"])
@@ -524,13 +525,16 @@ class ChassisEnv:
         view = PhysxManager.get_physics_sim_view()
         # Each filter must name one body; filter-list lengths must match within a view.
         self.contact_views = []
-        if shared_ground is not None:
+        contact_processing_off = __import__("os").environ.get("WHEELED_PROBE_NO_CONTACT_PROCESSING") == "1"
+        if contact_processing_off:
+            pass
+        elif shared_ground is not None:
             group_paths = list(body_paths)
             contact_view = view.create_rigid_contact_view(group_paths,
                 filter_patterns=[[shared_ground]] * len(group_paths),
                 max_contact_data_count=64 * len(group_paths))
             self.contact_views = [(torch.arange(num_envs, device=device), contact_view)]
-        for surface_count in ([] if shared_ground is not None else sorted({len(s) for s in self.surfaces})):
+        for surface_count in ([] if (shared_ground is not None or contact_processing_off) else sorted({len(s) for s in self.surfaces})):
             ids = [i for i, s in enumerate(self.surfaces) if len(s) == surface_count]
             group_paths = [self.env_paths[i] + "/Robot/" + n for i in ids for n in self.robot.body_names]
             group_filters = [[self.env_paths[i] + f"/Terrain/surface_{j}/geometry/mesh" for j in range(surface_count)]
