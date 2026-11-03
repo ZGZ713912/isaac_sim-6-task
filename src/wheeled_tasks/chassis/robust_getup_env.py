@@ -1106,6 +1106,6 @@ class RobustGetupEnv(ChassisEnv):
             print("[OUT] reward=%.1f obs=%.1f terms=%.1f metrics=%.1f cmd=%.1f reset=%.1f ms" % (
                 _o[0] / _on * 1000., _o[1] / _on * 1000., _o1[0] / _on * 1000.,
                 _o1[2] / _on * 1000., _o1[3] / _on * 1000., _o1[4] / _on * 1000.), flush=True)
-            self._outside_parts = [0., 0., 0, 0]
+            self._outside_parts = [0., 0., 0, 0, 0., 0.]
             self._outside = [0., 0., 0]
         return _obs, reward, done, info
