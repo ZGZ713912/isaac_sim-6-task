@@ -481,6 +481,17 @@ def _probe(env, plan, *, stop_requested=lambda: False):
             plan.get("multi_pose_recovery") is not None) else 3.
         expected = ((sum(state["task_reward_terms"].values())*env.policy_dt+state["reward_potential_progress"]
                     +3.*state["recovery_completed_event"])*extra["policy_learning_mask"]-failure_cost*state["terminated"])
+        if plan.get("terminal_transition") is not None:
+            hard = state["mechanical"] | state["impact_bad"] | state.get(
+                "recovery_part_impact_bad", torch.zeros_like(state["terminated"]))
+            checks["hard_terminal_raw_reward_preserved"] = checks.get(
+                "hard_terminal_raw_reward_preserved", True) and bool(torch.allclose(
+                    state["reward_before_terminal_settlement"], expected, atol=1e-5))
+            checks["hard_terminal_existing_fault_mask"] = checks.get(
+                "hard_terminal_existing_fault_mask", True) and bool(
+                    torch.equal(state["hard_fault_terminal"], hard)
+                    and (state["terminated"] | ~hard).all())
+            expected = torch.where(hard, -failure_cost, expected)
         checks["actual_reward_payment"] = checks.get("actual_reward_payment", True) and bool(torch.allclose(reward, expected, atol=1e-5))
         if state.get("standard_getup_guidance") is not None:
             g = state["standard_getup_guidance"]

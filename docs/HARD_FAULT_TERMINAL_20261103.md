@@ -9,3 +9,5 @@
 TensorBoard新增 `ProneMotion/hard_fault_terminal_events`（每策略步事件数，RSL在64步rollout上取均值）和 `ProneMotion/hard_fault_unsettled_reward_abs_peak`（各策略步原始终止罚绝对峰的rollout均值）。原始物理峰、密集奖励项和闭链诊断继续保留；诊断中的原始故障值不代表实际送入PPO的reward。诊断另存 `reward_before_terminal_settlement` 与 `hard_fault_terminal`，用于逐lane确认。
 
 此修复仅针对已证实的终止帧学习污染；并未证明自起、静站、反向跟踪或物理稳定性已修好。此前750策略的收腿与支撑进度仍不能代替完整自起验收。新运行仍需四朝向、20秒主动自起期限及完成后的原保持段。物理200Hz、策略100Hz、PD200Hz、64/32、40–110度、40Nm、闭链record_only保持。
+
+第一次原生启动被旧奖励核算断言拦截，0次PPO，名义/随机化均72/73；原断言仍要求硬故障帧支付全部密集项。已按显式新合同补充独立核算：先逐lane验证原始奖励保持，再核对已有故障掩码和实际终止，最后核对原有角色失败罚结算。保留该负结果，不绕过启动检查。
