@@ -500,6 +500,8 @@ class RobustGetupEnv(ChassisEnv):
                                    * self.getup_cfg["push_torque_direction"])
         has_push = bool(pushing.any())
         for substep in range(self.decimation):
+            import time as _time0
+            _ta = _time0.perf_counter()
             q = self.robot.data.joint_pos.torch[:, motor_ids]
             dq = self.robot.data.joint_vel.torch[:, motor_ids]
             fresh_control = substep % self.control_audit.control_stride == 0
@@ -555,9 +557,14 @@ class RobustGetupEnv(ChassisEnv):
                 effort[:, gimbal_ids] = self.gimbal.step(
                     gimbal_feedback_q, gimbal_feedback_dq, ~(self.passive | self.finished),
                     feedback=fresh_control)
+            import time as _time
+            _tb = _time.perf_counter()
+            _pc = getattr(self, "_prof", None)
+            if _pc is None:
+                _pc = self._prof = dict(sim=0., post=0., peak=0., rest=0., ctrl=0., n=0)
+            _pc["ctrl"] += _tb - _ta
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
-            import time as _time
             _t1 = _time.perf_counter()
             self.sim.step(render=False)
             _t2 = _time.perf_counter()
@@ -660,10 +667,10 @@ class RobustGetupEnv(ChassisEnv):
             _p["n"] += 1
             if _p["n"] % 64 == 0:
                 _n = _p["n"]
-                print("[PROF] sim=%.1f post=%.1f peak=%.1f rest=%.1f ms" % (
-                    _p["sim"] / _n * 1000., _p["post"] / _n * 1000.,
+                print("[PROF] ctrl=%.1f sim=%.1f post=%.1f peak=%.1f rest=%.1f ms" % (
+                    _p["ctrl"] / _n * 1000., _p["sim"] / _n * 1000., _p["post"] / _n * 1000.,
                     _p["peak"] / _n * 1000., _p["rest"] / _n * 1000.), flush=True)
-                _p["sim"] = _p["post"] = _p["peak"] = _p["rest"] = 0.
+                _p["sim"] = _p["post"] = _p["peak"] = _p["rest"] = _p["ctrl"] = 0.
                 _p["n"] = 0
         self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
         self.tick += 1
