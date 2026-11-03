@@ -163,12 +163,12 @@ class ChassisEnv:
             # Same force integration as the authenticated closed-chain gas probe.
             from isaaclab_physx.physics import PhysxCfg
             render_options["physics"] = PhysxCfg(enable_external_forces_every_iteration=True)
-        self.sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(
-            dt=self.dt, device=device, render_interval=self.decimation,
-            enable_scene_query_support=config.get("enable_scene_queries", False), **render_options))
         import carb.settings
         carb.settings.get_settings().set_bool("/physics/disableContactProcessing",
             __import__("os").environ.get("WHEELED_PROBE_NO_CONTACT_PROCESSING") == "1")
+        self.sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(
+            dt=self.dt, device=device, render_interval=self.decimation,
+            enable_scene_query_support=config.get("enable_scene_queries", False), **render_options))
         if config.get("dense_tracking", {}).get("enabled"):
             from .rewards import validate_dense_tracking
             validate_dense_tracking(config["dense_tracking"])
