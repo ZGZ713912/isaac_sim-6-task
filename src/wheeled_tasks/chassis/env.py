@@ -450,7 +450,7 @@ class ChassisEnv:
         for prim in self.sim.stage.Traverse():
             if "/Robot/" not in str(prim.GetPath()):
                 continue
-            if prim.HasAPI(UsdPhysics.RigidBodyAPI):
+            if prim.HasAPI(UsdPhysics.RigidBodyAPI) and __import__("os").environ.get("WHEELED_PROBE_NO_CONTACT_REPORT") != "1":
                 PhysxSchema.PhysxContactReportAPI.Apply(prim).CreateThresholdAttr().Set(0.)
             if prim.HasAPI(UsdPhysics.CollisionAPI):
                 path = str(prim.GetPath())
