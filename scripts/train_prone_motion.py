@@ -275,6 +275,8 @@ def source_hashes(plan_path, plan):
              "scripts/review_gas_spring_soft_range.py",
              "tests/test_prone_motion_resume.py", "docs/PRONE_MOTION_RESUME.md",
              str(plan_path.relative_to(ROOT))]
+    if plan.get("paired_torque_saturation") is not None:
+        names.extend(["tests/test_paired_torque_saturation.py", "docs/STANDARD_GETUP_SHAPE_PRIORITY_20261103.md"])
     if "trend_extension" in plan["gas_spring_model"]:
         names.append(plan["gas_spring_model"]["trend_extension"]["file"])
     if plan.get("gas_spring_backend") == "dev_compensation_v2":

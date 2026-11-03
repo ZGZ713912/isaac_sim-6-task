@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from train_prone_motion import configuration
+from train_prone_motion import configuration, source_hashes
 from wheeled_tasks.chassis.gas_spring_compensation import GasSpringCompensation
 from wheeled_tasks.chassis.paired_torque_saturation import CONTRACT, allocate, install, validate
 from wheeled_tasks.chassis.prone_motion import validate as validate_plan
@@ -80,6 +80,13 @@ def test_explicit_plan_keeps_absolute_targets_reward_plant_and_record_only_closu
         invalid = deepcopy(CONTRACT);invalid[field] = value
         with pytest.raises(ValueError, match="explicit paired"):
             validate(invalid)
+
+
+def test_new_controller_proof_and_plan_are_in_frozen_source_manifest():
+    hashes = source_hashes(ROOT/"contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json", PLAN)
+    assert all(name in hashes for name in ["src/wheeled_tasks/chassis/paired_torque_saturation.py",
+        "tests/test_paired_torque_saturation.py", "docs/STANDARD_GETUP_SHAPE_PRIORITY_20261103.md",
+        "contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json"])
 
 
 def test_installed_adapter_sums_unclipped_pd_and_holding_once_and_keeps_old_model(tmp_path):

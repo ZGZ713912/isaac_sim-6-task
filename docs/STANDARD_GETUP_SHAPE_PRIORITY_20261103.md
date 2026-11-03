@@ -28,4 +28,4 @@
 
 256环境、10000更新上限、seed107、每250更新保存；77标准正向自起和179初始化静站起步。策略100Hz，physics_dt=.005秒，decimation2，逐物理步反馈PD200Hz，PhysX64/32。闭链保持record_only，5mm只作参考，不终止、重置、扣终止罚分或阻挡冷测。
 
-TensorBoard新增 `LegAllocation/shape_priority_enabled`、`independent_clip_differential_error_abs_mean_nm` 和 `allocated_differential_error_abs_mean_nm`，后两者仅统计主动电机采样。原始逐物理步请求、裁剪后与投影后力矩仍保存。289项CPU检查通过；冻结源码的名义/请求随机化原生检查及新学习器回执在上述报告目录补充。原生接线通过不等于行为通过。
+TensorBoard新增 `LegAllocation/shape_priority_enabled`、`independent_clip_differential_error_abs_mean_nm` 和 `allocated_differential_error_abs_mean_nm`，后两者仅统计主动电机采样。原始逐物理步请求、裁剪后与投影后力矩仍保存。290项CPU检查通过；冻结源码的名义/请求随机化原生检查及新学习器回执在上述报告目录补充。原生接线通过不等于行为通过。
