@@ -73,8 +73,11 @@ def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP, sha
         group_path = f"{root}/group{i}"
         group = UsdPhysics.CollisionGroup.Get(stage, group_path)
         collection = group.GetCollidersCollectionAPI()
+        includes = [str(path) for path in collection.GetIncludesRel().GetTargets()]
+        allowed = [env_path] + (global_paths if shared_ground is not None else [])
         if ([str(path) for path in group.GetFilteredGroupsRel().GetTargets()] != [group_path]
-                or [str(path) for path in collection.GetIncludesRel().GetTargets()] != [env_path]):
+                or env_path not in includes
+                or any(path not in allowed for path in includes)):
             raise RuntimeError("Getup collision groups must allow only their own environment")
         query = collection.ComputeMembershipQuery()
         if ((shared_ground is None and not any(str(path).startswith(env_path + "/Terrain/") for path in colliders[i]))
