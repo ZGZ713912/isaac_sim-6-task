@@ -189,7 +189,15 @@ class RobustGetupEnv(ChassisEnv):
 
     @torch.inference_mode()
     def reset(self, ids, *, fixed_case_rows=None):
+        import time as _rt
+        _ra = _rt.perf_counter()
         super().reset(ids)
+        _rb = _rt.perf_counter()
+        _rp = getattr(self, "_reset_prof", None)
+        if _rp is None:
+            _rp = self._reset_prof = [0., 0., 0]
+        _rp[0] += _rb - _ra
+        _rp[1] += len(ids)
         if not self.unified_ready:
             return
         count = len(ids)
@@ -321,6 +329,16 @@ class RobustGetupEnv(ChassisEnv):
             self.previous_effort[ids] = 0.
             self.gap_last_effort[ids] = 0.
             self.gap_saturation_run[ids] = 0.
+        _rc = _rt.perf_counter()
+        _rp[2] += _rc - _rb
+        _rp.append(0) if len(_rp) < 3 else None
+        if len(ids) and (_rp[1] // max(1, len(ids))) % 16 == 0 and not getattr(self, "_reset_printed", False):
+            self._reset_printed = True
+        if _rp[1] >= 64:
+            print("[RESET] base=%.1f rest=%.1f ms/env=%.2f n=%d" % (
+                _rp[0] / _rp[1] * 1000., _rp[2] / _rp[1] * 1000., (_rp[0] + _rp[2]) / _rp[1] * 1000., int(_rp[1])), flush=True)
+            _rp[0] = _rp[2] = 0.
+            _rp[1] = 0
 
     def get_observations(self):
         observations = super().get_observations()
