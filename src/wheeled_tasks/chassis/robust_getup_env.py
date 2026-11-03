@@ -673,6 +673,7 @@ class RobustGetupEnv(ChassisEnv):
                 _p["sim"] = _p["post"] = _p["peak"] = _p["rest"] = _p["ctrl"] = 0.
                 _p["n"] = 0
         self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
+        _t6 = _time0.perf_counter()
         self.tick += 1
         self.episode_length_buf += 1
         velocity, omega, gravity, height, q, dq, local = self.state()
@@ -1076,4 +1077,17 @@ class RobustGetupEnv(ChassisEnv):
         self.commands.copy_(project_commands(self.goal_command, self.getup_cfg))
         self.raw_height.copy_(self.commands[:, 2])
         self.history.last_tick = None
-        return self.get_observations(), reward, done, info
+        _t7 = _time0.perf_counter()
+        _obs = self.get_observations()
+        _t8 = _time0.perf_counter()
+        _o = getattr(self, "_outside", None)
+        if _o is None:
+            _o = self._outside = [0., 0., 0]
+        _o[0] += _t7 - _t6
+        _o[1] += _t8 - _t7
+        _o[2] += 1
+        if _o[2] % 32 == 0:
+            _on = _o[2]
+            print("[OUT] reward=%.1f obs=%.1f ms" % (_o[0] / _on * 1000., _o[1] / _on * 1000.), flush=True)
+            self._outside = [0., 0., 0]
+        return _obs, reward, done, info
