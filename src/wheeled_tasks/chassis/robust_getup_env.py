@@ -303,7 +303,10 @@ class RobustGetupEnv(ChassisEnv):
         self._measured_action_history(ids)
         self.previous_actions[ids] = self.actions[ids]
         self.before_previous_actions[ids] = self.actions[ids]
-        self.previous_potential[ids] = self.potential()[ids]
+        _rpot = _rt.perf_counter()
+        _pot = self.potential()
+        self.previous_potential[ids] = _pot[ids]
+        _rp.append(_rt.perf_counter() - _rpot)
         self.contact_impulse_history[:, ids] = 0.
         self.history.reset(ids)
         if self.robust_ready:
@@ -335,10 +338,13 @@ class RobustGetupEnv(ChassisEnv):
         if len(ids) and (_rp[1] // max(1, len(ids))) % 16 == 0 and not getattr(self, "_reset_printed", False):
             self._reset_printed = True
         if _rp[1] >= 64:
-            print("[RESET] base=%.1f rest=%.1f ms/env=%.2f n=%d" % (
-                _rp[0] / _rp[1] * 1000., _rp[2] / _rp[1] * 1000., (_rp[0] + _rp[2]) / _rp[1] * 1000., int(_rp[1])), flush=True)
+            _pot_total = sum(v for v in _rp[3:] if isinstance(v, float))
+            print("[RESET] base=%.1f rest=%.1f potential=%.1f ms/env=%.2f n=%d" % (
+                _rp[0] / _rp[1] * 1000., _rp[2] / _rp[1] * 1000., _pot_total / _rp[1] * 1000.,
+                (_rp[0] + _rp[2]) / _rp[1] * 1000., int(_rp[1])), flush=True)
             _rp[0] = _rp[2] = 0.
             _rp[1] = 0
+            del _rp[3:]
 
     def get_observations(self):
         observations = super().get_observations()
