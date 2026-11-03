@@ -252,6 +252,8 @@ class ChassisEnv:
                 device=device, profiles=profiles)
         combine = (self.contact_material.mode if self.contact_material is not None
                    else ("multiply" if self.contact_domain is not None else "average"))
+        shared_ground = ("/World/SharedGround"
+                         if __import__("os").environ.get("WHEELED_SHARED_GROUND") == "1" else None)
         for i, kind in enumerate(kinds):
             # A single line of 4096 corridors reaches tens of kilometres and
             # loses millimetre precision in float32 world-space constraints.
@@ -300,6 +302,8 @@ class ChassisEnv:
                 ground = float(self.contact_material.ground_static[i])
                 surfaces = [replace(surface, friction=ground) for surface in surfaces]
                 self.surfaces[-1] = surfaces
+            if shared_ground is not None and kind in ("flat", "jump"):
+                continue
             if config.get("flat_triangle_mesh") and kind in ("flat", "jump"):
                 mesh = UsdGeom.Mesh.Define(self.sim.stage, path + "/Terrain/surface_0/geometry/mesh")
                 if square_getup_ground:
@@ -455,11 +459,14 @@ class ChassisEnv:
         if loop_count != (6 if self.is_v5 else 4) * num_envs:
             expected = (6 if self.is_v5 else 4) * num_envs
             raise RuntimeError(f"Unexpected number of real loop constraints: {loop_count}, expected {expected}")
+        if shared_ground is not None:
+            ground_cfg = sim_utils.GroundPlaneCfg(size=(400.0, 400.0))
+            ground_cfg.func(shared_ground, ground_cfg)
         native_isolation = None
         if isolated_getup_origins:
             from .isolated_origins import isolate_native_worlds
             native_isolation = isolate_native_worlds(self.sim.stage, self.sim.cfg.physics_prim_path, num_envs,
-                                                     mode=native_layout)
+                                                     mode=native_layout, shared_ground=shared_ground)
         self.sim.reset()
         if self.contact_domain is not None:
             properties = wp.to_torch(self.robot.root_view.get_material_properties())
@@ -511,7 +518,13 @@ class ChassisEnv:
         view = PhysxManager.get_physics_sim_view()
         # Each filter must name one body; filter-list lengths must match within a view.
         self.contact_views = []
-        for surface_count in sorted({len(s) for s in self.surfaces}):
+        if shared_ground is not None:
+            group_paths = list(body_paths)
+            contact_view = view.create_rigid_contact_view(group_paths,
+                filter_patterns=[[shared_ground]] * len(group_paths),
+                max_contact_data_count=64 * len(group_paths))
+            self.contact_views = [(torch.arange(num_envs, device=device), contact_view)]
+        for surface_count in ([] if shared_ground is not None else sorted({len(s) for s in self.surfaces})):
             ids = [i for i, s in enumerate(self.surfaces) if len(s) == surface_count]
             group_paths = [self.env_paths[i] + "/Robot/" + n for i in ids for n in self.robot.body_names]
             group_filters = [[self.env_paths[i] + f"/Terrain/surface_{j}/geometry/mesh" for j in range(surface_count)]

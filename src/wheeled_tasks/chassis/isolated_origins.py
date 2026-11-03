@@ -40,7 +40,7 @@ def validate_isolated_origins(config, count):
     return enabled
 
 
-def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP):
+def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP, shared_ground=None):
     origins = layout_origins(count, mode)
     from isaaclab.cloner import filter_collisions
     from pxr import UsdPhysics
@@ -49,7 +49,8 @@ def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP):
     if stage.GetPrimAtPath(root).IsValid():
         raise RuntimeError("Getup collision groups must be created exactly once")
     env_paths = [f"/World/envs/env_{i}" for i in range(count)]
-    filter_collisions(stage, physics_scene_path, root, env_paths, global_paths=[])
+    filter_collisions(stage, physics_scene_path, root, env_paths,
+                      global_paths=[shared_ground] if shared_ground is not None else [])
     if stage.GetPrimAtPath(physics_scene_path).GetAttribute("physxScene:invertCollisionGroupFilter").Get() is not True:
         raise RuntimeError("Native inverted collision filtering was not authored")
 
@@ -58,6 +59,8 @@ def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP):
         if not prim.HasAPI(UsdPhysics.CollisionAPI):
             continue
         path = str(prim.GetPath())
+        if shared_ground is not None and path == shared_ground:
+            continue
         if not path.startswith("/World/envs/env_"):
             raise RuntimeError("Isolated getup world contains an ungrouped collider: " + path)
         index = int(path.split("/env_", 1)[1].split("/", 1)[0])
@@ -70,7 +73,7 @@ def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP):
                 or [str(path) for path in collection.GetIncludesRel().GetTargets()] != [env_path]):
             raise RuntimeError("Getup collision groups must allow only their own environment")
         query = collection.ComputeMembershipQuery()
-        if (not any(str(path).startswith(env_path + "/Terrain/") for path in colliders[i])
+        if ((shared_ground is None and not any(str(path).startswith(env_path + "/Terrain/") for path in colliders[i]))
                 or not any(str(path).startswith(env_path + "/Robot/") for path in colliders[i])
                 or not all(query.IsPathIncluded(path) for path in colliders[i])):
             raise RuntimeError("Native getup collision group does not contain its complete robot and floor")
