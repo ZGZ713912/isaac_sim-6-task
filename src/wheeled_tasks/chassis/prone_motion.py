@@ -87,6 +87,11 @@ def validate(plan):
         if (plan["schema"] != "wheel-leg-prone-motion-v4" or
                 plan.get("standing_odometry", {}).get("schema") != "wheel-leg-local-standing-odometry-v2"):
             raise ValueError("The fixed policy35 learning interface requires repaired v4")
+    if "terminal_transition" in plan:
+        from .terminal_transition import validate as validate_terminal
+        validate_terminal(plan["terminal_transition"])
+        if plan["schema"] != "wheel-leg-prone-motion-v4":
+            raise ValueError("Hard-fault terminal settlement requires its explicit v4 task")
     if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))

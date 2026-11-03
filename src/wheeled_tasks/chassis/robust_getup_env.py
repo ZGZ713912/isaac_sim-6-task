@@ -801,6 +801,13 @@ class RobustGetupEnv(ChassisEnv):
         if self.getup_cfg.get("multi_pose_failure_cost") is not None:
             failure_cost = torch.where(self.recovery_lane, failure_cost, 3.)
         reward -= failure_cost * terminated
+        unsettled_reward = reward
+        hard_fault_terminal = torch.zeros_like(terminated)
+        terminal_contract = (self.getup_cfg.get("prone_motion_task") or {}).get("terminal_transition")
+        if terminal_contract is not None:
+            from .terminal_transition import settle_reward
+            reward, hard_fault_terminal = settle_reward(reward, failure_cost, mechanical, impact_bad,
+                task_extra.get("recovery_part_impact_bad"))
         info = dict(time_outs=timeout & ~terminated, policy_learning_mask=active_interval,
                     policy_bootstrap_mask=~self.passive & ~terminated,
                     log={"UnifiedGetup/recovery_support_cost_density": masked_mean(recovery_support_density, active_interval),
@@ -830,6 +837,11 @@ class RobustGetupEnv(ChassisEnv):
                          "UnifiedGetup/vx_mae_m_s": error_vx.abs().mean(),
                          "UnifiedGetup/yaw_mae_rad_s": error_yaw.abs().mean()})
         standing_request = (self.commands[:, :2].abs() < self.commands.new_tensor([.1, .2])).all(-1) & ~self.passive
+        if terminal_contract is not None:
+            info["log"].update({
+                "ProneMotion/hard_fault_terminal_events": hard_fault_terminal.float().sum(),
+                "ProneMotion/hard_fault_unsettled_reward_abs_peak": torch.where(
+                    hard_fault_terminal, unsettled_reward.abs(), 0.).max()})
         if upright_terms is not None:
             info["log"].update({"UprightReward/" + key + "_per_second": value.mean()
                                 for key, value in upright_terms.items()})
@@ -986,6 +998,8 @@ class RobustGetupEnv(ChassisEnv):
                     leg_effort_slew_rms_nm=leg_slew_square.sqrt(), leg_saturation_run_s=leg_saturation_run.clone())
             info["diagnostics"].update(recovery_support_cost_density=recovery_support_density.clone(),
                 native_reward=reward.clone(), reward_density=density.clone(),
+                reward_before_terminal_settlement=unsettled_reward.clone(),
+                hard_fault_terminal=hard_fault_terminal.clone(),
                 reward_potential_progress=progress.clone(), reward_recovery_active=self.recovery_active.clone())
             info["diagnostics"].update(wheel_clearance=wheel_clearance.clone(),
                 wheel_clearance_peak=wheel_clearance_peak.clone(), wheel_contact_fraction=wheel_contact_fraction.clone(),

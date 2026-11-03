@@ -179,6 +179,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         solver_iterations={key:cfg[key] for key in ("position_iterations", "velocity_iterations")},
         standing_odometry=deepcopy(plan.get("standing_odometry")),
         learning_interface=deepcopy(plan.get("learning_interface")),
+        terminal_transition=deepcopy(plan.get("terminal_transition")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
@@ -286,6 +287,9 @@ def source_hashes(plan_path, plan):
              str(plan_path.relative_to(ROOT))]
     if plan.get("paired_torque_saturation") is not None:
         names.extend(["tests/test_paired_torque_saturation.py", "docs/STANDARD_GETUP_SHAPE_PRIORITY_20261103.md"])
+    if "terminal_transition" in plan:
+        names.extend(["tests/test_hard_fault_terminal.py", "docs/HARD_FAULT_TERMINAL_20261103.md",
+                      "contracts/wheel_leg_prone_motion_v4_physical_interface_v1.json"])
     if "learning_interface" in plan:
         names.extend(["tests/test_prone_learning_interface.py", "docs/STANDARD_GETUP_LEARNING_INTERFACE_20261103.md",
                       "contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json"])
