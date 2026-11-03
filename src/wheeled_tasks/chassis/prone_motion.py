@@ -81,6 +81,12 @@ def validate(plan):
         validate_saturation(plan["paired_torque_saturation"])
         if plan["schema"] != "wheel-leg-prone-motion-v4" or plan.get("gas_spring_backend") != "dev_compensation_v2":
             raise ValueError("Paired torque saturation requires its v4 dev compensation task")
+    if "learning_interface" in plan:
+        from wheeled_algo.prone_initialization import validate as validate_interface
+        validate_interface(plan["learning_interface"])
+        if (plan["schema"] != "wheel-leg-prone-motion-v4" or
+                plan.get("standing_odometry", {}).get("schema") != "wheel-leg-local-standing-odometry-v2"):
+            raise ValueError("The fixed policy35 learning interface requires repaired v4")
     if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))

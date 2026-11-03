@@ -23,3 +23,19 @@ class ProneMotionModel(MLPModel):
         if not self.obs_normalization or self.obs_dim < 35:
             raise ValueError("ProneMotionModel requires normalized policy35 or its critic prefix")
         self.obs_normalizer = GatedObservationNormalization(self.obs_dim)
+
+
+class PhysicalPolicyPrefixNormalization(EmpiricalNormalization):
+    """The policy35 already declares physical scales; normalize only privilege."""
+    def forward(self, x):
+        if x.shape[-1] == 35:
+            return x
+        return torch.cat((x[..., :35], super().forward(x)[..., 35:]), dim=-1)
+
+
+class PhysicalScaleProneMotionModel(MLPModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.obs_normalization or self.obs_dim < 35:
+            raise ValueError("PhysicalScaleProneMotionModel requires policy35 or its critic prefix")
+        self.obs_normalizer = PhysicalPolicyPrefixNormalization(self.obs_dim)

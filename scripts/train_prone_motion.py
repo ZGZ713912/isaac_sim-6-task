@@ -178,6 +178,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         fine_contact_tolerance_resolved=rates["physics_dt"]*1000. <= plan["evaluation"]["ignored_contiguous_support_loss_ms"],
         solver_iterations={key:cfg[key] for key in ("position_iterations", "velocity_iterations")},
         standing_odometry=deepcopy(plan.get("standing_odometry")),
+        learning_interface=deepcopy(plan.get("learning_interface")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
@@ -214,6 +215,14 @@ def learner_config(plan, device="cuda:0"):
     if plan.get("standing_odometry",{}).get("schema") == "wheel-leg-local-standing-odometry-v2":
         for key in ("actor", "critic"):
             result[key]["class_name"] = "wheeled_algo.prone_observation:ProneMotionModel"
+    if "learning_interface" in plan:
+        from wheeled_algo.prone_initialization import validate as validate_interface
+        validate_interface(plan["learning_interface"])
+        if (len(ppo["hidden_dims"]) < 2 or ppo["hidden_dims"][0] < 16
+                or any(size < 4 for size in ppo["hidden_dims"][1:])):
+            raise ValueError("Pose-hold initialization needs first16 and later4 hidden units")
+        for key in ("actor", "critic"):
+            result[key]["class_name"] = "wheeled_algo.prone_observation:PhysicalScaleProneMotionModel"
     result['algorithm'].update(num_learning_epochs=ppo['epochs'],num_mini_batches=ppo['mini_batches'])
     result["algorithm"]["entropy_coef"] = .001
     result["algorithm"].update(discounts(plan))
@@ -277,6 +286,9 @@ def source_hashes(plan_path, plan):
              str(plan_path.relative_to(ROOT))]
     if plan.get("paired_torque_saturation") is not None:
         names.extend(["tests/test_paired_torque_saturation.py", "docs/STANDARD_GETUP_SHAPE_PRIORITY_20261103.md"])
+    if "learning_interface" in plan:
+        names.extend(["tests/test_prone_learning_interface.py", "docs/STANDARD_GETUP_LEARNING_INTERFACE_20261103.md",
+                      "contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json"])
     if "trend_extension" in plan["gas_spring_model"]:
         names.append(plan["gas_spring_model"]["trend_extension"]["file"])
     if plan.get("gas_spring_backend") == "dev_compensation_v2":
@@ -490,7 +502,6 @@ def main():
         from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
         from wheeled_tasks.chassis.control_contract import load_chassis_control
         from wheeled_tasks.chassis.randomization_study import runtime_samples
-        from wheeled_algo.scratch_standing import initialize_fresh
         from wheeled_algo.recovery_rollout import RecoveryRolloutMask
         from wheeled_algo.native_ppo_audit import NativePPOAudit
         from wheeled_algo.continuous_rollout import RolloutDomainSwitch
@@ -612,7 +623,8 @@ def main():
         base.write_json(output/"agent_config.json", runner_cfg)
         runner = OnPolicyRunner(env, runner_cfg, log_dir=str(output), device=args.device)
         if resume_state is None:
-            report["initialization"] = initialize_fresh(runner.alg, base.nominal_action(env), initial_std=plan["initial_std"])
+            from wheeled_algo.prone_initialization import initialize_prone_fresh
+            report["initialization"] = initialize_prone_fresh(runner.alg, base.nominal_action(env), plan)
         else:
             report["initialization"] = restore(runner, resume_state, resume_bundle)
             report["initialization"]["rng_restored"] = restore_rng(resume_state, env)
