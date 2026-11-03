@@ -136,7 +136,7 @@ class ContactMaterialDomain:
         self.ground_static = self.ground_static[indices]
         self.ground_dynamic = self.ground_dynamic[indices]
 
-    def verify_native(self, stage, robot, env_paths, *, zero_friction_bodies=()):
+    def verify_native(self, stage, robot, env_paths, *, zero_friction_bodies=(), shared_ground=None):
         """Read USD bindings and PhysX shape coefficients after sim.reset()."""
         import warp as wp
         from pxr import UsdPhysics, UsdShade
@@ -145,11 +145,16 @@ class ContactMaterialDomain:
         if zero_friction_bodies:
             usd_counts["guide"] = 0
         by_path = {path: i for i, path in enumerate(env_paths)}
+        if shared_ground is not None:
+            by_path[shared_ground] = 0
         for prim in stage.Traverse():
             path = str(prim.GetPath())
             if not prim.HasAPI(UsdPhysics.CollisionAPI):
                 continue
-            root = path.split("/Robot/")[0] if "/Robot/" in path else path.split("/Terrain/")[0]
+            if shared_ground is not None and path.startswith(shared_ground):
+                root = shared_ground
+            else:
+                root = path.split("/Robot/")[0] if "/Robot/" in path else path.split("/Terrain/")[0]
             if root not in by_path:
                 continue
             i = by_path[root]
@@ -160,7 +165,7 @@ class ContactMaterialDomain:
                             else (self.body_static, self.body_dynamic))
                 if any(f"/{name}/" in path for name in zero_friction_bodies):
                     kind, expected = "guide", (0., 0.)
-            elif "/Terrain/" in path:
+            elif "/Terrain/" in path or (shared_ground is not None and path.startswith(shared_ground)):
                 kind = "ground"
                 expected = (float(self.ground_static[i]), float(self.ground_dynamic[i]))
             else:

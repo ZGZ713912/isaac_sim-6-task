@@ -460,7 +460,13 @@ class ChassisEnv:
             expected = (6 if self.is_v5 else 4) * num_envs
             raise RuntimeError(f"Unexpected number of real loop constraints: {loop_count}, expected {expected}")
         if shared_ground is not None:
-            ground_cfg = sim_utils.GroundPlaneCfg(size=(400.0, 400.0))
+            ground_static = (float(self.contact_material.ground_static[0])
+                             if self.contact_material is not None else 0.5)
+            ground_dynamic = (float(self.contact_material.ground_dynamic[0])
+                              if self.contact_material is not None else 0.5)
+            ground_material = sim_utils.RigidBodyMaterialCfg(static_friction=ground_static,
+                dynamic_friction=ground_dynamic, restitution=0., friction_combine_mode=combine)
+            ground_cfg = sim_utils.GroundPlaneCfg(size=(400.0, 400.0), physics_material=ground_material)
             ground_cfg.func(shared_ground, ground_cfg)
         native_isolation = None
         if isolated_getup_origins:
@@ -511,7 +517,7 @@ class ChassisEnv:
         if self.contact_material is not None:
             self.contact_material.reorder(order)
             contact_material_readback = self.contact_material.verify_native(self.sim.stage, self.robot, self.env_paths,
-                zero_friction_bodies=config.get("zero_friction_bodies", []))
+                zero_friction_bodies=config.get("zero_friction_bodies", []), shared_ground=shared_ground)
         body_paths = [p + "/Robot/" + n for p in self.env_paths for n in self.robot.body_names]
         filters = [[p + f"/Terrain/surface_{j}/geometry/mesh" for j in range(len(self.surfaces[i]))]
                    for i, p in enumerate(self.env_paths) for _ in self.robot.body_names]
