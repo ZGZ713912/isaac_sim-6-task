@@ -557,7 +557,15 @@ class RobustGetupEnv(ChassisEnv):
                     feedback=fresh_control)
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
+            import time as _time
+            _t1 = _time.perf_counter()
             self.sim.step(render=False)
+            _t2 = _time.perf_counter()
+            self._prof_sim = getattr(self, "_prof_sim", 0.0) + (_t2 - _t1)
+            self._prof_n = getattr(self, "_prof_n", 0) + 1
+            if self._prof_n % 64 == 0:
+                print("[PROF] sim=%.1f ms" % (self._prof_sim / 64 * 1000.), flush=True)
+                self._prof_sim = 0.0
             update_robot_data(self, self.dt)
             if self.native_wheel_encoder is not None:
                 self.native_wheel_encoder.update(self.robot.data.joint_pos.torch[:, motor_ids][:, wheel_ids])
