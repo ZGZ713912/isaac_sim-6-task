@@ -561,11 +561,10 @@ class RobustGetupEnv(ChassisEnv):
             _t1 = _time.perf_counter()
             self.sim.step(render=False)
             _t2 = _time.perf_counter()
-            self._prof_sim = getattr(self, "_prof_sim", 0.0) + (_t2 - _t1)
-            self._prof_n = getattr(self, "_prof_n", 0) + 1
-            if self._prof_n % 64 == 0:
-                print("[PROF] sim=%.1f ms" % (self._prof_sim / 64 * 1000.), flush=True)
-                self._prof_sim = 0.0
+            _p = getattr(self, "_prof", None)
+            if _p is None:
+                _p = self._prof = dict(sim=0., post=0., peak=0., n=0)
+            _p["sim"] += _t2 - _t1
             update_robot_data(self, self.dt)
             if self.native_wheel_encoder is not None:
                 self.native_wheel_encoder.update(self.robot.data.joint_pos.torch[:, motor_ids][:, wheel_ids])
@@ -575,6 +574,8 @@ class RobustGetupEnv(ChassisEnv):
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
             if recovery_impact is not None:
                 recovery_impact.observe(self.contact_force, active_interval & ~self.finished)
+            _t3 = _time.perf_counter()
+            _p["post"] += _t3 - _t2
             if upright_task is not None or prone_task is not None or tracking009 or prone_motion:
                 nonwheel_force_peak = torch.maximum(nonwheel_force_peak,
                     self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1))
@@ -583,6 +584,8 @@ class RobustGetupEnv(ChassisEnv):
             if prone_task is not None or prone_motion:
                 belly_force_peak = torch.maximum(belly_force_peak,
                     self.contact_force[:, self.push_body_ids].norm(dim=-1).amax(-1))
+            _t4 = _time.perf_counter()
+            _p["peak"] += _t4 - _t3
             from .standing_support import wheel_bottom_clearance
             wheel_pose = self.robot.data.body_link_pose_w.torch[:, wheel_bodies]
             wheel_clearance = wheel_bottom_clearance(self.wheel_centers(), wheel_pose[:, :, 3:], self.origins[:, 2:3])
@@ -652,6 +655,16 @@ class RobustGetupEnv(ChassisEnv):
                 lo, hi = self.knee_bounds[name]
                 joint = self.robot.data.joint_pos.torch[:, index]
                 mechanical |= (joint < lo - .03) | (joint > hi + .03)
+            _t5 = _time.perf_counter()
+            _p["rest"] = _p.get("rest", 0.) + (_t5 - _t4)
+            _p["n"] += 1
+            if _p["n"] % 64 == 0:
+                _n = _p["n"]
+                print("[PROF] sim=%.1f post=%.1f peak=%.1f rest=%.1f ms" % (
+                    _p["sim"] / _n * 1000., _p["post"] / _n * 1000.,
+                    _p["peak"] / _n * 1000., _p["rest"] / _n * 1000.), flush=True)
+                _p["sim"] = _p["post"] = _p["peak"] = _p["rest"] = 0.
+                _p["n"] = 0
         self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
         self.tick += 1
         self.episode_length_buf += 1
