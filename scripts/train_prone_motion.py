@@ -81,6 +81,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         settings["standing_odometry"] = deepcopy(plan["standing_odometry"])
     if "native_wheel_encoder" in plan:
         settings["native_wheel_encoder"] = deepcopy(plan["native_wheel_encoder"])
+    if "cold_evaluation_lifecycle" in plan:
+        from wheeled_tasks.chassis.cold_evaluation_lifecycle import validate as validate_cold_lifecycle
+        validate_cold_lifecycle(plan["cold_evaluation_lifecycle"])
     if full_vehicle:
         from wheeled_tasks.chassis.full_vehicle_training import authenticate
         authenticate(cfg, ROOT)
@@ -180,6 +183,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         standing_odometry=deepcopy(plan.get("standing_odometry")),
         learning_interface=deepcopy(plan.get("learning_interface")),
         terminal_transition=deepcopy(plan.get("terminal_transition")),
+        cold_evaluation_lifecycle=deepcopy(plan.get("cold_evaluation_lifecycle")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
@@ -290,6 +294,9 @@ def source_hashes(plan_path, plan):
     if "terminal_transition" in plan:
         names.extend(["tests/test_hard_fault_terminal.py", "docs/HARD_FAULT_TERMINAL_20261103.md",
                       "contracts/wheel_leg_prone_motion_v4_physical_interface_v1.json"])
+    if "cold_evaluation_lifecycle" in plan:
+        names.extend(["tests/test_cold_evaluation_lifecycle.py", "docs/COLD_EVALUATION_LIFECYCLE_20261103.md",
+                      "contracts/wheel_leg_prone_motion_v4_terminal_settlement_v1.json"])
     if "learning_interface" in plan:
         names.extend(["tests/test_prone_learning_interface.py", "docs/STANDARD_GETUP_LEARNING_INTERFACE_20261103.md",
                       "contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json"])

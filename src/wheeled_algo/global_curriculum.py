@@ -47,12 +47,14 @@ class GlobalCurriculumHook:
                 summaries[skill] = dict(passed=decision["all_classes_passed"],per_leg_class=decision["per_leg_class"])
                 result["decision"] = decision
             elif skill == "complex":
-                cases = complex_cases(env);rows = []
+                cases = complex_cases(env);rows = [];retired_resets = 0
                 for i in range(0,len(cases),env.num_envs):
                     result = evaluate_recovery(env,alg.actor,self.course.recovery.config,
                         stop_requested=self.stop_requested,cases_override=cases[i:i+env.num_envs])
                     rows.extend(result["cases"])
-                result = dict(cases=rows,scope="curriculum_admission_only",new_PPO=0)
+                    retired_resets += result.get("retired_lane_reset_events", 0)
+                result = dict(cases=rows,scope="curriculum_admission_only",new_PPO=0,
+                    retired_lane_reset_events=retired_resets)
                 summaries[skill] = self.course.review_complex(rows,completed)
             else:
                 result,trace = evaluate_skill(env,alg.actor,self.course,skill,level,stop_requested=self.stop_requested)
@@ -74,6 +76,8 @@ class GlobalCurriculumHook:
         if writer is not None:
             for skill,summary in summaries.items():
                 writer.add_scalar(f"Curriculum/{skill}/cold_pass",float(summary["passed"]),completed)
+                writer.add_scalar(f"ColdEvaluation/{skill}/retired_lane_reset_events",
+                    results[skill].get("retired_lane_reset_events", 0), completed)
             for skill,level in self.course.levels.items():
                 writer.add_scalar(f"Curriculum/{skill}/mastered_levels",level,completed)
                 if self.course.retention_required:

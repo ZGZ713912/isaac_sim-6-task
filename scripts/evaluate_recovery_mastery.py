@@ -51,6 +51,7 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
         closure_reference_m=closure_settings.get("closure_gap_m",.003),
         closure_reference_exceeded=False) for c in cases]
     active = torch.ones(n,dtype=torch.bool,device=env.device)
+    reset_events_before = getattr(env, "cold_evaluation_reset_events", 0)
     hold = torch.zeros(n,device=env.device)
     try:
         actor.eval()
@@ -85,7 +86,8 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
             if not bool(active.any()):
                 break
         return dict(cases=rows,policy_steps=_+1,physics_dt_s=env.dt,policy_dt_s=env.policy_dt,
-            scope="curriculum_admission_only",new_PPO=0)
+            scope="curriculum_admission_only",new_PPO=0,
+            retired_lane_reset_events=getattr(env, "cold_evaluation_reset_events", 0)-reset_events_before)
     finally:
         env.evaluation_cases,env.fixed_cases = old_cases,old_fixed
         env.course_roles = old_roles

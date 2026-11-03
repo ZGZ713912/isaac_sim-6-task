@@ -32,6 +32,11 @@ class ProneMotionEnv(RobustGetupEnv):
                 command=[0., 0., .305]) for _ in range(kwargs["num_envs"])]
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
+        self.cold_evaluation_reset_events = 0
+        if self.plan.get("cold_evaluation_lifecycle") is not None:
+            from .cold_evaluation_lifecycle import validate as validate_cold_lifecycle
+            self.startup_report["cold_evaluation_lifecycle"] = validate_cold_lifecycle(
+                self.plan["cold_evaluation_lifecycle"])
         from pxr import PhysxSchema
         solver_rows = []
         for prim in self.sim.stage.Traverse():

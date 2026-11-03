@@ -114,6 +114,7 @@ def evaluate_skill(env, actor, course, skill, level, *, stop_requested=lambda:Fa
         env.generator.get_state(),env.domain.rng.get_state(),np.random.get_state(),random.getstate(),
         env.recovery_sampler.rng.getstate(),deepcopy(env.recovery_sampler.class_cursor))
     trace = {};valid = torch.ones(n,dtype=torch.bool,device=env.device)
+    reset_events_before = getattr(env, "cold_evaluation_reset_events", 0)
     try:
         actor.eval()
         env.evaluation_cases = [deepcopy(cases[i%n]) for i in range(env.num_envs)]
@@ -138,7 +139,8 @@ def evaluate_skill(env, actor, course, skill, level, *, stop_requested=lambda:Fa
                             closure_record_only=env.getup_cfg.get("closure_gap_record_only", False))
         return dict(cases=rows,definitions=cases,initial_xy=initial.tolist(),scope="curriculum_admission_only",
             physics_dt_s=env.dt, contact_tolerance_resolved=env.dt*1000. <= course.config["limits"]["geometric_air_run_ms"],
-                    new_PPO=0,policy_steps=len(arrays["time"])),arrays
+                    new_PPO=0,policy_steps=len(arrays["time"]),
+                    retired_lane_reset_events=getattr(env, "cold_evaluation_reset_events", 0)-reset_events_before),arrays
     finally:
         env.evaluation_cases,env.fixed_cases,env.course_roles = old_cases,old_fixed,old_roles
         torch.set_rng_state(rng[0])

@@ -1018,6 +1018,9 @@ class RobustGetupEnv(ChassisEnv):
                 info["policy_bootstrap_mask"][done] = ~self.passive[done] & ~terminated[done]
         else:
             self.finished |= done
+            if (self.getup_cfg.get("prone_motion_task") or {}).get("cold_evaluation_lifecycle") is not None:
+                from .cold_evaluation_lifecycle import reset_retired_fixed_cases
+                reset_retired_fixed_cases(self)
         # Limit once before the next actor observation, using the RMCS priority.
         self.commands.copy_(project_commands(self.goal_command, self.getup_cfg))
         self.raw_height.copy_(self.commands[:, 2])

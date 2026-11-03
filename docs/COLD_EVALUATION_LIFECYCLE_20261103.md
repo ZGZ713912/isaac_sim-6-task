@@ -1,0 +1,9 @@
+# 冷测终止环境的生命周期
+
+终止样本的 reward、done 和物理诊断先完整保存。显式 cold_evaluation_lifecycle 合同随后只对 fixed_cases 中已结束的环境执行 reset，并保留 finished=true；后续策略边界继续复位这些退休环境，避免其被动机构在其他有效试次测量期间继续发散。
+
+失败评分和有效窗口保持粘性，退休环境不能重新获得一次尝试。未结束样本、训练自动复位路径、动作/奖励/故障阈值、20秒主动恢复期限及完成后保持段均不改变。非有限状态检查继续生效；闭链仍 record_only。
+
+退休复位保存并恢复环境、domain、全局Torch/CUDA、Python/NumPy和姿态采样器随机状态，也恢复训练reset generation，避免改变有效试次下一次噪声抽样或后续课程人口分配。每次冷测的退休复位次数同时进入review.json和TensorBoard的ColdEvaluation/<skill>/retired_lane_reset_events。
+
+本修复针对1500检查点静站冷测中未评分重复环境231在已结束后继续积分导致的非有限错误，不等于解决所有主动运动物理失稳或证明新策略具备完整自起能力。回放及来源见 reports/standard_getup_nonfinite_repair_20261103/。
