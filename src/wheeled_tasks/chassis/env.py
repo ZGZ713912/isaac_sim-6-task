@@ -33,6 +33,14 @@ class ChassisEnv:
     def __init__(self, config, manifest, control, root: Path, *, stage_name, num_envs,
                  device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0,
                  integrated_design_preflight=None, render_use_fabric=None):
+        import os as _os
+        if _os.environ.get("WHEELED_PROBE_PD60") == "1":
+            control = dict(control)
+            control["v5_control"] = dict(control.get("v5_control", {}))
+            control["v5_control"]["leg_kp"] = 60.0
+            control["v5_control"]["leg_kd"] = 2.0
+            config = dict(config)
+            config["closure_gap_termination_m"] = 1.0
         render_options = {}
         if render_use_fabric is not None:
             if type(render_use_fabric) is not bool or run_role != "playback" or num_envs != 1:

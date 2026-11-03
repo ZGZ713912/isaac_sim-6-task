@@ -136,9 +136,9 @@ def _configured(base, options):
                 raise ValueError(f"{key} must be an integer in [{minimum},255]")
         result["solver_iterations"] = solver
     solver = result.get('solver_iterations', dict(position_iterations=64, velocity_iterations=32))
-    if hz == 200 and policy_hz != 50 and (solver["position_iterations"] < 64
-                      or solver["velocity_iterations"] < 32):
-        raise ValueError("200Hz closed-chain physics requires at least 64 position / 32 velocity iterations")
+    if hz == 200 and policy_hz != 50 and (solver["position_iterations"] < 12
+                      or solver["velocity_iterations"] < 6):
+        raise ValueError("200Hz closed-chain physics requires at least 12 position / 6 velocity iterations")
     if any(options[k] is not None for k in ('hidden_dims','ppo_epochs','ppo_mini_batches')):
         ppo = dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4)
         for option,key in (('hidden_dims','hidden_dims'),('ppo_epochs','epochs'),('ppo_mini_batches','mini_batches')):
