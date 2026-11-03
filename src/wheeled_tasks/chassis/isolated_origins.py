@@ -49,8 +49,12 @@ def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP, sha
     if stage.GetPrimAtPath(root).IsValid():
         raise RuntimeError("Getup collision groups must be created exactly once")
     env_paths = [f"/World/envs/env_{i}" for i in range(count)]
-    filter_collisions(stage, physics_scene_path, root, env_paths,
-                      global_paths=[shared_ground] if shared_ground is not None else [])
+    global_paths = []
+    if shared_ground is not None:
+        global_paths = [str(p.GetPath()) for p in stage.Traverse()
+                        if str(p.GetPath()).startswith(shared_ground)
+                        and p.HasAPI(UsdPhysics.CollisionAPI)]
+    filter_collisions(stage, physics_scene_path, root, env_paths, global_paths=global_paths)
     if stage.GetPrimAtPath(physics_scene_path).GetAttribute("physxScene:invertCollisionGroupFilter").Get() is not True:
         raise RuntimeError("Native inverted collision filtering was not authored")
 
@@ -59,7 +63,7 @@ def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP, sha
         if not prim.HasAPI(UsdPhysics.CollisionAPI):
             continue
         path = str(prim.GetPath())
-        if shared_ground is not None and path == shared_ground:
+        if shared_ground is not None and path.startswith(shared_ground):
             continue
         if not path.startswith("/World/envs/env_"):
             raise RuntimeError("Isolated getup world contains an ungrouped collider: " + path)
