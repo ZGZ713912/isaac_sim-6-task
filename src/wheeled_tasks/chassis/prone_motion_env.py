@@ -32,6 +32,9 @@ class ProneMotionEnv(RobustGetupEnv):
                 command=[0., 0., .305]) for _ in range(kwargs["num_envs"])]
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
+        if "getup_translation" in self.plan:
+            from .getup_translation import validate as validate_translation
+            self.startup_report["getup_translation"] = validate_translation(self.plan["getup_translation"])
         self.cold_evaluation_reset_events = 0
         if self.plan.get("cold_evaluation_lifecycle") is not None:
             from .cold_evaluation_lifecycle import validate as validate_cold_lifecycle
@@ -362,6 +365,7 @@ class ProneMotionEnv(RobustGetupEnv):
             self._role_signature = signature
 
     def task_transition(self, state, terminated):
+        from .getup_translation import enabled as free_translation
         route = self.route_state()
         rising = self.recovery_lane & ~self.ever_recovered
         # Re-anchor only on an actual completion, or a request returning to zero.
@@ -375,7 +379,8 @@ class ProneMotionEnv(RobustGetupEnv):
         terms = task.reward_terms(state["gravity"], state["height"], state["velocity"], state["omega"],
             self.commands, state["torque"], state["dq"], task.normalized_action_delta(state["action_delta"], self.plan),
             route["xy_excursion_m"], error, rising, state["dual_support"],
-            position_tail=self.plan.get("quiet_position_tail"))
+            position_tail=self.plan.get("quiet_position_tail"),
+            free_rise_translation=free_translation(self.plan))
         terms["leg_speed"] = -.002*state["leg_speed_square"]
         stage_extra = {}
         sequence_scores = None
@@ -459,6 +464,8 @@ class ProneMotionEnv(RobustGetupEnv):
             course_anchor_error_m=error.clone(), quiet_hold_seconds=self.quiet_hold.clone(),
             quiet30_completed_event=quiet_event.clone(), role_index=self._role_index.clone(),
             root_quaternion_xyzw=self.robot.data.root_link_pose_w.torch[:, 3:].clone(),
+            rise_excursion_over_reference=(rising &
+                (route["xy_excursion_m"] > self.plan["rise_training_abort_excursion_m"])),
             task_recovery_rising=rising.clone(), **stage_extra)
 
     def task_metrics(self, state, extra, reward, done, terminated):
@@ -468,6 +475,15 @@ class ProneMotionEnv(RobustGetupEnv):
             "ProneMotion/terminated_events": terminated.float().sum(),
             "ProneMotion/timeout_events": (done & ~terminated).float().sum(),
             "ProneMotion/wheel_speed_peak_rad_s": state["dq"][:, [2, 5]].abs().max()}
+        if "getup_translation" in self.plan:
+            rising = extra["task_recovery_rising"] & ~self.passive
+            count = rising.sum().clamp_min(1)
+            displacement = extra["prone_route"]["xy_excursion_m"]
+            result.update({
+                "GetupTranslation/active_displacement_mean_m": torch.where(rising, displacement, 0.).sum()/count,
+                "GetupTranslation/active_displacement_peak_m": torch.where(rising, displacement, 0.).max(),
+                "GetupTranslation/over_reference_fraction": (rising &
+                    extra["rise_excursion_over_reference"]).float().sum()/count})
         if self.multi_pose_cfg is not None:
             from .multi_pose_recovery import FAMILIES, LEG_CLASSES
             from .recovery_impact import GROUPS

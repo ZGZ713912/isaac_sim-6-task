@@ -184,6 +184,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         learning_interface=deepcopy(plan.get("learning_interface")),
         terminal_transition=deepcopy(plan.get("terminal_transition")),
         cold_evaluation_lifecycle=deepcopy(plan.get("cold_evaluation_lifecycle")),
+        getup_translation=deepcopy(plan.get("getup_translation")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
@@ -297,6 +298,10 @@ def source_hashes(plan_path, plan):
     if "cold_evaluation_lifecycle" in plan:
         names.extend(["tests/test_cold_evaluation_lifecycle.py", "docs/COLD_EVALUATION_LIFECYCLE_20261103.md",
                       "contracts/wheel_leg_prone_motion_v4_terminal_settlement_v1.json"])
+    if "getup_translation" in plan:
+        names.extend(["src/wheeled_tasks/chassis/getup_translation.py", "tests/test_getup_translation.py",
+                      "docs/GETUP_TRANSLATION_20261103.md",
+                      "contracts/wheel_leg_prone_motion_v4_cold_lifecycle_v1.json"])
     if "learning_interface" in plan:
         names.extend(["tests/test_prone_learning_interface.py", "docs/STANDARD_GETUP_LEARNING_INTERFACE_20261103.md",
                       "contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json"])

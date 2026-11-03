@@ -92,6 +92,11 @@ def validate(plan):
         validate_terminal(plan["terminal_transition"])
         if plan["schema"] != "wheel-leg-prone-motion-v4":
             raise ValueError("Hard-fault terminal settlement requires its explicit v4 task")
+    if "getup_translation" in plan:
+        from .getup_translation import validate as validate_translation
+        validate_translation(plan["getup_translation"])
+        if plan["schema"] != "wheel-leg-prone-motion-v4" or not plan.get("multi_pose_recovery"):
+            raise ValueError("Free getup translation requires the separated v4 recovery objective")
     if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))
@@ -220,7 +225,8 @@ def quiet_standing_quality(gravity, height, velocity, omega, target_height):
 
 
 def reward_terms(gravity, height, velocity, omega, command, torque, dq, action_delta,
-                 excursion, anchor_error, rising, supported, *, position_tail=None):
+                 excursion, anchor_error, rising, supported, *, position_tail=None,
+                 free_rise_translation=False):
     """Independent dense terms; wrong height never zeroes speed/yaw credit."""
     quiet = (command[:, :2].abs() < command.new_tensor([.05, .1])).all(-1) & ~rising
     position_hold = (command[:, 0].abs() < .05) & ~rising
@@ -243,14 +249,18 @@ def reward_terms(gravity, height, velocity, omega, command, torque, dq, action_d
         level=-2.*level/math.sin(math.radians(15.))**2, lateral=-.5*torch.log1p((velocity[:, 1]/.2).square()),
         body_rate=-.05*omega[:, :2].square().sum(-1), vertical=-.1*velocity[:, 2].square(),
         quiet=4.*quiet*supported*quiet_standing_quality(gravity, height, velocity, omega, command[:, 2]),
-        quiet_position=position_cost, rise_position=-rising.float()*((excursion-.1).clamp_min(0.)/.1).square(),
+        quiet_position=position_cost,
+        rise_position=(torch.zeros_like(excursion) if free_rise_translation else
+                       -rising.float()*((excursion-.1).clamp_min(0.)/.1).square()),
         rise_time=-rising.float(), effort=-.0001*torque.square().mean(-1),
         leg_speed=-.002*dq[:, [0, 1, 3, 4]].square().mean(-1), action_rate=-.01*action_delta)
 
 
 def failures(gravity, height, nonwheel, excursion, elapsed, rising, initialized, plan):
+    from .getup_translation import enabled as free_translation
     supported_phase = initialized | ~rising
     return dict(refall=supported_phase & ((gravity[:, 2] > -math.cos(math.radians(25.)))
                   | (height < .15) | (height > .48) | (nonwheel > 2.)),
                 rise_timeout=rising & (elapsed >= plan["rise_deadline_seconds"]),
-                rise_excursion=rising & (excursion > plan["rise_training_abort_excursion_m"]))
+                rise_excursion=(torch.zeros_like(rising) if free_translation(plan) else
+                                rising & (excursion > plan["rise_training_abort_excursion_m"])))
