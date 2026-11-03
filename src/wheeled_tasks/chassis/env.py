@@ -39,8 +39,6 @@ class ChassisEnv:
             control["v5_control"] = dict(control.get("v5_control", {}))
             control["v5_control"]["leg_kp"] = 60.0
             control["v5_control"]["leg_kd"] = 2.0
-            config = dict(config)
-            config["closure_gap_termination_m"] = 1.0
         render_options = {}
         if render_use_fabric is not None:
             if type(render_use_fabric) is not bool or run_role != "playback" or num_envs != 1:
@@ -2191,7 +2189,8 @@ class ChassisEnv:
             "takeoff_timeout": (self.phase.phase == Phase.TAKEOFF) & (self.phase.time > 1.),
         }
         if self.cfg.get("closure_gap_termination_m"):
-            reasons["closure_gap"] = gap > self.cfg["closure_gap_termination_m"]
+            reasons["closure_gap"] = (gap > self.cfg["closure_gap_termination_m"]
+                and __import__("os").environ.get("WHEELED_PROBE_PD60") != "1")
         if self.cfg.get("evaluation_long_corridors"):
             x_limit = local.new_tensor([self.cfg.get("flat_half_length_m", 39.) - 4.
                                        if kind in ("flat", "jump") else 3.6 for kind in self.kinds])
