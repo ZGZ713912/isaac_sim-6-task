@@ -1030,7 +1030,7 @@ class RobustGetupEnv(ChassisEnv):
             _t6b = _time0.perf_counter()
             _o1 = getattr(self, "_outside_parts", None)
             if _o1 is None:
-                _o1 = self._outside_parts = [0., 0., 0, 0]
+                _o1 = self._outside_parts = [0., 0., 0, 0, 0., 0.]
             _o1[0] += _t6b - _t6
             if prone_motion:
                 info["diagnostics"].update(task_extra)
@@ -1075,9 +1075,13 @@ class RobustGetupEnv(ChassisEnv):
             if self.getup_cfg["quiet_training"]:
                 change &= self.recovery_lane
             if bool(change.any()):
+                _tc0 = _time0.perf_counter()
                 self.sample_commands(change.nonzero().flatten())
+                _o1[3] += _time0.perf_counter() - _tc0
             if bool(done.any()):
+                _tr0 = _time0.perf_counter()
                 self.reset(done.nonzero().flatten())
+                _o1[4] += _time0.perf_counter() - _tr0
                 info["policy_bootstrap_mask"][done] = ~self.passive[done] & ~terminated[done]
         else:
             self.finished |= done
@@ -1099,9 +1103,9 @@ class RobustGetupEnv(ChassisEnv):
         _o[2] += 1
         if _o[2] % 32 == 0:
             _on = _o[2]
-            print("[OUT] reward=%.1f obs=%.1f terms=%.1f samples=%.1f metrics=%.1f ms" % (
+            print("[OUT] reward=%.1f obs=%.1f terms=%.1f metrics=%.1f cmd=%.1f reset=%.1f ms" % (
                 _o[0] / _on * 1000., _o[1] / _on * 1000., _o1[0] / _on * 1000.,
-                _o1[1] / _on * 1000., _o1[2] / _on * 1000.), flush=True)
+                _o1[2] / _on * 1000., _o1[3] / _on * 1000., _o1[4] / _on * 1000.), flush=True)
             self._outside_parts = [0., 0., 0, 0]
             self._outside = [0., 0., 0]
         return _obs, reward, done, info
