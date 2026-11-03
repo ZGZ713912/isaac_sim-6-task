@@ -1044,30 +1044,32 @@ class RobustGetupEnv(ChassisEnv):
                 info["log"].update(self.task_metrics(task_state, task_extra, reward, done, terminated))
                 _t6d = _time0.perf_counter()
                 _o1[2] += _t6d - _t6c
-            if prone_task is not None:
-                info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},
-                    prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),
-                    prone_invalid_start=prone_invalid_start.clone(), belly_force_peak_n=belly_force_peak.clone(),
-                    prone_reward_terms={key: value.clone() for key, value in prone_terms.items()},
-                    action_delta=action_delta.clone(),
-                    leg_speed_square_1ms=upright_leg_speed_square.clone(),
-                    dual_support_physical_fraction=dual_support_fraction.clone(),
-                    nonwheel_force_peak_n=nonwheel_force_peak.clone())
-            if gap_quality is not None:
-                info["diagnostics"].update(leg_speed_peak_rad_s=leg_speed_peak.clone(),
-                    leg_effort_peak_nm=leg_effort_peak.clone(), leg_saturation_fraction=leg_saturation.clone(),
-                    leg_effort_slew_rms_nm=leg_slew_square.sqrt(), leg_saturation_run_s=leg_saturation_run.clone())
-            info["diagnostics"].update(recovery_support_cost_density=recovery_support_density.clone(),
-                native_reward=reward.clone(), reward_density=density.clone(),
-                reward_before_terminal_settlement=unsettled_reward.clone(),
-                hard_fault_terminal=hard_fault_terminal.clone(),
-                reward_potential_progress=progress.clone(), reward_recovery_active=self.recovery_active.clone())
-            info["diagnostics"].update(wheel_clearance=wheel_clearance.clone(),
-                wheel_clearance_peak=wheel_clearance_peak.clone(), wheel_contact_fraction=wheel_contact_fraction.clone(),
-                wheel_air_run_peak=wheel_air_run_peak.clone(), dual_wheel_air_run_peak=dual_wheel_air_run_peak.clone(),
-                wheel_air_seconds=wheel_air_seconds.clone())
-            info["diagnostics"].update(pushing=pushing.clone(), in_motion_fall=self.in_motion_fall.clone(),
-                                       recovered_after_push=self.recovered_after_push.clone())
+            self._diag_tick = getattr(self, '_diag_tick', 0) + 1
+            if self._diag_tick % 4 == 0:
+                if prone_task is not None:
+                    info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},
+                        prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),
+                        prone_invalid_start=prone_invalid_start.clone(), belly_force_peak_n=belly_force_peak.clone(),
+                        prone_reward_terms={key: value.clone() for key, value in prone_terms.items()},
+                        action_delta=action_delta.clone(),
+                        leg_speed_square_1ms=upright_leg_speed_square.clone(),
+                        dual_support_physical_fraction=dual_support_fraction.clone(),
+                        nonwheel_force_peak_n=nonwheel_force_peak.clone())
+                if gap_quality is not None:
+                    info["diagnostics"].update(leg_speed_peak_rad_s=leg_speed_peak.clone(),
+                        leg_effort_peak_nm=leg_effort_peak.clone(), leg_saturation_fraction=leg_saturation.clone(),
+                        leg_effort_slew_rms_nm=leg_slew_square.sqrt(), leg_saturation_run_s=leg_saturation_run.clone())
+                info["diagnostics"].update(recovery_support_cost_density=recovery_support_density.clone(),
+                    native_reward=reward.clone(), reward_density=density.clone(),
+                    reward_before_terminal_settlement=unsettled_reward.clone(),
+                    hard_fault_terminal=hard_fault_terminal.clone(),
+                    reward_potential_progress=progress.clone(), reward_recovery_active=self.recovery_active.clone())
+                info["diagnostics"].update(wheel_clearance=wheel_clearance.clone(),
+                    wheel_clearance_peak=wheel_clearance_peak.clone(), wheel_contact_fraction=wheel_contact_fraction.clone(),
+                    wheel_air_run_peak=wheel_air_run_peak.clone(), dual_wheel_air_run_peak=dual_wheel_air_run_peak.clone(),
+                    wheel_air_seconds=wheel_air_seconds.clone())
+                info["diagnostics"].update(pushing=pushing.clone(), in_motion_fall=self.in_motion_fall.clone(),
+                                           recovered_after_push=self.recovered_after_push.clone())
         if self.fixed_cases is None:
             change = (self.episode_length_buf % round(4. / self.policy_dt) == 0) & ~done
             if self.getup_cfg["quiet_training"]:
