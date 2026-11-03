@@ -1027,6 +1027,11 @@ class RobustGetupEnv(ChassisEnv):
                     upright_reward_terms={key: value.clone() for key, value in upright_terms.items()})
             if tracking009:
                 info["diagnostics"]["nonwheel_force_peak_n"] = nonwheel_force_peak.clone()
+            _t6b = _time0.perf_counter()
+            _o1 = getattr(self, "_outside_parts", None)
+            if _o1 is None:
+                _o1 = self._outside_parts = [0., 0., 0, 0]
+            _o1[0] += _t6b - _t6
             if prone_motion:
                 info["diagnostics"].update(task_extra)
                 info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
@@ -1034,7 +1039,11 @@ class RobustGetupEnv(ChassisEnv):
                     interval_requested_command=interval_request)
                 self.prone_motion_physical = (physical_samples.finish() if sampling is not None else
                     {key: torch.stack([s[key] for s in physical_samples]) for key in physical_samples[0]})
+                _t6c = _time0.perf_counter()
+                _o1[1] += _t6c - _t6b
                 info["log"].update(self.task_metrics(task_state, task_extra, reward, done, terminated))
+                _t6d = _time0.perf_counter()
+                _o1[2] += _t6d - _t6c
             if prone_task is not None:
                 info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},
                     prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),
@@ -1088,6 +1097,9 @@ class RobustGetupEnv(ChassisEnv):
         _o[2] += 1
         if _o[2] % 32 == 0:
             _on = _o[2]
-            print("[OUT] reward=%.1f obs=%.1f ms" % (_o[0] / _on * 1000., _o[1] / _on * 1000.), flush=True)
+            print("[OUT] reward=%.1f obs=%.1f terms=%.1f samples=%.1f metrics=%.1f ms" % (
+                _o[0] / _on * 1000., _o[1] / _on * 1000., _o1[0] / _on * 1000.,
+                _o1[1] / _on * 1000., _o1[2] / _on * 1000.), flush=True)
+            self._outside_parts = [0., 0., 0, 0]
             self._outside = [0., 0., 0]
         return _obs, reward, done, info
