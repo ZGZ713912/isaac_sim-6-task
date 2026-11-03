@@ -58,6 +58,11 @@ def validate(plan):
     if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2",
                                  "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         raise ValueError("Need the explicit prone-motion contract")
+    if "jump_training" in plan:
+        from .jump_motion import validate as validate_jump
+        validate_jump(plan["jump_training"])
+        if plan["schema"] != "wheel-leg-prone-motion-v4" or not plan.get("full_vehicle"):
+            raise ValueError("Mixed jump training requires the full-vehicle v4 plant")
     if "native_environment_layout" in plan:
         from .isolated_origins import layout_origins
         layout_origins(plan["num_envs"], plan["native_environment_layout"])

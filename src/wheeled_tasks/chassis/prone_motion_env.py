@@ -210,6 +210,7 @@ class ProneMotionEnv(RobustGetupEnv):
                     command=[0.,0.,birth])
         if self.evaluation_cases is not None:
             cases = self.evaluation_cases
+        cases = self.course_reset_cases(cases, ids_cpu)
         self.course_cases = cases
         self.fixed_cases = cases
         try:
@@ -349,6 +350,26 @@ class ProneMotionEnv(RobustGetupEnv):
     def task_stable(self, *args):
         return task.stable(*args)
 
+    def course_reset_cases(self, cases, ids):
+        return cases
+
+    def task_reward_terms(self, state, route, error, rising):
+        from .getup_translation import enabled as free_translation
+        terms = task.reward_terms(state["gravity"], state["height"], state["velocity"], state["omega"],
+            self.commands, state["torque"], state["dq"], task.normalized_action_delta(state["action_delta"], self.plan),
+            route["xy_excursion_m"], error, rising, state["dual_support"],
+            position_tail=self.plan.get("quiet_position_tail"),
+            free_rise_translation=free_translation(self.plan))
+        terms["leg_speed"] = -.002*state["leg_speed_square"]
+        return terms
+
+    def task_failures(self, state, route, rising):
+        return task.failures(state["gravity"], state["height"], state["nonwheel_force"],
+            route["xy_excursion_m"], state["elapsed"], rising, ~self.recovery_lane, self.plan)
+
+    def course_metric_mask(self):
+        return ~self.passive
+
     def task_commands(self, elapsed):
         value = task.commands(self.course_targets, elapsed, self.recovered_at, self.recovery_lane, self.plan,
             moving_height=self.course_moving_height,abrupt_brake=self.course_abrupt_brake)
@@ -365,7 +386,6 @@ class ProneMotionEnv(RobustGetupEnv):
             self._role_signature = signature
 
     def task_transition(self, state, terminated):
-        from .getup_translation import enabled as free_translation
         route = self.route_state()
         rising = self.recovery_lane & ~self.ever_recovered
         # Re-anchor only on an actual completion, or a request returning to zero.
@@ -376,12 +396,7 @@ class ProneMotionEnv(RobustGetupEnv):
         xy = self.robot.data.root_link_pose_w.torch[:, :2]
         self.course_anchor[anchor] = xy[anchor]
         error = (xy-self.course_anchor).norm(dim=-1)
-        terms = task.reward_terms(state["gravity"], state["height"], state["velocity"], state["omega"],
-            self.commands, state["torque"], state["dq"], task.normalized_action_delta(state["action_delta"], self.plan),
-            route["xy_excursion_m"], error, rising, state["dual_support"],
-            position_tail=self.plan.get("quiet_position_tail"),
-            free_rise_translation=free_translation(self.plan))
-        terms["leg_speed"] = -.002*state["leg_speed_square"]
+        terms = self.task_reward_terms(state, route, error, rising)
         stage_extra = {}
         sequence_scores = None
         if self.multi_pose_cfg is not None:
@@ -398,8 +413,7 @@ class ProneMotionEnv(RobustGetupEnv):
             for key,value in new_terms.items():
                 if key not in terms:
                     terms[key] = torch.where(rising,value,torch.zeros_like(value))
-        bad = task.failures(state["gravity"], state["height"], state["nonwheel_force"],
-            route["xy_excursion_m"], state["elapsed"], rising, ~self.recovery_lane, self.plan)
+        bad = self.task_failures(state, route, rising)
         if self.multi_pose_cfg is None:
             bad["invalid_prone_start"] = state["enable"] & self.recovery_lane & ~valid_disabled_start(
                 state["gravity"], state["height"], state["belly_force"], self.prone_task)
@@ -575,14 +589,14 @@ class ProneMotionEnv(RobustGetupEnv):
                 tilt_deg=torch.rad2deg(torch.acos((-state['gravity'][:, 2]).clamp(-1., 1.))),
                 anchor_error_m=extra['course_anchor_error_m'], reward=reward)
             means, outside, present = self.sampling.role_metrics(torch.stack(list(fields.values()), -1),
-                extra['role_index'], ~self.passive, physical['spring_outside_identified'])
+                extra['role_index'], self.course_metric_mask(), physical['spring_outside_identified'])
             for index, (role, has_samples) in enumerate(zip(task.ROLES, present.tolist())):
                 if has_samples:
                     result.update({f'ProneMotion/{role}/{name}': means[index, j]
                                    for j, name in enumerate(fields)})
                     result[f'ProneMotion/{role}/spring_outside_identified_fraction'] = outside[index]
             return result
-        masks = [(extra["role_index"] == index) & ~self.passive for index in range(len(task.ROLES))]
+        masks = [(extra["role_index"] == index) & self.course_metric_mask() for index in range(len(task.ROLES))]
         # Preserve which tags exist and the exact selected-value reductions.
         # One transfer replaces eleven data-dependent CUDA synchronizations.
         present = torch.stack([mask.any() for mask in masks]).tolist()

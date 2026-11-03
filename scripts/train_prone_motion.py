@@ -188,6 +188,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         terminal_transition=deepcopy(plan.get("terminal_transition")),
         cold_evaluation_lifecycle=deepcopy(plan.get("cold_evaluation_lifecycle")),
         getup_translation=deepcopy(plan.get("getup_translation")),
+        jump_training=deepcopy(plan.get("jump_training")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
@@ -366,6 +367,9 @@ def source_hashes(plan_path, plan):
     evidence = json.loads((ROOT/plan["wheel_model"]["evidence"]["file"]).read_text())
     names.extend(evidence["files_sha256"])
     names.extend(["tests/test_identified_wheel_response.py", "tests/test_training_wheel_response.py"])
+    if plan.get("jump_training") is not None:
+        names.extend(["scripts/probe_jump_motion.py", "scripts/train_jump_motion.sh",
+                      "tests/test_jump_motion.py", "docs/JUMP_MOTION_TRAINING.md"])
     for name in names:
         result[name] = base.digest(ROOT/name)
     return result
@@ -524,13 +528,19 @@ def main():
         import torch
         from isaaclab.sim import SimulationContext
         from rsl_rl.runners import OnPolicyRunner
-        from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
+        if plan.get("jump_training") is not None:
+            from wheeled_tasks.chassis.jump_motion_env import JumpMotionEnv as ProneMotionEnv
+        else:
+            from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
         from wheeled_tasks.chassis.control_contract import load_chassis_control
         from wheeled_tasks.chassis.randomization_study import runtime_samples
         from wheeled_algo.recovery_rollout import RecoveryRolloutMask
         from wheeled_algo.native_ppo_audit import NativePPOAudit
         from wheeled_algo.continuous_rollout import RolloutDomainSwitch
-        from evaluate_prone_motion import probe
+        if plan.get("jump_training") is not None:
+            from probe_jump_motion import probe
+        else:
+            from evaluate_prone_motion import probe
         torch.set_num_threads(4)
         torch.manual_seed(plan["seed"])
         random.seed(plan["seed"])
@@ -555,6 +565,8 @@ def main():
 
         def build(profile="nominal", strength=0., evaluation=False):
             nonlocal env, active_directory
+            jump_counters = (env.jump_training.total.clone() if env is not None and
+                getattr(env, "jump_training", None) is not None else None)
             changed = [name for name, expected in hashes.items() if base.digest(ROOT/name) != expected]
             if changed:
                 raise RuntimeError("Frozen source or input changed; refusing a new native context: "+str(changed))
@@ -580,6 +592,11 @@ def main():
                 seed=runtime_seed,
                 level=1., run_role="train", bank=output/"pose_bank.json", settings=settings)
             env.actor_updates = report["completed_updates"]
+            if getattr(env, "jump_training", None) is not None:
+                counters = jump_counters if jump_counters is not None else (
+                    resume_state["infos"]["jump_training_counters"] if resume_state is not None else None)
+                if counters is not None:
+                    env.jump_training.total.copy_(counters.to(env.device))
             env.reset(torch.arange(env.num_envs, device=env.device))
             if not args.headless and not args.native_probe:
                 native_step = env.step
@@ -700,6 +717,7 @@ def main():
                 env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state(),
                 recovery_sampler=env.recovery_sampler.state_dict() if hasattr(env, "recovery_sampler") else None,
                 prone_reset_generation=env.prone_reset_generation,
+                jump_training_counters=(env.jump_training.total.clone() if getattr(env, "jump_training", None) is not None else None),
                 python_rng=random.getstate(), numpy_rng=np.random.get_state()))
             temporary = path.with_suffix(path.suffix+".tmp")
             torch.save(state, temporary)
@@ -736,6 +754,8 @@ def main():
             env.actor_updates = report["completed_updates"]
             report.update(status="training", elapsed_s=time.monotonic()-start, valid_rollout=mask.metrics,
                           last_losses={k:float(v) for k,v in losses.items()})
+            if getattr(env, "jump_training", None) is not None:
+                report["jump_training"] = env.jump_training.summary()
             if mastery is not None:
                 report["recovery_mastery"] = mastery.state_dict()
             if global_course is not None:
