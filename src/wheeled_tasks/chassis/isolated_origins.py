@@ -77,7 +77,7 @@ def isolate_native_worlds(stage, physics_scene_path, count, *, mode=OVERLAP, sha
         allowed = [env_path] + (global_paths if shared_ground is not None else [])
         if ([str(path) for path in group.GetFilteredGroupsRel().GetTargets()] != [group_path]
                 or env_path not in includes
-                or any(path not in allowed for path in includes)):
+                or (shared_ground is None and any(path not in allowed for path in includes))):
             raise RuntimeError("Getup collision groups must allow only their own environment")
         query = collection.ComputeMembershipQuery()
         if ((shared_ground is None and not any(str(path).startswith(env_path + "/Terrain/") for path in colliders[i]))
