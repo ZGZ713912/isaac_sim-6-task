@@ -76,6 +76,11 @@ def validate(plan):
                    and closure.get("mode") == "record_only")
         if not (legacy or monitor) or closure.get("peak_m") != .005:
             raise ValueError("Use the versioned closure guard or record-only monitor with its5mm reference")
+    if "paired_torque_saturation" in plan:
+        from .paired_torque_saturation import validate as validate_saturation
+        validate_saturation(plan["paired_torque_saturation"])
+        if plan["schema"] != "wheel-leg-prone-motion-v4" or plan.get("gas_spring_backend") != "dev_compensation_v2":
+            raise ValueError("Paired torque saturation requires its v4 dev compensation task")
     if plan["schema"] in ("wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))

@@ -65,6 +65,9 @@ class ProneMotionEnv(RobustGetupEnv):
             self.identified_spring.install(self)
             from .encoder_spring_feedforward import EncoderGasSpringFeedforward
             EncoderGasSpringFeedforward(self.cfg["v5_control"]["encoder_spring_feedforward"]).install(self)
+        if self.plan.get("paired_torque_saturation") is not None:
+            from .paired_torque_saturation import install as install_saturation
+            install_saturation(self, self.plan["paired_torque_saturation"])
         if self.cfg.get("full_vehicle"):
             from .full_vehicle_training import encoder_geometry
             self.prone_encoder_geometry = encoder_geometry(self.cfg, self.asset_root).to(self.device)
@@ -509,6 +512,19 @@ class ProneMotionEnv(RobustGetupEnv):
         for i, name in enumerate(("L_joint1", "LL_joint1", "R_joint1", "RR_joint1")):
             result[prefix+name+"_holding_abs_mean_nm"] = physical["spring_ff_holding_effort_nm"][:, :, i].abs().mean()
             result[prefix+name+"_holding_peak_nm"] = physical["spring_ff_holding_effort_nm"][:, :, i].abs().max()
+        if hasattr(self, "paired_torque_saturation"):
+            request = physical["spring_ff_requested_effort_nm"].unflatten(-1, (2, 2))
+            limited = physical["spring_ff_limited_effort_nm"].unflatten(-1, (2, 2))
+            requested_difference = request[..., 0]-request[..., 1]
+            clipped = request.clamp(-40., 40.)
+            active = (~physical["wheel_disabled"]).unsqueeze(-1).expand_as(requested_difference)
+            def active_mean(value):
+                return torch.where(active, value, 0.).sum()/active.sum().clamp_min(1)
+            result["LegAllocation/shape_priority_enabled"] = request.new_tensor(1.)
+            result["LegAllocation/independent_clip_differential_error_abs_mean_nm"] = active_mean(
+                (requested_difference-(clipped[..., 0]-clipped[..., 1])).abs())
+            result["LegAllocation/allocated_differential_error_abs_mean_nm"] = active_mean(
+                (requested_difference-(limited[..., 0]-limited[..., 1])).abs())
         for index, side in enumerate(("left", "right")):
             prefix = "ProneMotion/wheel_model/"+side+"/"
             result[prefix+"motor_effort_abs_mean_nm"] = physical["motor_effort"][:, :, (2, 5)[index]].abs().mean()

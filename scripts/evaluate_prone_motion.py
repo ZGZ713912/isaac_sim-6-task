@@ -402,6 +402,24 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         env.cfg["identified_wheel_response"], root=Path(__file__).resolve().parents[1])
     reference.inertia = env.identified_wheels.inertia.clone()
     dev_gas = plan.get("gas_spring_backend") == "dev_compensation_v2"
+    paired_saturation = plan.get("paired_torque_saturation") is not None
+    if paired_saturation:
+        checks["explicit_paired_saturation_installed"] = (
+            env.startup_report.get("paired_torque_saturation") == plan["paired_torque_saturation"])
+
+    def expected_limited_effort(requested):
+        if not paired_saturation:
+            return requested.clamp(-40., 40.)
+        sides = []
+        for side in (requested[..., :2], requested[..., 2:]):
+            difference = (side[..., 0]-side[..., 1]).clamp(-80., 80.)
+            room = 40.-difference.abs()/2.
+            common = ((side[..., 0]+side[..., 1])/2.).clamp(-room, room)
+            limited = torch.stack((common+difference/2., common-difference/2.), -1)
+            limited = torch.where((side.abs() <= 40.).all(-1, keepdim=True), side, limited)
+            sides.extend((limited[..., 0], limited[..., 1]))
+        return torch.stack(sides, -1)
+
     if dev_gas:
         from wheeled_tasks.chassis.gas_spring_compensation import GasSpringCompensation
         spring_reference = GasSpringCompensation(env.cfg["v5_control"]["gas_spring_compensation"],
@@ -612,6 +630,19 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         for tick in range(env.decimation):
             ff = spring_reference.motor_efforts(physical["spring_ff_pd_effort_nm"][tick],
                 physical["spring_ff_encoder_position"][tick])
+            if paired_saturation:
+                limited = expected_limited_effort(spring_reference.last["requested_effort_nm"])
+                encoder = physical["spring_ff_encoder_position"][tick].unflatten(-1, (2, 2))
+                direction = encoder.new_tensor([[-1., 1.], [1., -1.]])
+                relative = (encoder*direction).sum(-1)
+                limits = spring_reference.cfg["relative_soft_limits"]
+                pair = limited.unflatten(-1, (2, 2))
+                outward = (pair*direction).sum(-1)
+                at_edge = (((relative >= limits["maximum"]-limits["margin"]) & (outward > 0.))
+                    | ((relative <= limits["minimum"]+limits["margin"]) & (outward < 0.)))
+                projected = pair-direction*(outward*at_edge.to(outward.dtype)/2.).unsqueeze(-1)
+                spring_reference.last.update(limited_effort_nm=limited,
+                    projected_effort_nm=projected.flatten(-2))
             for key in spring_replay_error:
                 expected_ff = spring_reference.last[key]
                 difference = (physical["spring_ff_"+key][tick]-expected_ff).abs().max()
@@ -640,7 +671,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
             torch.allclose(physical["spring_ff_requested_effort_nm"],
                 physical["spring_ff_pd_effort_nm"]+physical["spring_ff_holding_effort_nm"], atol=1e-5, rtol=1e-6)
             and torch.allclose(physical["spring_ff_limited_effort_nm"],
-                physical["spring_ff_requested_effort_nm"].clamp(-40., 40.), atol=1e-6, rtol=0.))
+                expected_limited_effort(physical["spring_ff_requested_effort_nm"]), atol=1e-5, rtol=0.))
         checks["actual_leg_effort_with_compensation_at_most40nm"] = checks.get("actual_leg_effort_with_compensation_at_most40nm", True) and bool(
             (physical["motor_effort"][:, :, [0, 1, 3, 4]].abs() <= 40.+1e-6).all())
         checks["all_six_disabled_efforts_zero_after_compensation"] = checks.get("all_six_disabled_efforts_zero_after_compensation", True) and bool(
