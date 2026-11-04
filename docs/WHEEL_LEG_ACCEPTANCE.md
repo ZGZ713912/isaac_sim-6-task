@@ -2,7 +2,7 @@
 
 2026-10-26按用户要求建立，并按用户同日最新澄清修订。当前机器版本：[wheel_leg_acceptance_requirements_v2.json](../contracts/wheel_leg_acceptance_requirements_v2.json)；[v1](../contracts/wheel_leg_acceptance_requirements_v1.json)保留历史严格口径。本文件是后续训练、观察、修复与汇报共同使用的能力清单；不得自行降低要求或只汇报有利场景，用户明确的本次修订优先于旧文档。
 
-当前实测与证据入口：[2026-10-26能力盘点](WHEEL_LEG_CAPABILITY_STATUS_20261026.md)。此处保存长期要求，具体checkpoint的成绩放在带日期的报告中。
+当前实测与证据入口：2026-10-26能力盘点。此处保存长期要求，具体checkpoint的成绩放在带日期的报告中。
 
 硬件传动口径：实车 RMCS 与新训练 v2 合同的轮减速比均为 **15.62**（左右两轮一致，转子端与轮端只换算一次）；轮端力矩上限不重复乘减速比。旧 v1 合同及资产 manifest 保留 15.8 历史来源，新训练显式覆盖。旧轮响应参数只是新轮的待验证先验，详见[新轮减速比与换算](WHEEL_LEG_WHEEL_REDUCTION_20261027.md)。
 
@@ -56,7 +56,7 @@
 
 噪声和动力学范围首先沿用已记录的研究假设，再由实测校准；不能把随机范围大说成已鲁棒。固定短评后以全新actor/critic/空Adam训练，按照当前v2、长站、独立种子及完整任务检验。此处记录优先级和实验方向，尚未声称新的随机域训练或行为通过。
 
-强度、覆盖顺序和参数叠加的当前核查见[随机化诊断](WHEEL_LEG_RANDOMIZATION_DIAGNOSIS_20261026.md)，可调分组合同见[wheel_leg_randomization_study_v1.json](../contracts/wheel_leg_randomization_study_v1.json)。旧`domain_scale`与`gap_severity`存在覆盖，不能用单一百分数代替最终范围。后续显式研究项须保留独立名义复习，静态IMU偏角、平台晃动、普通白噪声及运输延迟分开量测。
+强度、覆盖顺序和参数叠加的当前核查见随机化诊断，可调分组合同见[wheel_leg_randomization_study_v1.json](../contracts/wheel_leg_randomization_study_v1.json)。旧`domain_scale`与`gap_severity`存在覆盖，不能用单一百分数代替最终范围。后续显式研究项须保留独立名义复习，静态IMU偏角、平台晃动、普通白噪声及运输延迟分开量测。
 
 ## 髋膝与轮速应共同控制
 

@@ -2,7 +2,7 @@
 
 Wheelbipe现另有磁盘保存退出/冷恢复接口 `trainctl wheelbipe`：使用 `release`
 或面板 `f` 等待保存并退出进程，释放显存；`resume` 创建新进程恢复学习状态。
-见 [Wheelbipe磁盘控制台](WHEELBIPE_DISK_TRAINCTL_20261103.md)。下文是保留的旧驻留接口。
+见 Wheelbipe磁盘控制台。下文是保留的旧驻留接口。
 
 `trainctl` 是原进程内的协作暂停。暂停期间不推进环境、采样、PPO、Adam、随机数或课程；继续时使用原 PID、原显存和原内存中的 rollout/仿真状态。不需要 Ctrl+C、`--resume` 或新输出目录。暂停不释放显存。
 
