@@ -502,6 +502,10 @@ class ChassisEnv:
                 _min, _max = _rng.GetMin(), _rng.GetMax()
                 _size = _max - _min
                 _center = (_max + _min) * 0.5
+                _keep = _os_c.environ.get("WHEELED_PROBE_BOX_KEEP", "").split(",")
+                if _keep != [""] and not any(_k and _k in _parent.GetName() for _k in _keep):
+                    _prim.RemoveAPI(_UP2.CollisionAPI)
+                    continue
                 _cube = _UG.Cube.Define(self.sim.stage, _parent.GetPath().AppendChild(_prim.GetName() + "_box"))
                 _cube.CreateSizeAttr(1.0)
                 _cube.AddTranslateOp().Set(_Gf.Vec3f(float(_center[0]), float(_center[1]), float(_center[2])))
