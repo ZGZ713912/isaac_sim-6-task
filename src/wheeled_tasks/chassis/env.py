@@ -418,6 +418,8 @@ class ChassisEnv:
             spawn=sim_utils.UsdFileCfg(
                 usd_path=str(root / config["asset_directory"] / manifest["usd"]),
                 activate_contact_sensors=True,
+                **_({"collision_props": sim_utils.CollisionPropertiesCfg(collision_enabled=False)}
+                   if __import__("os").environ.get("WHEELED_PROBE_NO_ROBOT_COLLISION") == "1" else {}),
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
                 articulation_props=sim_utils.ArticulationRootPropertiesCfg(enabled_self_collisions=False,
                     solver_position_iteration_count=config["position_iterations"],
