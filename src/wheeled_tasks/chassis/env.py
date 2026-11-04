@@ -418,7 +418,8 @@ class ChassisEnv:
             # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
             prim_path="/World/envs/env_[0-9]+/Robot",
             spawn=sim_utils.UsdFileCfg(
-                usd_path=str(root / config["asset_directory"] / manifest["usd"]),
+                usd_path=(__import__("os").environ.get("WHEELED_ASSET_USD")
+                          or str(root / config["asset_directory"] / manifest["usd"])),
                 activate_contact_sensors=True,
                 **robot_spawn_extra,
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
