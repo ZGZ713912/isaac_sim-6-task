@@ -483,6 +483,20 @@ class ChassisEnv:
             from .isolated_origins import isolate_native_worlds
             native_isolation = isolate_native_worlds(self.sim.stage, self.sim.cfg.physics_prim_path, num_envs,
                                                      mode=native_layout, shared_ground=shared_ground)
+        import os as _os_c
+        if _os_c.environ.get("WHEELED_PROBE_COLLISION_SUBSET") == "1":
+            from pxr import UsdPhysics as _UP
+            _keep = _os_c.environ.get("WHEELED_PROBE_COLLISION_KEEP", "base_link").split(",")
+            _removed = 0
+            for _prim in self.sim.stage.Traverse():
+                if not _prim.HasAPI(_UP.CollisionAPI):
+                    continue
+                _parent = _prim.GetParent().GetName()
+                if any(_k in _parent for _k in _keep):
+                    continue
+                _prim.RemoveAPI(_UP.CollisionAPI)
+                _removed += 1
+            print("[DIAG] collision shapes removed=%d keep=%s" % (_removed, _keep), flush=True)
         self.sim.reset()
         if self.contact_domain is not None:
             properties = wp.to_torch(self.robot.root_view.get_material_properties())
