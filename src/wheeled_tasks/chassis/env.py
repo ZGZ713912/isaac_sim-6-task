@@ -487,6 +487,11 @@ class ChassisEnv:
                 raise RuntimeError("Unit robot friction material was not imported by PhysX")
         if set(self.robot.joint_names) != set(manifest["tree_joint_names"]) or set(self.robot.body_names) != set(manifest["rigid_body_names"]):
             raise RuntimeError("Unexpected solver topology")
+        if __import__("os").environ.get("WHEELED_PROBE_DIAG_INSTANCE") == "1":
+            _prims = list(self.sim.stage.Traverse())
+            _inst = sum(1 for _p in _prims if _p.IsInstance())
+            _instable = sum(1 for _p in _prims if _p.IsInstanceable())
+            print("[DIAG] prims=%d instance=%d instanceable=%d" % (len(_prims), _inst, _instable), flush=True)
         paths = list(self.robot.root_view.prim_paths)
         order = [int(p.split("/env_")[1].split("/")[0]) for p in paths]
         if sorted(order) != list(range(num_envs)):
