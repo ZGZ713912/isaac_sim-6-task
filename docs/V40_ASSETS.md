@@ -222,7 +222,7 @@ parent filter**，从而单独验证六对表的效果：
 
 ## 新只读左右对照：右髋也不能自动批准
 
-完整依据见 [V40_HIP_COMPARISON.md](V40_HIP_COMPARISON.md) 及
+完整依据见 V40_HIP_COMPARISON.md 及
 `reports/hip_comparison/reliability.json`、`sections_comparison.json`。本轮仅
 读取这些文件，没有修改别代理的报告或对照脚本；摘要保存其实际 SHA256。
 
