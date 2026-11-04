@@ -486,17 +486,23 @@ class ChassisEnv:
         import os as _os_c
         if _os_c.environ.get("WHEELED_PROBE_COLLISION_SUBSET") == "1":
             from pxr import UsdPhysics as _UP
-            _keep = _os_c.environ.get("WHEELED_PROBE_COLLISION_KEEP", "base_link").split(",")
+            _targets = [_q for _q in self.sim.stage.Traverse() if _q.HasAPI(_UP.CollisionAPI)]
             _removed = 0
-            for _prim in self.sim.stage.Traverse():
-                if not _prim.HasAPI(_UP.CollisionAPI):
-                    continue
+            _base_kept = [False] * num_envs
+            for _prim in _targets:
                 _parent = _prim.GetParent().GetName()
-                if any(_k in _parent for _k in _keep):
+                if "wheel" in _parent.lower() or _parent.endswith("link3"):
                     continue
+                _path = str(_prim.GetPath())
+                if "/base_link/" in _path:
+                    _env = _path.split("/env_")[1].split("/")[0] if "/env_" in _path else "0"
+                    _idx = int(_env) if _env.isdigit() else 0
+                    if not _base_kept[_idx % num_envs]:
+                        _base_kept[_idx % num_envs] = True
+                        continue
                 _prim.RemoveAPI(_UP.CollisionAPI)
                 _removed += 1
-            print("[DIAG] collision shapes removed=%d keep=%s" % (_removed, _keep), flush=True)
+            print("[DIAG] collision shapes removed=%d total=%d" % (_removed, len(_targets)), flush=True)
         self.sim.reset()
         if self.contact_domain is not None:
             properties = wp.to_torch(self.robot.root_view.get_material_properties())
@@ -543,7 +549,8 @@ class ChassisEnv:
             [s[-1].height(2.) - s[0].height(-1.5) for s in self.surfaces], device=device)
         self.env_paths = [p.split("/Robot")[0] for p in paths]
         contact_material_readback = None
-        if self.contact_material is not None:
+        _skip_material = __import__("os").environ.get("WHEELED_PROBE_COLLISION_SUBSET") == "1"
+        if self.contact_material is not None and not _skip_material:
             self.contact_material.reorder(order)
             contact_material_readback = self.contact_material.verify_native(self.sim.stage, self.robot, self.env_paths,
                 zero_friction_bodies=config.get("zero_friction_bodies", []), shared_ground=shared_ground)
