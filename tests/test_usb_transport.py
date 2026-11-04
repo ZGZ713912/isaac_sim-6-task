@@ -25,7 +25,7 @@ def sensors(count):
 
 
 def test_profile_exactly_preserves_reported_hs_units_and_quantiles():
-    measured = json.loads((ROOT / "docs/evidence/usb_loopback_20260924.json").read_text())
+    measured = json.loads((ROOT / "tests/data/usb_loopback_quantiles_v1.json").read_text())
     for row in measured["measurements"]:
         if row["usb_mode"] != "HS":
             continue
