@@ -411,6 +411,8 @@ class ChassisEnv:
                 for index, cap in enumerate((2., 10.)):
                     actuators["gimbal_"+str(index)] = IdealPDActuatorCfg(joint_names_expr=[names[index]],
                         stiffness=0., damping=0., effort_limit=cap, effort_limit_sim=cap, velocity_limit_sim=1e9)
+        robot_spawn_extra = ({"collision_props": sim_utils.CollisionPropertiesCfg(collision_enabled=False)}
+                             if __import__("os").environ.get("WHEELED_PROBE_NO_ROBOT_COLLISION") == "1" else {})
         robot_cfg = ArticulationCfg(
             # Match only the numbered environment, never its terrain descendants.
             # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
@@ -418,8 +420,7 @@ class ChassisEnv:
             spawn=sim_utils.UsdFileCfg(
                 usd_path=str(root / config["asset_directory"] / manifest["usd"]),
                 activate_contact_sensors=True,
-                **_({"collision_props": sim_utils.CollisionPropertiesCfg(collision_enabled=False)}
-                   if __import__("os").environ.get("WHEELED_PROBE_NO_ROBOT_COLLISION") == "1" else {}),
+                **robot_spawn_extra,
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
                 articulation_props=sim_utils.ArticulationRootPropertiesCfg(enabled_self_collisions=False,
                     solver_position_iteration_count=config["position_iterations"],
