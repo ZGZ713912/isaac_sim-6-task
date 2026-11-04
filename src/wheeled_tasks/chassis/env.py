@@ -476,7 +476,7 @@ class ChassisEnv:
             ground_cfg = sim_utils.GroundPlaneCfg(size=(400.0, 400.0), physics_material=ground_material)
             ground_cfg.func(shared_ground, ground_cfg)
         native_isolation = None
-        if isolated_getup_origins:
+        if isolated_getup_origins and __import__("os").environ.get("WHEELED_PROBE_NO_ISOLATION") != "1":
             from .isolated_origins import isolate_native_worlds
             native_isolation = isolate_native_worlds(self.sim.stage, self.sim.cfg.physics_prim_path, num_envs,
                                                      mode=native_layout, shared_ground=shared_ground)
