@@ -484,6 +484,31 @@ class ChassisEnv:
             native_isolation = isolate_native_worlds(self.sim.stage, self.sim.cfg.physics_prim_path, num_envs,
                                                      mode=native_layout, shared_ground=shared_ground)
         import os as _os_c
+        if _os_c.environ.get("WHEELED_PROBE_BOX_COLLIDERS") == "1":
+            from pxr import UsdPhysics as _UP2, UsdGeom as _UG, Gf as _Gf
+            _cache = _UG.BBoxCache(0, ["default"])
+            _boxes = 0
+            for _prim in list(self.sim.stage.Traverse()):
+                if not _prim.HasAPI(_UP2.CollisionAPI) or _prim.GetTypeName() != "Mesh":
+                    continue
+                _parent = _prim.GetParent()
+                try:
+                    _rng = _cache.ComputeRelativeBound(_prim, _parent).ComputeAlignedRange()
+                except Exception:
+                    continue
+                if _rng.IsEmpty():
+                    continue
+                _min, _max = _rng.GetMin(), _rng.GetMax()
+                _size = _max - _min
+                _center = (_max + _min) * 0.5
+                _cube = _UG.Cube.Define(self.sim.stage, _parent.GetPath().AppendChild(_prim.GetName() + "_box"))
+                _cube.CreateSizeAttr(1.0)
+                _cube.AddTranslateOp().Set(_Gf.Vec3f(float(_center[0]), float(_center[1]), float(_center[2])))
+                _cube.AddScaleOp().Set(_Gf.Vec3f(max(float(_size[0]), 1e-3), max(float(_size[1]), 1e-3), max(float(_size[2]), 1e-3)))
+                _UP2.CollisionAPI.Apply(_cube.GetPrim())
+                _prim.RemoveAPI(_UP2.CollisionAPI)
+                _boxes += 1
+            print("[DIAG] box colliders=%d" % _boxes, flush=True)
         if _os_c.environ.get("WHEELED_PROBE_COLLISION_SUBSET") == "1":
             from pxr import UsdPhysics as _UP
             _targets = [_q for _q in self.sim.stage.Traverse() if _q.HasAPI(_UP.CollisionAPI)]
@@ -549,7 +574,8 @@ class ChassisEnv:
             [s[-1].height(2.) - s[0].height(-1.5) for s in self.surfaces], device=device)
         self.env_paths = [p.split("/Robot")[0] for p in paths]
         contact_material_readback = None
-        _skip_material = __import__("os").environ.get("WHEELED_PROBE_COLLISION_SUBSET") == "1"
+        _skip_material = (__import__("os").environ.get("WHEELED_PROBE_COLLISION_SUBSET") == "1"
+                          or __import__("os").environ.get("WHEELED_PROBE_BOX_COLLIDERS") == "1")
         if self.contact_material is not None and not _skip_material:
             self.contact_material.reorder(order)
             contact_material_readback = self.contact_material.verify_native(self.sim.stage, self.robot, self.env_paths,
