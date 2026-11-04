@@ -4,7 +4,7 @@
 
 当前入口为`train_chassis.py`与`run_full_chassis.py`，环境位于`wheeled_tasks/chassis`。
 详见[V5训练主线架构](V5_ARCHITECTURE.md)：资产/控制、课程物化、观测/奖励、验收、进程及回收边界。
-运行操作见[Kaiser独立训练与回收](V5_INTEGRATED_TRAINING_20260921.md)。
+运行操作见Kaiser独立训练与回收。
 
 ## 历史V3三包设计
 
