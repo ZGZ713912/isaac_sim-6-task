@@ -48,7 +48,7 @@
 12486策略最初配套的是旧机械资产。实验先认证原ONNX包，再显式允许同ABI的新机械资产评测；
 不会把旧策略的原始manifest改写成新资产。部署包也应分别保留**策略来源身份**与**运行机械身份**。
 
-数值参考附件：[v5_self_righting_reference_20260926.json](evidence/v5_self_righting_reference_20260926.json)。
+数值参考附件：v5_self_righting_reference_20260926.json。
 其中包含四主动轴姿态、静态前馈、带前馈偏置的准备目标、45点气簧映射和轴方向。
 这些是冻结仿真模型的输出端参考量，**不包含实机CAN、零位、链传动或电流标定**。
 
@@ -86,7 +86,7 @@
 前／后标签是reset角度，释放后按实际姿态选方向，不代表穷尽所有倒扣构型。
 
 完整证据：`reports/v5_activation_capture_20260925/`及
-[v5_capture_recovery_20260925.json](evidence/v5_capture_recovery_20260925.json)。
+v5_capture_recovery_20260925.json。
 当前证据只覆盖单一质量／摩擦配置及关闭自碰撞的仿真，不包含整机实物恢复验收。
 
 ## 2. 现有部署代码与接入位置
@@ -151,7 +151,7 @@ D = [left_hip, right_hip, left_knee_drive, right_knee_drive]
 2026-09-26用户最新确认：**前膝电机、后髋电机，外部链传动比1:1**，覆盖此前相反记录。
 前电机按功能绑定`LL_joint1/RR_joint1`，后电机绑定`L_joint1/R_joint1`；编码器符号、零位及驱动口分别标定。
 固定大小腿夹角时两主动输出轴等增量随动；固定大腿相对车体角度时，改变膝内角只有膝驱动轴转动。
-V5.9训练资产的两条运动学关系已独立验证，见[数值回执](evidence/v5_motor_coupling_two_conditions_20260926.json)。
+V5.9训练资产的两条运动学关系已独立验证，见数值回执。
 
 ### 3.2 单位与IMU
 
@@ -932,7 +932,7 @@ TB横轴为反馈tick加重放偏移`run_index*100000`，不是直接秒数；�
 - 静态几何：`tools/analyze_v5_spring_limits.py::balanced_standing_pose`。
 - 静态负载：`scripts/compare_v5_spring_load.py::prepare_trial`。
 - NumPy部署参考：`docs/examples/v5_policy_io.py`。
-- 历史过程及参数取舍：[V5_ACTIVATION_STUDY_20260925.md](V5_ACTIVATION_STUDY_20260925.md)。
+- 历史过程及参数取舍：V5_ACTIVATION_STUDY_20260925.md。
 - 原控制ABI：[V54_DEPLOYMENT_INTERFACE.md](V54_DEPLOYMENT_INTERFACE.md)，具体模型数值仍以合同为准。
-- 数值附件：[v5_self_righting_reference_20260926.json](evidence/v5_self_righting_reference_20260926.json)。
-- 物理验收回执：[v5_capture_recovery_20260925.json](evidence/v5_capture_recovery_20260925.json)。
+- 数值附件：v5_self_righting_reference_20260926.json。
+- 物理验收回执：v5_capture_recovery_20260925.json。

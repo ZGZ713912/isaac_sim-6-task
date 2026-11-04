@@ -6,14 +6,14 @@
 
 配套可执行NumPy参考：[examples/v5_policy_io.py](examples/v5_policy_io.py)。
 它与训练侧观测、动作映射和关节输出端控制数学做逐项对照测试，不包含硬件通信驱动。
-完整域设计见[V54_FULL_RANGE_TRAINING.md](V54_FULL_RANGE_TRAINING.md)，当前训练方式见[V56_ADAPTIVE_TRAINING.md](V56_ADAPTIVE_TRAINING.md)。
+完整域设计见V54_FULL_RANGE_TRAINING.md，当前训练方式见V56_ADAPTIVE_TRAINING.md。
 接口兼容不等于能力相同，下面先明确本次交付的具体模型。
 
 ## 0. 本次交付：此前的平地移动／旋转模型
 
-- **ONNX**：[models/v5_flat_12486/policy.onnx](../models/v5_flat_12486/policy.onnx)。
-- **完整轻量交付包**：[models/v5_flat_12486.zip](../models/v5_flat_12486.zip)。
-- 逐项能力及离线运行说明：[交付包README](../models/v5_flat_12486/README.md)。
+- **ONNX**：models/v5_flat_12486/policy.onnx。
+- **完整轻量交付包**：models/v5_flat_12486.zip。
+- 逐项能力及离线运行说明：交付包README。
 - 来源：`v5-speed-resume-20260922/train/stage_00_flat/block_016`，累计12486次更新。
 - ONNX原始字节已保留：204185字节（约199.4KiB），SHA-256：
   `ae58b862be5547195d8c4b3e71aa9be37b147792ebc903c68f032f341d92be6d`。
@@ -215,7 +215,7 @@ Actor不需要真实膝角、气簧位移、接触力、根部线速度或地形
 固定髋轴、只把内角增加10°时，膝驱动轴转约−12.4418°。
 **链轮1:1不表示膝驱动轴角与大小腿内角1:1**，后者还经过闭链连杆。
 
-证据：[两条件数值回执](evidence/v5_motor_coupling_two_conditions_20260926.json)。
+证据：两条件数值回执。
 复现脚本：`scripts/audit_v5_motor_coupling.py`；回归测试：`tests/test_v5_motor_coupling.py`。
 这些核验确认模型的运动学关系；实机编码器正方向／零位和驱动通道映射由硬件标定给出。
 
@@ -429,7 +429,7 @@ Torch／ORT最大绝对差`5.7220458984375e-6`，通过`atol=rtol=1e-5`。
 落地后的内部RECOVERY相位不是35D中的recover命令位；不得混用。
 实机主动轴映射、编码器／IMU标定、执行器动态与时延仍需由对接方提供实测绑定数据。
 
-华南虎准备／恢复机制的逐文件核对、V5脚本PREPARE与可选倒地恢复训练设计，见[V5_SELF_RIGHTING_DESIGN.md](V5_SELF_RIGHTING_DESIGN.md)。
+华南虎准备／恢复机制的逐文件核对、V5脚本PREPARE与可选倒地恢复训练设计，见V5_SELF_RIGHTING_DESIGN.md。
 
 源码权威入口：`scut_observation.py::build_scut35`、`env.py::get_observations/step`、
 `v5_control.py::decode/motor_efforts`、`chassis_export.py::export_actor`，均位于`src/`对应包下。
