@@ -1,0 +1,23 @@
+[package]
+title = "Wheel-leg measured state mirror"
+description = "Read-only CAD kinematics viewport; no physics, training, or hardware control"
+version = "1.0.0"
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.kit.viewport.bundle" = {}
+"omni.kit.viewport.rtx" = {}
+"omni.hydra.rtx" = {}
+"omni.kit.window.stage" = {}
+"omni.kit.window.property" = {}
+
+[settings]
+app.name = "Wheel-leg measured state mirror"
+app.window.title = "Wheel-leg real robot mirror | read only"
+app.vulkan = true
+app.useFabricSceneDelegate = false
+renderer.multiGpu.enabled = false
+renderer.enabled = "rtx"
+renderer.active = "rtx"
+rtx.rendermode = "RaytracedLighting"
+

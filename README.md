@@ -5,6 +5,12 @@
 
 轮腿机器人强化学习训练、闭链机构建模与仿真验证。
 
+## 实车状态三维镜像
+
+[Isaac Sim 实车镜像](docs/WHEEL_LEG_LIVE_MIRROR.md)通过 Foxglove WebSocket 订阅 RMCS
+关节与 IMU 遥测，按名称映射训练模型并独立解算闭链；支持 GUI、JSONL 记录与回放、
+断线重连和过期冻结。入口为 `scripts/view_wheel_leg_live.sh`。
+
 ## 连杆与气簧建模工具
 
 已将URDF审计、网格归属清理、四杆闭合、气簧移动副、力曲线拟合、动力验证和打包整理为

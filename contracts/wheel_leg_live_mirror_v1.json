@@ -1,0 +1,87 @@
+{
+  "schema": "wheel_leg_live_mirror_v1",
+  "frame": "Xforward_Yleft_Zup",
+  "source_coordinate": "rmcs_hardware_output_shaft_v1",
+  "note": "Hardware direction and wheel ratio 15.62 are already applied; IMU installation transform is already applied. Calibration historical source identity is distinct from the current moving-gimbal training asset identity.",
+  "asset": {
+    "bundle": "model/wheel_leg_v2.0.2/friction_v1/training",
+    "manifest_sha256": "46197630c19cf78286b1771cc6bf6351fde69038a310226b5c2bdee16cf81c65",
+    "model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
+    "visuals": "../isaac/meshes/visuals.usdc",
+    "visuals_sha256": "7624d04eaac18e2ca800a17c5754c217755f42641434c887cd9dfcefe40fb4ee"
+  },
+  "calibration": {
+    "calibration_sha256": "fa4f1142a0c4d4b0ee1e142399869623c0a62f42875ad78ba10a14c1ea9f8292",
+    "calibration_model_spec_sha256": "7f62e0b47546a047219c078bdaa44fc2d82553af04b36b72ec1a94be29a22e18"
+  },
+  "joints": [
+    {
+      "source": "left_hip_joint",
+      "target": "L_joint1",
+      "sign": -1,
+      "offset_rad": 1.6
+    },
+    {
+      "source": "left_knee_joint",
+      "target": "LL_joint1",
+      "sign": -1,
+      "offset_rad": 3.0282761689183353
+    },
+    {
+      "source": "right_hip_joint",
+      "target": "R_joint1",
+      "sign": -1,
+      "offset_rad": -1.6
+    },
+    {
+      "source": "right_knee_joint",
+      "target": "RR_joint1",
+      "sign": -1,
+      "offset_rad": -3.0283102010168
+    },
+    {
+      "source": "left_wheel",
+      "target": "L_joint3",
+      "sign": 1,
+      "offset_rad": 0.0
+    },
+    {
+      "source": "right_wheel",
+      "target": "R_joint3",
+      "sign": 1,
+      "offset_rad": 0.0
+    }
+  ],
+  "legs": [
+    {
+      "name": "left",
+      "hip": "L_joint1",
+      "auxiliary": "LL_joint1",
+      "relative_sign": 1,
+      "relative_limits_rad": [
+        -0.14089326779459427,
+        1.4282761689183354
+      ],
+      "points": [
+        "L_link1",
+        "L_link2",
+        "L_link3"
+      ]
+    },
+    {
+      "name": "right",
+      "hip": "R_joint1",
+      "auxiliary": "RR_joint1",
+      "relative_sign": -1,
+      "relative_limits_rad": [
+        -0.1408473212590866,
+        1.4283102010167998
+      ],
+      "points": [
+        "R_link1",
+        "R_link2",
+        "R_link3"
+      ]
+    }
+  ]
+}
