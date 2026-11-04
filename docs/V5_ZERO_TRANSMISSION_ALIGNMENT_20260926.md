@@ -11,7 +11,7 @@
   **不含髋角差动项**。结构成立的前提是完成本文第 5 节的符号与零位标定。
 
 配套文档：[ONNX_INTEGRATION_V5_20260925.md](ONNX_INTEGRATION_V5_20260925.md)（ONNX 推理对接）、
-[model/纯底盘_v5_232mm/NOMINAL_ZERO_TABLE.md](../model/纯底盘_v5_232mm/NOMINAL_ZERO_TABLE.md)（零点对照表）、
+model/纯底盘_v5_232mm/NOMINAL_ZERO_TABLE.md（零点对照表）、
 [V5_SELF_RIGHTING_DEPLOYMENT.md](V5_SELF_RIGHTING_DEPLOYMENT.md)（自起对接规范）。
 
 ## 1. 坐标系与数组顺序
