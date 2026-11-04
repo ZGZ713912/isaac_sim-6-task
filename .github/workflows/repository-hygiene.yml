@@ -1,0 +1,9 @@
+name: repository-hygiene
+on: [push, pull_request]
+jobs:
+  tracked-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check tracked files
+        run: python3 scripts/check_repository_hygiene.py

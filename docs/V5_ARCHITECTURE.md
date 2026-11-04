@@ -141,7 +141,7 @@ JSON继续用于合同、评测判定、checkpoint选择、恢复和归档回执
 5. 行为验收：固定案例、独立seed与前序技能回归。
 
 CPU CI与正式Isaac运行时使用不同的RSL依赖集合，CPU测试不能替代远端仿真验证。
-实际启动身份、TensorBoard访问与恢复命令见[运行手册](V5_INTEGRATED_TRAINING_20260921.md)。
+实际启动身份、TensorBoard访问与恢复命令见运行手册。
 
 ## 7. 历史模块与维护方向
 
