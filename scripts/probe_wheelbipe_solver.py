@@ -154,8 +154,10 @@ def main():
                     self._update_obs()
                 if self.probe_ready:
                     passive = self.probe_role == 7
+                    # Remove only electrical motor effort: keep the same
+                    # software friction, native damping and gas spring.
+                    self.applied_physical_effort[passive] -= self.motor_effort[passive]
                     self.motor_effort[passive] = 0.
-                    self.applied_physical_effort[passive] = 0.
                     self.robot.set_joint_effort_target(self.applied_physical_effort,joint_ids=self.motor_ids)
                 self.physics_samples += 1
 
@@ -204,7 +206,11 @@ def main():
             joint_velocity=env.robot.data.joint_vel,actor_observation=obs['policy'],
             mass=env.robot.root_physx_view.get_masses(),inertia=env.robot.root_physx_view.get_inertias(),
             materials=env.robot.root_physx_view.get_material_properties(),coms=env.robot.root_physx_view.get_coms(),
-            armature=env.robot.root_physx_view.get_dof_armatures())
+            armature=env.robot.root_physx_view.get_dof_armatures(),
+            motor_strength=env.motor_strength,encoder_bias=env.encoder_bias,
+            pd_encoder_bias=env.pd_encoder_bias,gyro_bias=env.gyro_bias,
+            imu_mount_quat=env.imu_mount_quat,sensor_amplitude=env.sensor_amplitude,
+            policy_age=env.policy_age)
         initial_hashes = {key:fingerprint(value)for key,value in initial.items()}
         # The pinned 5.1 tensor view does not expose native iteration counters.
         # Read applied stage attributes on all roots and scene clamps instead.
@@ -228,6 +234,7 @@ def main():
         receipt.update(status='sampling',versions={n:importlib.metadata.version(n)for n in('isaacsim','isaaclab','rsl-rl-lib','torch')},
             policy_hz=50,pd_hz=200,physics_hz=hz,solver_readback=solver_readback,initial_hashes=initial_hashes,
             passive_model_updates_hz=hz,external_forces_every_iteration=False,
+            passive_drop_model='Zero electrical motor effort; software friction, native damping and gas spring retained',
             interpretation='Controlled cold starts; not exact replay of training event or physical qualification')
         save()
         sample_start = time.monotonic()
