@@ -63,6 +63,11 @@ def validate(config):
         raise ValueError("Unknown recovery practice distribution")
     if c.get("practice_distribution") and standard_only(c):
         raise ValueError("All-family practice requires the full pose bank")
+    if c.get("start_curriculum") is not None:
+        from .recovery_start_curriculum import validate as validate_starts
+        validate_starts(c["start_curriculum"])
+        if standard_only(c) or c.get("practice_distribution") != "all_families_from_start":
+            raise ValueError("Recovery start curriculum must retain full-family practice")
     if standard_only(c):
         if not c.get("standard_reset_pose_name") or any(s["family_weights"] != {
                 f:float(f == "belly_down") for f in FAMILIES} for s in stages):
@@ -210,14 +215,23 @@ class ResetSampler:
                 self.pools[(r["family"], r["leg_class"])].append(i)
         if self.standard_index is None and any(not p for p in self.pools.values()):
             raise ValueError("Cannot silently replace a missing recovery cell with standard prone")
+        self.start_curriculum = None
+        if config.get("start_curriculum") is not None:
+            from .recovery_start_curriculum import RecoveryStartCurriculum
+            self.start_curriculum = RecoveryStartCurriculum(bank, config["start_curriculum"],
+                "recovery-start:"+str(seed))
 
     def state_dict(self):
-        return dict(schema="wheel-leg-recovery-sampler-v1", rng=self.rng.getstate(),
-                    class_cursor=dict(self.class_cursor))
+        state = dict(schema="wheel-leg-recovery-sampler-v1", rng=self.rng.getstate(),
+                     class_cursor=dict(self.class_cursor))
+        if self.start_curriculum is not None:
+            state["start_curriculum"] = self.start_curriculum.state_dict()
+        return state
 
     @staticmethod
     def validate_state(state):
-        if (not isinstance(state, dict) or set(state) != {"schema", "rng", "class_cursor"}
+        if (not isinstance(state, dict) or set(state) not in (
+                {"schema", "rng", "class_cursor"}, {"schema", "rng", "class_cursor", "start_curriculum"})
                 or state["schema"] != "wheel-leg-recovery-sampler-v1"
                 or not isinstance(state["class_cursor"], dict)
                 or set(state["class_cursor"]) != set(FAMILIES)
@@ -227,11 +241,23 @@ class ResetSampler:
             random.Random().setstate(state["rng"])
         except (TypeError, ValueError) as exc:
             raise ValueError("Invalid recovery sampler RNG") from exc
+        if "start_curriculum" in state:
+            from .recovery_start_curriculum import RecoveryStartCurriculum
+            RecoveryStartCurriculum.validate_state(state["start_curriculum"])
 
     def load_state_dict(self, state):
         self.validate_state(state)
+        if (self.start_curriculum is None) != (state.get("start_curriculum") is None):
+            raise ValueError("Recovery sampler checkpoint start curriculum differs")
         self.rng.setstate(state["rng"])
         self.class_cursor = dict(state["class_cursor"])
+        if self.start_curriculum is not None:
+            self.start_curriculum.load_state_dict(state["start_curriculum"])
+
+    def sample_start(self, completed):
+        if self.start_curriculum is None:
+            return self.sample(completed), -1
+        return self.start_curriculum.sample(lambda: self.sample(completed))
 
     def sample(self, completed):
         if self.standard_index is not None:return self.standard_index

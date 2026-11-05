@@ -40,6 +40,8 @@ def reset_retired_fixed_cases(env):
     generators = [(g, g.get_state()) for g in generators if g is not None]
     sampler = getattr(env, "recovery_sampler", None)
     sampler_state = (sampler.rng.getstate(), deepcopy(sampler.class_cursor)) if sampler is not None else None
+    from .recovery_start_curriculum import optional_state, restore_optional
+    start_state = optional_state(sampler)
     generation = getattr(env, "prone_reset_generation", None)
     rng = (torch.get_rng_state(), torch.cuda.get_rng_state_all() if torch.cuda.is_initialized() else [],
            np.random.get_state(), random.getstate())
@@ -53,6 +55,7 @@ def reset_retired_fixed_cases(env):
         if sampler_state is not None:
             sampler.rng.setstate(sampler_state[0])
             sampler.class_cursor = sampler_state[1]
+        restore_optional(sampler, start_state)
         if generation is not None:
             env.prone_reset_generation = generation
         torch.set_rng_state(rng[0])

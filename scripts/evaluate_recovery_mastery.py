@@ -43,6 +43,8 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
     rng = (torch.get_rng_state(),torch.cuda.get_rng_state_all() if torch.cuda.is_available() else [],
         env.generator.get_state(),env.domain.rng.get_state(),np.random.get_state(),random.getstate(),
         env.recovery_sampler.rng.getstate(),deepcopy(env.recovery_sampler.class_cursor))
+    from wheeled_tasks.chassis.recovery_start_curriculum import optional_state, restore_optional
+    start_state = optional_state(env.recovery_sampler)
     closure_settings = getattr(env, "getup_cfg", {})
     rows = [dict(family=c["family"],leg_class=c["leg_class"],split=c.get("split","holdout"),pose_index=c["pose_index"],
         heading_rad=c["heading_rad"],completed=False,terminated=False,active_time_s=None,
@@ -96,5 +98,6 @@ def evaluate(env, actor, config, *, stop_requested=lambda:False, cases_override=
         env.generator.set_state(rng[2]); env.domain.rng.set_state(rng[3])
         np.random.set_state(rng[4]); random.setstate(rng[5])
         env.recovery_sampler.rng.setstate(rng[6]); env.recovery_sampler.class_cursor = rng[7]
+        restore_optional(env.recovery_sampler, start_state)
         env.reset(torch.arange(env.num_envs,device=env.device))
         actor.train(was_training)

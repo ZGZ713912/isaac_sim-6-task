@@ -105,6 +105,9 @@ def validate_checkpoint(state, bundle):
     if bundle["plan"].get("multi_pose_recovery") is not None:
         from wheeled_tasks.chassis.multi_pose_recovery import ResetSampler
         ResetSampler.validate_state(info.get("recovery_sampler"))
+        if (bundle["plan"]["multi_pose_recovery"].get("start_curriculum") is not None) != (
+                "start_curriculum" in info["recovery_sampler"]):
+            raise ValueError("Checkpoint recovery start curriculum is missing or unexpected")
         if type(info.get("prone_reset_generation")) is not int or info["prone_reset_generation"] < 0:
             raise ValueError("Checkpoint is missing the curriculum reset clock")
     return completed

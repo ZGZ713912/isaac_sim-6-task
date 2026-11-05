@@ -45,3 +45,23 @@ result authorizes hardware motion.
 ## 显式探索范围
 
 `wheel_leg_self_righting_phase_exploration_v2.json`独立声明raw action标准差范围0.003–1.0，腿初值0.8、轮初值0.5，分别对应0.2rad位置目标和5rad/s速度目标的标准差。初始化与实际RSL分布使用同一范围，拒绝未声明或会被分布静默裁剪的配置。其他合同继续使用原0.003–0.3范围；电机力矩、相对关节限位、接触保护和策略解码不变。该设置本身不代表能力改善。
+
+## Backward reset difficulty
+
+`wheel_leg_self_righting_near_start_v1.json` adds training-only start difficulty
+to the recovery-focus candidate. Four nested pools use existing native-admitted
+static training belly poses with both absolute orbital angles at most20°,40°,
+70° and180°, followed by the original full-family sampler. These geometric
+limits are experiment choices, not demonstrated recovery regions. Ten percent
+of recovery births retain the original full-family sampler from the first stage.
+Held-out poses remain excluded from training. No reset geometry is synthesized.
+
+Advancement requires a rolling64 completed eligible episodes with at least75%
+actual recovery followed by the existing3s continuous stable hold. An episode
+is credited only to its birth stage; full-family interleaving and older-stage
+episodes cannot advance a later stage. PPO counts and reward do not unlock it.
+Phase, outcome window, advancement evidence and its separate random stream are
+checkpointed and preserved across cold-case retirement. Global admission and
+independent evaluations retain their original cases and horizons. The actor has
+no added observations, targets, teacher or donor. Native runtime validation and
+independent behavior are required before any capability claim.

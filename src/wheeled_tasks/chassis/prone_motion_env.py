@@ -160,6 +160,11 @@ class ProneMotionEnv(RobustGetupEnv):
             self.startup_report["global_curriculum"] = dict(config=self.global_curriculum.config,
                 nominal_pose_index=self.nominal_pose_index,initial_state=self.global_curriculum.state_dict(),
                 admission="cold per-case/per-leg evaluation; elapsed updates never unlock commands")
+        if self.multi_pose_cfg is not None and self.recovery_sampler.start_curriculum is not None:
+            course = self.recovery_sampler.start_curriculum
+            self.startup_report["recovery_start_curriculum"] = dict(config=course.config,
+                initial_state=course.state_dict(),pools=course.pools,
+                training_only=True,geometry_or_behavior_qualification=False)
 
     def _append_urdf_nominal_pose(self):
         """Authenticate literal nominal joints; only reset placement is grounded."""
@@ -209,9 +214,13 @@ class ProneMotionEnv(RobustGetupEnv):
                     continue
                 birth = row["birth_height"]
                 pose = (self.nominal_pose_index if row.get("nominal_birth") else self.height_pose.get(birth,self.height_pose[.305]))
-                if row["recovery"]:pose = self.recovery_sampler.sample(self.actor_updates)
+                start_phase = -1
+                if row["recovery"]:
+                    from .recovery_start_curriculum import select_start
+                    pose, start_phase = select_start(self.recovery_sampler, self.actor_updates,
+                        training=self.recovery_training_run)
                 cases[i] = dict(row,pose_index=pose,birth_height=self.poses[pose]["root_position_m"][2],
-                    command=[0.,0.,birth])
+                    command=[0.,0.,birth], recovery_start_phase=start_phase)
         if self.evaluation_cases is not None:
             cases = self.evaluation_cases
         cases = self.course_reset_cases(cases, ids_cpu)
@@ -475,6 +484,14 @@ class ProneMotionEnv(RobustGetupEnv):
             # passive-admitted physical loop or marking a success as failure.
             self.episode_limits.copy_(torch.where(stage_extra["recovery_training_timeout"],
                 self.episode_length_buf, self.episode_limits))
+            start_course = self.recovery_sampler.start_curriculum
+            if start_course is not None and self.recovery_training_run and self.evaluation_cases is None:
+                ended = self.recovery_lane & (terminated | (self.episode_length_buf >= self.episode_limits))
+                ids = ended.nonzero().flatten().tolist()
+                outcome = start_course.observe([self.course_cases[i].get("recovery_start_phase", -1) for i in ids],
+                    stage_extra["recovery_training_timeout"][ended].tolist())
+                stage_extra["recovery_start_outcomes"] = self.quiet_hold.new_tensor(
+                    [outcome["phase"], outcome["episodes"], outcome["successes"]])
         quiet_event = (self.quiet_hold >= 30.) & ~self.quiet_completed
         self.quiet_completed |= quiet_event
         now = self.potential()
@@ -544,6 +561,18 @@ class ProneMotionEnv(RobustGetupEnv):
             result.update({
                 "RecoveryTraining/completion_timeout_events": extra["recovery_training_timeout"].float().sum(),
                 "RecoveryTraining/recovery_lane_fraction": self.recovery_lane.float().mean()})
+            start_course = self.recovery_sampler.start_curriculum
+            if start_course is not None:
+                result.update({
+                    "RecoveryStart/phase": self.quiet_hold.new_tensor(start_course.phase),
+                    "RecoveryStart/window_trials": self.quiet_hold.new_tensor(len(start_course.window)),
+                    "RecoveryStart/window_success_rate": self.quiet_hold.new_tensor(
+                        sum(start_course.window)/max(1,len(start_course.window)))})
+                if "recovery_start_outcomes" in extra:
+                    phase, episodes, successes = extra["recovery_start_outcomes"].unbind()
+                    for i in range(5):
+                        result[f"RecoveryStart/phase{i}/episode_events_per_step"] = torch.where(phase == i, episodes, 0.)
+                        result[f"RecoveryStart/phase{i}/success_events_per_step"] = torch.where(phase == i, successes, 0.)
         physical = self.prone_motion_physical
         if self.leg_friction.enabled:
             loss, speed = physical["leg_friction_passive_effort"], physical["leg_friction_velocity"]

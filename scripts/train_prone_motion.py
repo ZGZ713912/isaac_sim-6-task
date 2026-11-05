@@ -367,6 +367,8 @@ def source_hashes(plan_path, plan):
         if plan.get("global_curriculum") is not None:
             if plan["global_curriculum"].get("recovery_focus") is not None:
                 names.append("tests/test_recovery_discovery.py")
+            if plan["multi_pose_recovery"].get("start_curriculum") is not None:
+                names.append("tests/test_recovery_start_curriculum.py")
             names.extend(["contracts/wheel_leg_prone_motion_v4_recovery_20261031.json",
                 "scripts/evaluate_global_curriculum.py","tests/test_global_curriculum.py",
                 "scripts/probe_global_curriculum.py",

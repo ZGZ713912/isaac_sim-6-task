@@ -138,6 +138,9 @@ def validate(plan):
             raise ValueError("Global admission requires the explicit v4 four-class recovery gate")
         if plan["global_curriculum"].get("recovery_scope") != plan["multi_pose_recovery"].get("reset_scope"):
             raise ValueError("Global and recovery reset scope disagree")
+    if plan.get("multi_pose_recovery", {}).get("start_curriculum") is not None:
+        if plan.get("global_curriculum", {}).get("recovery_focus") is None:
+            raise ValueError("Recovery starts require the explicit training-only completion contract")
     v2 = plan["schema"] != "wheel-leg-prone-motion-v1"
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):
