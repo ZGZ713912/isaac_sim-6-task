@@ -86,6 +86,11 @@ def main():
                     # but never reseed a retired case before returning it.
                     self.suppressed_retirement_resets += 1
                     return
+                if getattr(self, "course_ready", False) and self.evaluation_cases is None:
+                    # The constructor's last reset already belongs to this
+                    # cold case. A single-world evaluator must not invoke the
+                    # training population allocator, which needs two lanes.
+                    self.evaluation_cases = [case_for(args, self, bundle["plan"])]
                 return super().reset(ids, **kwargs)
         manifest = json.loads((ROOT/cfg["asset_directory"]/"manifest.json").read_text())
         env = construct_evaluation_env(ContinuousCaseEnv, cfg, manifest, control, ROOT, stage_name="speed", num_envs=1,
@@ -158,6 +163,7 @@ def main():
             writer.add_scalar("ContinuousRecovery/failure_denominator", 1, 0)
     except BaseException:
         report.update(status="failed", error=traceback.format_exc())
+        print(report["error"], file=sys.stderr, flush=True)
         raise
     finally:
         if runtime is not None:
