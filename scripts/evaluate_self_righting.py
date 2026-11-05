@@ -9,6 +9,7 @@ import math
 import os
 from pathlib import Path
 import sys
+import subprocess
 import time
 import traceback
 
@@ -47,6 +48,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--num-envs", type=int, default=64)
     parser.add_argument("--seconds", type=float, default=24.)
+    parser.add_argument("--raw-physics", action="store_true",
+                        help="Archive completed physical steps and original diagnostic flags without changing scoring")
     args = parser.parse_args()
     import play_prone_motion as play
     from train_scratch_standing import digest, write_json
@@ -58,23 +61,26 @@ def main():
         "--num-envs", str(args.num_envs), "--seconds", str(args.seconds), "--domain-randomization", "off",
         "--headless", "--no-real-time"])
     bundle = play.load_bundle(cli)
-    # Evaluation may add scripts, but may not silently replace the training plant.
+    # Evaluation may add files, but may not replace any bound training source.
     training_hashes = json.loads((args.run / "source_hashes.json").read_text())
     for name, value in training_hashes.items():
-        if name.startswith("src/") and digest(ROOT / name) != value:
-            raise ValueError("Evaluation plant changed since training: " + name)
+        if digest(ROOT / name) != value:
+            raise ValueError("Evaluation training source changed since training: " + name)
     args.output.mkdir(parents=True, exist_ok=False)
     cfg, settings, control = play.prepare(cli, bundle, args.output / "configuration")
     report = dict(schema="self-righting-independent-screen-v1", status="starting", new_PPO=0,
         checkpoint=str(bundle["checkpoint"]), checkpoint_sha256=digest(bundle["checkpoint"]),
         completed_updates=bundle["state"]["iter"], source_revision=bundle["info"]["source_revision"],
+        evaluation_source_revision=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+        verified_training_source_hashes=len(training_hashes),
         evaluation_script_sha256=digest(Path(__file__)), hardware_io=False, full_capability_qualified=False,
+        evaluation_world_budget_s=args.seconds,
         wheelbipe16001_handoff_tested=False, followup_controller="same recovery actor",
         impulse_scope="per-body positive world-Z contact integral before part-group reduction",
         pose_scope="first admitted independent static pose per family/leg class, headings0 and90deg",
         criteria=dict(active_recovery_max_s=20., post_completion_stable_hold_s=3.), cases=[])
     write_json(args.output / "report.json", report)
-    env = launcher = writer = None
+    env = launcher = writer = observer = None
     started = time.monotonic()
     try:
         from isaaclab.app import AppLauncher
@@ -93,6 +99,14 @@ def main():
         writer = SummaryWriter(str(args.output / "events"))
         report.update(physics_dt_s=env.dt, policy_dt_s=env.policy_dt,
                       impulse_window_s=env.recovery_impact.config["window_seconds"], group_order=["chassis", "gimbal", "legs", "wheels"])
+        if args.raw_physics:
+            from wheeled_tasks.chassis.evaluation_trace import RecoveryTraceObserver
+            observer = RecoveryTraceObserver(env, args.output / "raw_physics", seconds=args.seconds)
+            report.update(raw_physics_schema=observer.manifest["schema"],
+                raw_physics_scoring_changes=False,
+                original_terminal_retirement_resets_preserved=True,
+                raw_physics_source_sha256=digest(ROOT / "src/wheeled_tasks/chassis/evaluation_trace.py"),
+                raw_physics_contract_sha256=digest(ROOT / "contracts/wheel_leg_recovery_physical_trace_v1.json"))
         with torch.inference_mode():
             for offset in range(0, len(cases), env.num_envs):
                 batch = cases[offset:offset + env.num_envs]; n = len(batch)
@@ -105,9 +119,16 @@ def main():
                     stable_hold_s=0., force_peak_n=[0.] * 4, impulse_peak_ns=[0.] * 4,
                     closure_peak_m=0., policy_samples=0) for c in batch]
                 trace = []
+                if observer is not None:
+                    observer.begin_batch(offset, batch, env.evaluation_cases)
                 for policy_step in range(round(args.seconds / env.policy_dt)):
-                    obs, _, done, extra = env.step(actor(obs))
+                    action = actor(obs)
+                    if observer is not None:
+                        observer.begin_policy_step(obs, action, active, policy_step)
+                    obs, _, done, extra = env.step(action)
                     d = extra["diagnostics"]
+                    if observer is not None:
+                        observer.end_policy_step(d, done, extra["time_outs"])
                     # Transfer one contiguous diagnostic batch, not hundreds of
                     # scalar GPU synchronizations per policy interval.
                     scalars = torch.stack((d["time"][:n], d["height"][:n], d["gravity"][:n, 2],
@@ -137,6 +158,8 @@ def main():
                         write_json(args.output / "report.json", dict(report, cases=report["cases"] + rows))
                     if not active.any(): break
                 np.savez_compressed(args.output / f"batch_{offset:03d}.npz", trajectory=np.stack(trace))
+                if observer is not None:
+                    observer.end_batch(rows)
                 report["cases"].extend(rows)
                 write_json(args.output / "report.json", report)
         passed = sum(r["passed"] for r in report["cases"])
@@ -154,6 +177,7 @@ def main():
         raise
     finally:
         if writer is not None: writer.close()
+        if observer is not None: observer.close(report["status"])
         if env is not None: env.close()
         if launcher is not None: launcher.app.close()
 

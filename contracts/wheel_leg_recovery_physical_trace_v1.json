@@ -1,0 +1,30 @@
+{
+  "schema": "wheel-leg-recovery-physical-trace-v1",
+  "entrypoint": "scripts/evaluate_self_righting.py --raw-physics",
+  "scope": "independent static holdout screen with the original fixed-grid recovery controller and nominal domain",
+  "training_updates": 0,
+  "scoring_changes": false,
+  "original_terminal_retirement_resets_preserved": true,
+  "case_scope": "same first admitted static holdout per seven families, four leg combinations and two headings; missing admissions remain failures",
+  "physical_hook": "after native simulate/fetch completion and original robot data update, before original contact reductions",
+  "clock": "actual submitted dt committed by native fetch_results; no independent engine-time getter claim",
+  "contact": {
+    "frame": "world",
+    "quantity": "ground contact resultant for each named rigid body",
+    "units": "N",
+    "independent_integration": "positive world-Z, per body over sliding 0.020 s with fractional oldest interval before part-group maximum",
+    "enabled_mask": "original not-passive and not-finished at the completed physical interval",
+    "scored_mask": "case remains active in the original external scorer; duplicate padding lanes excluded",
+    "scope_limit": "not self collision, individual contact patches, internal loads or structural stress"
+  },
+  "states": "full native joint position, velocity and applied physical effort; root pose, COM velocity, body gravity and gyro",
+  "effort_channels": ["held PD command before response", "requested motor effort", "actual motor output after fixed-grid wheel response", "native applied physical effort including passive contributions"],
+  "history_channels": ["motor filter state", "complete wheel command delay buffer and head", "complete feedback position and velocity buffers, cursor and tick", "domain torque and sensor buffers and cursors", "gimbal motion state", "quiet-standing reward filter state"],
+  "history_cadence": "each completed physical step; initial state separately without fabricated measured contacts",
+  "policy_channels": "35D input and 6D raw output from each existing actor call, prior control action, original tensor diagnostics including all named task failure flags and timeout flags",
+  "fault_attribution": "simultaneous original flags at termination; no assertion of a unique causal fault",
+  "storage": "bounded float32 memory-mapped lane arrays, float64 clocks and committed valid prefix in manifests; unused allocation is not observed data",
+  "source_binding": "all recorded training source hashes must match; evaluation script, observer and contract hashes recorded separately",
+  "controller_mutations": "none; wrappers return original results, capture copies and preserve the same response objects",
+  "limitations": ["observation archive is not a complete simulator checkpoint", "native observer admission must be tested separately from CPU tests", "no WheelBipe16001 handoff performed by this screen", "same-case retest is not a new independent population", "independent force re-integration is not a learned recovery or long-term capability qualification"]
+}
