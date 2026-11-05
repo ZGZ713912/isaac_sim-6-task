@@ -1074,7 +1074,9 @@ class RobustGetupEnv(ChassisEnv):
                 _t6d = _time0.perf_counter()
                 _o1[2] += _t6d - _t6c
             self._diag_tick = getattr(self, '_diag_tick', 0) + 1
-            if self._diag_tick % 4 == 0:
+            # Prone-motion cold tests and reward audits consume this contract
+            # on every policy interval, including the first one after reset.
+            if prone_motion or self._diag_tick % 4 == 0:
                 if prone_task is not None:
                     info["diagnostics"].update(prone_route={key: value.clone() for key, value in prone_route.items()},
                         prone_large_excursion=prone_large_excursion.clone(), prone_refall=prone_refall.clone(),
