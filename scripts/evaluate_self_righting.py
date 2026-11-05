@@ -82,7 +82,7 @@ def main():
             kit_args="--/exts/omni.kit.telemetry/skipDeferredStartup=true"))
         from wheeled_tasks.chassis.prone_motion_env import ProneMotionEnv
         env = ProneMotionEnv(cfg, json.loads((ROOT / cfg["asset_directory"] / "manifest.json").read_text()),
-            control, ROOT, stage_name="speed", num_envs=args.num_envs, device="cuda:0", seed=261105,
+            control, ROOT, stage_name="speed", num_envs=args.num_envs, device="cuda:0", seed=bundle["seed"],
             level=1., run_role="playback", bank=bundle["bank"], settings=settings)
         env.actor_updates = bundle["state"]["iter"]
         dummy = TensorDict(dict(policy=torch.zeros(args.num_envs, 35), critic=torch.zeros(args.num_envs, 87)),
