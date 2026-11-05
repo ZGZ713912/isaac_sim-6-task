@@ -1,0 +1,61 @@
+{
+  "schema": "wheel-leg-recovery-handoff-evaluation-v1",
+  "scope": "local_simulation_independent_evaluation_only",
+  "training": false,
+  "new_PPO": 0,
+  "world_count": 1,
+  "recovery": {
+    "checkpoint_source": "explicit_read_only_run_and_checkpoint_with_original_plan",
+    "policy_joint_names": ["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
+    "physics_hz": 1000,
+    "policy_hz": 100,
+    "pd_hz": 200,
+    "original_recovery_and_terminal_predicates_required": true
+  },
+  "standing": {
+    "policy_sha256": "7ec08d08e6667a6a98707d89c475ad195b1b09f818f5afaeb1723137b193de8b",
+    "completed_training_updates": 16001,
+    "policy_joint_names": ["L_joint1", "R_joint1", "LL_joint1", "RR_joint1", "L_joint3", "R_joint3"],
+    "observation_dim": 35,
+    "leg_action_scale_rad": 0.5,
+    "leg_pd": [60.0, 2.0],
+    "physics_hz": 200,
+    "policy_hz": 50,
+    "pd_hz": 200,
+    "gas_spring_feedforward": false,
+    "physical_gas_spring_retained": true
+  },
+  "capture": {
+    "original_recovery_completed_event_required": true,
+    "current_recovered_and_stable_required": true,
+    "tilt_below_deg": 3.0,
+    "gyro_xy_norm_below_rad_s": 0.2,
+    "every_leg_speed_below_rad_s": 0.3,
+    "every_wheel_speed_below_rad_s": 0.5,
+    "contiguous_seconds": 0.3,
+    "terminated_or_invalid_sensor_resets_window": true
+  },
+  "continuity": {
+    "physical_state_writes": "initial_placement_only",
+    "same_motor_and_wheel_response_objects": true,
+    "wheel_delay": "causal_physical_timestamps_retained_across_dt_change",
+    "motor_lag": "recompute_alpha_without_clearing_state_or_replacing_wrapper",
+    "communication_feedback_and_command_histories": "retain_and_qualify_each_configured_component",
+    "observation_ABI": "construct_fresh_from_sensors_for_each_policy; never_relabel_a_35D_frame",
+    "new_actor_previous_action": "zero_in_new_actor_ABI; preserve_old_actor_history_in_receipt"
+  },
+  "measurement": {
+    "recovery_time": "enable_to_actual_handoff; failures_keep_null_time",
+    "impulse": "sample_after_every_completed_physics_update; integrate_each_body_positive_world_Z_over_20ms_then_group_max; actual_dt",
+    "post_handoff_seconds": 10.0,
+    "failure_denominators_retained": true,
+    "standing_diagnostics_start": "actual_handoff_only; preserve_entire_followup_window"
+  },
+  "admission": {
+    "CPU_tests_are_behavior_qualification": false,
+    "native_physics_step_and_interface_parity_required": true,
+    "actual_learned_recovery_and_continuous_handoff_required": true,
+    "nominal_standing_reference_is_self_righting": false,
+    "hardware_qualified": false
+  }
+}
