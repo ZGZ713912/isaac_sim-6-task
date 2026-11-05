@@ -86,6 +86,20 @@ def test_standing_receives_a_ten_second_quiet_command_window():
     assert (s.next_sample[s.mask("stand")] == 10.).all()
 
 
+def test_turn_lane_covers_all_four_arcs_and_dash_includes_braking_both_directions():
+    s, _ = course(32)
+    phase = dict(phase_for_update(20000, s.spec), completed_update=20000)
+    arcs, dashes = [], []
+    for age in (0., 5., 10., 15.):
+        command, _ = s.update_commands(torch.full((32,), age), phase)
+        arcs.append(command[s.mask("turn")][:, [0, 2]].sign().clone())
+        dashes.append(command[s.mask("dash"), 0].clone())
+    for lane in range(len(arcs[0])):
+        assert {tuple(x[lane].tolist()) for x in arcs} == {(-1.,-1.),(-1.,1.),(1.,-1.),(1.,1.)}
+    assert (dashes[1] == 0.).all() and (dashes[3] == 0.).all()
+    assert (dashes[0]*dashes[2] < 0.).all()
+
+
 def sample(observer, age=2., *, clear=.03, force=0., vz=.6, height=.50, nonwheel=0.):
     n = len(observer.weight)
     velocity = torch.zeros(n, 3)

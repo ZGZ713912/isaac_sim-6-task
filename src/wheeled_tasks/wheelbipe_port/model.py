@@ -45,9 +45,18 @@ def authenticate_source():
     manifest = json.loads((VENDOR / "provenance.json").read_text())
     if manifest["source_commit"] != SOURCE_COMMIT:
         raise ValueError("Unexpected Wheelbipe source revision")
+    locations = manifest.get("documentation_locations", {})
+    if not set(locations).issubset(manifest["files_sha256"]):
+        raise ValueError("Relocated documentation is absent from the original source manifest")
     for relative, expected in manifest["files_sha256"].items():
-        path = (VENDOR / relative).resolve()
-        if not path.is_relative_to(VENDOR) or digest(path) != expected:
+        if relative in locations:
+            path = (ROOT / locations[relative]).resolve()
+            within = (Path(relative).suffix == ".md"
+                      and path.is_relative_to(ROOT / "docs/third_party/wheelbipe"))
+        else:
+            path = (VENDOR / relative).resolve()
+            within = path.is_relative_to(VENDOR)
+        if not within or not path.is_file() or digest(path) != expected:
             raise ValueError("Wheelbipe source changed: " + relative)
     return manifest
 

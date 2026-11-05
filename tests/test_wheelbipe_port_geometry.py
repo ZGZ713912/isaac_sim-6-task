@@ -24,6 +24,33 @@ def test_original_source_and_native_name_bijection():
     assert len(set(BODY_ALIASES.values())) == 21
 
 
+def test_relocated_vendor_documents_keep_their_original_hashes_and_directory_boundary(tmp_path, monkeypatch):
+    import hashlib
+    import pytest
+    from wheeled_tasks.wheelbipe_port import model
+
+    vendor = tmp_path/"third_party/wheelbipe"
+    vendor.mkdir(parents=True)
+    target = tmp_path/"docs/third_party/wheelbipe/README.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("original vendor documentation\n")
+    manifest = dict(source_commit=model.SOURCE_COMMIT,
+        files_sha256={"src/README.md": hashlib.sha256(target.read_bytes()).hexdigest()},
+        documentation_locations={"src/README.md": str(target.relative_to(tmp_path))})
+    metadata = vendor/"provenance.json"
+    metadata.write_text(json.dumps(manifest))
+    monkeypatch.setattr(model, "ROOT", tmp_path)
+    monkeypatch.setattr(model, "VENDOR", vendor)
+    assert model.authenticate_source() == manifest
+    target.write_text("modified documentation\n")
+    with pytest.raises(ValueError, match="source changed"):
+        model.authenticate_source()
+    manifest["documentation_locations"]["src/README.md"] = "outside/README.md"
+    metadata.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="source changed"):
+        model.authenticate_source()
+
+
 def test_independent_left_right_reset_closes_all_six_constraints():
     spec = json.loads((BUNDLE / "model_spec.json").read_text())
     names = [j["name"] for j in spec["joints"] if j["type"] != "fixed"]

@@ -99,10 +99,13 @@ class TaskSchedule:
             generation = torch.floor(age[ids]/self.spec["sampling"]["command_hold_seconds"]).long()
             sign = torch.where((ids+generation) % 2 == 0, 1., -1.)
             turn = r == TASKS.index("turn")
-            cmd[:, 0] = torch.where(turn, sign*.2, cmd[:, 0])
+            travel_sign = torch.where((ids//2+generation//2) % 2 == 0, 1., -1.)
+            cmd[:, 0] = torch.where(turn, travel_sign*.2, cmd[:, 0])
             cmd[:, 2] = torch.where(turn, sign*(.25+max(yawmax-.25, 0.)*self.random(n)), 0.)
             dash = r == TASKS.index("dash")
-            cmd[:, 0] = torch.where(dash, sign*vmax*(.75+.25*self.random(n)), cmd[:, 0])
+            dash_sign = torch.where((ids+generation//2) % 2 == 0, 1., -1.)
+            sprint = generation % 2 == 0
+            cmd[:, 0] = torch.where(dash & sprint, dash_sign*vmax*(.75+.25*self.random(n)), cmd[:, 0])
             spin = r == TASKS.index("spin")
             # Retain the original late-course spin range, including 100 rpm.
             spinmax = 4.5*math.pi if phase.get("completed_update", 0) >= 14000 else yawmax
