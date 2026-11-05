@@ -38,6 +38,16 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
     def _mixed_enabled(self):
         return self.task_schedule is not None and not hasattr(self, "eval_command")
 
+    def learning_curriculum_state(self):
+        return dict(profile_sha256=self.cfg.port_profile_sha256,
+            role=self.task_schedule.role.clone(), generator=self.task_schedule.generator.get_state())
+
+    def restore_learning_curriculum_state(self, state):
+        if (state["profile_sha256"] != self.cfg.port_profile_sha256
+                or not torch.equal(state["role"].to(self.device), self.task_schedule.role)):
+            raise ValueError("Mixed curriculum contract or lane allocation differs")
+        self.task_schedule.generator.set_state(state["generator"].cpu())
+
     def _mixed_age(self, physics=False):
         age = self.episode_length_buf.float()*self.step_dt
         if physics:

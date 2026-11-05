@@ -186,7 +186,7 @@
   "sampling": {
     "allocation": "largest_remainder_fixed_lanes_no_overwrite",
     "minimum_envs": 20,
-    "command_hold_seconds": 2.0,
+    "command_hold_seconds": 5.0,
     "jump_episode_seconds": 6.0,
     "sampler_rng": "independent_seeded_generator",
     "height_wave_hz": 0.25,
@@ -194,7 +194,8 @@
     "low_speed_range_m_s": [
       0.1,
       0.5
-    ]
+    ],
+    "standing_command_hold_seconds": 10.0
   },
   "reward_policy": {
     "unchanged": "foundation-v2 safety, orientation, XY/yaw, motor effort, action costs and non-jump rewards",

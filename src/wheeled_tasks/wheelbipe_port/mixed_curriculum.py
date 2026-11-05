@@ -114,7 +114,9 @@ class TaskSchedule:
             self.height[ids] = hlow+(hhigh-hlow)*self.random(n)
             jump = (r == TASKS.index("jump")) | (r == TASKS.index("airborne"))
             self.height[ids[jump]] = self.spec["jump"]["standing_height_m"]
-            self.next_sample[ids] = age[ids]+self.spec["sampling"]["command_hold_seconds"]
+            hold = torch.where(r == TASKS.index("stand"),
+                self.spec["sampling"]["standing_command_hold_seconds"], self.spec["sampling"]["command_hold_seconds"])
+            self.next_sample[ids] = age[ids]+hold
         hlow, hhigh = phase["height_range_m"]
         wave = (hlow+hhigh)/2+(hhigh-hlow)/2*torch.sin(
             2*math.pi*self.spec["sampling"]["height_wave_hz"]*age+self.wave_phase)

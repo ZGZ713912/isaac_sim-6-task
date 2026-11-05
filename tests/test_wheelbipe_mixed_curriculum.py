@@ -76,6 +76,16 @@ def test_context_and_references_ignore_all_physical_observer_changes():
     assert torch.equal(before[nonjump], base[nonjump])
 
 
+def test_standing_receives_a_ten_second_quiet_command_window():
+    s, _ = course()
+    phase = phase_for_update(20000, s.spec)
+    s.update_commands(torch.zeros(100), phase)
+    before = s.height.clone()
+    s.update_commands(torch.full((100,), 5.), phase)
+    assert torch.equal(before[s.mask("stand")], s.height[s.mask("stand")])
+    assert (s.next_sample[s.mask("stand")] == 10.).all()
+
+
 def sample(observer, age=2., *, clear=.03, force=0., vz=.6, height=.50, nonwheel=0.):
     n = len(observer.weight)
     velocity = torch.zeros(n, 3)

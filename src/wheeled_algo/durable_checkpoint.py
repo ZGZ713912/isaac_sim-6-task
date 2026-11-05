@@ -107,6 +107,9 @@ def capture(runner, env, completed, session_sha256, budget):
                     extrapolated_iteration=int(env._get_training_iteration())),
                  physical_episode_restored=False, observation_history_restored=False,
                  resume_semantics="learning state restored; new physical episodes and observation histories")
+    curriculum = getattr(env, "learning_curriculum_state", None)
+    if callable(curriculum):
+        state["curriculum_state"] = curriculum()
     if not 0 <= completed <= budget or state["training_clock"]["extrapolated_iteration"] != completed:
         raise ValueError("PPO budget and curriculum clock disagree at the save boundary")
     if not _finite({key: state[key] for key in ("model_state_dict", "optimizer_state_dict", "normalizers", "learning_rate")}):
@@ -116,7 +119,8 @@ def capture(runner, env, completed, session_sha256, budget):
 
 def state_fingerprints(state):
     return {key: fingerprint(state[key]) for key in
-            ("model_state_dict", "optimizer_state_dict", "normalizers", "learning_rate", "rng", "runner_counters", "training_clock")}
+            ("model_state_dict", "optimizer_state_dict", "normalizers", "learning_rate", "rng", "runner_counters", "training_clock", "curriculum_state")
+            if key in state}
 
 
 def save_checkpoint(path, runner, env, completed, session_sha256, budget):
@@ -183,6 +187,13 @@ def load_checkpoint(path, runner, env, session_sha256, budget):
     runner.current_learning_iteration = completed
     env.common_step_counter = state["training_clock"]["common_step_counter"]
     env.set_training_progress(iteration=completed)
+    restore_curriculum = getattr(env, "restore_learning_curriculum_state", None)
+    if "curriculum_state" in state:
+        if not callable(restore_curriculum):
+            raise ValueError("Saved curriculum state has no matching environment owner")
+        restore_curriculum(state["curriculum_state"])
+    elif callable(restore_curriculum):
+        raise ValueError("This course requires its own saved curriculum RNG state")
     restore_rng(state["rng"])
     actual = capture(runner, env, completed, session_sha256, budget)
     verified = state_fingerprints(actual)
