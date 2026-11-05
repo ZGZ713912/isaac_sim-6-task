@@ -1060,7 +1060,8 @@ class RobustGetupEnv(ChassisEnv):
                 info["diagnostics"].update(task_extra)
                 info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
                     belly_force_peak_n=belly_force_peak.clone(), action_delta=action_delta.clone(),
-                    interval_requested_command=interval_request)
+                    interval_requested_command=interval_request,
+                    reward_potential_progress=progress.clone())
                 self.prone_motion_physical = (physical_samples.finish() if sampling is not None else
                     {key: torch.stack([s[key] for s in physical_samples]) for key in physical_samples[0]})
                 _t6c = _time0.perf_counter()
