@@ -462,6 +462,10 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                        for r in env.course_roles]
     checks["actual_per_role_episode_limits"] = env.episode_limits.tolist() == expected_limits
     passive_seen = active_prone_seen = body_allowed = 0
+    placement_observations = None
+    if "recovery_passive_window" in plan:
+        from wheeled_tasks.chassis.recovery_passive_window import EnableObservations
+        placement_observations = EnableObservations()
     natural_closure_peak = 0.
     natural_closure_exceeded_samples = natural_closure_terminal_samples = 0
     odometry_seen = 0
@@ -787,6 +791,8 @@ def _probe(env, plan, *, stop_requested=lambda: False):
                     torch.equal(previous, odometry.filtered) and torch.equal(frame, repeated))
             odometry_seen += int((odometry.valid & ~env.recovery_lane).sum())
         checks["zero_disabled_torque"] = checks.get("zero_disabled_torque", True) and bool((state["passive_motor_peak"][state["passive"]] == 0.).all())
+        if placement_observations is not None:
+            placement_observations.record(state)
         checks["disabled_samples_masked"] = checks.get("disabled_samples_masked", True) and not bool((state["passive"] & extra["policy_learning_mask"]).any())
         passive_seen += int(state["passive"].sum())
         active_prone_seen += int((extra["policy_learning_mask"] & state["task_recovery_rising"]).sum())
@@ -794,6 +800,13 @@ def _probe(env, plan, *, stop_requested=lambda: False):
     checks.update(disabled_birth_observed=passive_seen > 0, active_prone_observed=active_prone_seen > 0,
                   body_contact_permitted_during_rise=body_allowed > 0,
                   active_nonzero_encoder_compensation_observed=spring_ff_peak > 1. and spring_valid_count > 0)
+    placement_report = None
+    if placement_observations is not None:
+        placement_report = placement_observations.report(plan["recovery_passive_window"], env.policy_dt)
+        checks.update({"placement_"+k: v for k, v in placement_report["checks"].items()})
+        checks["placement_native_settings_match"] = all(
+            env.getup_cfg[key] == value for key, value in dict(
+                passive_min_seconds=1., passive_max_seconds=1.2, passive_hold_seconds=.05).items())
     if getattr(env, "local_standing_odometry", None) is not None:
         checks["standing_odometry_initialized_standing_capture_observed"] = odometry_seen > 0
     monitor_probe = None
@@ -824,6 +837,7 @@ def _probe(env, plan, *, stop_requested=lambda: False):
             nonterminal_lanes=int((~d["done"]).sum()))
     return dict(checks={k:bool(v) for k,v in checks.items()}, all_checks_pass=all(checks.values()),
                 new_PPO=0, learned_behavior=False, active_prone_samples=active_prone_seen,
+                placement_window=placement_report,
                 closure_monitor_probe=monitor_probe,
                 natural_closure=dict(peak_m=natural_closure_peak,
                     exceeded_reference_samples=natural_closure_exceeded_samples,

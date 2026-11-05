@@ -135,6 +135,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         settings["multi_pose_failure_cost"] = plan["multi_pose_recovery"]["failure_cost"]
         # Near-ground feasible placements, not an assumption of static equilibria.
         settings.update(passive_min_seconds=.05,passive_max_seconds=.15,passive_hold_seconds=.05)
+    if "recovery_passive_window" in plan:
+        from wheeled_tasks.chassis.recovery_passive_window import configure
+        configure(plan, settings)
     from wheeled_tasks.chassis.training_wheel_response import configure
     cfg, wheel_control = configure(ROOT, cfg, plan["wheel_model"], settings)
     if wheel_control["timing"] != rates:
@@ -360,6 +363,10 @@ def source_hashes(plan_path, plan):
         receipt = json.loads((ROOT/binding["file"]).read_text())
         names.extend(run["path"] for run in receipt["native_runs"])
     if plan.get("multi_pose_recovery") is not None:
+        if "recovery_passive_window" in plan:
+            names.extend(["src/wheeled_tasks/chassis/recovery_passive_window.py",
+                "tests/test_recovery_passive_window.py", "docs/RECOVERY_PASSIVE_WINDOW.md",
+                "contracts/wheel_leg_self_righting_passive_window_v1.json"])
         if "recovery_return_horizon" in plan:
             names.extend(["src/wheeled_tasks/chassis/recovery_return_horizon.py",
                 "tests/test_recovery_return_horizon.py", "docs/RECOVERY_RETURN_HORIZON.md",

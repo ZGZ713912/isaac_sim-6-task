@@ -62,6 +62,9 @@ def validate(plan):
     if "recovery_return_horizon" in plan:
         from .recovery_return_horizon import validate_plan
         validate_plan(plan)
+    if "recovery_passive_window" in plan:
+        from .recovery_passive_window import validate_plan
+        validate_plan(plan)
     if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2",
                                  "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         raise ValueError("Need the explicit prone-motion contract")
