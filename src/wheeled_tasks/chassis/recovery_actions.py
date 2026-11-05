@@ -22,18 +22,21 @@ CONTRACT = dict(schema="wheel-leg-encoder-increment-actions-v1",
     action_rate_cost="mean_squared_raw_coordinate_change_with_original_reference_dt",
     privileged_input=False, all_six_axes_trainable=True)
 
+RANGE_CONTRACT = dict(deepcopy(CONTRACT), schema="wheel-leg-encoder-increment-actions-v2",
+    common_rate_rad_s=8., relative_rate_rad_s=4.)
+
 
 def contract():
     return deepcopy(CONTRACT)
 
 
 def validate(config):
-    if config != CONTRACT:
+    if config not in (CONTRACT, RANGE_CONTRACT):
         raise ValueError("Use the complete encoder increment action contract")
     return deepcopy(config)
 
 
-def targets(actions, measured, *, policy_dt, relative_limits):
+def targets(actions, measured, *, policy_dt, relative_limits, config=None):
     """Return four leg targets, on the measured hip's shared winding.
 
     Inside the soft domain, targets stay inside it. Outside it, the projection
@@ -48,15 +51,16 @@ def targets(actions, measured, *, policy_dt, relative_limits):
     lo, hi = relative_limits
     if not (math.isfinite(lo) and math.isfinite(hi) and lo < hi):
         raise ValueError("Recovery actions require authenticated relative bounds")
-    raw = actions.clamp(-CONTRACT["leg_raw_clip"], CONTRACT["leg_raw_clip"])
+    settings = CONTRACT if config is None else validate(config)
+    raw = actions.clamp(-settings["leg_raw_clip"], settings["leg_raw_clip"])
     q = measured.double().unflatten(-1, (2, 2))
     action = raw.double().unflatten(-1, (2, 2))
     sign = q.new_tensor([1., -1.])
     difference = q[..., 1]-q[..., 0]
     relative = sign*torch.atan2(difference.sin(), difference.cos())
     common = q[..., 0]+.5*sign*relative
-    common_step = action[..., 0]*CONTRACT["common_rate_rad_s"]*policy_dt
-    relative_step = CONTRACT["relative_rate_rad_s"]*policy_dt
+    common_step = action[..., 0]*settings["common_rate_rad_s"]*policy_dt
+    relative_step = settings["relative_rate_rad_s"]*policy_dt
     wanted = (relative+action[..., 1]*relative_step).clamp(lo, hi)
     delta = (wanted-relative).clamp(-relative_step, relative_step)
     common = common+common_step
@@ -113,7 +117,7 @@ class EncoderIncrementActions:
         clipped = actions.clamp(-env.v5.action_bounds, env.v5.action_bounds)
         reference = env.getup_feedback.q[:, list(env.v5.LEGS)].clone()
         legs, _ = targets(clipped[:, list(env.v5.LEGS)], reference,
-            policy_dt=env.policy_dt, relative_limits=self.relative_limits)
+            policy_dt=env.policy_dt, relative_limits=self.relative_limits, config=self.config)
         wheels = clipped[:, list(env.v5.WHEELS)]*env.v5.settings["wheel_velocity_scale"]
         self.last_reference, self.last_targets, self.last_raw = reference, legs, clipped.clone()
         self.reference_feedback_tick = env.getup_feedback.tick
@@ -135,6 +139,6 @@ class EncoderIncrementActions:
         step = paired_position_error(self.last_targets, self.last_reference)
         return {"RecoveryAction/target_encoder_displacement_peak_rad": step.abs().max(),
             "RecoveryAction/raw_leg_clip_fraction":
-                (self.last_raw[:, list(self.env.v5.LEGS)].abs() >= CONTRACT["leg_raw_clip"]).float().mean(),
+                (self.last_raw[:, list(self.env.v5.LEGS)].abs() >= self.config["leg_raw_clip"]).float().mean(),
             "RecoveryAction/PD_feedback_period_s": step.new_tensor(self.env.getup_feedback.dt),
             "RecoveryAction/target_accumulator": step.new_tensor(0.)}

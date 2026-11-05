@@ -328,6 +328,8 @@ def source_hashes(plan_path, plan):
                       "contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json"])
     if "encoder_increment_actions" in plan:
         names.extend(["tests/test_recovery_actions.py", "docs/RECOVERY_ACTIONS.md"])
+        if plan["encoder_increment_actions"]["schema"] == "wheel-leg-encoder-increment-actions-v2":
+            names.append("tests/test_increment_range.py")
     if "trend_extension" in plan["gas_spring_model"]:
         names.append(plan["gas_spring_model"]["trend_extension"]["file"])
     if plan.get("gas_spring_backend") == "dev_compensation_v2":

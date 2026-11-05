@@ -21,9 +21,12 @@ INCREMENT_CONTRACT = dict(schema="wheel-leg-prone-learning-interface-v2",
     all_parameters_trainable=True, runtime_encoder_skip=False,
     decoder_contract="wheel-leg-encoder-increment-actions-v1")
 
+RANGE_CONTRACT = dict(deepcopy(INCREMENT_CONTRACT), schema="wheel-leg-prone-learning-interface-v3",
+    decoder_contract="wheel-leg-encoder-increment-actions-v2")
+
 
 def validate(config):
-    if config not in (CONTRACT, INCREMENT_CONTRACT):
+    if config not in (CONTRACT, INCREMENT_CONTRACT, RANGE_CONTRACT):
         raise ValueError("Use the complete versioned prone learning interface")
     return deepcopy(config)
 
@@ -37,7 +40,7 @@ def initialize_prone_fresh(algorithm, nominal_action, plan):
     from .prone_observation import PhysicalScaleProneMotionModel
     if not isinstance(algorithm.actor, PhysicalScaleProneMotionModel):
         raise ValueError("Encoder initialization requires the fixed physical policy35 interface")
-    if config == INCREMENT_CONTRACT:
+    if config in (INCREMENT_CONTRACT, RANGE_CONTRACT):
         receipt = initialize_fresh(algorithm, torch.zeros_like(nominal_action),
             output_bias_source="zero encoder increment and zero wheel velocity; no pose or policy donor",
             initial_std=plan["initial_std"], std_range=bounds)

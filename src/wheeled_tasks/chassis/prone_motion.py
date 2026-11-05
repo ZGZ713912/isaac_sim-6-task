@@ -95,14 +95,18 @@ def validate(plan):
         if (plan["schema"] != "wheel-leg-prone-motion-v4" or
                 plan.get("standing_odometry", {}).get("schema") != "wheel-leg-local-standing-odometry-v2"):
             raise ValueError("The fixed policy35 learning interface requires repaired v4")
-    from wheeled_algo.prone_initialization import INCREMENT_CONTRACT
+    from wheeled_algo.prone_initialization import INCREMENT_CONTRACT, RANGE_CONTRACT
     increments = plan.get("encoder_increment_actions")
-    if increments is not None or plan.get("learning_interface") == INCREMENT_CONTRACT:
+    if increments is not None or plan.get("learning_interface") in (INCREMENT_CONTRACT, RANGE_CONTRACT):
         from .recovery_actions import validate as validate_actions
-        from wheeled_algo.recovery_action_distribution import INCREMENT_CONTRACT as exploration
+        from wheeled_algo.recovery_action_distribution import (INCREMENT_CONTRACT as exploration,
+                                                              RANGE_CONTRACT as range_exploration)
         validate_actions(increments)
-        if (plan.get("learning_interface") != INCREMENT_CONTRACT or
-                plan.get("exploration_distribution") != exploration or
+        interface, distribution = ((INCREMENT_CONTRACT, exploration) if
+            increments["schema"] == INCREMENT_CONTRACT["decoder_contract"] else
+            (RANGE_CONTRACT, range_exploration))
+        if (plan.get("learning_interface") != interface or
+                plan.get("exploration_distribution") != distribution or
                 plan.get("gas_spring_backend") != "dev_compensation_v2"):
             raise ValueError("Encoder increments require their matching initialization and exploration semantics")
     if "terminal_transition" in plan:

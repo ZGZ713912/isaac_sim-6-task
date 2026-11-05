@@ -14,10 +14,13 @@ INCREMENT_CONTRACT = dict(schema="wheel-leg-recovery-exploration-v2", std_range=
     leg_raw_clip=1., wheel_target_std_rad_s=5.,
     physical_torque_and_joint_limits="unchanged", teacher_or_checkpoint=False)
 
+RANGE_CONTRACT = dict(deepcopy(INCREMENT_CONTRACT), schema="wheel-leg-recovery-exploration-v3",
+    untruncated_common_rate_std_rad_s=6.4, untruncated_relative_rate_std_rad_s=3.2)
+
 
 def std_bounds(plan):
     config = plan.get("exploration_distribution")
-    if config is not None and config not in (CONTRACT, INCREMENT_CONTRACT):
+    if config is not None and config not in (CONTRACT, INCREMENT_CONTRACT, RANGE_CONTRACT):
         raise ValueError("Use the complete explicit recovery exploration contract")
     bounds = tuple(config["std_range"]) if config is not None else (.003, .3)
     values = plan["initial_std"]
