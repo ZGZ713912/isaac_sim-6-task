@@ -99,33 +99,43 @@ def main():
                 env.evaluation_cases = [deepcopy(batch[i % n]) for i in range(env.num_envs)]
                 env.reset(torch.arange(env.num_envs, device=env.device))
                 obs = env.get_observations()
-                active = torch.ones(n, dtype=torch.bool, device=env.device)
-                hold = torch.zeros(n, device=env.device)
+                active = np.ones(n, dtype=bool)
+                hold = np.zeros(n)
                 rows = [dict(c, passed=False, completed=False, active_time_s=None, terminated=False,
                     stable_hold_s=0., force_peak_n=[0.] * 4, impulse_peak_ns=[0.] * 4,
                     closure_peak_m=0., policy_samples=0) for c in batch]
                 trace = []
-                for _ in range(round(args.seconds / env.policy_dt)):
+                for policy_step in range(round(args.seconds / env.policy_dt)):
                     obs, _, done, extra = env.step(actor(obs))
                     d = extra["diagnostics"]
-                    stable = d["stable"][:n] & d["recovered"][:n] & ~d["terminated"][:n]
-                    hold = torch.where(stable & active, hold + env.policy_dt, 0.)
-                    trace.append(torch.stack((d["time"][:n], d["height"][:n], d["gravity"][:n, 2],
-                        d["gap"][:n], d["recovered"][:n].float(), d["terminated"][:n].float(), active.float()), -1).cpu().numpy())
+                    # Transfer one contiguous diagnostic batch, not hundreds of
+                    # scalar GPU synchronizations per policy interval.
+                    scalars = torch.stack((d["time"][:n], d["height"][:n], d["gravity"][:n, 2],
+                        d["gap"][:n], d["recovered"][:n].float(), d["terminated"][:n].float(),
+                        d["recovery_completed_event"][:n].float(), d["recovery_active_seconds"][:n],
+                        d["stable"][:n].float(), done[:n].float()), -1)
+                    values = torch.cat((scalars, d["recovery_episode_force_peak_n"][:n],
+                        d["recovery_episode_impulse_peak_ns"][:n]), -1).cpu().numpy()
+                    stable = (values[:, 8] > 0) & (values[:, 4] > 0) & (values[:, 5] == 0)
+                    hold = np.where(stable & active, hold + env.policy_dt, 0.)
+                    trace.append(np.concatenate((values[:, :6], active[:, None]), -1))
                     for lane, row in enumerate(rows):
-                        if not bool(active[lane]): continue
+                        if not active[lane]: continue
                         row["policy_samples"] += 1
-                        row["closure_peak_m"] = max(row["closure_peak_m"], float(d["gap"][lane]))
-                        row["force_peak_n"] = np.maximum(row["force_peak_n"], d["recovery_episode_force_peak_n"][lane].cpu().numpy()).tolist()
-                        row["impulse_peak_ns"] = np.maximum(row["impulse_peak_ns"], d["recovery_episode_impulse_peak_ns"][lane].cpu().numpy()).tolist()
-                        row["terminated"] |= bool(d["terminated"][lane])
-                        if bool(d["recovery_completed_event"][lane]):
-                            row.update(completed=True, active_time_s=float(d["recovery_active_seconds"][lane]))
+                        row["closure_peak_m"] = max(row["closure_peak_m"], float(values[lane, 3]))
+                        row["force_peak_n"] = np.maximum(row["force_peak_n"], values[lane, 10:14]).tolist()
+                        row["impulse_peak_ns"] = np.maximum(row["impulse_peak_ns"], values[lane, 14:18]).tolist()
+                        row["terminated"] |= bool(values[lane, 5])
+                        if values[lane, 6] > 0:
+                            row.update(completed=True, active_time_s=float(values[lane, 7]))
                         row["stable_hold_s"] = max(row["stable_hold_s"], float(hold[lane]))
                         row["passed"] = bool(row["completed"] and not row["terminated"] and
                             row["active_time_s"] <= 20. and row["stable_hold_s"] >= 3. - 1e-5)
-                        if row["passed"] or bool(done[lane]): active[lane] = False
-                    if not bool(active.any()): break
+                        if row["passed"] or values[lane, 9] > 0: active[lane] = False
+                    if policy_step % 100 == 0:
+                        report.update(status="evaluating", policy_steps=policy_step + 1, active_cases=int(active.sum()))
+                        write_json(args.output / "report.json", dict(report, cases=report["cases"] + rows))
+                    if not active.any(): break
                 np.savez_compressed(args.output / f"batch_{offset:03d}.npz", trajectory=np.stack(trace))
                 report["cases"].extend(rows)
                 write_json(args.output / "report.json", report)
