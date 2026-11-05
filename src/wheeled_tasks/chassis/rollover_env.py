@@ -14,7 +14,7 @@ class RolloverEnv(ProneMotionEnv):
     def __init__(self, *args, **kwargs):
         self.rollover_ready = False
         self._rollover_hook = False
-        from .collision_geometry import selected_asset, native_audit
+        from .collision_geometry import selected_asset, native_audit, CollisionGeometryError
         collision = kwargs["settings"]["prone_motion_task"].get("chassis_collision")
         with selected_asset(args[3], collision):
             super().__init__(*args, **kwargs)
@@ -22,8 +22,7 @@ class RolloverEnv(ProneMotionEnv):
             audit = native_audit(self, collision)
             self.startup_report["chassis_collision"] = audit
             if not audit["all_checks_pass"]:
-                raise ValueError("Actual chassis collision failed native admission: "+str({
-                    k:v for k,v in audit.items() if k != "cooked_pieces"}))
+                raise CollisionGeometryError(audit)
         if self.cfg.get("prone_motion_performance") != "eager":
             raise ValueError("The rollover native capture hook is admitted on the eager backend only")
         self.whole_impact = RecoveryImpact(self.num_envs, self.device, self.robot.body_names,

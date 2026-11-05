@@ -883,7 +883,9 @@ def main():
         report.update(status="stopped", elapsed_s=time.monotonic()-start)
         if args.native_probe:
             raise SystemExit(130)
-    except BaseException:
+    except BaseException as error:
+        if hasattr(error, "collision_audit"):
+            base.write_json(output/"native_collision_failure.json", error.collision_audit)
         report.update(status="failed", error=traceback.format_exc(), elapsed_s=time.monotonic()-start)
         raise
     finally:

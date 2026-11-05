@@ -14,7 +14,8 @@ from wheeled_tasks.chassis.collision_geometry import SCHEMA, VERTEX_LIMIT, diges
 
 ROOT = Path(__file__).resolve().parents[1]
 PARENT = "model/wheel_leg_v2.0.2/friction_v1/training/robot.usda"
-OUTPUT = "model/wheel_leg_v2.0.2/chassis_slopes_v1"
+OUTPUT = "model/wheel_leg_v2.0.2/chassis_slopes_v2"
+MIN_THICKNESS_M = .00001
 
 
 def mesh_points(stage, prim, body):
@@ -61,6 +62,7 @@ def build(output):
         UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr("convexHull")
         mesh.GetPrim().AddAppliedSchema("PhysxConvexHullCollisionAPI")
         mesh.GetPrim().CreateAttribute("physxConvexHullCollision:hullVertexLimit", Sdf.ValueTypeNames.Int).Set(VERTEX_LIMIT)
+        mesh.GetPrim().CreateAttribute("physxConvexHullCollision:minThickness", Sdf.ValueTypeNames.Float).Set(MIN_THICKNESS_M)
         rows.append(dict(path=str(mesh.GetPath()), vertices=points.tolist(), faces=triangles.tolist()))
     overlay.GetRootLayer().Save()
     parents = [Path(layer.realPath) for layer in stage.GetUsedLayers() if layer.realPath]
@@ -71,7 +73,7 @@ def build(output):
         method="intersect each old piece with original visual convex hull, then group boundary-to-interior tetrahedra",
         parent_usd=PARENT, body="base_link", disabled_parent_paths=[str(p.GetPath()) for p in old],
         source_unique_points=len(source), source_extremes=extremes.tolist(),
-        cooking_vertex_limit=VERTEX_LIMIT, pieces=rows,
+        cooking_vertex_limit=VERTEX_LIMIT, cooking_min_thickness_m=MIN_THICKNESS_M, pieces=rows,
         input_sha256={str(p.relative_to(ROOT)): digest(p) for p in sorted(set(parents))})
     (output / "geometry.json").write_text(json.dumps(geometry, indent=2) + "\n")
     print(json.dumps(dict(output=str(output), pieces=len(rows), max_vertices=max(len(p) for p in parts),

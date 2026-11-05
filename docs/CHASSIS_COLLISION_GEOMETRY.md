@@ -32,6 +32,14 @@ against source extremes must be below 0.1 mm over source face normals, axes and
 a deterministic sphere. Native admission fails before PPO if this check fails.
 The startup report retains actual cooked vertices and signed support errors.
 
+The v2 overlay keeps the same authored vertices and sets each convex part's
+minimum cooking thickness to 0.01 mm instead of the PhysX default of 1 mm.
+Thin partitions must not be expanded to 1 mm during cooking. This parameter
+does not change contact offsets or the required 0.1 mm support-error gate.
+Use `wheel_leg_rollover_chassis_slopes_v2.json` for this explicit selection.
+Failed native construction retains all cooked points in
+`native_collision_failure.json`, as well as the original exception/status.
+
 Original bank joint/root states and independent initial leg angles are retained
 to isolate the collision correction. Old bank clearance labels must not be
 interpreted as new-asset certification. Disabled placement and active recovery

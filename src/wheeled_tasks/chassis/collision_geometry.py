@@ -21,6 +21,13 @@ TOLERANCE_M = 1e-6
 VERTEX_LIMIT = 64
 
 
+class CollisionGeometryError(ValueError):
+    def __init__(self, audit):
+        self.collision_audit = audit
+        super().__init__("Actual chassis collision failed native admission: "+str({
+            k:v for k,v in audit.items() if k != "cooked_pieces"}))
+
+
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -108,6 +115,8 @@ def authenticate(root, config):
     for name, expected in geometry["input_sha256"].items():
         if digest(root / name) != expected:
             raise ValueError("Original collision source changed: " + name)
+    if "cooking_min_thickness_m" in geometry and geometry["cooking_min_thickness_m"] != .00001:
+        raise ValueError("Explicit chassis cooking thickness changed")
     return geometry
 
 
@@ -165,6 +174,9 @@ def native_audit(env, config):
         authored = np.array(UsdGeom.Mesh(prim).GetPointsAttr().Get(), dtype=float)
         checks["all_authored_pieces_exact"] &= np.array_equal(authored, np.array(item["vertices"]))
         checks["all_authored_pieces_exact"] &= prim.GetAttribute("physxConvexHullCollision:hullVertexLimit").Get() == VERTEX_LIMIT
+        if "cooking_min_thickness_m" in geometry:
+            actual = prim.GetAttribute("physxConvexHullCollision:minThickness").Get()
+            checks["all_authored_pieces_exact"] &= actual is not None and abs(actual-geometry["cooking_min_thickness_m"]) < 1e-10
         received = []
         def on_result(result, convexes):
             if result == PhysxCollisionRepresentationResult.RESULT_VALID:

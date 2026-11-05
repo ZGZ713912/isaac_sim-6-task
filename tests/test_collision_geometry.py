@@ -47,7 +47,7 @@ def test_partition_preserves_many_source_extremes_with_small_cooking_budget():
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = ROOT / "contracts/wheel_leg_rollover_chassis_slopes_v1.json"
+PLAN = ROOT / "contracts/wheel_leg_rollover_chassis_slopes_v2.json"
 
 
 def test_asset_selection_is_scoped_and_rejects_external_override(monkeypatch):
@@ -101,5 +101,6 @@ def test_actual_usd_only_changes_chassis_collisions():
         assert prim.GetParent().GetPath() == "/Robot/base_link"
         assert UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get()
         assert np.array_equal(np.array(UsdGeom.Mesh(prim).GetPointsAttr().Get()), np.array(item["vertices"]))
+        assert abs(prim.GetAttribute("physxConvexHullCollision:minThickness").Get()-1e-5) < 1e-10
     extras = {str(p.GetPath()) for p in new.Traverse()}-{str(p.GetPath()) for p in old.Traverse()}
     assert extras == {p["path"] for p in geometry["pieces"]}
