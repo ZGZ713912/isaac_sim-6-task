@@ -9,12 +9,12 @@ import numpy as np
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, Vt
 from scipy.spatial import ConvexHull
 
-from wheeled_tasks.chassis.collision_geometry import SCHEMA, VERTEX_LIMIT, digest, restore_envelope
+from wheeled_tasks.chassis.collision_geometry import SCHEMA, VERTEX_LIMIT, digest, separated_support_parts
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PARENT = "model/wheel_leg_v2.0.2/friction_v1/training/robot.usda"
-OUTPUT = "model/wheel_leg_v2.0.2/chassis_slopes_v2"
+OUTPUT = "model/wheel_leg_v2.0.2/chassis_slopes_v3"
 MIN_THICKNESS_M = .00001
 
 
@@ -34,7 +34,7 @@ def build(output):
     old = [p for p in stage.Traverse() if p.GetParent() == body and p.HasAPI(UsdPhysics.CollisionAPI)]
     if len(old) != 8 or any(not p.IsA(UsdGeom.Mesh) for p in old):
         raise ValueError("Unexpected original chassis partition")
-    extremes, parts = restore_envelope(source, [mesh_points(stage, p, body) for p in old])
+    extremes, parts = separated_support_parts(source)
     output.mkdir(parents=True)
     asset = output / "robot.usda"
     overlay = Usd.Stage.CreateNew(str(asset))
@@ -70,10 +70,11 @@ def build(output):
                   "model/wheel_leg_v2.0.2/friction_v1/training/model_spec.json"]:
         parents.append(ROOT / extra)
     geometry = dict(schema=SCHEMA, scope="exact base_link supporting envelope on an infinite flat ground plane; concavity/terrain contacts unqualified",
-        method="intersect each old piece with original visual convex hull, then group boundary-to-interior tetrahedra",
+        method="original surface extremes grouped by bidirectional2mm support separation, each with a strict interior volumetric core",
         parent_usd=PARENT, body="base_link", disabled_parent_paths=[str(p.GetPath()) for p in old],
         source_unique_points=len(source), source_extremes=extremes.tolist(),
-        cooking_vertex_limit=VERTEX_LIMIT, cooking_min_thickness_m=MIN_THICKNESS_M, pieces=rows,
+        cooking_vertex_limit=VERTEX_LIMIT, cooking_min_thickness_m=MIN_THICKNESS_M,
+        cooking_extreme_support_margin_m=.002, pieces=rows,
         input_sha256={str(p.relative_to(ROOT)): digest(p) for p in sorted(set(parents))})
     (output / "geometry.json").write_text(json.dumps(geometry, indent=2) + "\n")
     print(json.dumps(dict(output=str(output), pieces=len(rows), max_vertices=max(len(p) for p in parts),

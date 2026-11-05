@@ -5,7 +5,7 @@ from pathlib import Path
 from scipy.spatial import ConvexHull
 
 from wheeled_tasks.chassis.collision_geometry import (authenticate, partition, restore_envelope,
-                                                     selected_asset, support_directions, vertices_inside)
+    selected_asset, separated_support_parts, support_directions, vertices_inside)
 
 
 def prism():
@@ -47,7 +47,7 @@ def test_partition_preserves_many_source_extremes_with_small_cooking_budget():
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = ROOT / "contracts/wheel_leg_rollover_chassis_slopes_v2.json"
+PLAN = ROOT / "contracts/wheel_leg_rollover_chassis_slopes_v3.json"
 
 
 def test_asset_selection_is_scoped_and_rejects_external_override(monkeypatch):
@@ -78,6 +78,19 @@ def test_corrected_contract_changes_only_asset_selection():
     assert np.abs((source@dirs.T).max(0)-(points@dirs.T).max(0)).max() < 1e-6
     assert all(len(p["vertices"]) <= 64 for p in geometry["pieces"])
     assert len(geometry["disabled_parent_paths"]) == 8
+
+
+def test_support_parts_keep_all_extremes_with_thick_interior_and_no_false_extent():
+    theta = np.linspace(0., 2.*np.pi, 400, endpoint=False)
+    raw = np.array([[.3*np.cos(t), .3*np.sin(t), z] for t in theta for z in (-.1,.1)])
+    source, parts = separated_support_parts(raw)
+    directions = support_directions(source)
+    assert np.abs((np.concatenate(parts)@directions.T).max(0)-(source@directions.T).max(0)).max() < 1e-9
+    planes = ConvexHull(raw).equations
+    assert max(len(p) for p in parts) <= 64
+    for points in parts:
+        assert vertices_inside(points, planes).max() < 1e-10
+        assert ConvexHull(points).volume > 1e-5
 
 
 def test_actual_usd_only_changes_chassis_collisions():

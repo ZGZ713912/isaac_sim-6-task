@@ -40,6 +40,17 @@ Use `wheel_leg_rollover_chassis_slopes_v2.json` for this explicit selection.
 Failed native construction retains all cooked points in
 `native_collision_failure.json`, as well as the original exception/status.
 
+The v3 overlay instead groups original surface extremes with a strictly
+interior six-point volumetric core. Two extremes can share a hull only if both
+have at least 2 mm supporting-plane separation from the other. This avoids
+very thin residual partitions and makes exterior points essential to their
+individual convex hull. Every original extreme is retained, every part stays
+inside the source convex hull, and every part has at most 64 vertices. The
+guarantee remains flat-plane supporting geometry; interior concavities and
+contact on terrain are not certified. The v1/v2 interior partition is not
+claimed to be preserved by this construction. No support tolerance is relaxed:
+the actual native hulls still have to pass the same 0.1 mm support gate.
+
 Original bank joint/root states and independent initial leg angles are retained
 to isolate the collision correction. Old bank clearance labels must not be
 interpreted as new-asset certification. Disabled placement and active recovery

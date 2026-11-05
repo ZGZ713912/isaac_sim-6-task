@@ -99,6 +99,44 @@ def restore_envelope(source_points, old_pieces, limit=VERTEX_LIMIT):
     return extremes, parts
 
 
+def separated_support_parts(source_points, limit=VERTEX_LIMIT, margin=.002):
+    """Keep every surface extreme essential to its own well-conditioned hull.
+
+    A pair of nearby/co-planar surface extremes may be merged by native convex
+    cooking. Group only points separated by a support-plane margin in both
+    directions, and give each group a volumetric core strictly inside the CAD
+    hull. This preserves flat-plane support, not interior cavity volume.
+    """
+    hull = ConvexHull(source_points)
+    points = np.asarray(source_points)[hull.vertices]
+    hull = ConvexHull(points)
+    normal = np.zeros_like(points)
+    for face, equation in zip(hull.simplices, hull.equations):
+        normal[face] += equation[:3]
+    normal /= np.linalg.norm(normal, axis=1)[:, None]
+    fit = linprog([0., 0., 0., -1.],
+        A_ub=np.column_stack((hull.equations[:, :3], np.ones(len(hull.equations)))),
+        b_ub=-hull.equations[:, 3], bounds=[(None, None)]*3+[(0., None)], method="highs")
+    if not fit.success or fit.x[3] < margin*4:
+        raise ValueError("Source chassis has no suitable volumetric core")
+    center = fit.x[:3]
+    core = center+np.vstack((np.eye(3), -np.eye(3)))*fit.x[3]*.25
+    own = (points*normal).sum(1)
+    gap = own[:, None]-normal@points.T
+    conflict = (gap < margin) | (gap.T < margin)
+    if (own-(normal@core.T).max(1)).min() < margin:
+        raise ValueError("Source extremes are not outside the interior cooking core")
+    groups = []
+    for index in sorted(range(len(points)), key=lambda i: (-int(conflict[i].sum()), i)):
+        candidates = [g for g in groups if len(g)+len(core) < limit and not conflict[index, g].any()]
+        if candidates:
+            min(candidates, key=len).append(index)
+        else:
+            groups.append([index])
+    parts = [np.vstack((points[g], core)) for g in groups]
+    return points, parts
+
+
 def authenticate(root, config):
     if config is None:
         return None
