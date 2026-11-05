@@ -152,6 +152,7 @@ def main():
                     for k in ("joint_position", "joint_velocity", "motor_effort", "physical_effort", "contact_force", "root_pose"))
                 report["finite"] = bool(finite)
                 report["native_dt_max_error_s"] = max(abs(r["native_dt_s"]-r["dt"]) for r in records)
+                report["native_clock_scope"] = "dt forwarded to the same native simulate object; committed only after fetch_results; checked against SimulationContext step count"
                 report["contact"] = contact_summary(records, env.robot.body_names, runtime.enabled_at, runtime.handoff_at)
                 for group, value in report["contact"]["group_positive_world_z_20ms_peak_ns"].items():
                     writer.add_scalar("ContinuousRecovery/impulse20ms_"+group+"_Ns", value, 0)

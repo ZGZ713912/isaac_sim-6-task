@@ -6,7 +6,7 @@ import torch
 
 from wheeled_tasks.chassis.controller_handoff import CONTROL_JOINT_NAMES, STANDING_POLICY_JOINT_NAMES
 from wheeled_tasks.chassis.wheelbipe_interface import WheelbipeStandingInterface
-from wheeled_tasks.chassis.handoff_evaluation import admit_nominal, contact_summary
+from wheeled_tasks.chassis.handoff_evaluation import CompletedPhysicsClock, admit_nominal, contact_summary
 
 
 def interface(count=1):
@@ -101,3 +101,30 @@ def test_impulse_excludes_disabled_intervals_and_samples_after_handoff():
             for t, f in ((.005, 1000), (.010, 10), (.015, 1000))]
     r = contact_summary(rows, ["base_link"], .005, .010)
     assert r["group_positive_world_z_20ms_peak_ns"]["chassis"] == pytest.approx(.05)
+
+
+def test_native_clock_commits_only_fetched_intervals_and_keeps_the_delegate():
+    calls = []
+    native = SimpleNamespace(simulate=lambda *a: calls.append(a), fetch_results=lambda: "fetched", marker="original")
+    clock = CompletedPhysicsClock(native)
+    for dt in (.001, .001, .005, .005):
+        before = clock.time_s
+        clock.simulate(dt, 0.)
+        assert clock.time_s == before
+        assert clock.fetch_results() == "fetched"
+        assert clock.last_dt == dt
+    assert clock.steps == 4 and clock.time_s == pytest.approx(.012)
+    assert calls == [(.001, 0.), (.001, 0.), (.005, 0.), (.005, 0.)]
+    assert clock.native is native and clock.marker == "original"
+
+
+def test_failed_native_fetch_does_not_advance_recorded_physics_time():
+    def fail():
+        raise RuntimeError("solver failure")
+    clock = CompletedPhysicsClock(SimpleNamespace(simulate=lambda *a: None, fetch_results=fail))
+    clock.simulate(.005, 0.)
+    with pytest.raises(RuntimeError, match="solver failure"):
+        clock.fetch_results()
+    assert clock.steps == 0 and clock.time_s == 0.
+    with pytest.raises(RuntimeError, match="Uncommitted"):
+        clock.simulate(.005, 0.)

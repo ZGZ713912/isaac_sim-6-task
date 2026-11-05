@@ -12,6 +12,41 @@ from .physical_time_drive import PhysicalTimeWheelResponse, set_motor_response_d
 from .wheelbipe_interface import WheelbipeStandingInterface
 
 
+class CompletedPhysicsClock:
+    """Observe dt submitted to the native solver and committed by fetch_results.
+
+    Some installed PhysX bindings omit the simulation-time getter used by
+    Isaac Lab's scene adapter. This forwards the same native object and records
+    completed calls, without inventing a second physics engine clock.
+    """
+    def __init__(self, native):
+        self.native = native
+        self.time_s = 0.
+        self.steps = 0
+        self.pending_dt = None
+        self.last_dt = None
+
+    def simulate(self, dt, *args, **kwargs):
+        if self.pending_dt is not None or dt <= 0:
+            raise RuntimeError("Uncommitted or invalid native physics interval")
+        result = self.native.simulate(dt, *args, **kwargs)
+        self.pending_dt = dt
+        return result
+
+    def fetch_results(self, *args, **kwargs):
+        if self.pending_dt is None:
+            raise RuntimeError("Native fetch has no submitted interval")
+        result = self.native.fetch_results(*args, **kwargs)
+        self.last_dt = self.pending_dt
+        self.time_s += self.last_dt
+        self.steps += 1
+        self.pending_dt = None
+        return result
+
+    def __getattr__(self, name):
+        return getattr(self.native, name)
+
+
 def contact_summary(records, body_names, enabled_at, handoff_at):
     """Raw per-body 20ms integral, including a fractional oldest interval."""
     import numpy as np
@@ -135,9 +170,8 @@ class HandoffEvaluation:
         self.policy_records = []
         self.controller_frames = []
         self.last_native_step = env.sim.get_physics_step_count()
-        import omni.physx
-        self.native_clock = omni.physx.get_physx_interface().get_simulation_time
-        self.last_native_time = self.native_clock()
+        self.native_clock = CompletedPhysicsClock(env.sim.physics_manager._physx_sim)
+        env.sim.physics_manager._physx_sim = self.native_clock
         self.command = env.v5.nominal.new_tensor([[0., 0., 0., .305]])
         self.last_motor_effort = torch.zeros(1, 6, device=env.device)
         native_wheel = env.identified_wheels.apply_torque
@@ -168,11 +202,12 @@ class HandoffEvaluation:
     def observe_physics(self, dt, motor_effort, physical_effort, active):
         env = self.env
         native_step = env.sim.get_physics_step_count()
-        native_time = self.native_clock()
-        native_dt = native_time-self.last_native_time
-        if native_step != self.last_native_step+1 or abs(native_dt-dt) > 1e-6 or env.sim.get_physics_dt() != dt:
+        native_time = self.native_clock.time_s
+        native_dt = self.native_clock.last_dt
+        if (native_step != self.last_native_step+1 or self.native_clock.steps != len(self.records)+1
+                or native_dt != dt or env.sim.get_physics_dt() != dt):
             raise RuntimeError(f"Native physics clock differs: step={native_step-self.last_native_step}, dt={native_dt}, expected={dt}")
-        self.last_native_step, self.last_native_time = native_step, native_time
+        self.last_native_step = native_step
         self.time += dt
         data = env.robot.data
         self.records.append(dict(time=self.time, dt=dt, standing=self.mode != "recovery", active=_serial(active),
@@ -221,6 +256,7 @@ class HandoffEvaluation:
         wheel, motor = env.identified_wheels, env.actuator_response
         wrapped_motor = motor.apply_torque
         wrapped_wheel = wheel.apply_torque
+        native_delegate = self.native_clock.native
         from .preflight import SubstepControlAudit
         # Isaac Lab 3 PhysxManager.step reads sim.cfg.dt for every simulate call.
         # Native getter readback is required; no physics reset/recreation occurs.
@@ -247,10 +283,12 @@ class HandoffEvaluation:
             same_wheel_object=wheel is env.identified_wheels, same_motor_object=motor is env.actuator_response,
             same_motor_callable=wrapped_motor is motor.apply_torque,
             same_wheel_callable=wrapped_wheel is wheel.apply_torque,
+            same_native_physics_object=self.native_clock.native is native_delegate,
             new_actor_previous_action=_serial(self.standing.previous_action),
             actual_handoff=not reference, native_physics_dt=env.sim.get_physics_dt())
         if not all(self.transition[k] for k in ("history_identical", "physical_state_unchanged", "same_wheel_object",
-                                               "same_motor_object", "same_motor_callable", "same_wheel_callable")):
+                                               "same_motor_object", "same_motor_callable", "same_wheel_callable",
+                                               "same_native_physics_object")):
             raise RuntimeError("Handoff mutated physical/actuator history")
 
     def standing_observations(self):
