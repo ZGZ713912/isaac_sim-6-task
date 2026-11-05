@@ -9,7 +9,8 @@ from pathlib import Path
 
 PROFILE_PATH = Path(__file__).resolve().parents[3]/"contracts/wheelbipe_foundation_repair_v1.json"
 PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
-                 "foundation-v2": PROFILE_PATH.with_name("wheelbipe_foundation_repair_v2.json")}
+                 "foundation-v2": PROFILE_PATH.with_name("wheelbipe_foundation_repair_v2.json"),
+                 "foundation-jump-v1": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v1.json")}
 
 
 def specification(name="foundation-v1"):
@@ -67,12 +68,17 @@ def configure_profile(cfg, name):
     # yaw sampling is narrow. Train explicit yaw commands in every new phase.
     cfg.commands.heading_command = False
     cfg.commands.rel_heading_envs = 0.
-    for name, mode in cfg.commands.special_modes.items():
-        mode.iteration_start = spec["special_mode_starts"].get(name, spec["total_updates"])
+    for mode_name, mode in cfg.commands.special_modes.items():
+        mode.iteration_start = spec["special_mode_starts"].get(mode_name, spec["total_updates"])
     cfg.use_leg_random_start = True
     cfg.events.reset_base.params["pose_range"] = {}
     cfg.events.reset_base.params["velocity_range"] = {}
     apply_phase(cfg, 0, spec)
+    if name == "foundation-jump-v1":
+        from .mixed_curriculum import REWARD_NAMES, validate
+        validate(spec)
+        cfg.port_mixed_spec = spec
+        cfg.rewards.update({key: 1. for key in REWARD_NAMES})
 
 
 def electrical_reward_terms(motor, velocity, previous, before_previous):
