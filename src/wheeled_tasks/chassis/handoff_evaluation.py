@@ -170,8 +170,11 @@ class HandoffEvaluation:
         self.policy_records = []
         self.controller_frames = []
         self.last_native_step = env.sim.get_physics_step_count()
-        self.native_clock = CompletedPhysicsClock(env.sim.physics_manager._physx_sim)
-        env.sim.physics_manager._physx_sim = self.native_clock
+        # class_type may be an immutable lazy ResolvableString. Its bound
+        # classmethod identifies the actual backend class that performs step.
+        manager = env.sim.physics_manager.step.__self__
+        self.native_clock = CompletedPhysicsClock(manager._physx_sim)
+        manager._physx_sim = self.native_clock
         self.command = env.v5.nominal.new_tensor([[0., 0., 0., .305]])
         self.last_motor_effort = torch.zeros(1, 6, device=env.device)
         native_wheel = env.identified_wheels.apply_torque
