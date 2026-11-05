@@ -4,6 +4,15 @@
   "training": false,
   "new_PPO": 0,
   "world_count": 1,
+  "runtime_scope": {
+    "entrypoint": "scripts/evaluate_recovery_handoff.py",
+    "domains": "explicit_nominal_only; reject_active_communication_or_random_delay_before_mutation",
+    "plant": "original_recovery_full_vehicle_including_existing_moving_gimbal_and_physical_spring",
+    "wheel_factory": "scoped_at_initial_environment_construction; original_training_sources_and_hash_validation_unchanged",
+    "terminal_lifecycle": "one_case_stops_at_original_done; suppress_retirement_pose_reset_after_preserving_evidence",
+    "standing_reference": "separate_mode_without_a_recovery_success_or_actual_handoff_claim",
+    "reference_plant_difference": "recovery_asset_gimbal_remains_mobile; fixed16001_training_used_fixed_gimbal"
+  },
   "recovery": {
     "checkpoint_source": "explicit_read_only_run_and_checkpoint_with_original_plan",
     "policy_joint_names": ["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
