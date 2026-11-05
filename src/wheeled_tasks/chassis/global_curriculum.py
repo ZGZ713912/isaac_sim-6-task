@@ -45,6 +45,11 @@ def validate(config):
         raise ValueError("Global and recovery scope disagree for persistent standard training")
     if c.get("recovery_training") == "persistent_multi_pose" and c.get("recovery_scope") is not None:
         raise ValueError("Persistent multi-pose practice requires the full recovery scope")
+    if c.get("recovery_focus") is not None:
+        from .recovery_discovery import validate as validate_focus
+        validate_focus(c["recovery_focus"])
+        if c.get("recovery_training") != "persistent_multi_pose":
+            raise ValueError("Recovery discovery requires persistent multi-pose practice")
     for k in ("standing_seconds", "motion_seconds"):
         if not math.isfinite(c[k]) or c[k] <= 2: raise ValueError("Invalid cold horizon")
     if c["motion_seconds"] < 20 or any(not math.isfinite(v) or v <= 0 for v in c["limits"].values()):
@@ -259,6 +264,10 @@ class GlobalCurriculum:
         return result
 
     def training_descriptors(self, count, generation):
+        if self.config.get("recovery_focus") is not None:
+            from .recovery_discovery import descriptors
+            return descriptors(count, generation, self.config["recovery_focus"],
+                descriptor(self.config, "standing", 0, "stand"))
         active = [s for s in SKILLS if self.learning_level(s) is not None]
         if self.recovery_available:active.append("recovery")
         weights = self.config["training_weights"]

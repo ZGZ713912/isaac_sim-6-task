@@ -14,11 +14,22 @@ while retaining the same independent mastery tests. `phase_all_low_impact`
 doubles the existing contact-integral cost weights. These weights are search
 choices, not identified structural limits.
 
-All multi-pose candidates reserve30% of training lanes for recovery practice
+The original multi-pose candidates reserve30% of training lanes for recovery practice
 before standing passes. Availability of practice never unlocks harder motion,
 randomization or a passed capability. Family, contact and support geometry are
 reward/evaluation inputs only; actor observations and motor ownership stay the
 same. Completion and post-completion behavior require cold evaluation.
+
+`wheel_leg_self_righting_recovery_focus_v1.json` is a separate recovery
+discovery candidate. It assigns95% of lanes to the admitted fallen-pose bank
+and keeps5% nominal standing auxiliary practice; rounding leaves61 recovery
+lanes at64 environments. Motion practice is disabled for this candidate.
+After actual recovery and3 continuous seconds of the existing stable-standing
+predicate, a training episode ends through the original timeout/bootstrap
+path. Independent evaluation and playback retain their full horizons. The
+recovery success predicate, pose admission, mastery gates, physical loop,
+reward, observations and expanded exploration distribution are unchanged.
+This allocation does not unlock motion or qualify the downstream16001 handoff.
 
 The phase organization is informed by [quadruped fall recovery](https://discovery.ucl.ac.uk/id/eprint/10175510/1/Zhibin_Learning_Complex_Motor_Skills_for_Legged_Robot_Fall_Recovery_RAL_Revision.pdf),
 [humanoid getting up](https://arxiv.org/abs/2502.12152), and

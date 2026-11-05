@@ -32,6 +32,10 @@ class ProneMotionEnv(RobustGetupEnv):
                 command=[0., 0., .305]) for _ in range(kwargs["num_envs"])]
         super().__init__(*args, **kwargs)
         self.plan = self.getup_cfg["prone_motion_task"]
+        from .recovery_discovery import validate as validate_recovery_focus
+        focus = self.plan.get("global_curriculum", {}).get("recovery_focus")
+        self.recovery_training_focus = validate_recovery_focus(focus) if focus is not None else None
+        self.recovery_training_run = kwargs.get("run_role") == "train"
         if "getup_translation" in self.plan:
             from .getup_translation import validate as validate_translation
             self.startup_report["getup_translation"] = validate_translation(self.plan["getup_translation"])
@@ -462,6 +466,15 @@ class ProneMotionEnv(RobustGetupEnv):
         holding = self.ever_recovered & task.stable(state["gravity"], state["height"], state["velocity"],
             state["omega"], state["dq"], self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2., state["nonwheel_force"])
         self.quiet_hold = torch.where(holding & ~state["first"], self.quiet_hold+self.policy_dt, 0.)
+        if self.recovery_training_focus is not None:
+            from .recovery_discovery import completed_timeout
+            stage_extra["recovery_training_timeout"] = completed_timeout(self.recovery_training_focus,
+                self.quiet_hold, self.recovery_lane, terminated, training=self.recovery_training_run,
+                evaluating=self.evaluation_cases is not None)
+            # Reuse the original timeout/bootstrap path without changing the
+            # passive-admitted physical loop or marking a success as failure.
+            self.episode_limits.copy_(torch.where(stage_extra["recovery_training_timeout"],
+                self.episode_length_buf, self.episode_limits))
         quiet_event = (self.quiet_hold >= 30.) & ~self.quiet_completed
         self.quiet_completed |= quiet_event
         now = self.potential()
@@ -527,6 +540,10 @@ class ProneMotionEnv(RobustGetupEnv):
                     result[prefix+"failure_events_per_step"] = (mask & terminated).float().sum()
                     result[prefix+"active_completion_time_sum_s"] = torch.where(first,
                         extra["recovery_active_seconds"],0.).sum()
+        if extra.get("recovery_training_timeout") is not None:
+            result.update({
+                "RecoveryTraining/completion_timeout_events": extra["recovery_training_timeout"].float().sum(),
+                "RecoveryTraining/recovery_lane_fraction": self.recovery_lane.float().mean()})
         physical = self.prone_motion_physical
         if self.leg_friction.enabled:
             loss, speed = physical["leg_friction_passive_effort"], physical["leg_friction_velocity"]
