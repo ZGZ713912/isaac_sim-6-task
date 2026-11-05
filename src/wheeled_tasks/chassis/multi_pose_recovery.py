@@ -51,7 +51,8 @@ def validate(config):
     if c.get("reset_scope") not in (None,"standard_prone_only"):
         raise ValueError("Unknown recovery reset scope")
     if c.get("dense_reward") is not None:
-        if c["dense_reward"].get("schema") == "wheel-leg-phase-recovery-reward-v1":
+        from .recovery_reward import phase_guided
+        if phase_guided(c["dense_reward"]):
             from .recovery_reward import validate as validate_dense
             validate_dense(c["dense_reward"])
         else:
@@ -347,7 +348,8 @@ def recovery_terms(state, config, impact_cost_density, *, scores=None):
         effort=-.000025*state["torque"].square().mean(-1),
         action_rate=-.001*state["action_delta"], impact=-impact_cost_density)
     if config.get("dense_reward") is not None:
-        if config["dense_reward"].get("schema") == "wheel-leg-phase-recovery-reward-v1":
+        from .recovery_reward import phase_guided
+        if phase_guided(config["dense_reward"]):
             from .recovery_reward import dense_terms
         else:
             from .standard_getup_reward import dense_terms

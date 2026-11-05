@@ -18,8 +18,17 @@ def contract():
         observation_additions=False, motor_targets=False)
 
 
+def geometric_lift_contract():
+    return dict(contract(), schema="wheel-leg-geometric-lift-recovery-reward-v1",
+        lift_gate="upright_support_alignment_without_load")
+
+
+def phase_guided(config):
+    return config.get("schema") in (contract()["schema"], geometric_lift_contract()["schema"])
+
+
 def validate(config):
-    if config != contract():
+    if config not in (contract(), geometric_lift_contract()):
         raise ValueError("Recovery shaping requires the complete phase-reward contract")
     return deepcopy(config)
 
@@ -30,6 +39,9 @@ def dense_terms(state, config, *, scores=None):
     alignment = 1./(1.+(state["recovery_support_error_m"]/c["support_scale_m"]).square())
     load = (state["recovery_wheel_load_fraction"]/c["wheel_load_full_fraction"]).clamp(0., 1.).amin(-1)
     capture = up.square()*alignment*load
+    # An explicit comparison of the lift gate only. The capture bonus, contact
+    # cost and settling costs still use the original actual bilateral load.
+    lift_gate = (up.square()*alignment if c["schema"] == geometric_lift_contract()["schema"] else capture)
     body_rate = state["omega"][:, :2].square().sum(-1)
     error = state["height"]-c["target_height_m"]
     # Shift the lift error to zero at belly height, avoiding a negative
@@ -38,8 +50,8 @@ def dense_terms(state, config, *, scores=None):
     return dict(
         recovery_orientation=c["orient_weight"]*(-state["gravity"][:, 2]).clamp(-1., 1.),
         recovery_support_capture=c["capture_weight"]*capture,
-        recovery_lift=c["lift_weight"]*capture*torch.exp(-(error/c["height_width_m"]).square()),
-        recovery_lift_error=c["height_error_weight"]*capture*(reference-torch.log1p((error/.08).square())),
+        recovery_lift=c["lift_weight"]*lift_gate*torch.exp(-(error/c["height_width_m"]).square()),
+        recovery_lift_error=c["height_error_weight"]*lift_gate*(reference-torch.log1p((error/.08).square())),
         recovery_phase_body_rate=-(c["roll_rate_weight"]+c["capture_rate_weight"]*capture)*body_rate,
         recovery_capture_speed=-c["horizontal_speed_weight"]*capture*state["velocity"][:, :2].square().sum(-1),
         recovery_capture_body_contact=-c["body_contact_weight"]*capture*state["recovery_chassis_load_fraction"])

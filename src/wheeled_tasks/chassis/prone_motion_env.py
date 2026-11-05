@@ -338,7 +338,8 @@ class ProneMotionEnv(RobustGetupEnv):
         dense = self.multi_pose_cfg.get("dense_reward", {})
         if ordered(dense):
             result.update(geometry_inputs(route, self.robot.data.root_link_pose_w.torch))
-        phase_guided = dense.get("schema") == "wheel-leg-phase-recovery-reward-v1"
+        from .recovery_reward import phase_guided as phase_reward
+        phase_guided = phase_reward(dense)
         if (contact_guided(dense) or phase_guided) and "recovery_wheel_load_fraction" not in result:
             from .standing_support import wheel_bottom_clearance
             poses = self.robot.data.body_link_pose_w.torch[:, self.wheel_ids]
