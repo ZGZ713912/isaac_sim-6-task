@@ -37,6 +37,10 @@ def timing(plan):
 
 def discounts(plan):
     """Retain discount and GAE horizons in seconds when the actor period changes."""
+    if "recovery_return_horizon" in plan:
+        from .recovery_return_horizon import coefficients, validate_plan
+        validate_plan(plan)
+        return coefficients(plan["recovery_return_horizon"], timing(plan)["policy_dt"])
     ratio = timing(plan)["policy_dt"] / REFERENCE_DT
     return dict(gamma=REFERENCE_GAMMA**ratio, lam=REFERENCE_LAMBDA**ratio)
 
@@ -55,6 +59,9 @@ def validate(plan):
     if "runtime_cli" in plan:
         from .prone_motion_cli import validate_resolved
         return validate_resolved(plan)
+    if "recovery_return_horizon" in plan:
+        from .recovery_return_horizon import validate_plan
+        validate_plan(plan)
     if plan.get("schema") not in ("wheel-leg-prone-motion-v1", "wheel-leg-prone-motion-v2",
                                  "wheel-leg-prone-motion-v3", "wheel-leg-prone-motion-v4", "wheel-leg-prone-motion-v5"):
         raise ValueError("Need the explicit prone-motion contract")

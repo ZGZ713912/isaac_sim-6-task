@@ -211,6 +211,9 @@ def _configured(base, options):
         result["training_progression"] = (f"One fresh learn({result['max_updates']}); URDF nominal standing first; "
             "cold per-skill/per-level admission, persistent replay and measured domain admission; "
             "no elapsed-update unlock; explicit same-course --resume preserves mastery and budget.")
+    if "recovery_return_horizon" in result:
+        from .recovery_return_horizon import validate_plan
+        validate_plan(result)
     return result
 
 

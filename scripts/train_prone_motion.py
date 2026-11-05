@@ -360,6 +360,10 @@ def source_hashes(plan_path, plan):
         receipt = json.loads((ROOT/binding["file"]).read_text())
         names.extend(run["path"] for run in receipt["native_runs"])
     if plan.get("multi_pose_recovery") is not None:
+        if "recovery_return_horizon" in plan:
+            names.extend(["src/wheeled_tasks/chassis/recovery_return_horizon.py",
+                "tests/test_recovery_return_horizon.py", "docs/RECOVERY_RETURN_HORIZON.md",
+                "contracts/wheel_leg_self_righting_return_horizon_v1.json"])
         from wheeled_tasks.chassis.recovery_reward import phase_guided
         if phase_guided(plan["multi_pose_recovery"].get("dense_reward", {})):
             names.extend(["tests/test_phase_recovery.py", "docs/SELF_RIGHTING_EXPERIMENTS.md"])
