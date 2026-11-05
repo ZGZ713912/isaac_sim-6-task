@@ -44,6 +44,8 @@ def probe(env, plan, *, stop_requested=lambda: False):
         wheel_contact_not_a_capture_requirement=not plan["rollover_training"]["wheel_contact_required"],
         no_legacy_standing_gate=env.global_curriculum is None,
         record_only_closure=bool(env.getup_cfg["closure_gap_record_only"]))
+    if plan.get("chassis_collision") is not None:
+        checks["source_chassis_cooked_geometry_passed"] = env.startup_report["chassis_collision"]["all_checks_pass"]
     steps = 40
     prefix_seen = actor_seen = release_seen = False
     target_peak = 0.

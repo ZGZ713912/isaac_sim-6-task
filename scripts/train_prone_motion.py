@@ -39,6 +39,11 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         raise ValueError('Unknown prone-motion sampling backend')
     output.mkdir(parents=True, exist_ok=True)
     full_vehicle = plan.get("full_vehicle")
+    if plan.get("chassis_collision") is not None:
+        from wheeled_tasks.chassis.collision_geometry import authenticate
+        authenticate(ROOT, plan["chassis_collision"])
+        if not plan.get("rollover_training"):
+            raise ValueError("Source chassis collision is admitted only for the explicit rollover task")
     args = SimpleNamespace(output=output,
         bank=ROOT/(plan["pose_bank"]["file"] if full_vehicle else "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json"),
         updates=plan["max_updates"], num_envs=num_envs or plan["num_envs"], rollout_steps=plan["rollout_steps"],
@@ -199,6 +204,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         getup_translation=deepcopy(plan.get("getup_translation")),
         jump_training=deepcopy(plan.get("jump_training")),
         rollover_training=deepcopy(plan.get("rollover_training")),
+        chassis_collision=deepcopy(plan.get("chassis_collision")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
         identified_wheel_response=deepcopy(cfg["identified_wheel_response"]),
@@ -408,8 +414,16 @@ def source_hashes(plan_path, plan):
                       "tests/test_jump_motion.py", "docs/JUMP_MOTION_TRAINING.md"])
     if plan.get("rollover_training") is not None:
         names.extend(["src/wheeled_tasks/chassis/rollover.py", "src/wheeled_tasks/chassis/rollover_env.py",
+            "src/wheeled_tasks/chassis/collision_geometry.py",
             "scripts/probe_rollover.py", "scripts/evaluate_rollover.py", "tests/test_rollover.py",
             "docs/ROLLOVER_LEARNING.md", "src/wheeled_algo/recovery_rollout.py"])
+    if plan.get("chassis_collision") is not None:
+        from wheeled_tasks.chassis.collision_geometry import authenticate
+        geometry = authenticate(ROOT, plan["chassis_collision"])
+        names.extend(["src/wheeled_tasks/chassis/collision_geometry.py", "scripts/build_chassis_collision.py",
+            "tests/test_collision_geometry.py", "docs/CHASSIS_COLLISION_GEOMETRY.md",
+            plan["chassis_collision"]["usd"]["file"], plan["chassis_collision"]["geometry"]["file"]])
+        names.extend(geometry["input_sha256"])
     for name in names:
         result[name] = base.digest(ROOT/name)
     return result
