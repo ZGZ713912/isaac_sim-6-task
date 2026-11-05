@@ -376,12 +376,20 @@ def probe(env, plan, *, stop_requested=lambda: False):
 def _probe(env, plan, *, stop_requested=lambda: False):
     """No optimizer, no policy checkpoint; constants verify wiring only."""
     action = nominal_action(env).expand(env.num_envs, -1).clone()
+    increment_actions = getattr(env, "encoder_increment_actions", None)
+    if increment_actions is not None:
+        action.zero_()
     from wheeled_tasks.chassis.prone_motion import timing
     rates = timing(plan)
     feedback_stride = round(rates["pc_control_dt"]/rates["physics_dt"])
     checks = dict(fixed_PD_and_spring=bool((env.domain.kp == 1.).all() and (env.domain.kd == 1.).all()
         and (env.domain.spring == 1.).all()), rates=(env.dt == rates["physics_dt"]
         and env.policy_dt == rates["policy_dt"] and env.decimation == rates["decimation"]))
+    if increment_actions is not None:
+        checks["increment_birth_history_zero"] = bool((env.actions == 0.).all()
+            and (env.previous_actions == 0.).all() and (env.before_previous_actions == 0.).all())
+        checks["increment_feedback_clock_is_actual_PD_period"] = (
+            env.getup_feedback.dt == rates["pc_control_dt"])
     guard=plan.get("closure_guard",{}).get("peak_m",.003)
     checks["closure_reference_config_matches_physical_step_measurement"]=(
         env.cfg["closure_gap_termination_m"]==env.getup_cfg["closure_gap_m"]==guard)
@@ -473,7 +481,30 @@ def _probe(env, plan, *, stop_requested=lambda: False):
         chassis_samples = getattr(env, "_standing_bridge_chassis_samples", None)
         if chassis_samples is not None:
             chassis_samples.clear()
+        if increment_actions is not None:
+            reference_q = env.getup_feedback.q[:, list(env.v5.LEGS)].clone()
+            feedback_tick = env.getup_feedback.tick
+            decode_count = increment_actions.decode_count
         observation, reward, done, extra = env.step(action)
+        if increment_actions is not None:
+            checks["increment_decoder_uses_existing_feedback_without_resampling"] = checks.get(
+                "increment_decoder_uses_existing_feedback_without_resampling", True) and bool(
+                    torch.equal(increment_actions.last_reference, reference_q)
+                    and increment_actions.reference_feedback_tick == feedback_tick
+                    and env.getup_feedback.tick-feedback_tick == env.decimation//feedback_stride
+                    and increment_actions.decode_count-decode_count == 1)
+            from wheeled_tasks.chassis.paired_feedback import paired_position_error
+            displacement = paired_position_error(increment_actions.last_targets, reference_q)
+            bound = (increment_actions.config["common_rate_rad_s"]+
+                     .5*increment_actions.config["relative_rate_rad_s"])*env.policy_dt
+            checks["increment_encoder_target_displacement_bounded"] = checks.get(
+                "increment_encoder_target_displacement_bounded", True) and bool(
+                    (displacement.abs() <= bound+2e-6).all())
+            checks["increment_metrics_reach_TensorBoard_logger"] = all(
+                key in extra["log"] for key in increment_actions.metrics())
+            disabled = extra["diagnostics"]["passive"]
+            checks["increment_disabled_and_enable_history_zero"] = checks.get(
+                "increment_disabled_and_enable_history_zero", True) and bool((env.actions[disabled] == 0.).all())
         state = extra["diagnostics"]
         natural_closure_peak = max(natural_closure_peak, float(state["gap"].max()))
         natural_closure_exceeded_samples += int(state["closure_gap_exceeded"].sum())

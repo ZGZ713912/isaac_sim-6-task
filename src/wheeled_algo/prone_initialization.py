@@ -14,9 +14,16 @@ CONTRACT = dict(schema="wheel-leg-prone-learning-interface-v1",
     leg_position_scale_rad=.25, all_parameters_trainable=True,
     runtime_encoder_skip=False)
 
+INCREMENT_CONTRACT = dict(schema="wheel-leg-prone-learning-interface-v2",
+    observation_normalization="fixed_policy35_empirical_critic_suffix",
+    fresh_actor_initialization="small_random_zero_increment_mean_v1",
+    action_semantics="encoder_relative_common_and_signed_relative_increments",
+    all_parameters_trainable=True, runtime_encoder_skip=False,
+    decoder_contract="wheel-leg-encoder-increment-actions-v1")
+
 
 def validate(config):
-    if config != CONTRACT:
+    if config not in (CONTRACT, INCREMENT_CONTRACT):
         raise ValueError("Use the complete versioned prone learning interface")
     return deepcopy(config)
 
@@ -30,6 +37,14 @@ def initialize_prone_fresh(algorithm, nominal_action, plan):
     from .prone_observation import PhysicalScaleProneMotionModel
     if not isinstance(algorithm.actor, PhysicalScaleProneMotionModel):
         raise ValueError("Encoder initialization requires the fixed physical policy35 interface")
+    if config == INCREMENT_CONTRACT:
+        receipt = initialize_fresh(algorithm, torch.zeros_like(nominal_action),
+            output_bias_source="zero encoder increment and zero wheel velocity; no pose or policy donor",
+            initial_std=plan["initial_std"], std_range=bounds)
+        receipt.update(schema="prone-encoder-increment-initialization-v1",
+            learning_interface=deepcopy(config), initial_leg_mean="small_random_zero_increment_centered",
+            runtime_action_decoder_changed=True, normalizers_loaded=False)
+        return receipt
     layers = [x for x in algorithm.actor.mlp.modules() if isinstance(x, torch.nn.Linear)]
     # RSL reuses one activation object at several Sequential positions;
     # modules() deduplicates it, so inspect the actual forward sequence.

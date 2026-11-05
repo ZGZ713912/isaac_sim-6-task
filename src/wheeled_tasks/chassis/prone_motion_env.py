@@ -80,6 +80,10 @@ class ProneMotionEnv(RobustGetupEnv):
         if self.plan.get("paired_torque_saturation") is not None:
             from .paired_torque_saturation import install as install_saturation
             install_saturation(self, self.plan["paired_torque_saturation"])
+        self.encoder_increment_actions = None
+        if self.plan.get("encoder_increment_actions") is not None:
+            from .recovery_actions import EncoderIncrementActions
+            self.encoder_increment_actions = EncoderIncrementActions(self, self.plan["encoder_increment_actions"])
         if self.cfg.get("full_vehicle"):
             from .full_vehicle_training import encoder_geometry
             self.prone_encoder_geometry = encoder_geometry(self.cfg, self.asset_root).to(self.device)
@@ -520,6 +524,8 @@ class ProneMotionEnv(RobustGetupEnv):
             "ProneMotion/terminated_events": terminated.float().sum(),
             "ProneMotion/timeout_events": (done & ~terminated).float().sum(),
             "ProneMotion/wheel_speed_peak_rad_s": state["dq"][:, [2, 5]].abs().max()}
+        if getattr(self, "encoder_increment_actions", None) is not None:
+            result.update(self.encoder_increment_actions.metrics())
         if "getup_translation" in self.plan:
             rising = extra["task_recovery_rising"] & ~self.passive
             count = rising.sum().clamp_min(1)

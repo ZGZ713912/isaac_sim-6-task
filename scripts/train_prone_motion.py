@@ -62,6 +62,9 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     if "native_environment_layout" in plan:
         cfg["native_environment_layout"] = plan["native_environment_layout"]
         settings["native_origin_mode"] = plan["native_environment_layout"]
+    if "encoder_increment_actions" in plan:
+        settings["cyclic_leg_targets"] = False
+        settings["leg_action_clip"] = plan["encoder_increment_actions"]["leg_raw_clip"]
     if "closure_guard" in plan:
         guard=plan["closure_guard"]["peak_m"]
         # RobustGetupEnv owns this task's terminal mask. Keep the original
@@ -187,6 +190,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         solver_iterations={key:cfg[key] for key in ("position_iterations", "velocity_iterations")},
         standing_odometry=deepcopy(plan.get("standing_odometry")),
         learning_interface=deepcopy(plan.get("learning_interface")),
+        encoder_increment_actions=deepcopy(plan.get("encoder_increment_actions")),
         terminal_transition=deepcopy(plan.get("terminal_transition")),
         cold_evaluation_lifecycle=deepcopy(plan.get("cold_evaluation_lifecycle")),
         getup_translation=deepcopy(plan.get("getup_translation")),
@@ -198,9 +202,11 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         multi_pose_recovery=deepcopy(plan.get("multi_pose_recovery")), recovery_impact=deepcopy(plan.get("recovery_impact")),
         gas_spring_feedforward=deepcopy(cfg["v5_control"].get("gas_spring_compensation") or
             cfg["v5_control"]["encoder_spring_feedforward"]),
-        action_order=["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
+        action_order=deepcopy(plan["encoder_increment_actions"]["policy_order"]) if "encoder_increment_actions" in plan else
+            ["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"],
         wheel_velocity_scale_rad_s=10., wheel_velocity_clip_rad_s=90.,
-        leg_position_scale_rad=.25, leg_action_clip=16., profile=profile, strength=strength,
+        leg_position_scale_rad=None if "encoder_increment_actions" in plan else .25,
+        leg_action_clip=settings["leg_action_clip"], profile=profile, strength=strength,
         full_randomized_holdout=evaluation and profile != "nominal", state_writes="reset only",
         mechanism_config_sha256=base.digest(output/"config/contract.json"), hardware_ready=False,
         training_origin=plan["initialization"], static_load_initialization=None))
@@ -320,6 +326,8 @@ def source_hashes(plan_path, plan):
     if "learning_interface" in plan:
         names.extend(["tests/test_prone_learning_interface.py", "docs/STANDARD_GETUP_LEARNING_INTERFACE_20261103.md",
                       "contracts/wheel_leg_prone_motion_v4_shape_priority_v1.json"])
+    if "encoder_increment_actions" in plan:
+        names.extend(["tests/test_recovery_actions.py", "docs/RECOVERY_ACTIONS.md"])
     if "trend_extension" in plan["gas_spring_model"]:
         names.append(plan["gas_spring_model"]["trend_extension"]["file"])
     if plan.get("gas_spring_backend") == "dev_compensation_v2":
