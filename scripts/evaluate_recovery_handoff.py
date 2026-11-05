@@ -107,7 +107,8 @@ def main():
             initial_physics_dt=cfg["physics_dt"], post_physics_dt=.005, recovery_policy_dt=.01, standing_policy_dt=.02)
         write_json(output/"report.json", report)
         with torch.inference_mode():
-            while runtime.time < min(bundle["seconds"], 20.) and runtime.mode == "recovery" and not stopped:
+            active_limit = min(bundle["seconds"], 20.)
+            while not runtime.recovery_budget_exhausted(active_limit) and runtime.mode == "recovery" and not stopped:
                 action = actor(observations)
                 runtime.controller_frames.append(dict(time=runtime.time, controller="recovery", policy_dt=env.policy_dt,
                     observation=observations["policy"][0].cpu().tolist(), raw_action=action[0].cpu().tolist()))
@@ -140,6 +141,12 @@ def main():
                 joint_names=list(env.robot.joint_names), body_names=list(env.robot.body_names),
                 enable_time_s=runtime.enabled_at, handoff_time_s=runtime.handoff_at,
                 standing_reference_is_self_righting=False)
+            report["recovery_active_window_s"] = (max(0., (runtime.handoff_at if runtime.handoff_at is not None
+                else runtime.time)-runtime.enabled_at) if runtime.enabled_at is not None else None)
+            report["recovery_active_budget_s"] = active_limit
+            report["recovery_stop_reason"] = ("stopped" if stopped else "actual_handoff" if runtime.handoff_at is not None
+                else "standing_reference" if args.mode == "standing-reference" else "original_done" if runtime.original_termination
+                else "active_budget_exhausted" if runtime.enabled_at is not None else "passive_enable_timeout")
             if records:
                 post = [r for r in records if r["standing"]]
                 if post:
@@ -154,8 +161,9 @@ def main():
                 report["native_dt_max_error_s"] = max(abs(r["native_dt_s"]-r["dt"]) for r in records)
                 report["native_clock_scope"] = "dt forwarded to the same native simulate object; committed only after fetch_results; checked against SimulationContext step count"
                 report["contact"] = contact_summary(records, env.robot.body_names, runtime.enabled_at, runtime.handoff_at)
-                for group, value in report["contact"]["group_positive_world_z_20ms_peak_ns"].items():
-                    writer.add_scalar("ContinuousRecovery/impulse20ms_"+group+"_Ns", value, 0)
+                if report["contact"]["measurement_available"]:
+                    for group, value in report["contact"]["group_positive_world_z_20ms_peak_ns"].items():
+                        writer.add_scalar("ContinuousRecovery/impulse20ms_"+group+"_Ns", value, 0)
             report["screen_pass"] = bool(report["actual_handoff"] and report.get("finite")
                 and report["post_handoff_seconds"] >= 10.-1e-8
                 and report.get("post_tilt_peak_deg", float("inf")) < 20.

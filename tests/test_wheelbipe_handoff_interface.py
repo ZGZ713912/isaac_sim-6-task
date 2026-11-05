@@ -6,7 +6,7 @@ import torch
 
 from wheeled_tasks.chassis.controller_handoff import CONTROL_JOINT_NAMES, STANDING_POLICY_JOINT_NAMES
 from wheeled_tasks.chassis.wheelbipe_interface import WheelbipeStandingInterface
-from wheeled_tasks.chassis.handoff_evaluation import CompletedPhysicsClock, admit_nominal, contact_summary
+from wheeled_tasks.chassis.handoff_evaluation import CompletedPhysicsClock, HandoffEvaluation, admit_nominal, contact_summary
 
 
 def interface(count=1):
@@ -128,3 +128,15 @@ def test_failed_native_fetch_does_not_advance_recorded_physics_time():
     assert clock.steps == 0 and clock.time_s == 0.
     with pytest.raises(RuntimeError, match="Uncommitted"):
         clock.simulate(.005, 0.)
+
+
+def test_passive_placement_does_not_consume_the_active_recovery_budget():
+    evaluator = SimpleNamespace(time=20., enabled_at=.16)
+    assert not HandoffEvaluation.recovery_budget_exhausted(evaluator, 20.)
+    evaluator.time = 20.16
+    assert HandoffEvaluation.recovery_budget_exhausted(evaluator, 20.)
+
+
+def test_standing_reference_has_no_measured_recovery_impulse():
+    r = contact_summary([dict(time=.005, dt=.005, contact_force=[[0, 0, 100.]])], ['base_link'], None, None)
+    assert r['measurement_available'] is False

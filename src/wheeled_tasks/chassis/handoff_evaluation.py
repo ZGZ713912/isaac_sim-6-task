@@ -74,7 +74,8 @@ def contact_summary(records, body_names, enabled_at, handoff_at):
                 total -= old*(cutoff-left)
                 history[0][0] = cutoff
             peak = np.maximum(peak, total)
-    return dict(group_order=list(groups), group_body_names={g: [body_names[i] for i in ids] for g, ids in groups.items()},
+    return dict(measurement_available=enabled_at is not None, group_order=list(groups),
+        group_body_names={g: [body_names[i] for i in ids] for g, ids in groups.items()},
         per_body_positive_world_z_20ms_peak_ns=peak.tolist(),
         group_positive_world_z_20ms_peak_ns={g: float(peak[ids].max()) if ids else 0. for g, ids in groups.items()},
         force_scope="native ground contact resultant per rigid body; static load included; no structural stress qualification")
@@ -245,6 +246,11 @@ class HandoffEvaluation:
         if bool(ready[0]):
             self._switch(reference=False)
         return self.mode != "recovery"
+
+    def recovery_budget_exhausted(self, active_seconds):
+        if self.enabled_at is None:
+            return self.time >= self.env.getup_cfg["passive_max_seconds"]+self.env.policy_dt-1e-9
+        return self.time-self.enabled_at >= active_seconds-1e-9
 
     def _switch(self, *, reference):
         env = self.env
