@@ -59,6 +59,9 @@ def validate(plan):
     if "runtime_cli" in plan:
         from .prone_motion_cli import validate_resolved
         return validate_resolved(plan)
+    if "rollover_training" in plan:
+        from .rollover import validate_plan
+        validate_plan(plan)
     if "recovery_return_horizon" in plan:
         from .recovery_return_horizon import validate_plan
         validate_plan(plan)
