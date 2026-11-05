@@ -13,6 +13,7 @@ import random
 import signal
 import subprocess
 import sys
+import tarfile
 import time
 import traceback
 
@@ -283,9 +284,18 @@ def sources():
 
 
 def archive_committed_sources(source_hashes, output, *, root=ROOT):
-    """Fail before Isaac startup unless every frozen source matches one commit."""
+    """Freeze committed code and separately hash-bound local evidence."""
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    local_inputs = {}
+    committed_sources = {}
     for name, expected in source_hashes.items():
+        parts = Path(name).parts
+        if (parts[0] in ("reports", ".codex", ".opencode")
+                and Path(name).suffix.lower() in (".json", ".npz", ".csv")):
+            if digest(root / name) != expected:
+                raise ValueError("Local evidence changed before source freezing: " + name)
+            local_inputs[name] = expected
+            continue
         result = subprocess.run(["git", "show", f"{revision}:{name}"], cwd=root, capture_output=True)
         if (result.returncode or hashlib.sha256(result.stdout).hexdigest() != expected
                 or digest(root / name) != expected):
@@ -293,7 +303,8 @@ def archive_committed_sources(source_hashes, output, *, root=ROOT):
             if _os.environ.get("WHEELED_PROBE_SKIP_SNAPSHOT") == "1" and result.returncode:
                 continue
             raise ValueError("Training requires committed source matching the snapshot: " + name)
-    archive_names = sorted(source_hashes)
+        committed_sources[name] = expected
+    archive_names = sorted(committed_sources)
     import os as _os2
     if _os2.environ.get("WHEELED_PROBE_SKIP_SNAPSHOT") == "1":
         archive_names = [n for n in archive_names if subprocess.run(
@@ -301,8 +312,18 @@ def archive_committed_sources(source_hashes, output, *, root=ROOT):
     archive = subprocess.check_output(["git", "archive", "--format=tar", revision, "--", *archive_names], cwd=root)
     path = output / "committed_source.tar"
     path.write_bytes(archive)
-    receipt = dict(schema="scratch-committed-source-v1", commit=revision, source_count=len(source_hashes),
+    evidence = None
+    if local_inputs:
+        evidence_path = output / "local_evidence.tar"
+        with tarfile.open(evidence_path, "w") as bundle:
+            for name in sorted(local_inputs):
+                bundle.add((root / name).resolve(), arcname=name, recursive=False)
+        evidence = dict(archive=str(evidence_path), archive_sha256=digest(evidence_path),
+                        files_sha256=local_inputs, scope="hash_bound_local_inputs_not_committed_source")
+    receipt = dict(schema="scratch-committed-source-v1", commit=revision, source_count=len(committed_sources),
                    all_source_bytes_match_commit=True, archive=str(path), archive_sha256=digest(path))
+    if evidence is not None:
+        receipt["local_evidence"] = evidence
     write_json(output / "source_revision.json", receipt)
     return receipt
 

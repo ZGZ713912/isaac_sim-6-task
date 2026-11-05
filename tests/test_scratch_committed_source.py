@@ -51,3 +51,29 @@ def test_noncommitted_or_changed_source_fails_without_writing_archive(repository
     with pytest.raises(ValueError, match="requires committed source"):
         entry.archive_committed_sources(hashes, output, root=root)
     assert not (output / "committed_source.tar").exists()
+
+
+def test_local_report_evidence_is_frozen_separately(repository):
+    root, source, output = repository
+    report = root / ".codex/report/passive/report.json"
+    report.parent.mkdir(parents=True)
+    report.write_text('{"passed": true}\n')
+    hashes = {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
+              for name in ("actor.py", ".codex/report/passive/report.json")}
+    receipt = entry.archive_committed_sources(hashes, output, root=root)
+    assert receipt["source_count"] == 1
+    assert receipt["local_evidence"]["files_sha256"] == {report.relative_to(root).as_posix(): hashes[report.relative_to(root).as_posix()]}
+    with tarfile.open(receipt["local_evidence"]["archive"]) as archive:
+        assert archive.extractfile(report.relative_to(root).as_posix()).read() == report.read_bytes()
+    with tarfile.open(receipt["archive"]) as archive:
+        assert archive.getnames() == ["actor.py"]
+
+
+def test_uncommitted_code_in_local_directory_is_not_evidence(repository):
+    root, source, output = repository
+    script = root / ".codex/report/actor.py"
+    script.parent.mkdir(parents=True)
+    script.write_text("value = 2\n")
+    with pytest.raises(ValueError, match="requires committed source"):
+        entry.archive_committed_sources({script.relative_to(root).as_posix():
+            hashlib.sha256(script.read_bytes()).hexdigest()}, output, root=root)
