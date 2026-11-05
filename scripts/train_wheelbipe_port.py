@@ -64,6 +64,10 @@ def main():
         help="Internal binding created by trainctl wheelbipe init/start")
     parser.add_argument("--resume",type=Path,
         help="Full learning state from a cleanly stopped managed attempt; requires --managed-control-dir")
+    parser.add_argument("--continue-from",type=Path,
+        help="Explicit cross-course continuation from the completed foundation-v2 full checkpoint")
+    parser.add_argument("--motion-update-offset",type=int,default=0,
+        help="Retain the old motion course while the new jump course starts at update zero")
     args = parser.parse_args()
     from wheeled_tasks.wheelbipe_port.training_contract import (
         constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,CONSTRAINT_DIAGNOSTIC_SCOPE,
@@ -87,6 +91,11 @@ def main():
         parser.error("--resume requires a pinned managed session; legacy model-only checkpoints cannot cold-resume")
     if args.managed_control_dir is not None and args.mode!="train":
         parser.error("Only PPO training can use a managed control binding")
+    if args.continue_from is not None and (args.managed_control_dir is None
+            or args.training_profile!="foundation-jump-v1" or args.motion_update_offset!=20000):
+        parser.error("--continue-from requires managed foundation-jump-v1 and --motion-update-offset 20000")
+    if args.motion_update_offset and args.continue_from is None:
+        parser.error("A nonzero motion offset requires explicit cross-course continuation")
     args.output = args.output.resolve()
     managed = None
     endpoint_phase = None
@@ -153,9 +162,10 @@ def main():
         cfg.rewards["port_leg_target_projection"] = -args.leg_target_projection_penalty
         from wheeled_tasks.wheelbipe_port.training_profile import configure_profile,apply_phase
         configure_profile(cfg,args.training_profile)
+        cfg.port_motion_update_offset = args.motion_update_offset
         cfg.port_start_completed_updates = managed.completed if managed is not None else 0
         if args.training_profile in ("foundation-v1","foundation-v2","foundation-jump-v1"):
-            apply_phase(cfg,cfg.port_start_completed_updates)
+            apply_phase(cfg,cfg.port_start_completed_updates+args.motion_update_offset)
         if args.gas_feedforward is not None:
             cfg.port_gas_feedforward = args.gas_feedforward
         if args.mode=="evaluate":
@@ -260,10 +270,15 @@ def main():
                 raise ValueError("A fresh experiment must start with empty Adam")
             runner._prepare_logging_writer()
             if managed is not None:
-                managed.attach(runner,env,args.resume)
+                managed.attach(runner,env,args.resume,args.continue_from)
             start_completed = managed.completed if managed is not None else 0
             receipt["started_from_completed_updates"] = start_completed
             receipt["cold_resume"] = args.resume is not None
+            receipt["cross_course_continuation"] = args.continue_from is not None
+            receipt["source_completed_updates"] = 20000 if args.continue_from else 0
+            receipt["motion_update_offset"] = args.motion_update_offset
+            receipt["initial_optimizer_state_count"] = len(runner.alg.optimizer.state)
+            receipt["initial_learning_rate"] = runner.alg.learning_rate
             receipt["physical_episode_restored"] = False
             initial = {k:v.detach().cpu().clone() for k,v in runner.alg.policy.state_dict().items()}
             runner.save(str(args.output/"model_initial.pt"))
@@ -309,6 +324,9 @@ def main():
                 check_constraint_gap(peak,gap_limit,"PPO")
                 if managed is not None:
                     managed.after_update(completed)
+                    if completed % args.save_interval == 0 and completed < args.iterations:
+                        receipt["latest_review_checkpoint"] = str(managed.review_checkpoint())
+                        save(path,receipt)
                     active,paused = managed.control.elapsed()
                     runner.writer.add_scalar("TrainControl/active_seconds",active,completed)
                     runner.writer.add_scalar("TrainControl/paused_seconds",paused,completed)
@@ -323,7 +341,7 @@ def main():
             if managed is None:
                 env.set_training_progress(iteration=0)
             runner.learn(num_learning_iterations=args.iterations-start_completed,
-                init_at_random_ep_len=args.resume is None)
+                init_at_random_ep_len=args.resume is None and args.continue_from is None)
             final = runner.alg.policy.state_dict()
             changed = [k for k,v in initial.items() if not torch.equal(v,final[k].detach().cpu())]
             finite = all(torch.isfinite(v).all() for v in final.values())
@@ -332,7 +350,7 @@ def main():
             last = args.output/f"model_{runner.current_learning_iteration}.pt"
             receipt.update(status="training_complete",completed_updates=args.iterations,
                 latest_checkpoint=str(last),checkpoint_sha256=sha(last),
-                fresh_initial_optimizer_state_count=0 if args.resume is None else None,
+                fresh_initial_optimizer_state_count=0 if args.resume is None and args.continue_from is None else None,
                 final_optimizer_state_count=len(runner.alg.optimizer.state),
                 changed_policy_tensors=changed,policy_tensors_finite=bool(finite),
                 max_constraint_gap_m=float(env.port_constraint_gap_peak),

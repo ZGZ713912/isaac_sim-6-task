@@ -61,16 +61,18 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
             return
         update = max(getattr(self.cfg, "port_start_completed_updates", 0), self._get_training_iteration())
         self._mixed_update = update
-        phase = phase_for_update(update, specification("foundation-jump-v1"))
+        motion_update = update+getattr(self.cfg, "port_motion_update_offset", 0)
+        phase = phase_for_update(motion_update, specification("foundation-jump-v1"))
         if phase["start_update"] != self.port_training_phase:
-            apply_phase(self.cfg, update)
+            apply_phase(self.cfg, motion_update)
             self.port_training_phase = phase["start_update"]
 
     def _mixed_commands(self):
         if not self._mixed_enabled():
             return
-        phase = dict(phase_for_update(getattr(self, "_mixed_update", 0), self.cfg.port_mixed_spec))
-        phase["completed_update"] = getattr(self, "_mixed_update", 0)
+        motion_update = getattr(self, "_mixed_update", 0)+getattr(self.cfg, "port_motion_update_offset", 0)
+        phase = dict(phase_for_update(motion_update, self.cfg.port_mixed_spec))
+        phase["completed_update"] = motion_update
         command, height = self.task_schedule.update_commands(self._mixed_age(), phase)
         self.command.copy_(command)
         self.height_cmd.copy_(height)

@@ -23,6 +23,7 @@ def main():
     p.add_argument("--steps", type=int, default=600)
     p.add_argument("--seed", type=int, default=119)
     p.add_argument("--course-update", type=int, default=20000)
+    p.add_argument("--motion-update-offset", type=int, default=0)
     p.add_argument("--randomization-profile", default="nominal")
     p.add_argument("--randomization-strength", type=float, default=0.)
     a = p.parse_args()
@@ -64,7 +65,8 @@ def main():
         cfg.port_record_peaks = True
         configure_profile(cfg, "foundation-jump-v1")
         cfg.port_start_completed_updates = a.course_update
-        apply_phase(cfg, a.course_update)
+        cfg.port_motion_update_offset = a.motion_update_offset
+        apply_phase(cfg, a.course_update+a.motion_update_offset)
         # Controlled standing births isolate command/reward wiring from the
         # original independent multi-pose recovery curriculum.
         cfg.use_leg_random_start = False
@@ -89,14 +91,34 @@ def main():
             domain=env.domain_receipt, source_profile_sha256=cfg.port_profile_sha256)
         save()
         sums = {name: dict(samples=0, reward=0., reward_square=0., resets=0) for name in TASKS}
+        metric_sums = {name: dict(vx_error_m_s=0., yaw_error_rad_s=0., height_error_m=0., tilt_deg=0.)
+                       for name in TASKS}
         event_counts = {name: 0 for name in ("liftoff_event", "landing_event", "success_event", "timeout_event")}
+        events_by_task = {task: dict(event_counts) for task in ("jump", "airborne")}
+        outcomes = {task: dict(completed=0, flown=0, landed=0, succeeded=0, terminated=0, timeout=0)
+                    for task in ("jump", "airborne")}
         old_rewards = env._get_rewards
         def observe_payment():
             reward = old_rewards()
             for name in event_counts:
                 event_counts[name] += int(getattr(env.jump_observer, name).sum())
+                for task in events_by_task:
+                    events_by_task[task][name] += int((getattr(env.jump_observer, name)
+                        & env.task_schedule.mask(task)).sum())
             return reward
         env._get_rewards = observe_payment
+        old_dones = env._get_dones
+        def observe_outcomes():
+            terminate, timeout = old_dones()
+            for task, row in outcomes.items():
+                mask = env.task_schedule.mask(task) & (terminate | timeout)
+                row["completed"] += int(mask.sum())
+                for key in ("flown", "landed", "succeeded"):
+                    row[key] += int((mask & getattr(env.jump_observer, key)).sum())
+                row["terminated"] += int((mask & terminate).sum())
+                row["timeout"] += int((mask & timeout).sum())
+            return terminate, timeout
+        env._get_dones = observe_outcomes
         with torch.inference_mode():
             obs, _ = env.reset()
             receipt["observation_shapes"] = {k: list(v.shape) for k, v in obs.items()}
@@ -111,6 +133,10 @@ def main():
                 if not all(torch.isfinite(t).all() for t in tensors):
                     raise ValueError("Nonfinite native state or payment")
                 done = terminate | timeout
+                measured = dict(vx_error_m_s=(env.robot.data.root_lin_vel_b[:, 0]-env.command[:, 0]).abs(),
+                    yaw_error_rad_s=(env.robot.data.root_ang_vel_b[:, 2]-env.command[:, 2]).abs(),
+                    height_error_m=(env.robot.data.root_pos_w[:, 2]-env.terrain.env_origins[:, 2]-env.height_cmd).abs(),
+                    tilt_deg=torch.acos((-env.robot.data.projected_gravity_b[:, 2]).clamp(-1., 1.))*180./torch.pi)
                 for name in TASKS:
                     mask = env.task_schedule.mask(name)
                     selected = reward[mask]
@@ -118,6 +144,8 @@ def main():
                     sums[name]["reward"] += float(selected.sum())
                     sums[name]["reward_square"] += float(selected.square().sum())
                     sums[name]["resets"] += int(done[mask].sum())
+                    for key, value in measured.items():
+                        metric_sums[name][key] += float(value[mask].sum())
                 for tag, value in extras.get("log", {}).items():
                     if tag.startswith("Mixed/") or tag.startswith("Port/"):
                         writer.add_scalar(tag, float(value), step+1)
@@ -136,10 +164,13 @@ def main():
             row["reward_mean_per_step"] = row.pop("reward")/row["samples"]
             row["reward_rms_per_step"] = (row.pop("reward_square")/row["samples"])**.5
             row["actual_sample_fraction"] = row["samples"]/(a.num_envs*a.steps)
+            row["tracking_mean_absolute"] = {key: value/row["samples"]
+                                             for key, value in metric_sums[name].items()}
         if hashlib.sha256(a.checkpoint.read_bytes()).hexdigest() != pinned:
             raise ValueError("Read-only actor checkpoint changed during probe")
         receipt.update(status="complete", elapsed_s=time.monotonic()-started,
             simulated_seconds_per_lane=a.steps*env.step_dt, tasks=sums, physical_events=event_counts,
+            physical_events_by_task=events_by_task, episode_outcomes=outcomes,
             max_constraint_gap_policy_sample_m=float(env.port_constraint_gap_peak),
             finite_native_states=True, interpretation="Wiring and exposure only; old actor has not learned new jump context")
         save()

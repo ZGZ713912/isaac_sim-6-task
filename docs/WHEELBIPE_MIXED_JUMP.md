@@ -34,7 +34,13 @@
 
 ## 入口与验证
 
-训练入口仍为 `scripts/train_wheelbipe_port.py --training-profile foundation-jump-v1`，并通过现有 WheelBipe managed trainctl 创建独立会话。`--checkpoint` 仍限只读评测，`--resume` 仍校验同课程完整学习状态。旧 20000 轮模型不会被这个新课程自动当作训练初始化；跨课程继续训练必须另行明确授权并记录迁移语义。
+训练入口仍为 `scripts/train_wheelbipe_port.py --training-profile foundation-jump-v1`，并通过现有 WheelBipe managed trainctl 创建独立会话。`--checkpoint` 仍限只读评测，`--resume` 仍校验同课程完整学习状态。普通启动从全新 actor、critic 和空 Adam 开始。
+
+明确授权的跨课程试验另用 `--continue-from FULL_DURABLE_CHECKPOINT --motion-update-offset 20000`，并由当前冻结源中的 `src/wheeled_algo/managed_training.py init` 创建新会话。入口只接受完成 20000 更新的 foundation-v2 完整学习状态；校验原会话、检查点及 sidecar pin，恢复 actor、critic、Adam、学习率、归一化器和全局随机状态，逐项验证指纹。目标必须保留原 1024 环境及指定物理/域随机化参数，不能使用模型权重文件冒充完整续训。
+
+新增预算与日志从零计数，报告另记来源的 20000 更新。运动课程采用 20000 更新偏移；跳跃难度从新增更新零开始。物理 episode、历史和混合课程独立随机流重新初始化。后续同会话冷恢复仍由严格的 `--resume` 保存和恢复这些新课程状态，不再次迁移旧模型。每个保存间隔另存完整 `update_*_review.pt`，可只读评测而不暂停训练。
+
+`contracts/wheelbipe_jump_trial_v1.json` 定义试验的配对退化容差和跳跃成功判据。七组固定旧命令之外，三个 seed 的混合评测覆盖普通任务；主动跳跃和腾空出生分别按完整 episode 统计。通过只允许启动新的从零工程实验，不授予完整十三项能力或硬件资格。缺少证据、起跳不足、接稳不足或旧任务退化时，不能自动转入从零训练；人工暂停/停止优先。
 
 `scripts/audit_wheelbipe_behavior.py` 支持该 profile，固定旧命令回放时关闭混合采样，便于与 `foundation-v2` 对照。`scripts/validate_wheelbipe_mixed.py --checkpoint PATH --output NEW_DIRECTORY` 在真实仿真中运行零 PPO 的混合课程、记录配额、状态有限性、奖励和物理事件。它不会创建 optimizer。`MixedRollout/<task>/samples` 是 PPO rollout 张量的真实数量；`finite_physics_samples_per_step` 只诊断物理数值有效性。
 

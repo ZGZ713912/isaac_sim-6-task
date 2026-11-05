@@ -61,6 +61,18 @@ def test_forward_reverse_have_guaranteed_signs_and_low_speed_exposure():
     assert (heights >= .23).all() and (heights <= .42).all()
 
 
+def test_new_jump_difficulty_can_start_easy_while_motion_retains_its_final_course():
+    s, _ = course(1024)
+    s.reset(torch.arange(1024), 0)
+    initial = s.apex.clone()
+    phase = dict(phase_for_update(20000, s.spec), completed_update=20000)
+    command, _ = s.update_commands(torch.zeros(1024), phase)
+    assert (initial >= .43).all() and (initial <= .46).all()
+    assert command[s.mask("spin"), 2].abs().max() > 100*2*torch.pi/60
+    s.reset(torch.arange(1024), 6000)
+    assert (s.apex >= .46).all() and (s.apex <= .54).all()
+
+
 def test_context_and_references_ignore_all_physical_observer_changes():
     s, observer = course()
     age = torch.full((100,), 1.1)
