@@ -29,11 +29,16 @@ def main():
     cli.add_argument("--profile", choices=("direct", "braked"), required=True)
     cli.add_argument("--speed", type=float, default=4.)
     cli.add_argument("--seconds", type=float, default=8.)
+    cli.add_argument("--passive-window", choices=("original", "long"), default="original")
+    cli.add_argument("--prepare-seconds", type=float, default=.1)
+    cli.add_argument("--capture-hold-seconds", type=float, default=1.)
     cli.add_argument("--device", default="cuda:0")
     cli.add_argument("--preflight-only", action="store_true")
     args = cli.parse_args()
     if not math.isfinite(args.seconds) or not 1. <= args.seconds <= 20.:
         cli.error("Active screen must last 1..20s unless an original fault terminates it")
+    if not math.isfinite(args.capture_hold_seconds) or not .2 <= args.capture_hold_seconds <= 3.:
+        cli.error("Belly capture needs a finite .2..3s hold")
     import numpy as np
     import torch
     from build_full_vehicle_training import ResetGeometry, geometry
@@ -41,10 +46,11 @@ def main():
     from wheeled_tasks.chassis import prone_motion as task
     from wheeled_tasks.chassis.prone_motion_cli import validate_device
     validate_device(args.device)
-    sweep = Sweep(args.direction, args.speed, args.profile)
+    sweep = Sweep(args.direction, args.speed, args.profile, prepare_seconds=args.prepare_seconds)
     output = args.output.expanduser().resolve()
     output.mkdir(parents=True, exist_ok=False)
-    plan_path = ROOT/"contracts/wheel_leg_self_righting_passive_window_v1.json"
+    plan_path = ROOT/"contracts"/("wheel_leg_self_righting_passive_window_v1.json"
+        if args.passive_window == "long" else "wheel_leg_self_righting_return_horizon_v1.json")
     plan = task.validate(json.loads(plan_path.read_text()))
     bundle = dict(plan=plan, profile="nominal", strength=0., seed=261105)
     args.num_envs, args.performance_backend, args.sampling_backend = 1, "eager", "packed"
@@ -66,6 +72,8 @@ def main():
         source_commit=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
         source_hashes=hashes, contract_sha256=digest(ROOT/"contracts/wheel_leg_synchronized_rollover_screen_v1.json"),
         direction=args.direction, profile=args.profile, speed_rad_s=args.speed,
+        passive_window=args.passive_window, prepare_seconds=args.prepare_seconds,
+        capture_hold_seconds=args.capture_hold_seconds, base_plan_sha256=digest(plan_path),
         initial_root_pose=root, initial_full_joint_positions=q110, initial_gap_m=gap,
         pose_scope="synthetic exact Rx180 and mechanical110; geometry checked; not an admitted holdout",
         actor_loaded=False, checkpoint_loaded=False, new_PPO=0, hardware_io=False,
@@ -168,6 +176,7 @@ def main():
                 if bool(d["enable_event"][0]) and runtime.enabled_at is None:
                     runtime.enabled_at = runtime.time
                     report["enable_history"] = history_snapshot(env)
+                    report["enable_tilt_deg"] = math.degrees(math.acos(max(-1., min(1., -float(d["gravity"][0, 2])))))
                 height = float(d["height"][0])
                 tilt = math.degrees(math.acos(max(-1., min(1., -float(d["gravity"][0, 2])))))
                 omega = float(d["omega"][0].norm())
@@ -176,7 +185,7 @@ def main():
                     first_upright = runtime.time
                 belly = active and tilt < 20. and .1 < height < .24 and omega < 1.
                 quiet = quiet+env.policy_dt if belly else 0.
-                if quiet >= .2-1e-10 and stable_belly is None:
+                if quiet >= args.capture_hold_seconds-1e-10 and stable_belly is None:
                     stable_belly = runtime.time
                 faults = {k: bool(d[k][0]) for k in
                           ("mechanical", "impact_bad", "boundary_bad", "terminated", "done")}
