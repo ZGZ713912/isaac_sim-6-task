@@ -39,10 +39,12 @@ def validate(config):
         raise ValueError("Unknown active-pool allocation")
     if c.get("recovery_scope") not in (None,"standard_prone_only"):
         raise ValueError("Unknown global recovery scope")
-    if c.get("recovery_training") not in (None,"persistent_standard_prone"):
+    if c.get("recovery_training") not in (None,"persistent_standard_prone","persistent_multi_pose"):
         raise ValueError("Unknown recovery training allocation")
-    if c.get("recovery_training") and c.get("recovery_scope") != "standard_prone_only":
+    if c.get("recovery_training") == "persistent_standard_prone" and c.get("recovery_scope") != "standard_prone_only":
         raise ValueError("Global and recovery scope disagree for persistent standard training")
+    if c.get("recovery_training") == "persistent_multi_pose" and c.get("recovery_scope") is not None:
+        raise ValueError("Persistent multi-pose practice requires the full recovery scope")
     for k in ("standing_seconds", "motion_seconds"):
         if not math.isfinite(c[k]) or c[k] <= 2: raise ValueError("Invalid cold horizon")
     if c["motion_seconds"] < 20 or any(not math.isfinite(v) or v <= 0 for v in c["limits"].values()):
@@ -130,6 +132,7 @@ class GlobalCurriculum:
         # A lost standing pass must not remove the very getup samples needed to
         # learn recovery. Keep all motion/randomization gates unchanged.
         return (self.standard_recovery and self.config.get("recovery_training") == "persistent_standard_prone"
+                or not self.standard_recovery and self.config.get("recovery_training") == "persistent_multi_pose"
                 or bool(self.retained_levels["standing"] if self.retention_required else self.levels["standing"]))
 
     def requirements_met(self, requirements, *, historical=False):

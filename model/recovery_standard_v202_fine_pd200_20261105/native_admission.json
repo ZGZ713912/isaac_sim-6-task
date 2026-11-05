@@ -1,0 +1,92 @@
+{
+  "schema": "native-passive-reset-admission-v1",
+  "new_PPO": 0,
+  "checkpoint_reads": [],
+  "source_bank_sha256": "06c09ae17f925cd6b9e46b16503ad92eeb6e51927539c090ef52015f54c6abef",
+  "source_evidence_sha256": "16b2a492850c3d491d70348273787e0344e32d9b8559f8629c1af6abfa105e3a",
+  "physics_hz": 1000,
+  "policy_hz": 100,
+  "feedback_pd_hz": 200,
+  "seconds": 0.15,
+  "guard_m": 0.003,
+  "admission_margin_m": 0.0002,
+  "cases": [
+    {
+      "pose_index": 3,
+      "heading_rad": 0.0,
+      "recovery": {
+        "family": "belly_down",
+        "leg_class": "rear_rear",
+        "orbital_pair_deg": [
+          -91.66657171251809,
+          -91.67944653849746
+        ],
+        "split": "standard",
+        "dynamic": false,
+        "cad_surface_screen_passed": true,
+        "native_passive_admitted": true,
+        "scope": "single_original_standard_prone_posture; no unseen-pose qualification"
+      },
+      "terminated": false,
+      "closure_peak_m": 8.65155834617326e-06,
+      "passive_motor_peak_nm": 0.0,
+      "mechanical": false,
+      "first_failure_s": null,
+      "passed": true
+    },
+    {
+      "pose_index": 3,
+      "heading_rad": 1.5707963267948966,
+      "recovery": {
+        "family": "belly_down",
+        "leg_class": "rear_rear",
+        "orbital_pair_deg": [
+          -91.66657171251809,
+          -91.67944653849746
+        ],
+        "split": "standard",
+        "dynamic": false,
+        "cad_surface_screen_passed": true,
+        "native_passive_admitted": true,
+        "scope": "single_original_standard_prone_posture; no unseen-pose qualification"
+      },
+      "terminated": false,
+      "closure_peak_m": 8.094883924059104e-06,
+      "passive_motor_peak_nm": 0.0,
+      "mechanical": false,
+      "first_failure_s": null,
+      "passed": true
+    }
+  ],
+  "all_pass": true,
+  "control_timing": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.01,
+    "decimation": 10,
+    "pc_control_dt": 0.005,
+    "target_update": "once_per_policy_step",
+    "feedback_control": "declared_PD_tick_with_zero_order_effort_hold",
+    "runtime_substep_verification": {
+      "policy_steps": 15,
+      "physics_steps": 150,
+      "target_decodes": 1,
+      "pd_updates": 2,
+      "feedback_refreshes": 10,
+      "physics_dt": 0.001,
+      "policy_dt": 0.01,
+      "pc_control_dt": 0.005,
+      "effort_hold_physics_steps": 5
+    }
+  },
+  "runtime_source_hashes": {
+    "scripts/probe_recovery_reset_admission.py": "7b6423c0bae40fcc147997f1f80dd7638e48025ba843b47df4e64a916108623c",
+    "src/wheeled_tasks/chassis/env.py": "2c31d543c0b798b44a7dc91589b32d0ad2eb09f86fbf904b9df1ec9d9bffeb90",
+    "src/wheeled_tasks/chassis/robust_getup_env.py": "fffa6c57b99b9f818f6c1eb3a0a42251e56cb62419ae6a68a12eaaa7fcc6b374",
+    "src/wheeled_tasks/chassis/gimbal_motion.py": "d844b6a57a3c2460391b99b31bd13e5056fe44db8ec065c815bfe109aeda29f5",
+    "src/wheeled_tasks/chassis/preflight.py": "6f83f7c3b782919928f0d3b496a708e3258249facbb2e03cdacf6d34e704a1a2",
+    "src/wheeled_tasks/chassis/control_contract.py": "6f2c855362278027d40aa5bfcdae8b2823582473104f891a22fb9944a716fdd7",
+    "src/wheeled_tasks/chassis/training_wheel_response.py": "746fa912eaa98d7af2a7b6a69a02666f359218920ec466b5960f75f85f3e7f0c"
+  },
+  "scope": "nominal_passive_feasibility_only_not_recovery_or_hardware_qualification",
+  "source_evidence_file": "reports/self_righting_campaign_20261105/fine_standard_passive_admission_002/report.json"
+}

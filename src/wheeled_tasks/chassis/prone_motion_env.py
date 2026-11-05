@@ -321,14 +321,15 @@ class ProneMotionEnv(RobustGetupEnv):
         dense = self.multi_pose_cfg.get("dense_reward", {})
         if ordered(dense):
             result.update(geometry_inputs(route, self.robot.data.root_link_pose_w.torch))
-        if contact_guided(dense) and "recovery_wheel_load_fraction" not in result:
+        phase_guided = dense.get("schema") == "wheel-leg-phase-recovery-reward-v1"
+        if (contact_guided(dense) or phase_guided) and "recovery_wheel_load_fraction" not in result:
             from .standing_support import wheel_bottom_clearance
             poses = self.robot.data.body_link_pose_w.torch[:, self.wheel_ids]
             result["recovery_wheel_clearance_m"] = wheel_bottom_clearance(
                 self.wheel_centers(), poses[:, :, 3:], self.origins[:, 2:3])
             result["recovery_wheel_load_fraction"] = self.contact_force[:, self.wheel_ids, 2].clamp_min(0.)/(
                 9.81*self.body_mass.sum(-1, keepdim=True))
-        if standing_guided(dense):
+        if standing_guided(dense) or phase_guided:
             weight = 9.81*self.body_mass.sum(-1)
             if "nonwheel_force" in state:
                 # Existing 200 Hz impact reduction; include both physical

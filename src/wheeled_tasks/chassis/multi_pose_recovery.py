@@ -51,10 +51,18 @@ def validate(config):
     if c.get("reset_scope") not in (None,"standard_prone_only"):
         raise ValueError("Unknown recovery reset scope")
     if c.get("dense_reward") is not None:
-        from .standard_getup_reward import validate as validate_dense
-        validate_dense(c["dense_reward"])
-        if not standard_only(c):
-            raise ValueError("Standard dense reward requires the single-posture reset scope")
+        if c["dense_reward"].get("schema") == "wheel-leg-phase-recovery-reward-v1":
+            from .recovery_reward import validate as validate_dense
+            validate_dense(c["dense_reward"])
+        else:
+            from .standard_getup_reward import validate as validate_dense
+            validate_dense(c["dense_reward"])
+            if not standard_only(c):
+                raise ValueError("Standard dense reward requires the single-posture reset scope")
+    if c.get("practice_distribution") not in (None,"all_families_from_start"):
+        raise ValueError("Unknown recovery practice distribution")
+    if c.get("practice_distribution") and standard_only(c):
+        raise ValueError("All-family practice requires the full pose bank")
     if standard_only(c):
         if not c.get("standard_reset_pose_name") or any(s["family_weights"] != {
                 f:float(f == "belly_down") for f in FAMILIES} for s in stages):
@@ -235,7 +243,8 @@ class ResetSampler:
                      if self.mastery.unlocked else 0)
         else:
             clock = completed
-        stage = stages[-1] if self.config["curriculum_mode"] == "all" else next(
+        stage = stages[-1] if (self.config["curriculum_mode"] == "all"
+            or self.config.get("practice_distribution") == "all_families_from_start") else next(
             s for s in reversed(stages) if clock >= s["start_update"])
         weights = stage["family_weights"]
         if self.mastery is not None and self.mastery.unlocked and self.config.get("mastery_family_weights"):
@@ -312,6 +321,9 @@ def recovery_terms(state, config, impact_cost_density, *, scores=None):
         effort=-.000025*state["torque"].square().mean(-1),
         action_rate=-.001*state["action_delta"], impact=-impact_cost_density)
     if config.get("dense_reward") is not None:
-        from .standard_getup_reward import dense_terms
+        if config["dense_reward"].get("schema") == "wheel-leg-phase-recovery-reward-v1":
+            from .recovery_reward import dense_terms
+        else:
+            from .standard_getup_reward import dense_terms
         terms.update(dense_terms(state, config["dense_reward"], scores=scores))
     return terms

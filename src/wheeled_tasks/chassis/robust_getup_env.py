@@ -1044,7 +1044,11 @@ class RobustGetupEnv(ChassisEnv):
                 done=done.clone(), terminated=terminated.clone(), mechanical=mechanical.clone(),
                 closure_gap=gap_bad.clone(), closure_gap_exceeded=gap_exceeded.clone(),
                 impact_bad=impact_bad.clone(), boundary_bad=boundary_bad.clone(), time=elapsed.clone(),
-                local_position=local.clone(), motor_position=q.clone(), wheel_contact=contact.clone())
+                local_position=local.clone(), motor_position=q.clone(), wheel_contact=contact.clone(),
+                wheel_clearance=wheel_clearance.clone(), wheel_clearance_peak=wheel_clearance_peak.clone(),
+                wheel_contact_fraction=wheel_contact_fraction.clone(),
+                wheel_air_run_peak=wheel_air_run_peak.clone(),
+                dual_wheel_air_run_peak=dual_wheel_air_run_peak.clone(), wheel_air_seconds=wheel_air_seconds.clone())
             if upright_task is not None:
                 info["diagnostics"].update(nonwheel_force_peak_n=nonwheel_force_peak.clone(),
                     upright_failures={key: value.clone() for key, value in upright_failures.items()},
@@ -1089,10 +1093,6 @@ class RobustGetupEnv(ChassisEnv):
                     reward_before_terminal_settlement=unsettled_reward.clone(),
                     hard_fault_terminal=hard_fault_terminal.clone(),
                     reward_potential_progress=progress.clone(), reward_recovery_active=self.recovery_active.clone())
-                info["diagnostics"].update(wheel_clearance=wheel_clearance.clone(),
-                    wheel_clearance_peak=wheel_clearance_peak.clone(), wheel_contact_fraction=wheel_contact_fraction.clone(),
-                    wheel_air_run_peak=wheel_air_run_peak.clone(), dual_wheel_air_run_peak=dual_wheel_air_run_peak.clone(),
-                    wheel_air_seconds=wheel_air_seconds.clone())
                 info["diagnostics"].update(pushing=pushing.clone(), in_motion_fall=self.in_motion_fall.clone(),
                                            recovered_after_push=self.recovered_after_push.clone())
         if self.fixed_cases is None:

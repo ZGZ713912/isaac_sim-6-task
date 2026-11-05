@@ -345,6 +345,8 @@ def source_hashes(plan_path, plan):
         receipt = json.loads((ROOT/binding["file"]).read_text())
         names.extend(run["path"] for run in receipt["native_runs"])
     if plan.get("multi_pose_recovery") is not None:
+        if plan["multi_pose_recovery"].get("dense_reward", {}).get("schema") == "wheel-leg-phase-recovery-reward-v1":
+            names.extend(["tests/test_phase_recovery.py", "docs/SELF_RIGHTING_EXPERIMENTS.md"])
         if plan["multi_pose_recovery"].get("require_native_reset_admission"):
             names.extend(["scripts/build_native_admitted_recovery_bank.py", "scripts/probe_recovery_reset_admission.py",
                 "scripts/build_standard_prone_repair_bank.py", "tests/test_standard_prone_repair.py",
