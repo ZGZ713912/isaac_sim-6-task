@@ -53,13 +53,14 @@ def test_noncommitted_or_changed_source_fails_without_writing_archive(repository
     assert not (output / "committed_source.tar").exists()
 
 
-def test_local_report_evidence_is_frozen_separately(repository):
+@pytest.mark.parametrize("name", ["report.json", "probe.source.py"])
+def test_local_report_evidence_is_frozen_separately(repository, name):
     root, source, output = repository
-    report = root / ".codex/report/passive/report.json"
+    report = root / ".codex/report/passive" / name
     report.parent.mkdir(parents=True)
     report.write_text('{"passed": true}\n')
     hashes = {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
-              for name in ("actor.py", ".codex/report/passive/report.json")}
+              for name in ("actor.py", report.relative_to(root).as_posix())}
     receipt = entry.archive_committed_sources(hashes, output, root=root)
     assert receipt["source_count"] == 1
     assert receipt["local_evidence"]["files_sha256"] == {report.relative_to(root).as_posix(): hashes[report.relative_to(root).as_posix()]}

@@ -291,7 +291,8 @@ def archive_committed_sources(source_hashes, output, *, root=ROOT):
     for name, expected in source_hashes.items():
         parts = Path(name).parts
         if (parts[0] in ("reports", ".codex", ".opencode")
-                and Path(name).suffix.lower() in (".json", ".npz", ".csv")):
+                and (Path(name).suffix.lower() in (".json", ".npz", ".csv")
+                     or name.endswith(".source.py"))):
             if digest(root / name) != expected:
                 raise ValueError("Local evidence changed before source freezing: " + name)
             local_inputs[name] = expected
