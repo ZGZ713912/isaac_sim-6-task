@@ -30,3 +30,7 @@ Post-stand WheelBipe16001 evaluation must use its own35D observation order,
 LH,RH,LK,RK,LW,RW; it differs from the chassis recovery actor. A successful
 recovery-actor cold test alone does not establish that handoff. No simulation
 result authorizes hardware motion.
+
+## 显式探索范围
+
+`wheel_leg_self_righting_phase_exploration_v2.json`独立声明raw action标准差范围0.003–1.0，腿初值0.8、轮初值0.5，分别对应0.2rad位置目标和5rad/s速度目标的标准差。初始化与实际RSL分布使用同一范围，拒绝未声明或会被分布静默裁剪的配置。其他合同继续使用原0.003–0.3范围；电机力矩、相对关节限位、接触保护和策略解码不变。该设置本身不代表能力改善。

@@ -4,6 +4,7 @@ from copy import deepcopy
 import torch
 
 from .scratch_standing import initialize_fresh, tensor_hash
+from .recovery_action_distribution import std_bounds
 
 
 CONTRACT = dict(schema="wheel-leg-prone-learning-interface-v1",
@@ -22,8 +23,9 @@ def validate(config):
 
 def initialize_prone_fresh(algorithm, nominal_action, plan):
     config = plan.get("learning_interface")
+    bounds = std_bounds(plan)
     if config is None:
-        return initialize_fresh(algorithm, nominal_action, initial_std=plan["initial_std"])
+        return initialize_fresh(algorithm, nominal_action, initial_std=plan["initial_std"], std_range=bounds)
     validate(config)
     from .prone_observation import PhysicalScaleProneMotionModel
     if not isinstance(algorithm.actor, PhysicalScaleProneMotionModel):
@@ -36,7 +38,7 @@ def initialize_prone_fresh(algorithm, nominal_action, plan):
             or layers[0].out_features < 16 or any(x.out_features < 4 for x in layers[1:-1])
             or layers[-1].out_features != 6):
         raise ValueError("Pose-hold initialization needs two ELU hidden layers, first16 and later4 units")
-    receipt = initialize_fresh(algorithm, nominal_action, initial_std=plan["initial_std"])
+    receipt = initialize_fresh(algorithm, nominal_action, initial_std=plan["initial_std"], std_range=bounds)
     with torch.no_grad():
         # A flat region around the standing bias retains position stiffness.
         # Far from it, initially hold the observed pose instead of commanding

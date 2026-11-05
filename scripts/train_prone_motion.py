@@ -29,7 +29,9 @@ import train_scratch_standing as base
 def configuration(output, plan, *, profile="nominal", strength=0., evaluation=False, num_envs=None, seed=None,
                   performance_backend="cuda_graph", device="cuda:0", sampling_backend="packed"):
     from wheeled_tasks.chassis.prone_motion import validate, timing, discounts
+    from wheeled_algo.recovery_action_distribution import std_bounds
     plan = validate(plan)
+    std_bounds(plan)
     rates, discount = timing(plan), discounts(plan)
     if performance_backend not in ("eager","cuda_graph"):
         raise ValueError("Unknown prone-motion performance backend")
@@ -216,9 +218,11 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
 
 def learner_config(plan, device="cuda:0"):
     from wheeled_algo.scratch_standing import agent_config
+    from wheeled_algo.recovery_action_distribution import std_bounds
     from wheeled_tasks.chassis.prone_motion import discounts
     result = agent_config(plan["seed"], device, plan["rollout_steps"], plan["learning_rate"],
                           normalize_observations=True)
+    result["actor"]["distribution_cfg"]["std_range"] = list(std_bounds(plan))
     ppo = plan.get('ppo',dict(hidden_dims=[256,128,64], epochs=3, mini_batches=4))
     result["actor"]["hidden_dims"] = list(ppo['hidden_dims'])
     result["critic"]["hidden_dims"] = list(ppo['hidden_dims'])
@@ -254,7 +258,8 @@ def check_first_update(result, runner_cfg):
 
 def source_hashes(plan_path, plan):
     result = base.sources()
-    names = ["scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
+    names = ["src/wheeled_algo/recovery_action_distribution.py", "tests/test_recovery_action_distribution.py",
+             "scripts/train_prone_motion.py", "scripts/evaluate_prone_motion.py", "scripts/train_prone_motion.sh",
              "scripts/play_prone_motion.py", "scripts/play_prone_motion.sh", "tests/test_prone_motion_cli.py",
              "scripts/benchmark_prone_motion.py", "src/wheeled_tasks/chassis/prone_motion_sampling.py",
              "tests/test_prone_motion_sampling.py",

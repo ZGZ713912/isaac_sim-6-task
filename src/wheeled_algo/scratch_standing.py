@@ -42,15 +42,21 @@ def tensor_hash(state):
     return digest.hexdigest()
 
 
-def initialize_fresh(algorithm, nominal_action, *, output_bias_source=None, initial_std=None):
+def initialize_fresh(algorithm, nominal_action, *, output_bias_source=None, initial_std=None,
+                     std_range=(.003, .3)):
     if algorithm.optimizer.state:
         raise ValueError("Scratch training requires empty Adam state")
     if not all(p.requires_grad for model in (algorithm.actor, algorithm.critic) for p in model.parameters()):
         raise ValueError("Scratch actor and critic must be fully trainable")
     initial_std = [.01]*4 + [.05]*2 if initial_std is None else initial_std
     std = nominal_action.new_tensor(initial_std)
-    if std.shape != (6,) or not torch.isfinite(std).all() or (std < .003).any() or (std > .3).any():
-        raise ValueError("Fresh six-axis exploration must be within the declared0.003..0.3 distribution range")
+    if tuple(std_range) not in ((.003, .3), (.003, 1.)):
+        raise ValueError("Fresh exploration requires an explicit supported distribution range")
+    if tuple(algorithm.actor.distribution.std_range) != tuple(std_range):
+        raise ValueError("Fresh exploration and actual actor distribution ranges differ")
+    if (std.shape != (6,) or not torch.isfinite(std).all()
+            or (std < std_range[0]).any() or (std > std_range[1]).any()):
+        raise ValueError("Fresh six-axis exploration must be within the declared distribution range")
     layers = [layer for layer in algorithm.actor.mlp.modules() if isinstance(layer, torch.nn.Linear)]
     with torch.no_grad():
         layers[-1].weight.mul_(.01)
@@ -66,4 +72,4 @@ def initialize_fresh(algorithm, nominal_action, *, output_bias_source=None, init
         critic_trainable_parameters=sum(p.numel() for p in algorithm.critic.parameters()),
         output_bias_source=(output_bias_source or "feasible 0.305 m reset joint geometry; all six outputs trainable"),
         output_bias_policy_order=nominal_action.cpu().tolist(),
-        initial_std_policy_order=[float(v) for v in initial_std])
+        initial_std_policy_order=[float(v) for v in initial_std], std_range=list(std_range))
