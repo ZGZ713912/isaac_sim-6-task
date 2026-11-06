@@ -25,7 +25,7 @@ def main():
     p.add_argument("--num-envs", type=int, default=32)
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--seed", type=int, default=111)
-    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1"),default="legacy")
+    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2"),default="legacy")
     p.add_argument("--control", choices=("actor", "wheel-pulse"), default="actor")
     p.add_argument("--gas-feedforward", choices=("source", "disabled"), default="source",
         help="Isolated port-only control intervention; keeps physical gas springs unchanged")
@@ -102,7 +102,7 @@ def main():
                 if hasattr(value, "mode") and name != "reset_base":
                     setattr(cfg.events, name, None)
             receipt["asset_sha256"] = hashlib.sha256(a.asset.read_bytes()).hexdigest()
-        if port and a.training_profile == "foundation-jump-v1":
+        if port and a.training_profile.startswith("foundation-jump-"):
             from wheeled_tasks.wheelbipe_port.mixed_environment import WheelbipeMixedEnv
             env = WheelbipeMixedEnv(cfg)
         else:

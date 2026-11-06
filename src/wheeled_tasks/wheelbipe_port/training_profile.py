@@ -10,7 +10,8 @@ from pathlib import Path
 PROFILE_PATH = Path(__file__).resolve().parents[3]/"contracts/wheelbipe_foundation_repair_v1.json"
 PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
                  "foundation-v2": PROFILE_PATH.with_name("wheelbipe_foundation_repair_v2.json"),
-                 "foundation-jump-v1": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v1.json")}
+                 "foundation-jump-v1": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v1.json"),
+                 "foundation-jump-v2": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v2.json")}
 
 
 def specification(name="foundation-v1"):
@@ -74,7 +75,7 @@ def configure_profile(cfg, name):
     cfg.events.reset_base.params["pose_range"] = {}
     cfg.events.reset_base.params["velocity_range"] = {}
     apply_phase(cfg, 0, spec)
-    if name == "foundation-jump-v1":
+    if name.startswith("foundation-jump-"):
         from .mixed_curriculum import REWARD_NAMES, validate
         validate(spec)
         cfg.port_mixed_spec = spec

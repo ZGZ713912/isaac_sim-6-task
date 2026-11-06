@@ -61,6 +61,7 @@ class TaskSchedule:
         self.apex = torch.zeros_like(self.height)
         self.drop = torch.zeros_like(self.height)
         self.wave_phase = torch.zeros_like(self.height)
+        self.update = 0
         self.reset(torch.arange(count, device=device), 0)
 
     def mask(self, name):
@@ -71,6 +72,7 @@ class TaskSchedule:
 
     def reset(self, ids, update):
         j = self.spec["jump"]
+        self.update = update
         progress = min(max(update/j["difficulty_full_update"], 0.), 1.)
         def sample(key):
             low, high = [a+(b-a)*progress for a, b in zip(j[key+"_start_m"], j[key+"_final_m"])]
@@ -117,6 +119,15 @@ class TaskSchedule:
             self.height[ids] = hlow+(hhigh-hlow)*self.random(n)
             jump = (r == TASKS.index("jump")) | (r == TASKS.index("airborne"))
             self.height[ids[jump]] = self.spec["jump"]["standing_height_m"]
+            moving = self.spec["jump"].get("moving_jump")
+            if moving:
+                ramp = min(max((self.update-moving["start_update"])/
+                    (moving["full_update"]-moving["start_update"]), 0.), 1.)
+                rank = (self.mask("jump").long().cumsum(0)-1)[ids]
+                travel = (rank % 2 == 0) & (r == TASKS.index("jump"))
+                direction = torch.where((rank//2+generation) % 2 == 0, 1., -1.)
+                self.commands[ids, 0] = torch.where(travel,
+                    direction*moving["maximum_vx_m_s"]*ramp, self.commands[ids, 0])
             hold = torch.where(r == TASKS.index("stand"),
                 self.spec["sampling"]["standing_command_hold_seconds"], self.spec["sampling"]["command_hold_seconds"])
             self.next_sample[ids] = age[ids]+hold
@@ -133,16 +144,21 @@ class TaskSchedule:
         push_time = (t-j["crouch_seconds"]).clamp_min(0.)
         crouch = self.mask("jump") & (t >= 0) & (t < j["crouch_seconds"])
         push = self.mask("jump") & (t >= j["crouch_seconds"]) & (push_time <= duration)
-        flight = self.mask("jump") & (push_time > duration) & (push_time < duration+1.)
+        v2 = j.get("reward_version", 1) == 2
+        flight_seconds = 2*release_v/9.81 if v2 else 1.
+        flight = self.mask("jump") & (push_time > duration) & (push_time < duration+flight_seconds)
         active = ((self.mask("jump") & (t >= 0)) | self.mask("airborne")) & (age < j["outcome_seconds"])
         p = (t/j["crouch_seconds"]).clamp(0., 1.)
         h = torch.full_like(age, j["standing_height_m"])
         h = torch.where(crouch, h+(j["crouch_height_m"]-h)*(3*p.square()-2*p.pow(3)), h)
         acceleration = release_v/duration
         h = torch.where(push, j["crouch_height_m"]+.5*acceleration*push_time.square(), h)
+        if v2:
+            h = torch.where(flight, j["release_height_m"], h)
         v = torch.where(push, acceleration*push_time, 0.)
         return dict(height=h, velocity=v, push=push, flight=flight, active=active,
-                    requested=self.mask("jump") & (t >= 0))
+                    crouch=crouch, after_push=self.mask("jump") & (push_time > duration),
+                    release_velocity=release_v, requested=self.mask("jump") & (t >= 0))
 
     def context(self, base, age):
         """No sensor or observer parameter is accepted at this boundary."""
@@ -178,7 +194,8 @@ class JumpObserver:
         for name in ("liftoff_event", "landing_event", "success_event", "timeout_event", "interval_force_peak"):
             getattr(self, name).zero_()
 
-    def observe(self, age, height, velocity, gravity, wheel_clearance, wheel_force, nonwheel_force):
+    def observe(self, age, height, velocity, gravity, wheel_clearance, wheel_force, nonwheel_force,
+                horizontal_speed_error=None):
         j, s = self.j, self.schedule
         jump, drop = s.mask("jump"), s.mask("airborne")
         eligible = drop | (jump & (age >= s.delay))
@@ -196,7 +213,8 @@ class JumpObserver:
         self.landed |= landing
         self.force_peak = torch.maximum(self.force_peak, wheel_force.sum(-1)*eligible)
         self.interval_force_peak = torch.maximum(self.interval_force_peak, wheel_force.sum(-1)*eligible)
-        calm = ((gravity[:, 2] < -math.cos(math.radians(12))) & (velocity[:, :2].norm(dim=-1) < .15)
+        speed_error = velocity[:, :2].norm(dim=-1) if horizontal_speed_error is None else horizontal_speed_error
+        calm = ((gravity[:, 2] < -math.cos(math.radians(12))) & (speed_error < .15)
                 & (velocity[:, 2].abs() < .15) & ((height-j["standing_height_m"]).abs() < .035)
                 & (nonwheel_force <= 2.))
         stable = eligible & self.landed & support & calm
@@ -223,6 +241,27 @@ class JumpObserver:
         bonuses = j["event_bonuses"]
         events = (bonuses["liftoff"]*self.liftoff_event+bonuses["landing"]*self.landing_event
                   +bonuses["success"]*self.success_event+bonuses["timeout"]*self.timeout_event)
+        if j.get("reward_version", 1) == 2:
+            # Center preparation tracking on an idle robot. Waiting at standing
+            # height must never earn the jump reward after a missed push.
+            idle_error = j["standing_height_m"]-ref["height"]
+            tracking = (torch.exp(-(height_error/.035).square())
+                        -torch.exp(-(idle_error/.035).square()))
+            preparing = active & (ref["crouch"] | ref["push"])
+            recovery = active & self.landed
+            missed = active & ref["after_push"] & ~self.flown
+            velocity_gain = (torch.exp(-((vz-ref["velocity"])/.5).square())
+                             -torch.exp(-(ref["velocity"]/.5).square()))
+            progress = (vz/ref["release_velocity"]).clamp(-1., 1.)
+            return dict(
+                jump_height=j["dense_scale"]*(4*preparing*tracking
+                    +recovery*(2*torch.exp(-(height_error/.035).square())-1.)
+                    -j["missed_takeoff_cost_per_second"]*missed),
+                jump_push_velocity=j["dense_scale"]*ref["push"]*(6*velocity_gain+4*progress),
+                jump_air_placement=j["dense_scale"]*2*flight*placement,
+                jump_impact=-j["dense_scale"]*((self.interval_force_peak/self.weight-j["impact_soft_bodyweights"])
+                    .clamp_min(0.)/j["impact_scale_bodyweights"]).clamp_max(5.),
+                jump_events=events/policy_dt)
         return dict(jump_height=j["dense_scale"]*height_phase*(4*torch.exp(-(height_error/.035).square())
                        -torch.log1p((height_error/.06).square())),
                     jump_push_velocity=j["dense_scale"]*ref["push"]*(6*torch.exp(-((vz-ref["velocity"])/.5).square())

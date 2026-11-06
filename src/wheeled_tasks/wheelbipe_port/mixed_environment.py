@@ -6,7 +6,7 @@ from isaaclab.utils.math import quat_apply, quat_apply_inverse
 
 from .environment import WheelbipePortEnv
 from .mixed_curriculum import JumpObserver, REWARD_NAMES, TASKS, TaskSchedule
-from .training_profile import apply_phase, phase_for_update, specification
+from .training_profile import apply_phase, phase_for_update
 
 
 class WheelbipeMixedEnv(WheelbipePortEnv):
@@ -55,14 +55,14 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         return age
 
     def _update_training_profile(self):
-        if getattr(self.cfg, "port_training_profile", "") != "foundation-jump-v1":
+        if not getattr(self.cfg, "port_training_profile", "").startswith("foundation-jump-"):
             return super()._update_training_profile()
         if not getattr(self, "_port_ready", False) or hasattr(self, "eval_command"):
             return
         update = max(getattr(self.cfg, "port_start_completed_updates", 0), self._get_training_iteration())
         self._mixed_update = update
         motion_update = update+getattr(self.cfg, "port_motion_update_offset", 0)
-        phase = phase_for_update(motion_update, specification("foundation-jump-v1"))
+        phase = phase_for_update(motion_update, self.cfg.port_mixed_spec)
         if phase["start_update"] != self.port_training_phase:
             apply_phase(self.cfg, motion_update)
             self.port_training_phase = phase["start_update"]
@@ -74,6 +74,9 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         phase = dict(phase_for_update(motion_update, self.cfg.port_mixed_spec))
         phase["completed_update"] = motion_update
         command, height = self.task_schedule.update_commands(self._mixed_age(), phase)
+        if self.cfg.port_mixed_spec["jump"].get("reward_version", 1) == 2:
+            ref = self.task_schedule.reference(self._mixed_age())
+            height = torch.where(ref["requested"], ref["height"], height)
         self.command.copy_(command)
         self.height_cmd.copy_(height)
         # Disable inherited random standing/heading/special-mode postprocessing
@@ -141,9 +144,13 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                     +self._mixed_wheel_half_length*axis[:, :, 2].abs())
         clearance = center[:, :, 2]-extent_z-self.terrain.env_origins[:, 2, None]
         height = self.robot.data.root_pos_w[:, 2]-self.terrain.env_origins[:, 2]
+        kwargs = {}
+        if self.cfg.port_mixed_spec["jump"].get("reward_version", 1) == 2:
+            kwargs["horizontal_speed_error"] = (
+                self.robot.data.root_lin_vel_b[:, :2]-self.command[:, :2]).norm(dim=-1)
         self.jump_observer.observe(self._mixed_age(physics=True), height,
             self.robot.data.root_lin_vel_w, self.robot.data.projected_gravity_b,
-            clearance, wheel_force, other_force)
+            clearance, wheel_force, other_force, **kwargs)
 
     def _apply_action(self):
         self._observe_jump()
@@ -170,6 +177,9 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         for name in self.cfg.port_mixed_spec["reward_policy"]["suppressed_during_jump_request"]:
             if name in terms:
                 terms[name] = terms[name]*(~ref["active"])
+        for name, scale in self.cfg.port_mixed_spec["reward_policy"].get("jump_request_cost_scales", {}).items():
+            if name in terms:
+                terms[name] = terms[name]*torch.where(ref["active"], scale, 1.)
         relative = self.robot.data.body_pos_w[:, self._wheel_link_idx]-self.robot.data.root_pos_w[:, None, :]
         inverse = self.robot.data.root_quat_w.clone()
         wheel_body = quat_apply_inverse(inverse[:, None, :].expand(-1, 2, -1), relative)
@@ -193,6 +203,23 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                 logs["Mixed/reward/"+name+"_mean_per_step"] = self._last_reward_terms[name].mean()
             for name in ("liftoff_event", "landing_event", "success_event", "timeout_event"):
                 logs["Mixed/jump/"+name+"_count_per_step"] = getattr(self.jump_observer, name).sum().float()
+                for task in ("jump", "airborne"):
+                    logs["Mixed/physical/"+task+"/"+name+"_count_per_step"] = (
+                        getattr(self.jump_observer, name) & self.task_schedule.mask(task)).sum().float()
             logs["Mixed/jump/request_active_envs"] = self.task_schedule.reference(self._mixed_age())["active"].sum().float()
             logs["Mixed/jump/force_peak_bodyweights"] = (self.jump_observer.force_peak/self.jump_observer.weight).max()
+            jump = self.task_schedule.mask("jump")
+            ref = self.task_schedule.reference(self._mixed_age())
+            logs["Mixed/active_jump/requested_envs"] = ref["requested"].sum().float()
+            logs["Mixed/active_jump/push_envs"] = ref["push"].sum().float()
+            logs["Mixed/active_jump/height_command_mean_m"] = self.height_cmd[jump].mean()
+            logs["Mixed/active_jump/root_height_mean_m"] = (
+                self.robot.data.root_pos_w[jump, 2]-self.terrain.env_origins[jump, 2]).mean()
+            logs["Mixed/active_jump/upward_velocity_mean_m_s"] = self.robot.data.root_lin_vel_w[jump, 2].mean()
+            logs["Mixed/active_jump/leg_motor_abs_mean_Nm"] = self.motor_effort[jump][:, (0,1,3,4)].abs().mean()
+            bad_gap = self.constraint_gaps().amax(-1) > .003
+            logs["Port/constraint_gap_over_3mm_env_fraction"] = bad_gap.float().mean()
+            for task in TASKS:
+                logs["Mixed/"+task+"/constraint_gap_over_3mm_env_fraction"] = (
+                    bad_gap[self.task_schedule.mask(task)].float().mean())
         return rewards
