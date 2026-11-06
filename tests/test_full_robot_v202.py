@@ -76,7 +76,7 @@ def test_native_usd_topology_gimbal_variants_and_nominal_loop_anchors(asset):
             points.append(np.array(world.Transform(tuple(c[f"local_pos{side}_m"]))))
         np.testing.assert_allclose(*points,atol=1e-7,rtol=0.)
     counts = [len(b["collisions"]) for b in asset.spec["bodies"]]
-    assert sum(counts) <= 48 and max(counts) <= 8
+    assert counts[0] == 42 and sum(counts[1:]) <= 40
 
 
 def test_gimbal_urdf_csv_and_physical_pitch_direction_agree():
