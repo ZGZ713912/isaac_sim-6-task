@@ -373,12 +373,13 @@ class ChassisEnv:
                     actuators["wheels"].viscous_friction = native["damping"]
                     actuators["wheels"].effort_limit = self.identified_wheels.native_effort_limit
                     actuators["wheels"].effort_limit_sim = self.identified_wheels.native_effort_limit
+        from .source_chassis_collision import selected_usd
         robot_cfg = ArticulationCfg(
             # Match only the numbered environment, never its terrain descendants.
             # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
             prim_path="/World/envs/env_[0-9]+/Robot",
             spawn=sim_utils.UsdFileCfg(
-                usd_path=str(root / config["asset_directory"] / manifest["usd"]),
+                usd_path=selected_usd(root, config, manifest),
                 activate_contact_sensors=True,
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
                 articulation_props=sim_utils.ArticulationRootPropertiesCfg(enabled_self_collisions=False,
