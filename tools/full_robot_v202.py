@@ -338,6 +338,16 @@ def make_spec(robot, reference, bundle):
             collisions.append(dict(type="cylinder", radius=float(cylinder.get("radius")),
                 length=float(cylinder.get("length")), origin=col_origin.tolist()))
             methods.append(dict(method="preserved_v201_cylinder"))
+        elif name == "base_link":
+            from wheeled_tasks.chassis.source_chassis_collision import load, collisions as source_collisions, write_meshes
+            chassis = load()
+            if digest(mesh_file) != chassis["source_stl_sha256"]:
+                raise ValueError("Source chassis STL changed")
+            write_meshes(bundle, chassis)
+            collisions = source_collisions(chassis)
+            methods.append(dict(method="source_support_v3", pieces=len(collisions),
+                vertex_limit=64, cooking_min_thickness_m=.00001,
+                scope=chassis["scope"]))
         else:
             mesh = trimesh.load(mesh_file, force="mesh", process=True)
             raw_parts = list(mesh.split(only_watertight=False))
@@ -349,7 +359,7 @@ def make_spec(robot, reference, bundle):
                 parts.append(part)
             # CAD assemblies include hundreds of screws/internal parts. Their
             # individual hulls are unsuitable for thousands of RL instances.
-            maximum = 8 if name=="base_link" else 4 if name.startswith("M_") else len(parts)
+            maximum = 4 if name.startswith("M_") else len(parts)
             groups = collision_groups(parts,min(maximum,len(parts)))
             for index, members in enumerate(groups):
                 vertices = np.concatenate([parts[k].vertices for k in members])
@@ -488,6 +498,8 @@ def export_assets(bundle, spec):
     exporter.export_urdf(bundle, spec)
     exporter.export_usd(bundle, spec)
     stage = Usd.Stage.Open(str(bundle/"robot.usda"))
+    from wheeled_tasks.chassis.source_chassis_collision import author, load
+    author(stage, load())
 
     def quat(matrix):
         v = Rotation.from_matrix(matrix[:3, :3]).as_quat()
