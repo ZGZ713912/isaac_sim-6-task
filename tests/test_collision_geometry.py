@@ -77,7 +77,7 @@ def test_corrected_contract_changes_only_asset_selection():
     dirs = support_directions(source)
     assert np.abs((source@dirs.T).max(0)-(points@dirs.T).max(0)).max() < 1e-6
     assert all(len(p["vertices"]) <= 64 for p in geometry["pieces"])
-    assert len(geometry["disabled_parent_paths"]) == 8
+    assert len(geometry["disabled_parent_paths"]) == 0
 
 
 def test_support_parts_keep_all_extremes_with_thick_interior_and_no_false_extent():
@@ -116,4 +116,4 @@ def test_actual_usd_only_changes_chassis_collisions():
         assert np.array_equal(np.array(UsdGeom.Mesh(prim).GetPointsAttr().Get()), np.array(item["vertices"]))
         assert abs(prim.GetAttribute("physxConvexHullCollision:minThickness").Get()-1e-5) < 1e-10
     extras = {str(p.GetPath()) for p in new.Traverse()}-{str(p.GetPath()) for p in old.Traverse()}
-    assert extras == {p["path"] for p in geometry["pieces"]}
+    assert extras == set()

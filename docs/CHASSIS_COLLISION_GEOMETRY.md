@@ -1,64 +1,31 @@
-# Source chassis contact geometry
+# v2.0.2 chassis collision geometry
 
-`wheel_leg_rollover_chassis_slopes_v1.json` selects an authenticated collision
-overlay for the inverted-to-prone task. The parent is the original v2.0.2
-moving-gimbal, friction_v1 training asset. Its eight base_link collision parts
-were conservative 26-direction envelopes; those envelopes fill outside the
-original armor slopes. The overlay disables those eight parts and replaces
-their exterior supporting envelope from the original visual mesh. It does not
-replace the visuals, other bodies, joints, mass, inertia, actuators or materials.
+All fixed-gimbal, moving-gimbal and friction training exports use the same
+`model/wheel_leg_v2.0.2/chassis_collision/geometry.json` geometry. It contains
+the 42 source-support-v3 hulls derived from the original chassis STL. Every
+original supporting extreme is retained, including the front, rear and side
+lower slopes. Each hull has at most 64 vertices and uses a 0.01 mm minimum
+convex cooking thickness.
 
-`scripts/build_chassis_collision.py` intersects every old convex part with the
-convex hull of the original chassis surface. All original extreme points must
-remain covered. The resulting volumes are partitioned using face-to-interior
-tetrahedra, grouped into convex parts with at most 64 vertices each. The union
-retains each clipped volume; this partition does not use a box or restrict face
-normals to a fixed direction set. The generated metadata binds the original
-USD layers, STL, model specification, source extremes and all output vertices.
+The old chassis boxes and the eight conservative 26-direction chassis
+envelopes are removed from USD, URDF and model specifications. Their OBJ files
+and experimental overlay assets are removed as well. Existing geometry plans
+select one canonical wrapper over the corrected moving-gimbal training asset.
+`tools/full_robot_v202.py` generates the same corrected geometry, and the
+native chassis entry point rejects an explicit asset override with different
+chassis hulls.
 
-The guarantee concerns the chassis supporting envelope on an infinite flat
-ground plane. Original cavities and concavities have not been certified for
-terrain contact. Flat-ground support equivalence is not CAD watertightness,
-self-collision, a material calibration, or hardware qualification.
+Only chassis collision geometry changes. Visuals, other bodies, joints, mass,
+inertia and actuator parameters retain their values. Component evidence can be
+inherited only after checking the specification with collisions removed; it
+does not qualify the new contact geometry. Asset hashes and current training
+contracts bind the corrected exports. Old native receipts, run records and
+checkpoints retain their original identities. An already running process
+continues to use its loaded scene; disk migration does not change that scene
+or authorize checkpoint continuation under the new geometry.
 
-The rollover adapter authenticates the selected USD and metadata before native
-construction, using the existing asset-selection hook only inside that
-constructor. An external asset override is rejected. Original passive evidence
-and the bound base environment source remain unchanged; their validation does
-not qualify the new contact geometry. After construction, every clone must have
-exactly the new active chassis parts and disabled old parts. PhysX's synchronous
-collision-representation query reads each actual cooked hull. Support error
-against source extremes must be below 0.1 mm over source face normals, axes and
-a deterministic sphere. Native admission fails before PPO if this check fails.
-The startup report retains actual cooked vertices and signed support errors.
-
-The v2 overlay keeps the same authored vertices and sets each convex part's
-minimum cooking thickness to 0.01 mm instead of the PhysX default of 1 mm.
-Thin partitions must not be expanded to 1 mm during cooking. This parameter
-does not change contact offsets or the required 0.1 mm support-error gate.
-Use `wheel_leg_rollover_chassis_slopes_v2.json` for this explicit selection.
-Failed native construction retains all cooked points in
-`native_collision_failure.json`, as well as the original exception/status.
-
-The v3 overlay instead groups original surface extremes with a strictly
-interior six-point volumetric core. Two extremes can share a hull only if both
-have at least 2 mm supporting-plane separation from the other. This avoids
-very thin residual partitions and makes exterior points essential to their
-individual convex hull. Every original extreme is retained, every part stays
-inside the source convex hull, and every part has at most 64 vertices. The
-guarantee remains flat-plane supporting geometry; interior concavities and
-contact on terrain are not certified. The v1/v2 interior partition is not
-claimed to be preserved by this construction. No support tolerance is relaxed:
-the actual native hulls still have to pass the same 0.1 mm support gate.
-
-Original bank joint/root states and independent initial leg angles are retained
-to isolate the collision correction. Old bank clearance labels must not be
-interpreted as new-asset certification. Disabled placement and active recovery
-remain physical intervals, with complete contact records; there is no hidden
-pose rewrite to compensate for a changed collision shape.
-
-The flip task, rewards, prefix curriculum and completion thresholds are
-unchanged. A new geometry experiment starts with fresh actor, critic and empty
-Adam. Old geometry checkpoints are not donors or continuation points. Geometry
-and native admission establish model selection and contact shape, not learned
-recovery, eventual standing, or a continuous handoff to WheelBipe.
+The supporting-envelope guarantee applies to an infinite flat ground plane.
+It does not certify CAD cavities, concave terrain contact, learned recovery or
+hardware behavior. Native geometry admission must inspect actual cooked hulls
+and retain the 0.1 mm support-error limit. Reset-bank clearance labels measured
+with the old geometry require new native validation.
