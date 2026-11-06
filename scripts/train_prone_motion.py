@@ -372,6 +372,10 @@ def source_hashes(plan_path, plan):
         binding = recipe["parent_component_validation"]
         names.extend([binding["file"], "model/wheel_leg_v2.0.2/build_receipt.json", "scripts/build_full_vehicle_training.py", "scripts/train_chassis.py",
                       "scripts/sync_full_vehicle_knee_limits.py", "tools/full_robot_v202.py",
+                      "src/wheeled_tasks/chassis/source_chassis_collision.py",
+                      "model/wheel_leg_v2.0.2/chassis_collision/geometry.json",
+                      "model/wheel_leg_v2.0.2/chassis_collision/robot.usda",
+                      "tests/test_source_chassis_collision.py", "docs/CHASSIS_COLLISION_GEOMETRY.md",
                       "model/wheel_leg_v2.0.2/knee_limits_sync_receipt.json", "model/wheel_leg_v2.0.2/source_provenance.json",
                       "tests/test_full_vehicle_training.py", "docs/FULL_VEHICLE_TRAINING_20261030.md"])
         receipt = json.loads((ROOT/binding["file"]).read_text())
