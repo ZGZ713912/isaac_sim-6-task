@@ -84,7 +84,13 @@ def authenticate(config, root):
     if digest(root/binding["file"]) != binding["sha256"]:
         raise ValueError("Inherited component receipt changed")
     receipt = json.loads((root/binding["file"]).read_text())
-    if receipt.get("component_migration_passed") is not True or receipt["model_spec_sha256"] != source.spec_sha256:
+    component_spec_matches = receipt["model_spec_sha256"] == source.spec_sha256
+    if not component_spec_matches:
+        from .source_chassis_collision import mechanical_identity
+        migration = source.manifest.get("chassis_collision_migration", {})
+        component_spec_matches = (receipt["model_spec_sha256"] == migration.get("previous_spec_sha256")
+            and mechanical_identity(source.spec) == migration.get("unchanged_mechanics_sha256"))
+    if receipt.get("component_migration_passed") is not True or not component_spec_matches:
         raise ValueError("Full-vehicle components lack a matching reviewed migration")
     for run in receipt["native_runs"]:
         if digest(root/run["path"]) != run["sha256"] or run.get("passed") is not True:
@@ -93,7 +99,7 @@ def authenticate(config, root):
         model_spec_sha256=recipe["model_spec_sha256"], recipe_sha256=declaration["sha256"],
         knee_inner_limits_deg=source.limits["knee_inner_limits_deg"],
         hardware_zero_reference_inner_deg=source.limits["hardware_zero_reference_inner_deg"],
-        component_scope="unchanged chassis geometry, mass, spring curves and wheel dynamics; only two free gimbal joints",
+        component_scope="inherited mass, joints, spring curves and wheel dynamics; collision support is validated separately",
         leg_motor_friction=deepcopy(friction),
         moving_gimbal_behavior_qualified=False, hardware_release=False)
 
