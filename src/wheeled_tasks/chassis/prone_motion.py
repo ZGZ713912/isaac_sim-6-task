@@ -37,6 +37,9 @@ def timing(plan):
 
 def discounts(plan):
     """Retain discount and GAE horizons in seconds when the actor period changes."""
+    if "prone_support" in plan:
+        from .prone_support import coefficients
+        return coefficients(plan["prone_support"], timing(plan)["policy_dt"])
     if "recovery_return_horizon" in plan:
         from .recovery_return_horizon import coefficients, validate_plan
         validate_plan(plan)
@@ -61,6 +64,9 @@ def validate(plan):
         return validate_resolved(plan)
     if "rollover_training" in plan:
         from .rollover import validate_plan
+        validate_plan(plan)
+    if "prone_support" in plan:
+        from .prone_support import validate_plan
         validate_plan(plan)
     if "recovery_return_horizon" in plan:
         from .recovery_return_horizon import validate_plan
@@ -136,7 +142,7 @@ def validate(plan):
         from .standing_local_odometry import validate_contract
         validate_contract(plan.get("standing_odometry"))
         if plan["standing_odometry"].get("schema") == "wheel-leg-local-standing-odometry-v2" and (
-                not plan.get("multi_pose_recovery") or not plan.get("global_curriculum")):
+                not plan.get("multi_pose_recovery") or not (plan.get("global_curriculum") or plan.get("prone_support"))):
             raise ValueError("Repaired v4 odometry requires the separated recovery objective and retention course")
         if plan.get("quiet_position_tail") != dict(start_m=.09, scale_m=.04, weight=2.):
             raise ValueError("v4 requires its zero-command-only continuous position cost tail")
@@ -172,6 +178,12 @@ def validate(plan):
     if v2 and (plan.get("timing") != timing(plan) or plan.get("discounts") != discounts(plan)
                or plan.get("action_rate_reference_dt") != REFERENCE_DT):
         raise ValueError("100Hz requires matching declared physics/PD, discount horizons and action-rate reference")
+    if plan.get("prone_support") is not None:
+        if (plan["num_envs"] < 20 or plan["rollout_steps"] != 64 or plan["max_updates"] != 10000
+                or plan["roles_per20"] != ["prone"]*20 or plan.get("global_curriculum") is not None
+                or plan["training_prone_seconds"] != plan["prone_support"]["episode_active_s"]+.2):
+            raise ValueError("Normally-up prone skill needs only prone lanes and its independent height curriculum")
+        return deepcopy(plan)
     if (plan["num_envs"] < 20 or plan["rollout_steps"] != (64 if v2 else 128)
             or plan["max_updates"] != 10000 or len(plan["roles_per20"]) != 20
             or set(plan["roles_per20"]) != set(ROLES)):

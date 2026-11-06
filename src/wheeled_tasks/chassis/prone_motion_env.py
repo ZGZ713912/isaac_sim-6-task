@@ -120,7 +120,8 @@ class ProneMotionEnv(RobustGetupEnv):
             joints = {j["name"]: j for j in spec["joints"]}
             self.recovery_hips = self.prone_start_xy.new_tensor(
                 [joints[s+"_joint1"]["origin"][i][3] for s in ("L", "R") for i in range(3)]).reshape(2,3)
-        if self.plan.get("global_curriculum") is not None and not self.plan.get("rollover_training"):
+        if (self.plan.get("global_curriculum") is not None and not self.plan.get("rollover_training")
+                and not self.plan.get("prone_support")):
             from .global_curriculum import GlobalCurriculum
             self.global_curriculum = global_curriculum or GlobalCurriculum(self.plan,self.recovery_sampler.mastery)
             self._append_urdf_nominal_pose()

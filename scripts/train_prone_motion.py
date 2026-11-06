@@ -42,8 +42,14 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
     if plan.get("chassis_collision") is not None:
         from wheeled_tasks.chassis.collision_geometry import authenticate
         authenticate(ROOT, plan["chassis_collision"])
-        if not plan.get("rollover_training"):
-            raise ValueError("Source chassis collision is admitted only for the explicit rollover task")
+        if not (plan.get("rollover_training") or plan.get("prone_support")):
+            raise ValueError("Source chassis collision requires an explicit admitted recovery task")
+    if plan.get("prone_support") is not None:
+        from wheeled_tasks.chassis.prone_support import validate_plan
+        validate_plan(plan)
+        item = plan["prone_support"]["reset_parameters"]
+        if base.digest(ROOT/item["file"]) != item["sha256"]:
+            raise ValueError("Normally-up reset parameters changed")
     args = SimpleNamespace(output=output,
         bank=ROOT/(plan["pose_bank"]["file"] if full_vehicle else "reports/robust_policy_repair_20261024/pose_bank_height_matched073.json"),
         updates=plan["max_updates"], num_envs=num_envs or plan["num_envs"], rollout_steps=plan["rollout_steps"],
@@ -204,6 +210,7 @@ def configuration(output, plan, *, profile="nominal", strength=0., evaluation=Fa
         getup_translation=deepcopy(plan.get("getup_translation")),
         jump_training=deepcopy(plan.get("jump_training")),
         rollover_training=deepcopy(plan.get("rollover_training")),
+        prone_support=deepcopy(plan.get("prone_support")),
         chassis_collision=deepcopy(plan.get("chassis_collision")),
         policy_sensor_delay_ms=[v*rates["policy_dt"]*1000. for v in settings["sensor_delay_policy_ticks"]],
         wheel_reduction=cfg["wheel_reduction"], wheel_action="trainable absolute output-shaft velocity",
@@ -417,6 +424,11 @@ def source_hashes(plan_path, plan):
             "src/wheeled_tasks/chassis/collision_geometry.py",
             "scripts/probe_rollover.py", "scripts/evaluate_rollover.py", "tests/test_rollover.py",
             "docs/ROLLOVER_LEARNING.md", "src/wheeled_algo/recovery_rollout.py"])
+    if plan.get("prone_support") is not None:
+        names.extend(["src/wheeled_tasks/chassis/prone_support.py", "src/wheeled_tasks/chassis/prone_support_env.py",
+            "scripts/build_prone_support_resets.py", "scripts/probe_prone_support.py", "scripts/evaluate_prone_support.py",
+            "tests/test_prone_support.py", "docs/PRONE_SUPPORT_LEARNING.md",
+            plan["prone_support"]["reset_parameters"]["file"]])
     if plan.get("chassis_collision") is not None:
         from wheeled_tasks.chassis.collision_geometry import authenticate
         geometry = authenticate(ROOT, plan["chassis_collision"])
@@ -516,10 +528,11 @@ def main():
         metadata, authenticate_sources, validate_checkpoint, restore, restore_rng, restore_curriculum,
     )
     resume_bundle = metadata(args.resume) if args.resume is not None else None
-    if plan.get("rollover_training") and resume_bundle is not None:
-        parser.error("Rollover currently supports fresh training and in-process pause; checkpoint restore is not admitted")
-    if plan.get("rollover_training") and args.performance_backend != "eager":
-        parser.error("Rollover native capture checks require --performance-backend eager")
+    separate_recovery = plan.get("rollover_training") or plan.get("prone_support")
+    if separate_recovery and resume_bundle is not None:
+        parser.error("This recovery skill supports fresh training and in-process pause; checkpoint restore is not admitted")
+    if separate_recovery and args.performance_backend != "eager":
+        parser.error("Native recovery capture checks require --performance-backend eager")
     if args.stop_existing_009:
         if args.preflight_only:
             parser.error("A CPU preflight must not signal an existing learner")
@@ -568,10 +581,10 @@ def main():
     launcher = env = runner = audit = original_load = domain_switch = mastery_hook = None
     global_course = None
     mastery = None
-    if plan.get("multi_pose_recovery",{}).get("mastery_gate") is not None and not plan.get("rollover_training"):
+    if plan.get("multi_pose_recovery",{}).get("mastery_gate") is not None and not separate_recovery:
         from wheeled_tasks.chassis.recovery_mastery import RecoveryMastery
         mastery = RecoveryMastery(plan["multi_pose_recovery"]["mastery_gate"])
-    if plan.get("global_curriculum") is not None and not plan.get("rollover_training"):
+    if plan.get("global_curriculum") is not None and not separate_recovery:
         from wheeled_tasks.chassis.global_curriculum import GlobalCurriculum
         global_course = GlobalCurriculum(plan,mastery)
     active_directory = output
@@ -586,7 +599,9 @@ def main():
         import torch
         from isaaclab.sim import SimulationContext
         from rsl_rl.runners import OnPolicyRunner
-        if plan.get("rollover_training") is not None:
+        if plan.get("prone_support") is not None:
+            from wheeled_tasks.chassis.prone_support_env import ProneSupportEnv as ProneMotionEnv
+        elif plan.get("rollover_training") is not None:
             from wheeled_tasks.chassis.rollover_env import RolloverEnv as ProneMotionEnv
         elif plan.get("jump_training") is not None:
             from wheeled_tasks.chassis.jump_motion_env import JumpMotionEnv as ProneMotionEnv
@@ -597,7 +612,9 @@ def main():
         from wheeled_algo.recovery_rollout import RecoveryRolloutMask
         from wheeled_algo.native_ppo_audit import NativePPOAudit
         from wheeled_algo.continuous_rollout import RolloutDomainSwitch
-        if plan.get("rollover_training") is not None:
+        if plan.get("prone_support") is not None:
+            from probe_prone_support import probe
+        elif plan.get("rollover_training") is not None:
             from probe_rollover import probe
         elif plan.get("jump_training") is not None:
             from probe_jump_motion import probe
@@ -779,6 +796,7 @@ def main():
                 env_rng=env.generator.get_state(), domain_rng=env.domain.rng.get_state(),
                 recovery_sampler=env.recovery_sampler.state_dict() if hasattr(env, "recovery_sampler") else None,
                 rollover_curriculum=(env.prefix_course.state_dict() if plan.get("rollover_training") else None),
+                prone_support_curriculum=(env.height_course.state_dict() if plan.get("prone_support") else None),
                 prone_reset_generation=env.prone_reset_generation,
                 jump_training_counters=(env.jump_training.total.clone() if getattr(env, "jump_training", None) is not None else None),
                 python_rng=random.getstate(), numpy_rng=np.random.get_state()))
@@ -827,6 +845,11 @@ def main():
                     prefix_release_integrity=env.prefix_release_integrity,
                     prefix_release_receipts=env.prefix_release_receipts,
                     completion_scope="inverted_to_stationary_prone_not_standing")
+            if plan.get("prone_support"):
+                report["prone_support"] = dict(height_curriculum=env.height_course.state_dict(),
+                    goal_completed_events=env.support_total_completed,
+                    default_standing_completed_events=env.support_standing_completed,
+                    completion_scope="normally-up prone to fixed birth-height goal; final evaluation always0.305m")
             if mastery is not None:
                 report["recovery_mastery"] = mastery.state_dict()
             if global_course is not None:
