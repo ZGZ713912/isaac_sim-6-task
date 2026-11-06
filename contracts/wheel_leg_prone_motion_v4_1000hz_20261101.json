@@ -70,7 +70,7 @@
   "wheel_model": {
     "model": {
       "file": "model/wheel_leg_v2.0.2/friction_v1/training/wheel_model.json",
-      "sha256": "01d52214771bb9dea2cb592eff4dc6fbd27bb096faa90ff1e17b5d898a1e877c"
+      "sha256": "b3f1e95dc0321dbcfd3322cdc70c10c8de40fdd148f3015f4bfca82b939bc771"
     },
     "control": {
       "file": "contracts/wheel_leg_prone_motion_control_100hz_v1.json",
@@ -92,12 +92,12 @@
   },
   "gas_spring_model": {
     "file": "model/wheel_leg_v2.0.2/friction_v1/training/gas_spring_model.json",
-    "sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9"
+    "sha256": "336bf60143f0d90fe89e71cb1d7f9209fb0c3a5978f3c0460ee883ee0ebc7060"
   },
   "gas_spring_feedforward": {
     "enabled": true,
     "model_file": "model/wheel_leg_v2.0.2/friction_v1/training/gas_spring_model.json",
-    "model_sha256": "698f67ccc7d6364b73f1b426ed3e6386ffc9e11912ef95a89d716eb7ee0e06b9",
+    "model_sha256": "336bf60143f0d90fe89e71cb1d7f9209fb0c3a5978f3c0460ee883ee0ebc7060",
     "gain": 1.0,
     "force_extrapolation": "positive_c1_endpoint_trend_v1",
     "physical_curve_outside_geometry": "hold_geometry_endpoint",
@@ -226,7 +226,7 @@
     "severe_gravity_z": -0.5,
     "wheel_increment_margin_rad": 0.02,
     "wheel_increment_speed_allowance": 3.0,
-    "geometry_table_sha256": "c30136fdae9b504b0033629c4b95e187cbcb841b7307f05be3d0d6f9ce6850b9",
+    "geometry_table_sha256": "9d9d58b5c09646203c31fe47842d2bc3378a74ef688d476c3f52fe2c2c022bd6",
     "source": "same_policy_encoder_IMU_stream_after_sensor_delay_and_noise",
     "wheel_input": "driver_continuous_output_shaft_angles; subtract_float64_request_origin_before_float32",
     "reference": "capture_once_after_contiguous_sensor_standing; preserve_during_height_change_and_drift",
@@ -234,7 +234,7 @@
     "invalid": "zero_features_and_validity; retain_reference; wheel_jump_fault_until_next_request",
     "control_outputs": false,
     "privileged_position_or_contact": false,
-    "geometry_model_spec_sha256": "8a9d759525c48955e8965b2e14b9e158c1d8fc9f3d68f33e4024a3c94bf8f812",
+    "geometry_model_spec_sha256": "c6e01f69f2f96ef1af337024a76057cc419422aad3cd3a5fd4714c1a9e5b0d53",
     "geometry_file": "model/wheel_leg_v2.0.2/friction_v1/training/encoder_geometry.json"
   },
   "quiet_position_tail": {
@@ -244,15 +244,15 @@
   },
   "full_vehicle": {
     "file": "model/wheel_leg_v2.0.2/friction_v1/training/recipe.json",
-    "sha256": "304d8ddcc8af3c00dc186a46c8222671f45307637833e364ad1a82d6bebefd75"
+    "sha256": "23c2bd1d33a194864015a6f29bce67378c23d3ede74684c4523044afe86c3e6f"
   },
   "mechanism": {
     "file": "model/wheel_leg_v2.0.2/friction_v1/training/mechanism.json",
-    "sha256": "25a1e69b650f99416f40b2a3d1312c037b348c2d06d134bd9e5e5f19be28f6d8"
+    "sha256": "86bd29d524778ebbe5bc5eab730049895d1f7c8e4bc13d0ae44baf7953aed11b"
   },
   "pose_bank": {
     "file": "model/recovery_v202_20261031/pose_bank.json",
-    "sha256": "785b0b16b5fadbed887e61598f3ab4caba9108fd63ed5291f67bb362202199a4"
+    "sha256": "be2abc64e46cb6d06ca5970be3c10886d1158b014dc66016ce1a04bf8060fee4"
   },
   "full_vehicle_scope": "Full21-body21.44174kg vehicle,20 tree joints and6 loops. The authenticated leg friction, wheels, gas springs, closed chains, limits and low-level control remain unchanged. One fresh10000-update v4 run begins with the literal URDF nominal standing pose and admits recovery/motion/combined-height levels by cold evaluation; persistent replay and gated domain progression, no resume.",
   "mechanical_inner_knee_range_deg": [
