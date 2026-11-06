@@ -188,7 +188,7 @@ def main():
         files_sha256={name: digest(DIRECTORY/name) for name in ("manifest.json", "pose_bank.json", "gimbal_motion.json")},
         parent_component_validation=validation,
         zero_friction_bodies=["base_link"], zero_friction_combine_mode="min",
-        zero_friction_scope="all8 merged base collision hulls include belly guide rollers; driving wheels and other bodies retain their materials",
+        zero_friction_scope="all42 source-support-v3 chassis hulls; driving wheels and other bodies retain their materials",
         references=[dict(file=str(p), sha256=digest(p)) for p in (reference, envcfg)],
         allowed_changes="release two gimbal joints; bind unchanged chassis component tables to this derived specification; new reset-only geometry",
         actor_dim=35, critic_dim=87, action_dim=6, policy_abi="v4 local wheel standing odometry; independent gimbal disturbance is not a policy output",

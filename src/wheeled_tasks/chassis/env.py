@@ -413,13 +413,13 @@ class ChassisEnv:
                         stiffness=0., damping=0., effort_limit=cap, effort_limit_sim=cap, velocity_limit_sim=1e9)
         robot_spawn_extra = ({"collision_props": sim_utils.CollisionPropertiesCfg(collision_enabled=False)}
                              if __import__("os").environ.get("WHEELED_PROBE_NO_ROBOT_COLLISION") == "1" else {})
+        from .source_chassis_collision import selected_usd
         robot_cfg = ArticulationCfg(
             # Match only the numbered environment, never its terrain descendants.
             # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
             prim_path="/World/envs/env_[0-9]+/Robot",
             spawn=sim_utils.UsdFileCfg(
-                usd_path=(__import__("os").environ.get("WHEELED_ASSET_USD")
-                          or str(root / config["asset_directory"] / manifest["usd"])),
+                usd_path=selected_usd(root, config, manifest),
                 activate_contact_sensors=True,
                 **robot_spawn_extra,
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
