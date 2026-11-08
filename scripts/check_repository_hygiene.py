@@ -11,6 +11,13 @@ from pathlib import PurePosixPath
 LOCAL_ROOTS = {".codex", ".opencode", ".tools", "report", "reports", "results", "models", "runs", "logs"}
 MARKDOWN_SUFFIXES = {".md", ".mdx", ".markdown"}
 NOTICES = {"LICENSE.md", "NOTICE.md", "THIRD_PARTY_NOTICES.md"}
+# These upstream documents are authenticated by wheelbipe/provenance.json.
+# Keep their original paths and bytes alongside the imported source.
+AUTHENTICATED_SOURCE_DOCUMENTS = {
+    "third_party/wheelbipe/src/agent_tasks/direct/wheelbipe/ENV_LAYERS.md",
+    "third_party/wheelbipe/src/agent_tasks/direct/wheelbipe/README.md",
+    "third_party/wheelbipe/src/agent_tasks/direct/wheelbipe/TASK_TEMPLATE.md",
+}
 RUN_DOCUMENT = re.compile(
     r"(?:^|_)(?:REPORT|REVIEW|AUDIT|STATUS|RECEIPT|RESULT|DRAFT|CANDIDATE|PILOT|LAUNCH|RUNNING)(?:_|$)",
     re.IGNORECASE,
@@ -27,7 +34,7 @@ def violation(filename: str) -> str | None:
     if path.suffix.lower() in GENERATED_SUFFIXES or filename.endswith(".tar.gz"):
         return "generated checkpoints, logs and archives must stay local"
     if path.suffix.lower() in MARKDOWN_SUFFIXES:
-        if filename in {"AGENTS.md", "README.md"} or path.name in NOTICES:
+        if filename in {"AGENTS.md", "README.md"} or path.name in NOTICES or filename in AUTHENTICATED_SOURCE_DOCUMENTS:
             return None
         if path.name == "README.md" and path.parts[0] in {"assets", "model", "tools"}:
             return None
