@@ -11,15 +11,62 @@ PROFILE_PATH = Path(__file__).resolve().parents[3]/"contracts/wheelbipe_foundati
 PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
                  "foundation-v2": PROFILE_PATH.with_name("wheelbipe_foundation_repair_v2.json"),
                  "foundation-jump-v1": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v1.json"),
-                 "foundation-jump-v2": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v2.json")}
+                 "foundation-jump-v2": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v2.json"),
+                 "foundation-jump-v3": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v3.json"),
+                 "foundation-jump-v4": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v4.json")}
 
 
-def specification(name="foundation-v1"):
-    return json.loads(PROFILE_PATHS[name].read_text())
+def specification(name="foundation-v1", course_updates=None):
+    spec = json.loads(PROFILE_PATHS[name].read_text())
+    if course_updates is None:
+        return spec
+    if name != "foundation-jump-v4" or type(course_updates) is not int or course_updates <= 0:
+        raise ValueError("Course scaling requires foundation-jump-v4 and a positive update budget")
+    original = spec["total_updates"]
+    scale = lambda update: round(update*course_updates/original)
+    for row in spec["phases"]:
+        row["start_update"] = scale(row["start_update"])
+    starts = [row["start_update"] for row in spec["phases"]]
+    if len(set(starts)) != len(starts) or max(starts) >= course_updates:
+        raise ValueError("Course budget is too short to retain every phase")
+    spec["special_mode_starts"] = {key:scale(value) for key,value in spec["special_mode_starts"].items()}
+    jump = spec["jump"]
+    jump["difficulty_full_update"] = scale(jump["difficulty_full_update"])
+    for key in ("start_update","full_update"):
+        jump["moving_jump"][key] = scale(jump["moving_jump"][key])
+    if (jump["difficulty_full_update"] <= 0
+            or jump["moving_jump"]["start_update"] >= jump["moving_jump"]["full_update"]):
+        raise ValueError("Course budget collapses the jump progression")
+    spec["total_updates"] = course_updates
+    spec["course_scaling"] = dict(source_total_updates=original,total_updates=course_updates,
+        method="linear update milestones; physical episode timing, task quotas and reward scales unchanged")
+    return spec
 
 
-def profile_sha256(name="foundation-v1"):
-    return hashlib.sha256(PROFILE_PATHS[name].read_bytes()).hexdigest()
+def profile_sha256(name="foundation-v1", course_updates=None):
+    data = (PROFILE_PATHS[name].read_bytes() if course_updates is None else
+            json.dumps(specification(name,course_updates),sort_keys=True,separators=(",",":")).encode())
+    return hashlib.sha256(data).hexdigest()
+
+
+def apply_control_overrides(cfg, *, kp=None, kd=None, overtravel=None, overtravel_scope=None,
+                            tuck_mode=None, tuck_gain=None, tuck_cap_nm=None):
+    """Keep training and independent evaluation on the same actuator contract."""
+    from .training_contract import leg_pd_gains, target_overtravel_rad
+    from .control import validate_tuck_compensation
+    cfg.port_leg_kp,cfg.port_leg_kd = leg_pd_gains(
+        cfg.port_leg_kp if kp is None else kp,cfg.port_leg_kd if kd is None else kd)
+    if overtravel is not None:
+        cfg.port_leg_target_overtravel_rad = target_overtravel_rad(overtravel)
+    if overtravel_scope is not None:
+        if overtravel_scope not in ("all","jump-request"):
+            raise ValueError("Virtual target overtravel scope must be all or jump-request")
+        cfg.port_leg_target_overtravel_scope = overtravel_scope
+    settings = deepcopy(cfg.port_tuck_spring_compensation)
+    for key,value in (("mode",tuck_mode),("gain",tuck_gain),("cap_nm",tuck_cap_nm)):
+        if value is not None:
+            settings[key] = value
+    cfg.port_tuck_spring_compensation = validate_tuck_compensation(settings)
 
 
 def phase_for_update(completed_updates, spec=None):
@@ -32,7 +79,8 @@ def phase_for_update(completed_updates, spec=None):
 
 def apply_phase(cfg, completed_updates, spec=None):
     if spec is None:
-        spec = specification(getattr(cfg,"port_training_profile","foundation-v1"))
+        spec = specification(getattr(cfg,"port_training_profile","foundation-v1"),
+                             getattr(cfg,"port_course_updates",None))
     phase = phase_for_update(completed_updates, spec)
     cfg.commands.ranges.lin_vel_x = (-phase["vx_max_m_s"], phase["vx_max_m_s"])
     cfg.commands.ranges.ang_vel_z = (-phase["yaw_max_rad_s"], phase["yaw_max_rad_s"])
@@ -44,19 +92,35 @@ def apply_phase(cfg, completed_updates, spec=None):
     return phase
 
 
-def configure_profile(cfg, name):
+def configure_profile(cfg, name, *, course_updates=None):
     if name not in ("legacy", *PROFILE_PATHS):
         raise ValueError("Unknown Wheelbipe training profile: "+name)
     cfg.port_training_profile = name
+    cfg.port_course_updates = course_updates
+    from .control import DEFAULT_TUCK_COMPENSATION
+    cfg.port_leg_target_overtravel_rad = 0.
+    cfg.port_leg_target_overtravel_scope = "all"
+    cfg.port_tuck_spring_compensation = deepcopy(DEFAULT_TUCK_COMPENSATION)
     cfg.port_gas_feedforward = True
     cfg.port_reward_motor_only = False
     cfg.port_review_updates = ()
     cfg.port_behavior_auto_exit_enabled = False
     if name == "legacy":
+        if course_updates is not None:
+            raise ValueError("Legacy training does not support course scaling")
         return
-    spec = specification(name)
-    cfg.port_profile_sha256 = profile_sha256(name)
+    spec = specification(name,course_updates)
+    cfg.port_profile_sha256 = profile_sha256(name,course_updates)
     cfg.port_gas_feedforward = spec["gas_cancellation_feedforward"]
+    if "control" in spec:
+        from .control import validate_tuck_compensation
+        control = spec["control"]
+        cfg.port_leg_kp = control["leg_kp_nm_per_rad"]
+        cfg.port_leg_kd = control["leg_kd_nm_s_per_rad"]
+        cfg.port_leg_target_overtravel_rad = control["virtual_pair_overtravel_rad"]
+        cfg.port_leg_target_overtravel_scope = control["virtual_pair_overtravel_scope"]
+        cfg.port_tuck_spring_compensation = deepcopy(validate_tuck_compensation(
+            control["tuck_spring_compensation"]))
     cfg.port_reward_motor_only = True
     # User 2026-11-03: behavior diagnostics must never interrupt PPO. Historical
     # v1 review metadata remains immutable but no longer schedules learner exits.

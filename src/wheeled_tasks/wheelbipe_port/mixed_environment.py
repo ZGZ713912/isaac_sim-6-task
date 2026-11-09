@@ -38,6 +38,24 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
     def _mixed_enabled(self):
         return self.task_schedule is not None and not hasattr(self, "eval_command")
 
+    def _tuck_compensation_eligible(self):
+        if not self._mixed_enabled():
+            return super()._tuck_compensation_eligible()
+        # The control clock at this point follows the pre-action observer.
+        # It depends only on the request and time, never actual flight/contact.
+        age = self.episode_length_buf.float()*self.step_dt
+        age = age+((self.port_physics_calls-1) % self.cfg.decimation)*self.physics_dt
+        return self.task_schedule.reference(age)["flight"]
+
+    def _leg_target_overtravel_mask(self, *, physics=False):
+        if self.cfg.port_leg_target_overtravel_scope == "all" or not self._mixed_enabled():
+            return super()._leg_target_overtravel_mask(physics=physics)
+        age = self.episode_length_buf.float()*self.step_dt
+        if physics:
+            age = age+((self.port_physics_calls-1) % self.cfg.decimation)*self.physics_dt
+        ref = self.task_schedule.reference(age)
+        return ref["requested"] & ref["active"]
+
     def learning_curriculum_state(self):
         return dict(profile_sha256=self.cfg.port_profile_sha256,
             role=self.task_schedule.role.clone(), generator=self.task_schedule.generator.get_state())
@@ -74,7 +92,7 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         phase = dict(phase_for_update(motion_update, self.cfg.port_mixed_spec))
         phase["completed_update"] = motion_update
         command, height = self.task_schedule.update_commands(self._mixed_age(), phase)
-        if self.cfg.port_mixed_spec["jump"].get("reward_version", 1) == 2:
+        if self.cfg.port_mixed_spec["jump"].get("reward_version", 1) >= 2:
             ref = self.task_schedule.reference(self._mixed_age())
             height = torch.where(ref["requested"], ref["height"], height)
         self.command.copy_(command)
@@ -106,8 +124,9 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         selected = (schedule.mask("jump") | schedule.mask("airborne"))[env_ids]
         ids = env_ids[selected]
         if len(ids):
-            # Only reset writes state. Active jumps receive no force, torque,
-            # pose, joint-target, or velocity assistance during dynamics.
+            # Only reset writes physical state. During dynamics the actor PD
+            # and explicit v4 motor feedforward are the sole active leg effort;
+            # no root velocity, pose or contact-dependent control is injected.
             q = self.robot.data.default_joint_pos[ids].clone()
             root = self.robot.data.default_root_state[ids].clone()
             root[:, :3] += self.terrain.env_origins[ids]
@@ -144,13 +163,21 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                     +self._mixed_wheel_half_length*axis[:, :, 2].abs())
         clearance = center[:, :, 2]-extent_z-self.terrain.env_origins[:, 2, None]
         height = self.robot.data.root_pos_w[:, 2]-self.terrain.env_origins[:, 2]
+        # Keep the tuck observer on the same body-relative wheel-to-chassis
+        # length proxy used by the air reward.  This is diagnostic/reward state
+        # only; it never enters the actor observation or advances the request
+        # clock.
+        relative = self.robot.data.body_pos_w[:, self._wheel_link_idx]-self.robot.data.root_pos_w[:, None, :]
+        root_quat = self.robot.data.root_quat_w
+        wheel_body = quat_apply_inverse(root_quat[:, None, :].expand(-1, 2, -1), relative)
+        leg_lengths = wheel_body[:, :, (0, 2)].norm(dim=-1)
         kwargs = {}
-        if self.cfg.port_mixed_spec["jump"].get("reward_version", 1) == 2:
+        if self.cfg.port_mixed_spec["jump"].get("reward_version", 1) >= 2:
             kwargs["horizontal_speed_error"] = (
                 self.robot.data.root_lin_vel_b[:, :2]-self.command[:, :2]).norm(dim=-1)
         self.jump_observer.observe(self._mixed_age(physics=True), height,
             self.robot.data.root_lin_vel_w, self.robot.data.projected_gravity_b,
-            clearance, wheel_force, other_force, **kwargs)
+            clearance, wheel_force, other_force, leg_lengths=leg_lengths, **kwargs)
 
     def _apply_action(self):
         self._observe_jump()
@@ -201,6 +228,12 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                 logs["Mixed/"+name+"/paid_reward_rms_per_step"] = rewards[mask].square().mean().sqrt()
             for name in REWARD_NAMES:
                 logs["Mixed/reward/"+name+"_mean_per_step"] = self._last_reward_terms[name].mean()
+            for name in ("air_alignment", "air_tuck", "air_extension"):
+                logs["Mixed/reward/jump_"+name+"_mean_per_step"] = getattr(
+                    self.jump_observer, "last_"+name).mean()
+            for name in ("landing_buffer_height", "landing_buffer_velocity"):
+                logs["Mixed/reward/jump_"+name+"_mean_per_step"] = getattr(
+                    self.jump_observer, "last_"+name).mean()
             for name in ("liftoff_event", "landing_event", "success_event", "timeout_event"):
                 logs["Mixed/jump/"+name+"_count_per_step"] = getattr(self.jump_observer, name).sum().float()
                 for task in ("jump", "airborne"):
@@ -208,6 +241,12 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                         getattr(self.jump_observer, name) & self.task_schedule.mask(task)).sum().float()
             logs["Mixed/jump/request_active_envs"] = self.task_schedule.reference(self._mixed_age())["active"].sum().float()
             logs["Mixed/jump/force_peak_bodyweights"] = (self.jump_observer.force_peak/self.jump_observer.weight).max()
+            logs["Mixed/jump/tuck_seen_count_per_step"] = self.jump_observer.tuck_seen.sum().float()
+            logs["Mixed/jump/max_bilateral_tuck_delta_mean_m"] = self.jump_observer.max_bilateral_tuck_delta.mean()
+            logs["Mixed/jump/landing_buffer_active_envs"] = self.jump_observer.landing_buffer_active.sum().float()
+            logs["Mixed/jump/landing_buffer_used_envs"] = self.jump_observer.landing_buffer_used.sum().float()
+            logs["Mixed/jump/apex_seen_envs"] = self.jump_observer.apex_seen.sum().float()
+            logs["Mixed/jump/extension_phase_envs"] = self.jump_observer.extension_started.sum().float()
             jump = self.task_schedule.mask("jump")
             ref = self.task_schedule.reference(self._mixed_age())
             logs["Mixed/active_jump/requested_envs"] = ref["requested"].sum().float()

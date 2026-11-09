@@ -19,6 +19,13 @@ def leg_pd_gains(kp,kd):
     return kp,kd
 
 
+def target_overtravel_rad(value):
+    value = float(value)
+    if not math.isfinite(value) or not 0. <= value <= .35:
+        raise ValueError("Virtual pair-target overtravel must be within 0..0.35 rad")
+    return value
+
+
 def leg_armature_kg_m2(value):
     value = float(value)
     if not math.isfinite(value) or value<0.:

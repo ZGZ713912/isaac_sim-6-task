@@ -25,11 +25,19 @@ def main():
     p.add_argument("--num-envs", type=int, default=32)
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--seed", type=int, default=111)
-    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2"),default="legacy")
+    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4"),default="legacy")
     p.add_argument("--control", choices=("actor", "wheel-pulse"), default="actor")
     p.add_argument("--gas-feedforward", choices=("source", "disabled"), default="source",
         help="Isolated port-only control intervention; keeps physical gas springs unchanged")
     p.add_argument("--cases", nargs="+", default=["stand_low", "stand_mid", "stand_high", "forward", "reverse"])
+    p.add_argument("--leg-kp",type=float,default=None)
+    p.add_argument("--leg-kd",type=float,default=None)
+    p.add_argument("--leg-target-overtravel-rad",type=float,default=None)
+    p.add_argument("--leg-target-overtravel-scope",choices=("all","jump-request"),default=None)
+    p.add_argument("--tuck-spring-compensation",choices=("off","model"),default=None)
+    p.add_argument("--tuck-spring-gain",type=float,default=None)
+    p.add_argument("--tuck-spring-cap-nm",type=float,default=None)
+    p.add_argument("--course-updates",type=int,default=None)
     a = p.parse_args()
     if a.output.exists() or a.steps < 20 or a.num_envs < 1:
         p.error("Require a new output directory and a positive sampling budget")
@@ -85,9 +93,14 @@ def main():
         cfg.events.reset_base.params["velocity_range"] = {}
         if port:
             from wheeled_tasks.wheelbipe_port.training_profile import configure_profile
-            configure_profile(cfg, a.training_profile)
-            cfg.use_leg_random_start = False
             cfg.port_leg_kp, cfg.port_leg_kd = 60., 2.
+            configure_profile(cfg, a.training_profile, course_updates=a.course_updates)
+            from wheeled_tasks.wheelbipe_port.training_profile import apply_control_overrides
+            apply_control_overrides(cfg,kp=a.leg_kp,kd=a.leg_kd,
+                overtravel=a.leg_target_overtravel_rad,
+                overtravel_scope=a.leg_target_overtravel_scope,tuck_mode=a.tuck_spring_compensation,
+                tuck_gain=a.tuck_spring_gain,tuck_cap_nm=a.tuck_spring_cap_nm)
+            cfg.use_leg_random_start = False
             cfg.robot_cfg.actuators["legs_act"].armature = .015795
             cfg.port_randomization_profile, cfg.port_randomization_strength = "nominal", 0.
             cfg.port_record_peaks = True
@@ -102,6 +115,11 @@ def main():
                 if hasattr(value, "mode") and name != "reset_base":
                     setattr(cfg.events, name, None)
             receipt["asset_sha256"] = hashlib.sha256(a.asset.read_bytes()).hexdigest()
+        if port:
+            receipt["resolved_port_control"] = dict(kp=cfg.port_leg_kp,kd=cfg.port_leg_kd,
+                virtual_pair_overtravel_rad=cfg.port_leg_target_overtravel_rad,
+                virtual_pair_overtravel_scope=cfg.port_leg_target_overtravel_scope,
+                tuck_spring_compensation=dict(cfg.port_tuck_spring_compensation))
         if port and a.training_profile.startswith("foundation-jump-"):
             from wheeled_tasks.wheelbipe_port.mixed_environment import WheelbipeMixedEnv
             env = WheelbipeMixedEnv(cfg)

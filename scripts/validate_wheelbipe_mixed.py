@@ -26,7 +26,15 @@ def main():
     p.add_argument("--motion-update-offset", type=int, default=0)
     p.add_argument("--randomization-profile", default="nominal")
     p.add_argument("--randomization-strength", type=float, default=0.)
-    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2"), default="foundation-jump-v1")
+    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4"), default="foundation-jump-v1")
+    p.add_argument("--leg-kp",type=float,default=None)
+    p.add_argument("--leg-kd",type=float,default=None)
+    p.add_argument("--leg-target-overtravel-rad",type=float,default=None)
+    p.add_argument("--leg-target-overtravel-scope",choices=("all","jump-request"),default=None)
+    p.add_argument("--tuck-spring-compensation",choices=("off","model"),default=None)
+    p.add_argument("--tuck-spring-gain",type=float,default=None)
+    p.add_argument("--tuck-spring-cap-nm",type=float,default=None)
+    p.add_argument("--course-updates",type=int,default=None)
     a = p.parse_args()
     if a.steps < 300 or a.output.exists():
         p.error("Use a new output directory and at least six simulated seconds")
@@ -64,13 +72,22 @@ def main():
         cfg.port_randomization_profile = a.randomization_profile
         cfg.port_randomization_strength = a.randomization_strength
         cfg.port_record_peaks = True
-        configure_profile(cfg, a.training_profile)
+        configure_profile(cfg, a.training_profile, course_updates=a.course_updates)
+        from wheeled_tasks.wheelbipe_port.training_profile import apply_control_overrides
+        apply_control_overrides(cfg,kp=a.leg_kp,kd=a.leg_kd,
+            overtravel=a.leg_target_overtravel_rad,
+            overtravel_scope=a.leg_target_overtravel_scope,tuck_mode=a.tuck_spring_compensation,
+            tuck_gain=a.tuck_spring_gain,tuck_cap_nm=a.tuck_spring_cap_nm)
         cfg.port_start_completed_updates = a.course_update
         cfg.port_motion_update_offset = a.motion_update_offset
         apply_phase(cfg, a.course_update+a.motion_update_offset)
         # Controlled standing births isolate command/reward wiring from the
         # original independent multi-pose recovery curriculum.
         cfg.use_leg_random_start = False
+        receipt["resolved_port_control"] = dict(kp=cfg.port_leg_kp,kd=cfg.port_leg_kd,
+            virtual_pair_overtravel_rad=cfg.port_leg_target_overtravel_rad,
+            virtual_pair_overtravel_scope=cfg.port_leg_target_overtravel_scope,
+            tuck_spring_compensation=dict(cfg.port_tuck_spring_compensation))
         env = WheelbipeMixedEnv(cfg)
         state = torch.load(a.checkpoint, map_location=env.device, weights_only=False)["model_state_dict"]
         layers = []

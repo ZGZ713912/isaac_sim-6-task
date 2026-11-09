@@ -6,6 +6,7 @@ import json
 
 from .model import ACTIVE, BUNDLE, JOINT_ALIASES, ROOT
 from .training_contract import DEFAULT_LEG_ARMATURE_KG_M2
+from .control import DEFAULT_TUCK_COMPENSATION
 from isaaclab.assets import ArticulationCfg
 from isaaclab.actuators import IdealPDActuatorCfg
 import isaaclab.sim as sim
@@ -68,6 +69,9 @@ def configure(cfg):
     cfg.spring_settings = dict(mode="measured",constant_force=0.,random_force=None,damping=False)
     cfg.leg_action_scale = .5  # preserve the Wheelbipe action parameterization
     cfg.port_leg_kp,cfg.port_leg_kd = 160.,2.5
+    cfg.port_leg_target_overtravel_rad = 0.
+    cfg.port_leg_target_overtravel_scope = "all"
+    cfg.port_tuck_spring_compensation = deepcopy(DEFAULT_TUCK_COMPENSATION)
     # Our CAD branch requires a projection absent from the source actuator.
     # Charge discarded targets so a policy cannot hide large outward requests
     # behind zero applied torque at the shortest-leg stop.

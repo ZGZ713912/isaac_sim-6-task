@@ -59,7 +59,14 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.control, self.wheel_response = self.asset.components(self.num_envs,self.device)
         self.control.settings["leg_kp"] = self.cfg.port_leg_kp
         self.control.settings["leg_kd"] = self.cfg.port_leg_kd
-        self.paired_targets = PairedTargets(self.control.gas_compensation.model,self.device)
+        self.paired_targets = PairedTargets(self.control.gas_compensation.model,self.device,
+            getattr(self.cfg,"port_leg_target_overtravel_rad",0.))
+        if self.cfg.port_leg_target_overtravel_scope not in ("all","jump-request"):
+            raise ValueError("Unknown virtual target overtravel scope")
+        from .control import validate_tuck_compensation
+        self.tuck_compensation = validate_tuck_compensation(self.cfg.port_tuck_spring_compensation)
+        if self.tuck_compensation["mode"] != "off" and getattr(self.cfg,"port_gas_feedforward",True):
+            raise ValueError("Selective tuck and full spring cancellation cannot be combined")
         # The response integrates fractional 5.5/3.5 ms delays on the actual
         # physics clock. The immutable asset's historical 1ms receipt is not
         # altered or mistaken for this experiment's 5ms sample period.
@@ -73,6 +80,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.wheel_target_order = [self._wheel_idx.index(self.motor_ids[i]) for i in (2,5)]
         self.motor_effort = torch.zeros(self.num_envs,6,device=self.device)
         self.control.gas_compensation_effort = torch.zeros(self.num_envs,4,device=self.device)
+        self.tuck_compensation_effort = torch.zeros(self.num_envs,4,device=self.device)
+        self.tuck_compensation_gate = torch.zeros(self.num_envs,2,device=self.device)
         self.applied_physical_effort = self.motor_effort.clone()
         self._reward_previous_electrical = self.motor_effort.clone()
         self._reward_before_previous_electrical = self.motor_effort.clone()
@@ -242,16 +251,43 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.obs_joint_vel[:,:4] = noise(self.obs_joint_vel[:,:4],ref["leg_velocity_noise_rad_s"])
         self.obs_joint_vel[:,4:] = noise(self.obs_joint_vel[:,4:],ref["wheel_velocity_noise_rad_s"])
 
+    def _tuck_compensation_eligible(self):
+        # Ordinary tasks have no externally requested jump flight interval.
+        return torch.zeros(self.num_envs,device=self.device,dtype=torch.bool)
+
+    def _leg_target_overtravel_mask(self, *, physics=False):
+        if self.cfg.port_leg_target_overtravel_scope == "all":
+            return None
+        return torch.zeros(self.num_envs,device=self.device,dtype=torch.bool)
+
     def _apply_action(self):
         self.port_physics_calls += 1
         q = self.robot.data.joint_pos[:,self.motor_ids]
         dq = self.robot.data.joint_vel[:,self.motor_ids]
         feedback = q.clone()
         feedback[:,(0,1,3,4)] += self.pd_encoder_bias
-        legs = self.paired_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)])
+        legs = self.paired_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)],
+            extended_mask=self._leg_target_overtravel_mask(physics=True))
         wheels = self.wheel_actions[:,self.wheel_target_order].clamp(-90.,90.)
         motor = self.control.motor_efforts(feedback,dq,legs,wheels,
-            apply_gas_compensation=getattr(self.cfg,"port_gas_feedforward",True))*self.motor_strength
+            apply_gas_compensation=getattr(self.cfg,"port_gas_feedforward",True))
+        self.tuck_compensation_effort.zero_()
+        self.tuck_compensation_gate.zero_()
+        if self.tuck_compensation["mode"] != "off":
+            from .control import tuck_spring_effort
+            holding, _ = self.control.gas_compensation.evaluate(feedback[:,(0,1,3,4)])
+            extra, gate = tuck_spring_effort(feedback[:,(0,1,3,4)],legs,
+                self.control.requested_motor_effort[:,(0,1,3,4)],
+                self._tuck_compensation_eligible(),holding,self.tuck_compensation)
+            self.tuck_compensation_effort.copy_(extra)
+            self.tuck_compensation_gate.copy_(gate)
+            self.control.gas_compensation_effort.copy_(extra)
+            requested = self.control.requested_motor_effort[:,(0,1,3,4)]+extra
+            self.control.requested_motor_effort[:,(0,1,3,4)] = requested
+            # Add to the uncapped request; clipping a capped PD request first
+            # would change cancellation when the two terms oppose each other.
+            motor[:,(0,1,3,4)] = requested.clamp(-40.,40.)
+        motor = motor*self.motor_strength
         motor[:,:2].clamp_(-40.,40.)
         motor[:,3:5].clamp_(-40.,40.)
         motor[:,(2,5)] = motor[:,(2,5)].clamp(-4.5,4.5)
@@ -290,7 +326,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
             return
         from .training_profile import phase_for_update,apply_phase,specification
         update = max(getattr(self.cfg,"port_start_completed_updates",0),self._get_training_iteration())
-        phase = phase_for_update(update,specification(profile))
+        phase = phase_for_update(update,specification(profile,getattr(self.cfg,"port_course_updates",None)))
         if phase["start_update"]==self.port_training_phase:
             return
         apply_phase(self.cfg,update)
@@ -309,7 +345,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
     def _leg_target_projection_cost(self):
         if not self._port_ready or self.leg_actions is None:
             return torch.zeros(self.num_envs,device=self.device)
-        return self.paired_targets.projection_cost(self.leg_actions[:,self.leg_target_order])
+        return self.paired_targets.projection_cost(self.leg_actions[:,self.leg_target_order],
+            extended_mask=self._leg_target_overtravel_mask())
 
     def _postprocess_reward_terms(self,reward_terms):
         reward_terms = super()._postprocess_reward_terms(reward_terms)
@@ -369,6 +406,9 @@ class WheelbipePortEnv(WheelbipeV14Env):
             height_target = self._get_height_reward_target_height()
             logs.update({
                 "Port/leg_target_projection_cost_mean_rad2":projection.mean(),
+                "Port/tuck_spring_gate_mean":self.tuck_compensation_gate.mean(),
+                "Port/tuck_spring_requested_abs_mean_Nm":self.tuck_compensation_effort.abs().mean(),
+                "Port/tuck_spring_requested_abs_max_Nm":self.tuck_compensation_effort.abs().max(),
                 "Port/leg_target_projected_fraction":(projection>1.e-10).float().mean(),
                 "Port/leg_target_projection_reward_per_policy_step":
                     -self.cfg.port_leg_target_projection_penalty*self.step_dt*projection.mean(),

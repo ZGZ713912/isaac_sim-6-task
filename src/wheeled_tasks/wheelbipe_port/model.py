@@ -111,14 +111,27 @@ class ResetLookup:
 
 class PairedTargets:
     """Nearest shared winding with this asset's authenticated 40..110 branch."""
-    def __init__(self, gas_model, device):
+    def __init__(self, gas_model, device, overtravel_rad=0.):
+        import math
         import torch
+        if not math.isfinite(overtravel_rad) or not 0. <= overtravel_rad <= .35:
+            raise ValueError("Virtual pair-target overtravel must be within 0..0.35 rad")
         self.torch = torch
-        self.bounds = torch.tensor([[gas_model["sides"][side]["delta_rad"][i] for i in (0,-1)]
+        self.mechanical_bounds = torch.tensor([[gas_model["sides"][side]["delta_rad"][i] for i in (0,-1)]
             for side in ("left","right")],device=device,dtype=torch.float64)
+        # Only the equilibrium target changes. Native stops and actual-angle
+        # outward-torque protection remain bound to the mechanical geometry.
+        self.bounds = self.mechanical_bounds + self.mechanical_bounds.new_tensor([-overtravel_rad,overtravel_rad])
         self.sign = torch.tensor([1.,-1.],device=device,dtype=torch.float64)
 
-    def projection_cost(self, desired):
+    def _selected_bounds(self, desired, extended_mask):
+        if extended_mask is None:
+            return self.bounds
+        if extended_mask.shape != desired.shape[:-1] or extended_mask.dtype != self.torch.bool:
+            raise ValueError("Virtual target eligibility must be one boolean per environment")
+        return self.torch.where(extended_mask[...,None,None],self.bounds,self.mechanical_bounds)
+
+    def projection_cost(self, desired, *, extended_mask=None):
         """Squared discarded target distance in rad², per environment.
 
         Both axes share half of the relative-angle correction. Common rotation
@@ -128,17 +141,19 @@ class PairedTargets:
         """
         wanted = desired.double().unflatten(-1,(2,2))
         delta = self.sign*(wanted[...,1]-wanted[...,0])
-        discarded = delta-delta.clamp(self.bounds[:,0],self.bounds[:,1])
+        bounds = self._selected_bounds(desired,extended_mask)
+        discarded = delta-delta.clamp(bounds[...,0],bounds[...,1])
         return (.5*discarded.square().sum(-1)).to(desired.dtype)
 
-    def __call__(self, desired, current):
+    def __call__(self, desired, current, *, extended_mask=None):
         torch = self.torch
         if desired.shape!=current.shape or desired.shape[-1]!=4:
             raise ValueError("Paired targets require matching four-joint tensors")
         wanted = desired.double().unflatten(-1,(2,2))
         measured = current.double().unflatten(-1,(2,2))
         mean = wanted.mean(-1)
-        delta = (self.sign*(wanted[...,1]-wanted[...,0])).clamp(self.bounds[:,0],self.bounds[:,1])
+        bounds = self._selected_bounds(desired,extended_mask)
+        delta = (self.sign*(wanted[...,1]-wanted[...,0])).clamp(bounds[...,0],bounds[...,1])
         turns = torch.floor((measured.mean(-1)-mean)/(2.*torch.pi)+.5)
         hip = mean-self.sign*delta*.5+turns*(2.*torch.pi)
         auxiliary = mean+self.sign*delta*.5+turns*(2.*torch.pi)
