@@ -13,15 +13,17 @@ PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
                  "foundation-jump-v1": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v1.json"),
                  "foundation-jump-v2": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v2.json"),
                  "foundation-jump-v3": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v3.json"),
-                 "foundation-jump-v4": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v4.json")}
+                 "foundation-jump-v4": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v4.json"),
+                 "foundation-jump-v5": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v5.json")}
+SCALABLE = ("foundation-jump-v4", "foundation-jump-v5")
 
 
 def specification(name="foundation-v1", course_updates=None):
     spec = json.loads(PROFILE_PATHS[name].read_text())
     if course_updates is None:
         return spec
-    if name != "foundation-jump-v4" or type(course_updates) is not int or course_updates <= 0:
-        raise ValueError("Course scaling requires foundation-jump-v4 and a positive update budget")
+    if name not in SCALABLE or type(course_updates) is not int or course_updates <= 0:
+        raise ValueError("Course scaling requires foundation-jump-v4/v5 and a positive update budget")
     original = spec["total_updates"]
     scale = lambda update: round(update*course_updates/original)
     for row in spec["phases"]:
@@ -105,12 +107,20 @@ def configure_profile(cfg, name, *, course_updates=None):
     cfg.port_reward_motor_only = False
     cfg.port_review_updates = ()
     cfg.port_behavior_auto_exit_enabled = False
+    cfg.port_real2sim = None
+    cfg.port_ppo_overrides = {}
     if name == "legacy":
         if course_updates is not None:
             raise ValueError("Legacy training does not support course scaling")
         return
     spec = specification(name,course_updates)
     cfg.port_profile_sha256 = profile_sha256(name,course_updates)
+    if "real2sim" in spec:
+        from .real2sim import load
+        cfg.port_real2sim = load(spec["real2sim"])
+    cfg.port_ppo_overrides = dict(spec.get("ppo_overrides", {}))
+    if set(cfg.port_ppo_overrides) - {"init_noise_std"}:
+        raise ValueError("Only the declared PPO init_noise_std override is supported")
     cfg.port_gas_feedforward = spec["gas_cancellation_feedforward"]
     if "control" in spec:
         from .control import validate_tuck_compensation

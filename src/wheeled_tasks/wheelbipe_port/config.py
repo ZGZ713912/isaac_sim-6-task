@@ -110,6 +110,7 @@ def configure(cfg):
             scanner.prim_path = f"/World/envs/env_.*/Robot/{body}"
     if getattr(cfg,"height_scanner",None) is not None:
         cfg.height_scanner.prim_path = "/World/envs/env_.*/Robot/base_link"
+    cfg.port_real2sim = None  # historical plant unless a profile declares the measured one
     cfg.port_randomization_profile = "requested"
     cfg.port_randomization_strength = 1.
     cfg.port_randomization_contract = json.loads((ROOT/"contracts/wheel_leg_randomization_study_v2.json").read_text())

@@ -170,6 +170,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
             root[:,2] += (penetration+.002).clamp_min(0.)
             self.robot.write_root_state_to_sim(root,env_ids)
             self.wheel_response.reset(env_ids)
+            if self.leg_timing is not None:
+                self.leg_timing.reset(env_ids)
             self.motor_effort[env_ids] = 0.
             self._reward_previous_electrical[env_ids] = 0.
             self._reward_before_previous_electrical[env_ids] = 0.
@@ -230,6 +232,41 @@ class WheelbipePortEnv(WheelbipeV14Env):
             groups=profile,nominal_fraction=cfg["nominal_fraction"],leg_pd_scale=1.,spring_scale=1.,
             independent_inertia_fraction=ref["independent_inertia_fraction"],imu_wobble=False,
             policy_age_unit="one 20ms policy frame",wheel_aggregate_delay_ms=[5.5,3.5])
+        self._initialize_real2sim(lane*strength,profile)
+
+    def _initialize_real2sim(self, amplitude, profile):
+        """Measured leg plant (contract-pinned); absent means the historical plant."""
+        self.leg_timing = None
+        self.leg_armature = None
+        self.plant_gas = self.control.gas_compensation
+        spec = getattr(self.cfg,"port_real2sim",None)
+        if spec is None:
+            self.domain_receipt["real2sim"] = None
+            return
+        from copy import deepcopy
+        from wheeled_tasks.chassis.gas_spring_compensation import GasSpringCompensation
+        from wheeled_tasks.chassis.leg_motor_friction import LegMotorFriction
+        from . import real2sim
+        self.leg_friction = LegMotorFriction(self.num_envs,self.device,real2sim.friction_settings(spec),root=ROOT)
+        self.leg_friction.coulomb = real2sim.sample_friction(spec,self.num_envs,amplitude,self.device)
+        settings = deepcopy(self.asset.runtime["v5_control"]["gas_spring_compensation"])
+        settings["model_file"] = str(ROOT/spec["gas_spring_plant"]["model_path"])
+        settings["model_sha256"] = spec["gas_spring_plant"]["model_sha256"]
+        self.plant_gas = GasSpringCompensation(settings,root=ROOT,device=self.device)
+        if self.control.gas_compensation.cfg["model_sha256"] != spec["gas_spring_plant"]["controller_model_sha256"]:
+            raise ValueError("Controller gas table differs from the deployed RMCS table")
+        timing = amplitude*float(bool(profile["timing"]))
+        self.leg_timing = real2sim.LegFeedbackTiming(spec,self.num_envs,self.device,self.physics_dt,timing)
+        base = float(self.cfg.robot_cfg.actuators["legs_act"].armature)
+        self.leg_armature = base*real2sim.sample_armature_scale(spec,self.num_envs,amplitude,self.device)
+        self.robot.write_joint_armature_to_sim(self.leg_armature,joint_ids=[self.motor_ids[i] for i in (0,1,3,4)])
+        stats = lambda x: [float(x.min()),float(x.mean()),float(x.max())]
+        self.domain_receipt["real2sim"] = dict(contract=real2sim.CONTRACT,
+            contract_sha256=digest(ROOT/real2sim.CONTRACT),timing=self.leg_timing.summary(),
+            leg_coulomb_nm=dict(hip=stats(self.leg_friction.coulomb[:,(0,2)]),knee=stats(self.leg_friction.coulomb[:,(1,3)])),
+            leg_armature_kg_m2=dict(hip=stats(self.leg_armature[:,(0,2)]),knee=stats(self.leg_armature[:,(1,3)])),
+            plant_gas_model_sha256=spec["gas_spring_plant"]["model_sha256"],
+            controller_gas_model_sha256=self.control.gas_compensation.cfg["model_sha256"])
 
     def _update_obs(self, is_obs=False):
         super()._update_obs(is_obs)
@@ -238,6 +275,12 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self._last_policy_tick = self.common_step_counter
         current = torch.cat((self.obs_root_ang_vel_b,self.obs_projected_gravity_b,
                              self.obs_joint_pos,self.obs_joint_vel),-1)
+        if self.leg_timing is not None:
+            # Same DM-filtered, quantized stream as the PD with age-only delay,
+            # placed before the 0/1 policy-frame age selection.
+            legs = [self.motor_ids[i] for i in (0,1,3,4)]
+            current[:,[12+i for i in self.leg_target_order]] = self.leg_timing.observe(
+                self.robot.data.joint_vel[:,legs])
         if self._policy_previous is None:
             self._policy_previous = current.clone()
         observed = torch.where(self.policy_age.bool(),self._policy_previous,current)
@@ -265,11 +308,17 @@ class WheelbipePortEnv(WheelbipeV14Env):
         q = self.robot.data.joint_pos[:,self.motor_ids]
         dq = self.robot.data.joint_vel[:,self.motor_ids]
         feedback = q.clone()
+        pd_velocity = dq
+        if self.leg_timing is not None:
+            measured_q, measured_dq = self.leg_timing.update(q[:,(0,1,3,4)],dq[:,(0,1,3,4)])
+            feedback[:,(0,1,3,4)] = measured_q
+            pd_velocity = dq.clone()
+            pd_velocity[:,(0,1,3,4)] = measured_dq
         feedback[:,(0,1,3,4)] += self.pd_encoder_bias
         legs = self.paired_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)],
             extended_mask=self._leg_target_overtravel_mask(physics=True))
         wheels = self.wheel_actions[:,self.wheel_target_order].clamp(-90.,90.)
-        motor = self.control.motor_efforts(feedback,dq,legs,wheels,
+        motor = self.control.motor_efforts(feedback,pd_velocity,legs,wheels,
             apply_gas_compensation=getattr(self.cfg,"port_gas_feedforward",True))
         self.tuck_compensation_effort.zero_()
         self.tuck_compensation_gate.zero_()
@@ -302,6 +351,9 @@ class WheelbipePortEnv(WheelbipeV14Env):
         motor[~enabled] = 0.
         motor = self.wheel_response.apply_torque(motor,dq)
         motor[~enabled] = 0.
+        if self.leg_timing is not None:
+            motor[:,(0,1,3,4)] = self.leg_timing.actuate(motor[:,(0,1,3,4)])
+            motor[~enabled] = 0.
         self.motor_effort.copy_(motor)
         physical = motor.clone()
         physical[:,(0,1,3,4)] += self.leg_friction.effort(dq[:,(0,1,3,4)])
@@ -339,7 +391,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
 
     def _apply_spring(self):
         compression = self.control.s0-self.robot.data.joint_pos[:,self.spring_ids]
-        self.spring_force = self.control.gas_compensation.physical_force(compression)
+        self.spring_force = self.plant_gas.physical_force(compression)
         self.robot.set_joint_effort_target(self.spring_force,joint_ids=self.spring_ids)
 
     def _leg_target_projection_cost(self):
@@ -445,6 +497,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
             # Original slots are (legs, wheels). The wheel slot is the mean
             # calibrated delay; the receipt retains both actual side values.
             age = torch.zeros(self.num_envs,2,device=self.device)
+            if self.leg_timing is not None:
+                age[:,0] = self.leg_timing.actuation_ticks.squeeze(-1)
             age[:,1] = .0045/self.physics_dt
             return age
         return super()._get_delay_time_lag_obs(delay_attr,cfg_attr,enabled_attr)

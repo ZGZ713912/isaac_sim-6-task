@@ -45,7 +45,7 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
-    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4"),default="legacy")
+    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5"),default="legacy")
     parser.add_argument("--gas-feedforward",action=argparse.BooleanOptionalAction,default=None,
         help="Explicitly override cancellation of the physical spring torque; the spring itself is retained")
     parser.add_argument("--solver-position-iterations",type=int,default=12)
@@ -63,8 +63,8 @@ def main():
     parser.add_argument("--tuck-spring-compensation",choices=("off","model"),default=None)
     parser.add_argument("--tuck-spring-gain",type=float,default=None)
     parser.add_argument("--tuck-spring-cap-nm",type=float,default=None)
-    parser.add_argument("--leg-target-projection-penalty",type=float,default=1.,
-        help="Cost weight for unreachable leg targets in rad^2; 0 reproduces the historical objective")
+    parser.add_argument("--leg-target-projection-penalty",type=float,default=None,
+        help="Cost weight for unreachable leg targets in rad^2; profile default (v5=4, others=1); 0 reproduces the historical objective")
     parser.add_argument("--max-constraint-gap-mm",type=float,default=None,
         help="Optional historical policy-sampled gap limit; omitted means diagnostics only")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
@@ -94,6 +94,9 @@ def main():
             raise ValueError("--iterations must match the explicit --course-updates budget")
         args.leg_kp = control_defaults.get("leg_kp_nm_per_rad",160.) if args.leg_kp is None else args.leg_kp
         args.leg_kd = control_defaults.get("leg_kd_nm_s_per_rad",2.5) if args.leg_kd is None else args.leg_kd
+        if args.leg_target_projection_penalty is None:
+            args.leg_target_projection_penalty = (specification(args.training_profile,args.course_updates)
+                .get("leg_target_projection_penalty",1.) if args.training_profile != "legacy" else 1.)
         if args.leg_target_overtravel_rad is not None:
             args.leg_target_overtravel_rad = target_overtravel_rad(args.leg_target_overtravel_rad)
         gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
@@ -191,10 +194,18 @@ def main():
         cfg.port_motion_update_offset = args.motion_update_offset
         cfg.port_start_completed_updates = managed.completed if managed is not None else 0
         if args.training_profile in ("foundation-v1","foundation-v2","foundation-jump-v1",
-                                     "foundation-jump-v2","foundation-jump-v4"):
+                                     "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5"):
             apply_phase(cfg,cfg.port_start_completed_updates+args.motion_update_offset)
         if args.gas_feedforward is not None:
             cfg.port_gas_feedforward = args.gas_feedforward
+        if cfg.port_real2sim is not None:
+            if args.physics_hz != 200:
+                raise ValueError("The real2sim v3 leg timing is calibrated for --physics-hz 200 only")
+            # Motor stays capped at 40 Nm; the native limit must pass the
+            # largest randomized passive friction added after that cap.
+            limit = cfg.port_real2sim["leg_friction"]["native_effort_limit_nm"]
+            cfg.robot_cfg.actuators["legs_act"].effort_limit = limit
+            cfg.robot_cfg.actuators["legs_act"].effort_limit_sim = limit
         if args.mode=="evaluate":
             cfg.use_leg_random_start = False
             cfg.events.reset_base.params["pose_range"] = {}
@@ -212,7 +223,9 @@ def main():
             raise ValueError(f"Reference observation dimensions differ: {dimensions}")
         leg_ids = [env.motor_ids[i] for i in (0,1,3,4)]
         leg_armatures = torch.as_tensor(env.robot.root_physx_view.get_dof_armatures())[:,leg_ids]
-        if not torch.allclose(leg_armatures,torch.full_like(leg_armatures,args.leg_armature),atol=1.e-8,rtol=0.):
+        expected_armature = (torch.full_like(leg_armatures,args.leg_armature) if env.leg_armature is None
+                             else env.leg_armature.detach().cpu().to(leg_armatures.dtype))
+        if not torch.allclose(leg_armatures,expected_armature,atol=1.e-7,rtol=0.):
             raise ValueError("Native leg armature differs from the requested per-axis inertia")
         native = dict(actor_dim=35,critic_dim=78,action_dim=6,observation_shapes=dimensions,
             cad_joint_names=env.robot.cad_joint_names,policy_joint_names=env.robot.joint_names,
@@ -227,6 +240,10 @@ def main():
             leg_kd_Nm_per_rad_s=env.control.settings["leg_kd"],
             leg_armature_native_readback_kg_m2=leg_armatures[0].cpu().tolist(),
             leg_armature_readback_verified_envs=args.num_envs,
+            leg_armature_randomized=env.leg_armature is not None,
+            real2sim=env.domain_receipt.get("real2sim"),
+            plant_spring_model_sha256=env.plant_gas.cfg["model_sha256"],
+            ppo_overrides=dict(cfg.port_ppo_overrides),
             diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE,
             paired_target_signed_delta_bounds_rad=env.paired_targets.bounds.cpu().tolist(),
             actual_mechanical_signed_delta_bounds_rad=env.paired_targets.mechanical_bounds.cpu().tolist(),
@@ -262,6 +279,8 @@ def main():
         agent = (WheelbipeV14FlatPPORunnerCfg if args.task=="flat" else WheelbipeV14RoughPPORunnerCfg)()
         agent.seed,agent.device = args.seed,args.device
         agent.save_interval,agent.max_iterations = args.save_interval,args.iterations
+        for key,value in cfg.port_ppo_overrides.items():
+            setattr(agent.policy,key,value)
         dump_yaml(str(args.output/"params/env.yaml"),cfg)
         dump_yaml(str(args.output/"params/agent.yaml"),agent)
         if args.training_profile.startswith("foundation-jump-"):
