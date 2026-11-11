@@ -261,9 +261,9 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.leg_armature = base*real2sim.sample_armature_scale(spec,self.num_envs,amplitude,self.device)
         self.robot.write_joint_armature_to_sim(self.leg_armature,joint_ids=[self.motor_ids[i] for i in (0,1,3,4)])
         stats = lambda x: [float(x.min()),float(x.mean()),float(x.max())]
-        self.domain_receipt["real2sim"] = dict(contract=real2sim.CONTRACT,
-            contract_sha256=digest(ROOT/real2sim.CONTRACT),timing=self.leg_timing.summary(),
-            leg_coulomb_nm=dict(hip=stats(self.leg_friction.coulomb[:,(0,2)]),knee=stats(self.leg_friction.coulomb[:,(1,3)])),
+        self.domain_receipt["real2sim"] = dict(contract=spec["contract_path"],
+            contract_sha256=spec["contract_file_sha256"],timing=self.leg_timing.summary(),
+            leg_coulomb_nm={name:stats(self.leg_friction.coulomb[:,i]) for i,name in enumerate(("left_hip","left_knee","right_hip","right_knee"))},
             leg_armature_kg_m2=dict(hip=stats(self.leg_armature[:,(0,2)]),knee=stats(self.leg_armature[:,(1,3)])),
             plant_gas_model_sha256=spec["gas_spring_plant"]["model_sha256"],
             controller_gas_model_sha256=self.control.gas_compensation.cfg["model_sha256"])

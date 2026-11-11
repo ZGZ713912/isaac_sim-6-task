@@ -1,0 +1,215 @@
+{
+  "schema": "rmcs-dm-friction-offline-candidate-v1",
+  "torque_units": "Nm at DM active output",
+  "passive_friction_torque": "-F(abs(v), angle)*sign(v)",
+  "compensation_torque": "+F(abs(v), angle)*sign(v)",
+  "live_controller_applied": false,
+  "isaac_default_applied": false,
+  "right_symmetry_authorized": false,
+  "beta_reference": "common-angle steady rotation at beta about 71.5-71.8 degrees, horizontal fixture, gas spring installed (left 2026-11-10, right 2026-11-11)",
+  "motors": {
+    "left_hip": {
+      "derivation": "left measured, gas-subtracted common-angle bidirectional steady motion (mode 1 turn/turn2)",
+      "coulomb_plateau_candidate_nm": 2.7,
+      "candidate_velocity_domain_rad_s": [
+        0.2,
+        3.14
+      ],
+      "viscous_coefficient_nm_s_rad": null,
+      "viscous_identified": false,
+      "static_breakaway_nm": null,
+      "static_breakaway_identified": false,
+      "stribeck_velocity_rad_s": null,
+      "stribeck_identified": false,
+      "moving_friction_nm": {
+        "0.20": [
+          3.01,
+          2.54
+        ],
+        "0.60": [
+          2.65,
+          2.4
+        ],
+        "1.50": [
+          2.83,
+          2.69
+        ],
+        "3.14": [
+          3.21,
+          2.62
+        ]
+      },
+      "recommended_nominal_nm": 2.7,
+      "recommended_random_range_nm": [
+        2.3,
+        3.3
+      ],
+      "outside_measured_speed_and_posture_domain": "not identified; no validated extrapolation rule",
+      "interpretation": "effective installed motor/gear/bearing/cable moving friction, not isolated motor internals"
+    },
+    "left_knee": {
+      "derivation": "left measured, gas-subtracted common-angle bidirectional steady motion (mode 1 turn/turn2)",
+      "coulomb_plateau_candidate_nm": 3.4,
+      "candidate_velocity_domain_rad_s": [
+        0.2,
+        3.14
+      ],
+      "viscous_coefficient_nm_s_rad": null,
+      "viscous_identified": false,
+      "static_breakaway_nm": null,
+      "static_breakaway_identified": false,
+      "stribeck_velocity_rad_s": null,
+      "stribeck_identified": false,
+      "moving_friction_nm": {
+        "0.20": [
+          4.18,
+          3.62
+        ],
+        "0.60": [
+          3.33,
+          3.02
+        ],
+        "1.50": [
+          3.41,
+          3.19
+        ],
+        "3.14": [
+          2.95,
+          3.1
+        ]
+      },
+      "recommended_nominal_nm": 3.4,
+      "recommended_random_range_nm": [
+        2.9,
+        4.6
+      ],
+      "hot_tail_nm": 5.3,
+      "outside_measured_speed_and_posture_domain": "not identified; no validated extrapolation rule",
+      "interpretation": "effective installed motor/gear/bearing/cable moving friction plus gas-spring seal drag, not isolated motor internals"
+    },
+    "right_hip": {
+      "derivation": "right measured, gas-subtracted common-angle bidirectional steady motion (2026-11-11 右腿双电机髋关节联合辨识.csv, mode 1, rev 7, beta 71.7)",
+      "coulomb_plateau_candidate_nm": 1.85,
+      "candidate_velocity_domain_rad_s": [
+        0.2,
+        3.14
+      ],
+      "viscous_coefficient_nm_s_rad": null,
+      "viscous_identified": false,
+      "static_breakaway_nm": null,
+      "static_breakaway_identified": false,
+      "stribeck_velocity_rad_s": null,
+      "stribeck_identified": false,
+      "moving_friction_nm": {
+        "0.20": [
+          1.91
+        ],
+        "0.60": [
+          1.74
+        ],
+        "1.50": [
+          1.96
+        ],
+        "3.14": [
+          1.73
+        ]
+      },
+      "rotor_temperature_c": [
+        46,
+        91
+      ],
+      "recommended_nominal_nm": 1.85,
+      "recommended_random_range_nm": [
+        1.6,
+        2.4
+      ],
+      "outside_measured_speed_and_posture_domain": "not identified; no validated extrapolation rule",
+      "interpretation": "effective installed motor/gear/bearing/cable moving friction, hot (46-91 C); the upper range allows for colder operation"
+    },
+    "right_knee": {
+      "derivation": "right measured, gas-subtracted common-angle bidirectional steady motion (mode 1) plus knee open/close half-difference (2026-11-11 右腿膝关节辨识.csv, mode 2)",
+      "coulomb_plateau_candidate_nm": 1.75,
+      "candidate_velocity_domain_rad_s": [
+        0.2,
+        3.14
+      ],
+      "viscous_coefficient_nm_s_rad": null,
+      "viscous_identified": false,
+      "static_breakaway_nm": null,
+      "static_breakaway_identified": false,
+      "stribeck_velocity_rad_s": null,
+      "stribeck_identified": false,
+      "moving_friction_nm": {
+        "0.20": [
+          1.95
+        ],
+        "0.60": [
+          1.69
+        ],
+        "1.50": [
+          1.48
+        ],
+        "3.14": [
+          1.71
+        ]
+      },
+      "beta_sweep_friction_nm": {
+        "42": 3.42,
+        "54": 3.79,
+        "66": 4.05,
+        "78": 3.84,
+        "90": 3.4,
+        "102": 3.27
+      },
+      "rotor_temperature_c": [
+        48,
+        92
+      ],
+      "recommended_nominal_nm": 2.7,
+      "recommended_random_range_nm": [
+        1.5,
+        4.1
+      ],
+      "outside_measured_speed_and_posture_domain": "not identified; no validated extrapolation rule",
+      "interpretation": "common rotation 1.5-2.0 Nm but knee open/close 3.3-4.1 Nm (gas-spring seal / passive-joint drag on beta motion, not separable per axis). The per-axis Coulomb prior spans both motion types; nominal is their midpoint."
+    }
+  },
+  "supersedes": {
+    "model": "model/dm_leg_friction_20261110/model.json",
+    "reason": "right leg measured 2026-11-11; replaces the left/right symmetry assumption for the right side only"
+  },
+  "right_measured": true,
+  "left_right_comparison": {
+    "hip_common_rotation_nm": {
+      "left": [
+        2.4,
+        3.21
+      ],
+      "right": [
+        1.73,
+        1.96
+      ]
+    },
+    "knee_common_rotation_nm": {
+      "left": [
+        2.95,
+        4.18
+      ],
+      "right": [
+        1.48,
+        1.95
+      ]
+    },
+    "knee_beta_sweep_nm": {
+      "left": [
+        2.87,
+        5.1
+      ],
+      "right": [
+        3.27,
+        4.05
+      ]
+    },
+    "caveat": "right runs were 20-30 C hotter; part of the lower right plateau may be temperature"
+  }
+}

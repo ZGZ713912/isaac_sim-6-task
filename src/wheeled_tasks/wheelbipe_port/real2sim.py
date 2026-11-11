@@ -26,6 +26,8 @@ def digest(path):
 def load(path=CONTRACT, root=ROOT):
     root = Path(root)
     spec = json.loads((root/path).read_text())
+    spec["contract_path"] = str(path)
+    spec["contract_file_sha256"] = digest(root/path)
     if spec.get("schema") != "wheelbipe-real2sim-v3":
         raise ValueError("Unsupported real2sim contract")
     for name in ("leg_friction", "gas_spring_plant"):
@@ -38,11 +40,18 @@ def load(path=CONTRACT, root=ROOT):
             if not (math.isfinite(low) and low <= row["nominal"] <= high and low >= 0.):
                 raise ValueError("Invalid real2sim range: "+name)
     friction = spec["leg_friction"]
-    for joint in ("hip", "knee"):
-        low, high = friction["range_nm"][joint]
-        if not 0. < low <= friction["nominal_nm"][joint] <= high <= friction["native_effort_limit_nm"]-40.:
+    for key in friction_keys(spec):
+        low, high = friction["range_nm"][key]
+        if not 0. < low <= friction["nominal_nm"][key] <= high <= friction["native_effort_limit_nm"]-40.:
             raise ValueError("Leg friction range exceeds the native effort limit")
     return spec
+
+
+def friction_keys(spec):
+    """Axis order L hip, L knee, R hip, R knee. v3 shares hip/knee across sides; v3.1 is per motor."""
+    if spec["leg_friction"].get("per_motor"):
+        return ("left_hip", "left_knee", "right_hip", "right_knee")
+    return ("hip", "knee", "hip", "knee")
 
 
 def sample(shape, nominal, low, high, amplitude, device):
@@ -62,7 +71,7 @@ def friction_settings(spec):
 def sample_friction(spec, count, amplitude, device):
     """(count, 4) Coulomb torques in hip, knee, hip, knee order."""
     row = spec["leg_friction"]
-    order = ("hip", "knee", "hip", "knee")
+    order = friction_keys(spec)
     return sample((count, 4), [row["nominal_nm"][j] for j in order],
                   [row["range_nm"][j][0] for j in order], [row["range_nm"][j][1] for j in order],
                   amplitude, device)

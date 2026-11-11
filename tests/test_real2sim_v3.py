@@ -208,3 +208,73 @@ def test_plant_tail_and_timing_run_on_cuda():
     assert mq.is_cuda and mv.is_cuda and timing.actuate(q).is_cuda and timing.observe(q).is_cuda
     assert real2sim.sample_friction(spec, 8, amp, "cuda").is_cuda
     assert real2sim.sample_armature_scale(spec, 8, amp, "cuda").is_cuda
+
+
+# ---- right leg measured 2026-11-11 (real2sim v3.1, foundation-jump-v6) ----
+FRICTION_R = "model/dm_leg_friction_20261111/model.json"
+V31 = "contracts/wheelbipe_real2sim_v3p1_20261111.json"
+
+
+def test_right_leg_friction_is_measured_not_mirrored():
+    cfg, model = load(declaration(ROOT, FRICTION_R), ROOT)
+    assert model["coulomb_nm"] == [2.7, 3.4, 1.85, 1.75]
+    component = LegMotorFriction(1, "cpu", declaration(ROOT, FRICTION_R), root=ROOT)
+    assert component.summary()["right_symmetry_assumed"] is False
+    params = json.loads((ROOT/"model/dm_leg_friction_20261111/parameters.json").read_text())
+    for motor in ("right_hip", "right_knee"):
+        assert "symmetry_source" not in params["motors"][motor]
+        assert params["motors"][motor]["derivation"].startswith("right measured")
+    old = json.loads((ROOT/"model/dm_leg_friction_20261110/parameters.json").read_text())
+    for motor in ("left_hip", "left_knee"):
+        assert params["motors"][motor] == old["motors"][motor]
+
+
+def test_previous_symmetric_model_still_loads_unchanged():
+    _, model = load(declaration(ROOT, FRICTION), ROOT)
+    assert model["coulomb_nm"] == [2.7, 3.4, 2.7, 3.4]
+    assert LegMotorFriction(1, "cpu", declaration(ROOT, FRICTION), root=ROOT).summary()["right_symmetry_assumed"] is True
+
+
+@pytest.mark.parametrize("edit", ["both", "neither", "mirror_tag"])
+def test_right_source_declaration_must_be_unambiguous(tmp_path, edit):
+    import shutil
+    source = ROOT/"model/dm_leg_friction_20261111"
+    target = tmp_path/"model/dm_leg_friction_20261111"
+    shutil.copytree(source, target)
+    params = json.loads((target/"parameters.json").read_text())
+    if edit == "both":
+        params["right_symmetry_authorized"] = True
+    elif edit == "neither":
+        params["right_measured"] = False
+    else:
+        params["motors"]["right_hip"]["symmetry_source"] = "left_hip"
+    (target/"parameters.json").write_text(json.dumps(params))
+    model = json.loads((target/"model.json").read_text())
+    model["files_sha256"]["parameters.json"] = digest(target/"parameters.json")
+    (target/"model.json").write_text(json.dumps(model))
+    with pytest.raises(ValueError):
+        load(declaration(tmp_path, "model/dm_leg_friction_20261111/model.json"), tmp_path)
+
+
+def test_v31_samples_each_motor_inside_its_own_range():
+    spec = real2sim.load(V31)
+    assert spec["contract_path"] == V31
+    nominal = real2sim.sample_friction(spec, 4, torch.zeros(4, 1), "cpu")
+    assert nominal[0].tolist() == pytest.approx([2.7, 3.4, 1.85, 2.7])
+    drawn = real2sim.sample_friction(spec, 8192, torch.ones(8192, 1), "cpu")
+    for i, (low, high) in enumerate(([2.3, 3.3], [2.9, 4.6], [1.6, 2.4], [1.5, 4.1])):
+        assert low-1e-6 <= float(drawn[:, i].min()) and float(drawn[:, i].max()) <= high+1e-6
+    v3 = real2sim.load()
+    assert v3["contract_path"] == real2sim.CONTRACT
+    assert spec["leg_feedback"] == v3["leg_feedback"]
+    assert spec["gas_spring_plant"] == real2sim.load()["gas_spring_plant"]
+
+
+def test_running_v5_experiment_is_untouched_and_v6_only_swaps_the_plant():
+    v5, v6 = specification("foundation-jump-v5"), specification("foundation-jump-v6")
+    assert v5["real2sim"] == "contracts/wheelbipe_real2sim_v3_20261110.json"
+    assert real2sim.load(v5["real2sim"])["leg_friction"]["model_path"] == FRICTION
+    assert v6["real2sim"] == V31
+    for key in set(v5) | set(v6):
+        if key not in ("schema", "real2sim", "changes", "initialization"):
+            assert v5[key] == v6[key], key

@@ -52,8 +52,9 @@ def load(settings, root):
         if not target.is_relative_to(path.parent.resolve()) or digest(target) != expected:
             raise ValueError("Leg friction source changed: "+name)
     parameters = json.loads((path.parent/"parameters.json").read_text())
-    if parameters.get("right_symmetry_authorized") is not True:
-        raise ValueError("Right leg friction needs its explicit symmetry assumption")
+    right_measured = parameters.get("right_measured") is True
+    if right_measured == (parameters.get("right_symmetry_authorized") is True):
+        raise ValueError("Right leg friction needs either its own measurement or an explicit symmetry assumption")
     values = []
     for motor in MOTORS:
         row = parameters["motors"][motor]
@@ -63,7 +64,10 @@ def load(settings, root):
         for field in ("viscous_coefficient_nm_s_rad", "static_breakaway_nm", "stribeck_velocity_rad_s"):
             if row[field] is not None or model[field] is not None:
                 raise ValueError("Unidentified friction parameters must remain null")
-        if motor.startswith("right_"):
+        if motor.startswith("right_") and right_measured:
+            if "symmetry_source" in row or not str(row.get("derivation", "")).startswith("right measured"):
+                raise ValueError("Measured right leg friction must cite its own right-side derivation")
+        elif motor.startswith("right_"):
             source = "left_"+motor.split("_", 1)[1]
             if row.get("symmetry_source") != source or value != parameters["motors"][source]["coulomb_plateau_candidate_nm"]:
                 raise ValueError("Right leg friction differs from the declared left approximation")
@@ -73,6 +77,8 @@ def load(settings, root):
             or numerical != dict(kind="linear_velocity_band", velocity_rad_s=.05, identified=False)
             or model["physical_static_model_enabled"] is not False):
         raise ValueError("Leg friction differs from the admitted Coulomb/numerical model")
+    if bool(model.get("right_measured", False)) != right_measured:
+        raise ValueError("Leg friction model and parameters disagree on the right-leg source")
     return deepcopy(settings), model
 
 
@@ -105,7 +111,7 @@ class LegMotorFriction:
         return dict(config=self.cfg, joint_names=list(JOINTS), coulomb_nm=self.model["coulomb_nm"],
             numerical_regularization=self.model["numerical_regularization"],
             physical_static_model_enabled=False, viscous_identified=False, stribeck_identified=False,
-            bias_applied=False, right_symmetry_assumed=True,
+            bias_applied=False, right_symmetry_assumed=not self.model.get("right_measured", False),
             source_domain="local common-angle moving test; all other poses/speeds are an explicit prior",
             motor_torque_cap_nm=40., passive_loss_separate_from_motor=True,
             native_effort_limit_nm=self.native_effort_limit)
