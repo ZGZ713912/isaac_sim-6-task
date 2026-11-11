@@ -12,12 +12,53 @@ import math
 import torch
 
 TASKS = ("stand", "forward", "reverse", "height", "turn", "dash", "spin", "jump", "airborne")
+PLATFORM_TASKS = TASKS + ("platform",)
 REWARD_NAMES = ("jump_height", "jump_push_velocity", "jump_air_placement", "jump_impact", "jump_events")
+PLATFORM_REWARD_NAMES = ("platform_clearance", "platform_events", "platform_impact")
+# Platform episode modes: locked lanes run a flat moving jump far from their box.
+FLAT, OVER, DRIVE_OFF = 0, 1, 2
+
+
+def tasks_for(spec):
+    """Contracts without an explicit list keep the historical nine-task order."""
+    names = tuple(spec.get("tasks", TASKS))
+    if names not in (TASKS, PLATFORM_TASKS):
+        raise ValueError("Unsupported mixed task list")
+    return names
+
+
+def reward_names(spec):
+    return REWARD_NAMES+(PLATFORM_REWARD_NAMES if "platform" in tasks_for(spec) else ())
+
+
+def _validate_extensions(spec):
+    arc = spec.get("arc_commands")
+    if arc is not None:
+        if (not 0. < arc["probability"] <= 1. or not 0. < arc["min_yaw_rad_s"]
+                or not 0. < arc["max_centripetal_m_s2"] or not 0. <= arc["min_speed_m_s"]):
+            raise ValueError("Invalid arc command sampling")
+    moving = spec["jump"].get("moving_jump", {})
+    if "speed_range_m_s" in moving:
+        low, high = moving["speed_range_m_s"]
+        if not 0. < low <= high or not 0. < moving["fraction"] <= 1.:
+            raise ValueError("Invalid moving-jump speed range or fraction")
+    if "platform" in tasks_for(spec):
+        p = spec["platform"]
+        heights = p["lane_heights_m"]
+        unlock = p["unlock"]
+        if (not heights or min(heights) <= 0. or max(heights) > .3 or p["length_m"] <= .5
+                or p["width_m"] <= .6 or not 0. <= p["over_fraction"] <= 1.
+                or not 0. < p["speed_range_m_s"][0] <= p["speed_range_m_s"][1]
+                or unlock["start_update"] > unlock["full_update"]
+                or unlock["start_height_m"] > unlock["final_height_m"]
+                or p["episode_seconds"] <= spec["jump"]["outcome_seconds"]):
+            raise ValueError("Invalid platform curriculum")
 
 
 def validate(spec):
     fractions = spec["task_fractions"]
-    if set(fractions) != set(TASKS) or any(not math.isfinite(v) or v <= 0 for v in fractions.values()):
+    tasks = tasks_for(spec)
+    if set(fractions) != set(tasks) or any(not math.isfinite(v) or v <= 0 for v in fractions.values()):
         raise ValueError("Every mixed task requires a positive finite quota")
     if abs(sum(fractions.values())-1.) > 1e-9:
         raise ValueError("Mixed task quotas must sum to one")
@@ -48,31 +89,41 @@ def validate(spec):
         if (not math.isfinite(j["apex_tuck_hold_seconds"]) or j["apex_tuck_hold_seconds"] < 0.
                 or not 0. <= j["per_leg_progress_weight"] <= 1.):
             raise ValueError("Invalid v4 apex hold or per-leg progress weight")
+    _validate_extensions(spec)
     return spec
 
 
 def quota_counts(count, spec):
     validate(spec)
+    tasks = tasks_for(spec)
     if count < spec["sampling"]["minimum_envs"]:
         raise ValueError("Mixed task population is too small to cover every quota")
-    exact = [count*spec["task_fractions"][name] for name in TASKS]
+    exact = [count*spec["task_fractions"][name] for name in tasks]
     result = [math.floor(x) for x in exact]
-    order = sorted(range(len(TASKS)), key=lambda i: (-(exact[i]-result[i]), i))
+    order = sorted(range(len(tasks)), key=lambda i: (-(exact[i]-result[i]), i))
     for i in order[:count-sum(result)]:
         result[i] += 1
     if min(result) < 1:
         raise ValueError("Every task requires at least one environment")
-    return dict(zip(TASKS, result))
+    return dict(zip(tasks, result))
+
+
+def jump_timing(apex, j):
+    """Release velocity, push duration and request-to-apex time of the time-only reference."""
+    release_v = (2*9.81*(apex-j["release_height_m"])).sqrt()
+    push = 2*(j["release_height_m"]-j["crouch_height_m"])/release_v
+    return release_v, push, j["crouch_seconds"]+push+release_v/9.81
 
 
 class TaskSchedule:
     """One fixed task per lane; resets cannot overwrite another task's quota."""
     def __init__(self, count, device, seed, spec):
         self.spec, self.device = validate(spec), device
+        self.tasks = tasks_for(spec)
         self.generator = torch.Generator(device=device).manual_seed(int(seed)+54173)
         counts = quota_counts(count, spec)
         roles = torch.cat([torch.full((counts[n],), i, device=device, dtype=torch.long)
-                           for i, n in enumerate(TASKS)])
+                           for i, n in enumerate(self.tasks)])
         self.role = roles[torch.randperm(count, device=device, generator=self.generator)]
         self.commands = torch.zeros(count, 3, device=device)
         self.height = torch.full((count,), spec["jump"]["standing_height_m"], device=device)
@@ -82,13 +133,48 @@ class TaskSchedule:
         self.drop = torch.zeros_like(self.height)
         self.wave_phase = torch.zeros_like(self.height)
         self.update = 0
+        self.has_platform = "platform" in self.tasks
+        if self.has_platform:
+            # Lane geometry is fixed at scene construction: one static box per
+            # platform lane, its height cycled from the contract list by rank.
+            p = spec["platform"]
+            lane = self.mask("platform")
+            self.platform_rank = torch.where(lane, lane.long().cumsum(0)-1, -1)
+            heights = torch.tensor(p["lane_heights_m"], device=device)
+            self.rise = torch.where(lane, heights[self.platform_rank.clamp_min(0) % len(heights)], 0.)
+            self.mode = torch.full((count,), FLAT, device=device, dtype=torch.long)
+            self.platform_speed = torch.zeros_like(self.height)
+            self.trigger_distance = torch.full_like(self.height, 1e9)
+            self.odometry = torch.zeros_like(self.height)
+            self.start_x = torch.zeros_like(self.height)
+            self.height_limit = 0.
         self.reset(torch.arange(count, device=device), 0)
 
     def mask(self, name):
-        return self.role == TASKS.index(name)
+        if name not in self.tasks:
+            return torch.zeros_like(self.role, dtype=torch.bool)
+        return self.role == self.tasks.index(name)
+
+    def requesters(self):
+        """Lanes that receive the explicit jump request (identical to jump lanes without platforms)."""
+        return self.mask("jump") | self.mask("platform")
 
     def random(self, count):
         return torch.rand(count, device=self.device, generator=self.generator)
+
+    def moving_ramp(self):
+        moving = self.spec["jump"].get("moving_jump")
+        if not moving:
+            return 1.
+        return min(max((self.update-moving["start_update"])/
+            (moving["full_update"]-moving["start_update"]), 0.), 1.)
+
+    def platform_height_limit(self, update):
+        u = self.spec["platform"]["unlock"]
+        if update < u["start_update"]:
+            return 0.
+        progress = min(max((update-u["start_update"])/max(u["full_update"]-u["start_update"], 1), 0.), 1.)
+        return u["start_height_m"]+progress*(u["final_height_m"]-u["start_height_m"])
 
     def reset(self, ids, update):
         j = self.spec["jump"]
@@ -103,10 +189,66 @@ class TaskSchedule:
         self.delay[ids] = low+(high-low)*self.random(len(ids))
         self.wave_phase[ids] = 2*math.pi*self.random(len(ids))
         self.next_sample[ids] = 0.
+        if self.has_platform:
+            self._reset_platform(ids[self.mask("platform")[ids]], update)
+
+    def _reset_platform(self, ids, update):
+        """Episode mode, speed, apex, run-up and start pose; terrain never drives the request."""
+        if not len(ids):
+            return
+        p, j = self.spec["platform"], self.spec["jump"]
+        n = len(ids)
+        self.height_limit = self.platform_height_limit(update)
+        unlocked = self.rise[ids] <= self.height_limit+1e-6
+        over = self.random(n) < p["over_fraction"]
+        mode = torch.where(unlocked, torch.where(over, OVER, DRIVE_OFF), FLAT)
+        low, high = p["speed_range_m_s"]
+        speed = low+(high-low)*self.random(n)
+        apex = torch.maximum(torch.full_like(speed, p["apex_min_m"]), p["apex_base_m"]+self.rise[ids])
+        apex = torch.where(mode == OVER, apex, self.apex[ids])
+        a, b = p["runup_seconds"]
+        runup = speed*(a+(b-a)*self.random(n))
+        jitter = speed*p["timing_jitter_s"]*(2*self.random(n)-1)
+        lo, hi = p["drive_off_start_m"]
+        before_far = lo+(hi-lo)*self.random(n)
+        _, _, to_apex = jump_timing(apex, j)
+        near, wheel = p["near_edge_x_m"], p["wheel_center_offset_x_m"]
+        # At the apex the wheel centre is half a radius before the near face.
+        over_x = near-.5*j["wheel_radius_m"]-wheel-speed*to_apex-runup+jitter
+        self.start_x[ids] = torch.where(mode == OVER, over_x,
+            torch.where(mode == DRIVE_OFF, near+p["length_m"]-wheel-before_far, near-p["flat_offset_m"]))
+        self.trigger_distance[ids] = torch.where(mode == DRIVE_OFF, 1e9, runup)
+        self.mode[ids] = mode
+        self.platform_speed[ids] = speed
+        self.apex[ids] = apex
+        self.delay[ids] = 1e3  # set by the odometry trigger
+        self.odometry[ids] = 0.
+
+    def advance_platform_requests(self, age, distance):
+        """Explicit request from wheel odometry along the commanded run-up only."""
+        if not self.has_platform:
+            return
+        lane = self.mask("platform")
+        self.odometry += torch.where(lane, distance, 0.)
+        fire = lane & (self.delay > 999.) & (self.odometry >= self.trigger_distance)
+        self.delay = torch.where(fire, age, self.delay)
+
+    def support_height(self, xy):
+        """Ground height under env-local points (..., 2); reward/acceptance only."""
+        if not self.has_platform:
+            return torch.zeros(xy.shape[:-1], device=xy.device)
+        p = self.spec["platform"]
+        near = p["near_edge_x_m"]
+        inside = ((xy[..., 0] >= near) & (xy[..., 0] <= near+p["length_m"])
+                  & (xy[..., 1].abs() <= .5*p["width_m"]))
+        rise = self.rise.reshape(-1, *([1]*(xy.dim()-2)))
+        lane = self.mask("platform").reshape_as(rise)
+        return torch.where(inside & lane, rise, 0.)
 
     def update_commands(self, age, phase):
         ids = (age >= self.next_sample).nonzero().flatten()
         if len(ids):
+            index = self.tasks.index
             r = self.role[ids]
             n, vmax, yawmax = len(ids), phase["vx_max_m_s"], phase["yaw_max_rad_s"]
             speed = .1+(max(vmax, .1)-.1)*self.random(n)
@@ -114,43 +256,68 @@ class TaskSchedule:
             lo, hi = self.spec["sampling"]["low_speed_range_m_s"]
             speed = torch.where(low, lo+(min(hi, vmax)-lo)*self.random(n), speed)
             cmd = torch.zeros(n, 3, device=self.device)
-            cmd[:, 0] = torch.where(r == TASKS.index("forward"), speed, 0.)
-            cmd[:, 0] = torch.where(r == TASKS.index("reverse"), -speed, cmd[:, 0])
+            cmd[:, 0] = torch.where(r == index("forward"), speed, 0.)
+            cmd[:, 0] = torch.where(r == index("reverse"), -speed, cmd[:, 0])
             # Alternate signs by lane and sample generation, preserving both
             # directions even when a task contains only one or two lanes.
             generation = torch.floor(age[ids]/self.spec["sampling"]["command_hold_seconds"]).long()
             sign = torch.where((ids+generation) % 2 == 0, 1., -1.)
-            turn = r == TASKS.index("turn")
+            turn = r == index("turn")
             travel_sign = torch.where((ids//2+generation//2) % 2 == 0, 1., -1.)
             cmd[:, 0] = torch.where(turn, travel_sign*.2, cmd[:, 0])
             cmd[:, 2] = torch.where(turn, sign*(.25+max(yawmax-.25, 0.)*self.random(n)), 0.)
-            dash = r == TASKS.index("dash")
+            dash = r == index("dash")
             dash_sign = torch.where((ids+generation//2) % 2 == 0, 1., -1.)
             sprint = generation % 2 == 0
             cmd[:, 0] = torch.where(dash & sprint, dash_sign*vmax*(.75+.25*self.random(n)), cmd[:, 0])
-            spin = r == TASKS.index("spin")
+            spin = r == index("spin")
             # Retain the original late-course spin range, including 100 rpm.
             spin_starts = self.spec["special_mode_starts"]
             spinmax = 4.5*math.pi if phase.get("completed_update", 0) >= spin_starts["spin_mid"] else yawmax
             if phase["start_update"] >= spin_starts["spin_low"]:
                 spinmax = max(spinmax, 3.25*math.pi)
             cmd[:, 2] = torch.where(spin, sign*spinmax*(.5+.5*self.random(n)), cmd[:, 2])
+            arc = self.spec.get("arc_commands")
+            if arc:
+                # Arcs: the same speed samples plus a yaw rate whose centripetal
+                # acceleration stays below the configured wheel-slip margin.
+                lanes = (r == index("forward")) | (r == index("reverse")) | dash
+                vx = cmd[:, 0].abs()
+                limit = torch.minimum(torch.full_like(vx, yawmax), arc["max_centripetal_m_s2"]/vx.clamp_min(1e-3))
+                pick = (lanes & (self.random(n) < arc["probability"]) & (vx >= arc["min_speed_m_s"])
+                        & (limit > arc["min_yaw_rad_s"]))
+                yaw_sign = torch.where(self.random(n) < .5, 1., -1.)
+                yaw = yaw_sign*(arc["min_yaw_rad_s"]+(limit-arc["min_yaw_rad_s"]).clamp_min(0.)*self.random(n))
+                cmd[:, 2] = torch.where(pick, yaw, cmd[:, 2])
             self.commands[ids] = cmd
             hlow, hhigh = phase["height_range_m"]
             self.height[ids] = hlow+(hhigh-hlow)*self.random(n)
-            jump = (r == TASKS.index("jump")) | (r == TASKS.index("airborne"))
+            jump = (r == index("jump")) | (r == index("airborne"))
             self.height[ids[jump]] = self.spec["jump"]["standing_height_m"]
             moving = self.spec["jump"].get("moving_jump")
             if moving:
-                ramp = min(max((self.update-moving["start_update"])/
-                    (moving["full_update"]-moving["start_update"]), 0.), 1.)
+                ramp = self.moving_ramp()
                 rank = (self.mask("jump").long().cumsum(0)-1)[ids]
-                travel = (rank % 2 == 0) & (r == TASKS.index("jump"))
                 direction = torch.where((rank//2+generation) % 2 == 0, 1., -1.)
-                self.commands[ids, 0] = torch.where(travel,
-                    direction*moving["maximum_vx_m_s"]*ramp, self.commands[ids, 0])
-            hold = torch.where(r == TASKS.index("stand"),
+                if "speed_range_m_s" in moving:
+                    fraction = moving["fraction"]
+                    travel = (torch.floor((rank+1)*fraction) > torch.floor(rank*fraction)) & (r == index("jump"))
+                    a, b = moving["speed_range_m_s"]
+                    jump_speed = (a+(b-a)*self.random(n))*ramp
+                else:
+                    travel = (rank % 2 == 0) & (r == index("jump"))
+                    jump_speed = moving["maximum_vx_m_s"]*ramp
+                self.commands[ids, 0] = torch.where(travel, direction*jump_speed, self.commands[ids, 0])
+            hold = torch.where(r == index("stand"),
                 self.spec["sampling"]["standing_command_hold_seconds"], self.spec["sampling"]["command_hold_seconds"])
+            if self.has_platform:
+                plat = r == index("platform")
+                platform_speed = self.platform_speed[ids]
+                platform_speed = torch.where(self.mode[ids] == FLAT, platform_speed*self.moving_ramp(), platform_speed)
+                self.commands[ids] = torch.where(plat[:, None], 0., self.commands[ids])
+                self.commands[ids, 0] = torch.where(plat, platform_speed, self.commands[ids, 0])
+                self.height[ids[plat]] = self.spec["jump"]["standing_height_m"]
+                hold = torch.where(plat, 1e3, hold)
             self.next_sample[ids] = age[ids]+hold
         hlow, hhigh = phase["height_range_m"]
         wave = (hlow+hhigh)/2+(hhigh-hlow)/2*torch.sin(
@@ -159,16 +326,17 @@ class TaskSchedule:
 
     def reference(self, age):
         j = self.spec["jump"]
+        jumper = self.requesters()
         t = age-self.delay
         release_v = (2*9.81*(self.apex-j["release_height_m"])).sqrt()
         duration = 2*(j["release_height_m"]-j["crouch_height_m"])/release_v
         push_time = (t-j["crouch_seconds"]).clamp_min(0.)
-        crouch = self.mask("jump") & (t >= 0) & (t < j["crouch_seconds"])
-        push = self.mask("jump") & (t >= j["crouch_seconds"]) & (push_time <= duration)
+        crouch = jumper & (t >= 0) & (t < j["crouch_seconds"])
+        push = jumper & (t >= j["crouch_seconds"]) & (push_time <= duration)
         v2 = j.get("reward_version", 1) >= 2
         flight_seconds = 2*release_v/9.81 if v2 else 1.
-        flight = self.mask("jump") & (push_time > duration) & (push_time < duration+flight_seconds)
-        active = ((self.mask("jump") & (t >= 0)) | self.mask("airborne")) & (age < j["outcome_seconds"])
+        flight = jumper & (push_time > duration) & (push_time < duration+flight_seconds)
+        active = ((jumper & (t >= 0)) | self.mask("airborne")) & (age < j["outcome_seconds"])
         p = (t/j["crouch_seconds"]).clamp(0., 1.)
         h = torch.full_like(age, j["standing_height_m"])
         h = torch.where(crouch, h+(j["crouch_height_m"]-h)*(3*p.square()-2*p.pow(3)), h)
@@ -178,19 +346,24 @@ class TaskSchedule:
             h = torch.where(flight, j["release_height_m"], h)
         v = torch.where(push, acceleration*push_time, 0.)
         return dict(height=h, velocity=v, push=push, flight=flight, active=active,
-                    crouch=crouch, after_push=self.mask("jump") & (push_time > duration),
-                    release_velocity=release_v, requested=self.mask("jump") & (t >= 0))
+                    crouch=crouch, after_push=jumper & (push_time > duration),
+                    release_velocity=release_v, requested=jumper & (t >= 0))
 
     def context(self, base, age):
         """No sensor or observer parameter is accepted at this boundary."""
         result = base.clone()
-        jump = self.mask("jump") & (age >= self.delay)
+        jump = self.requesters() & (age >= self.delay)
         air = self.mask("airborne")
         selected = jump | air
         result[selected] = 0.
         result[selected, 4] = 1.
         result[jump, 5] = self.apex[jump]
         result[selected, 6] = torch.where(jump, age-self.delay, age)[selected].clamp(0., 6.)
+        if self.has_platform:
+            # Step-jump request: the operator-declared rise rides in the
+            # reserved "stair" slot; flat requests keep it at zero.
+            step = jump & self.mask("platform") & (self.mode == OVER)
+            result[step, 1] = self.rise[step]
         return result
 
 
@@ -237,9 +410,10 @@ class JumpObserver:
             getattr(self, name).zero_()
 
     def observe(self, age, height, velocity, gravity, wheel_clearance, wheel_force, nonwheel_force,
-                horizontal_speed_error=None, leg_lengths=None):
+                horizontal_speed_error=None, leg_lengths=None, on_top=None):
         j, s = self.j, self.schedule
-        jump, drop = s.mask("jump"), s.mask("airborne")
+        # Platform requests share the jump physics; tuck/apex gates stay jump-lane only.
+        jump, drop, jump_lane = s.requesters(), s.mask("airborne"), s.mask("jump")
         eligible = drop | (jump & (age >= s.delay))
         air = (wheel_clearance > j["clearance_m"]).all(-1) & (wheel_force <= j["force_threshold_n"]).all(-1)
         support = (wheel_clearance < j["landing_clearance_m"]).all(-1) & (wheel_force > j["force_threshold_n"]).all(-1)
@@ -349,16 +523,22 @@ class JumpObserver:
         stable = eligible & self.landed & support & calm
         self.stable_time = torch.where(stable, self.stable_time+self.dt, 0.)
         apex_ok = drop | (self.peak_height >= s.apex-.025)
+        if s.has_platform:
+            # A step jump counts only once both wheels are supported on top;
+            # the edge itself enforces the clearance instead of an apex gate.
+            over = s.mask("platform") & (s.mode == OVER)
+            on_top = torch.zeros_like(over) if on_top is None else on_top
+            apex_ok = torch.where(over, on_top, apex_ok)
         tuck_required = bool(j.get("success_requires_tuck", False))
         # Airborne is a passive drop diagnostic and must not be forced through
         # the active-jump tuck gate.  If a caller omits leg geometry, retain
         # the historical observer behavior for v1-v3. V4 fails closed if jump
         # geometry is omitted; the native environment always supplies it.
         if leg_lengths is not None:
-            tuck_required_mask = jump if tuck_required else torch.zeros_like(jump)
+            tuck_required_mask = jump_lane if tuck_required else torch.zeros_like(jump_lane)
             tuck_ok = (~tuck_required_mask) | self.tuck_seen
         elif v4:
-            tuck_ok = ~jump if tuck_required else torch.ones_like(jump)
+            tuck_ok = ~jump_lane if tuck_required else torch.ones_like(jump_lane)
         else:
             tuck_ok = torch.ones_like(self.succeeded)
         success = (eligible & ~self.succeeded & ~self.failed & apex_ok
@@ -490,11 +670,116 @@ class JumpObserver:
                     jump_events=events/policy_dt)
 
 
-def rollout_metrics(roles, advantages, rewards, returns):
+class PlatformObserver:
+    """Step-up / drive-off payments from true box geometry and contact.
+
+    Reward and diagnostics only: nothing here reaches the actor, the command
+    clock or the request trigger. Wheel arrays are (N, 2); positions env-local.
+    """
+    EVENTS = ("strike_event", "top_land_event", "drop_land_event", "drop_success_event", "drop_timeout_event")
+
+    def __init__(self, schedule, dt, mass):
+        self.schedule, self.dt = schedule, dt
+        self.p, self.j = schedule.spec["platform"], schedule.spec["jump"]
+        self.weight = mass*9.81
+        z = schedule.height
+        for name in ("drop_stable_time", "drop_clock", "interval_force_peak", "min_clearance"):
+            setattr(self, name, torch.zeros_like(z))
+        for name in ("seen_top", "top_landed", "struck", "dropped", "drop_landed", "drop_succeeded",
+                     "drop_failed", *self.EVENTS):
+            setattr(self, name, torch.zeros_like(z, dtype=torch.bool))
+        self.min_clearance.fill_(1.)
+
+    def reset(self, ids):
+        for value in vars(self).values():
+            if isinstance(value, torch.Tensor) and value is not self.weight:
+                value[ids] = 0
+        self.min_clearance[ids] = 1.
+
+    def begin_interval(self):
+        for name in (*self.EVENTS, "interval_force_peak"):
+            getattr(self, name).zero_()
+
+    def lanes(self):
+        s = self.schedule
+        return s.mask("platform") & (s.mode != FLAT)
+
+    def observe(self, age, wheel_xy, wheel_bottom, support, wheel_force, wheel_force_x,
+                height, velocity, gravity, speed_error, nonwheel_force):
+        """wheel_bottom is height above the floor; support the box height under each wheel."""
+        s, p, j = self.schedule, self.p, self.j
+        lanes = self.lanes()
+        over = lanes & (s.mode == OVER)
+        rise = s.rise[:, None]
+        clear = wheel_bottom-support
+        threshold = j["force_threshold_n"]
+        supported = (clear < j["landing_clearance_m"]) & (wheel_force > threshold)
+        airborne = (clear > j["clearance_m"]).all(-1) & (wheel_force <= threshold).all(-1)
+        top = lanes & (support > 0.).all(-1) & supported.all(-1)
+        floor = (support <= 0.).all(-1) & supported.all(-1)
+        near, radius = p["near_edge_x_m"], j["wheel_radius_m"]
+        face = ((wheel_xy[..., 0] > near-radius-.02) & (wheel_xy[..., 0] < near)
+                & (wheel_bottom < rise-.01) & (wheel_force_x < -p["strike_force_n"])).any(-1)
+        strike = over & ~self.struck & ~self.top_landed & face
+        self.strike_event |= strike
+        self.struck |= strike
+        landed_top = over & ~self.top_landed & top
+        self.top_land_event |= landed_top
+        self.top_landed |= landed_top
+        self.seen_top |= top
+        near_face = (wheel_xy[..., 0] > near-.25) & (wheel_xy[..., 0] < near+.05)
+        gap = torch.where(near_face, wheel_bottom-rise, 1.).amin(-1)
+        self.min_clearance = torch.where(over & ~self.top_landed, torch.minimum(self.min_clearance, gap), self.min_clearance)
+        drop = lanes & self.seen_top & ~self.dropped & airborne & (support <= 0.).all(-1)
+        self.dropped |= drop
+        land = self.dropped & ~self.drop_landed & floor
+        self.drop_land_event |= land
+        self.drop_landed |= land
+        self.drop_clock = torch.where(self.dropped, self.drop_clock+self.dt, self.drop_clock)
+        calm = ((gravity[:, 2] < -math.cos(math.radians(12))) & (speed_error < .2)
+                & (velocity[:, 2].abs() < .15) & ((height-j["standing_height_m"]).abs() < .035)
+                & (nonwheel_force <= 2.))
+        stable = self.drop_landed & floor & calm
+        self.drop_stable_time = torch.where(stable, self.drop_stable_time+self.dt, 0.)
+        success = (lanes & self.drop_landed & ~self.drop_succeeded & ~self.drop_failed
+                   & (self.drop_stable_time >= j["landing_hold_seconds"]-1e-7))
+        self.drop_success_event |= success
+        self.drop_succeeded |= success
+        timeout = (lanes & self.seen_top & ~self.drop_succeeded & ~self.drop_failed
+                   & (age >= p["outcome_seconds"]))
+        self.drop_timeout_event |= timeout
+        self.drop_failed |= timeout
+        window = self.dropped & (self.drop_clock < .5)
+        self.interval_force_peak = torch.maximum(self.interval_force_peak, wheel_force.sum(-1)*window)
+
+    def reward_terms(self, age, wheel_xy, wheel_bottom, policy_dt):
+        s, p, j = self.schedule, self.p, self.j
+        over = self.lanes() & (s.mode == OVER)
+        ref = s.reference(age)
+        near = p["near_edge_x_m"]
+        before, after = p["clearance_zone_m"]
+        zone = (wheel_xy[..., 0] > near-before) & (wheel_xy[..., 0] < near+after)
+        score = ((wheel_bottom-s.rise[:, None])/p["clearance_scale_m"]).clamp(-1., 1.)
+        weight = zone.float()
+        clearance = (score*weight).sum(-1)/weight.sum(-1).clamp_min(1.)
+        active = (over & ref["requested"] & (ref["push"] | ref["after_push"]) & ~self.top_landed
+                  & ~self.struck & zone.any(-1))
+        b = p["event_bonuses"]
+        events = (b["strike"]*self.strike_event+b["top_land"]*self.top_land_event
+                  +b["drop_land"]*self.drop_land_event+b["drop_success"]*self.drop_success_event
+                  +b["drop_timeout"]*self.drop_timeout_event)
+        return dict(
+            platform_clearance=j["dense_scale"]*p["clearance_weight"]*active*clearance,
+            platform_events=events/policy_dt,
+            platform_impact=-j["dense_scale"]*((self.interval_force_peak/self.weight-j["impact_soft_bodyweights"])
+                .clamp_min(0.)/j["impact_scale_bodyweights"]).clamp_max(5.))
+
+
+def rollout_metrics(roles, advantages, rewards, returns, tasks=TASKS):
     """Inspect actual PPO tensors without changing normalization or gradients."""
     result = {}
-    for name in TASKS:
-        mask = roles == TASKS.index(name)
+    for name in tasks:
+        mask = roles == tasks.index(name)
         for key, value in (("advantage", advantages), ("reward", rewards), ("return", returns)):
             selected = value[:, mask].detach().float()
             result["MixedRollout/"+name+"/"+key+"_rms"] = selected.square().mean().sqrt()

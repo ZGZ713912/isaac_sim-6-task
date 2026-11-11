@@ -25,7 +25,7 @@ def main():
     p.add_argument("--num-envs", type=int, default=32)
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--seed", type=int, default=111)
-    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6"),default="legacy")
+    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7"),default="legacy")
     p.add_argument("--control", choices=("actor", "wheel-pulse"), default="actor")
     p.add_argument("--gas-feedforward", choices=("source", "disabled"), default="source",
         help="Isolated port-only control intervention; keeps physical gas springs unchanged")
@@ -177,6 +177,12 @@ def main():
             "stand_high": (0., 0., .42), "forward": (.5, 0., .305), "reverse": (-.5, 0., .305),
             "spin_positive": (0., 100.*2.*torch.pi/60., .305),
             "spin_negative": (0., -100.*2.*torch.pi/60., .305)}
+        # Arc driving: simultaneous forward/reverse speed and yaw rate.
+        for vx in (.5, 1., 1.5):
+            for wz in (.5, 1., 2.):
+                if vx*wz <= 2.5+1e-9:
+                    for sx, sz in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
+                        commands[f"arc_{'f' if sx > 0 else 'r'}{vx:g}_{'l' if sz > 0 else 'r'}{wz:g}"] = (sx*vx, sz*wz, .305)
         if a.control == "wheel-pulse":
             commands = {"wheel_same_positive": (0., 0., .305), "wheel_same_negative": (0., 0., .305),
                 "wheel_opposite": (0., 0., .305)}

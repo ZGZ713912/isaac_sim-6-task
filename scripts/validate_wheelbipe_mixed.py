@@ -26,7 +26,7 @@ def main():
     p.add_argument("--motion-update-offset", type=int, default=0)
     p.add_argument("--randomization-profile", default="nominal")
     p.add_argument("--randomization-strength", type=float, default=0.)
-    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6"), default="foundation-jump-v1")
+    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7"), default="foundation-jump-v1")
     p.add_argument("--leg-kp",type=float,default=None)
     p.add_argument("--leg-kd",type=float,default=None)
     p.add_argument("--leg-target-overtravel-rad",type=float,default=None)
@@ -35,6 +35,8 @@ def main():
     p.add_argument("--tuck-spring-gain",type=float,default=None)
     p.add_argument("--tuck-spring-cap-nm",type=float,default=None)
     p.add_argument("--course-updates",type=int,default=None)
+    p.add_argument("--spec-override",type=json.loads,default=None,
+        help="Read-only scenario: JSON deep-merged into the mixed course (e.g. fixed platform height/speed)")
     a = p.parse_args()
     if a.steps < 300 or a.output.exists():
         p.error("Use a new output directory and at least six simulated seconds")
@@ -59,7 +61,7 @@ def main():
         from torch.utils.tensorboard import SummaryWriter
         from wheeled_tasks.wheelbipe_port.config import WheelbipePortFlatCfg
         from wheeled_tasks.wheelbipe_port.mixed_environment import WheelbipeMixedEnv
-        from wheeled_tasks.wheelbipe_port.mixed_curriculum import TASKS, quota_counts, rollout_metrics
+        from wheeled_tasks.wheelbipe_port.mixed_curriculum import quota_counts, rollout_metrics, validate
         from wheeled_tasks.wheelbipe_port.training_profile import configure_profile, apply_phase
         torch.set_num_threads(4)
         cfg = WheelbipePortFlatCfg()
@@ -78,6 +80,20 @@ def main():
             overtravel=a.leg_target_overtravel_rad,
             overtravel_scope=a.leg_target_overtravel_scope,tuck_mode=a.tuck_spring_compensation,
             tuck_gain=a.tuck_spring_gain,tuck_cap_nm=a.tuck_spring_cap_nm)
+        if a.spec_override:
+            def merge(target, patch):
+                for key, value in patch.items():
+                    if isinstance(value, dict) and isinstance(target.get(key), dict):
+                        merge(target[key], value)
+                    else:
+                        target[key] = value
+            merge(cfg.port_mixed_spec, a.spec_override)
+            validate(cfg.port_mixed_spec)
+            receipt["scenario_override"] = a.spec_override
+        if cfg.port_real2sim is not None:
+            limit = cfg.port_real2sim["leg_friction"]["native_effort_limit_nm"]
+            cfg.robot_cfg.actuators["legs_act"].effort_limit = limit
+            cfg.robot_cfg.actuators["legs_act"].effort_limit_sim = limit
         cfg.port_start_completed_updates = a.course_update
         cfg.port_motion_update_offset = a.motion_update_offset
         apply_phase(cfg, a.course_update+a.motion_update_offset)
@@ -101,16 +117,16 @@ def main():
         actor = torch.nn.Sequential(*layers).eval()
         writer = SummaryWriter(str(a.output/"events"))
         expected = quota_counts(a.num_envs, cfg.port_mixed_spec)
-        counts = {name: int(env.task_schedule.mask(name).sum()) for name in TASKS}
+        counts = {name: int(env.task_schedule.mask(name).sum()) for name in env.task_schedule.tasks}
         if counts != expected:
             raise ValueError("Native task allocation differs from its contract")
         receipt.update(status="sampling", allocated_envs=counts, expected_envs=expected,
             policy_hz=1/env.step_dt, physics_hz=1/env.physics_dt,
             domain=env.domain_receipt, source_profile_sha256=cfg.port_profile_sha256)
         save()
-        sums = {name: dict(samples=0, reward=0., reward_square=0., resets=0) for name in TASKS}
+        sums = {name: dict(samples=0, reward=0., reward_square=0., resets=0) for name in env.task_schedule.tasks}
         metric_sums = {name: dict(vx_error_m_s=0., yaw_error_rad_s=0., height_error_m=0., tilt_deg=0.)
-                       for name in TASKS}
+                       for name in env.task_schedule.tasks}
         event_counts = {name: 0 for name in ("liftoff_event", "landing_event", "success_event", "timeout_event")}
         events_by_task = {task: dict(event_counts) for task in ("jump", "airborne")}
         outcomes = {task: dict(completed=0, flown=0, landed=0, succeeded=0, terminated=0, timeout=0)
@@ -125,6 +141,21 @@ def main():
                         & env.task_schedule.mask(task)).sum())
             return reward
         env._get_rewards = observe_payment
+        platform_counts = {}
+        if env.platform_observer is not None:
+            from wheeled_tasks.wheelbipe_port.mixed_curriculum import OVER
+            observer, schedule = env.platform_observer, env.task_schedule
+            names = (*observer.EVENTS, "top_success_event")
+            platform_counts = {name: 0 for name in names}
+            payment_with_jumps = env._get_rewards
+            def observe_platform():
+                reward = payment_with_jumps()
+                over = schedule.mask("platform") & (schedule.mode == OVER)
+                for name in observer.EVENTS:
+                    platform_counts[name] += int(getattr(observer, name).sum())
+                platform_counts["top_success_event"] += int((env.jump_observer.success_event & over).sum())
+                return reward
+            env._get_rewards = observe_platform
         old_dones = env._get_dones
         def observe_outcomes():
             terminate, timeout = old_dones()
@@ -155,7 +186,7 @@ def main():
                     yaw_error_rad_s=(env.robot.data.root_ang_vel_b[:, 2]-env.command[:, 2]).abs(),
                     height_error_m=(env.robot.data.root_pos_w[:, 2]-env.terrain.env_origins[:, 2]-env.height_cmd).abs(),
                     tilt_deg=torch.acos((-env.robot.data.projected_gravity_b[:, 2]).clamp(-1., 1.))*180./torch.pi)
-                for name in TASKS:
+                for name in env.task_schedule.tasks:
                     mask = env.task_schedule.mask(name)
                     selected = reward[mask]
                     sums[name]["samples"] += int(mask.sum())
@@ -189,6 +220,7 @@ def main():
         receipt.update(status="complete", elapsed_s=time.monotonic()-started,
             simulated_seconds_per_lane=a.steps*env.step_dt, tasks=sums, physical_events=event_counts,
             physical_events_by_task=events_by_task, episode_outcomes=outcomes,
+            platform_events=platform_counts,
             max_constraint_gap_policy_sample_m=float(env.port_constraint_gap_peak),
             finite_native_states=True, interpretation="Read-only physical outcomes for the pinned actor; full capability and hardware qualification remain separate")
         save()

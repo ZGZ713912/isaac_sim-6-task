@@ -15,8 +15,9 @@ PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
                  "foundation-jump-v3": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v3.json"),
                  "foundation-jump-v4": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v4.json"),
                  "foundation-jump-v5": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v5.json"),
-                 "foundation-jump-v6": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v6.json")}
-SCALABLE = ("foundation-jump-v4", "foundation-jump-v5", "foundation-jump-v6")
+                 "foundation-jump-v6": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v6.json"),
+                 "foundation-jump-v7": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v7.json")}
+SCALABLE = ("foundation-jump-v4", "foundation-jump-v5", "foundation-jump-v6", "foundation-jump-v7")
 
 
 def specification(name="foundation-v1", course_updates=None):
@@ -24,7 +25,7 @@ def specification(name="foundation-v1", course_updates=None):
     if course_updates is None:
         return spec
     if name not in SCALABLE or type(course_updates) is not int or course_updates <= 0:
-        raise ValueError("Course scaling requires foundation-jump-v4/v5/v6 and a positive update budget")
+        raise ValueError("Course scaling requires foundation-jump-v4..v7 and a positive update budget")
     original = spec["total_updates"]
     scale = lambda update: round(update*course_updates/original)
     for row in spec["phases"]:
@@ -37,6 +38,9 @@ def specification(name="foundation-v1", course_updates=None):
     jump["difficulty_full_update"] = scale(jump["difficulty_full_update"])
     for key in ("start_update","full_update"):
         jump["moving_jump"][key] = scale(jump["moving_jump"][key])
+    if "platform" in spec:
+        for key in ("start_update","full_update"):
+            spec["platform"]["unlock"][key] = scale(spec["platform"]["unlock"][key])
     if (jump["difficulty_full_update"] <= 0
             or jump["moving_jump"]["start_update"] >= jump["moving_jump"]["full_update"]):
         raise ValueError("Course budget collapses the jump progression")
@@ -151,10 +155,10 @@ def configure_profile(cfg, name, *, course_updates=None):
     cfg.events.reset_base.params["velocity_range"] = {}
     apply_phase(cfg, 0, spec)
     if name.startswith("foundation-jump-"):
-        from .mixed_curriculum import REWARD_NAMES, validate
+        from .mixed_curriculum import reward_names, validate
         validate(spec)
         cfg.port_mixed_spec = spec
-        cfg.rewards.update({key: 1. for key in REWARD_NAMES})
+        cfg.rewards.update({key: 1. for key in reward_names(spec)})
 
 
 def electrical_reward_terms(motor, velocity, previous, before_previous):

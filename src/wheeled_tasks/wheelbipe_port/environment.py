@@ -131,9 +131,15 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.cfg.terrain.env_spacing = self.scene.cfg.env_spacing
         self.terrain = OfflineTerrainImporter(self.cfg.terrain)
         self.scene.clone_environments(copy_from_source=True)
+        # Per-environment static geometry must exist before collision groups
+        # are built, so each lane's robot touches only its own obstacle.
+        self._spawn_task_terrain()
         self.scene.filter_collisions(global_prim_paths=[self.cfg.terrain.prim_path])
         light = sim.DomeLightCfg(intensity=2000.,color=(.75,.75,.75))
         light.func("/World/Light",light)
+
+    def _spawn_task_terrain(self):
+        """Flat foundation tasks add no geometry."""
 
     def _find_contact_sensor_indices(self, expressions):
         if isinstance(expressions,str):

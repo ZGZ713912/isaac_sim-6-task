@@ -5,20 +5,32 @@ import torch
 from isaaclab.utils.math import quat_apply, quat_apply_inverse
 
 from .environment import WheelbipePortEnv
-from .mixed_curriculum import JumpObserver, REWARD_NAMES, TASKS, TaskSchedule
+from .mixed_curriculum import (DRIVE_OFF, FLAT, OVER, JumpObserver, PlatformObserver, TaskSchedule,
+    reward_names, tasks_for)
 from .training_profile import apply_phase, phase_for_update
 
 
 class WheelbipeMixedEnv(WheelbipePortEnv):
     def __init__(self, *args, **kwargs):
-        self.task_schedule = self.jump_observer = None
+        self.task_schedule = self.jump_observer = self.platform_observer = None
+        self._early_schedule = None
         self._mixed_observed_tick = -1
         self._mixed_interval_age = None
         super().__init__(*args, **kwargs)
         spec = self.cfg.port_mixed_spec
-        self.task_schedule = TaskSchedule(self.num_envs, self.device, self.cfg.seed, spec)
+        # Platform lanes are allocated while the scene is built; reuse that
+        # exact schedule (same seeded generator) instead of drawing again.
+        self.task_schedule = self._early_schedule or TaskSchedule(self.num_envs, self.device, self.cfg.seed, spec)
         mass = self.robot.root_physx_view.get_masses().to(self.device).sum(-1)
         self.jump_observer = JumpObserver(self.task_schedule, self.physics_dt, mass)
+        if self.task_schedule.has_platform:
+            self.platform_observer = PlatformObserver(self.task_schedule, self.physics_dt, mass)
+            # Signed wheel odometry. The mirrored wheel joints roll forward with
+            # the sign of their CAD joint axis z (L_joint3 +z, R_joint3 -z);
+            # natively checked: forward 1 m/s gives +15 / -15 rad/s.
+            axes = {joint["name"]: joint["axis"] for joint in self.asset.spec["joints"]}
+            self._wheel_forward_sign = torch.tensor([1. if axes[name][2] > 0 else -1.
+                for name in ("L_joint3", "R_joint3")], device=self.device)
         self._mixed_sensor_wheel_ids = self._find_contact_sensor_indices(["left_wheel_link", "right_wheel_link"])
         if len(self._mixed_sensor_wheel_ids) != 2:
             raise ValueError("Jump observer requires two named wheel contact bodies")
@@ -37,6 +49,55 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
 
     def _mixed_enabled(self):
         return self.task_schedule is not None and not hasattr(self, "eval_command")
+
+    def _spawn_task_terrain(self):
+        """One static box per platform lane, under that lane's own env prim."""
+        spec = getattr(self.cfg, "port_mixed_spec", None)
+        if spec is None or "platform" not in tasks_for(spec):
+            return
+        import isaaclab.sim as sim_utils
+        from pxr import Usd, UsdGeom
+        schedule = TaskSchedule(self.scene.num_envs, self.device, self.cfg.seed, spec)
+        self._early_schedule = schedule
+        p = spec["platform"]
+        ground = self.cfg.terrain.physics_material
+        material = sim_utils.RigidBodyMaterialCfg(static_friction=ground.static_friction,
+            dynamic_friction=ground.dynamic_friction, restitution=0.,
+            friction_combine_mode=ground.friction_combine_mode)
+        origins = self.terrain.env_origins.detach().cpu()
+        lanes = schedule.mask("platform").nonzero().flatten().tolist()
+        for i in lanes:
+            env_path = self.scene.env_prim_paths[i]
+            # Robots reset at the terrain origin; express the box relative to
+            # the env prim so both agree even if the two grids differ.
+            world = UsdGeom.Xformable(self.sim.stage.GetPrimAtPath(env_path)).ComputeLocalToWorldTransform(
+                Usd.TimeCode.Default()).ExtractTranslation()
+            rise = float(schedule.rise[i])
+            local = (float(origins[i, 0])-world[0]+p["near_edge_x_m"]+.5*p["length_m"],
+                     float(origins[i, 1])-world[1], float(origins[i, 2])-world[2]+.5*rise)
+            cfg = sim_utils.CuboidCfg(size=(p["length_m"], p["width_m"], rise),
+                collision_props=sim_utils.CollisionPropertiesCfg(), physics_material=material)
+            cfg.func(env_path+"/Platform", cfg, translation=local)
+        self.platform_lane_ids = lanes
+
+    def _wheel_geometry(self):
+        """Env-local wheel-centre XY and wheel-bottom height above the floor, (N, 2)."""
+        q = self.robot.data.body_quat_w[:, self._mixed_wheel_ids]
+        center = self.robot.data.body_pos_w[:, self._mixed_wheel_ids]+quat_apply(q,
+            self._mixed_wheel_offset.expand(self.num_envs, -1, -1))
+        axis = quat_apply(q, self._mixed_wheel_axis.expand(self.num_envs, -1, -1))
+        extent_z = (self._mixed_wheel_radius*(1-axis[:, :, 2].square()).clamp_min(0.).sqrt()
+                    +self._mixed_wheel_half_length*axis[:, :, 2].abs())
+        origin = self.terrain.env_origins
+        return center[..., :2]-origin[:, None, :2], center[:, :, 2]-extent_z-origin[:, 2, None]
+
+    def _get_height_reward_reference_height(self, relative_obs_height, wheel_height_w):
+        value = super()._get_height_reward_reference_height(relative_obs_height, wheel_height_w)
+        if self.platform_observer is not None and self._mixed_enabled():
+            # Reward-only: height above the surface under the wheels.
+            xy, _ = self._wheel_geometry()
+            value = value-self.task_schedule.support_height(xy).mean(-1)
+        return value
 
     def _tuck_compensation_eligible(self):
         if not self._mixed_enabled():
@@ -137,6 +198,23 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
             self.robot.write_joint_state_to_sim(q, torch.zeros_like(q), None, ids)
             self.robot.write_root_state_to_sim(root, ids)
             self.predefined_reset_ground_zero_torque_until_time[ids] = 0.
+        if self.platform_observer is not None:
+            self.platform_observer.reset(env_ids)
+            ids = env_ids[schedule.mask("platform")[env_ids]]
+            if len(ids):
+                # Heading +x toward the box. Over: in front at the sampled run-up;
+                # drive-off: on top; locked lanes: far away on flat ground.
+                q = self.robot.data.default_joint_pos[ids].clone()
+                root = self.robot.data.default_root_state[ids].clone()
+                root[:, :3] += self.terrain.env_origins[ids]
+                root[:, 0] += schedule.start_x[ids]
+                minimum = self.collision_support.minimum_z(q, root[:, 3:7])
+                lift = torch.where(schedule.mode[ids] == DRIVE_OFF, schedule.rise[ids], 0.)
+                root[:, 2] = self.terrain.env_origins[ids, 2]-minimum+.002+lift
+                root[:, 7:] = 0.
+                self.robot.write_joint_state_to_sim(q, torch.zeros_like(q), None, ids)
+                self.robot.write_root_state_to_sim(root, ids)
+                self.predefined_reset_ground_zero_torque_until_time[ids] = 0.
 
     def _reset_idx(self, env_ids):
         super()._reset_idx(env_ids)
@@ -145,6 +223,13 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
     def _pre_physics_step(self, actions):
         if self._mixed_enabled():
             self.jump_observer.begin_interval()
+            if self.platform_observer is not None:
+                self.platform_observer.begin_interval()
+                # Deployable signed wheel odometry fires the explicit request.
+                wheels = [self.motor_ids[i] for i in (2, 5)]
+                speed = (self.robot.data.joint_vel[:, wheels]*self._wheel_forward_sign).mean(-1)
+                self.task_schedule.advance_platform_requests(self._mixed_age(),
+                    speed*self.cfg.port_mixed_spec["jump"]["wheel_radius_m"]*self.step_dt)
             self._mixed_interval_age = self._mixed_age().clone()
         super()._pre_physics_step(actions)
 
@@ -172,12 +257,26 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         wheel_body = quat_apply_inverse(root_quat[:, None, :].expand(-1, 2, -1), relative)
         leg_lengths = wheel_body[:, :, (0, 2)].norm(dim=-1)
         kwargs = {}
+        speed_error = (self.robot.data.root_lin_vel_b[:, :2]-self.command[:, :2]).norm(dim=-1)
         if self.cfg.port_mixed_spec["jump"].get("reward_version", 1) >= 2:
-            kwargs["horizontal_speed_error"] = (
-                self.robot.data.root_lin_vel_b[:, :2]-self.command[:, :2]).norm(dim=-1)
+            kwargs["horizontal_speed_error"] = speed_error
+        if self.platform_observer is not None:
+            j = self.cfg.port_mixed_spec["jump"]
+            xy = center[..., :2]-self.terrain.env_origins[:, None, :2]
+            support = self.task_schedule.support_height(xy)
+            bottom = clearance
+            clearance = clearance-support
+            height = height-support.mean(-1)
+            kwargs["on_top"] = ((support > 0.).all(-1) & (clearance < j["landing_clearance_m"]).all(-1)
+                                & (wheel_force > j["force_threshold_n"]).all(-1))
         self.jump_observer.observe(self._mixed_age(physics=True), height,
             self.robot.data.root_lin_vel_w, self.robot.data.projected_gravity_b,
             clearance, wheel_force, other_force, leg_lengths=leg_lengths, **kwargs)
+        if self.platform_observer is not None:
+            force_x = self.contact_sensor.data.net_forces_w[:, self._mixed_sensor_wheel_ids, 0]
+            self.platform_observer.observe(self._mixed_age(physics=True), xy, bottom, support,
+                wheel_force, force_x, height, self.robot.data.root_lin_vel_w,
+                self.robot.data.projected_gravity_b, speed_error, other_force)
 
     def _apply_action(self):
         self._observe_jump()
@@ -190,6 +289,9 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
             schedule = self.task_schedule
             jump = schedule.mask("jump") | schedule.mask("airborne")
             timeout |= jump & (self._mixed_age() >= self.cfg.port_mixed_spec["jump"]["episode_seconds"])
+            if schedule.has_platform:
+                timeout |= schedule.mask("platform") & (
+                    self._mixed_age() >= self.cfg.port_mixed_spec["platform"]["episode_seconds"])
             bad_success = self.jump_observer.success_event & terminate
             self.jump_observer.success_event[bad_success] = False
             self.jump_observer.succeeded[bad_success] = False
@@ -211,22 +313,27 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         inverse = self.robot.data.root_quat_w.clone()
         wheel_body = quat_apply_inverse(inverse[:, None, :].expand(-1, 2, -1), relative)
         height = self.robot.data.root_pos_w[:, 2]-self.terrain.env_origins[:, 2]
+        if self.platform_observer is not None:
+            xy, bottom = self._wheel_geometry()
+            height = height-self.task_schedule.support_height(xy).mean(-1)
         terms.update(self.jump_observer.reward_terms(age, height,
             self.robot.data.root_lin_vel_w[:, 2], wheel_body, self.step_dt))
+        if self.platform_observer is not None:
+            terms.update(self.platform_observer.reward_terms(age, xy, bottom, self.step_dt))
         return terms
 
     def _get_rewards(self):
         rewards = super()._get_rewards()
         if self._mixed_enabled():
             logs = self.extras.setdefault("log", {})
-            for name in TASKS:
+            for name in self.task_schedule.tasks:
                 mask = self.task_schedule.mask(name)
                 valid = mask & ~self._numerical_safety_reset_buf
                 logs["Mixed/"+name+"/allocated_envs"] = mask.sum().float()
                 logs["Mixed/"+name+"/finite_physics_samples_per_step"] = valid.sum().float()
                 logs["Mixed/"+name+"/paid_reward_mean_per_step"] = rewards[mask].mean()
                 logs["Mixed/"+name+"/paid_reward_rms_per_step"] = rewards[mask].square().mean().sqrt()
-            for name in REWARD_NAMES:
+            for name in reward_names(self.cfg.port_mixed_spec):
                 logs["Mixed/reward/"+name+"_mean_per_step"] = self._last_reward_terms[name].mean()
             for name in ("air_alignment", "air_tuck", "air_extension"):
                 logs["Mixed/reward/jump_"+name+"_mean_per_step"] = getattr(
@@ -258,7 +365,36 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
             logs["Mixed/active_jump/leg_motor_abs_mean_Nm"] = self.motor_effort[jump][:, (0,1,3,4)].abs().mean()
             bad_gap = self.constraint_gaps().amax(-1) > .003
             logs["Port/constraint_gap_over_3mm_env_fraction"] = bad_gap.float().mean()
-            for task in TASKS:
+            for task in self.task_schedule.tasks:
                 logs["Mixed/"+task+"/constraint_gap_over_3mm_env_fraction"] = (
                     bad_gap[self.task_schedule.mask(task)].float().mean())
+            self._log_arcs_and_platforms(logs)
         return rewards
+
+    def _log_arcs_and_platforms(self, logs):
+        s = self.task_schedule
+        if self.cfg.port_mixed_spec.get("arc_commands"):
+            arc = ((s.mask("forward") | s.mask("reverse") | s.mask("dash"))
+                   & (self.command[:, 0].abs() > .2) & (self.command[:, 2].abs() > .1))
+            logs["Mixed/arc/envs"] = arc.sum().float()
+            if arc.any():
+                velocity = self.robot.data.root_lin_vel_b
+                logs["Mixed/arc/yaw_error_abs_mean_rad_s"] = (
+                    self.robot.data.root_ang_vel_b[arc, 2]-self.command[arc, 2]).abs().mean()
+                logs["Mixed/arc/vx_error_abs_mean_m_s"] = (velocity[arc, 0]-self.command[arc, 0]).abs().mean()
+        o = self.platform_observer
+        if o is None:
+            return
+        lane = s.mask("platform")
+        over = lane & (s.mode == OVER)
+        logs["Mixed/platform/height_limit_m"] = torch.tensor(float(s.height_limit), device=self.device)
+        for mode, name in ((FLAT, "flat"), (OVER, "over"), (DRIVE_OFF, "drive_off")):
+            logs["Mixed/platform/"+name+"_envs"] = (lane & (s.mode == mode)).sum().float()
+        for name in o.EVENTS:
+            logs["Mixed/platform/"+name.removesuffix("_event")+"_count_per_step"] = getattr(o, name).sum().float()
+        logs["Mixed/platform/top_success_count_per_step"] = (self.jump_observer.success_event & over).sum().float()
+        logs["Mixed/platform/requested_envs"] = (over & (s.delay < 999.)).sum().float()
+        logs["Mixed/platform/on_top_envs"] = (o.seen_top & lane).sum().float()
+        done = over & o.top_landed
+        logs["Mixed/platform/edge_clearance_mean_m"] = (o.min_clearance[done].mean() if done.any()
+            else torch.zeros((), device=self.device))
