@@ -110,7 +110,8 @@ class GasSpringCompensation:
         high = self.force_n[-1] + extension["high_compression_slope_n_per_m"] * (s-self.compression[-1])
         if extension.get("low_compression_kind") == "linear_c1_endpoint_trend_v1":
             anchor = extension["low_compression_anchor_m"]
-            anchor_force = self.interpolate(self.compression, self.force_n, torch.tensor([anchor]))[0]
+            anchor_force = self.interpolate(self.compression, self.force_n,
+                self.compression.new_tensor([anchor]))[0]
             low = anchor_force + extension["low_compression_slope_n_per_m"] * (s-anchor)
             force = torch.where(s < anchor, low, measured)
         else:

@@ -190,3 +190,21 @@ def test_v5_profile_declares_real2sim_and_anti_collapse_settings():
     assert spec["control"]["leg_kp_nm_per_rad"] == 80. and spec["control"]["leg_kd_nm_s_per_rad"] == 1.5
     assert real2sim.load(spec["real2sim"])["schema"] == "wheelbipe-real2sim-v3"
     assert specification("foundation-jump-v5", 10000)["total_updates"] == 10000
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA device placement")
+def test_plant_tail_and_timing_run_on_cuda():
+    runtime = json.loads((BUNDLE/"runtime.json").read_text())
+    settings = dict(runtime["v5_control"]["gas_spring_compensation"])
+    settings["model_file"] = str(GAS)
+    settings["model_sha256"] = hashlib.sha256(GAS.read_bytes()).hexdigest()
+    component = GasSpringCompensation(settings, root=ROOT, device="cuda")
+    assert component.physical_force(torch.full((4, 2), .024, device="cuda")).is_cuda
+    spec = real2sim.load()
+    amp = torch.ones(8, 1, device="cuda")
+    timing = real2sim.LegFeedbackTiming(spec, 8, "cuda", .005, amp)
+    q = torch.zeros(8, 4, device="cuda")
+    mq, mv = timing.update(q, q)
+    assert mq.is_cuda and mv.is_cuda and timing.actuate(q).is_cuda and timing.observe(q).is_cuda
+    assert real2sim.sample_friction(spec, 8, amp, "cuda").is_cuda
+    assert real2sim.sample_armature_scale(spec, 8, amp, "cuda").is_cuda
