@@ -1,0 +1,259 @@
+{
+  "schema": "wheelbipe-foundation-jump-v2",
+  "status": "fresh_training_engineering_profile_not_behavior_qualified",
+  "policy_hz": 50,
+  "physics_and_feedback_pd_hz": 200,
+  "total_updates": 20000,
+  "gas_cancellation_feedforward": false,
+  "physical_measured_gas_spring": true,
+  "reward_effort_source": "delivered electrical motor effort; excludes passive leg and wheel friction",
+  "reward_overrides": {
+    "track_lin_vel_xy": 1.0,
+    "track_lin_vel_xy_square": -1.0,
+    "stand_still_lin_vel": -1.0,
+    "track_height_exp_tight": 1.0,
+    "track_height_square": -1.0
+  },
+  "parameter_overrides": {
+    "lin_vel_xy_sigma": 0.5,
+    "lin_vel_xy_square_sigma": 0.25,
+    "height_tight_sigma": 0.001,
+    "height_square_sigma": 10.0
+  },
+  "review_updates": [],
+  "required_behavior_reviews": [],
+  "automatic_behavior_stop_enabled": false,
+  "intermediate_behavior_review_exits": false,
+  "evaluation_policy": "Read-only diagnostics may report poor height, speed, reward, drift or contact behavior. They never pause, stop, restart, restore or shorten the learner budget.",
+  "phases": [
+    {
+      "start_update": 0,
+      "name": "foundation_all_heights",
+      "vx_max_m_s": 0.5,
+      "yaw_max_rad_s": 0.5,
+      "standing_fraction": 0.5,
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "reset_leg_length_m": [
+        0.2,
+        0.33
+      ],
+      "reset_leg_angle_rad": [
+        -0.04,
+        0.04
+      ],
+      "predefined_ground_start": false
+    },
+    {
+      "start_update": 2000,
+      "name": "height_and_low_speed",
+      "vx_max_m_s": 1.0,
+      "yaw_max_rad_s": 1.5,
+      "standing_fraction": 0.35,
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "reset_leg_length_m": [
+        0.2,
+        0.33
+      ],
+      "reset_leg_angle_rad": [
+        -0.15,
+        0.15
+      ],
+      "predefined_ground_start": false
+    },
+    {
+      "start_update": 6000,
+      "name": "motion_and_ground_start",
+      "vx_max_m_s": 1.5,
+      "yaw_max_rad_s": 3.141592653589793,
+      "standing_fraction": 0.3,
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "reset_leg_length_m": [
+        0.16,
+        0.36
+      ],
+      "reset_leg_angle_rad": [
+        -0.4,
+        0.4
+      ],
+      "predefined_ground_start": true
+    },
+    {
+      "start_update": 12000,
+      "name": "full_flat_commands",
+      "vx_max_m_s": 2.7,
+      "yaw_max_rad_s": 6.283185307179586,
+      "standing_fraction": 0.25,
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "reset_leg_length_m": [
+        0.16,
+        0.36
+      ],
+      "reset_leg_angle_rad": [
+        -1.5707963267948966,
+        2.356194490192345
+      ],
+      "predefined_ground_start": true
+    }
+  ],
+  "special_mode_starts": {
+    "dash": 12000,
+    "spin_low": 12000,
+    "spin_mid": 14000
+  },
+  "interpretation": [
+    "User 2026-11-03 explicitly removes all intermediate behavior continuation gates and automatic save/exit reviews. Train through the original fixed budget; manual trainctl controls remain authoritative.",
+    "Restore original Wheelbipe saved-checkpoint velocity and height reward weights and error scales. The v202 projection cost remains explicit, and physical friction is excluded from electrical motor reward payment.",
+    "Expose the full requested v202 height range from the first rollout. The initial narrow speed/yaw course and later phase boundaries remain explicit.",
+    "Physical measured gas springs, v2 requested randomization, four-axis armature 0.015795 kg*m^2, PD60/2, solver64/32 and 50/200Hz clocks remain unchanged.",
+    "Zero-command drift and policy-observation-boundary closed-chain distance are diagnostics without new stopping thresholds.",
+    "Manual release/stop saves complete learning state and exits; manual pause may retain GPU memory. Explicit same-course resume restores the original fixed budget and learning state, with physical episodes/history reset.",
+    "Training completion and diagnostic scores do not qualify the permanent 13 capabilities, full self-righting, terrain, perturbations or hardware.",
+    "Explicit disjoint quotas retain nonzero standing, forward, reverse, height, turn, dash and spin exposure. Jump and airborne lanes cannot overwrite them.",
+    "Command timing uses only elapsed time and external requests. Physical contact/apex/support affect reward and diagnostics only.",
+    "User explicitly authorizes a new complete fresh mixed jump policy after fixing reward and command integration; old continuation gate and frozen source remain historical.",
+    "1024 environments, 20000 PPO updates, trainctl resident pause/resume, unchanged 50/200 Hz v2.0.2 physical plant.",
+    "The jump request, apex and clock retain seven reserved observation slots. The common height slot now exposes the time-only preparation trajectory.",
+    "During a missed takeoff, idle standing earns no jump preparation or recovery reward. Landing reward requires measured prior flight and contact.",
+    "Half of jump lanes gradually acquire forward/reverse commands after update 6000; ordinary movement quotas remain disjoint."
+  ],
+  "task_fractions": {
+    "stand": 0.15,
+    "forward": 0.15,
+    "reverse": 0.15,
+    "height": 0.1,
+    "turn": 0.05,
+    "dash": 0.05,
+    "spin": 0.05,
+    "jump": 0.2,
+    "airborne": 0.1
+  },
+  "jump": {
+    "standing_height_m": 0.305,
+    "crouch_height_m": 0.25,
+    "release_height_m": 0.39,
+    "apex_start_m": [
+      0.42,
+      0.45
+    ],
+    "apex_final_m": [
+      0.46,
+      0.54
+    ],
+    "difficulty_full_update": 10000,
+    "request_delay_s": [
+      0.6,
+      1.0
+    ],
+    "crouch_seconds": 0.35,
+    "outcome_seconds": 4.5,
+    "episode_seconds": 6.0,
+    "air_clearance_start_m": [
+      0.06,
+      0.12
+    ],
+    "air_clearance_final_m": [
+      0.12,
+      0.24
+    ],
+    "wheel_radius_m": 0.06,
+    "clearance_m": 0.015,
+    "landing_clearance_m": 0.008,
+    "minimum_air_seconds": 0.04,
+    "minimum_release_vz_m_s": 0.2,
+    "landing_hold_seconds": 0.25,
+    "force_threshold_n": 2.0,
+    "impact_soft_bodyweights": 2.5,
+    "impact_scale_bodyweights": 2.0,
+    "dense_scale": 0.5,
+    "event_bonuses": {
+      "liftoff": 0.5,
+      "landing": 0.25,
+      "success": 1.5,
+      "timeout": -1.5
+    },
+    "external_takeoff_assistance": false,
+    "motor_owner": "six_axis_rl",
+    "reward_version": 2,
+    "missed_takeoff_cost_per_second": 1.5,
+    "moving_jump": {
+      "start_update": 6000,
+      "full_update": 12000,
+      "maximum_vx_m_s": 0.5,
+      "fraction": 0.5
+    },
+    "landing_horizontal_criterion": "body-frame XY velocity error relative to the current command below 0.15 m/s; stationary requests retain the original stop criterion"
+  },
+  "sampling": {
+    "allocation": "largest_remainder_fixed_lanes_no_overwrite",
+    "minimum_envs": 20,
+    "command_hold_seconds": 5.0,
+    "jump_episode_seconds": 6.0,
+    "sampler_rng": "independent_seeded_generator",
+    "height_wave_hz": 0.25,
+    "low_speed_probability": 0.5,
+    "low_speed_range_m_s": [
+      0.1,
+      0.5
+    ],
+    "standing_command_hold_seconds": 10.0
+  },
+  "reward_policy": {
+    "unchanged": "foundation-v2 safety, orientation, XY/yaw, motor effort, action costs and non-jump rewards",
+    "suppressed_during_jump_request": [
+      "track_height_exp",
+      "track_height_exp_soft",
+      "track_height_exp_tight",
+      "track_height_square",
+      "lin_vel_z"
+    ],
+    "added": "idle-centered crouch/push tracking, signed upward push progress, missed-takeoff cost, physical flight/landing payments; no jump-height payment for waiting after a missed push",
+    "units": "densities per second multiplied by policy_dt exactly once; event bonuses divided by policy_dt before inherited payment",
+    "advantage_normalization": "original RSL-RL global normalization retained; task-specific reward and sample metrics logged",
+    "scale_status": "Analytical and native preflight required; learned behavior is evaluated independently",
+    "jump_request_cost_scales": {
+      "leg_joint_vel": 0.2,
+      "leg_joint_acc": 0.2,
+      "action_smoothness_leg": 0.1,
+      "action_rate": 0.2
+    }
+  },
+  "observation_contract": {
+    "actor": 35,
+    "critic": 78,
+    "actions": 6,
+    "reserved_control_slots": [
+      "normal",
+      "stair",
+      "slope",
+      "recover",
+      "jump_request",
+      "requested_apex_m",
+      "request_clock_s"
+    ],
+    "non_jump": "byte-identical foundation-v2 raw control slots",
+    "jump_context_source": "external request parameters and elapsed time only",
+    "privileged_contact_enters_actor": false,
+    "physical_event_observer": "reward and diagnostics only; cannot advance command clock",
+    "jump_height_command": "time-only crouch/push/flight reference, using the existing height command slot; no physical contact or event advances this reference"
+  },
+  "initialization": "fresh actor, fresh critic, empty Adam, zero motion offset, no checkpoint/teacher/donor",
+  "closed_chain_monitoring": {
+    "policy": "diagnostic_only_unless_majority_of_environments_affected",
+    "per_env_gap_threshold_m": 0.003,
+    "majority_fraction": 0.5,
+    "single_peak_is_not_a_training_gate": true,
+    "user_instruction": "2026-11-06: isolated closure outliers must not block jump integration; inspect prevalence"
+  }
+}

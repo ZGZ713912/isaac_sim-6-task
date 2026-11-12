@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+"""Fresh managed PPO through its full budget, followed by ONNX and diagnostics."""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import fcntl
+import json
+import os
+from pathlib import Path
+import shutil
+import signal
+import stat
+import subprocess
+import sys
+import time
+import traceback
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"src"))
+from wheeled_algo.managed_training import WheelbipeSession
+from wheeled_algo.trainctl_shared.training_control import file_pin,read_json,write_json
+
+
+def timestamp():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def data_json(path):
+    """Training/ONNX receipts contain per-lane masses; control files stay small."""
+    descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    with os.fdopen(descriptor,'rb') as stream:
+        info=os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size>8*1024**2:
+            raise ValueError('Training data receipt exceeds the bounded 8MiB reader')
+        return json.load(stream)
+
+
+def validate_admission(receipt,parity,num_envs,training_profile="foundation-v2"):
+    settings=receipt["arguments"]
+    if (receipt["status"]!="training_complete" or receipt["completed_updates"]<30
+            or not receipt["policy_tensors_finite"] or receipt["fresh_initial_optimizer_state_count"]!=0
+            or receipt["final_optimizer_state_count"]!=17 or settings["training_profile"]!=training_profile
+            or settings["num_envs"]!=num_envs or settings["physics_hz"]!=200
+            or settings["leg_armature"]!=.015795 or settings["leg_kp"]!=60. or settings["leg_kd"]!=2.
+            or settings["randomization_profile"]!="requested" or settings["randomization_strength"]!=1.
+            or settings["solver_position_iterations"]!=64 or settings["solver_velocity_iterations"]!=32
+            or settings["external_forces_every_iteration"] or receipt["constraint_gap_hard_limit_enabled"]
+            or receipt["native"]["gas_cancellation_feedforward"]):
+        raise ValueError("Engineering admission does not match this new foundation campaign")
+    for name,expected in receipt["implementation_files_sha256"].items():
+        if file_pin(ROOT/name)["sha256"]!=expected:
+            raise ValueError("Campaign learner source changed after native admission: "+name)
+    for name,expected in receipt["deployment"]["files_sha256"].items():
+        if name.startswith(("src/","configs/","contracts/","model/","third_party/")):
+            if file_pin(ROOT/name)["sha256"]!=expected:
+                raise ValueError("Campaign simulation/config data changed after native admission: "+name)
+    if (parity["checkpoint_sha256"]!=receipt["checkpoint_sha256"]
+            or parity["max_absolute_error"]>1.e-5 or parity["gas_cancellation_feedforward"]):
+        raise ValueError("Pilot export/parity/control contract failed")
+
+
+def resource_available():
+    memory={line.split(':')[0]:int(line.split()[1])*1024 for line in Path('/proc/meminfo').read_text().splitlines()
+            if line.startswith('MemAvailable:')}
+    gpu=subprocess.run(['/usr/lib/wsl/lib/nvidia-smi','--query-gpu=memory.free','--format=csv,noheader,nounits'],
+        capture_output=True,text=True,check=True)
+    return memory['MemAvailable']>3*1024**3 and int(gpu.stdout.splitlines()[0])>3072
+
+
+def wait_for_training(session,on_progress,*,sleep=time.sleep):
+    """Observe process/control state only; behavior scores never control PPO."""
+    while True:
+        current=session.status()
+        on_progress(current)
+        if not current['active']:
+            return current
+        sleep(5.)
+
+
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--session',type=Path,required=True)
+    p.add_argument('--admission',type=Path,required=True)
+    p.add_argument('--num-envs',type=int,choices=(512,1024),required=True)
+    p.add_argument('--seed',type=int,required=True)
+    p.add_argument('--python',type=Path,required=True)
+    p.add_argument('--training-profile',choices=('foundation-v2',),default='foundation-v2')
+    args=p.parse_args(argv)
+    args.session=args.session.resolve()
+    args.session.parent.mkdir(parents=True,exist_ok=True)
+    lock=(args.session.parent/(args.session.name+'.campaign.lock')).open('a')
+    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    if args.session.exists():
+        p.error('Refusing to adopt or restart an existing campaign')
+    admitted=data_json(args.admission)
+    parity_path=Path(admitted['latest_checkpoint']).parent/'onnx/contract.json'
+    validate_admission(admitted,data_json(parity_path),args.num_envs,args.training_profile)
+    if file_pin(admitted['latest_checkpoint'])['sha256']!=admitted['checkpoint_sha256']:
+        raise ValueError('Admission checkpoint changed')
+    parity=data_json(parity_path)
+    if file_pin(parity_path.parent/'policy.onnx')['sha256']!=parity['onnx_sha256']:
+        raise ValueError('Admission ONNX changed')
+    common=['--mode','train','--task','flat','--num-envs',str(args.num_envs),'--iterations','20000',
+        '--save-interval','500','--seed',str(args.seed),'--device','cuda:0','--headless',
+        '--training-profile',args.training_profile,'--physics-hz','200','--leg-armature','.015795',
+        '--leg-kp','60','--leg-kd','2','--leg-target-projection-penalty','1',
+        '--solver-position-iterations','64','--solver-velocity-iterations','32',
+        '--no-external-forces-every-iteration','--randomization-profile','requested','--randomization-strength','1']
+    session=WheelbipeSession.create(args.session,ROOT,args.python,common,
+        name=args.session.name,environment={k:os.environ[k] for k in
+            ('OMNI_KIT_ACCEPT_EULA','PYTHONNOUSERSITE','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','LD_LIBRARY_PATH') if k in os.environ})
+    state=dict(schema='wheelbipe-repair-campaign-v1',status='starting',source=str(ROOT),
+        session=str(session.root),fresh_actor_critic_empty_adam=True,total_updates=20000,
+        population=args.num_envs,seed=args.seed,admission=file_pin(args.admission),
+        behavior_qualified=False,hardware_io=False,started_at=timestamp(),
+        training_profile=args.training_profile,automatic_behavior_stop_enabled=False,
+        intermediate_behavior_review_exits=False)
+    path=session.root/'campaign.json'
+    write_json(path,state)
+    process=None
+    def interrupt(signum,frame):
+        raise KeyboardInterrupt('Campaign stop requested')
+    signal.signal(signal.SIGTERM,interrupt)
+    def run_inference(output,checkpoint,final=False):
+        nonlocal process
+        if not resource_available():
+            raise RuntimeError('Insufficient host/GPU memory after learner exit; left stopped')
+        command=[str(args.python),'-u',str(ROOT/'scripts/audit_wheelbipe_behavior.py'),
+            '--source-root',str(ROOT),'--vehicle','port','--training-profile',args.training_profile,
+            '--checkpoint',str(checkpoint),'--output',str(output),'--num-envs','32','--steps','400','--seed','111']
+        if final:
+            command+=['--cases','stand_low','stand_mid','stand_high','forward','reverse','spin_positive','spin_negative']
+        with output.with_suffix('.log').open('x') as stream:
+            process=subprocess.Popen(command,stdout=stream,stderr=subprocess.STDOUT,cwd=ROOT)
+            state['inference_pid']=process.pid
+            write_json(path,state,replace=True)
+            code=process.wait()
+        receipt=data_json(output/'receipt.json')
+        if code or not receipt or receipt.get('status')!='complete':
+            raise RuntimeError(f'Inference failed with exit {code}; see {output}.log')
+        process=None
+        if receipt['checkpoint_sha256']!=file_pin(checkpoint)['sha256']:
+            raise ValueError('Inference loaded a different checkpoint')
+        return receipt
+    try:
+        session.start()
+        def record_progress(current):
+            state.update(status=('paused' if current['phase']=='paused' else 'training')
+                if current['active'] else current['phase'],
+                completed_updates=current['update'],learner=current,updated_at=timestamp())
+            write_json(path,state,replace=True)
+        current=wait_for_training(session,record_progress)
+        if current['phase']!='completed':
+            state['status']='manual_stop' if current['phase']=='stopped' else 'failed'
+            write_json(path,state,replace=True)
+            return
+        if current['update']!=20000:
+            raise ValueError('The fixed original total budget was not completed')
+        last=session.attempt()/'train'
+        trained=data_json(last/'receipt.json')
+        checkpoint=Path(trained['latest_checkpoint'])
+        if trained['status']!='training_complete' or trained['completed_updates']!=20000:
+            raise ValueError('Final learner receipt is incomplete')
+        exported=session.root/'onnx'
+        state['status']='exporting'
+        write_json(path,state,replace=True)
+        with (session.root/'export.log').open('x') as stream:
+            subprocess.run([str(args.python),str(ROOT/'scripts/export_wheelbipe_port_onnx.py'),
+                '--checkpoint',str(checkpoint),'--output',str(exported)],stdout=stream,stderr=subprocess.STDOUT,check=True)
+        shutil.copytree(last/'params',exported/'params')
+        final=run_inference(session.root/'final_evaluation',checkpoint,final=True)
+        requirements=read_json(ROOT/'contracts/wheel_leg_acceptance_requirements_v2.json')
+        write_json(session.root/'capability_status.json',dict(checkpoint=file_pin(checkpoint),
+            requirements=file_pin(ROOT/'contracts/wheel_leg_acceptance_requirements_v2.json'),
+            capabilities=[dict(id=row['id'],requirement=row['requirement'],status='not_qualified',
+                evidence='Only finite cold-command diagnostics; full ability scope not evaluated') for row in requirements['capabilities']]))
+        state.update(status='complete',finished_at=timestamp(),checkpoint=file_pin(checkpoint),
+            onnx=file_pin(exported/'policy.onnx'),contract=file_pin(exported/'contract.json'),
+            final_diagnostic=file_pin(session.root/'final_evaluation/receipt.json'))
+        write_json(path,state,replace=True)
+    except KeyboardInterrupt as error:
+        # An explicit signal to this owned campaign is a manual stop request.
+        if session.status()['active']:
+            session.command('stop')
+        if process is not None and process.poll() is None:
+            process.terminate()
+            process.wait()
+        state.update(status='manual_stop_requested',error=repr(error))
+        write_json(path,state,replace=True)
+        raise
+    except BaseException as error:
+        # Bookkeeping/diagnostic failure must not stop a healthy learner.
+        # The managed worker and TensorBoard have independent lifecycles.
+        if process is not None and process.poll() is None:
+            process.terminate()
+            process.wait()
+        state.update(status='campaign_error',error=repr(error),traceback=traceback.format_exc())
+        state['learner_stop_requested_by_campaign_error']=False
+        write_json(path,state,replace=True)
+        raise
+
+
+if __name__=='__main__':
+    main()

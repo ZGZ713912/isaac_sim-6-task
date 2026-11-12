@@ -41,6 +41,16 @@ def load_compensation(settings, root):
             or cfg.get("relative_soft_limits") != dict(minimum=bounds[0],maximum=bounds[1],
                 margin=.03,projection="outward_relative_torque_v1")):
         raise ValueError("Gas-compensated training requires relative soft limits matching its authenticated model")
+    extension = model["force_extension"]
+    kind = extension.get("low_compression_kind", "exponential_positive_rate_v1")
+    if kind == "exponential_positive_rate_v1":
+        if not math.isfinite(extension["low_compression_rate_per_m"]):
+            raise ValueError("Gas-spring low-compression rate is not finite")
+    elif kind == "linear_c1_endpoint_trend_v1":
+        if not math.isfinite(extension["low_compression_slope_n_per_m"]):
+            raise ValueError("Gas-spring low-compression slope is not finite")
+    else:
+        raise ValueError("Unsupported low-compression gas-spring extrapolation")
     return cfg, model
 
 
@@ -93,13 +103,21 @@ class GasSpringCompensation:
 
     def _evaluate_force(self, compression):
         # Preserve every measured segment. Outside, extend the endpoint slope
-        # continuously; the low-compression exponential stays strictly positive.
+        # continuously; the low-compression tail keeps its declared C1 trend.
         s = compression.clamp(self.geometry_compression_min,self.geometry_compression_max)
         measured = self.interpolate(self.compression, self.force_n, s)
         extension = self.model["force_extension"]
-        low = self.force_n[0] * torch.exp(extension["low_compression_rate_per_m"] * (s-self.compression[0]))
         high = self.force_n[-1] + extension["high_compression_slope_n_per_m"] * (s-self.compression[-1])
-        force = torch.where(s<self.compression[0],low,torch.where(s>self.compression[-1],high,measured))
+        if extension.get("low_compression_kind") == "linear_c1_endpoint_trend_v1":
+            anchor = extension["low_compression_anchor_m"]
+            anchor_force = self.interpolate(self.compression, self.force_n,
+                self.compression.new_tensor([anchor]))[0]
+            low = anchor_force + extension["low_compression_slope_n_per_m"] * (s-anchor)
+            force = torch.where(s < anchor, low, measured)
+        else:
+            low = self.force_n[0] * torch.exp(extension["low_compression_rate_per_m"] * (s-self.compression[0]))
+            force = torch.where(s<self.compression[0],low,torch.where(s>self.compression[-1],high,measured))
+        force = torch.where(s > self.compression[-1], high, force)
         outside = (compression < self.compression[0]) | (compression > self.compression[-1])
         return force, outside
 

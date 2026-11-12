@@ -12,5 +12,9 @@ requires-python = ">=3.10"
 #   python -m pip install -e .
 # inside the activated Isaac Lab conda env.
 
+[project.scripts]
+trainctl = "wheeled_algo.training_control:main"
+wheelbipe-trainctl = "wheeled_algo.managed_training:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]

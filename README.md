@@ -5,6 +5,13 @@
 
 轮腿机器人强化学习训练、闭链机构建模与仿真验证。
 
+## Wheelbipe v2.0.2 训练
+
+`scripts/train_wheelbipe_port.py --training-profile foundation-v2` 提供 Wheelbipe V14.2
+到本车 v2.0.2 的训练入口，使用 35D actor、78D critic 和六轴动作，策略 50 Hz、物理与反馈 PD 200 Hz。
+该入口使用 Isaac Sim 5.1 与 RSL-RL 3.0.1；配置、启动、恢复与导出见
+[Wheelbipe 训练说明](docs/WHEELBIPE_PORT_20261101.md)，过程控制见 [trainctl](docs/TRAINCTL.md)。
+
 ## 连杆与气簧建模工具
 
 已将URDF审计、网格归属清理、四杆闭合、气簧移动副、力曲线拟合、动力验证和打包整理为
@@ -20,7 +27,7 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 原生窗口展示双侧连杆和气簧的真实PhysX联动，可调角度、开关气簧、暂停及切换特写。
 模型生成与验证命令见工具README；重复ZIP和运行产物不提交。
 
-## 当前主线：V5 多任务课程与固定评测
+## V5 多任务课程与固定评测
 
 - [V5.4部署对接文档](docs/V54_DEPLOYMENT_INTERFACE.md)：模型结构、35D输入、6D动作、坐标／单位、PD与时序，以及经过训练侧对照的NumPy/ONNX示例。
 - [V5代码架构](docs/V5_ARCHITECTURE.md)：当前入口、资产/控制、课程/奖励、行为验收、checkpoint与远端进程的职责边界。

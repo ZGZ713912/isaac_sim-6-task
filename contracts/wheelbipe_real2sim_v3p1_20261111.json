@@ -1,0 +1,101 @@
+{
+  "schema": "wheelbipe-real2sim-v3",
+  "version": "3.1.0",
+  "identified_on": "2026-11-10 (left), 2026-11-11 (right)",
+  "source_report": "RMCS .claude/report/leg_id_horizontal_gap_20261110 (REAL2SIM_DATA.md sections 2, 3, 4, 5, 7); right leg: RMCS .claude/report/leg_id_right_20261111 (turnfric.txt, gas.txt, velag.txt, mimo.txt)",
+  "scope": "Plant-side only. The controller law, gas holding/tuck table (13db9ada...), PD gains, observation layout and action ABI are unchanged, so an exported actor stays drop-in for the RMCS wheelbipe deployment.",
+  "physics_dt_s": 0.005,
+  "leg_feedback": {
+    "real_parameters": {
+      "velocity_filter_tau_ms": {
+        "nominal": 5.0,
+        "range": [
+          3.5,
+          6.0
+        ]
+      },
+      "feedback_age_ms": {
+        "nominal": 1.5,
+        "range": [
+          1.0,
+          2.5
+        ]
+      },
+      "actuation_delay_ms": {
+        "nominal": 1.0,
+        "range": [
+          0.0,
+          2.0
+        ]
+      },
+      "pd_hold_ms": 5.0,
+      "velocity_quantum_rad_s": 0.021978
+    },
+    "sim_mapping": {
+      "zoh_equivalent_ms": 2.5,
+      "filter_tau_offset_ms": -0.5,
+      "feedback_delay_ticks": "(feedback_age_ms + zoh_equivalent_ms) / physics_dt; applied to both PD position and PD velocity by linear interpolation of the per-tick history",
+      "actuation_delay_ticks": "actuation_delay_ms / physics_dt; applied torque is the per-step blend of the current and previous PD output",
+      "velocity_filter": "first-order EMA at the physics rate on the simulator joint velocity, tau_sim = velocity_filter_tau_ms + filter_tau_offset_ms",
+      "basis": "PhysX semi-implicit Euler Q/U = h^2 z / (J (z-1)^2) has no zero-order-hold lag, so the 2.5 ms hold is reinserted as feedback delay. At PD 80/1.5 and J 0.016-0.03 the mapped loop reproduces the continuous measured-timing model within 1.5 deg phase margin and 2 Hz phase crossover at nominal and at every range corner."
+    },
+    "policy_observation": "Leg joint velocity uses the same DM-filtered stream delayed by feedback_age only and quantized; the v2 contract's uniform leg velocity noise is still added. Wheel velocity is unchanged."
+  },
+  "leg_friction": {
+    "model_path": "model/dm_leg_friction_20261111/model.json",
+    "model_sha256": "90432cfcec59063a79a3b358a95dbd99f8fff5f61d1a0fea6118d4405ed06459",
+    "per_motor": true,
+    "nominal_nm": {
+      "left_hip": 2.7,
+      "left_knee": 3.4,
+      "right_hip": 1.85,
+      "right_knee": 2.7
+    },
+    "range_nm": {
+      "left_hip": [
+        2.3,
+        3.3
+      ],
+      "left_knee": [
+        2.9,
+        4.6
+      ],
+      "right_hip": [
+        1.6,
+        2.4
+      ],
+      "right_knee": [
+        1.5,
+        4.1
+      ]
+    },
+    "native_effort_limit_nm": 44.6,
+    "right_knee_basis": "right knee common rotation 1.5-2.0 Nm, open/close 3.3-4.1 Nm; nominal is the midpoint and the range spans both motion types"
+  },
+  "gas_spring_plant": {
+    "model_path": "model/gas_spring_20261110/gas_spring_model.json",
+    "model_sha256": "f212dffcbc7615c4e3154ef3379dd9a955dba33c34d5b1a8363df57a5b86a31c",
+    "controller_model_sha256": "13db9ada6fa0e111a51406fc950ca0b970d1fd3de0d9ceeac07b22053a952aa6",
+    "change": "physical slider force only: the beta > 100 deg tail follows the measured 14.3/12.9 Nm holding torque at 102/108 deg instead of decaying to zero"
+  },
+  "leg_armature": {
+    "hip_fraction": 0.06,
+    "knee_fraction": 0.2,
+    "basis": "measured hip M_hh 0.078-0.083 (+/-3%); knee M_kk 0.013-0.020 not separable from damping; the nominal 0.015795 armature is retained until the mode 6 sweep separates M and D"
+  },
+  "randomization": "Lanes selected nominal by the v2 contract keep every nominal value. Other lanes draw uniformly in range and are pulled toward nominal by --randomization-strength. Timing is gated by the profile's timing group; friction and armature by the lane and strength.",
+  "not_modelled": [
+    "loaded (standing) friction",
+    "static breakaway / Stribeck",
+    "policy inference latency beyond the v2 0/1 frame age",
+    "6-9 Hz wheel/body mode",
+    "backlash and link compliance",
+    "temperature dependence of friction"
+  ],
+  "right_leg": {
+    "friction": "measured, lower than left (hip 1.7-2.0 vs 2.4-3.2, knee common rotation 1.5-2.0 vs 3.0-4.2); right runs were 20-30 C hotter",
+    "velocity_filter": "measured, same as left: 4.1-4.8 ms cross-correlation lag, 20 Hz |H| 0.78-0.85 / -31..-34 deg; shared timing model retained",
+    "gas_spring": "measured holding torque agrees with left within 0.6 Nm including 13.7/14.8 Nm at 108/102 deg; shared force curve and high-beta tail retained",
+    "inertia": "not identifiable: 0.15 s of excited bursts in the turn file, coupled bursts at beta 99 deg only; nominal armature and spread retained"
+  }
+}

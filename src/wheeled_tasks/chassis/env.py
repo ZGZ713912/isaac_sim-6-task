@@ -397,12 +397,13 @@ class ChassisEnv:
                 for index, cap in enumerate((2., 10.)):
                     actuators["gimbal_"+str(index)] = IdealPDActuatorCfg(joint_names_expr=[names[index]],
                         stiffness=0., damping=0., effort_limit=cap, effort_limit_sim=cap, velocity_limit_sim=1e9)
+        from .source_chassis_collision import selected_usd
         robot_cfg = ArticulationCfg(
             # Match only the numbered environment, never its terrain descendants.
             # Lab 3's path matcher lets .* consume '/' and spawned extra robots there.
             prim_path="/World/envs/env_[0-9]+/Robot",
             spawn=sim_utils.UsdFileCfg(
-                usd_path=str(root / config["asset_directory"] / manifest["usd"]),
+                usd_path=selected_usd(root, config, manifest),
                 activate_contact_sensors=True,
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(max_depenetration_velocity=1.),
                 articulation_props=sim_utils.ArticulationRootPropertiesCfg(enabled_self_collisions=False,

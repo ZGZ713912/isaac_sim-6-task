@@ -1,0 +1,60 @@
+{
+  "schema": "wheelbipe-foundation-repair-v1",
+  "status": "research_candidate_not_behavior_qualified",
+  "policy_hz": 50,
+  "physics_and_feedback_pd_hz": 200,
+  "total_updates": 20000,
+  "gas_cancellation_feedforward": false,
+  "physical_measured_gas_spring": true,
+  "reward_effort_source": "delivered electrical motor effort; excludes passive leg and wheel friction",
+  "reward_overrides": {
+    "track_lin_vel_xy": 3.0,
+    "track_lin_vel_xy_square": -1.0,
+    "stand_still_lin_vel": -1.0
+  },
+  "parameter_overrides": {
+    "lin_vel_xy_sigma": 0.09,
+    "lin_vel_xy_square_sigma": 1.0
+  },
+  "review_updates": [1000, 2000, 6000, 12000],
+  "required_behavior_reviews": [2000, 6000, 12000],
+  "review_gate": {
+    "scope": "research continuation gate; not the permanent 13-capability acceptance",
+    "envs": 32,
+    "seconds_per_case": 8,
+    "tail_seconds": 4,
+    "seed": 111,
+    "nominal_only": true,
+    "cases": ["stand_mid", "forward", "reverse"],
+    "maximum_resets_per_case": 0,
+    "maximum_mean_abs_stand_speed_m_s": null,
+    "stand_velocity_is_diagnostic": true,
+    "minimum_forward_mean_speed_m_s": 0.35,
+    "maximum_forward_mean_speed_m_s": 0.65,
+    "minimum_reverse_mean_speed_m_s": -0.65,
+    "maximum_reverse_mean_speed_m_s": -0.35,
+    "maximum_mean_tilt_degrees": 5.0,
+    "maximum_mean_absolute_height_error_m": 0.035,
+    "closed_chain_distance_gate": null
+  },
+  "phases": [
+    {"start_update": 0, "name": "foundation", "vx_max_m_s": 0.5, "yaw_max_rad_s": 0.5, "standing_fraction": 0.5,
+     "height_range_m": [0.285, 0.325], "reset_leg_length_m": [0.245, 0.265], "reset_leg_angle_rad": [-0.04, 0.04], "predefined_ground_start": false},
+    {"start_update": 2000, "name": "height_and_low_speed", "vx_max_m_s": 1.0, "yaw_max_rad_s": 1.5, "standing_fraction": 0.35,
+     "height_range_m": [0.23, 0.42], "reset_leg_length_m": [0.20, 0.33], "reset_leg_angle_rad": [-0.15, 0.15], "predefined_ground_start": false},
+    {"start_update": 6000, "name": "motion_and_ground_start", "vx_max_m_s": 1.5, "yaw_max_rad_s": 3.141592653589793, "standing_fraction": 0.3,
+     "height_range_m": [0.23, 0.42], "reset_leg_length_m": [0.16, 0.36], "reset_leg_angle_rad": [-0.4, 0.4], "predefined_ground_start": true},
+    {"start_update": 12000, "name": "full_flat_commands", "vx_max_m_s": 2.7, "yaw_max_rad_s": 6.283185307179586, "standing_fraction": 0.25,
+     "height_range_m": [0.23, 0.42], "reset_leg_length_m": [0.16, 0.36], "reset_leg_angle_rad": [-1.5707963267948966, 2.356194490192345], "predefined_ground_start": true}
+  ],
+  "special_mode_starts": {"dash": 12000, "spin_low": 12000, "spin_mid": 14000},
+  "interpretation": [
+    "Original actuator targets, six policy actions, 35 actor inputs and 78 critic inputs are retained. Both leg axes and wheels remain policy controlled.",
+    "The fixed four-axis armature 0.015795 kg*m^2, PD60/2, measured passive force/friction/delay and solver64/32 remain explicit launch settings.",
+    "The requested v2 randomization profile stays at the explicit launch strength throughout; this profile does not claim gradual domain randomization.",
+    "Command stages derive only from the restored completed-update clock. A managed process saves and exits at every review; the campaign must pass required reviews before cold continuation.",
+    "A manual release/stop/pause never authorizes automatic continuation. The campaign only resumes its own behavior_review endpoint after a passing required gate.",
+    "The user accepts that zero-command drift can occur: retain its measurement and the original standing L1 weight, without a new drift continuation cutoff or a mathematical-zero requirement.",
+    "Nominal standing/straight-line reviews do not qualify full self-righting, terrain, perturbations, robustness, hardware, or all 13 capabilities."
+  ]
+}
