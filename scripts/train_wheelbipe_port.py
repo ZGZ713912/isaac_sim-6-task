@@ -45,7 +45,7 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
-    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7"),default="legacy")
+    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8"),default="legacy")
     parser.add_argument("--gas-feedforward",action=argparse.BooleanOptionalAction,default=None,
         help="Explicitly override cancellation of the physical spring torque; the spring itself is retained")
     parser.add_argument("--solver-position-iterations",type=int,default=12)
@@ -194,7 +194,7 @@ def main():
         cfg.port_motion_update_offset = args.motion_update_offset
         cfg.port_start_completed_updates = managed.completed if managed is not None else 0
         if args.training_profile in ("foundation-v1","foundation-v2","foundation-jump-v1",
-                                     "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7"):
+                                     "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8"):
             apply_phase(cfg,cfg.port_start_completed_updates+args.motion_update_offset)
         if args.gas_feedforward is not None:
             cfg.port_gas_feedforward = args.gas_feedforward
@@ -319,6 +319,7 @@ def main():
                 raise ValueError("Feedback PD and spring must run once per physics tick")
             check_constraint_gap(peak_gap,gap_limit,"Preflight")
         elif args.mode=="train":
+            env.port_sequence_metrics_in_runner = True
             runner = OnPolicyRunner(wrapped,agent.to_dict(),log_dir=str(args.output),device=args.device)
             if runner.alg.optimizer.state and args.resume is None:
                 raise ValueError("A fresh experiment must start with empty Adam")
@@ -346,6 +347,9 @@ def main():
                     for tag, value in rollout_metrics(env.task_schedule.role, storage.advantages,
                             storage.rewards, storage.returns, env.task_schedule.tasks).items():
                         runner.writer.add_scalar(tag, value, values["it"])
+                    if env.jump_observer.sequence is not None:
+                        for tag, value in env.jump_observer.sequence.metrics().items():
+                            runner.writer.add_scalar(tag, value, values["it"])
                 # Keep timing in the same event stream as the original RSL
                 # collection/learning metrics; setup/checkpoint IO is separate.
                 iteration_time = values["collection_time"]+values["learn_time"]

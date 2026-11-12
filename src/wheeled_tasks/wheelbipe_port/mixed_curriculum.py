@@ -28,7 +28,8 @@ def tasks_for(spec):
 
 
 def reward_names(spec):
-    return REWARD_NAMES+(PLATFORM_REWARD_NAMES if "platform" in tasks_for(spec) else ())
+    sequence = ("jump_release_energy", "jump_clearance") if spec["jump"].get("reward_version", 1) >= 5 else ()
+    return REWARD_NAMES+sequence+(PLATFORM_REWARD_NAMES if "platform" in tasks_for(spec) else ())
 
 
 def _validate_extensions(spec):
@@ -97,6 +98,9 @@ def validate(spec):
         if (not math.isfinite(j["apex_tuck_hold_seconds"]) or j["apex_tuck_hold_seconds"] < 0.
                 or not 0. <= j["per_leg_progress_weight"] <= 1.):
             raise ValueError("Invalid v4 apex hold or per-leg progress weight")
+    if j.get("reward_version", 1) >= 5:
+        from .jump_objectives import validate_objective
+        validate_objective(j)
     _validate_extensions(spec)
     return spec
 
@@ -493,18 +497,26 @@ class JumpObserver:
         self.last_landing_buffer_velocity = torch.zeros_like(z)
         for name in ("tuck_seen", "landing_buffer_active", "landing_buffer_used", "flown", "landed", "succeeded", "failed", "liftoff_event", "landing_event", "success_event", "timeout_event"):
             setattr(self, name, torch.zeros_like(z, dtype=torch.bool))
+        self.sequence = None
+        if self.j.get("reward_version", 1) >= 5:
+            from .jump_objectives import JumpSequence
+            self.sequence = JumpSequence(schedule, dt, mass)
 
     def reset(self, ids):
+        if self.sequence is not None:
+            self.sequence.reset(ids)
         for value in vars(self).values():
             if isinstance(value, torch.Tensor) and value is not self.weight:
                 value[ids] = 0
 
     def begin_interval(self):
+        if self.sequence is not None:
+            self.sequence.begin_interval()
         for name in ("liftoff_event", "landing_event", "success_event", "timeout_event", "interval_force_peak"):
             getattr(self, name).zero_()
 
     def observe(self, age, height, velocity, gravity, wheel_clearance, wheel_force, nonwheel_force,
-                horizontal_speed_error=None, leg_lengths=None, on_top=None):
+                horizontal_speed_error=None, leg_lengths=None, on_top=None, physics=None):
         j, s = self.j, self.schedule
         # Platform requests share the jump physics; tuck/apex gates stay jump-lane only.
         jump, drop, jump_lane = s.requesters(), s.mask("airborne"), s.mask("jump")
@@ -516,6 +528,11 @@ class JumpObserver:
         # A failed provisional flight must not donate a convenient release
         # baseline or a previously compressed leg to the next real takeoff.
         lost_candidate = eligible & ~air & ~self.flown
+        touching = (wheel_clearance < j["landing_clearance_m"]).any(-1) & (wheel_force > j["force_threshold_n"]).any(-1)
+        phase_vz = velocity[:, 2]
+        if self.sequence is not None:
+            phase_vz = self.sequence.measure(self, age, air, touching, first_air, lost_candidate,
+                wheel_clearance, nonwheel_force, gravity, physics)
         if v4:
             for name in ("release_leg_length", "max_bilateral_tuck_delta"):
                 value = getattr(self,name)
@@ -523,19 +540,24 @@ class JumpObserver:
             self.release_leg_lengths[lost_candidate] = 0.
         self.air_time = torch.where(eligible & air, self.air_time+self.dt, 0.)
         liftoff = (jump & ~self.flown & (self.air_time >= j["minimum_air_seconds"]-1e-7)
-                   & (velocity[:, 2] > j["minimum_release_vz_m_s"]))
+                   & (phase_vz > j["minimum_release_vz_m_s"]))
+        if self.sequence is not None:
+            # A reset/preparation rebound is not an actuated jump. Require a
+            # measured supported push before the first accepted flight.
+            liftoff &= self.sequence.values["push_duration"] > 0.
         self.liftoff_event |= liftoff
         new_flight = liftoff | (drop & (self.air_time >= j["minimum_air_seconds"]-1e-7))
         self.flown |= new_flight
         if v4:
             in_flight = eligible & self.flown & ~self.landed
-            new_apex = in_flight & ~self.apex_seen & (velocity[:,2] <= j["flight_ascent_vz_threshold_m_s"])
+            new_apex = in_flight & ~self.apex_seen & (phase_vz <= j["flight_ascent_vz_threshold_m_s"])
             self.apex_hold_time = torch.where(in_flight & self.apex_seen,
                 self.apex_hold_time+self.dt,self.apex_hold_time)
             self.apex_seen |= new_apex
-            self.extension_started |= (in_flight & self.apex_seen
-                & (self.apex_hold_time >= j["apex_tuck_hold_seconds"]-1e-7))
-        touching = (wheel_clearance < j["landing_clearance_m"]).any(-1) & (wheel_force > j["force_threshold_n"]).any(-1)
+            ready = (self.apex_hold_time >= j["apex_tuck_hold_seconds"]-1e-7)
+            if self.sequence is not None:
+                ready = self.sequence.extension_ready(self, wheel_clearance, phase_vz)
+            self.extension_started |= in_flight & self.apex_seen & ready
         # Mirror WheelBipe's landing pre-contact window: contact must persist
         # briefly before a reward-only quadratic reference is created. The
         # policy remains the sole controller; no state or force is written.
@@ -603,11 +625,16 @@ class JumpObserver:
             )
             minimum_tuck = float(j.get("minimum_bilateral_tuck_delta_m", 0.04))
             measured = self.max_bilateral_tuck_delta if v4 else bilateral_delta
-            self.tuck_seen |= in_flight & (measured >= minimum_tuck)
+            if self.sequence is not None:
+                self.tuck_seen |= self.sequence.measure_legs(self, age, in_flight, air, leg_lengths, bilateral_delta)
+            else:
+                self.tuck_seen |= in_flight & (measured >= minimum_tuck)
         self.peak_height = torch.where(eligible, torch.maximum(self.peak_height, height), self.peak_height)
         landing = eligible & self.flown & ~self.landed & touching
         self.landing_event |= landing
         self.landed |= landing
+        if self.sequence is not None:
+            self.sequence.after_observe(self, new_flight, landing, leg_lengths, wheel_clearance, physics)
         self.force_peak = torch.maximum(self.force_peak, wheel_force.sum(-1)*eligible)
         self.interval_force_peak = torch.maximum(self.interval_force_peak, wheel_force.sum(-1)*eligible)
         speed_error = velocity[:, :2].norm(dim=-1) if horizontal_speed_error is None else horizontal_speed_error
@@ -635,6 +662,8 @@ class JumpObserver:
             tuck_ok = ~jump_lane if tuck_required else torch.ones_like(jump_lane)
         else:
             tuck_ok = torch.ones_like(self.succeeded)
+        if self.sequence is not None:
+            tuck_ok &= ~jump | self.sequence.success_ready()
         success = (eligible & ~self.succeeded & ~self.failed & apex_ok
                     & (self.stable_time >= j["landing_hold_seconds"]-1e-7) & tuck_ok)
         self.success_event |= success
@@ -677,12 +706,17 @@ class JumpObserver:
             progress = (bilateral_delta/tuck_target).clamp(0., 1.)
             target_shape = torch.exp(-((bilateral_delta-tuck_target)/tuck_sigma).square())
             tuck = .5*progress+.5*target_shape
+            if self.sequence is not None:
+                # More retraction must not lose the v4 Gaussian target payment.
+                tuck = progress
             if j.get("reward_version",1) >= 4:
                 # Early asymmetric progress must receive a gradient, while
                 # the event gate continues to require both legs together.
                 per_leg_delta = (release-legs).clamp_min(0.)
                 per_leg = (.5*(per_leg_delta/tuck_target).clamp(0.,1.)
                     +.5*torch.exp(-((per_leg_delta-tuck_target)/tuck_sigma).square())).mean(-1)
+                if self.sequence is not None:
+                    per_leg = (per_leg_delta/tuck_target).clamp(0., 1.).mean(-1)
                 weight = j["per_leg_progress_weight"]
                 tuck = (1.-weight)*tuck+weight*per_leg
             extension_target = float(j.get("landing_extension_delta_m", .03))
@@ -736,6 +770,8 @@ class JumpObserver:
             tracking = (torch.exp(-(height_error/.035).square())
                         -torch.exp(-(idle_error/.035).square()))
             preparing = active & (ref["crouch"] | ref["push"])
+            if self.sequence is not None:
+                preparing = active & ref["crouch"]
             recovery = active & self.landed
             recovery_height_error = torch.where(buffer_active,
                                                 height-buffer_height_ref,
@@ -744,7 +780,7 @@ class JumpObserver:
             velocity_gain = (torch.exp(-((vz-ref["velocity"])/.5).square())
                              -torch.exp(-(ref["velocity"]/.5).square()))
             progress = (vz/ref["release_velocity"]).clamp(-1., 1.)
-            return dict(
+            terms = dict(
                 jump_height=j["dense_scale"]*(4*preparing*tracking
                     +recovery*(2*torch.exp(-(recovery_height_error/.035).square())-1.)
                     +landing_buffer_payment
@@ -754,6 +790,14 @@ class JumpObserver:
                 jump_impact=-j["dense_scale"]*((self.interval_force_peak/self.weight-j["impact_soft_bodyweights"])
                     .clamp_min(0.)/j["impact_scale_bodyweights"]).clamp_max(5.),
                 jump_events=events/policy_dt)
+            if self.sequence is not None:
+                sequence = self.sequence
+                terms["jump_push_velocity"] = sequence.values["interval_push_payment"]/policy_dt
+                terms["jump_release_energy"] = sequence.values["interval_release_bonus"]/policy_dt
+                terms["jump_clearance"] = sequence.values["interval_clearance_payment"]/policy_dt
+                terms["jump_impact"] = -j["dense_scale"]*((sequence.values["interval_landing_force"]/
+                    self.weight-j["impact_soft_bodyweights"]).clamp_min(0.)/j["impact_scale_bodyweights"]).clamp_max(5.)
+            return terms
         return dict(jump_height=j["dense_scale"]*height_phase*(4*torch.exp(-(height_error/.035).square())
                        -torch.log1p((height_error/.06).square())),
                     jump_push_velocity=j["dense_scale"]*ref["push"]*(6*torch.exp(-((vz-ref["velocity"])/.5).square())

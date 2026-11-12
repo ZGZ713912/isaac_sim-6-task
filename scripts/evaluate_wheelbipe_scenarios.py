@@ -36,6 +36,7 @@ def main():
     p.add_argument("--rise", type=float, default=.2)
     p.add_argument("--speeds", type=float, nargs="+", default=[.5, .75, 1.])
     p.add_argument("--randomization-strength", type=float, default=0.)
+    p.add_argument("--training-profile", choices=("foundation-jump-v7", "foundation-jump-v8"), default="foundation-jump-v7")
     p.add_argument("--python", default=sys.executable)
     a = p.parse_args()
     a.output.mkdir(parents=True, exist_ok=False)
@@ -46,7 +47,7 @@ def main():
             out = a.output/name
             command = [a.python, "-u", str(ROOT/"scripts/validate_wheelbipe_mixed.py"), "--checkpoint", str(a.checkpoint),
                 "--output", str(out), "--num-envs", str(a.num_envs), "--steps", str(a.steps), "--course-update", "20000",
-                "--training-profile", "foundation-jump-v7", "--randomization-profile",
+                "--training-profile", a.training_profile, "--randomization-profile",
                 "requested" if a.randomization_strength > 0 else "nominal",
                 "--randomization-strength", str(a.randomization_strength),
                 "--spec-override", json.dumps(scenario(a.rise, speed, over, a.num_envs))]

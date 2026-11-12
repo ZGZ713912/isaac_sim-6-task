@@ -1,5 +1,10 @@
 # WheelBipe 运动与主动跳跃混合训练
 
+`foundation-jump-v8` 将支撑蹬地的质心能量、腾空收腿、下降伸腿和接触压缩接成
+独立的新训练目标，保留 V7 的机械、圆弧与平台能力。参见
+[起跳能量与完整动作合同](WHEELBIPE_JUMP_ENERGY.md)，其中说明奖励单位、逐回合
+统计分母、执行器扫描及历史版本边界。
+
 `foundation-jump-v2` 是全新策略的工程训练配置，合同为
 `contracts/wheelbipe_foundation_jump_v2.json`。它保留 v2.0.2 完整机械与碰撞、
 50 Hz 策略、200 Hz 物理/反馈 PD、PD 60/2、腿转子惯量 0.015795 和

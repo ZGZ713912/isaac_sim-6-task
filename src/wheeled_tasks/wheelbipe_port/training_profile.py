@@ -16,8 +16,9 @@ PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
                  "foundation-jump-v4": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v4.json"),
                  "foundation-jump-v5": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v5.json"),
                  "foundation-jump-v6": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v6.json"),
-                 "foundation-jump-v7": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v7.json")}
-SCALABLE = ("foundation-jump-v4", "foundation-jump-v5", "foundation-jump-v6", "foundation-jump-v7")
+                 "foundation-jump-v7": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v7.json"),
+                 "foundation-jump-v8": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v8.json")}
+SCALABLE = ("foundation-jump-v4", "foundation-jump-v5", "foundation-jump-v6", "foundation-jump-v7", "foundation-jump-v8")
 
 
 def specification(name="foundation-v1", course_updates=None):
@@ -25,7 +26,7 @@ def specification(name="foundation-v1", course_updates=None):
     if course_updates is None:
         return spec
     if name not in SCALABLE or type(course_updates) is not int or course_updates <= 0:
-        raise ValueError("Course scaling requires foundation-jump-v4..v7 and a positive update budget")
+        raise ValueError("Course scaling requires foundation-jump-v4..v8 and a positive update budget")
     original = spec["total_updates"]
     scale = lambda update: round(update*course_updates/original)
     for row in spec["phases"]:

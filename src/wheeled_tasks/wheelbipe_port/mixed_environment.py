@@ -21,7 +21,9 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         # Platform lanes are allocated while the scene is built; reuse that
         # exact schedule (same seeded generator) instead of drawing again.
         self.task_schedule = self._early_schedule or TaskSchedule(self.num_envs, self.device, self.cfg.seed, spec)
-        mass = self.robot.root_physx_view.get_masses().to(self.device).sum(-1)
+        body_masses = self.robot.root_physx_view.get_masses().to(self.device)
+        mass = body_masses.sum(-1)
+        self._mixed_mass_fractions = body_masses/mass[:, None]
         self.jump_observer = JumpObserver(self.task_schedule, self.physics_dt, mass)
         if self.task_schedule.has_platform:
             self.platform_observer = PlatformObserver(self.task_schedule, self.physics_dt, mass)
@@ -269,6 +271,24 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
             height = height-support.mean(-1)
             kwargs["on_top"] = ((support > 0.).all(-1) & (clearance < j["landing_clearance_m"]).all(-1)
                                 & (wheel_force > j["force_threshold_n"]).all(-1))
+        if self.jump_observer.sequence is not None:
+            from .jump_objectives import JumpPhysics
+            data = self.robot.data
+            weights = self._mixed_mass_fractions
+            com_height = (data.body_com_pos_w[..., 2]*weights).sum(-1)-self.terrain.env_origins[:, 2]
+            com_vz = (data.body_com_lin_vel_w[..., 2]*weights).sum(-1)
+            lower, upper = self.collision_support.bounds["base_link"]
+            vertical = -data.projected_gravity_b
+            chassis_bottom = ((vertical*(upper+lower)/2).sum(-1)
+                -(vertical.abs()*(upper-lower)/2).sum(-1)
+                +data.root_pos_w[:, 2]-self.terrain.env_origins[:, 2])
+            # This conservative chassis AABB diagnostic is not a collision or
+            # success oracle. Wheel clearance uses the actual cylinders above.
+            legs = (0, 1, 3, 4)
+            kwargs["physics"] = JumpPhysics(com_height, com_vz,
+                self.contact_sensor.data.net_forces_w[:, self._mixed_sensor_wheel_ids, 2],
+                self.motor_effort[:, legs], data.joint_vel[:, [self.motor_ids[i] for i in legs]],
+                chassis_bottom)
         self.jump_observer.observe(self._mixed_age(physics=True), height,
             self.robot.data.root_lin_vel_w, self.robot.data.projected_gravity_b,
             clearance, wheel_force, other_force, leg_lengths=leg_lengths, **kwargs)
@@ -295,6 +315,8 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
             bad_success = self.jump_observer.success_event & terminate
             self.jump_observer.success_event[bad_success] = False
             self.jump_observer.succeeded[bad_success] = False
+            if self.jump_observer.sequence is not None:
+                self.jump_observer.sequence.record_outcomes(self.jump_observer, terminate | timeout, terminate)
         return terminate, timeout
 
     def _postprocess_reward_terms(self, terms):
@@ -309,6 +331,10 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
         for name, scale in self.cfg.port_mixed_spec["reward_policy"].get("jump_request_cost_scales", {}).items():
             if name in terms:
                 terms[name] = terms[name]*torch.where(ref["active"], scale, 1.)
+        sequence = self.jump_observer.sequence
+        if sequence is not None and "joint_torque" in terms:
+            terms["joint_torque"] = terms["joint_torque"]*torch.where(sequence.push,
+                sequence.spec["push_torque_cost_fraction"], 1.)
         relative = self.robot.data.body_pos_w[:, self._wheel_link_idx]-self.robot.data.root_pos_w[:, None, :]
         inverse = self.robot.data.root_quat_w.clone()
         wheel_body = quat_apply_inverse(inverse[:, None, :].expand(-1, 2, -1), relative)
@@ -369,6 +395,24 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                 logs["Mixed/"+task+"/constraint_gap_over_3mm_env_fraction"] = (
                     bad_gap[self.task_schedule.mask(task)].float().mean())
             self._log_arcs_and_platforms(logs)
+            if self.jump_observer.sequence is not None:
+                sequence = self.jump_observer.sequence
+                # PPO writes these snapshots at its update boundary. Sending
+                # cumulative integer counts through ep_infos would average
+                # them over rollout steps and recreate fractional "totals".
+                if not getattr(self, "port_sequence_metrics_in_runner", False):
+                    logs.update(sequence.metrics())
+                # Explicitly distinguish paid contributions from legacy raw
+                # shape logs; all of these include weights and policy_dt.
+                for name in ("jump_push_velocity", "jump_release_energy", "jump_clearance", "jump_impact"):
+                    for task in sequence.totals:
+                        mask = self.task_schedule.mask(task)
+                        logs["JumpSequence/"+task+"/paid_"+name+"_mean_per_step"] = self._last_reward_terms[name][mask].mean()
+                for stage in ("tuck", "extension"):
+                    j = self.cfg.port_mixed_spec["jump"]
+                    paid = getattr(self.jump_observer, "last_air_"+stage)*j["dense_scale"]*2*j["air_"+stage+"_scale"]*self.step_dt
+                    for task in sequence.totals:
+                        logs["JumpSequence/"+task+"/paid_air_"+stage+"_mean_per_step"] = paid[self.task_schedule.mask(task)].mean()
         return rewards
 
     def _log_arcs_and_platforms(self, logs):

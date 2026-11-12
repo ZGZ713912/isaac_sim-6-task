@@ -26,7 +26,7 @@ def main():
     p.add_argument("--motion-update-offset", type=int, default=0)
     p.add_argument("--randomization-profile", default="nominal")
     p.add_argument("--randomization-strength", type=float, default=0.)
-    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7"), default="foundation-jump-v1")
+    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8"), default="foundation-jump-v1")
     p.add_argument("--leg-kp",type=float,default=None)
     p.add_argument("--leg-kd",type=float,default=None)
     p.add_argument("--leg-target-overtravel-rad",type=float,default=None)
@@ -196,14 +196,15 @@ def main():
                     for key, value in measured.items():
                         metric_sums[name][key] += float(value[mask].sum())
                 for tag, value in extras.get("log", {}).items():
-                    if tag.startswith("Mixed/") or tag.startswith("Port/"):
+                    if tag.startswith(("Mixed/", "Port/", "JumpSequence/")):
                         writer.add_scalar(tag, float(value), step+1)
                 rollout_rewards.append(reward.detach().clone())
                 if (step+1) % 24 == 0:
                     sample = torch.stack(rollout_rewards).unsqueeze(-1)
                     # Exercise logging shapes without inventing measured PPO
                     # advantages: only samples/rewards are emitted here.
-                    for tag, value in rollout_metrics(env.task_schedule.role, sample, sample, sample).items():
+                    for tag, value in rollout_metrics(env.task_schedule.role, sample, sample, sample,
+                                                      env.task_schedule.tasks).items():
                         if tag.endswith("/samples") or tag.endswith("/reward_rms"):
                             writer.add_scalar("Probe/"+tag, value, (step+1)//24)
                     rollout_rewards.clear()
@@ -223,6 +224,9 @@ def main():
             platform_events=platform_counts,
             max_constraint_gap_policy_sample_m=float(env.port_constraint_gap_peak),
             finite_native_states=True, interpretation="Read-only physical outcomes for the pinned actor; full capability and hardware qualification remain separate")
+        if env.jump_observer.sequence is not None:
+            receipt["jump_sequence_metrics"] = {tag: float(value)
+                for tag, value in env.jump_observer.sequence.metrics().items()}
         save()
     except BaseException as error:
         receipt.update(status="failed", error=repr(error), traceback=traceback.format_exc(), elapsed_s=time.monotonic()-started)
