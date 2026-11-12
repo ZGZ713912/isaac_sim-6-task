@@ -59,7 +59,14 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.control, self.wheel_response = self.asset.components(self.num_envs,self.device)
         self.control.settings["leg_kp"] = self.cfg.port_leg_kp
         self.control.settings["leg_kd"] = self.cfg.port_leg_kd
-        self.paired_targets = PairedTargets(self.control.gas_compensation.model,self.device)
+        self.paired_targets = PairedTargets(self.control.gas_compensation.model,self.device,
+            getattr(self.cfg,"port_leg_target_overtravel_rad",0.))
+        if self.cfg.port_leg_target_overtravel_scope not in ("all","jump-request"):
+            raise ValueError("Unknown virtual target overtravel scope")
+        from .control import validate_tuck_compensation
+        self.tuck_compensation = validate_tuck_compensation(self.cfg.port_tuck_spring_compensation)
+        if self.tuck_compensation["mode"] != "off" and getattr(self.cfg,"port_gas_feedforward",True):
+            raise ValueError("Selective tuck and full spring cancellation cannot be combined")
         # The response integrates fractional 5.5/3.5 ms delays on the actual
         # physics clock. The immutable asset's historical 1ms receipt is not
         # altered or mistaken for this experiment's 5ms sample period.
@@ -73,6 +80,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.wheel_target_order = [self._wheel_idx.index(self.motor_ids[i]) for i in (2,5)]
         self.motor_effort = torch.zeros(self.num_envs,6,device=self.device)
         self.control.gas_compensation_effort = torch.zeros(self.num_envs,4,device=self.device)
+        self.tuck_compensation_effort = torch.zeros(self.num_envs,4,device=self.device)
+        self.tuck_compensation_gate = torch.zeros(self.num_envs,2,device=self.device)
         self.applied_physical_effort = self.motor_effort.clone()
         self._reward_previous_electrical = self.motor_effort.clone()
         self._reward_before_previous_electrical = self.motor_effort.clone()
@@ -122,9 +131,15 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.cfg.terrain.env_spacing = self.scene.cfg.env_spacing
         self.terrain = OfflineTerrainImporter(self.cfg.terrain)
         self.scene.clone_environments(copy_from_source=True)
+        # Per-environment static geometry must exist before collision groups
+        # are built, so each lane's robot touches only its own obstacle.
+        self._spawn_task_terrain()
         self.scene.filter_collisions(global_prim_paths=[self.cfg.terrain.prim_path])
         light = sim.DomeLightCfg(intensity=2000.,color=(.75,.75,.75))
         light.func("/World/Light",light)
+
+    def _spawn_task_terrain(self):
+        """Flat foundation tasks add no geometry."""
 
     def _find_contact_sensor_indices(self, expressions):
         if isinstance(expressions,str):
@@ -161,6 +176,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
             root[:,2] += (penetration+.002).clamp_min(0.)
             self.robot.write_root_state_to_sim(root,env_ids)
             self.wheel_response.reset(env_ids)
+            if self.leg_timing is not None:
+                self.leg_timing.reset(env_ids)
             self.motor_effort[env_ids] = 0.
             self._reward_previous_electrical[env_ids] = 0.
             self._reward_before_previous_electrical[env_ids] = 0.
@@ -221,6 +238,41 @@ class WheelbipePortEnv(WheelbipeV14Env):
             groups=profile,nominal_fraction=cfg["nominal_fraction"],leg_pd_scale=1.,spring_scale=1.,
             independent_inertia_fraction=ref["independent_inertia_fraction"],imu_wobble=False,
             policy_age_unit="one 20ms policy frame",wheel_aggregate_delay_ms=[5.5,3.5])
+        self._initialize_real2sim(lane*strength,profile)
+
+    def _initialize_real2sim(self, amplitude, profile):
+        """Measured leg plant (contract-pinned); absent means the historical plant."""
+        self.leg_timing = None
+        self.leg_armature = None
+        self.plant_gas = self.control.gas_compensation
+        spec = getattr(self.cfg,"port_real2sim",None)
+        if spec is None:
+            self.domain_receipt["real2sim"] = None
+            return
+        from copy import deepcopy
+        from wheeled_tasks.chassis.gas_spring_compensation import GasSpringCompensation
+        from wheeled_tasks.chassis.leg_motor_friction import LegMotorFriction
+        from . import real2sim
+        self.leg_friction = LegMotorFriction(self.num_envs,self.device,real2sim.friction_settings(spec),root=ROOT)
+        self.leg_friction.coulomb = real2sim.sample_friction(spec,self.num_envs,amplitude,self.device)
+        settings = deepcopy(self.asset.runtime["v5_control"]["gas_spring_compensation"])
+        settings["model_file"] = str(ROOT/spec["gas_spring_plant"]["model_path"])
+        settings["model_sha256"] = spec["gas_spring_plant"]["model_sha256"]
+        self.plant_gas = GasSpringCompensation(settings,root=ROOT,device=self.device)
+        if self.control.gas_compensation.cfg["model_sha256"] != spec["gas_spring_plant"]["controller_model_sha256"]:
+            raise ValueError("Controller gas table differs from the deployed RMCS table")
+        timing = amplitude*float(bool(profile["timing"]))
+        self.leg_timing = real2sim.LegFeedbackTiming(spec,self.num_envs,self.device,self.physics_dt,timing)
+        base = float(self.cfg.robot_cfg.actuators["legs_act"].armature)
+        self.leg_armature = base*real2sim.sample_armature_scale(spec,self.num_envs,amplitude,self.device)
+        self.robot.write_joint_armature_to_sim(self.leg_armature,joint_ids=[self.motor_ids[i] for i in (0,1,3,4)])
+        stats = lambda x: [float(x.min()),float(x.mean()),float(x.max())]
+        self.domain_receipt["real2sim"] = dict(contract=spec["contract_path"],
+            contract_sha256=spec["contract_file_sha256"],timing=self.leg_timing.summary(),
+            leg_coulomb_nm={name:stats(self.leg_friction.coulomb[:,i]) for i,name in enumerate(("left_hip","left_knee","right_hip","right_knee"))},
+            leg_armature_kg_m2=dict(hip=stats(self.leg_armature[:,(0,2)]),knee=stats(self.leg_armature[:,(1,3)])),
+            plant_gas_model_sha256=spec["gas_spring_plant"]["model_sha256"],
+            controller_gas_model_sha256=self.control.gas_compensation.cfg["model_sha256"])
 
     def _update_obs(self, is_obs=False):
         super()._update_obs(is_obs)
@@ -229,6 +281,12 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self._last_policy_tick = self.common_step_counter
         current = torch.cat((self.obs_root_ang_vel_b,self.obs_projected_gravity_b,
                              self.obs_joint_pos,self.obs_joint_vel),-1)
+        if self.leg_timing is not None:
+            # Same DM-filtered, quantized stream as the PD with age-only delay,
+            # placed before the 0/1 policy-frame age selection.
+            legs = [self.motor_ids[i] for i in (0,1,3,4)]
+            current[:,[12+i for i in self.leg_target_order]] = self.leg_timing.observe(
+                self.robot.data.joint_vel[:,legs])
         if self._policy_previous is None:
             self._policy_previous = current.clone()
         observed = torch.where(self.policy_age.bool(),self._policy_previous,current)
@@ -242,16 +300,49 @@ class WheelbipePortEnv(WheelbipeV14Env):
         self.obs_joint_vel[:,:4] = noise(self.obs_joint_vel[:,:4],ref["leg_velocity_noise_rad_s"])
         self.obs_joint_vel[:,4:] = noise(self.obs_joint_vel[:,4:],ref["wheel_velocity_noise_rad_s"])
 
+    def _tuck_compensation_eligible(self):
+        # Ordinary tasks have no externally requested jump flight interval.
+        return torch.zeros(self.num_envs,device=self.device,dtype=torch.bool)
+
+    def _leg_target_overtravel_mask(self, *, physics=False):
+        if self.cfg.port_leg_target_overtravel_scope == "all":
+            return None
+        return torch.zeros(self.num_envs,device=self.device,dtype=torch.bool)
+
     def _apply_action(self):
         self.port_physics_calls += 1
         q = self.robot.data.joint_pos[:,self.motor_ids]
         dq = self.robot.data.joint_vel[:,self.motor_ids]
         feedback = q.clone()
+        pd_velocity = dq
+        if self.leg_timing is not None:
+            measured_q, measured_dq = self.leg_timing.update(q[:,(0,1,3,4)],dq[:,(0,1,3,4)])
+            feedback[:,(0,1,3,4)] = measured_q
+            pd_velocity = dq.clone()
+            pd_velocity[:,(0,1,3,4)] = measured_dq
         feedback[:,(0,1,3,4)] += self.pd_encoder_bias
-        legs = self.paired_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)])
+        legs = self.paired_targets(self.leg_actions[:,self.leg_target_order],feedback[:,(0,1,3,4)],
+            extended_mask=self._leg_target_overtravel_mask(physics=True))
         wheels = self.wheel_actions[:,self.wheel_target_order].clamp(-90.,90.)
-        motor = self.control.motor_efforts(feedback,dq,legs,wheels,
-            apply_gas_compensation=getattr(self.cfg,"port_gas_feedforward",True))*self.motor_strength
+        motor = self.control.motor_efforts(feedback,pd_velocity,legs,wheels,
+            apply_gas_compensation=getattr(self.cfg,"port_gas_feedforward",True))
+        self.tuck_compensation_effort.zero_()
+        self.tuck_compensation_gate.zero_()
+        if self.tuck_compensation["mode"] != "off":
+            from .control import tuck_spring_effort
+            holding, _ = self.control.gas_compensation.evaluate(feedback[:,(0,1,3,4)])
+            extra, gate = tuck_spring_effort(feedback[:,(0,1,3,4)],legs,
+                self.control.requested_motor_effort[:,(0,1,3,4)],
+                self._tuck_compensation_eligible(),holding,self.tuck_compensation)
+            self.tuck_compensation_effort.copy_(extra)
+            self.tuck_compensation_gate.copy_(gate)
+            self.control.gas_compensation_effort.copy_(extra)
+            requested = self.control.requested_motor_effort[:,(0,1,3,4)]+extra
+            self.control.requested_motor_effort[:,(0,1,3,4)] = requested
+            # Add to the uncapped request; clipping a capped PD request first
+            # would change cancellation when the two terms oppose each other.
+            motor[:,(0,1,3,4)] = requested.clamp(-40.,40.)
+        motor = motor*self.motor_strength
         motor[:,:2].clamp_(-40.,40.)
         motor[:,3:5].clamp_(-40.,40.)
         motor[:,(2,5)] = motor[:,(2,5)].clamp(-4.5,4.5)
@@ -266,6 +357,9 @@ class WheelbipePortEnv(WheelbipeV14Env):
         motor[~enabled] = 0.
         motor = self.wheel_response.apply_torque(motor,dq)
         motor[~enabled] = 0.
+        if self.leg_timing is not None:
+            motor[:,(0,1,3,4)] = self.leg_timing.actuate(motor[:,(0,1,3,4)])
+            motor[~enabled] = 0.
         self.motor_effort.copy_(motor)
         physical = motor.clone()
         physical[:,(0,1,3,4)] += self.leg_friction.effort(dq[:,(0,1,3,4)])
@@ -290,7 +384,7 @@ class WheelbipePortEnv(WheelbipeV14Env):
             return
         from .training_profile import phase_for_update,apply_phase,specification
         update = max(getattr(self.cfg,"port_start_completed_updates",0),self._get_training_iteration())
-        phase = phase_for_update(update,specification(profile))
+        phase = phase_for_update(update,specification(profile,getattr(self.cfg,"port_course_updates",None)))
         if phase["start_update"]==self.port_training_phase:
             return
         apply_phase(self.cfg,update)
@@ -303,13 +397,14 @@ class WheelbipePortEnv(WheelbipeV14Env):
 
     def _apply_spring(self):
         compression = self.control.s0-self.robot.data.joint_pos[:,self.spring_ids]
-        self.spring_force = self.control.gas_compensation.physical_force(compression)
+        self.spring_force = self.plant_gas.physical_force(compression)
         self.robot.set_joint_effort_target(self.spring_force,joint_ids=self.spring_ids)
 
     def _leg_target_projection_cost(self):
         if not self._port_ready or self.leg_actions is None:
             return torch.zeros(self.num_envs,device=self.device)
-        return self.paired_targets.projection_cost(self.leg_actions[:,self.leg_target_order])
+        return self.paired_targets.projection_cost(self.leg_actions[:,self.leg_target_order],
+            extended_mask=self._leg_target_overtravel_mask())
 
     def _postprocess_reward_terms(self,reward_terms):
         reward_terms = super()._postprocess_reward_terms(reward_terms)
@@ -369,6 +464,9 @@ class WheelbipePortEnv(WheelbipeV14Env):
             height_target = self._get_height_reward_target_height()
             logs.update({
                 "Port/leg_target_projection_cost_mean_rad2":projection.mean(),
+                "Port/tuck_spring_gate_mean":self.tuck_compensation_gate.mean(),
+                "Port/tuck_spring_requested_abs_mean_Nm":self.tuck_compensation_effort.abs().mean(),
+                "Port/tuck_spring_requested_abs_max_Nm":self.tuck_compensation_effort.abs().max(),
                 "Port/leg_target_projected_fraction":(projection>1.e-10).float().mean(),
                 "Port/leg_target_projection_reward_per_policy_step":
                     -self.cfg.port_leg_target_projection_penalty*self.step_dt*projection.mean(),
@@ -405,6 +503,8 @@ class WheelbipePortEnv(WheelbipeV14Env):
             # Original slots are (legs, wheels). The wheel slot is the mean
             # calibrated delay; the receipt retains both actual side values.
             age = torch.zeros(self.num_envs,2,device=self.device)
+            if self.leg_timing is not None:
+                age[:,0] = self.leg_timing.actuation_ticks.squeeze(-1)
             age[:,1] = .0045/self.physics_dt
             return age
         return super()._get_delay_time_lag_obs(delay_attr,cfg_attr,enabled_attr)

@@ -113,12 +113,17 @@ class WheelbipeSession(ManagedSession):
         runtime_environment.update(environment or {})
         if any(key not in RUNTIME_ENVIRONMENT or "\0" in value for key, value in runtime_environment.items()):
             raise ValueError("Only the documented simulation runtime environment keys can be frozen")
+        continuation = _option(arguments, "--continue-from")
+        transfer = None
+        if continuation:
+            from wheeled_algo.learning_transfer import admission
+            transfer = admission(continuation, arguments)
         root = Path(root).expanduser().resolve()
         root.mkdir(parents=True, mode=0o700, exist_ok=False)
         (root / "attempts").mkdir()
         (root / "controller/src/wheeled_algo").mkdir(parents=True)
         sources = [file_pin(path) for path in _source_files(source, script)]
-        pins, manifests = [], []
+        pins, manifests = list(transfer["pins"]) if transfer else [], []
         for index in range(0, len(sources), 400):
             manifest = root / f"source_manifest_{index // 400:03d}.json"
             write_json(manifest, sources[index:index + 400])
@@ -138,6 +143,7 @@ class WheelbipeSession(ManagedSession):
                     training_args=arguments, updates=int(updates), num_envs=int(envs), seed=int(seed),
                     device=_option(arguments, "--device", "cuda:0"), pins=pins, source_manifests=manifests,
                     runtime_environment=runtime_environment,
+                    learning_continuation=transfer,
                     created_boot=boot_id(), created_at=timestamp(),
                     cold_resume_semantics="Learning state and curriculum clock restored; physical episodes/history reset")
         write_json(root / "session.json", spec)
@@ -285,7 +291,7 @@ class ManagedWorker:
         self.previous_handlers = {}
         self.endpoint_phase = None
 
-    def attach(self, runner, env, resume):
+    def attach(self, runner, env, resume, continuation=None):
         from wheeled_algo.durable_checkpoint import load_checkpoint
 
         self.runner, self.env = runner, env
@@ -300,7 +306,14 @@ class ManagedWorker:
         else:
             if runner.alg.optimizer.state or self.completed:
                 raise ValueError("A fresh managed session requires empty Adam and zero updates")
-            env.set_training_progress(iteration=0)
+            if continuation:
+                from wheeled_algo.learning_transfer import initialize
+                if str(Path(continuation).resolve()) != self.session.spec["learning_continuation"]["checkpoint"]:
+                    raise ValueError("Continuation input differs from the pinned session")
+                proof = initialize(continuation, runner, env, self.session.spec["training_args"])
+                write_json(self.output / "continuation_verification.json", proof)
+            else:
+                env.set_training_progress(iteration=0)
         for number in (signal.SIGINT, signal.SIGTERM):
             self.previous_handlers[number] = signal.getsignal(number)
             signal.signal(number, lambda signum, frame: setattr(self.stop, "reason", signal.Signals(signum).name))
@@ -332,6 +345,10 @@ class ManagedWorker:
                 + (completed - self.binding["start_update"]) * self.session.spec["num_envs"] * 24)
         if completed < self.budget:
             self._boundary()
+
+    def review_checkpoint(self):
+        """Save a completed update for read-only review without stopping PPO."""
+        return self._save("review")
 
     def commit_endpoint(self, phase):
         if phase not in ("stopped", "completed") or (phase == "completed") != (self.completed == self.budget):

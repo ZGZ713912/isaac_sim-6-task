@@ -35,6 +35,8 @@ def main():
     parser.add_argument("--task",choices=("flat","rough"),default="flat")
     parser.add_argument("--num-envs",type=int,default=4096)
     parser.add_argument("--iterations",type=int,default=20000)
+    parser.add_argument("--course-updates",type=int,default=None,
+        help="Scale all v4 curriculum update milestones to this budget; training iterations must match")
     parser.add_argument("--save-interval",type=int,default=500)
     parser.add_argument("--seed",type=int,default=107)
     parser.add_argument("--device",default="cuda:0")
@@ -43,7 +45,7 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
-    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2"),default="legacy")
+    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7"),default="legacy")
     parser.add_argument("--gas-feedforward",action=argparse.BooleanOptionalAction,default=None,
         help="Explicitly override cancellation of the physical spring torque; the spring itself is retained")
     parser.add_argument("--solver-position-iterations",type=int,default=12)
@@ -53,10 +55,16 @@ def main():
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
     parser.add_argument("--leg-armature",type=float,default=.015795,
         help="Additional inertia on each of the four driven leg axes, kg*m^2")
-    parser.add_argument("--leg-kp",type=float,default=160.)
-    parser.add_argument("--leg-kd",type=float,default=2.5)
-    parser.add_argument("--leg-target-projection-penalty",type=float,default=1.,
-        help="Cost weight for unreachable leg targets in rad^2; 0 reproduces the historical objective")
+    parser.add_argument("--leg-kp",type=float,default=None,help="Profile default; v4=80, other profiles=160")
+    parser.add_argument("--leg-kd",type=float,default=None,help="Profile default; v4=1.5, other profiles=2.5")
+    parser.add_argument("--leg-target-overtravel-rad",type=float,default=None,
+        help="Virtual pair-target extension per boundary; actual mechanical protection is unchanged")
+    parser.add_argument("--leg-target-overtravel-scope",choices=("all","jump-request"),default=None)
+    parser.add_argument("--tuck-spring-compensation",choices=("off","model"),default=None)
+    parser.add_argument("--tuck-spring-gain",type=float,default=None)
+    parser.add_argument("--tuck-spring-cap-nm",type=float,default=None)
+    parser.add_argument("--leg-target-projection-penalty",type=float,default=None,
+        help="Cost weight for unreachable leg targets in rad^2; profile default (v5=4, others=1); 0 reproduces the historical objective")
     parser.add_argument("--max-constraint-gap-mm",type=float,default=None,
         help="Optional historical policy-sampled gap limit; omitted means diagnostics only")
     parser.add_argument("--checkpoint",type=Path,help="Read-only evaluation only; never initializes training")
@@ -64,13 +72,33 @@ def main():
         help="Internal binding created by trainctl wheelbipe init/start")
     parser.add_argument("--resume",type=Path,
         help="Full learning state from a cleanly stopped managed attempt; requires --managed-control-dir")
+    parser.add_argument("--continue-from",type=Path,
+        help="Explicit cross-course continuation from the completed foundation-v2 full checkpoint")
+    parser.add_argument("--motion-update-offset",type=int,default=0,
+        help="Retain the old motion course while the new jump course starts at update zero")
     args = parser.parse_args()
     from wheeled_tasks.wheelbipe_port.training_contract import (
         constraint_limit_m,check_constraint_gap,leg_armature_kg_m2,CONSTRAINT_DIAGNOSTIC_SCOPE,
         projection_penalty,
         leg_pd_gains,
+        target_overtravel_rad,
     )
     try:
+        control_defaults = {}
+        if args.training_profile != "legacy":
+            from wheeled_tasks.wheelbipe_port.training_profile import specification
+            control_defaults = specification(args.training_profile,args.course_updates).get("control",{})
+        elif args.course_updates is not None:
+            raise ValueError("Legacy training does not support course scaling")
+        if args.mode == "train" and args.course_updates is not None and args.iterations != args.course_updates:
+            raise ValueError("--iterations must match the explicit --course-updates budget")
+        args.leg_kp = control_defaults.get("leg_kp_nm_per_rad",160.) if args.leg_kp is None else args.leg_kp
+        args.leg_kd = control_defaults.get("leg_kd_nm_s_per_rad",2.5) if args.leg_kd is None else args.leg_kd
+        if args.leg_target_projection_penalty is None:
+            args.leg_target_projection_penalty = (specification(args.training_profile,args.course_updates)
+                .get("leg_target_projection_penalty",1.) if args.training_profile != "legacy" else 1.)
+        if args.leg_target_overtravel_rad is not None:
+            args.leg_target_overtravel_rad = target_overtravel_rad(args.leg_target_overtravel_rad)
         gap_limit = constraint_limit_m(args.max_constraint_gap_mm)
         args.leg_armature = leg_armature_kg_m2(args.leg_armature)
         args.leg_target_projection_penalty = projection_penalty(args.leg_target_projection_penalty)
@@ -87,6 +115,11 @@ def main():
         parser.error("--resume requires a pinned managed session; legacy model-only checkpoints cannot cold-resume")
     if args.managed_control_dir is not None and args.mode!="train":
         parser.error("Only PPO training can use a managed control binding")
+    if args.continue_from is not None and (args.managed_control_dir is None
+            or args.training_profile!="foundation-jump-v1" or args.motion_update_offset!=20000):
+        parser.error("--continue-from requires managed foundation-jump-v1 and --motion-update-offset 20000")
+    if args.motion_update_offset and args.continue_from is None:
+        parser.error("A nonzero motion offset requires explicit cross-course continuation")
     args.output = args.output.resolve()
     managed = None
     endpoint_phase = None
@@ -152,18 +185,37 @@ def main():
         cfg.port_leg_target_projection_penalty = args.leg_target_projection_penalty
         cfg.rewards["port_leg_target_projection"] = -args.leg_target_projection_penalty
         from wheeled_tasks.wheelbipe_port.training_profile import configure_profile,apply_phase
-        configure_profile(cfg,args.training_profile)
+        configure_profile(cfg,args.training_profile,course_updates=args.course_updates)
+        from wheeled_tasks.wheelbipe_port.training_profile import apply_control_overrides
+        apply_control_overrides(cfg,kp=args.leg_kp,kd=args.leg_kd,
+            overtravel=args.leg_target_overtravel_rad,
+            overtravel_scope=args.leg_target_overtravel_scope,tuck_mode=args.tuck_spring_compensation,
+            tuck_gain=args.tuck_spring_gain,tuck_cap_nm=args.tuck_spring_cap_nm)
+        cfg.port_motion_update_offset = args.motion_update_offset
         cfg.port_start_completed_updates = managed.completed if managed is not None else 0
-        if args.training_profile in ("foundation-v1","foundation-v2"):
-            apply_phase(cfg,cfg.port_start_completed_updates)
+        if args.training_profile in ("foundation-v1","foundation-v2","foundation-jump-v1",
+                                     "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7"):
+            apply_phase(cfg,cfg.port_start_completed_updates+args.motion_update_offset)
         if args.gas_feedforward is not None:
             cfg.port_gas_feedforward = args.gas_feedforward
+        if cfg.port_real2sim is not None:
+            if args.physics_hz != 200:
+                raise ValueError("The real2sim v3 leg timing is calibrated for --physics-hz 200 only")
+            # Motor stays capped at 40 Nm; the native limit must pass the
+            # largest randomized passive friction added after that cap.
+            limit = cfg.port_real2sim["leg_friction"]["native_effort_limit_nm"]
+            cfg.robot_cfg.actuators["legs_act"].effort_limit = limit
+            cfg.robot_cfg.actuators["legs_act"].effort_limit_sim = limit
         if args.mode=="evaluate":
             cfg.use_leg_random_start = False
             cfg.events.reset_base.params["pose_range"] = {}
             cfg.events.reset_base.params["velocity_range"] = {}
             cfg.commands.special_modes = {}
-        env = WheelbipePortEnv(cfg)
+        if args.training_profile.startswith("foundation-jump-"):
+            from wheeled_tasks.wheelbipe_port.mixed_environment import WheelbipeMixedEnv
+            env = WheelbipeMixedEnv(cfg)
+        else:
+            env = WheelbipePortEnv(cfg)
         wrapped = RslRlVecEnvWrapper(env)
         observations = wrapped.get_observations()
         dimensions = {name:list(value.shape) for name,value in observations.items()}
@@ -171,7 +223,9 @@ def main():
             raise ValueError(f"Reference observation dimensions differ: {dimensions}")
         leg_ids = [env.motor_ids[i] for i in (0,1,3,4)]
         leg_armatures = torch.as_tensor(env.robot.root_physx_view.get_dof_armatures())[:,leg_ids]
-        if not torch.allclose(leg_armatures,torch.full_like(leg_armatures,args.leg_armature),atol=1.e-8,rtol=0.):
+        expected_armature = (torch.full_like(leg_armatures,args.leg_armature) if env.leg_armature is None
+                             else env.leg_armature.detach().cpu().to(leg_armatures.dtype))
+        if not torch.allclose(leg_armatures,expected_armature,atol=1.e-7,rtol=0.):
             raise ValueError("Native leg armature differs from the requested per-axis inertia")
         native = dict(actor_dim=35,critic_dim=78,action_dim=6,observation_shapes=dimensions,
             cad_joint_names=env.robot.cad_joint_names,policy_joint_names=env.robot.joint_names,
@@ -186,8 +240,17 @@ def main():
             leg_kd_Nm_per_rad_s=env.control.settings["leg_kd"],
             leg_armature_native_readback_kg_m2=leg_armatures[0].cpu().tolist(),
             leg_armature_readback_verified_envs=args.num_envs,
+            leg_armature_randomized=env.leg_armature is not None,
+            real2sim=env.domain_receipt.get("real2sim"),
+            plant_spring_model_sha256=env.plant_gas.cfg["model_sha256"],
+            ppo_overrides=dict(cfg.port_ppo_overrides),
             diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE,
             paired_target_signed_delta_bounds_rad=env.paired_targets.bounds.cpu().tolist(),
+            actual_mechanical_signed_delta_bounds_rad=env.paired_targets.mechanical_bounds.cpu().tolist(),
+            virtual_pair_target_overtravel_rad=cfg.port_leg_target_overtravel_rad,
+            virtual_pair_target_overtravel_scope=cfg.port_leg_target_overtravel_scope,
+            tuck_spring_compensation=dict(cfg.port_tuck_spring_compensation),
+            tuck_spring_eligibility="request flight clock AND encoder/PD inward intent; no contact or observer state",
             leg_target_projection_penalty=args.leg_target_projection_penalty,
             leg_target_projection_cost="sum of squared discarded pair targets, rad^2; shared winding unpenalized",
             joint_velocity_guard_scope="asset solver guard; not an identified motor-speed limit",
@@ -216,8 +279,13 @@ def main():
         agent = (WheelbipeV14FlatPPORunnerCfg if args.task=="flat" else WheelbipeV14RoughPPORunnerCfg)()
         agent.seed,agent.device = args.seed,args.device
         agent.save_interval,agent.max_iterations = args.save_interval,args.iterations
+        for key,value in cfg.port_ppo_overrides.items():
+            setattr(agent.policy,key,value)
         dump_yaml(str(args.output/"params/env.yaml"),cfg)
         dump_yaml(str(args.output/"params/agent.yaml"),agent)
+        if args.training_profile.startswith("foundation-jump-"):
+            save(args.output/"params/course.json",cfg.port_mixed_spec)
+            receipt["effective_course_sha256"] = cfg.port_profile_sha256
         if args.mode=="preflight":
             peak_gap = 0.
             minimum_spring = float("inf")
@@ -256,10 +324,15 @@ def main():
                 raise ValueError("A fresh experiment must start with empty Adam")
             runner._prepare_logging_writer()
             if managed is not None:
-                managed.attach(runner,env,args.resume)
+                managed.attach(runner,env,args.resume,args.continue_from)
             start_completed = managed.completed if managed is not None else 0
             receipt["started_from_completed_updates"] = start_completed
             receipt["cold_resume"] = args.resume is not None
+            receipt["cross_course_continuation"] = args.continue_from is not None
+            receipt["source_completed_updates"] = 20000 if args.continue_from else 0
+            receipt["motion_update_offset"] = args.motion_update_offset
+            receipt["initial_optimizer_state_count"] = len(runner.alg.optimizer.state)
+            receipt["initial_learning_rate"] = runner.alg.learning_rate
             receipt["physical_episode_restored"] = False
             initial = {k:v.detach().cpu().clone() for k,v in runner.alg.policy.state_dict().items()}
             runner.save(str(args.output/"model_initial.pt"))
@@ -267,6 +340,12 @@ def main():
             original_log = runner.log
             def log_progress(values,*log_args,**log_kwargs):
                 original_log(values,*log_args,**log_kwargs)
+                if args.training_profile.startswith("foundation-jump-"):
+                    from wheeled_tasks.wheelbipe_port.mixed_curriculum import rollout_metrics
+                    storage = runner.alg.storage
+                    for tag, value in rollout_metrics(env.task_schedule.role, storage.advantages,
+                            storage.rewards, storage.returns, env.task_schedule.tasks).items():
+                        runner.writer.add_scalar(tag, value, values["it"])
                 # Keep timing in the same event stream as the original RSL
                 # collection/learning metrics; setup/checkpoint IO is separate.
                 iteration_time = values["collection_time"]+values["learn_time"]
@@ -299,6 +378,9 @@ def main():
                 check_constraint_gap(peak,gap_limit,"PPO")
                 if managed is not None:
                     managed.after_update(completed)
+                    if completed % args.save_interval == 0 and completed < args.iterations:
+                        receipt["latest_review_checkpoint"] = str(managed.review_checkpoint())
+                        save(path,receipt)
                     active,paused = managed.control.elapsed()
                     runner.writer.add_scalar("TrainControl/active_seconds",active,completed)
                     runner.writer.add_scalar("TrainControl/paused_seconds",paused,completed)
@@ -313,7 +395,7 @@ def main():
             if managed is None:
                 env.set_training_progress(iteration=0)
             runner.learn(num_learning_iterations=args.iterations-start_completed,
-                init_at_random_ep_len=args.resume is None)
+                init_at_random_ep_len=args.resume is None and args.continue_from is None)
             final = runner.alg.policy.state_dict()
             changed = [k for k,v in initial.items() if not torch.equal(v,final[k].detach().cpu())]
             finite = all(torch.isfinite(v).all() for v in final.values())
@@ -322,7 +404,7 @@ def main():
             last = args.output/f"model_{runner.current_learning_iteration}.pt"
             receipt.update(status="training_complete",completed_updates=args.iterations,
                 latest_checkpoint=str(last),checkpoint_sha256=sha(last),
-                fresh_initial_optimizer_state_count=0 if args.resume is None else None,
+                fresh_initial_optimizer_state_count=0 if args.resume is None and args.continue_from is None else None,
                 final_optimizer_state_count=len(runner.alg.optimizer.state),
                 changed_policy_tensors=changed,policy_tensors_finite=bool(finite),
                 max_constraint_gap_m=float(env.port_constraint_gap_peak),

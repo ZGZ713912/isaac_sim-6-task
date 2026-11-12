@@ -145,6 +145,40 @@ def test_nonempty_rollout_cannot_be_saved_as_a_clean_boundary(tmp_path):
     assert not (tmp_path / "bad.pt").exists()
 
 
+def test_mixed_course_preserves_its_private_random_stream_and_lane_identity(tmp_path):
+    torch = pytest.importorskip("torch")
+    from wheeled_tasks.wheelbipe_port.mixed_curriculum import TaskSchedule
+    from wheeled_tasks.wheelbipe_port.training_profile import specification
+
+    class MixedClock(Clock):
+        def __init__(self):
+            self.schedule = TaskSchedule(32, "cpu", 119, specification("foundation-jump-v1"))
+
+        def learning_curriculum_state(self):
+            return dict(role=self.schedule.role.clone(), generator=self.schedule.generator.get_state())
+
+        def restore_learning_curriculum_state(self, state):
+            if not torch.equal(state["role"], self.schedule.role):
+                raise ValueError("Task allocation changed")
+            self.schedule.generator.set_state(state["generator"])
+
+    runner, env = learner(), MixedClock()
+    update(runner, env)
+    env.schedule.random(50)
+    point = checkpoint.save_checkpoint(tmp_path/"mixed.pt", runner, env, 1, "mixed", 3)
+    expected = env.schedule.random(100)
+    restored = MixedClock()
+    proof = checkpoint.load_checkpoint(point, learner(), restored, "mixed", 3)
+    assert "curriculum_state" in proof["learning_state_fingerprints"]
+    assert torch.equal(restored.schedule.random(100), expected)
+    assert torch.equal(restored.schedule.role, env.schedule.role)
+    with pytest.raises(ValueError, match="no matching environment"):
+        checkpoint.load_checkpoint(point, learner(), Clock(), "mixed", 3)
+    legacy = checkpoint.save_checkpoint(tmp_path/"legacy.pt", runner, Clock(), 0, "legacy", 3)
+    with pytest.raises(ValueError, match="requires its own saved curriculum"):
+        checkpoint.load_checkpoint(legacy, learner(), MixedClock(), "legacy", 3)
+
+
 @pytest.mark.parametrize("change", ["payload", "source", "budget", "clock", "nonfinite"])
 def test_tampered_or_incompatible_checkpoint_cannot_restore(tmp_path, change):
     torch = pytest.importorskip("torch")
