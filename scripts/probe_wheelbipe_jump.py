@@ -136,7 +136,8 @@ def main():
             seq, observer = env.jump_observer.sequence, env.jump_observer
             for i in done.nonzero().flatten().tolist():
                 row = dict(lane=i, candidate=int(assignment[i]), terminated=bool(terminated[i]),
-                    flown=bool(observer.flown[i]), succeeded=bool(observer.succeeded[i]))
+                    flown=bool(observer.flown[i]), success_seen=bool(observer.succeeded[i]),
+                    succeeded=bool(observer.succeeded[i] & ~terminated[i]))
                 row.update({key:float(seq.values[key][i]) for key in ('release_vz', 'flight_com_rise',
                     'max_tuck', 'max_wheel_clearance', 'push_work', 'push_impulse', 'push_duration',
                     'push_force_peak_bw', 'landing_force_peak_bw', 'reextension', 'buffer_compression')})

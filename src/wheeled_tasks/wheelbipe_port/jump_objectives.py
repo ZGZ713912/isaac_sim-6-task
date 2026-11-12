@@ -210,7 +210,7 @@ class JumpSequence:
         done = done & ~v["recorded"]
         for task, totals in self.totals.items():
             mask = done & self.schedule.mask(task)
-            counts = dict(completed=mask, succeeded=mask & observer.succeeded,
+            counts = dict(completed=mask, succeeded=mask & observer.succeeded & ~terminated,
                 terminated=mask & terminated, flown=mask & observer.flown,
                 landed=mask & observer.landed, apex_seen=mask & v["apex_sampled"],
                 push_attempted=mask & (v["push_duration"] > 0.),

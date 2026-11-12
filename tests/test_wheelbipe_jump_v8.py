@@ -218,3 +218,15 @@ def test_small_native_sweep_keeps_one_lane_per_other_task_and_covers_candidates(
         counts = quota_counts(count, spec)
         assert all(n == 1 for task, n in counts.items() if task != 'jump')
         assert counts['jump'] >= len(grid)
+
+
+def test_latched_success_followed_by_a_fall_is_not_a_successful_completed_episode():
+    s, o = setup();jump = s.mask('jump')
+    o.succeeded[jump] = True
+    terminated = torch.zeros_like(jump)
+    terminated[jump.nonzero().flatten()[0]] = True
+    o.sequence.record_outcomes(o, jump, terminated)
+    logs = o.sequence.metrics()
+    assert logs['JumpSequence/jump/succeeded_episodes_total'] == int(jump.sum())-1
+    assert logs['JumpSequence/jump/completed_episodes_total'] == int(jump.sum())
+    assert logs['JumpSequence/jump/terminated_episodes_total'] == 1
