@@ -313,7 +313,8 @@
     "Evidence: jump_v4_10k_2048_seed119_001 collapsed between updates 50 and 100 into a folded-leg sitting pose on every lane (base 0.21 m vs 0.32 m command, 87-99% of leg targets projected past the stop, episode length 109->508) and never recovered by update 3018; v3 at PD 60/2 recovered to 6 mm height error by update 2000.",
     "init_noise_std 1.0->0.5 halves the initial +/-40 Nm PD exploration torque at kp 80; projection penalty 1->4 makes parking targets beyond the stop cost more than the height error it avoids.",
     "v6 is v5 with real2sim v3.1: the right leg uses its own 2026-11-11 measured friction instead of mirroring the left. Every reward, curriculum, control, PPO and timing field is identical to v5.",
-    "v7 = v6 plus: real2sim v3.2 (measured gas-spring plant curve from both legs); arc commands on forward/reverse/dash lanes; flat moving jumps 0.3-1.0 m/s from update 2000; a platform lane (15 %) with an unlocking 6-22 cm box: step-up jump at 0.5-1.0 m/s, drive across, drive off; reward height measured above the supporting surface."
+    "v7 = v6 plus: real2sim v3.2 (measured gas-spring plant curve from both legs); arc commands on forward/reverse/dash lanes; flat moving jumps 0.3-1.0 m/s from update 2000; a platform lane (15 %) with an unlocking 6-21 cm box: raised-stance step-jump at 0.5-1.0 m/s, drive across, drive off; reward height measured above the supporting surface.",
+    "2026-11-12 revision (before any accepted run): step-up uses the armor-aware raised step reference; locked platform lanes use time-based flat requests; a 3 s request deadline removes the stand-still escape; face strikes require actual face contact; leaving the box counts as the drop; clearance shaping only in flight. The 681-update run from commit 681f9ee1 used the earlier draft and is superseded."
   ],
   "course_scaling_policy": {
     "cli": "--course-updates N with matching --iterations N",
@@ -358,21 +359,19 @@
       0.2,
       0.2,
       0.2,
-      0.22
+      0.21
     ],
     "unlock": {
       "start_update": 5000,
       "full_update": 13000,
       "start_height_m": 0.06,
-      "final_height_m": 0.22
+      "final_height_m": 0.21
     },
     "over_fraction": 0.7,
     "speed_range_m_s": [
       0.5,
       1.0
     ],
-    "apex_base_m": 0.3,
-    "apex_min_m": 0.42,
     "runup_seconds": [
       0.8,
       1.2
@@ -384,8 +383,8 @@
     ],
     "flat_offset_m": 40.0,
     "wheel_center_offset_x_m": -0.011,
-    "episode_seconds": 7.0,
-    "outcome_seconds": 6.5,
+    "episode_seconds": 7.5,
+    "outcome_seconds": 7.0,
     "strike_force_n": 5.0,
     "clearance_zone_m": [
       0.25,
@@ -401,9 +400,26 @@
       "drop_timeout": -1.0
     },
     "geometry": "one static box per platform lane under its own env prim (per-env collision group); length x width x lane height, near face at env-local x = near_edge_x_m, robot heading +x",
-    "modes": "over (jump up, cross the top, drive off the far edge) with probability over_fraction, else drive-off from the top; lanes whose box exceeds the unlocked height run flat moving jumps 40 m away",
-    "request": "explicit step-jump request fired when deployable wheel odometry since reset reaches the sampled run-up: aux jump_request=1, requested_apex=max(apex_min, apex_base+rise), stair slot=rise (m). Drive-off and the far edge get no request, only the forward command.",
+    "modes": "over (raised step-jump up, cross the top, drive off the far edge) with probability over_fraction, else drive-off from the top; lanes whose box exceeds the unlocked height run flat moving jumps 40 m away",
+    "request": "explicit step-jump request fired when deployable signed wheel odometry since reset reaches the sampled run-up, or at request_deadline_s; aux jump_request=1, requested_apex from step_reference, stair slot=rise (m). Locked lanes use the time-based flat-jump request. Drive-off and the far edge get no request, only the forward command.",
     "terrain_use": "box geometry and contact feed only rewards, success/acceptance and diagnostics; never the actor, the command clock or the request trigger",
-    "success": "step-up: jump-observer success gated on both wheels supported on top (replaces the apex gate; tuck gate stays jump-lane only); drive-off: both wheels on the floor after a drop and calm for landing_hold_seconds"
+    "success": "step-up: jump-observer success gated on both wheels supported on top (replaces the apex gate; tuck gate stays jump-lane only); drive-off: both wheels on the floor after a drop and calm for landing_hold_seconds",
+    "request_deadline_s": 3.0,
+    "step_reference": {
+      "armor_below_root_m": 0.143,
+      "stance_margin_m": 0.045,
+      "crouch_margin_m": 0.01,
+      "max_stance_m": 0.4,
+      "push_stroke_m": 0.07,
+      "max_release_m": 0.42,
+      "apex_min_m": 0.42,
+      "apex_above_rise_m": 0.27,
+      "raise_seconds": 0.45,
+      "hold_seconds": 0.15,
+      "min_crouch_seconds": 0.15,
+      "basis": "CAD chassis hull: front/rear armor 0.27 m wide at x +/-0.25..0.29 m, 0.143 m below the root; belly 0.181 m below at |x|<0.05. At the 0.305 m stance the front armor is 0.162 m above the floor and reaches a 20 cm face 0.29 m before the wheels, so the flat crouch jump only clears both above ~1.1 m/s. The step reference raises the stance until the armor clears the rise (+4.5 cm), crouches no lower than rise+1 cm under the armor, and pushes from near-full extension (release <= 0.42 m, leg range ends at 0.438 m).",
+      "example_0_20_m": "stance 0.388, crouch 0.353, release 0.42, apex 0.47 (release 0.99 m/s, ~0.75 g push), wheels need ~15 cm of tuck to pass with 1 cm margin",
+      "deployment": "RMCS must reproduce this reference for the step-jump request (height slot), with stair slot = rise"
+    }
   }
 }

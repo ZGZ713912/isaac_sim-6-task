@@ -51,8 +51,16 @@ def _validate_extensions(spec):
                 or not 0. < p["speed_range_m_s"][0] <= p["speed_range_m_s"][1]
                 or unlock["start_update"] > unlock["full_update"]
                 or unlock["start_height_m"] > unlock["final_height_m"]
-                or p["episode_seconds"] <= spec["jump"]["outcome_seconds"]):
+                or p["episode_seconds"] <= spec["jump"]["outcome_seconds"]
+                or not 0. < p["request_deadline_s"] < spec["jump"]["outcome_seconds"]):
             raise ValueError("Invalid platform curriculum")
+        r = p["step_reference"]
+        j = spec["jump"]
+        if (not j["release_height_m"] <= r["max_release_m"] <= .438 or r["max_stance_m"] > r["max_release_m"]
+                or min(r["armor_below_root_m"], r["stance_margin_m"], r["crouch_margin_m"], r["push_stroke_m"],
+                       r["raise_seconds"], r["min_crouch_seconds"]) <= 0. or r["hold_seconds"] < 0.
+                or r["stance_margin_m"] < r["crouch_margin_m"] or r["apex_min_m"] <= j["release_height_m"]):
+            raise ValueError("Invalid step-jump reference")
 
 
 def validate(spec):
@@ -115,6 +123,36 @@ def jump_timing(apex, j):
     return release_v, push, j["crouch_seconds"]+push+release_v/9.81
 
 
+def step_profile(rise, spec):
+    """Time-only step-jump reference for a declared rise (tensor, m).
+
+    The front/rear armor sits 0.143 m below the root, 0.29 m ahead of the
+    axle, so it reaches the face first. Raise the stance until it clears the
+    rise, crouch only as far as it stays clear, push from near-full extension
+    and require the apex that lets tucked wheels pass over the edge.
+    """
+    j, s = spec["jump"], spec["platform"]["step_reference"]
+    standing = j["standing_height_m"]
+    armor = rise+s["armor_below_root_m"]
+    stance = (armor+s["stance_margin_m"]).clamp(min=standing, max=s["max_stance_m"])
+    crouch = (armor+s["crouch_margin_m"]).clamp(min=j["crouch_height_m"])
+    crouch = torch.minimum(crouch, stance)
+    release = torch.maximum(torch.full_like(rise, j["release_height_m"]),
+        (crouch+s["push_stroke_m"]).clamp(max=s["max_release_m"]))
+    apex = torch.maximum(torch.maximum(torch.full_like(rise, s["apex_min_m"]), release+.02),
+        rise+s["apex_above_rise_m"])
+    raised = stance > standing+1e-6
+    raise_s = torch.where(raised, s["raise_seconds"], 0.)
+    hold_s = torch.where(raised, s["hold_seconds"], 0.)
+    crouch_s = (j["crouch_seconds"]*(stance-crouch)/(standing-j["crouch_height_m"])).clamp(
+        min=s["min_crouch_seconds"], max=j["crouch_seconds"])
+    release_v = (2*9.81*(apex-release)).sqrt()
+    push = 2*(release-crouch)/release_v
+    return dict(stance=stance, crouch=crouch, release=release, apex=apex, raise_s=raise_s,
+                hold_s=hold_s, crouch_s=crouch_s, release_v=release_v,
+                to_apex=raise_s+hold_s+crouch_s+push+release_v/9.81)
+
+
 class TaskSchedule:
     """One fixed task per lane; resets cannot overwrite another task's quota."""
     def __init__(self, count, device, seed, spec):
@@ -148,6 +186,15 @@ class TaskSchedule:
             self.odometry = torch.zeros_like(self.height)
             self.start_x = torch.zeros_like(self.height)
             self.height_limit = 0.
+            # Per-lane time-only reference; flat-jump constants except on
+            # step-up episodes (see step_profile).
+            j = spec["jump"]
+            self.ref_stance = torch.full_like(self.height, j["standing_height_m"])
+            self.ref_crouch = torch.full_like(self.height, j["crouch_height_m"])
+            self.ref_release = torch.full_like(self.height, j["release_height_m"])
+            self.ref_raise_s = torch.zeros_like(self.height)
+            self.ref_hold_s = torch.zeros_like(self.height)
+            self.ref_crouch_s = torch.full_like(self.height, j["crouch_seconds"])
         self.reset(torch.arange(count, device=device), 0)
 
     def mask(self, name):
@@ -193,7 +240,7 @@ class TaskSchedule:
             self._reset_platform(ids[self.mask("platform")[ids]], update)
 
     def _reset_platform(self, ids, update):
-        """Episode mode, speed, apex, run-up and start pose; terrain never drives the request."""
+        """Episode mode, speed, reference, run-up and start pose; terrain never drives the request."""
         if not len(ids):
             return
         p, j = self.spec["platform"], self.spec["jump"]
@@ -204,33 +251,45 @@ class TaskSchedule:
         mode = torch.where(unlocked, torch.where(over, OVER, DRIVE_OFF), FLAT)
         low, high = p["speed_range_m_s"]
         speed = low+(high-low)*self.random(n)
-        apex = torch.maximum(torch.full_like(speed, p["apex_min_m"]), p["apex_base_m"]+self.rise[ids])
-        apex = torch.where(mode == OVER, apex, self.apex[ids])
         a, b = p["runup_seconds"]
         runup = speed*(a+(b-a)*self.random(n))
         jitter = speed*p["timing_jitter_s"]*(2*self.random(n)-1)
         lo, hi = p["drive_off_start_m"]
         before_far = lo+(hi-lo)*self.random(n)
-        _, _, to_apex = jump_timing(apex, j)
+        step = step_profile(self.rise[ids], self.spec)
+        is_over = mode == OVER
         near, wheel = p["near_edge_x_m"], p["wheel_center_offset_x_m"]
-        # At the apex the wheel centre is half a radius before the near face.
-        over_x = near-.5*j["wheel_radius_m"]-wheel-speed*to_apex-runup+jitter
-        self.start_x[ids] = torch.where(mode == OVER, over_x,
+        # At the reference apex the wheel centre is half a radius before the
+        # near face; the raised stance has already carried the armor over it.
+        over_x = near-.5*j["wheel_radius_m"]-wheel-speed*step["to_apex"]-runup+jitter
+        self.start_x[ids] = torch.where(is_over, over_x,
             torch.where(mode == DRIVE_OFF, near+p["length_m"]-wheel-before_far, near-p["flat_offset_m"]))
-        self.trigger_distance[ids] = torch.where(mode == DRIVE_OFF, 1e9, runup)
+        # Step-up: odometry run-up. Locked lanes keep the time-based flat-jump
+        # request already sampled in reset(); drive-off never requests.
+        self.trigger_distance[ids] = torch.where(is_over, runup, 1e9)
+        self.delay[ids] = torch.where(mode == FLAT, self.delay[ids], 1e3)
         self.mode[ids] = mode
         self.platform_speed[ids] = speed
-        self.apex[ids] = apex
-        self.delay[ids] = 1e3  # set by the odometry trigger
+        self.apex[ids] = torch.where(is_over, step["apex"], self.apex[ids])
+        for name in ("stance", "crouch", "release", "raise_s", "hold_s", "crouch_s"):
+            flat = {"stance": j["standing_height_m"], "crouch": j["crouch_height_m"],
+                    "release": j["release_height_m"], "raise_s": 0., "hold_s": 0.,
+                    "crouch_s": j["crouch_seconds"]}[name]
+            getattr(self, "ref_"+name)[ids] = torch.where(is_over, step[name], flat)
         self.odometry[ids] = 0.
 
     def advance_platform_requests(self, age, distance):
-        """Explicit request from wheel odometry along the commanded run-up only."""
+        """Explicit step-up request from wheel odometry along the commanded run-up.
+
+        A lane that has not covered its run-up by the deadline is requested
+        anyway, so standing still never avoids the step-up outcome.
+        """
         if not self.has_platform:
             return
-        lane = self.mask("platform")
-        self.odometry += torch.where(lane, distance, 0.)
-        fire = lane & (self.delay > 999.) & (self.odometry >= self.trigger_distance)
+        over = self.mask("platform") & (self.mode == OVER)
+        self.odometry += torch.where(over, distance, 0.)
+        fire = over & (self.delay > 999.) & ((self.odometry >= self.trigger_distance)
+            | (age >= self.spec["platform"]["request_deadline_s"]))
         self.delay = torch.where(fire, age, self.delay)
 
     def support_height(self, xy):
@@ -325,6 +384,8 @@ class TaskSchedule:
         return self.commands, torch.where(self.mask("height"), wave, self.height)
 
     def reference(self, age):
+        if self.has_platform:
+            return self._staged_reference(age)
         j = self.spec["jump"]
         jumper = self.requesters()
         t = age-self.delay
@@ -347,6 +408,39 @@ class TaskSchedule:
         v = torch.where(push, acceleration*push_time, 0.)
         return dict(height=h, velocity=v, push=push, flight=flight, active=active,
                     crouch=crouch, after_push=jumper & (push_time > duration),
+                    release_velocity=release_v, requested=jumper & (t >= 0))
+
+    def _staged_reference(self, age):
+        """Per-lane raise -> hold -> crouch -> push -> flight; flat lanes have no raise/hold.
+
+        With flat constants this equals the historical reference. ``crouch``
+        marks every pre-push preparation stage so tracking pays the raise too.
+        """
+        j = self.spec["jump"]
+        jumper = self.requesters()
+        t = age-self.delay
+        stance, low, release = self.ref_stance, self.ref_crouch, self.ref_release
+        release_v = (2*9.81*(self.apex-release)).sqrt()
+        duration = 2*(release-low)/release_v
+        hold_end = self.ref_raise_s+self.ref_hold_s
+        push_start = hold_end+self.ref_crouch_s
+        push_time = (t-push_start).clamp_min(0.)
+        prepare = jumper & (t >= 0) & (t < push_start)
+        push = jumper & (t >= push_start) & (push_time <= duration)
+        flight = jumper & (push_time > duration) & (push_time < duration+2*release_v/9.81)
+        active = ((jumper & (t >= 0)) | self.mask("airborne")) & (age < j["outcome_seconds"])
+        smooth = lambda x: 3*x.square()-2*x.pow(3)
+        rise = smooth((t/self.ref_raise_s.clamp_min(1e-6)).clamp(0., 1.))
+        down = smooth(((t-hold_end)/self.ref_crouch_s).clamp(0., 1.))
+        standing = j["standing_height_m"]
+        h = torch.where(t < hold_end, standing+(stance-standing)*rise, stance+(low-stance)*down)
+        h = torch.where(prepare, h, torch.full_like(age, standing))
+        acceleration = release_v/duration
+        h = torch.where(push, low+.5*acceleration*push_time.square(), h)
+        h = torch.where(flight, release, h)
+        v = torch.where(push, acceleration*push_time, 0.)
+        return dict(height=h, velocity=v, push=push, flight=flight, active=active,
+                    crouch=prepare, after_push=jumper & (push_time > duration),
                     release_velocity=release_v, requested=jumper & (t >= 0))
 
     def context(self, base, age):
@@ -714,11 +808,13 @@ class PlatformObserver:
         clear = wheel_bottom-support
         threshold = j["force_threshold_n"]
         supported = (clear < j["landing_clearance_m"]) & (wheel_force > threshold)
-        airborne = (clear > j["clearance_m"]).all(-1) & (wheel_force <= threshold).all(-1)
         top = lanes & (support > 0.).all(-1) & supported.all(-1)
         floor = (support <= 0.).all(-1) & supported.all(-1)
         near, radius = p["near_edge_x_m"], j["wheel_radius_m"]
-        face = ((wheel_xy[..., 0] > near-radius-.02) & (wheel_xy[..., 0] < near)
+        # Wheel actually against the vertical face: within 5 mm of touching it,
+        # below the top edge, and pushed back. Braking friction on the floor
+        # further away is not a strike.
+        face = ((wheel_xy[..., 0] > near-radius-.005) & (wheel_xy[..., 0] < near)
                 & (wheel_bottom < rise-.01) & (wheel_force_x < -p["strike_force_n"])).any(-1)
         strike = over & ~self.struck & ~self.top_landed & face
         self.strike_event |= strike
@@ -730,7 +826,9 @@ class PlatformObserver:
         near_face = (wheel_xy[..., 0] > near-.25) & (wheel_xy[..., 0] < near+.05)
         gap = torch.where(near_face, wheel_bottom-rise, 1.).amin(-1)
         self.min_clearance = torch.where(over & ~self.top_landed, torch.minimum(self.min_clearance, gap), self.min_clearance)
-        drop = lanes & self.seen_top & ~self.dropped & airborne & (support <= 0.).all(-1)
+        # Leaving the box (both wheel centres off it) counts as the drop even if
+        # a wheel slides down the far corner instead of flying clear.
+        drop = lanes & self.seen_top & ~self.dropped & (support <= 0.).all(-1)
         self.dropped |= drop
         land = self.dropped & ~self.drop_landed & floor
         self.drop_land_event |= land
@@ -762,8 +860,8 @@ class PlatformObserver:
         score = ((wheel_bottom-s.rise[:, None])/p["clearance_scale_m"]).clamp(-1., 1.)
         weight = zone.float()
         clearance = (score*weight).sum(-1)/weight.sum(-1).clamp_min(1.)
-        active = (over & ref["requested"] & (ref["push"] | ref["after_push"]) & ~self.top_landed
-                  & ~self.struck & zone.any(-1))
+        # Flight only: wheels on the floor during the push are expected.
+        active = over & ref["after_push"] & ~self.top_landed & ~self.struck & zone.any(-1)
         b = p["event_bonuses"]
         events = (b["strike"]*self.strike_event+b["top_land"]*self.top_land_event
                   +b["drop_land"]*self.drop_land_event+b["drop_success"]*self.drop_success_event

@@ -12,7 +12,7 @@ from wheeled_tasks.chassis.gas_spring_compensation import GasSpringCompensation
 from wheeled_tasks.wheelbipe_port import real2sim
 from wheeled_tasks.wheelbipe_port.mixed_curriculum import (
     DRIVE_OFF, FLAT, OVER, TASKS, JumpObserver, PlatformObserver, TaskSchedule, jump_timing, quota_counts,
-    reward_names, tasks_for)
+    reward_names, step_profile, tasks_for)
 from wheeled_tasks.wheelbipe_port.training_profile import phase_for_update, specification
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,14 +98,14 @@ def test_platform_lane_heights_unlock_and_modes():
     spec = specification(V7)
     s = TaskSchedule(2048, "cpu", 11, spec)
     lane = s.mask("platform")
-    assert {round(float(v), 3) for v in s.rise[lane]} == {.06, .12, .16, .2, .22}
+    assert {round(float(v), 3) for v in s.rise[lane]} == {.06, .12, .16, .2, .21}
     assert abs(float((s.rise[lane] == .2).float().mean())-.5) < .01
     assert bool((s.rise[~lane] == 0).all())
     s.reset(torch.arange(2048), 4999)
     assert bool((s.mode[lane] == FLAT).all())
     s.reset(torch.arange(2048), 9000)
     limit = s.platform_height_limit(9000)
-    assert limit == pytest.approx(.14)
+    assert limit == pytest.approx(.135)
     assert bool((s.mode[lane & (s.rise > limit+1e-6)] == FLAT).all())
     s.reset(torch.arange(2048), 13000)
     over = float((s.mode[lane] == OVER).float().mean())
@@ -121,12 +121,15 @@ def test_over_request_puts_the_wheel_at_the_edge_near_apex_at_commanded_speed():
     speed, start = s.platform_speed[over], s.start_x[over]
     # Ideal constant-speed run from the start; odometry equals distance.
     t_request = s.trigger_distance[over]/speed
-    _, _, to_apex = jump_timing(s.apex[over], j)
+    to_apex = step_profile(s.rise[over], spec)["to_apex"]
     wheel_x = start+speed*(t_request+to_apex)+p["wheel_center_offset_x_m"]
     target = p["near_edge_x_m"]-.5*j["wheel_radius_m"]
     assert float((wheel_x-target).abs().max()) <= p["timing_jitter_s"]*1.0+1e-5
-    assert float(s.apex[over & (s.rise == .2)].min()) == pytest.approx(.5)
-    assert bool((s.delay[s.mask("platform")] > 999.).all())
+    assert float(s.apex[over & (s.rise == .2)].min()) == pytest.approx(.47)
+    assert bool((s.delay[over] > 999.).all())
+    flat = s.mask("platform") & (s.mode == FLAT)
+    off = s.mask("platform") & (s.mode == DRIVE_OFF)
+    assert bool((s.delay[off] > 999.).all())
 
 
 def test_odometry_trigger_and_step_context():
@@ -257,3 +260,103 @@ def test_platform_schedule_and_observer_on_cuda():
     o = PlatformObserver(s, .005, torch.full((128,), 21., device="cuda"))
     terms = o.reward_terms(age, torch.zeros(128, 2, 2, device="cuda"), torch.zeros(128, 2, device="cuda"), .02)
     assert all(v.is_cuda for v in terms.values())
+
+
+def step_geometry_ok(spec, rise):
+    """Armor stays clear of the step through the raised stance and the shallow crouch."""
+    r = spec["platform"]["step_reference"]
+    profile = step_profile(torch.tensor([rise]), spec)
+    armor = r["armor_below_root_m"]
+    return (float(profile["crouch"])-armor-rise, float(profile["stance"])-armor-rise, profile)
+
+
+def test_step_reference_keeps_the_armor_over_the_step_and_needs_a_tuck():
+    spec = specification(V7)
+    j = spec["jump"]
+    for rise in (.16, .2, .21):
+        crouch_gap, stance_gap, profile = step_geometry_ok(spec, rise)
+        assert crouch_gap >= .01-1e-6 and stance_gap >= .03
+        assert float(profile["release"]) <= .42+1e-6
+        push_accel = float(profile["release_v"]**2/(2*(profile["release"]-profile["crouch"])))
+        assert push_accel <= 2*9.81*(.54-j["release_height_m"])/(2*(j["release_height_m"]-j["crouch_height_m"]))+1e-3
+        # Wheels pass with 1 cm margin only with legs at or below ~0.20 m at the apex.
+        assert float(profile["apex"])-rise-.07 <= .21
+    flat = step_profile(torch.tensor([.06]), spec)
+    assert float(flat["stance"]) == pytest.approx(j["standing_height_m"]) and float(flat["raise_s"]) == 0.
+    assert float(flat["crouch"]) == pytest.approx(j["crouch_height_m"])
+    assert float(flat["release"]) == pytest.approx(j["release_height_m"])
+
+
+def test_staged_reference_matches_the_flat_jump_and_raises_for_steps():
+    spec = specification(V7)
+    j = spec["jump"]
+    s = TaskSchedule(512, "cpu", 37, spec)
+    s.reset(torch.arange(512), 20000)
+    jump = s.mask("jump")
+    over = s.mask("platform") & (s.mode == OVER) & (s.rise == .2)
+    s.delay[jump | over] = 0.
+    for t in (.1, .3, .5, .7, .9, 1.1):
+        age = torch.full((512,), t)
+        staged = s.reference(age)
+        # Flat lanes: the historical closed form.
+        flat = jump & (s.apex > 0)
+        release_v = (2*9.81*(s.apex-j["release_height_m"])).sqrt()
+        duration = 2*(j["release_height_m"]-j["crouch_height_m"])/release_v
+        if t < j["crouch_seconds"]:
+            p = t/j["crouch_seconds"]
+            expected = j["standing_height_m"]+(j["crouch_height_m"]-j["standing_height_m"])*(3*p*p-2*p**3)
+            assert torch.allclose(staged["height"][flat], torch.full_like(staged["height"][flat], expected))
+        push_time = (t-j["crouch_seconds"])
+        pushing = flat & (push_time <= duration)
+        if push_time >= 0 and pushing.any():
+            accel = release_v/duration
+            expected = j["crouch_height_m"]+.5*accel*push_time**2
+            assert torch.allclose(staged["height"][pushing], expected[pushing], atol=1e-6)
+    # Step lanes hold a raised stance before crouching.
+    age = torch.full((512,), .5)
+    staged = s.reference(age)
+    assert bool((staged["height"][over] > .38).all()) and bool(staged["crouch"][over].all())
+
+
+def test_locked_platform_lanes_use_time_requests_and_step_up_has_a_deadline():
+    spec = specification(V7)
+    s = TaskSchedule(1024, "cpu", 41, spec)
+    s.reset(torch.arange(1024), 5000)  # 6 cm unlocked only
+    lane = s.mask("platform")
+    flat = lane & (s.mode == FLAT)
+    low, high = spec["jump"]["request_delay_s"]
+    assert bool(((s.delay[flat] >= low) & (s.delay[flat] <= high)).all())
+    over = lane & (s.mode == OVER)
+    assert over.any()
+    deadline = spec["platform"]["request_deadline_s"]
+    s.advance_platform_requests(torch.full((1024,), deadline-.02), torch.zeros(1024))
+    assert bool((s.delay[over] > 999.).all())
+    s.advance_platform_requests(torch.full((1024,), deadline), torch.zeros(1024))
+    assert torch.allclose(s.delay[over], torch.full_like(s.delay[over], deadline))
+    assert bool((s.delay[lane & (s.mode == DRIVE_OFF)] > 999.).all())
+
+
+def test_braking_near_the_face_is_not_a_strike_and_corner_slide_counts_as_drop():
+    spec = specification(V7)
+    p, j = spec["platform"], spec["jump"]
+    s = TaskSchedule(64, "cpu", 43, spec)
+    s.reset(torch.arange(64), 20000)
+    lane = s.mask("platform") & (s.mode != FLAT)
+    o = PlatformObserver(s, .005, torch.full((64,), 21.))
+    near, r = p["near_edge_x_m"], j["wheel_radius_m"]
+    down = torch.tensor([[0., 0., -1.]]).expand(64, -1)
+    def observe(x, bottom, force, force_x, support=None):
+        xy = torch.stack((torch.full((64, 2), x), torch.tensor([.2, -.2]).expand(64, -1)), -1)
+        support = s.support_height(xy) if support is None else support
+        o.observe(torch.ones(64), xy, torch.as_tensor(bottom).expand(64, 2), support,
+            torch.full((64, 2), force), torch.full((64, 2), force_x), torch.full((64,), .305),
+            torch.zeros(64, 3), down, torch.zeros(64), torch.zeros(64))
+    o.begin_interval()
+    observe(near-r-.03, 0., 60., -20.)  # braking on the floor, 3 cm short of touching
+    assert not bool(o.strike_event.any())
+    # Start on top, then both wheel centres leave the box while one still touches the corner.
+    xy = torch.stack((torch.full((64, 2), near+.5), torch.tensor([.2, -.2]).expand(64, -1)), -1)
+    o.observe(torch.ones(64), xy, s.rise[:, None].expand(-1, 2), s.support_height(xy), torch.full((64, 2), 40.),
+              torch.zeros(64, 2), torch.full((64,), .305), torch.zeros(64, 3), down, torch.zeros(64), torch.zeros(64))
+    observe(near+p["length_m"]+.01, s.rise[:, None].expand(-1, 2)-.02, 30., 0.)
+    assert bool(o.dropped[lane].all())
