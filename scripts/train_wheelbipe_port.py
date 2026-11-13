@@ -204,6 +204,7 @@ def main():
                 raise ValueError("Diagnostic benchmarks require exactly 50 fresh unmanaged updates")
             cfg.port_start_completed_updates = args.benchmark_course_update
             cfg.port_skip_balls_diagnostic = args.benchmark_without_balls
+            cfg.port_benchmark_full_ball_coverage = True
         if args.training_profile in ("foundation-v1","foundation-v2","foundation-jump-v1",
                                      "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"):
             apply_phase(cfg,cfg.port_start_completed_updates+args.motion_update_offset)

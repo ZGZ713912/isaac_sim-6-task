@@ -66,6 +66,7 @@ class TerrainSchedule:
         self.s, self.spec = schedule, schedule.spec
         z = schedule.height
         self.rank = {}
+        self.ids = {task:schedule.mask(task).nonzero().flatten() for task in TERRAIN_TASKS}
         for task in TERRAIN_TASKS:
             mask = schedule.mask(task)
             self.rank[task] = torch.where(mask, mask.long().cumsum(0)-1, -1)
@@ -77,6 +78,7 @@ class TerrainSchedule:
         self.sign = torch.ones_like(z)
         self.terrain_lane = torch.zeros_like(self.active)
         self.segment = torch.full_like(self.mode, -1)
+        self.force_full_ball_coverage = False
         for task in TERRAIN_TASKS:
             self.terrain_lane |= schedule.mask(task)
         self.slope_angle = self.fixed("slope", "lane_angles_deg")*math.pi/180.
@@ -175,6 +177,8 @@ class TerrainSchedule:
                 self.active[lane] = limits["coverage"] > 0.
                 review = self.uniform(lane, [c["coverage_review_min"], max(c["coverage_review_min"], limits["coverage"])])
                 self.coverage[lane] = torch.where(s.random(n) < c["coverage_review_probability"], review, limits["coverage"])*self.active[lane]
+                if self.force_full_ball_coverage:
+                    self.coverage[lane] = limits["coverage"]
                 f, pick = c["mode_fractions"], s.random(n)
                 self.mode[lane] = torch.where(pick < f["stand"], STAND, torch.where(pick < f["stand"]+f["spin"], SPIN, DRIVE))
                 self.spin_rpm[lane] = self.uniform(lane, c["spin_rpm"])
@@ -185,7 +189,7 @@ class TerrainSchedule:
     def update_commands(self, age):
         s = self.s
         for task in TERRAIN_TASKS:
-            ids = s.mask(task).nonzero().flatten()
+            ids = self.ids[task]
             c, t = self.spec[task], age[ids]
             mode = self.mode[ids]
             cmd = torch.zeros(len(ids), 3, device=s.device)

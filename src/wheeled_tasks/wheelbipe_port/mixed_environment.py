@@ -53,6 +53,7 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
 
         if self.task_schedule.terrain is not None:
             from .terrain_objectives import TerrainObjectives
+            self.task_schedule.terrain.force_full_ball_coverage = getattr(self.cfg,"port_benchmark_full_ball_coverage",False)
             self.terrain_objectives = TerrainObjectives(self.task_schedule,self.physics_dt,mass)
             self.ball_field.bind(self.sim)
 

@@ -11,6 +11,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -37,6 +38,8 @@ def main():
     p.add_argument("--seeds",type=int,nargs="+",default=[173,293])
     p.add_argument("--max-cells",type=int,default=None,help="Smoke check only; partial grids cannot qualify")
     p.add_argument("--retention-csv",type=Path,default=None)
+    p.add_argument("--reference-summary",type=Path,default=None,
+        help="Matched V8 regression summary for the 90% retention comparison")
     p.add_argument("--randomization-profile",choices=("both","nominal","requested"),default="both")
     p.add_argument("--checkpoint", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
@@ -79,7 +82,7 @@ def evaluate_suite(a):
     from wheeled_tasks.wheelbipe_port.training_profile import specification
     from wheeled_tasks.wheelbipe_port.scenario_evaluation import scenario_grid,scenario_override,retention_warnings
     from torch.utils.tensorboard import SummaryWriter
-    if a.training_profile != "foundation-jump-v9":
+    if a.training_profile != "foundation-jump-v9" and not (a.suite == "regression" and a.training_profile == "foundation-jump-v8"):
         raise ValueError("V9 suites require --training-profile foundation-jump-v9")
     if a.episodes < 1 or a.num_envs < 1:
         raise ValueError("Positive episode and target-lane counts are required")
@@ -91,6 +94,7 @@ def evaluate_suite(a):
     domains = ["nominal","requested"] if a.randomization_profile == "both" else [a.randomization_profile]
     writer = SummaryWriter(str(a.output/"events"))
     rows = []
+    reference = json.loads(a.reference_summary.read_text())["scenarios"] if a.reference_summary else []
     try:
         for index,cell in enumerate(grid):
             for domain in domains:
@@ -120,6 +124,18 @@ def evaluate_suite(a):
                     if row["episodes"] < episodes:
                         row["missing"].append("requested completed episode population")
                         row["passed"] = False
+                    if a.suite == "regression" and a.training_profile == "foundation-jump-v9":
+                        matched = [r for r in reference if r["cell"]["name"] == cell["name"]
+                            and r["domain"] == domain and r["seed"] == seed]
+                        if not matched:
+                            row["missing"].append("matched V8 checkpoint evaluation at the same update")
+                            row["passed"] = False
+                        else:
+                            baseline = matched[0]["metrics"].get("success_fraction")
+                            value = row["metrics"].get("success_fraction")
+                            row["v8_reference_success_fraction"] = baseline
+                            row["regression_at_least_90_percent_of_v8"] = (baseline is not None and value is not None and value >= .9*baseline)
+                            row["passed"] &= row["regression_at_least_90_percent_of_v8"]
                     rows.append(row)
                     for key,value in row["metrics"].items():
                         if isinstance(value,(int,float)) and math.isfinite(value):
@@ -154,5 +170,4 @@ def evaluate_suite(a):
 
 
 if __name__ == "__main__":
-    import math
     main()
