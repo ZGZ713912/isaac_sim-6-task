@@ -432,6 +432,10 @@ class TaskSchedule:
             self.height[selected] = cell["height"]
             if cell.get("mode") == "height":
                 self.height[selected] = .32+.06*torch.sin(age[selected]*math.pi)
+            if cell["task"] == "balls" and cell.get("mode","").startswith("spin"):
+                spin = (age[selected] >= evaluation["start_s"]) & (age[selected] < evaluation["end_s"])
+                self.commands[selected] = 0.
+                self.commands[selected,2] = self.terrain.sign[selected]*float(cell["mode"][4:])*math.pi/30.*spin
             if cell.get("mode") == "brake":
                 self.commands[selected] = 0.
                 self.commands[selected,0] = torch.where(age[selected] < 2.5,.6,0.)

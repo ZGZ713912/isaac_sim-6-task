@@ -173,7 +173,7 @@ class BumpObserver:
         for name in ("entered_at", "max_tilt", "max_hdev", "entry_along"):
             setattr(self, name, torch.zeros(shape, device=schedule.device))
         self.min_ratio = torch.ones(shape, device=schedule.device)
-        for name in ("in_window", "nonwheel_seen", "settled"):
+        for name in ("in_window", "nonwheel_seen", "settled", "strip_succeeded"):
             setattr(self, name, torch.zeros(shape, device=schedule.device, dtype=torch.bool))
         self.success_count = torch.zeros_like(schedule.height)
         self.failure_count = torch.zeros_like(schedule.height)
@@ -215,6 +215,7 @@ class BumpObserver:
             & (self.max_hdev <= c["success"]["max_height_dev_m"]) & ~self.nonwheel_seen)
         self.success_count += passed.sum(-1)
         self.failure_count += (settle & ~passed).sum(-1)
+        self.strip_succeeded |= passed
         self.settled |= settle
         self.interval_window |= window.any(-1) | exited.any(-1)
         self.in_window = window
@@ -276,13 +277,13 @@ class TerrainObjectives:
         self.bump = BumpObserver(schedule, dt)
         self.balls = BallsObserver(schedule)
         z = schedule.height
-        for name in ("air_land_time", "slope_land_time", "slope_jump_tilt", "slope_jump_offset",
+        for name in ("air_land_time", "slope_land_time", "jump_land_time", "slope_jump_tilt", "slope_jump_offset",
                      "slope_spin_radius", "slope_spin_tilt", "episode_max_tilt", "speed", "com_vz",
                      "roll", "pitch", "body_vz", "slope_event"):
             setattr(self,name,torch.zeros_like(z))
         self.spin_anchor = torch.zeros(len(z),2,device=z.device)
-        for name in ("air_landed", "slope_landed", "spin_started", "spin_finished", "spin_success",
-                     "slope_jump_window", "slope_interval_window", "slope_requested"):
+        for name in ("air_landed", "slope_landed", "jump_landed", "spin_started", "spin_finished", "spin_success",
+                     "slope_jump_window", "slope_interval_window", "slope_requested", "flight_landing_window"):
             setattr(self,name,torch.zeros_like(z,dtype=torch.bool))
         self.totals = {task: {key: torch.zeros((),device=z.device,dtype=torch.float64)
             for key in ("completed", "success", "terminated", "tilt_sum", "radius_sum")}
@@ -317,6 +318,10 @@ class TerrainObjectives:
         tilt = torch.maximum(self.roll.abs(),self.pitch.abs())
         self.episode_max_tilt = torch.maximum(self.episode_max_tilt,tilt)
         contact = ((force_z > s.spec["jump"]["force_threshold_n"]) & ((bottom-support) < s.spec["jump"]["landing_clearance_m"])).all(-1)
+        first_jump_land = jump_observer.flown & ~self.jump_landed & contact
+        self.jump_land_time = torch.where(first_jump_land,age,self.jump_land_time)
+        self.jump_landed |= first_jump_land
+        self.flight_landing_window = jump_observer.flown & (~self.jump_landed | (age <= self.jump_land_time+.5))
         first_air_land = s.mask("airborne") & ~self.air_landed & contact
         self.air_land_time = torch.where(first_air_land,age,self.air_land_time)
         self.air_landed |= first_air_land
@@ -374,9 +379,7 @@ class TerrainObjectives:
                 mask,passed,tilt,radius = self.s.mask(task) & self.s.terrain.active,self.balls.success_event,self.balls.max_tilt,self.balls.max_radius
             else:
                 mask = self.s.mask(task) & self.s.terrain.active
-                passed = (self.bump.settled.any(-1) & ~self.bump.nonwheel_seen.any(-1)
-                    & (self.bump.max_tilt.amax(-1) <= self.s.spec["bump"]["success"]["max_tilt_deg"])
-                    & (self.bump.min_ratio.amin(-1) >= self.s.spec["bump"]["success"]["min_speed_ratio"]))
+                passed = self.bump.strip_succeeded.any(-1) & (~self.bump.settled | self.bump.strip_succeeded).all(-1)
                 tilt,radius = self.bump.max_tilt.amax(-1),self.hold.radius_max
             selected = mask & done
             row["completed"] += selected.sum()

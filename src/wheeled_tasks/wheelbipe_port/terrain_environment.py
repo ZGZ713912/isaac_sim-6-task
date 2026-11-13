@@ -132,6 +132,12 @@ class TerrainEnvironmentMixin:
             tilt = torch.maximum(r,p)
             logs[prefix+"tilt_over_3deg_fraction"] = (tilt > 3.).float().mean()
             logs[prefix+"tilt_over_6deg_fraction"] = (tilt > 6.).float().mean()
+            flight = o.flight_landing_window[mask]
+            valid = self._mixed_age()[mask] >= self.cfg.port_mixed_spec["level"]["reset_grace_s"]
+            ordinary = ~flight & valid
+            logs[prefix+"ordinary_tilt_over_3deg_fraction"] = ((tilt > 3.) & ordinary).sum()/ordinary.sum().clamp_min(1)
+            logs[prefix+"ordinary_tilt_over_6deg_fraction"] = ((tilt > 6.) & ordinary).sum()/ordinary.sum().clamp_min(1)
+            logs[prefix+"flight_landing_tilt_over_6deg_fraction"] = ((tilt > 6.) & flight).sum()/flight.sum().clamp_min(1)
             logs["Hold/"+task+"/radius_mean_m"] = o.hold.radius[mask].mean()
             logs["Hold/"+task+"/radius_max_m"] = o.hold.radius_max[mask].max()
             difficulty = torch.zeros_like(s.height)

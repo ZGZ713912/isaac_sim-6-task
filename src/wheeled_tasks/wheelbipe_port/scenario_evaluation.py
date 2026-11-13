@@ -67,10 +67,12 @@ def scenario_override(spec, cell, target_envs):
     count = target_envs+len(spec["tasks"])-1
     patch = dict(task_fractions={name:(target_envs if name == task else 1)/count for name in spec["tasks"]})
     duration = 8. if task in ("slope","bump") else 6.
-    if task == "balls": duration = 10. if cell["mode"] in ("stand","height") else 6.
+    if task == "balls": duration = 10. if cell["mode"] in ("stand","height") else (7. if cell["mode"].startswith("spin") else 6.)
     evaluation = dict(target=task,duration_s=duration,cell=cell,
         start_s=1.5 if cell["kind"] == "slope_spin" else .3,
         end_s=6.5 if cell["kind"] == "slope_spin" else duration)
+    if task == "balls" and cell["mode"].startswith("spin"):
+        evaluation.update(start_s=1.,end_s=6.)
     patch["evaluation"] = evaluation
     if task in ("slope","step_down","bump","balls"):
         cfg = deepcopy(spec[task])
@@ -144,7 +146,8 @@ class ScenarioRecorder:
         r,p = roll_pitch(e)
         tilt = torch.maximum(r.abs(),p.abs())
         speed = o.speed if o is not None else e.robot.data.root_lin_vel_b[:,0]
-        rpm = e.robot.data.root_ang_vel_w[:,2].abs()*30/math.pi
+        direction = torch.where(e.command[:,2].abs() > 1e-6,e.command[:,2].sign(),s.terrain.sign if s.terrain is not None else 1.)
+        rpm = e.robot.data.root_ang_vel_w[:,2]*direction*30/math.pi
         v["samples"] += active
         v["roll_square"] += r.square()*active; v["pitch_square"] += p.square()*active
         v["max_roll_deg"] = torch.maximum(v["max_roll_deg"],r.abs()*active)
