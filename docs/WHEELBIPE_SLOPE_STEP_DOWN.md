@@ -2,7 +2,7 @@
 
 `foundation-jump-v9` 使用 `contracts/wheelbipe_foundation_jump_v9.json`。它从全新 actor、critic 和空 Adam 开始，总预算 20000 个 PPO 更新；默认策略 50 Hz、逐物理步反馈 PD 200 Hz。35/78/6 的 actor、critic、action 接口与 V8 相同。机械、真实气簧、real2sim v3.2、腿 PD 80/1.5 和 V8 跳跃序列保持原合同。
 
-固定 lane 同时练习 stand、forward、reverse、height、turn、dash、spin、jump、airborne、platform、slope、step_down、bump、balls。配额分别为 9/8/8/5/5/3/5/13/5/11/11/8/6/3%。每个回合只重采样模式和参数，不重新分配任务。解锁后的低难度继续参与复习。
+固定 lane 同时练习 stand、forward、reverse、height、turn、dash、spin、jump、airborne、platform、slope、step_down、bump、balls。按文档第二步性能降级后的配额分别为 10.5/8/8/5/5/3/5/13/5/11/11/8/6/1.5%。释放的球区配额补给站立，所有技能仍同时保留。每个回合只重采样模式和参数，不重新分配任务。解锁后的低难度继续参与复习。
 
 | 内容 | 解锁更新 | 满难度更新 | 目标 |
 |---|---:|---:|---|
@@ -33,4 +33,4 @@ TensorBoard 使用原训练 event 中的 `Level/<task>/*`、`Hold/<task>/*`、`M
 
 暂停使用 `trainctl wheelbipe pause <session>`，等待训练线程在更新边界确认；继续使用 `trainctl wheelbipe resume <session>`。原 PID、GPU、Adam、rollout、仿真和随机状态保留。release 是另一个保存退出并释放 GPU 的操作，冷恢复会重置物理回合，不能当作原进程暂停验证。
 
-当前合同记录了第一步性能调整：Kaiser 2048 env 的 50 更新测量中，V8 后 30 更新均值 17.813 秒，原 1.2 m 球区 V9 为 27.685 秒（1.554 倍），超过 1.35 倍门槛，因此按预先约定缩小训练球区。通过门槛前不启动正式 20000 更新会话；任何后续调整继续写入合同的 performance_adjustments。
+当前合同的 performance_adjustments 记录了球区大小和任务配额的性能调整及其参数依据。降级顺序固定为训练球区 1.0 m、balls 配额 1.5%、球位置迭代 4；释放的配额补给站立。每一步均需重新冻结并完成 50 更新性能验证，达到原 V8 迭代时间的 1.35 倍以内后才启动正式会话。运行回执和原始 event 保存在本地 AI 目录。

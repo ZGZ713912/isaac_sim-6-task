@@ -137,10 +137,11 @@
     "V9 fixed 14-task interleaved lanes, 20000 updates, absolute V8 milestones preserved; all terrain extensions unlock within the same fresh course.",
     "Terrain, support, COM, balls and physical observers are reward/diagnostic only; step_down/bump never issue a jump request.",
     "Default ball field is 1.2 m, 17 mm diameter, 3 g and 30 percent projected area coverage; performance and physics deviations require recorded contract changes.",
-    "Documented plan section 15.6 performance reduction step 1: train ball patch 1.0 m instead of 1.2 m; 2.0 m evaluation, 3 g mass and 30 percent area coverage retained."
+    "Documented plan section 15.6 performance reduction step 1: train ball patch 1.0 m instead of 1.2 m; 2.0 m evaluation, 3 g mass and 30 percent area coverage retained.",
+    "Documented performance reduction step 2: balls quota 1.5 percent; released 1.5 percent goes to stand, with all 14 skill lanes retained and nonzero."
   ],
   "task_fractions": {
-    "stand": 0.09,
+    "stand": 0.105,
     "forward": 0.08,
     "reverse": 0.08,
     "height": 0.05,
@@ -153,7 +154,7 @@
     "slope": 0.11,
     "step_down": 0.08,
     "bump": 0.06,
-    "balls": 0.03
+    "balls": 0.015
   },
   "jump": {
     "standing_height_m": 0.305,
@@ -823,6 +824,24 @@
       "reference_v8_last30_mean_s": 17.81299769083659,
       "measured_original_v9_last30_mean_s": 27.68489170074463,
       "original_ratio": 1.5541961090011462,
+      "maximum_ratio": 1.35,
+      "evaluation_patch_side_m": 2.0,
+      "ball_mass_kg": 0.003,
+      "coverage": 0.3
+    },
+    {
+      "step": 2,
+      "parameter": "task_fractions.balls",
+      "planned": 0.03,
+      "selected": 0.015,
+      "redistribution": {
+        "stand_from": 0.09,
+        "stand_to": 0.105
+      },
+      "reason": "Plan section 15.6 ordered reduction after complete Kaiser 2048-env 50-update 1m benchmark",
+      "reference_v8_last30_mean_s": 17.81299769083659,
+      "measured_patch1m_v9_last30_mean_s": 25.66183433532715,
+      "patch1m_ratio": 1.4406241319240827,
       "maximum_ratio": 1.35,
       "evaluation_patch_side_m": 2.0,
       "ball_mass_kg": 0.003,

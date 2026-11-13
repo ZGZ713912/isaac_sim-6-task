@@ -37,7 +37,7 @@ def test_v1_through_v8_keep_exact_command_streams():
 
 def test_contract_quotas_clocks_weights_and_original_absolute_milestones():
     s, old = specification("foundation-jump-v9"), specification("foundation-jump-v8")
-    assert list(quota_counts(2048, s).values()) == [184,164,164,103,102,62,102,266,102,225,225,164,123,62]
+    assert list(quota_counts(2048, s).values()) == [215,164,164,103,102,62,102,266,102,225,225,164,123,31]
     for key in ("phases", "special_mode_starts", "jump", "platform", "control", "real2sim", "reward_overrides"):
         assert s[key] == old[key]
     assert s["total_updates"] == 20000
