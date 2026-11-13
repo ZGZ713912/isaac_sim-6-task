@@ -26,7 +26,7 @@ def main():
     p.add_argument("--motion-update-offset", type=int, default=0)
     p.add_argument("--randomization-profile", default="nominal")
     p.add_argument("--randomization-strength", type=float, default=0.)
-    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8"), default="foundation-jump-v1")
+    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"), default="foundation-jump-v1")
     p.add_argument("--leg-kp",type=float,default=None)
     p.add_argument("--leg-kd",type=float,default=None)
     p.add_argument("--leg-target-overtravel-rad",type=float,default=None)

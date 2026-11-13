@@ -255,3 +255,151 @@ class BallsObserver:
         lane = self.s.mask("balls") & self.s.terrain.active
         return dict(balls_level=lane*(deadband_square(roll, 1.5, 2., 25.)+deadband_square(pitch, 1.5, 2., 25.)),
             balls_events=self.success_event*self.cfg["success"]["bonus"]/policy_dt)
+
+
+class TerrainObjectives:
+    """Physical measurements, never passed back to the command scheduler."""
+    def __init__(self, schedule, dt, mass):
+        self.s, self.dt = schedule, dt
+        self.hold = PositionHold(schedule)
+        self.step_down = StepDownObserver(schedule, dt, mass)
+        self.bump = BumpObserver(schedule, dt)
+        self.balls = BallsObserver(schedule)
+        z = schedule.height
+        for name in ("air_land_time", "slope_land_time", "slope_jump_tilt", "slope_jump_offset",
+                     "slope_spin_radius", "slope_spin_tilt", "episode_max_tilt", "speed", "com_vz",
+                     "roll", "pitch", "body_vz", "slope_event"):
+            setattr(self,name,torch.zeros_like(z))
+        self.spin_anchor = torch.zeros(len(z),2,device=z.device)
+        for name in ("air_landed", "slope_landed", "spin_started", "spin_finished", "spin_success",
+                     "slope_jump_window", "slope_interval_window", "slope_requested"):
+            setattr(self,name,torch.zeros_like(z,dtype=torch.bool))
+        self.totals = {task: {key: torch.zeros((),device=z.device,dtype=torch.float64)
+            for key in ("completed", "success", "terminated", "tilt_sum", "radius_sum")}
+            for task in ("slope","slope_jump","step_down","bump","balls")}
+
+    def reset(self, ids):
+        for observer in (self.hold,self.step_down,self.bump,self.balls):
+            observer.reset(ids)
+        for value in vars(self).values():
+            if isinstance(value,torch.Tensor):
+                value[ids] = 0
+
+    def begin_interval(self, age, xy, command, jump_observer, policy_dt):
+        from .terrain_curriculum import JUMP
+        for observer in (self.step_down,self.bump,self.balls):
+            observer.begin_interval()
+        self.slope_event.zero_()
+        self.slope_interval_window.zero_()
+        slope_jump = self.s.mask("slope") & (self.s.terrain.mode == JUMP)
+        request = slope_jump & (age >= self.s.delay)
+        blocked = request & (~self.slope_landed | (age < self.slope_land_time+self.s.spec["slope"]["jump"]["hold_after_landing_s"]))
+        jump_return = request & ~blocked & (self.s.terrain.speed.abs() < 1e-6)
+        self.hold.update(xy,command,policy_dt,blocked=blocked,request=request,jump_return=jump_return)
+        self.slope_requested = request
+
+    def observe(self, age, root_xy, wheel_xy, bottom, support, force_z, height, velocity_z,
+                gravity, speed, cmd, nonwheel, com_vz, slip, jump_observer):
+        from .terrain_curriculum import SPIN,JUMP
+        s,t = self.s,self.s.terrain
+        self.roll,self.pitch = roll_pitch_deg(gravity)
+        self.speed,self.com_vz,self.body_vz = speed,com_vz,velocity_z.clone()
+        tilt = torch.maximum(self.roll.abs(),self.pitch.abs())
+        self.episode_max_tilt = torch.maximum(self.episode_max_tilt,tilt)
+        contact = ((force_z > s.spec["jump"]["force_threshold_n"]) & ((bottom-support) < s.spec["jump"]["landing_clearance_m"])).all(-1)
+        first_air_land = s.mask("airborne") & ~self.air_landed & contact
+        self.air_land_time = torch.where(first_air_land,age,self.air_land_time)
+        self.air_landed |= first_air_land
+        jump_lane = s.mask("slope") & (t.mode == JUMP)
+        first_land = jump_lane & jump_observer.flown & ~self.slope_landed & contact
+        self.slope_land_time = torch.where(first_land,age,self.slope_land_time)
+        self.slope_landed |= first_land
+        self.slope_jump_offset = torch.where(first_land,(root_xy-self.hold.jump_anchor).norm(dim=-1),self.slope_jump_offset)
+        ref = s.reference(age)
+        window = jump_lane & (ref["push"] | ref["after_push"]) & (age >= s.delay) & (~self.slope_landed
+            | (age < self.slope_land_time+s.spec["slope"]["jump"]["level_window_after_landing_s"]))
+        self.slope_jump_window = window
+        self.slope_interval_window |= window
+        self.slope_jump_tilt = torch.maximum(self.slope_jump_tilt,tilt*window)
+        spin_cfg = s.spec["slope"]["spin"]
+        spin = s.mask("slope") & t.active & (t.mode == SPIN)
+        in_segment = spin & (age >= spin_cfg["pre_hold_s"]) & (age < spin_cfg["pre_hold_s"]+spin_cfg["spin_s"])
+        start = in_segment & ~self.spin_started
+        self.spin_anchor[start] = root_xy[start]
+        self.spin_started |= in_segment
+        radius = (root_xy-self.spin_anchor).norm(dim=-1)
+        self.slope_spin_radius = torch.maximum(self.slope_spin_radius,radius*in_segment)
+        self.slope_spin_tilt = torch.maximum(self.slope_spin_tilt,tilt*in_segment)
+        end = spin & self.spin_started & ~self.spin_finished & (age >= spin_cfg["pre_hold_s"]+spin_cfg["spin_s"])
+        c = s.spec["slope"]["spin_success"]
+        passed = end & (self.slope_spin_radius <= c["max_radius_m"]) & (self.slope_spin_tilt <= c["max_tilt_deg"])
+        self.slope_event += passed*c["bonus"]
+        self.spin_success |= passed
+        self.spin_finished |= end
+        self.step_down.observe(age,wheel_xy,bottom,support,force_z,height,velocity_z,self.roll,self.pitch,speed,cmd,nonwheel)
+        self.bump.observe(age,wheel_xy,self.roll,self.pitch,speed,cmd,
+                          height-s.height,nonwheel)
+        self.balls.observe(root_xy,self.roll,self.pitch,slip)
+
+    def finish(self, timeout, terminated, jump_observer):
+        from .terrain_curriculum import JUMP
+        self.balls.finish(timeout,terminated)
+        self.step_down.success_event &= ~terminated
+        self.step_down.success &= ~terminated
+        self.spin_success &= ~terminated
+        self.slope_event *= ~terminated
+        done = timeout | terminated
+        slope_jump = self.s.mask("slope") & (self.s.terrain.mode == JUMP)
+        jump_observer.succeeded[slope_jump & terminated] = False
+        jump_observer.success_event[slope_jump & terminated] = False
+        for task,row in self.totals.items():
+            if task == "slope_jump":
+                mask,passed,tilt,radius = slope_jump,jump_observer.succeeded,self.slope_jump_tilt,self.slope_jump_offset
+            elif task == "slope":
+                mask = self.s.mask(task) & self.s.terrain.active & ~slope_jump
+                passed,tilt,radius = self.spin_success,self.episode_max_tilt,self.slope_spin_radius
+            elif task == "step_down":
+                mask,passed,tilt,radius = self.s.mask(task) & self.s.terrain.active,self.step_down.success,self.step_down.max_tilt_w,self.hold.radius_max
+            elif task == "balls":
+                mask,passed,tilt,radius = self.s.mask(task) & self.s.terrain.active,self.balls.success_event,self.balls.max_tilt,self.balls.max_radius
+            else:
+                mask = self.s.mask(task) & self.s.terrain.active
+                passed = (self.bump.settled.any(-1) & ~self.bump.nonwheel_seen.any(-1)
+                    & (self.bump.max_tilt.amax(-1) <= self.s.spec["bump"]["success"]["max_tilt_deg"])
+                    & (self.bump.min_ratio.amin(-1) >= self.s.spec["bump"]["success"]["min_speed_ratio"]))
+                tilt,radius = self.bump.max_tilt.amax(-1),self.hold.radius_max
+            selected = mask & done
+            row["completed"] += selected.sum()
+            row["success"] += (selected & passed & ~terminated).sum()
+            row["terminated"] += (selected & terminated).sum()
+            row["tilt_sum"] += (tilt*selected).sum()
+            row["radius_sum"] += (radius*selected).sum()
+
+    def reward_terms(self, age, policy_dt):
+        c,s,t = self.s.spec["level"],self.s,self.s.terrain
+        valid = (age >= c["reset_grace_s"]) & ~(s.mask("airborne") & self.air_landed
+            & (age < self.air_land_time+c["airborne_grace_after_landing_s"]))
+        r,p = self.roll,self.pitch
+        slope = s.mask("slope") & t.active & ~self.slope_interval_window
+        terms = dict(level_roll=valid*deadband_square(r,c["roll_deadband_deg"],c["roll_scale_deg"],c["clamp"]),
+            level_pitch=valid*deadband_square(p,c["pitch_deadband_deg"],c["pitch_scale_deg"],c["clamp"]),
+            slope_level=slope*(deadband_square(r,1.5,2.,25.)+.5*deadband_square(p,1.5,2.,25.)),
+            slope_jump_level=self.slope_interval_window*(deadband_square(r,3.,3.,25.)+deadband_square(p,3.,3.,25.)),
+            slope_events=self.slope_event/policy_dt)
+        terms.update(self.hold.reward_terms())
+        terms.update(self.step_down.reward_terms(r,p,self.speed,s.commands[:,0],self.com_vz,policy_dt))
+        terms.update(self.bump.reward_terms(r,p,self.speed,s.commands[:,0],self.body_vz,policy_dt))
+        terms.update(self.balls.reward_terms(r,p,policy_dt))
+        return terms
+
+    def metrics(self):
+        result = {}
+        for task,row in self.totals.items():
+            prefix = "Mixed/"+task+"/"
+            result[prefix+"completed_episodes_total"] = row["completed"]
+            result[prefix+"success_fraction"] = row["success"]/row["completed"].clamp_min(1.)
+            result[prefix+"terminated_episodes_total"] = row["terminated"]
+            if task == "slope_jump":
+                result[prefix+"landing_tilt_max_deg_mean"] = row["tilt_sum"]/row["completed"].clamp_min(1.)
+                result[prefix+"landing_offset_m_mean"] = row["radius_sum"]/row["completed"].clamp_min(1.)
+        return result

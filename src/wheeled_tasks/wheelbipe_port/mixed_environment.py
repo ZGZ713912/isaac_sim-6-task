@@ -51,6 +51,11 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
         self._mixed_wheel_radius = torch.tensor([c["radius"] for c in collisions], device=self.device)
         self._mixed_wheel_half_length = torch.tensor([c["length"]*.5 for c in collisions], device=self.device)
 
+        if self.task_schedule.terrain is not None:
+            from .terrain_objectives import TerrainObjectives
+            self.terrain_objectives = TerrainObjectives(self.task_schedule,self.physics_dt,mass)
+            self.ball_field.bind(self.sim)
+
     def _mixed_enabled(self):
         return self.task_schedule is not None and not hasattr(self, "eval_command")
 
@@ -240,6 +245,9 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
                     speed*self.cfg.port_mixed_spec["jump"]["wheel_radius_m"]*self.step_dt)
             self._mixed_interval_age = self._mixed_age().clone()
         super()._pre_physics_step(actions)
+        if self.terrain_objectives is not None and self._mixed_enabled():
+            xy = self.robot.data.root_pos_w[:,:2]-self.terrain.env_origins[:,:2]
+            self.terrain_objectives.begin_interval(self._mixed_age(),xy,self.command,self.jump_observer,self.step_dt)
 
     def _observe_jump(self):
         if not self._mixed_enabled() or self._mixed_observed_tick == self.port_physics_calls:
@@ -281,8 +289,7 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
             from .jump_objectives import JumpPhysics
             data = self.robot.data
             weights = self._mixed_mass_fractions
-            com_height = (data.body_com_pos_w[..., 2]*weights).sum(-1)-self.terrain.env_origins[:, 2]
-            com_vz = (data.body_com_lin_vel_w[..., 2]*weights).sum(-1)
+            com_height,com_vz = self._com_state()
             lower, upper = self.collision_support.bounds["base_link"]
             vertical = -data.projected_gravity_b
             chassis_bottom = ((vertical*(upper+lower)/2).sum(-1)
@@ -304,6 +311,10 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
                 wheel_force, force_x, height, self.robot.data.root_lin_vel_w,
                 self.robot.data.projected_gravity_b, speed_error, other_force)
 
+        if self.terrain_objectives is not None:
+            force_z = self.contact_sensor.data.net_forces_w[:,self._mixed_sensor_wheel_ids,2]
+            self._observe_v9_terrain(self._mixed_age(physics=True),xy,bottom,support,force_z,height,other_force)
+
     def _apply_action(self):
         self._observe_jump()
         super()._apply_action()
@@ -318,6 +329,10 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
             if schedule.has_platform:
                 timeout |= schedule.mask("platform") & (
                     self._mixed_age() >= self.cfg.port_mixed_spec["platform"]["episode_seconds"])
+            if self.terrain_objectives is not None:
+                for task in ("slope","step_down","bump","balls"):
+                    timeout |= schedule.mask(task) & (self._mixed_age() >= self.cfg.port_mixed_spec[task]["episode_seconds"])
+                self.terrain_objectives.finish(timeout,terminate,self.jump_observer)
             bad_success = self.jump_observer.success_event & terminate
             self.jump_observer.success_event[bad_success] = False
             self.jump_observer.succeeded[bad_success] = False
@@ -352,6 +367,12 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
             self.robot.data.root_lin_vel_w[:, 2], wheel_body, self.step_dt))
         if self.platform_observer is not None:
             terms.update(self.platform_observer.reward_terms(age, xy, bottom, self.step_dt))
+        if self.terrain_objectives is not None:
+            win = self.terrain_objectives.step_down.interval_window
+            for name in self.cfg.port_mixed_spec["step_down"]["suppressed_during_window"]:
+                if name in terms:
+                    terms[name] = terms[name]*(~win)
+            terms.update(self.terrain_objectives.reward_terms(age,self.step_dt))
         return terms
 
     def _get_rewards(self):
@@ -401,6 +422,8 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
                 logs["Mixed/"+task+"/constraint_gap_over_3mm_env_fraction"] = (
                     bad_gap[self.task_schedule.mask(task)].float().mean())
             self._log_arcs_and_platforms(logs)
+            if self.terrain_objectives is not None:
+                self._log_v9_terrain(logs)
             if self.jump_observer.sequence is not None:
                 sequence = self.jump_observer.sequence
                 # PPO writes these snapshots at its update boundary. Sending

@@ -104,3 +104,76 @@ class TerrainEnvironmentMixin:
         data,weights = self.robot.data,self._mixed_mass_fractions
         return ((data.body_com_pos_w[...,2]*weights).sum(-1)-self.terrain.env_origins[:,2],
                 (data.body_com_lin_vel_w[...,2]*weights).sum(-1))
+
+    def _observe_v9_terrain(self, age, xy, bottom, support, force_z, height, nonwheel):
+        data = self.robot.data
+        heading = quat_apply(data.root_quat_w,data.root_quat_w.new_tensor([1.,0.,0.]).expand(self.num_envs,-1))[:,:2]
+        heading = heading/heading.norm(dim=-1,keepdim=True).clamp_min(1e-6)
+        speed = (data.root_lin_vel_w[:,:2]*heading).sum(-1)
+        offset = quat_apply(data.body_quat_w[:,self._mixed_wheel_ids],self._mixed_wheel_offset.expand(self.num_envs,-1,-1))
+        omega = data.body_ang_vel_w[:,self._mixed_wheel_ids]
+        center_velocity = data.body_lin_vel_w[:,self._mixed_wheel_ids]+torch.cross(omega,offset,dim=-1)
+        lateral = torch.stack((-heading[:,1],heading[:,0],torch.zeros_like(heading[:,0])),-1)
+        rolling_speed = (omega*lateral[:,None]).sum(-1)*self._mixed_wheel_radius
+        slip = (rolling_speed-(center_velocity[...,:2]*heading[:,None]).sum(-1)).abs().mean(-1)
+        _,com_vz = self._com_state()
+        root_xy = data.root_pos_w[:,:2]-self.terrain.env_origins[:,:2]
+        self.terrain_objectives.observe(age,root_xy,xy,bottom,support,force_z,height,
+            data.root_lin_vel_w[:,2],data.projected_gravity_b,speed,self.command[:,0],nonwheel,
+            com_vz,slip,self.jump_observer)
+
+    def _log_v9_terrain(self, logs):
+        from .terrain_curriculum import STAND,SPIN,DRIVE,JUMP
+        s,t,o = self.task_schedule,self.task_schedule.terrain,self.terrain_objectives
+        for task in s.tasks:
+            mask = s.mask(task)
+            r,p = o.roll[mask].abs(),o.pitch[mask].abs()
+            prefix = "Level/"+task+"/"
+            logs[prefix+"roll_abs_mean_deg"] = r.mean()
+            logs[prefix+"pitch_abs_mean_deg"] = p.mean()
+            tilt = torch.maximum(r,p)
+            logs[prefix+"tilt_over_3deg_fraction"] = (tilt > 3.).float().mean()
+            logs[prefix+"tilt_over_6deg_fraction"] = (tilt > 6.).float().mean()
+            logs["Hold/"+task+"/radius_mean_m"] = o.hold.radius[mask].mean()
+            logs["Hold/"+task+"/radius_max_m"] = o.hold.radius_max[mask].max()
+            difficulty = torch.zeros_like(s.height)
+            if task == "slope": difficulty = torch.rad2deg(t.slope_angle)*t.active
+            elif task in ("step_down","bump"): difficulty = t.terrain_height*t.active
+            elif task == "balls": difficulty = t.coverage
+            elif task == "jump": difficulty = s.apex
+            elif task == "platform": difficulty = s.rise
+            logs["Mixed/"+task+"/difficulty_mean"] = difficulty[mask].mean()
+        limits = t.limits()
+        scalar = lambda x: s.height.new_tensor(float(x))
+        logs["Mixed/slope/angle_limit_deg"] = scalar(limits["slope"])
+        logs["Mixed/slope/jump_prob"] = scalar(limits["jump_probability"])
+        for mode,name in ((SPIN,"spin"),(STAND,"stand"),(DRIVE,"drive"),(JUMP,"jump")):
+            logs["Mixed/slope/"+name+"_envs"] = (s.mask("slope") & t.active & (t.mode == mode)).sum().float()
+        logs["Mixed/slope/flat_envs"] = (s.mask("slope") & ~t.active).sum().float()
+        spin = s.mask("slope") & (t.mode == SPIN)
+        logs["Mixed/slope/spin_rpm_abs_mean"] = t.spin_rpm[spin].sum()/spin.sum().clamp_min(1)
+        logs["Mixed/slope/spin_rpm_difficulty_mean"] = logs["Mixed/slope/spin_rpm_abs_mean"]
+        logs["Mixed/slope/segment_success_count_per_step"] = o.slope_event.sum()
+        down = o.step_down
+        logs["Mixed/step_down/height_limit_m"] = scalar(limits["step_down"])
+        logs["Mixed/step_down/window_envs"] = down.interval_window.sum().float()
+        for name in ("success","stumble","timeout"):
+            logs["Mixed/step_down/"+name+"_count_per_step"] = getattr(down,name+"_event").sum().float()
+        mask = s.mask("step_down")
+        logs["Mixed/step_down/landing_force_peak_bw"] = (down.force_peak[mask]/down.weight[mask]).mean()
+        logs["Mixed/step_down/window_tilt_max_deg_mean"] = down.max_tilt_w[mask].mean()
+        logs["Mixed/step_down/speed_ratio_min_mean"] = down.min_ratio_w[mask].mean()
+        bump,mask = o.bump,s.mask("bump")
+        logs["Mixed/bump/height_limit_m"] = scalar(limits["bump"])
+        logs["Mixed/bump/strip_success_count_per_step"] = bump.success_count.sum()
+        logs["Mixed/bump/strip_failure_count_per_step"] = bump.failure_count.sum()
+        logs["Mixed/bump/window_tilt_max_deg_mean"] = bump.max_tilt[mask].amax(-1).mean()
+        logs["Mixed/bump/speed_ratio_min_mean"] = bump.min_ratio[mask].amin(-1).mean()
+        logs["Mixed/bump/height_dev_max_m_mean"] = bump.max_hdev[mask].amax(-1).mean()
+        balls,mask = o.balls,s.mask("balls")
+        logs["Mixed/balls/coverage"] = t.coverage[mask].mean()
+        logs["Mixed/balls/tilt_max_deg_mean"] = balls.max_tilt[mask].mean()
+        logs["Mixed/balls/radius_max_m_mean"] = balls.max_radius[mask].mean()
+        logs["Mixed/balls/wheel_slip_mean_m_s"] = (balls.slip_sum[mask]/balls.samples[mask].clamp_min(1.)).mean()
+        if not getattr(self,"port_sequence_metrics_in_runner",False):
+            logs.update(o.metrics())

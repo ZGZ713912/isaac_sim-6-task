@@ -36,7 +36,7 @@ def main():
     p.add_argument("--rise", type=float, default=.2)
     p.add_argument("--speeds", type=float, nargs="+", default=[.5, .75, 1.])
     p.add_argument("--randomization-strength", type=float, default=0.)
-    p.add_argument("--training-profile", choices=("foundation-jump-v7", "foundation-jump-v8"), default="foundation-jump-v7")
+    p.add_argument("--training-profile", choices=("foundation-jump-v7", "foundation-jump-v8","foundation-jump-v9"), default="foundation-jump-v7")
     p.add_argument("--python", default=sys.executable)
     a = p.parse_args()
     a.output.mkdir(parents=True, exist_ok=False)
