@@ -219,3 +219,62 @@ def test_cuda_schedule_and_observers_stay_on_device():
     assert s.support_height(torch.zeros(100,2,2,device=s.device)).is_cuda
     assert PositionHold(s).anchor.is_cuda
     assert StepDownObserver(s,.005,torch.full((100,),21.,device=s.device)).force_peak.is_cuda
+
+
+def test_ball_layouts_coverage_parking_and_no_overlap():
+    from scipy.spatial import cKDTree
+    from wheeled_tasks.wheelbipe_port.ball_field import make_layouts,ball_count,parked_positions
+    cfg = specification("foundation-jump-v9")["balls"]
+    layouts = make_layouts(cfg,13)
+    assert layouts.shape == (16,1904,2)
+    for points in layouts:
+        distances,_ = cKDTree(points).query(points,k=2)
+        assert distances[:,1].min() >= .01749
+    area = ball_count(cfg)*math.pi*(cfg["diameter_m"]/2)**2/cfg["patch_side_m"]**2
+    assert abs(area-.30) < .005
+    park = parked_positions(cfg)
+    distances,_ = cKDTree(park).query(park,k=2)
+    assert distances[:,1].min() > .0199
+    assert abs(round(ball_count(cfg)*.1/.3)-ball_count(cfg)/3) <= 1
+
+
+def test_ball_tensor_paths_are_resolved_and_reset_uses_xyzw():
+    from wheeled_tasks.wheelbipe_port.ball_field import BallField,ball_count
+    s = schedule(100)
+    # A tiny field keeps the tensor-path counterexample fast; production layout
+    # population/spacing is verified separately above.
+    s.spec["balls"]["patch_side_m"] = .1
+    s.spec["balls"]["layouts"] = 2
+    field = BallField(s,17)
+    paths = [f"/World/envs/env_{i}/Balls/b_{b}" for i in field.lanes.tolist() for b in range(field.count)]
+    class View:
+        count = len(paths)
+        prim_paths = list(reversed(paths))
+        def set_transforms(self,data,indices):
+            assert data.shape == (self.count,7)
+            assert (data[indices.long(),3:6] == 0).all()
+            assert (data[indices.long(),6] == 1).all()
+        def set_velocities(self,data,indices):
+            assert data.shape == (self.count,6)
+            assert (data[indices.long()] == 0).all()
+    class Sim:
+        physics_sim_view = None
+        def create_rigid_body_view(self,pattern): return View()
+    sim = Sim(); sim.physics_sim_view = sim
+    field.bind(sim)
+    field.reset(torch.arange(100),torch.zeros(100,3))
+    assert field.indices[field.lanes[0],0] == len(paths)-1
+
+
+def test_terrain_rewards_are_densities_and_physical_failure_revokes_outcomes():
+    from wheeled_tasks.wheelbipe_port.terrain_objectives import TerrainObjectives
+    from wheeled_tasks.wheelbipe_port.mixed_curriculum import JumpObserver
+    s = schedule(100); j = JumpObserver(s,.005,torch.full((100,),21.))
+    o = TerrainObjectives(s,.005,torch.full((100,),21.))
+    lane = s.mask("step_down")
+    o.step_down.success[lane] = o.step_down.success_event[lane] = True
+    terms = o.reward_terms(torch.ones(100),.02)
+    torch.testing.assert_close(terms["step_down_events"][lane]*.02,torch.full((int(lane.sum()),),2.))
+    o.finish(torch.zeros(100,dtype=torch.bool),lane,j)
+    assert not o.step_down.success[lane].any()
+    assert o.metrics()["Mixed/step_down/success_fraction"] == 0.

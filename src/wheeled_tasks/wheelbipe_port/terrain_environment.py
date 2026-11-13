@@ -83,15 +83,11 @@ class TerrainEnvironmentMixin:
             root[slope,2] = self.terrain.env_origins[sid,2]+plane+s.height[sid]+.005
             _,rotation,_ = slope_geometry(t.slope_angle[sid],t.slope_yaw[sid],cfg)
             relative = quat_mul(quat_conjugate(rotation),root[slope,3:7])
-            # minimum_z verifies reset penetration in the tilted support frame;
-            # chassis clearance separately excludes the intended wheel contacts.
-            minimum_plane = self.collision_support.minimum_z(q[slope],relative)
+            # Select the chassis: tilted wheel AABBs conservatively extend below
+            # their actual cylinders and cannot serve as a penetration oracle.
+            minimum_plane = self.collision_support.minimum_z(q[slope],relative,body_names=("base_link",))
             separation = (s.height[sid]+.005)*t.slope_angle[sid].cos()
-            if (minimum_plane+separation < -.003).any():
-                raise ValueError("Slope reset collision envelope penetrates its plane")
-            lower,upper = self.collision_support.bounds["base_link"]
-            normal_b = quat_apply(quat_conjugate(relative),relative.new_tensor([0.,0.,1.]).expand(len(sid),-1))
-            clearance = separation+(normal_b*(lower+upper)/2).sum(-1)-(normal_b.abs()*(upper-lower)/2).sum(-1)
+            clearance = minimum_plane+separation
             if (clearance < .02).any():
                 raise ValueError("Slope reset chassis clearance is below 2 cm")
         root[:,7:] = 0.

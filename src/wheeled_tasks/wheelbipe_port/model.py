@@ -192,7 +192,7 @@ class CollisionSupport:
             if not progressed:
                 raise ValueError("CAD joint graph is not a rooted tree")
 
-    def minimum_z(self,positions,root_quaternion_wxyz):
+    def minimum_z(self,positions,root_quaternion_wxyz,*,body_names=None):
         torch = self.torch
         count = len(positions)
         rotations = {"base_link":self.eye.expand(count,3,3)}
@@ -211,8 +211,12 @@ class CollisionSupport:
         vertical = torch.stack((2.*(x*z-w*y),2.*(y*z+w*x),1.-2.*(x*x+y*y)),-1)
         minima = []
         for name,(lower,upper) in self.bounds.items():
+            if body_names is not None and name not in body_names:
+                continue
             direction = (rotations[name].transpose(-2,-1)@vertical[:,:,None]).squeeze(-1)
             center,half = (upper+lower)/2.,(upper-lower)/2.
             minima.append((translations[name]*vertical).sum(-1)+(direction*center).sum(-1)
                 -(direction.abs()*half).sum(-1))
+        if not minima:
+            raise ValueError("Collision support body selection is empty")
         return torch.stack(minima,-1).min(-1).values
