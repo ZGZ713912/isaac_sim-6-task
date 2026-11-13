@@ -140,7 +140,7 @@
     "Documented plan section 15.6 performance reduction step 1: train ball patch 1.0 m instead of 1.2 m; 2.0 m evaluation, 3 g mass and 30 percent area coverage retained.",
     "Documented performance reduction step 2: balls quota 1.5 percent; released 1.5 percent goes to stand, with all 14 skill lanes retained and nonzero.",
     "Documented performance reduction step 3: ball solver position iterations 4 for training; retain original 8 for the independent 2m,30 percent evaluation.",
-    "2026-11-13 user authorized V9-only numerical solver investigation; selected TGS64/0, preserving 17mm/3g, all original acceptance thresholds and 1.35x performance gate. Each ball keeps one velocity iteration; scene/island counts can therefore exceed the robot velocity count."
+    "2026-11-13 user authorized V9-only numerical solver investigation; selected TGS128/0, preserving 17mm/3g, all original acceptance thresholds and 1.35x performance gate. Each ball keeps one velocity iteration; scene/island counts can therefore exceed the robot velocity count."
   ],
   "task_fractions": {
     "stand": 0.105,
@@ -772,7 +772,7 @@
       "bonus": 1.0
     },
     "solver_position_iterations": 4,
-    "max_depenetration_velocity_m_s": 0.5,
+    "max_depenetration_velocity_m_s": 0.2,
     "physx_buffers": {
       "gpu_max_rigid_contact_count": 16777216,
       "gpu_max_rigid_patch_count": 2097152,
@@ -869,7 +869,7 @@
   ],
   "physics_solver": {
     "type": "tgs",
-    "position_iterations": 64,
+    "position_iterations": 128,
     "velocity_iterations": 0
   },
   "numerical_adjustments": [
@@ -895,6 +895,18 @@
       "selected": "existing distant parking grid until the first explicit reset",
       "scope": "Initialization only; sampled layout and free rigid bodies unchanged",
       "reason": "Avoid contacts with the temporary default robot pose during scene initialization"
+    },
+    {
+      "parameter": "physics_solver.position_iterations",
+      "original": 64,
+      "selected": 128,
+      "reason": "The 64/0 candidate passed initial birth and performance but failed the strict first-second gate after a later reset; increase contact and closed-chain position resolution without changing the 200Hz physics/PD clock"
+    },
+    {
+      "parameter": "balls.max_depenetration_velocity_m_s",
+      "original": 0.5,
+      "selected": 0.2,
+      "reason": "Plan section10.6 first physical-stability adjustment, combined with the user-authorized V9 numerical solver selection"
     }
   ]
 }

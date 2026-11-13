@@ -25,7 +25,7 @@
 
 所有奖励都是每秒密度，由原 reward 入口乘一次 policy dt 和权重。事件先除以 policy dt。下台阶窗口抑制高度跟踪和竖直速度的旧项；坡面跳跃窗口使用专门水平项，避免叠加 slope_level。完成后的失败会撤销回合成功统计。完整验收使用合同参数及只读套件，不能用预检、reward 或训练完成代替行为验收。
 
-使用 `scripts/train_wheelbipe_port.py --mode preflight --training-profile foundation-jump-v9 --iterations 20000 --num-envs 64 --physics-hz 200 --solver-type tgs --solver-position-iterations 64 --solver-velocity-iterations 0 --headless --output .codex/report/<run>/preflight` 检查原生接线。
+使用 `scripts/train_wheelbipe_port.py --mode preflight --training-profile foundation-jump-v9 --iterations 20000 --num-envs 64 --physics-hz 200 --solver-type tgs --solver-position-iterations 128 --solver-velocity-iterations 0 --headless --output .codex/report/<run>/preflight` 检查原生接线。
 
 `--mode benchmark --iterations 50 --benchmark-course-update 20000` 从零构造诊断 PPO，并固定满难度课程时钟；`--benchmark-without-balls` 只允许此模式。比较相同机器、环境数的 V8、V9 无球和 V9 含球，使用 TensorBoard 的 `Perf/iteration_time_s` 后 30 更新均值。正式训练必须从已验证提交 `git archive` 冻结，scoped deployment manifest 小于 256 KB，然后用 `WheelbipeSession.create` 和 `trainctl wheelbipe` 管理。
 
@@ -37,10 +37,12 @@ TensorBoard 使用原训练 event 中的 `Level/<task>/*`、`Hold/<task>/*`、`M
 
 当前合同的 performance_adjustments 记录了球区大小和任务配额的性能调整及其参数依据。降级顺序固定为训练球区 1.0 m、balls 配额 1.5%、球位置迭代 4；释放的配额补给站立。每一步均需重新冻结并完成 50 更新性能验证，达到原 V8 迭代时间的 1.35 倍以内后才启动正式会话。运行回执和原始 event 保存在本地 AI 目录。
 
-当前训练球体使用 4 次位置迭代；独立 2.0 m / 30% 覆盖率评测保留原始 8 次。机器人求解器默认 TGS 64/0，球自身保留 1 次速度迭代，球质量保持 3 g。接触岛可因此采用至少 1 次速度迭代。此 V9 专属调整已经用户于 2026-11-13 明确授权，V1–V8 的默认配置不变。
+当前训练球体使用 4 次位置迭代；独立 2.0 m / 30% 覆盖率评测保留原始 8 次。机器人求解器默认 TGS 128/0，球自身保留 1 次速度迭代，球质量保持 3 g。接触岛可因此采用至少 1 次速度迭代。此 V9 专属调整已经用户于 2026-11-13 明确授权，V1–V8 的默认配置不变。
 
 每任务支付、Level 和 Hold 的诊断统计使用批量分组汇总，减少 GPU 同步开销。汇总发生在日志路径，奖励密度、控制与命令仍使用原合同。显式启用确定性算法时，诊断统计保留确定性计算路径。
 
 原生只读验证逐策略步检查球体位姿与速度是否有限，并写入 `BallField/maximum_speed_m_s` 和 `BallField/minimum_z_m`。前 1 秒执行 5 m/s、7.5 mm 的计划门槛；整个窗口出现超过 100 m/s 的数值失稳会使验证失败。后者用于拒绝求解器爆炸，不是行为验收阈值，也不接入训练停训或课程控制。
 
-训练与只读验证均支持 `--solver-type tgs|pgs`、`--solver-position-iterations`、`--solver-velocity-iterations`；显式 CLI 优先于合同默认。正式会话须将三项选择写入冻结参数，不能把已退出的旧 TGS64/32 会话迁移到新物理配置。TGS64/0、11mm出生净空和初始化停放都记录在合同 `numerical_adjustments` 中，必须重新通过完整数值与性能门后从零启动。
+训练与只读验证均支持 `--solver-type tgs|pgs`、`--solver-position-iterations`、`--solver-velocity-iterations`；显式 CLI 优先于合同默认。正式会话须将三项选择写入冻结参数，不能把已退出的旧 TGS64/32 会话迁移到新物理配置。TGS128/0、11mm出生净空和初始化停放都记录在合同 `numerical_adjustments` 中，必须重新通过完整数值与性能门后从零启动。
+
+球体最大穿透修正速度采用计划 §10.6 的 0.2 m/s。机器人位置迭代 128、速度迭代 0；球体自身位置迭代 4/评测8、速度迭代1。位置迭代的增加不改变 200Hz 仿真步长和逐物理步反馈PD时钟。
