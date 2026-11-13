@@ -25,7 +25,7 @@
 
 所有奖励都是每秒密度，由原 reward 入口乘一次 policy dt 和权重。事件先除以 policy dt。下台阶窗口抑制高度跟踪和竖直速度的旧项；坡面跳跃窗口使用专门水平项，避免叠加 slope_level。完成后的失败会撤销回合成功统计。完整验收使用合同参数及只读套件，不能用预检、reward 或训练完成代替行为验收。
 
-使用 `scripts/train_wheelbipe_port.py --mode preflight --training-profile foundation-jump-v9 --iterations 20000 --num-envs 64 --physics-hz 200 --solver-position-iterations 64 --solver-velocity-iterations 32 --headless --output .codex/report/<run>/preflight` 检查原生接线。
+使用 `scripts/train_wheelbipe_port.py --mode preflight --training-profile foundation-jump-v9 --iterations 20000 --num-envs 64 --physics-hz 200 --solver-type tgs --solver-position-iterations 64 --solver-velocity-iterations 0 --headless --output .codex/report/<run>/preflight` 检查原生接线。
 
 `--mode benchmark --iterations 50 --benchmark-course-update 20000` 从零构造诊断 PPO，并固定满难度课程时钟；`--benchmark-without-balls` 只允许此模式。比较相同机器、环境数的 V8、V9 无球和 V9 含球，使用 TensorBoard 的 `Perf/iteration_time_s` 后 30 更新均值。正式训练必须从已验证提交 `git archive` 冻结，scoped deployment manifest 小于 256 KB，然后用 `WheelbipeSession.create` 和 `trainctl wheelbipe` 管理。
 
