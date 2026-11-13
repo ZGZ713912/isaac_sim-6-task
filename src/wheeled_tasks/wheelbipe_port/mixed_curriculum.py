@@ -13,6 +13,7 @@ import torch
 
 TASKS = ("stand", "forward", "reverse", "height", "turn", "dash", "spin", "jump", "airborne")
 PLATFORM_TASKS = TASKS + ("platform",)
+TERRAIN_TASKS = PLATFORM_TASKS + ("slope", "step_down", "bump", "balls")
 REWARD_NAMES = ("jump_height", "jump_push_velocity", "jump_air_placement", "jump_impact", "jump_events")
 PLATFORM_REWARD_NAMES = ("platform_clearance", "platform_events", "platform_impact")
 # Platform episode modes: locked lanes run a flat moving jump far from their box.
@@ -22,14 +23,15 @@ FLAT, OVER, DRIVE_OFF = 0, 1, 2
 def tasks_for(spec):
     """Contracts without an explicit list keep the historical nine-task order."""
     names = tuple(spec.get("tasks", TASKS))
-    if names not in (TASKS, PLATFORM_TASKS):
+    if names not in (TASKS, PLATFORM_TASKS, TERRAIN_TASKS):
         raise ValueError("Unsupported mixed task list")
     return names
 
 
 def reward_names(spec):
     sequence = ("jump_release_energy", "jump_clearance") if spec["jump"].get("reward_version", 1) >= 5 else ()
-    return REWARD_NAMES+sequence+(PLATFORM_REWARD_NAMES if "platform" in tasks_for(spec) else ())
+    return (REWARD_NAMES+sequence+(PLATFORM_REWARD_NAMES if "platform" in tasks_for(spec) else ())
+        +tuple(spec.get("terrain_reward_weights", {})))
 
 
 def _validate_extensions(spec):
@@ -102,6 +104,9 @@ def validate(spec):
         from .jump_objectives import validate_objective
         validate_objective(j)
     _validate_extensions(spec)
+    if "slope" in tasks:
+        from .terrain_curriculum import validate_terrain
+        validate_terrain(spec)
     return spec
 
 
@@ -199,6 +204,10 @@ class TaskSchedule:
             self.ref_raise_s = torch.zeros_like(self.height)
             self.ref_hold_s = torch.zeros_like(self.height)
             self.ref_crouch_s = torch.full_like(self.height, j["crouch_seconds"])
+        self.terrain = None
+        if "slope" in self.tasks:
+            from .terrain_curriculum import TerrainSchedule
+            self.terrain = TerrainSchedule(self)
         self.reset(torch.arange(count, device=device), 0)
 
     def mask(self, name):
@@ -208,7 +217,11 @@ class TaskSchedule:
 
     def requesters(self):
         """Lanes that receive the explicit jump request (identical to jump lanes without platforms)."""
-        return self.mask("jump") | self.mask("platform")
+        selected = self.mask("jump") | self.mask("platform")
+        if self.terrain is not None:
+            from .terrain_curriculum import JUMP
+            selected |= self.mask("slope") & (self.terrain.mode == JUMP)
+        return selected
 
     def random(self, count):
         return torch.rand(count, device=self.device, generator=self.generator)
@@ -242,6 +255,8 @@ class TaskSchedule:
         self.next_sample[ids] = 0.
         if self.has_platform:
             self._reset_platform(ids[self.mask("platform")[ids]], update)
+        if self.terrain is not None:
+            self.terrain.reset(ids, update)
 
     def _reset_platform(self, ids, update):
         """Episode mode, speed, reference, run-up and start pose; terrain never drives the request."""
@@ -306,10 +321,16 @@ class TaskSchedule:
                   & (xy[..., 1].abs() <= .5*p["width_m"]))
         rise = self.rise.reshape(-1, *([1]*(xy.dim()-2)))
         lane = self.mask("platform").reshape_as(rise)
-        return torch.where(inside & lane, rise, 0.)
+        value = torch.where(inside & lane, rise, 0.)
+        if self.terrain is not None:
+            value = value+self.terrain.support_height(xy)
+        return value
 
     def update_commands(self, age, phase):
-        ids = (age >= self.next_sample).nonzero().flatten()
+        due = age >= self.next_sample
+        if self.terrain is not None:
+            due &= ~self.terrain.terrain_lane
+        ids = due.nonzero().flatten()
         if len(ids):
             index = self.tasks.index
             r = self.role[ids]
@@ -382,6 +403,8 @@ class TaskSchedule:
                 self.height[ids[plat]] = self.spec["jump"]["standing_height_m"]
                 hold = torch.where(plat, 1e3, hold)
             self.next_sample[ids] = age[ids]+hold
+        if self.terrain is not None:
+            self.terrain.update_commands(age)
         hlow, hhigh = phase["height_range_m"]
         wave = (hlow+hhigh)/2+(hhigh-hlow)/2*torch.sin(
             2*math.pi*self.spec["sampling"]["height_wave_hz"]*age+self.wave_phase)
