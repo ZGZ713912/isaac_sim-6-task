@@ -245,13 +245,14 @@ class BallsObserver:
     def begin_interval(self):
         self.success_event.zero_()
 
-    def observe(self, xy, roll, pitch, slip):
+    def observe(self, xy, roll, pitch, slip, *, hold_radius=None):
         lane = self.s.mask("balls") & self.s.terrain.active
         first = lane & ~self.anchor_valid
         self.anchor[first] = xy[first]
         self.anchor_valid |= lane
         self.max_tilt = torch.maximum(self.max_tilt, torch.maximum(roll.abs(), pitch.abs())*lane)
-        self.max_radius = torch.maximum(self.max_radius, (xy-self.anchor).norm(dim=-1)*lane)
+        radius = (xy-self.anchor).norm(dim=-1) if hold_radius is None else hold_radius
+        self.max_radius = torch.maximum(self.max_radius,radius*lane)
         self.slip_sum += slip*lane
         self.samples += lane
 
@@ -354,7 +355,8 @@ class TerrainObjectives:
         self.step_down.observe(age,wheel_xy,bottom,support,force_z,height,velocity_z,self.roll,self.pitch,speed,cmd,nonwheel)
         self.bump.observe(age,wheel_xy,self.roll,self.pitch,speed,cmd,
                           height-s.height,nonwheel)
-        self.balls.observe(root_xy,self.roll,self.pitch,slip)
+        hold_radius = torch.where(self.hold.valid,(root_xy-self.hold.anchor).norm(dim=-1),0.)
+        self.balls.observe(root_xy,self.roll,self.pitch,slip,hold_radius=hold_radius)
 
     def finish(self, timeout, terminated, jump_observer):
         from .terrain_curriculum import JUMP
