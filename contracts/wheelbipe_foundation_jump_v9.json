@@ -869,7 +869,7 @@
   ],
   "physics_solver": {
     "type": "tgs",
-    "position_iterations": 128,
+    "position_iterations": 64,
     "velocity_iterations": 0
   },
   "numerical_adjustments": [
@@ -899,8 +899,8 @@
     {
       "parameter": "physics_solver.position_iterations",
       "original": 64,
-      "selected": 128,
-      "reason": "The 64/0 candidate passed initial birth and performance but failed the strict first-second gate after a later reset; increase contact and closed-chain position resolution without changing the 200Hz physics/PD clock"
+      "selected": 64,
+      "reason": "A 128-position-iteration diagnostic was rejected because its 50-update performance ratio was 1.49566, above the strict 1.35 gate; retain 64 for the performance-qualified TGS64/0 candidate after the latest V8 9500 reset-gate passed"
     },
     {
       "parameter": "balls.max_depenetration_velocity_m_s",
