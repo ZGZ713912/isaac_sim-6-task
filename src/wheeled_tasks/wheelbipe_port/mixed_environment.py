@@ -128,14 +128,19 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
         return ref["requested"] & ref["active"]
 
     def learning_curriculum_state(self):
-        return dict(profile_sha256=self.cfg.port_profile_sha256,
+        state = dict(profile_sha256=self.cfg.port_profile_sha256,
             role=self.task_schedule.role.clone(), generator=self.task_schedule.generator.get_state())
+        if self.task_schedule.terrain is not None:
+            state["terrain_episode_count"] = self.task_schedule.terrain.episode_count.clone()
+        return state
 
     def restore_learning_curriculum_state(self, state):
         if (state["profile_sha256"] != self.cfg.port_profile_sha256
                 or not torch.equal(state["role"].to(self.device), self.task_schedule.role)):
             raise ValueError("Mixed curriculum contract or lane allocation differs")
         self.task_schedule.generator.set_state(state["generator"].cpu())
+        if self.task_schedule.terrain is not None:
+            self.task_schedule.terrain.episode_count.copy_(state["terrain_episode_count"].to(self.device))
 
     def _mixed_age(self, physics=False):
         age = self.episode_length_buf.float()*self.step_dt

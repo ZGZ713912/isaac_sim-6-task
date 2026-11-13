@@ -19,14 +19,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def discover(host,session):
-    code = """import hashlib,json,re
+    code = r"""import hashlib,json,re
 from pathlib import Path
 root=Path(SESSION).resolve()
 rows=[]
 for p in root.glob('attempts/*/train/checkpoints/update_*_review.pt'):
     m=re.fullmatch(r'update_(\d+)_review.pt',p.name)
     update=int(m[1]) if m else 0
-    if update and update%2000==0 and p.with_suffix('.json').exists():
+    if update and update%2000==0 and Path(str(p)+'.json').exists():
         rows.append(dict(update=update,path=str(p),sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
 print(json.dumps(sorted(rows,key=lambda r:r['update'])))
 """.replace("SESSION",repr(session))

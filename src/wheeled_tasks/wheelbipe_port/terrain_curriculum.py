@@ -134,6 +134,15 @@ class TerrainSchedule:
                 j = c["jump"]
                 jump = ((s.random(n) < limits["jump_probability"])
                     & (self.slope_angle[lane] <= math.radians(limits["jump_angle"])+1e-7) & self.active[lane])
+                # Keep at least 70% non-jump exposure even for small reset
+                # batches; independent Bernoulli draws alone exceed the quota.
+                outside = s.mask("slope").clone()
+                outside[lane] = False
+                available = max(0,math.floor(int(s.mask("slope").sum())*j["probability_final"])
+                    -int((outside & (self.mode == JUMP)).sum()))
+                chosen = jump.nonzero().flatten()
+                if len(chosen) > available:
+                    jump[chosen[torch.argsort(s.random(len(chosen)))[available:]]] = False
                 self.mode[lane] = torch.where(jump, JUMP, mode)
                 review = self.uniform(lane, c["spin"]["review_fraction_of_max"])*limits["spin_rpm"]
                 late = (update >= c["spin"]["late_update"]) & (s.random(n) < c["spin"]["late_band_probability"])
