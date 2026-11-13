@@ -388,13 +388,27 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
         rewards = super()._get_rewards()
         if self._mixed_enabled():
             logs = self.extras.setdefault("log", {})
-            for name in self.task_schedule.tasks:
-                mask = self.task_schedule.mask(name)
-                valid = mask & ~self._numerical_safety_reset_buf
-                logs["Mixed/"+name+"/allocated_envs"] = mask.sum().float()
-                logs["Mixed/"+name+"/finite_physics_samples_per_step"] = valid.sum().float()
-                logs["Mixed/"+name+"/paid_reward_mean_per_step"] = rewards[mask].mean()
-                logs["Mixed/"+name+"/paid_reward_rms_per_step"] = rewards[mask].square().mean().sqrt()
+            if self.terrain_objectives is not None:
+                from .diagnostics import grouped_sum
+                schedule = self.task_schedule
+                counts = schedule.task_counts
+                rows = grouped_sum(schedule.role,torch.stack((rewards,rewards.square(),
+                    (~self._numerical_safety_reset_buf).float()),-1),len(schedule.tasks))
+                means = rows/counts[:,None]
+                rms = means[:,1].sqrt()
+                for i,name in enumerate(schedule.tasks):
+                    logs["Mixed/"+name+"/allocated_envs"] = counts[i]
+                    logs["Mixed/"+name+"/finite_physics_samples_per_step"] = rows[i,2]
+                    logs["Mixed/"+name+"/paid_reward_mean_per_step"] = means[i,0]
+                    logs["Mixed/"+name+"/paid_reward_rms_per_step"] = rms[i]
+            else:
+                for name in self.task_schedule.tasks:
+                    mask = self.task_schedule.mask(name)
+                    valid = mask & ~self._numerical_safety_reset_buf
+                    logs["Mixed/"+name+"/allocated_envs"] = mask.sum().float()
+                    logs["Mixed/"+name+"/finite_physics_samples_per_step"] = valid.sum().float()
+                    logs["Mixed/"+name+"/paid_reward_mean_per_step"] = rewards[mask].mean()
+                    logs["Mixed/"+name+"/paid_reward_rms_per_step"] = rewards[mask].square().mean().sqrt()
             for name in reward_names(self.cfg.port_mixed_spec):
                 logs["Mixed/reward/"+name+"_mean_per_step"] = self._last_reward_terms[name].mean()
             for name in ("air_alignment", "air_tuck", "air_extension"):
@@ -427,9 +441,14 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
             logs["Mixed/active_jump/leg_motor_abs_mean_Nm"] = self.motor_effort[jump][:, (0,1,3,4)].abs().mean()
             bad_gap = self.constraint_gaps().amax(-1) > .003
             logs["Port/constraint_gap_over_3mm_env_fraction"] = bad_gap.float().mean()
-            for task in self.task_schedule.tasks:
-                logs["Mixed/"+task+"/constraint_gap_over_3mm_env_fraction"] = (
-                    bad_gap[self.task_schedule.mask(task)].float().mean())
+            if self.terrain_objectives is not None:
+                fractions = grouped_sum(self.task_schedule.role,bad_gap.float(),len(self.task_schedule.tasks))[:,0]/self.task_schedule.task_counts
+                for i,task in enumerate(self.task_schedule.tasks):
+                    logs["Mixed/"+task+"/constraint_gap_over_3mm_env_fraction"] = fractions[i]
+            else:
+                for task in self.task_schedule.tasks:
+                    logs["Mixed/"+task+"/constraint_gap_over_3mm_env_fraction"] = (
+                        bad_gap[self.task_schedule.mask(task)].float().mean())
             self._log_arcs_and_platforms(logs)
             if self.terrain_objectives is not None:
                 self._log_v9_terrain(logs)

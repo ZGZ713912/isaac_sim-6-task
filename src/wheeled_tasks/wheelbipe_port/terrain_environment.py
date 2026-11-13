@@ -123,30 +123,21 @@ class TerrainEnvironmentMixin:
     def _log_v9_terrain(self, logs):
         from .terrain_curriculum import STAND,SPIN,DRIVE,JUMP
         s,t,o = self.task_schedule,self.task_schedule.terrain,self.terrain_objectives
-        for task in s.tasks:
-            mask = s.mask(task)
-            r,p = o.roll[mask].abs(),o.pitch[mask].abs()
-            prefix = "Level/"+task+"/"
-            logs[prefix+"roll_abs_mean_deg"] = r.mean()
-            logs[prefix+"pitch_abs_mean_deg"] = p.mean()
-            tilt = torch.maximum(r,p)
-            logs[prefix+"tilt_over_3deg_fraction"] = (tilt > 3.).float().mean()
-            logs[prefix+"tilt_over_6deg_fraction"] = (tilt > 6.).float().mean()
-            flight = o.flight_landing_window[mask]
-            valid = self._mixed_age()[mask] >= self.cfg.port_mixed_spec["level"]["reset_grace_s"]
-            ordinary = ~flight & valid
-            logs[prefix+"ordinary_tilt_over_3deg_fraction"] = ((tilt > 3.) & ordinary).sum()/ordinary.sum().clamp_min(1)
-            logs[prefix+"ordinary_tilt_over_6deg_fraction"] = ((tilt > 6.) & ordinary).sum()/ordinary.sum().clamp_min(1)
-            logs[prefix+"flight_landing_tilt_over_6deg_fraction"] = ((tilt > 6.) & flight).sum()/flight.sum().clamp_min(1)
-            logs["Hold/"+task+"/radius_mean_m"] = o.hold.radius[mask].mean()
-            logs["Hold/"+task+"/radius_max_m"] = o.hold.radius_max[mask].max()
-            difficulty = torch.zeros_like(s.height)
-            if task == "slope": difficulty = torch.rad2deg(t.slope_angle)*t.active
-            elif task in ("step_down","bump"): difficulty = t.terrain_height*t.active
-            elif task == "balls": difficulty = t.coverage
-            elif task == "jump": difficulty = s.apex
-            elif task == "platform": difficulty = s.rise
-            logs["Mixed/"+task+"/difficulty_mean"] = difficulty[mask].mean()
+        from .diagnostics import level_statistics
+        difficulty = torch.where(s.mask("jump"),s.apex,0.)
+        difficulty = torch.where(s.mask("platform"),s.rise,difficulty)
+        difficulty = torch.where(s.mask("slope"),torch.rad2deg(t.slope_angle)*t.active,difficulty)
+        difficulty = torch.where(s.mask("step_down") | s.mask("bump"),t.terrain_height*t.active,difficulty)
+        difficulty = torch.where(s.mask("balls"),t.coverage,difficulty)
+        stats = level_statistics(s.role,s.task_counts,o.roll,o.pitch,o.hold.radius,o.hold.radius_max,
+            o.flight_landing_window,self._mixed_age(),difficulty,self.cfg.port_mixed_spec["level"]["reset_grace_s"])
+        for i,task in enumerate(s.tasks):
+            for key in ("roll_abs_mean_deg","pitch_abs_mean_deg","tilt_over_3deg_fraction","tilt_over_6deg_fraction",
+                        "ordinary_tilt_over_3deg_fraction","ordinary_tilt_over_6deg_fraction","flight_landing_tilt_over_6deg_fraction"):
+                logs["Level/"+task+"/"+key] = stats[key][i]
+            logs["Hold/"+task+"/radius_mean_m"] = stats["radius_mean_m"][i]
+            logs["Hold/"+task+"/radius_max_m"] = stats["radius_max_m"][i]
+            logs["Mixed/"+task+"/difficulty_mean"] = stats["difficulty_mean"][i]
         limits = t.limits()
         scalar = lambda x: s.height.new_tensor(float(x))
         logs["Mixed/slope/angle_limit_deg"] = scalar(limits["slope"])

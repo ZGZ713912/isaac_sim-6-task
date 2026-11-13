@@ -177,6 +177,8 @@ class TaskSchedule:
         # retain their original allocation/query behavior and command streams.
         self._task_masks = ({name:self.role == i for i,name in enumerate(self.tasks)}
                             if "slope" in self.tasks else None)
+        self.task_counts = (torch.tensor(list(counts.values()),device=device,dtype=torch.float32)
+                            if self._task_masks is not None else None)
         self.commands = torch.zeros(count, 3, device=device)
         self.height = torch.full((count,), spec["jump"]["standing_height_m"], device=device)
         self.next_sample = torch.zeros(count, device=device)

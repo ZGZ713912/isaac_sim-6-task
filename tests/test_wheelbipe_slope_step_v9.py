@@ -366,3 +366,56 @@ def test_exact_chassis_shell_clears_all_declared_slope_reset_extremes():
     support = CollisionSupport(names,"cpu")
     clearance = support.minimum_z(q,rot,body_names=("base_link",),exact=True)+(h+.005)*angle.cos()
     assert clearance.min() > .07
+
+
+@pytest.mark.parametrize("device",["cpu","cuda:0"])
+def test_grouped_diagnostics_preserve_metrics_inputs_and_rng(device):
+    if device.startswith("cuda") and not torch.cuda.is_available():
+        pytest.skip("CUDA unavailable")
+    from wheeled_tasks.wheelbipe_port.diagnostics import grouped_sum,level_statistics
+    s = schedule(device=device)
+    g = torch.Generator(device=device).manual_seed(71)
+    rand = lambda: torch.rand(2048,device=device,generator=g)
+    roll,pitch = (rand()-.5)*20,(rand()-.5)*20
+    radius,radius_max,age,difficulty = rand()*.3,rand()*.5,rand()*8,rand()*12
+    flight = rand() < .3
+    inputs = (roll,pitch,radius,radius_max,flight,age,difficulty)
+    copies = [value.clone() for value in inputs]
+    rng = s.generator.get_state().clone()
+    stats = level_statistics(s.role,s.task_counts,*inputs,.3)
+    for i,task in enumerate(s.tasks):
+        mask = s.mask(task)
+        r,p = roll[mask].abs(),pitch[mask].abs()
+        tilt = torch.maximum(r,p)
+        flying = flight[mask]
+        normal = ~flying & (age[mask] >= .3)
+        expected = dict(roll_abs_mean_deg=r.mean(),pitch_abs_mean_deg=p.mean(),
+            tilt_over_3deg_fraction=(tilt>3).float().mean(),tilt_over_6deg_fraction=(tilt>6).float().mean(),
+            radius_mean_m=radius[mask].mean(),radius_max_m=radius_max[mask].max(),
+            ordinary_tilt_over_3deg_fraction=((tilt>3)&normal).sum()/normal.sum().clamp_min(1),
+            ordinary_tilt_over_6deg_fraction=((tilt>6)&normal).sum()/normal.sum().clamp_min(1),
+            flight_landing_tilt_over_6deg_fraction=((tilt>6)&flying).sum()/flying.sum().clamp_min(1),
+            difficulty_mean=difficulty[mask].mean())
+        for key,value in expected.items():
+            torch.testing.assert_close(stats[key][i],value,atol=2e-6,rtol=2e-6)
+    for value,copy in zip(inputs,copies):
+        assert torch.equal(value,copy)
+    assert torch.equal(s.generator.get_state(),rng)
+    differentiable = radius.clone().requires_grad_()
+    assert not grouped_sum(s.role,differentiable,len(s.tasks)).requires_grad
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(),reason="CUDA unavailable")
+def test_grouped_logging_respects_explicit_deterministic_cuda_mode():
+    from wheeled_tasks.wheelbipe_port.diagnostics import grouped_sum,grouped_max
+    roles = torch.tensor([0,1,0,1],device="cuda:0")
+    values = torch.tensor([1.,2.,3.,4.],device="cuda:0")
+    previous = torch.are_deterministic_algorithms_enabled()
+    warn_only = torch.is_deterministic_algorithms_warn_only_enabled()
+    try:
+        torch.use_deterministic_algorithms(True)
+        torch.testing.assert_close(grouped_sum(roles,values,2)[:,0],values.new_tensor([4.,6.]))
+        torch.testing.assert_close(grouped_max(roles,values,2),values.new_tensor([3.,4.]))
+        assert torch.are_deterministic_algorithms_enabled()
+    finally:
+        torch.use_deterministic_algorithms(previous,warn_only=warn_only)
