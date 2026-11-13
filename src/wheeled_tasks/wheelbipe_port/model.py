@@ -171,6 +171,8 @@ class CollisionSupport:
             raise ValueError("Collision support belongs to a different CAD model")
         tensor = lambda value:torch.tensor(value,device=device,dtype=torch.float32)
         self.bounds = {b["name"]:(tensor(b["lower_m"]),tensor(b["upper_m"])) for b in bounds["bodies"]}
+        self._collision_shapes = {body["name"]:body["collisions"] for body in spec["bodies"]}
+        self._exact_vertices = {}
         self.eye = torch.eye(3,device=device)
         self.joints = []
         seen = {"base_link"}
@@ -192,7 +194,7 @@ class CollisionSupport:
             if not progressed:
                 raise ValueError("CAD joint graph is not a rooted tree")
 
-    def minimum_z(self,positions,root_quaternion_wxyz,*,body_names=None):
+    def minimum_z(self,positions,root_quaternion_wxyz,*,body_names=None,exact=False):
         torch = self.torch
         count = len(positions)
         rotations = {"base_link":self.eye.expand(count,3,3)}
@@ -214,6 +216,21 @@ class CollisionSupport:
             if body_names is not None and name not in body_names:
                 continue
             direction = (rotations[name].transpose(-2,-1)@vertical[:,:,None]).squeeze(-1)
+            if exact:
+                if name not in self._exact_vertices:
+                    vertices = []
+                    for shape in self._collision_shapes[name]:
+                        if shape["type"] != "mesh":
+                            raise ValueError("Exact collision support requires mesh vertices")
+                        points = torch.tensor([[float(v) for v in line.split()[1:4]]
+                            for line in (BUNDLE/shape["file"]).read_text().splitlines() if line.startswith("v ")],
+                            device=positions.device,dtype=positions.dtype)
+                        origin = positions.new_tensor(shape["origin"])
+                        vertices.append(points@origin[:3,:3].T+origin[:3,3])
+                    self._exact_vertices[name] = torch.cat(vertices)
+                minima.append((translations[name]*vertical).sum(-1)
+                    +(direction@self._exact_vertices[name].T).amin(-1))
+                continue
             center,half = (upper+lower)/2.,(upper-lower)/2.
             minima.append((translations[name]*vertical).sum(-1)+(direction*center).sum(-1)
                 -(direction.abs()*half).sum(-1))

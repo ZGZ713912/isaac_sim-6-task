@@ -170,7 +170,7 @@ class BumpObserver:
     def __init__(self, schedule, dt):
         self.s, self.dt, self.cfg = schedule, dt, schedule.spec["bump"]
         shape = (len(schedule.role), 4)
-        for name in ("entered_at", "max_tilt", "max_hdev"):
+        for name in ("entered_at", "max_tilt", "max_hdev", "entry_along"):
             setattr(self, name, torch.zeros(shape, device=schedule.device))
         self.min_ratio = torch.ones(shape, device=schedule.device)
         for name in ("in_window", "nonwheel_seen", "settled"):
@@ -193,6 +193,9 @@ class BumpObserver:
         active = window & ~self.settled
         entered = active & ~self.in_window
         self.entered_at = torch.where(entered, age[:, None], self.entered_at)
+        yaw = self.s.terrain.bump_yaw
+        along = (xy[...,0]*yaw.cos()[:,None]+xy[...,1]*yaw.sin()[:,None]).mean(-1)[:,None]
+        self.entry_along = torch.where(entered,along,self.entry_along)
         tilt = torch.maximum(roll.abs(), pitch.abs())[:, None]
         ratio = (speed/cmd.sign().mul(cmd.abs().clamp_min(1e-6)).where(cmd != 0., torch.ones_like(cmd)))[:, None]
         self.max_tilt = torch.where(active, torch.maximum(self.max_tilt, tilt), self.max_tilt)
@@ -204,7 +207,10 @@ class BumpObserver:
         stalled = active & (elapsed > deadline)
         exited = self.in_window & ~window & ~self.settled
         settle = exited | stalled
-        passed = (settle & ~stalled & (self.max_tilt <= c["success"]["max_tilt_deg"])
+        center = self.s.terrain.strip_starts+self.s.terrain.strip_widths/2
+        crossed = ((self.entry_along < center) & (along > self.s.terrain.strip_starts+self.s.terrain.strip_widths+c["window_margin_m"])) | (
+            (self.entry_along >= center) & (along < self.s.terrain.strip_starts-c["window_margin_m"]))
+        passed = (settle & crossed & ~stalled & (self.max_tilt <= c["success"]["max_tilt_deg"])
             & (self.min_ratio >= c["success"]["min_speed_ratio"])
             & (self.max_hdev <= c["success"]["max_height_dev_m"]) & ~self.nonwheel_seen)
         self.success_count += passed.sum(-1)

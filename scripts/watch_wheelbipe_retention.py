@@ -23,8 +23,10 @@ def discover(host,session):
 from pathlib import Path
 root=Path(SESSION).resolve()
 rows=[]
-for p in root.glob('attempts/*/train/checkpoints/update_*_review.pt'):
-    m=re.fullmatch(r'update_(\d+)_review.pt',p.name)
+paths=list(root.glob('attempts/*/train/checkpoints/update_*_review.pt'))
+paths+=list(root.glob('attempts/*/train/checkpoints/update_00020000_final.pt'))
+for p in paths:
+    m=re.fullmatch(r'update_(\d+)_(?:review|final).pt',p.name)
     update=int(m[1]) if m else 0
     if update and update%2000==0 and Path(str(p)+'.json').exists():
         rows.append(dict(update=update,path=str(p),sha256=hashlib.sha256(p.read_bytes()).hexdigest()))

@@ -332,3 +332,36 @@ def test_slope_reset_matches_encoder_fk_wheel_bottom_difference():
     u = centers[...,0]*torch.cos(psi-yaw)[:,None]+centers[...,1]*torch.sin(psi-yaw)[:,None]
     expected = -theta.tan()*(u[:,0]-u[:,1])
     assert ((centers[:,0,2]-centers[:,1,2])-expected).abs().max() < .002
+
+
+def test_retreat_from_a_bump_window_cannot_earn_crossing_success():
+    s = schedule(100); o = BumpObserver(s,.005)
+    lane = s.mask("bump")
+    s.terrain.bump_yaw[lane] = 0.
+    s.terrain.strip_starts[lane,0] = 1.5
+    s.terrain.strip_widths[lane,0] = .3
+    xy = torch.zeros(100,2,2); xy[:,:,0] = 1.6
+    z = torch.zeros(100); speed = torch.ones(100)*.5
+    o.observe(z+1,xy,z,z,speed,speed,z,z)
+    xy[:,:,0] = 1.2
+    o.observe(z+2,xy,z,z,speed,speed,z,z)
+    assert (o.success_count[lane] == 0).all()
+    assert (o.failure_count[lane] == 1).all()
+
+
+def test_exact_chassis_shell_clears_all_declared_slope_reset_extremes():
+    import json
+    from wheeled_tasks.wheelbipe_port.model import BUNDLE,ResetLookup,CollisionSupport
+    model = json.loads((BUNDLE/"model_spec.json").read_text())
+    names = [j["name"] for j in model["joints"] if j["type"] != "fixed"]
+    h,angle,yaw = torch.meshgrid(torch.tensor([.28,.305,.38]),torch.tensor([0.,3.,9.,12.]),torch.linspace(-math.pi,math.pi,33),indexing="ij")
+    h,angle,yaw = h.flatten(),torch.deg2rad(angle.flatten()),yaw.flatten()
+    length = slope_leg_lengths(h,angle,torch.zeros_like(yaw),yaw)
+    q = ResetLookup(names,"cpu").sample(length,torch.zeros_like(length))
+    # Support normal in the robot frame; exact root-shell query is independent
+    # of joint FK but exercises the same native reset API and wxyz convention.
+    axis = torch.stack((-yaw.sin(),-yaw.cos(),torch.zeros_like(yaw)),-1)
+    rot = torch.cat(((angle/2).cos()[:,None],axis*(angle/2).sin()[:,None]),-1)
+    support = CollisionSupport(names,"cpu")
+    clearance = support.minimum_z(q,rot,body_names=("base_link",),exact=True)+(h+.005)*angle.cos()
+    assert clearance.min() > .07

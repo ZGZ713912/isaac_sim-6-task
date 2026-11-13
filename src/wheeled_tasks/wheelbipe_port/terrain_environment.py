@@ -87,7 +87,7 @@ class TerrainEnvironmentMixin:
             relative = quat_mul(quat_conjugate(rotation),root[slope,3:7])
             # Select the chassis: tilted wheel AABBs conservatively extend below
             # their actual cylinders and cannot serve as a penetration oracle.
-            minimum_plane = self.collision_support.minimum_z(q[slope],relative,body_names=("base_link",))
+            minimum_plane = self.collision_support.minimum_z(q[slope],relative,body_names=("base_link",),exact=True)
             separation = (s.height[sid]+.005)*t.slope_angle[sid].cos()
             clearance = minimum_plane+separation
             if (clearance < .02).any():
