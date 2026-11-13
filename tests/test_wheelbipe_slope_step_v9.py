@@ -278,3 +278,57 @@ def test_terrain_rewards_are_densities_and_physical_failure_revokes_outcomes():
     o.finish(torch.zeros(100,dtype=torch.bool),lane,j)
     assert not o.step_down.success[lane].any()
     assert o.metrics()["Mixed/step_down/success_fraction"] == 0.
+
+
+def test_all_evaluation_grids_validate_and_preserve_exact_target_population():
+    from wheeled_tasks.wheelbipe_port.scenario_evaluation import scenario_grid,scenario_override,wilson_lower,retention_warnings
+    s = specification("foundation-jump-v9")
+    for suite in ("slope_spin","slope_still","step_down","bump","slope_jump","balls","regression","retention"):
+        for cell in scenario_grid(suite):
+            patch,count = scenario_override(s,cell,16)
+            data = deepcopy(s)
+            def merge(target,values):
+                for key,value in values.items():
+                    if isinstance(value,dict) and isinstance(target.get(key),dict):merge(target[key],value)
+                    else:target[key]=value
+            merge(data,patch);validate(data)
+            assert quota_counts(count,data)[cell["task"]] == 16
+    assert len(scenario_grid("retention",update=2000)) == 7
+    assert len(scenario_grid("retention",update=20000)) == 13
+    assert .94 < wilson_lower(64,64) < .95
+    base = dict(cell=dict(name="stand"),domain="requested",seed=173,metrics=dict(success_fraction=1.))
+    low = deepcopy(base); low["metrics"]["success_fraction"] = .8
+    assert retention_warnings([[base],[low]],[low])
+
+
+def test_slope_reset_matches_encoder_fk_wheel_bottom_difference():
+    import json
+    from wheeled_tasks.wheelbipe_port.model import BUNDLE,ResetLookup,CollisionSupport
+    model = json.loads((BUNDLE/"model_spec.json").read_text())
+    names = [j["name"] for j in model["joints"] if j["type"] != "fixed"]
+    n = 128
+    theta = torch.linspace(0.,math.radians(12),n)
+    yaw = torch.linspace(-math.pi,math.pi,n)
+    psi = torch.linspace(0.,7.,n)
+    lengths = slope_leg_lengths(torch.full((n,),.305),theta,psi,yaw)
+    q = ResetLookup(names,"cpu").sample(lengths,torch.zeros_like(lengths))
+    fk = CollisionSupport(names,"cpu")
+    rotation = {"base_link":torch.eye(3).expand(n,3,3)}
+    position = {"base_link":torch.zeros(n,3)}
+    for parent,child,kind,index,origin_r,origin_p,axis,outer,skew in fk.joints:
+        r = rotation[parent]@origin_r
+        p = position[parent]+(rotation[parent]@origin_p[:,None]).squeeze(-1)
+        if kind == "prismatic":p = p+(r@axis[:,None]).squeeze(-1)*q[:,index,None]
+        elif kind != "fixed":
+            a = q[:,index,None,None]
+            r = r@(a.cos()*torch.eye(3)+(1-a.cos())*outer+a.sin()*skew)
+        rotation[child],position[child] = r,p
+    centers = []
+    for name in ("L_link3","R_link3"):
+        body = next(b for b in model["bodies"] if b["name"] == name)
+        offset = torch.tensor([row[3] for row in body["collisions"][0]["origin"][:3]])
+        centers.append(position[name]+(rotation[name]@offset[:,None]).squeeze(-1))
+    centers = torch.stack(centers,1)
+    u = centers[...,0]*torch.cos(psi-yaw)[:,None]+centers[...,1]*torch.sin(psi-yaw)[:,None]
+    expected = -theta.tan()*(u[:,0]-u[:,1])
+    assert ((centers[:,0,2]-centers[:,1,2])-expected).abs().max() < .002

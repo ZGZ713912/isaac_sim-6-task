@@ -145,6 +145,10 @@ class StepDownObserver:
         success = (lane & self.landed & (self.stable_time >= c["hold_seconds"]-1e-7)
             & (self.max_tilt_w <= c["success"]["max_window_tilt_deg"])
             & (self.min_ratio_w >= c["success"]["min_speed_ratio"]) & ~self.stumble & ~self.timeout)
+        invalid = (self.stumble | (self.max_tilt_w > c["success"]["max_window_tilt_deg"])
+            | (self.min_ratio_w < c["success"]["min_speed_ratio"]))
+        self.success &= ~invalid
+        self.success_event &= ~invalid
         self.success_event |= success & ~self.success
         self.success |= success
         timeout = lane & (age >= c["outcome_seconds"]) & ~self.success

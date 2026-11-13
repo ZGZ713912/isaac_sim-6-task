@@ -178,7 +178,14 @@ class ScenarioRecorder:
             self.landing_xy[first_land] = xy[first_land]
             self.slide_seen |= landed
             post = landed & (age >= o.slope_land_time+1.)
-            v["post_landing_slide_m"] = torch.where(post,(xy-self.landing_xy).norm(dim=-1),v["post_landing_slide_m"])
+            downslope = torch.stack((e.task_schedule.terrain.slope_yaw.cos(),e.task_schedule.terrain.slope_yaw.sin()),-1)
+            displacement = ((xy-self.landing_xy)*downslope).sum(-1)
+            # Moving jumps retain the external velocity command. Remove its
+            # declared travel before measuring unwanted downslope sliding.
+            yaw = e.task_schedule.terrain.yaw
+            desired = e.task_schedule.terrain.speed*torch.cos(yaw-e.task_schedule.terrain.slope_yaw)
+            residual = (displacement-desired*(age-o.slope_land_time)).clamp_min(0.)
+            v["post_landing_slide_m"] = torch.where(post,residual,v["post_landing_slide_m"])
         done = (terminated | timeout) & self.mask
         for i in done.nonzero().flatten().tolist():
             row = {key:float(value[i]) for key,value in v.items()}
@@ -283,7 +290,8 @@ def retention_warnings(history, current):
     warnings = []
     for row in current:
         name,metrics = row["cell"]["name"],row["metrics"]
-        previous = [item for review in history for item in review if item["cell"]["name"] == name]
+        previous = [item for review in history for item in review if item["cell"]["name"] == name
+            and item.get("domain") == row.get("domain") and item.get("seed") == row.get("seed")]
         if len(previous) < 2: continue
         for key,amount,direction in (("success_fraction",.15,-1),("speed_error_mean_m_s",1.5,1),
                                      ("radius_max_m",1.5,1),("roll_max_deg",2.,1),("pitch_max_deg",2.,1)):
