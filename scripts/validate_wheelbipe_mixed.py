@@ -124,6 +124,9 @@ def main():
         counts = {name: int(env.task_schedule.mask(name).sum()) for name in env.task_schedule.tasks}
         if counts != expected:
             raise ValueError("Native task allocation differs from its contract")
+        from wheeled_tasks.wheelbipe_port.ball_field import check_ball_diagnostics
+        ball_speed_peak = 0.
+        ball_minimum_z = float("inf")
         receipt.update(status="sampling", allocated_envs=counts, expected_envs=expected,
             policy_hz=1/env.step_dt, physics_hz=1/env.physics_dt,
             domain=env.domain_receipt, source_profile_sha256=cfg.port_profile_sha256)
@@ -194,6 +197,16 @@ def main():
                            env.robot.data.joint_vel, env.motor_effort]
                 if not all(torch.isfinite(t).all() for t in tensors):
                     raise ValueError("Nonfinite native state or payment")
+                if env.terrain_objectives is not None:
+                    diagnostic = env.ball_field.diagnostics(env.terrain.env_origins)
+                    ball_speed_peak = max(ball_speed_peak,diagnostic["maximum_speed_m_s"])
+                    ball_minimum_z = min(ball_minimum_z,diagnostic["minimum_z_m"])
+                    receipt["ball_field_latest"] = dict(step=step+1,**diagnostic)
+                    receipt["ball_field_peak_speed_m_s"] = ball_speed_peak
+                    receipt["ball_field_minimum_z_m"] = ball_minimum_z
+                    writer.add_scalar("BallField/maximum_speed_m_s",diagnostic["maximum_speed_m_s"],step+1)
+                    writer.add_scalar("BallField/minimum_z_m",diagnostic["minimum_z_m"],step+1)
+                    check_ball_diagnostics(diagnostic,initial_second=step<50)
                 if env.terrain_objectives is not None and step == 24:
                     lane = env.task_schedule.mask("slope") & env.task_schedule.terrain.active
                     force = env.contact_sensor.data.net_forces_w[:,env._mixed_sensor_wheel_ids,2]

@@ -13,6 +13,24 @@ def ball_count(cfg):
     return math.ceil(cfg["coverage_final"]*cfg["patch_side_m"]**2/(math.pi*(cfg["diameter_m"]/2)**2))
 
 
+def check_ball_diagnostics(diagnostic, *, initial_second=False):
+    """Reject numerical failures in read-only probes, including after startup.
+
+    The 100 m/s diagnostic ceiling distinguishes solver blow-ups from ordinary
+    balls kicked by an untrained actor. It is not a behavior acceptance limit
+    and is never used to stop a learner or alter its curriculum.
+    """
+    if diagnostic.get("disabled_diagnostic"):
+        return
+    if not diagnostic["finite_native_states"]:
+        raise ValueError("Nonfinite native ball transform or velocity")
+    speed = diagnostic["maximum_speed_m_s"]
+    if speed > 100.:
+        raise ValueError(f"Native ball solver instability: {speed:g} m/s")
+    if initial_second and (speed > 5. or diagnostic["minimum_z_m"] < .0075):
+        raise ValueError("Initial ball field violates the 5 m/s / 7.5 mm stability gate")
+
+
 def make_layouts(cfg, seed):
     """Random sequential adsorption with a spatial hash; no initial overlaps."""
     count, spacing = ball_count(cfg), cfg["diameter_m"]+.0005
@@ -166,4 +184,5 @@ class BallField:
         ids = self.indices[self.lanes]
         return dict(count=self.view.count,balls_per_lane=self.count,spawn_seconds=self.spawn_seconds,
             minimum_z_m=float((transform[ids,2]-terrain_origins[self.lanes,2,None]).min()),
-            maximum_speed_m_s=float(velocity[:,:3].norm(dim=-1).max()))
+            maximum_speed_m_s=float(velocity[:,:3].norm(dim=-1).max()),
+            finite_native_states=bool(torch.isfinite(transform).all() & torch.isfinite(velocity).all()))

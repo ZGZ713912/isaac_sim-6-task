@@ -267,6 +267,19 @@ def test_ball_tensor_paths_are_resolved_and_reset_uses_xyzw():
     assert field.indices[field.lanes[0],0] == len(paths)-1
 
 
+def test_ball_native_gate_rejects_late_solver_explosion_and_nonfinite_states():
+    from wheeled_tasks.wheelbipe_port.ball_field import check_ball_diagnostics
+    valid = dict(finite_native_states=True,minimum_z_m=.00849,maximum_speed_m_s=1.7)
+    check_ball_diagnostics(valid,initial_second=True)
+    check_ball_diagnostics(dict(valid,maximum_speed_m_s=6.4))
+    for patch,initial in ((dict(maximum_speed_m_s=2139.),False),
+                          (dict(finite_native_states=False),False),
+                          (dict(maximum_speed_m_s=5.01),True),
+                          (dict(minimum_z_m=.00749),True)):
+        with pytest.raises(ValueError):
+            check_ball_diagnostics(dict(valid,**patch),initial_second=initial)
+
+
 def test_terrain_rewards_are_densities_and_physical_failure_revokes_outcomes():
     from wheeled_tasks.wheelbipe_port.terrain_objectives import TerrainObjectives
     from wheeled_tasks.wheelbipe_port.mixed_curriculum import JumpObserver
