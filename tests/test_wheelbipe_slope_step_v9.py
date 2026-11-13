@@ -52,6 +52,20 @@ def test_contract_quotas_clocks_weights_and_original_absolute_milestones():
     assert scaled["bump"]["unlock"]["full_update"] == 7000
 
 
+def test_solver_selection_preserves_legacy_defaults_and_explicit_zero():
+    from wheeled_tasks.wheelbipe_port.training_profile import solver_settings
+    assert solver_settings({}) == dict(type="tgs",position_iterations=12,velocity_iterations=6)
+    for version in range(1,9):
+        assert solver_settings(specification(f"foundation-jump-v{version}")) == solver_settings({})
+    spec = dict(physics_solver=dict(type="tgs",position_iterations=64,velocity_iterations=0))
+    assert solver_settings(spec)["velocity_iterations"] == 0
+    assert solver_settings(spec,solver_type="pgs",velocity_iterations=2) == dict(
+        type="pgs",position_iterations=64,velocity_iterations=2)
+    for patch in (dict(solver_type="bad"),dict(position_iterations=0),dict(velocity_iterations=-1),
+                  dict(velocity_iterations=256),dict(velocity_iterations=True)):
+        with pytest.raises(ValueError):solver_settings(spec,**patch)
+
+
 def test_slope_wxyz_geometry_plane_and_clearance():
     from wheeled_tasks.wheelbipe_port.model import CollisionSupport
     cfg = specification("foundation-jump-v9")["slope"]
@@ -278,6 +292,10 @@ def test_ball_native_gate_rejects_late_solver_explosion_and_nonfinite_states():
                           (dict(minimum_z_m=.00749),True)):
         with pytest.raises(ValueError):
             check_ball_diagnostics(dict(valid,**patch),initial_second=initial)
+    # A newly reset lane must still pass the initial gate after global time 1s.
+    with pytest.raises(ValueError):
+        check_ball_diagnostics(dict(valid,reset_first_second_maximum_speed_m_s=5.01,
+            reset_first_second_minimum_z_m=.0085))
 
 
 def test_terrain_rewards_are_densities_and_physical_failure_revokes_outcomes():

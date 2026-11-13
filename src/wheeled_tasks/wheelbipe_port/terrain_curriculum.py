@@ -52,6 +52,10 @@ def validate_terrain(spec):
             or b["patch_side_m"] <= 0 or b["layouts"] < 1
             or not 0 <= b["coverage_review_probability"] <= 1):
         raise ValueError("Invalid V9 ball field")
+    if not .001 <= b.get("reset_clearance_m",.001) <= .02:
+        raise ValueError("V9 ball reset collision clearance must be 1..20 mm")
+    from .training_profile import solver_settings
+    solver_settings(spec)
     jump = spec["slope"]["jump"]
     if (not 0 <= jump["probability_final"] <= .30 or jump["angle_limit_final_deg"] > 12
             or not 0 < spec["position_hold"]["hold_sigma_m"]

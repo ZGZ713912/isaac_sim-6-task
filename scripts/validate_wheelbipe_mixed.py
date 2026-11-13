@@ -29,6 +29,9 @@ def main():
     p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"), default="foundation-jump-v1")
     p.add_argument("--leg-kp",type=float,default=None)
     p.add_argument("--leg-kd",type=float,default=None)
+    p.add_argument("--solver-type",choices=("tgs","pgs"),default=None)
+    p.add_argument("--solver-position-iterations",type=int,default=None)
+    p.add_argument("--solver-velocity-iterations",type=int,default=None)
     p.add_argument("--leg-target-overtravel-rad",type=float,default=None)
     p.add_argument("--leg-target-overtravel-scope",choices=("all","jump-request"),default=None)
     p.add_argument("--tuck-spring-compensation",choices=("off","model"),default=None)
@@ -67,8 +70,15 @@ def main():
         cfg = WheelbipePortFlatCfg()
         cfg.scene.num_envs, cfg.seed = a.num_envs, a.seed
         cfg.sim.dt, cfg.decimation, cfg.sim.render_interval = .005, 4, 4
-        cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = 64
-        cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = 32
+        from wheeled_tasks.wheelbipe_port.training_profile import solver_settings,specification
+        solver = solver_settings(specification(a.training_profile,a.course_updates),
+            solver_type=a.solver_type,position_iterations=a.solver_position_iterations,
+            velocity_iterations=a.solver_velocity_iterations,default_position_iterations=64,
+            default_velocity_iterations=32)
+        cfg.sim.physx.solver_type = {"pgs":0,"tgs":1}[solver["type"]]
+        cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = solver["position_iterations"]
+        cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = solver["velocity_iterations"]
+        receipt["physics_solver"] = solver
         cfg.robot_cfg.actuators["legs_act"].armature = .015795
         cfg.port_leg_kp, cfg.port_leg_kd = 60., 2.
         cfg.port_randomization_profile = a.randomization_profile
@@ -184,6 +194,16 @@ def main():
                 raise ValueError("Actor/critic ABI changed")
             if env.terrain_objectives is not None:
                 receipt["ball_field_initial"] = env.ball_field.diagnostics(env.terrain.env_origins)
+                lane = env.task_schedule.mask("balls") & env.task_schedule.terrain.active
+                if lane.any():
+                    floor = env.terrain.env_origins[lane,2]
+                    minimum = env.collision_support.minimum_z(env.robot.data.joint_pos[lane],env.robot.data.root_quat_w[lane])
+                    hull_floor = minimum+env.robot.data.root_pos_w[lane,2]-floor
+                    ball_top = env.ball_field.cfg["diameter_m"]+.001
+                    clearance = float((hull_floor-ball_top).min())
+                    receipt["ball_reset_minimum_collision_clearance_m"] = clearance
+                    if clearance < env.ball_field.cfg["reset_clearance_m"]-1e-5:
+                        raise ValueError("Robot reset collision hull intersects the declared ball clearance")
                 receipt["slope_normal_min_dot"] = env._terrain_normal_readback_min_dot
                 lane = env.task_schedule.mask("slope") & env.task_schedule.terrain.active
                 gravity = env.robot.data.projected_gravity_b[lane]
@@ -198,7 +218,9 @@ def main():
                 if not all(torch.isfinite(t).all() for t in tensors):
                     raise ValueError("Nonfinite native state or payment")
                 if env.terrain_objectives is not None:
-                    diagnostic = env.ball_field.diagnostics(env.terrain.env_origins)
+                    initial_lanes = (env.task_schedule.terrain.active
+                        & (env.episode_length_buf*env.step_dt <= 1.))
+                    diagnostic = env.ball_field.diagnostics(env.terrain.env_origins,initial_lanes=initial_lanes)
                     ball_speed_peak = max(ball_speed_peak,diagnostic["maximum_speed_m_s"])
                     ball_minimum_z = min(ball_minimum_z,diagnostic["minimum_z_m"])
                     receipt["ball_field_latest"] = dict(step=step+1,**diagnostic)

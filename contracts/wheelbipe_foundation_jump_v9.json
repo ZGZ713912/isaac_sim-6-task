@@ -139,7 +139,8 @@
     "Default ball field is 1.2 m, 17 mm diameter, 3 g and 30 percent projected area coverage; performance and physics deviations require recorded contract changes.",
     "Documented plan section 15.6 performance reduction step 1: train ball patch 1.0 m instead of 1.2 m; 2.0 m evaluation, 3 g mass and 30 percent area coverage retained.",
     "Documented performance reduction step 2: balls quota 1.5 percent; released 1.5 percent goes to stand, with all 14 skill lanes retained and nonzero.",
-    "Documented performance reduction step 3: ball solver position iterations 4 for training; retain original 8 for the independent 2m,30 percent evaluation."
+    "Documented performance reduction step 3: ball solver position iterations 4 for training; retain original 8 for the independent 2m,30 percent evaluation.",
+    "2026-11-13 user authorized V9-only numerical solver investigation; selected TGS64/0, preserving 17mm/3g, all original acceptance thresholds and 1.35x performance gate. Each ball keeps one velocity iteration; scene/island counts can therefore exceed the robot velocity count."
   ],
   "task_fractions": {
     "stand": 0.105,
@@ -779,7 +780,8 @@
       "gpu_heap_capacity": 134217728,
       "gpu_temp_buffer_capacity": 33554432
     },
-    "eval_solver_position_iterations": 8
+    "eval_solver_position_iterations": 8,
+    "reset_clearance_m": 0.011
   },
   "terrain_reward_weights": {
     "level_roll": -0.5,
@@ -863,6 +865,36 @@
       "evaluation_patch_side_m": 2.0,
       "ball_mass_kg": 0.003,
       "coverage": 0.3
+    }
+  ],
+  "physics_solver": {
+    "type": "tgs",
+    "position_iterations": 64,
+    "velocity_iterations": 0
+  },
+  "numerical_adjustments": [
+    {
+      "parameter": "physics_solver.velocity_iterations",
+      "original": 32,
+      "selected": 0,
+      "authorization": "User explicitly authorized PGS and expanded V9-specific numerical solver investigation on 2026-11-13; all original native/performance gates remain mandatory",
+      "scope": "V9 only; 200Hz feedback/physics and 50Hz policy retained",
+      "reason": "Read-only TGS64/32 developed extreme ball speeds after contact; TGS64/0 removed the explosive instability while PGS64/32 exceeded the performance gate",
+      "ball_velocity_iterations": 1
+    },
+    {
+      "parameter": "balls.reset_clearance_m",
+      "original": 0.001,
+      "selected": 0.011,
+      "scope": "Reset collision hull only; no dynamic projection or actor/command input",
+      "reason": "At 1mm clearance the first policy frame failed the original 5m/s initial gate; allow gravity to establish support with 11mm clearance"
+    },
+    {
+      "parameter": "balls.initial_scene_placement",
+      "original": "active ball patch before the first explicit reset",
+      "selected": "existing distant parking grid until the first explicit reset",
+      "scope": "Initialization only; sampled layout and free rigid bodies unchanged",
+      "reason": "Avoid contacts with the temporary default robot pose during scene initialization"
     }
   ]
 }

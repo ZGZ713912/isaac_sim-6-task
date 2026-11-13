@@ -27,7 +27,11 @@ def check_ball_diagnostics(diagnostic, *, initial_second=False):
     speed = diagnostic["maximum_speed_m_s"]
     if speed > 100.:
         raise ValueError(f"Native ball solver instability: {speed:g} m/s")
-    if initial_second and (speed > 5. or diagnostic["minimum_z_m"] < .0075):
+    initial_speed = diagnostic.get("reset_first_second_maximum_speed_m_s")
+    initial_z = diagnostic.get("reset_first_second_minimum_z_m")
+    if initial_speed is None and initial_second:
+        initial_speed,initial_z = speed,diagnostic["minimum_z_m"]
+    if initial_speed is not None and (initial_speed > 5. or initial_z < .0075):
         raise ValueError("Initial ball field violates the 5 m/s / 7.5 mm stability gate")
 
 
@@ -78,7 +82,10 @@ class BallField:
         started = time.monotonic()
         layer = stage.GetEditTarget().GetLayer()
         origins = terrain_origins.detach().cpu().numpy()
-        layout = self.layouts[0].cpu().numpy()
+        # Scene initialization steps the default robot pose before the first
+        # explicit lane reset. Keep balls away from that temporary pose; reset
+        # places the sampled field together with the final robot state.
+        layout = self.parked.cpu().numpy()
         c, radius = self.cfg, self.cfg["diameter_m"]/2
         for rank, lane in enumerate(self.lanes.tolist()):
             env_path = env_paths[lane]
@@ -176,13 +183,20 @@ class BallField:
         self.view.set_transforms(self.transforms,indices.to(torch.int32))
         self.view.set_velocities(self.velocities,indices.to(torch.int32))
 
-    def diagnostics(self, terrain_origins):
+    def diagnostics(self, terrain_origins, *, initial_lanes=None):
         if self.disabled:
             return dict(disabled_diagnostic=True)
         transform = self.view.get_transforms()
         velocity = self.view.get_velocities()
         ids = self.indices[self.lanes]
-        return dict(count=self.view.count,balls_per_lane=self.count,spawn_seconds=self.spawn_seconds,
+        result = dict(count=self.view.count,balls_per_lane=self.count,spawn_seconds=self.spawn_seconds,
             minimum_z_m=float((transform[ids,2]-terrain_origins[self.lanes,2,None]).min()),
             maximum_speed_m_s=float(velocity[:,:3].norm(dim=-1).max()),
             finite_native_states=bool(torch.isfinite(transform).all() & torch.isfinite(velocity).all()))
+        if initial_lanes is not None:
+            lanes = self.lanes[initial_lanes[self.lanes]]
+            if len(lanes):
+                initial_ids = self.indices[lanes]
+                result.update(reset_first_second_maximum_speed_m_s=float(velocity[initial_ids,:3].norm(dim=-1).max()),
+                    reset_first_second_minimum_z_m=float((transform[initial_ids,2]-terrain_origins[lanes,2,None]).min()))
+        return result

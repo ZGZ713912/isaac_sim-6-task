@@ -22,6 +22,21 @@ PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
 SCALABLE = ("foundation-jump-v4", "foundation-jump-v5", "foundation-jump-v6", "foundation-jump-v7", "foundation-jump-v8", "foundation-jump-v9")
 
 
+def solver_settings(spec, *, solver_type=None, position_iterations=None, velocity_iterations=None,
+                    default_position_iterations=12, default_velocity_iterations=6):
+    """Resolve explicit CLI choices over the frozen profile's solver defaults."""
+    defaults = spec.get("physics_solver", {})
+    kind = defaults.get("type", "tgs") if solver_type is None else solver_type
+    position = (defaults.get("position_iterations", default_position_iterations)
+                if position_iterations is None else position_iterations)
+    velocity = (defaults.get("velocity_iterations", default_velocity_iterations)
+                if velocity_iterations is None else velocity_iterations)
+    if (kind not in ("tgs", "pgs") or type(position) is not int or type(velocity) is not int
+            or not 1 <= position <= 255 or not 0 <= velocity <= 255):
+        raise ValueError("PhysX solver requires tgs/pgs, 1..255 position and 0..255 velocity iterations")
+    return dict(type=kind, position_iterations=position, velocity_iterations=velocity)
+
+
 def specification(name="foundation-v1", course_updates=None):
     spec = json.loads(PROFILE_PATHS[name].read_text())
     if course_updates is None:

@@ -52,8 +52,10 @@ def main():
     parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"),default="legacy")
     parser.add_argument("--gas-feedforward",action=argparse.BooleanOptionalAction,default=None,
         help="Explicitly override cancellation of the physical spring torque; the spring itself is retained")
-    parser.add_argument("--solver-position-iterations",type=int,default=12)
-    parser.add_argument("--solver-velocity-iterations",type=int,default=6)
+    parser.add_argument("--solver-type",choices=("tgs","pgs"),default=None,
+        help="Explicit PhysX solver; otherwise use the frozen profile default")
+    parser.add_argument("--solver-position-iterations",type=int,default=None)
+    parser.add_argument("--solver-velocity-iterations",type=int,default=None)
     parser.add_argument("--external-forces-every-iteration",action=argparse.BooleanOptionalAction,default=False)
     parser.add_argument("--physics-hz",type=int,choices=(200,500,1000,2000),default=200,
         help="Explicit integration/feedback frequency; the original policy stays at 50Hz")
@@ -107,6 +109,13 @@ def main():
         args.leg_armature = leg_armature_kg_m2(args.leg_armature)
         args.leg_target_projection_penalty = projection_penalty(args.leg_target_projection_penalty)
         args.leg_kp,args.leg_kd = leg_pd_gains(args.leg_kp,args.leg_kd)
+        from wheeled_tasks.wheelbipe_port.training_profile import solver_settings
+        solver = solver_settings({} if args.training_profile == "legacy" else specification(args.training_profile,args.course_updates),
+            solver_type=args.solver_type,position_iterations=args.solver_position_iterations,
+            velocity_iterations=args.solver_velocity_iterations)
+        args.solver_type = solver["type"]
+        args.solver_position_iterations = solver["position_iterations"]
+        args.solver_velocity_iterations = solver["velocity_iterations"]
     except ValueError as error:
         parser.error(str(error))
     if args.num_envs<1 or args.iterations<1 or args.steps<1 or not 0.<=args.randomization_strength<=1.:
@@ -139,6 +148,7 @@ def main():
         automatic_behavior_stop_enabled=False,behavior_review_exit_updates=[],
         constraint_gap_hard_limit_enabled=gap_limit is not None,
         diagnostic_sampling_scope=CONSTRAINT_DIAGNOSTIC_SCOPE)
+    receipt["physics_solver"] = solver
     path = args.output/"receipt.json"
     save(path,receipt)
     app = None
@@ -179,6 +189,7 @@ def main():
         cfg.sim.device = args.device
         cfg.sim.dt,cfg.decimation = 1./args.physics_hz,args.physics_hz//50
         cfg.sim.render_interval = cfg.decimation
+        cfg.sim.physx.solver_type = {"pgs":0,"tgs":1}[args.solver_type]
         cfg.robot_cfg.spawn.articulation_props.solver_position_iteration_count = args.solver_position_iterations
         cfg.robot_cfg.spawn.articulation_props.solver_velocity_iteration_count = args.solver_velocity_iterations
         cfg.robot_cfg.actuators["legs_act"].armature = args.leg_armature
@@ -377,6 +388,13 @@ def main():
                     if env.terrain_objectives is not None:
                         for tag,value in env.terrain_objectives.metrics().items():
                             runner.writer.add_scalar(tag,value,values["it"])
+                        field = env.ball_field.diagnostics(env.terrain.env_origins)
+                        if not field.get("disabled_diagnostic"):
+                            receipt["ball_field_update_sample"] = field
+                            receipt["ball_speed_update_sample_peak_m_s"] = max(
+                                receipt.get("ball_speed_update_sample_peak_m_s",0.),field["maximum_speed_m_s"])
+                            for key in ("maximum_speed_m_s","minimum_z_m","finite_native_states"):
+                                runner.writer.add_scalar("BallField/update_sample/"+key,field[key],values["it"])
                 # Keep timing in the same event stream as the original RSL
                 # collection/learning metrics; setup/checkpoint IO is separate.
                 iteration_time = values["collection_time"]+values["learn_time"]
