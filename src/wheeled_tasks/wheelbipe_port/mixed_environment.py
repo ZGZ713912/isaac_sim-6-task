@@ -5,15 +5,17 @@ import torch
 from isaaclab.utils.math import quat_apply, quat_apply_inverse
 
 from .environment import WheelbipePortEnv
+from .terrain_environment import TerrainEnvironmentMixin
 from .mixed_curriculum import (DRIVE_OFF, FLAT, OVER, JumpObserver, PlatformObserver, TaskSchedule,
     reward_names, tasks_for)
 from .training_profile import apply_phase, phase_for_update
 
 
-class WheelbipeMixedEnv(WheelbipePortEnv):
+class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
     def __init__(self, *args, **kwargs):
         self.task_schedule = self.jump_observer = self.platform_observer = None
         self._early_schedule = None
+        self.terrain_objectives = self.ball_field = None
         self._mixed_observed_tick = -1
         self._mixed_interval_age = None
         super().__init__(*args, **kwargs)
@@ -81,6 +83,7 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                 collision_props=sim_utils.CollisionPropertiesCfg(), physics_material=material)
             cfg.func(env_path+"/Platform", cfg, translation=local)
         self.platform_lane_ids = lanes
+        self._spawn_v9_terrain(material)
 
     def _wheel_geometry(self):
         """Env-local wheel-centre XY and wheel-bottom height above the floor, (N, 2)."""
@@ -217,6 +220,9 @@ class WheelbipeMixedEnv(WheelbipePortEnv):
                 self.robot.write_joint_state_to_sim(q, torch.zeros_like(q), None, ids)
                 self.robot.write_root_state_to_sim(root, ids)
                 self.predefined_reset_ground_zero_torque_until_time[ids] = 0.
+
+        if self.terrain_objectives is not None:
+            self._reset_v9_terrain(env_ids)
 
     def _reset_idx(self, env_ids):
         super()._reset_idx(env_ids)
