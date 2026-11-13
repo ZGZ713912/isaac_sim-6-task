@@ -34,3 +34,5 @@ TensorBoard 使用原训练 event 中的 `Level/<task>/*`、`Hold/<task>/*`、`M
 暂停使用 `trainctl wheelbipe pause <session>`，等待训练线程在更新边界确认；继续使用 `trainctl wheelbipe resume <session>`。原 PID、GPU、Adam、rollout、仿真和随机状态保留。release 是另一个保存退出并释放 GPU 的操作，冷恢复会重置物理回合，不能当作原进程暂停验证。
 
 当前合同的 performance_adjustments 记录了球区大小和任务配额的性能调整及其参数依据。降级顺序固定为训练球区 1.0 m、balls 配额 1.5%、球位置迭代 4；释放的配额补给站立。每一步均需重新冻结并完成 50 更新性能验证，达到原 V8 迭代时间的 1.35 倍以内后才启动正式会话。运行回执和原始 event 保存在本地 AI 目录。
+
+当前训练球体使用 4 次位置迭代；独立 2.0 m / 30% 覆盖率评测保留原始 8 次。机器人求解器仍通过 CLI 选择 64/32，球质量保持 3 g。

@@ -172,6 +172,11 @@ class TaskSchedule:
         roles = torch.cat([torch.full((counts[n],), i, device=device, dtype=torch.long)
                            for i, n in enumerate(self.tasks)])
         self.role = roles[torch.randperm(count, device=device, generator=self.generator)]
+        # V9 lanes are immutable. Reuse read-only masks instead of launching
+        # repeated GPU comparisons in every physics observer. Legacy profiles
+        # retain their original allocation/query behavior and command streams.
+        self._task_masks = ({name:self.role == i for i,name in enumerate(self.tasks)}
+                            if "slope" in self.tasks else None)
         self.commands = torch.zeros(count, 3, device=device)
         self.height = torch.full((count,), spec["jump"]["standing_height_m"], device=device)
         self.next_sample = torch.zeros(count, device=device)
@@ -213,6 +218,8 @@ class TaskSchedule:
     def mask(self, name):
         if name not in self.tasks:
             return torch.zeros_like(self.role, dtype=torch.bool)
+        if self._task_masks is not None:
+            return self._task_masks[name]
         return self.role == self.tasks.index(name)
 
     def requesters(self):

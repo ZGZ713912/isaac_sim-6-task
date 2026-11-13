@@ -138,7 +138,8 @@
     "Terrain, support, COM, balls and physical observers are reward/diagnostic only; step_down/bump never issue a jump request.",
     "Default ball field is 1.2 m, 17 mm diameter, 3 g and 30 percent projected area coverage; performance and physics deviations require recorded contract changes.",
     "Documented plan section 15.6 performance reduction step 1: train ball patch 1.0 m instead of 1.2 m; 2.0 m evaluation, 3 g mass and 30 percent area coverage retained.",
-    "Documented performance reduction step 2: balls quota 1.5 percent; released 1.5 percent goes to stand, with all 14 skill lanes retained and nonzero."
+    "Documented performance reduction step 2: balls quota 1.5 percent; released 1.5 percent goes to stand, with all 14 skill lanes retained and nonzero.",
+    "Documented performance reduction step 3: ball solver position iterations 4 for training; retain original 8 for the independent 2m,30 percent evaluation."
   ],
   "task_fractions": {
     "stand": 0.105,
@@ -769,7 +770,7 @@
       "spin_radius_m": 0.25,
       "bonus": 1.0
     },
-    "solver_position_iterations": 8,
+    "solver_position_iterations": 4,
     "max_depenetration_velocity_m_s": 0.5,
     "physx_buffers": {
       "gpu_max_rigid_contact_count": 16777216,
@@ -777,7 +778,8 @@
       "gpu_found_lost_pairs_capacity": 8388608,
       "gpu_heap_capacity": 134217728,
       "gpu_temp_buffer_capacity": 33554432
-    }
+    },
+    "eval_solver_position_iterations": 8
   },
   "terrain_reward_weights": {
     "level_roll": -0.5,
@@ -842,6 +844,21 @@
       "reference_v8_last30_mean_s": 17.81299769083659,
       "measured_patch1m_v9_last30_mean_s": 25.66183433532715,
       "patch1m_ratio": 1.4406241319240827,
+      "maximum_ratio": 1.35,
+      "evaluation_patch_side_m": 2.0,
+      "ball_mass_kg": 0.003,
+      "coverage": 0.3
+    },
+    {
+      "step": 3,
+      "parameter": "balls.solver_position_iterations",
+      "planned": 8,
+      "selected": 4,
+      "evaluation_iterations": 8,
+      "reason": "Plan section 15.6 third ordered reduction after complete 2048-env 50-update quota benchmark",
+      "reference_v8_last30_mean_s": 17.81299769083659,
+      "measured_quota1p5_v9_last30_mean_s": 24.2967472076416,
+      "quota1p5_ratio": 1.3639898028022763,
       "maximum_ratio": 1.35,
       "evaluation_patch_side_m": 2.0,
       "ball_mass_kg": 0.003,

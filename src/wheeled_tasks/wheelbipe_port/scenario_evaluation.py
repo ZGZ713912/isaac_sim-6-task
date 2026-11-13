@@ -101,7 +101,7 @@ def scenario_override(spec, cell, target_envs):
             cfg["unlock"] = dict(start_update=0,full_update=0,start_height_m=rise,final_height_m=rise)
         else:
             mode = cell["mode"]
-            cfg.update(patch_side_m=spec["balls"]["eval_patch_side_m"],friction_variants=[cell["friction"]],coverage_start=.3,coverage_final=.3,coverage_ramp=[0,0],coverage_review_probability=0.)
+            cfg.update(solver_position_iterations=cfg.get("eval_solver_position_iterations",cfg["solver_position_iterations"]),patch_side_m=spec["balls"]["eval_patch_side_m"],friction_variants=[cell["friction"]],coverage_start=.3,coverage_final=.3,coverage_ramp=[0,0],coverage_review_probability=0.)
             cfg["mode_fractions"] = dict(stand=float(mode in ("stand","height")),spin=float(mode.startswith("spin")),shuttle=float(mode.startswith("shuttle") or mode == "brake"))
             if mode.startswith("spin"): cfg["spin_rpm"] = [float(mode[4:])]*2
             if mode.startswith("shuttle"): cfg["shuttle"]["speed_m_s"] = [.3 if mode.endswith("03") else .6]*2
