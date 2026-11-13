@@ -77,6 +77,10 @@ class TerrainEnvironmentMixin:
         q = self.reset_lookup.sample(lengths,torch.zeros_like(lengths))
         minimum = self.collision_support.minimum_z(q,root[:,3:7])
         lift = torch.where(s.mask("step_down")[ids] & t.active[ids],t.terrain_height[ids],0.)
+        # The balls start 1 mm above their radius. A robot born only 2 mm
+        # above the bare floor would overlap the 18 mm ball tops by 16 mm.
+        # Lift the whole collision hull, then let gravity establish support.
+        lift += torch.where(s.mask("balls")[ids] & t.active[ids],s.spec["balls"]["diameter_m"],0.)
         root[:,2] += -minimum+.002+lift
         if len(sid):
             cfg = s.spec["slope"]

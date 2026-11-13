@@ -21,6 +21,8 @@
 
 小球直径 17 mm、质量 3 g，接触材料摩擦按 lane 取 0.2/0.35/0.5，restitution 0.2。按计划性能降级后的默认训练区域为 1.0 m，评测仍为 2.0 m。球数按 `ceil(coverage*side²/(pi*radius²))` 计算，1.0 m 满覆盖为 1322 球；原计划 1.2 m 为 1904 球；布局保留至少 17.5 mm 中心距。球是自由刚体，回合复位时使用 PhysX 批量写位姿和零速度。性能降级顺序为区域 1.0 m、balls 配额 1.5%、球位置迭代 4；每次必须写入新冻结合同并保留评测区域，不修改运行中会话。
 
+已解锁的 balls lane 复位时，机器人最低碰撞点在裸地 2 mm 净空上再提高一个球直径，保证高于球顶约 1 mm，然后由重力建立支撑。未解锁的远处平地出生不提高。不能把机器人直接复位到球层内部并依靠穿透修正排开小球。
+
 所有奖励都是每秒密度，由原 reward 入口乘一次 policy dt 和权重。事件先除以 policy dt。下台阶窗口抑制高度跟踪和竖直速度的旧项；坡面跳跃窗口使用专门水平项，避免叠加 slope_level。完成后的失败会撤销回合成功统计。完整验收使用合同参数及只读套件，不能用预检、reward 或训练完成代替行为验收。
 
 使用 `scripts/train_wheelbipe_port.py --mode preflight --training-profile foundation-jump-v9 --iterations 20000 --num-envs 64 --physics-hz 200 --solver-position-iterations 64 --solver-velocity-iterations 32 --headless --output .codex/report/<run>/preflight` 检查原生接线。
