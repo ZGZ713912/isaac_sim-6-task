@@ -53,7 +53,9 @@ class TerrainEnvironmentMixin:
                             translation=tuple((offset+offset.new_tensor([along*math.cos(yaw),along*math.sin(yaw),h/2])).tolist()),
                             orientation=(math.cos(yaw/2),0.,0.,math.sin(yaw/2)))
         self.ball_field = BallField(s,self.cfg.seed)
-        self.ball_field.spawn(self.sim.stage,self.scene.env_prim_paths,self.terrain.env_origins)
+        self.ball_field.disabled = getattr(self.cfg,"port_skip_balls_diagnostic",False)
+        if not self.ball_field.disabled:
+            self.ball_field.spawn(self.sim.stage,self.scene.env_prim_paths,self.terrain.env_origins)
 
     def _reset_v9_terrain(self, env_ids):
         s,t = self.task_schedule,self.task_schedule.terrain

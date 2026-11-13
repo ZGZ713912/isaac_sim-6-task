@@ -105,6 +105,10 @@ def main():
             virtual_pair_overtravel_scope=cfg.port_leg_target_overtravel_scope,
             tuck_spring_compensation=dict(cfg.port_tuck_spring_compensation))
         env = WheelbipeMixedEnv(cfg)
+        recorder = None
+        if cfg.port_mixed_spec.get("evaluation"):
+            from wheeled_tasks.wheelbipe_port.scenario_evaluation import ScenarioRecorder
+            recorder = ScenarioRecorder(env)
         state = torch.load(a.checkpoint, map_location=env.device, weights_only=False)["model_state_dict"]
         layers = []
         for i, (ni, no) in enumerate(((35, 256), (256, 128), (128, 64), (64, 6))):
@@ -159,6 +163,8 @@ def main():
         old_dones = env._get_dones
         def observe_outcomes():
             terminate, timeout = old_dones()
+            if recorder is not None:
+                recorder.observe(terminate, timeout)
             for task, row in outcomes.items():
                 mask = env.task_schedule.mask(task) & (terminate | timeout)
                 row["completed"] += int(mask.sum())
@@ -173,6 +179,13 @@ def main():
             receipt["observation_shapes"] = {k: list(v.shape) for k, v in obs.items()}
             if obs["policy"].shape != (a.num_envs, 35) or obs["critic"].shape != (a.num_envs, 78):
                 raise ValueError("Actor/critic ABI changed")
+            if env.terrain_objectives is not None:
+                receipt["ball_field_initial"] = env.ball_field.diagnostics(env.terrain.env_origins)
+                receipt["slope_normal_min_dot"] = env._terrain_normal_readback_min_dot
+                lane = env.task_schedule.mask("slope") & env.task_schedule.terrain.active
+                gravity = env.robot.data.projected_gravity_b[lane]
+                receipt["slope_reset_max_tilt_deg"] = float(torch.acos((-gravity[:,2]).clamp(-1.,1.)).max()*180/torch.pi) if lane.any() else None
+                save()
             rollout_rewards = []
             for step in range(a.steps):
                 action = actor(obs["policy"])
@@ -181,6 +194,15 @@ def main():
                            env.robot.data.joint_vel, env.motor_effort]
                 if not all(torch.isfinite(t).all() for t in tensors):
                     raise ValueError("Nonfinite native state or payment")
+                if env.terrain_objectives is not None and step == 24:
+                    lane = env.task_schedule.mask("slope") & env.task_schedule.terrain.active
+                    force = env.contact_sensor.data.net_forces_w[:,env._mixed_sensor_wheel_ids,2]
+                    receipt["slope_support_0p5s_min_wheel_force_n"] = float(force[lane].min()) if lane.any() else None
+                    receipt["ball_field_0p5s"] = env.ball_field.diagnostics(env.terrain.env_origins)
+                    save()
+                if env.terrain_objectives is not None and step == 49:
+                    receipt["ball_field_1s"] = env.ball_field.diagnostics(env.terrain.env_origins)
+                    save()
                 done = terminate | timeout
                 measured = dict(vx_error_m_s=(env.robot.data.root_lin_vel_b[:, 0]-env.command[:, 0]).abs(),
                     yaw_error_rad_s=(env.robot.data.root_ang_vel_b[:, 2]-env.command[:, 2]).abs(),
@@ -196,7 +218,7 @@ def main():
                     for key, value in measured.items():
                         metric_sums[name][key] += float(value[mask].sum())
                 for tag, value in extras.get("log", {}).items():
-                    if tag.startswith(("Mixed/", "Port/", "JumpSequence/")):
+                    if tag.startswith(("Mixed/", "Port/", "JumpSequence/", "Level/", "Hold/")):
                         writer.add_scalar(tag, float(value), step+1)
                 rollout_rewards.append(reward.detach().clone())
                 if (step+1) % 24 == 0:
@@ -227,6 +249,12 @@ def main():
         if env.jump_observer.sequence is not None:
             receipt["jump_sequence_metrics"] = {tag: float(value)
                 for tag, value in env.jump_observer.sequence.metrics().items()}
+        if env.terrain_objectives is not None:
+            receipt["terrain_metrics"] = {tag:float(value) for tag,value in env.terrain_objectives.metrics().items()}
+            receipt["ball_field"] = env.ball_field.diagnostics(env.terrain.env_origins)
+            receipt["slope_normal_min_dot"] = env._terrain_normal_readback_min_dot
+        if recorder is not None:
+            receipt["scenario"] = recorder.summary()
         save()
     except BaseException as error:
         receipt.update(status="failed", error=repr(error), traceback=traceback.format_exc(), elapsed_s=time.monotonic()-started)

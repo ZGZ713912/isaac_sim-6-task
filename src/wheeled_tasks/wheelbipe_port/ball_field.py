@@ -52,6 +52,7 @@ class BallField:
         self.layouts = torch.as_tensor(make_layouts(self.cfg, seed+5919), device=schedule.device)
         self.parked = torch.as_tensor(parked_positions(self.cfg), device=schedule.device)
         self.view = None
+        self.disabled = False
         self.spawn_seconds = 0.
 
     def spawn(self, stage, env_paths, terrain_origins):
@@ -104,6 +105,8 @@ class BallField:
         self.spawn_seconds = time.monotonic()-started
 
     def bind(self, sim):
+        if self.disabled:
+            return
         self.view = sim.physics_sim_view.create_rigid_body_view("/World/envs/env_*/Balls/b_*")
         if self.view.count != len(self.lanes)*self.count:
             raise ValueError("Rigid ball view population differs from the authored field")
@@ -156,6 +159,8 @@ class BallField:
         self.view.set_velocities(self.velocities,indices.to(torch.int32))
 
     def diagnostics(self, terrain_origins):
+        if self.disabled:
+            return dict(disabled_diagnostic=True)
         transform = self.view.get_transforms()
         velocity = self.view.get_velocities()
         ids = self.indices[self.lanes]

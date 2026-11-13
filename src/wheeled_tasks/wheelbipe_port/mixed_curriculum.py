@@ -257,6 +257,22 @@ class TaskSchedule:
             self._reset_platform(ids[self.mask("platform")[ids]], update)
         if self.terrain is not None:
             self.terrain.reset(ids, update)
+        evaluation = self.spec.get("evaluation")
+        if evaluation:
+            selected = ids[self.mask(evaluation["target"])[ids]]
+            cell = evaluation["cell"]
+            self.height[selected] = cell["height"]
+            if self.terrain is not None:
+                if "yaw_deg" in cell and cell["task"] != "bump":
+                    self.terrain.yaw[selected] = math.radians(cell["yaw_deg"])
+                if "rpm" in cell:
+                    self.terrain.sign[selected] = 1. if cell["rpm"] >= 0 else -1.
+                if cell.get("mode") == "jump":
+                    from .terrain_curriculum import JUMP
+                    self.terrain.mode[selected] = JUMP
+                    a,b = self.spec["slope"]["jump"]["request_delay_s"]
+                    self.delay[selected] = a+(b-a)*self.random(len(selected))
+                    self.terrain.speed[selected] = cell["speed"]
 
     def _reset_platform(self, ids, update):
         """Episode mode, speed, reference, run-up and start pose; terrain never drives the request."""
@@ -405,6 +421,20 @@ class TaskSchedule:
             self.next_sample[ids] = age[ids]+hold
         if self.terrain is not None:
             self.terrain.update_commands(age)
+        evaluation = self.spec.get("evaluation")
+        if evaluation:
+            selected = self.mask(evaluation["target"])
+            cell = evaluation["cell"]
+            if cell.get("command") is not None:
+                self.commands[selected] = self.commands.new_tensor(cell["command"])
+            elif cell["task"] == "jump":
+                self.commands[selected] = 0.
+            self.height[selected] = cell["height"]
+            if cell.get("mode") == "height":
+                self.height[selected] = .32+.06*torch.sin(age[selected]*math.pi)
+            if cell.get("mode") == "brake":
+                self.commands[selected] = 0.
+                self.commands[selected,0] = torch.where(age[selected] < 2.5,.6,0.)
         hlow, hhigh = phase["height_range_m"]
         wave = (hlow+hhigh)/2+(hhigh-hlow)/2*torch.sin(
             2*math.pi*self.spec["sampling"]["height_wave_hz"]*age+self.wave_phase)

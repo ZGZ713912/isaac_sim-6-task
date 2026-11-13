@@ -31,7 +31,11 @@ def sha(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode",choices=("preflight","train","evaluate"),default="train")
+    parser.add_argument("--mode",choices=("preflight","train","evaluate","benchmark"),default="train")
+    parser.add_argument("--benchmark-course-update",type=int,default=20000,
+        help="Fresh diagnostic PPO benchmark only: fixed course clock, never used by a managed experiment")
+    parser.add_argument("--benchmark-without-balls",action="store_true",
+        help="Diagnostic benchmark only: omit ball rigid bodies, retaining the same task quotas")
     parser.add_argument("--task",choices=("flat","rough"),default="flat")
     parser.add_argument("--num-envs",type=int,default=4096)
     parser.add_argument("--iterations",type=int,default=20000)
@@ -115,6 +119,8 @@ def main():
         parser.error("--resume requires a pinned managed session; legacy model-only checkpoints cannot cold-resume")
     if args.managed_control_dir is not None and args.mode!="train":
         parser.error("Only PPO training can use a managed control binding")
+    if args.benchmark_without_balls and args.mode != "benchmark":
+        parser.error("Omitting balls is allowed only in a diagnostic benchmark")
     if args.continue_from is not None and (args.managed_control_dir is None
             or args.training_profile!="foundation-jump-v1" or args.motion_update_offset!=20000):
         parser.error("--continue-from requires managed foundation-jump-v1 and --motion-update-offset 20000")
@@ -193,6 +199,11 @@ def main():
             tuck_gain=args.tuck_spring_gain,tuck_cap_nm=args.tuck_spring_cap_nm)
         cfg.port_motion_update_offset = args.motion_update_offset
         cfg.port_start_completed_updates = managed.completed if managed is not None else 0
+        if args.mode == "benchmark":
+            if args.iterations != 50 or args.resume is not None or args.managed_control_dir is not None:
+                raise ValueError("Diagnostic benchmarks require exactly 50 fresh unmanaged updates")
+            cfg.port_start_completed_updates = args.benchmark_course_update
+            cfg.port_skip_balls_diagnostic = args.benchmark_without_balls
         if args.training_profile in ("foundation-v1","foundation-v2","foundation-jump-v1",
                                      "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"):
             apply_phase(cfg,cfg.port_start_completed_updates+args.motion_update_offset)
@@ -318,12 +329,13 @@ def main():
             if receipt["measured_controller_and_spring_calls"]!=args.steps*cfg.decimation:
                 raise ValueError("Feedback PD and spring must run once per physics tick")
             check_constraint_gap(peak_gap,gap_limit,"Preflight")
-        elif args.mode=="train":
+        elif args.mode in ("train","benchmark"):
             env.port_sequence_metrics_in_runner = True
             runner = OnPolicyRunner(wrapped,agent.to_dict(),log_dir=str(args.output),device=args.device)
             if runner.alg.optimizer.state and args.resume is None:
                 raise ValueError("A fresh experiment must start with empty Adam")
             runner._prepare_logging_writer()
+            advantage_streak = {task:0 for task in getattr(getattr(env,"task_schedule",None),"tasks",())}
             if managed is not None:
                 managed.attach(runner,env,args.resume,args.continue_from)
             start_completed = managed.completed if managed is not None else 0
@@ -344,12 +356,26 @@ def main():
                 if args.training_profile.startswith("foundation-jump-"):
                     from wheeled_tasks.wheelbipe_port.mixed_curriculum import rollout_metrics
                     storage = runner.alg.storage
-                    for tag, value in rollout_metrics(env.task_schedule.role, storage.advantages,
-                            storage.rewards, storage.returns, env.task_schedule.tasks).items():
+                    rollout = rollout_metrics(env.task_schedule.role, storage.advantages,
+                            storage.rewards, storage.returns, env.task_schedule.tasks)
+                    for tag, value in rollout.items():
                         runner.writer.add_scalar(tag, value, values["it"])
+                    if env.terrain_objectives is not None:
+                        rms = torch.stack([rollout["MixedRollout/"+task+"/advantage_rms"] for task in env.task_schedule.tasks])
+                        median = rms.median().clamp_min(1e-8)
+                        for task,value in zip(env.task_schedule.tasks,rms):
+                            ratio = float(value/median)
+                            advantage_streak[task] = advantage_streak[task]+1 if ratio > 3. else 0
+                            runner.writer.add_scalar("Retention/"+task+"/advantage_ratio_to_median",ratio,values["it"])
+                            runner.writer.add_scalar("Retention/"+task+"/advantage_warning",int(advantage_streak[task] >= 500),values["it"])
+                            if advantage_streak[task] == 500:
+                                print("RETENTION WARNING "+json.dumps(dict(task=task,advantage_ratio=ratio,consecutive_updates=500)),flush=True)
                     if env.jump_observer.sequence is not None:
                         for tag, value in env.jump_observer.sequence.metrics().items():
                             runner.writer.add_scalar(tag, value, values["it"])
+                    if env.terrain_objectives is not None:
+                        for tag,value in env.terrain_objectives.metrics().items():
+                            runner.writer.add_scalar(tag,value,values["it"])
                 # Keep timing in the same event stream as the original RSL
                 # collection/learning metrics; setup/checkpoint IO is separate.
                 iteration_time = values["collection_time"]+values["learn_time"]
@@ -382,7 +408,9 @@ def main():
                 check_constraint_gap(peak,gap_limit,"PPO")
                 if managed is not None:
                     managed.after_update(completed)
-                    if completed % args.save_interval == 0 and completed < args.iterations:
+                    retention_interval = getattr(cfg,"port_mixed_spec",{}).get("retention",{}).get("every_updates",0)
+                    retention_due = retention_interval and completed % retention_interval == 0
+                    if (completed % args.save_interval == 0 or retention_due) and completed < args.iterations:
                         receipt["latest_review_checkpoint"] = str(managed.review_checkpoint())
                         save(path,receipt)
                     active,paused = managed.control.elapsed()

@@ -333,6 +333,9 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
                 for task in ("slope","step_down","bump","balls"):
                     timeout |= schedule.mask(task) & (self._mixed_age() >= self.cfg.port_mixed_spec[task]["episode_seconds"])
                 self.terrain_objectives.finish(timeout,terminate,self.jump_observer)
+            evaluation = self.cfg.port_mixed_spec.get("evaluation")
+            if evaluation:
+                timeout |= schedule.mask(evaluation["target"]) & (self._mixed_age() >= evaluation["duration_s"])
             bad_success = self.jump_observer.success_event & terminate
             self.jump_observer.success_event[bad_success] = False
             self.jump_observer.succeeded[bad_success] = False
