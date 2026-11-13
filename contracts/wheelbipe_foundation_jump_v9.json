@@ -136,7 +136,8 @@
     "Physical capability targets are uncalibrated until the offline high-output sweep is measured. Normalization scales are reward units, not declared hardware limits.",
     "V9 fixed 14-task interleaved lanes, 20000 updates, absolute V8 milestones preserved; all terrain extensions unlock within the same fresh course.",
     "Terrain, support, COM, balls and physical observers are reward/diagnostic only; step_down/bump never issue a jump request.",
-    "Default ball field is 1.2 m, 17 mm diameter, 3 g and 30 percent projected area coverage; performance and physics deviations require recorded contract changes."
+    "Default ball field is 1.2 m, 17 mm diameter, 3 g and 30 percent projected area coverage; performance and physics deviations require recorded contract changes.",
+    "Documented plan section 15.6 performance reduction step 1: train ball patch 1.0 m instead of 1.2 m; 2.0 m evaluation, 3 g mass and 30 percent area coverage retained."
   ],
   "task_fractions": {
     "stand": 0.09,
@@ -726,7 +727,7 @@
     "coverage_start": 0.1,
     "coverage_review_probability": 0.3,
     "coverage_review_min": 0.1,
-    "patch_side_m": 1.2,
+    "patch_side_m": 1.0,
     "eval_patch_side_m": 2.0,
     "friction_variants": [
       0.2,
@@ -811,5 +812,21 @@
     "advantage_ratio_warning": 3.0,
     "advantage_warning_updates": 500,
     "diagnostic_only": true
-  }
+  },
+  "performance_adjustments": [
+    {
+      "step": 1,
+      "parameter": "balls.patch_side_m",
+      "planned": 1.2,
+      "selected": 1.0,
+      "reason": "Plan section 15.6 ordered reduction after complete Kaiser 2048-env 50-update benchmark",
+      "reference_v8_last30_mean_s": 17.81299769083659,
+      "measured_original_v9_last30_mean_s": 27.68489170074463,
+      "original_ratio": 1.5541961090011462,
+      "maximum_ratio": 1.35,
+      "evaluation_patch_side_m": 2.0,
+      "ball_mass_kg": 0.003,
+      "coverage": 0.3
+    }
+  ]
 }

@@ -19,7 +19,7 @@
 
 坡面和台阶几何均位于所属环境 prim 下，在碰撞过滤前生成。静态形状四元数为 wxyz；PhysX ball tensor view 的位姿为 xyzw。视图初始化按实际 prim paths 建立 lane/球索引映射，不依赖枚举顺序。坡面的高度参考是两轮下方平面的均值；下台阶使用块内支撑高度。小台阶始终以主地面为高度参考，使腿吸收条带起伏。
 
-小球直径 17 mm、质量 3 g，接触材料摩擦按 lane 取 0.2/0.35/0.5，restitution 0.2。默认训练区域 1.2 m，评测 2.0 m。球数按 `ceil(coverage*side²/(pi*radius²))` 计算，1.2 m 满覆盖为 1904 球；布局保留至少 17.5 mm 中心距。球是自由刚体，回合复位时使用 PhysX 批量写位姿和零速度。性能降级顺序为区域 1.0 m、balls 配额 1.5%、球位置迭代 4；每次必须写入新冻结合同并保留评测区域，不修改运行中会话。
+小球直径 17 mm、质量 3 g，接触材料摩擦按 lane 取 0.2/0.35/0.5，restitution 0.2。按计划性能降级后的默认训练区域为 1.0 m，评测仍为 2.0 m。球数按 `ceil(coverage*side²/(pi*radius²))` 计算，1.0 m 满覆盖为 1322 球；原计划 1.2 m 为 1904 球；布局保留至少 17.5 mm 中心距。球是自由刚体，回合复位时使用 PhysX 批量写位姿和零速度。性能降级顺序为区域 1.0 m、balls 配额 1.5%、球位置迭代 4；每次必须写入新冻结合同并保留评测区域，不修改运行中会话。
 
 所有奖励都是每秒密度，由原 reward 入口乘一次 policy dt 和权重。事件先除以 policy dt。下台阶窗口抑制高度跟踪和竖直速度的旧项；坡面跳跃窗口使用专门水平项，避免叠加 slope_level。完成后的失败会撤销回合成功统计。完整验收使用合同参数及只读套件，不能用预检、reward 或训练完成代替行为验收。
 
@@ -32,3 +32,5 @@
 TensorBoard 使用原训练 event 中的 `Level/<task>/*`、`Hold/<task>/*`、`Mixed/<task>/*`、`MixedRollout/<task>/advantage_rms`。每 2000 更新保存 review checkpoint。独立 `scripts/watch_wheelbipe_retention.py --host kaiser --session <remote-session> --output .codex/report/<run>/retention` 将检查点取回本机，运行 16 env/格、两个 seed 的 retention，只写独立评测 event 和 `retention.csv`。监测进程和远端 TensorBoard 不影响训练生命周期。成功率连续两次下降 15 个百分点、漂移/误差变差 50%、倾角增加 2°，或任务 advantage RMS 超过中位数 3 倍持续 500 更新时输出诊断告警，不自动暂停或改课。
 
 暂停使用 `trainctl wheelbipe pause <session>`，等待训练线程在更新边界确认；继续使用 `trainctl wheelbipe resume <session>`。原 PID、GPU、Adam、rollout、仿真和随机状态保留。release 是另一个保存退出并释放 GPU 的操作，冷恢复会重置物理回合，不能当作原进程暂停验证。
+
+当前合同记录了第一步性能调整：Kaiser 2048 env 的 50 更新测量中，V8 后 30 更新均值 17.813 秒，原 1.2 m 球区 V9 为 27.685 秒（1.554 倍），超过 1.35 倍门槛，因此按预先约定缩小训练球区。通过门槛前不启动正式 20000 更新会话；任何后续调整继续写入合同的 performance_adjustments。

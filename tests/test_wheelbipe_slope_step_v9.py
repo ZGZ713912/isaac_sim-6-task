@@ -226,7 +226,8 @@ def test_ball_layouts_coverage_parking_and_no_overlap():
     from wheeled_tasks.wheelbipe_port.ball_field import make_layouts,ball_count,parked_positions
     cfg = specification("foundation-jump-v9")["balls"]
     layouts = make_layouts(cfg,13)
-    assert layouts.shape == (16,1904,2)
+    assert layouts.shape == (16,ball_count(cfg),2)
+    assert ball_count(cfg) == math.ceil(.30*cfg["patch_side_m"]**2/(math.pi*.0085**2))
     for points in layouts:
         distances,_ = cKDTree(points).query(points,k=2)
         assert distances[:,1].min() >= .01749
