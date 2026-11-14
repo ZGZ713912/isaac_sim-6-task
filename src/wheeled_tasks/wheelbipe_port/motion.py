@@ -111,6 +111,9 @@ def actor_from_state_dict(state, actor_dim, device="cpu"):
     """Refuse incompatible history ABIs instead of padding an older actor."""
     if any("obs_normalizer" in key for key in state):
         raise ValueError("This actor contract requires the original non-normalized sensor frames")
+    expected = {f"actor.{i*2}.{suffix}" for i in range(4) for suffix in ("weight","bias")}
+    if {key for key in state if key.startswith("actor.")} != expected:
+        raise ValueError("Actor must contain exactly four Linear layers with ELU activations")
     layers = []
     for i, (ni, no) in enumerate(((actor_dim, 256), (256, 128), (128, 64), (64, 6))):
         weight, bias = state[f"actor.{i*2}.weight"], state[f"actor.{i*2}.bias"]

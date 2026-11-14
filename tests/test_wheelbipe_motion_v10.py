@@ -132,6 +132,13 @@ def test_old_actor_cannot_be_padded_into_v10_and_new_actor_parity_is_exact():
     torch.testing.assert_close(actor(sample),model(sample),rtol=0.,atol=0.)
 
 
+def test_actor_export_refuses_extra_layers_instead_of_silently_truncating_them():
+    _,state=state_dict(175)
+    state["actor.8.weight"]=torch.eye(6)
+    state["actor.8.bias"]=torch.zeros(6)
+    with pytest.raises(ValueError,match="exactly four"):actor_from_state_dict(state,175)
+
+
 def test_motion_grid_contains_matched_forward_reverse_zero_and_exact_heights():
     spec=specification("foundation-jump-v10")
     grid=scenario_grid("motion")

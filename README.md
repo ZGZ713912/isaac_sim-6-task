@@ -5,6 +5,9 @@
 
 轮腿机器人强化学习训练、闭链机构建模与仿真验证。
 
+WheelBipe 新版本入口：[V10 前后速度跟踪与驻停](docs/WHEELBIPE_MOTION_TRACKING.md)。
+`foundation-jump-v10` 基于 [V9 地形课程](docs/WHEELBIPE_SLOPE_STEP_DOWN.md)，使用 175D 传感器历史 actor、78D critic 和 6D 动作；正式训练与行为验收分开进行。
+
 ## 连杆与气簧建模工具
 
 已将URDF审计、网格归属清理、四杆闭合、气簧移动副、力曲线拟合、动力验证和打包整理为
