@@ -18,8 +18,9 @@ PROFILE_PATHS = {"foundation-v1": PROFILE_PATH,
                  "foundation-jump-v6": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v6.json"),
                  "foundation-jump-v7": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v7.json"),
                  "foundation-jump-v8": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v8.json"),
-                 "foundation-jump-v9": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v9.json")}
-SCALABLE = ("foundation-jump-v4", "foundation-jump-v5", "foundation-jump-v6", "foundation-jump-v7", "foundation-jump-v8", "foundation-jump-v9")
+                 "foundation-jump-v9": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v9.json"),
+                 "foundation-jump-v10": PROFILE_PATH.with_name("wheelbipe_foundation_jump_v10.json")}
+SCALABLE = ("foundation-jump-v4", "foundation-jump-v5", "foundation-jump-v6", "foundation-jump-v7", "foundation-jump-v8", "foundation-jump-v9", "foundation-jump-v10")
 
 
 def solver_settings(spec, *, solver_type=None, position_iterations=None, velocity_iterations=None,
@@ -42,7 +43,7 @@ def specification(name="foundation-v1", course_updates=None):
     if course_updates is None:
         return spec
     if name not in SCALABLE or type(course_updates) is not int or course_updates <= 0:
-        raise ValueError("Course scaling requires foundation-jump-v4..v9 and a positive update budget")
+        raise ValueError("Course scaling requires foundation-jump-v4..v10 and a positive update budget")
     original = spec["total_updates"]
     scale = lambda update: round(update*course_updates/original)
     for row in spec["phases"]:
@@ -142,6 +143,7 @@ def configure_profile(cfg, name, *, course_updates=None):
     cfg.port_behavior_auto_exit_enabled = False
     cfg.port_real2sim = None
     cfg.port_ppo_overrides = {}
+    cfg.port_motion = None
     if name == "legacy":
         if course_updates is not None:
             raise ValueError("Legacy training does not support course scaling")
@@ -188,6 +190,14 @@ def configure_profile(cfg, name, *, course_updates=None):
         cfg.port_mixed_spec = spec
         cfg.rewards.update({key: 1. for key in reward_names(spec)})
         cfg.rewards.update(spec.get("terrain_reward_weights", {}))
+        if "motion" in spec:
+            from .motion import observation_contract
+            cfg.port_motion = deepcopy(spec["motion"])
+            cfg.rewards.update(spec["motion_reward_weights"])
+            cfg.observation_space = observation_contract(spec)["actor_dim"]
+            # The source's auxiliary policy_hist remains one frame. The
+            # adapter owns the tick-aware history returned as policy below.
+            cfg.use_frame_stack = False
         if "balls" in spec and hasattr(cfg, "sim"):
             for key, value in spec["balls"]["physx_buffers"].items():
                 setattr(cfg.sim.physx, key, value)

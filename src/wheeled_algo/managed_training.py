@@ -138,7 +138,8 @@ class WheelbipeSession(ManagedSession):
         controller_init.write_text("")
         pins.append(file_pin(controller_init))
         spec = dict(protocol=PROTOCOL, kind=KIND, name=name or root.name,
-                    architecture="Wheelbipe35->6 / RSL-PPO", source=str(source), script=str(script),
+                    architecture=("Wheelbipe175->6 / RSL-PPO" if _option(arguments,"--training-profile") == "foundation-jump-v10"
+                                  else "Wheelbipe35->6 / RSL-PPO"), source=str(source), script=str(script),
                     python=executable, supervisor_python=sys.executable,
                     training_args=arguments, updates=int(updates), num_envs=int(envs), seed=int(seed),
                     device=_option(arguments, "--device", "cuda:0"), pins=pins, source_manifests=manifests,

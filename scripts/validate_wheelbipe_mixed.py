@@ -26,7 +26,7 @@ def main():
     p.add_argument("--motion-update-offset", type=int, default=0)
     p.add_argument("--randomization-profile", default="nominal")
     p.add_argument("--randomization-strength", type=float, default=0.)
-    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"), default="foundation-jump-v1")
+    p.add_argument("--training-profile", choices=("foundation-jump-v1", "foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9","foundation-jump-v10"), default="foundation-jump-v1")
     p.add_argument("--leg-kp",type=float,default=None)
     p.add_argument("--leg-kd",type=float,default=None)
     p.add_argument("--solver-type",choices=("tgs","pgs"),default=None)
@@ -120,15 +120,9 @@ def main():
             from wheeled_tasks.wheelbipe_port.scenario_evaluation import ScenarioRecorder
             recorder = ScenarioRecorder(env)
         state = torch.load(a.checkpoint, map_location=env.device, weights_only=False)["model_state_dict"]
-        layers = []
-        for i, (ni, no) in enumerate(((35, 256), (256, 128), (128, 64), (64, 6))):
-            layer = torch.nn.Linear(ni, no, device=env.device)
-            layer.weight.data.copy_(state[f"actor.{i*2}.weight"])
-            layer.bias.data.copy_(state[f"actor.{i*2}.bias"])
-            layers.append(layer)
-            if i < 3:
-                layers.append(torch.nn.ELU())
-        actor = torch.nn.Sequential(*layers).eval()
+        from wheeled_tasks.wheelbipe_port.motion import observation_contract,actor_from_state_dict
+        observation_abi = observation_contract(cfg.port_mixed_spec)
+        actor = actor_from_state_dict(state,observation_abi["actor_dim"],env.device)
         writer = SummaryWriter(str(a.output/"events"))
         expected = quota_counts(a.num_envs, cfg.port_mixed_spec)
         counts = {name: int(env.task_schedule.mask(name).sum()) for name in env.task_schedule.tasks}
@@ -190,7 +184,8 @@ def main():
         with torch.inference_mode():
             obs, _ = env.reset()
             receipt["observation_shapes"] = {k: list(v.shape) for k, v in obs.items()}
-            if obs["policy"].shape != (a.num_envs, 35) or obs["critic"].shape != (a.num_envs, 78):
+            receipt["observation_contract"] = observation_abi
+            if obs["policy"].shape != (a.num_envs, observation_abi["actor_dim"]) or obs["critic"].shape != (a.num_envs, 78):
                 raise ValueError("Actor/critic ABI changed")
             if env.terrain_objectives is not None:
                 receipt["ball_field_initial"] = env.ball_field.diagnostics(env.terrain.env_origins)

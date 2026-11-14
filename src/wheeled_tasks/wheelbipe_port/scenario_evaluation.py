@@ -37,6 +37,10 @@ def scenario_grid(suite, *, update=20000):
     elif suite == "balls":
         for friction,mode in itertools.product((.2,.35,.5),("stand","height","spin80","spin100","shuttle03","shuttle06","brake")):
             add(suite,"balls",friction=friction,mode=mode,coverage=.3,height=.305)
+    elif suite == "motion":
+        for height,speed in itertools.product((.23,.305,.42),(0.,-.05,.05,-.1,.1,-.25,.25,-.5,.5,-1.,1.,-2.7,2.7)):
+            task = "forward" if speed > 0. else "reverse" if speed < 0. else "stand"
+            add(task,task,command=[speed,0.,0.],height=height,motion_probe=True)
     elif suite == "regression":
         for kind,task,cmd in (("stand","stand",[0,0,0]),("forward","forward",[1,0,0]),
                 ("reverse","reverse",[-1,0,0]),("spin","spin",[0,0,100*math.pi/30]),("jump","jump",None)):
@@ -67,6 +71,8 @@ def scenario_override(spec, cell, target_envs):
     count = target_envs+len(spec["tasks"])-1
     patch = dict(task_fractions={name:(target_envs if name == task else 1)/count for name in spec["tasks"]})
     duration = 8. if task in ("slope","bump") else 6.
+    if cell.get("motion_probe"):
+        duration = 10.
     if task == "balls": duration = 10. if cell["mode"] in ("stand","height") else (7. if cell["mode"].startswith("spin") else 6.)
     evaluation = dict(target=task,duration_s=duration,cell=cell,
         start_s=1.5 if cell["kind"] == "slope_spin" else .3,
@@ -128,7 +134,8 @@ class ScenarioRecorder:
         self.tail_valid = torch.zeros_like(self.valid)
         self.values = {key:torch.zeros(n,device=d) for key in ("samples","roll_square","pitch_square","max_roll_deg","max_pitch_deg",
             "over3","over6","radius_max_m","speed_error_sum","rpm_sum","tail_samples","tail_distance_m","base_contact",
-            "strip_success","strip_failure","height_dev_max_m","slip_sum","post_landing_slide_m")}
+            "strip_success","strip_failure","height_dev_max_m","slip_sum","post_landing_slide_m",
+            "speed_signed_error_sum","speed_actual_sum","speed_command_sum","wrong_direction_samples")}
         self.landing_xy = torch.zeros_like(self.anchor)
         self.slide_seen = torch.zeros_like(self.valid)
         self.values["speed_ratio_min"] = torch.ones(n,device=d)
@@ -155,6 +162,10 @@ class ScenarioRecorder:
         v["over3"] += (tilt > 3.) & active; v["over6"] += (tilt > 6.) & active
         v["radius_max_m"] = torch.maximum(v["radius_max_m"],(xy-self.anchor).norm(dim=-1)*active)
         v["speed_error_sum"] += (speed-e.command[:,0]).abs()*active
+        v["speed_signed_error_sum"] += (speed-e.command[:,0])*active
+        v["speed_actual_sum"] += speed*active
+        v["speed_command_sum"] += e.command[:,0]*active
+        v["wrong_direction_samples"] += (speed*e.command[:,0] < 0.)*active
         moving = active & (e.command[:,0].abs() > .01)
         ratio = speed/e.command[:,0].where(e.command[:,0].abs() > .01,torch.ones_like(speed))
         v["speed_ratio_min"] = torch.where(moving,torch.minimum(v["speed_ratio_min"],ratio),v["speed_ratio_min"])
@@ -226,6 +237,9 @@ class ScenarioRecorder:
             roll_max_deg=maximum("max_roll_deg"),pitch_max_deg=maximum("max_pitch_deg"),
             tilt_over_3deg_fraction=mean_sum("over3"),tilt_over_6deg_fraction=mean_sum("over6"),
             radius_max_m=maximum("radius_max_m"),speed_error_mean_m_s=mean_sum("speed_error_sum"),
+            speed_signed_error_mean_m_s=mean_sum("speed_signed_error_sum"),
+            speed_actual_mean_m_s=mean_sum("speed_actual_sum"),speed_command_mean_m_s=mean_sum("speed_command_sum"),
+            wrong_direction_fraction=mean_sum("wrong_direction_samples"),
             rpm_abs_mean=mean_sum("rpm_sum"),rpm_tail_min=minimum("tail_rpm_min"),
             drift_tail_m_s=max((r["tail_distance_m"]/max(r["tail_samples"]*self.env.step_dt,self.env.step_dt) for r in rows),default=None),
             height_dev_max_m=maximum("height_dev_max_m"),speed_ratio_min=minimum("speed_ratio_min"),

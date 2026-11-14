@@ -25,7 +25,7 @@ def main():
     p.add_argument("--num-envs", type=int, default=32)
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--seed", type=int, default=111)
-    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"),default="legacy")
+    p.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9","foundation-jump-v10"),default="legacy")
     p.add_argument("--control", choices=("actor", "wheel-pulse"), default="actor")
     p.add_argument("--gas-feedforward", choices=("source", "disabled"), default="source",
         help="Isolated port-only control intervention; keeps physical gas springs unchanged")
@@ -139,15 +139,10 @@ def main():
             state = torch.load(a.checkpoint, map_location=env.device, weights_only=False)["model_state_dict"]
             if any("obs_normalizer" in k for k in state):
                 raise ValueError("This audit expects the original non-normalized actor ABI")
-            layers = []
-            for i, (ni, no) in enumerate(((35, 256), (256, 128), (128, 64), (64, 6))):
-                layer = torch.nn.Linear(ni, no, device=env.device)
-                layer.weight.data.copy_(state[f"actor.{i*2}.weight"])
-                layer.bias.data.copy_(state[f"actor.{i*2}.bias"])
-                layers.append(layer)
-                if i < 3:
-                    layers.append(torch.nn.ELU())
-            actor = torch.nn.Sequential(*layers).eval()
+            from wheeled_tasks.wheelbipe_port.motion import observation_contract,actor_from_state_dict
+            observation_abi = observation_contract(getattr(cfg,"port_mixed_spec",None))
+            actor = actor_from_state_dict(state,observation_abi["actor_dim"],env.device)
+            receipt["observation_contract"] = observation_abi
             receipt["checkpoint_sha256"] = hashlib.sha256(a.checkpoint.read_bytes()).hexdigest()
         writer = SummaryWriter(str(a.output / "events"))
         receipt.update(status="sampling", actor_joint_order=[env.robot.joint_names[i] for i in env._actuate_idx],

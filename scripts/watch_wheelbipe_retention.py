@@ -42,6 +42,7 @@ def main():
     p.add_argument("--session",required=True)
     p.add_argument("--output",type=Path,required=True)
     p.add_argument("--python",default=sys.executable)
+    p.add_argument("--training-profile",choices=("foundation-jump-v9","foundation-jump-v10"),default="foundation-jump-v9")
     p.add_argument("--poll-seconds",type=float,default=45.)
     p.add_argument("--once",action="store_true")
     a = p.parse_args()
@@ -58,7 +59,7 @@ def main():
                 if hashlib.sha256(checkpoint.read_bytes()).hexdigest() != row["sha256"]:
                     raise ValueError("Fetched review checkpoint SHA-256 changed")
                 cmd = [a.python,"-u",str(ROOT/"scripts/evaluate_wheelbipe_scenarios.py"),"--suite","retention",
-                    "--checkpoint",str(checkpoint),"--output",str(out),"--training-profile","foundation-jump-v9",
+                    "--checkpoint",str(checkpoint),"--output",str(out),"--training-profile",a.training_profile,
                     "--course-update",str(row["update"]),"--num-envs","16","--episodes","16",
                     "--seeds","173","293","--retention-csv",str(a.output/"retention.csv")]
                 with (a.output/f"review_{row['update']:08d}.log").open("w") as log:

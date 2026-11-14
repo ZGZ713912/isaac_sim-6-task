@@ -49,7 +49,7 @@ def main():
     parser.add_argument("--steps",type=int,default=500)
     parser.add_argument("--randomization-profile",default="requested")
     parser.add_argument("--randomization-strength",type=float,default=1.)
-    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"),default="legacy")
+    parser.add_argument("--training-profile",choices=("legacy","foundation-v1","foundation-v2","foundation-jump-v1","foundation-jump-v2","foundation-jump-v3","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9","foundation-jump-v10"),default="legacy")
     parser.add_argument("--gas-feedforward",action=argparse.BooleanOptionalAction,default=None,
         help="Explicitly override cancellation of the physical spring torque; the spring itself is retained")
     parser.add_argument("--solver-type",choices=("tgs","pgs"),default=None,
@@ -217,7 +217,7 @@ def main():
             cfg.port_skip_balls_diagnostic = args.benchmark_without_balls
             cfg.port_benchmark_full_ball_coverage = True
         if args.training_profile in ("foundation-v1","foundation-v2","foundation-jump-v1",
-                                     "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9"):
+                                     "foundation-jump-v2","foundation-jump-v4","foundation-jump-v5","foundation-jump-v6","foundation-jump-v7","foundation-jump-v8","foundation-jump-v9","foundation-jump-v10"):
             apply_phase(cfg,cfg.port_start_completed_updates+args.motion_update_offset)
         if args.gas_feedforward is not None:
             cfg.port_gas_feedforward = args.gas_feedforward
@@ -242,7 +242,9 @@ def main():
         wrapped = RslRlVecEnvWrapper(env)
         observations = wrapped.get_observations()
         dimensions = {name:list(value.shape) for name,value in observations.items()}
-        if dimensions["policy"][-1]!=35 or dimensions["critic"][-1]!=78:
+        from wheeled_tasks.wheelbipe_port.motion import observation_contract
+        observation_abi = observation_contract(getattr(cfg,"port_mixed_spec",None))
+        if dimensions["policy"][-1]!=observation_abi["actor_dim"] or dimensions["critic"][-1]!=observation_abi["critic_dim"]:
             raise ValueError(f"Reference observation dimensions differ: {dimensions}")
         leg_ids = [env.motor_ids[i] for i in (0,1,3,4)]
         leg_armatures = torch.as_tensor(env.robot.root_physx_view.get_dof_armatures())[:,leg_ids]
@@ -250,7 +252,8 @@ def main():
                              else env.leg_armature.detach().cpu().to(leg_armatures.dtype))
         if not torch.allclose(leg_armatures,expected_armature,atol=1.e-7,rtol=0.):
             raise ValueError("Native leg armature differs from the requested per-axis inertia")
-        native = dict(actor_dim=35,critic_dim=78,action_dim=6,observation_shapes=dimensions,
+        native = dict(actor_dim=observation_abi["actor_dim"],critic_dim=78,action_dim=6,observation_shapes=dimensions,
+            observation_contract=observation_abi,
             cad_joint_names=env.robot.cad_joint_names,policy_joint_names=env.robot.joint_names,
             cad_body_names=env.robot.cad_body_names,policy_body_names=env.robot.body_names,
             active_joint_order=[env.robot.cad_joint_names[i] for i in env._actuate_idx],

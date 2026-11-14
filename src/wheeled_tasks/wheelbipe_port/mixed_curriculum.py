@@ -31,7 +31,7 @@ def tasks_for(spec):
 def reward_names(spec):
     sequence = ("jump_release_energy", "jump_clearance") if spec["jump"].get("reward_version", 1) >= 5 else ()
     return (REWARD_NAMES+sequence+(PLATFORM_REWARD_NAMES if "platform" in tasks_for(spec) else ())
-        +tuple(spec.get("terrain_reward_weights", {})))
+        +tuple(spec.get("terrain_reward_weights", {}))+tuple(spec.get("motion_reward_weights", {})))
 
 
 def _validate_extensions(spec):
@@ -107,6 +107,9 @@ def validate(spec):
     if "slope" in tasks:
         from .terrain_curriculum import validate_terrain
         validate_terrain(spec)
+    if "motion" in spec:
+        from .motion import validate_motion
+        validate_motion(spec)
     return spec
 
 

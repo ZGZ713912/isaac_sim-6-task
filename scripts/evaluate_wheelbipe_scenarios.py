@@ -32,7 +32,7 @@ def scenario(rise, speed, over, count):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--suite",choices=("platform","slope_spin","slope_still","step_down","bump","slope_jump","balls","regression","retention"),default="platform")
+    p.add_argument("--suite",choices=("platform","slope_spin","slope_still","step_down","bump","slope_jump","balls","motion","regression","retention"),default="platform")
     p.add_argument("--course-update",type=int,default=20000)
     p.add_argument("--episodes",type=int,default=64)
     p.add_argument("--seeds",type=int,nargs="+",default=[173,293])
@@ -48,7 +48,7 @@ def main():
     p.add_argument("--rise", type=float, default=.2)
     p.add_argument("--speeds", type=float, nargs="+", default=[.5, .75, 1.])
     p.add_argument("--randomization-strength", type=float, default=0.)
-    p.add_argument("--training-profile", choices=("foundation-jump-v7", "foundation-jump-v8","foundation-jump-v9"), default="foundation-jump-v7")
+    p.add_argument("--training-profile", choices=("foundation-jump-v7", "foundation-jump-v8","foundation-jump-v9","foundation-jump-v10"), default="foundation-jump-v7")
     p.add_argument("--python", default=sys.executable)
     a = p.parse_args()
     if a.suite != "platform":

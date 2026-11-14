@@ -18,6 +18,7 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
         self.terrain_objectives = self.ball_field = None
         self._mixed_observed_tick = -1
         self._mixed_interval_age = None
+        self.motion_history = None
         super().__init__(*args, **kwargs)
         spec = self.cfg.port_mixed_spec
         # Platform lanes are allocated while the scene is built; reuse that
@@ -238,6 +239,31 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
     def _reset_idx(self, env_ids):
         super()._reset_idx(env_ids)
         self._mixed_commands()
+        if self.motion_history is not None:
+            self.motion_history.reset(env_ids)
+
+    def _get_observations(self):
+        observations = super()._get_observations()
+        cfg = getattr(self.cfg, "port_motion", None)
+        if cfg is not None:
+            from .motion import PolicyHistory
+            if self.motion_history is None:
+                self.motion_history = PolicyHistory(self.num_envs,cfg["history_frames"],cfg["frame_dim"],self.device)
+            observations["policy"] = self.motion_history.update(observations["policy"],self.common_step_counter)
+        return observations
+
+    def _motion_state(self):
+        data = self.robot.data
+        heading = quat_apply(data.root_quat_w,data.root_pos_w.new_tensor([1.,0.,0.]).expand(self.num_envs,-1))[:,:2]
+        heading = heading/heading.norm(dim=-1,keepdim=True).clamp_min(1.e-6)
+        speed = (data.root_lin_vel_w[:,:2]*heading).sum(-1)
+        age = self._mixed_age() if self._mixed_interval_age is None else self._mixed_interval_age
+        eligible = age >= self.cfg.port_motion["reset_grace_s"]
+        if self._mixed_enabled():
+            eligible &= ~self.task_schedule.reference(age)["active"]
+            if self.terrain_objectives is not None:
+                eligible &= ~self.terrain_objectives.step_down.interval_window
+        return speed,eligible
 
     def _pre_physics_step(self, actions):
         if self._mixed_enabled():
@@ -351,6 +377,10 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
 
     def _postprocess_reward_terms(self, terms):
         terms = super()._postprocess_reward_terms(terms)
+        if getattr(self.cfg,"port_motion",None) is not None:
+            from .motion import replace_motion_terms
+            speed,eligible = self._motion_state()
+            terms = replace_motion_terms(terms,self.command[:,0],speed,eligible,self.cfg.port_motion)
         if not self._mixed_enabled() or self._mixed_interval_age is None:
             return terms
         age = self._mixed_interval_age
@@ -386,6 +416,17 @@ class WheelbipeMixedEnv(TerrainEnvironmentMixin, WheelbipePortEnv):
 
     def _get_rewards(self):
         rewards = super()._get_rewards()
+        if getattr(self.cfg,"port_motion",None) is not None:
+            from .motion import motion_statistics
+            speed,eligible = self._motion_state()
+            eligible &= ~self._numerical_safety_reset_buf
+            sign = self._wheel_forward_sign
+            wheels = [self.motor_ids[i] for i in (2,5)]
+            scale = self.cfg.port_mixed_spec["jump"]["wheel_radius_m"]
+            target = (self.wheel_actions[:,self.wheel_target_order]*sign).mean(-1)*scale
+            measured = (self.robot.data.joint_vel[:,wheels]*sign).mean(-1)*scale
+            self.extras.setdefault("log",{}).update(motion_statistics(self.command[:,0],speed,
+                self.height_cmd,eligible,target,measured))
         if self._mixed_enabled():
             logs = self.extras.setdefault("log", {})
             if self.terrain_objectives is not None:
